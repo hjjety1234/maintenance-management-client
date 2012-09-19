@@ -183,11 +183,13 @@
         local noticeTitleSprite = Sprite:findChild(item, 'noticeTitle')
         local noticeDateSprite = Sprite:findChild(item, 'noticeDate')
         -- 设置列表项的内容
-        if (jsonDecodedNotice ~= nil) then
+        if (jsonDecodedNotice ~= nil and jsonDecodedNotice['value'] ~= nil) then
             local value = jsonDecodedNotice['value'][index]
-            Sprite:setProperty(noticeIdSprite, 'text', value["ID"])
-            Sprite:setProperty(noticeTitleSprite, 'text', value["TITLE"])
-            Sprite:setProperty(noticeDateSprite, 'text', string.sub(value["ISSUEDATE"], 1, 10))
+            if value ~= nil then
+                Sprite:setProperty(noticeIdSprite, 'text', value["ID"])
+                Sprite:setProperty(noticeTitleSprite, 'text', value["TITLE"])
+                Sprite:setProperty(noticeDateSprite, 'text', string.sub(value["ISSUEDATE"], 1, 10))
+            end
         end
     end
     -- @brief 返回按钮处理
