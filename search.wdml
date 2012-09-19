@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<shadow rect="0,0,480,800" color="#e8e8e8" alpha="255"
+			extendstyle="1111" />
+		<node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+			<image name="title" rect="0,0,480,66" border="false"
+				src="file://image/title_bg.png" style="autosize" extendstyle="1111">
+
+				<label rect="0,0,480,66" text="信息查询" color="#ffffff"
+					v-align="center" h-align="center" font-size="28" extendstyle="1111" />
+			</image>
+
+			<button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
+				OnSelect="doBack" extendstyle="1111">
+				<image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
+					style="autosize" extendstyle="1111">
+				</image>
+				<image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
+					style="autosize" extendstyle="1111">
+				</image>
+				<label rect="15,0,60,45" text="首页" color="#ffffff"
+					extendstyle="1111" style="autosize" h-align="center" v-align="center"
+					font-size="24"></label>
+			</button>
+		</node>
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+			<node rect="0,66,480,60" extendstyle="1111">
+				<image name="Image1" rect="0,0,480,66" src="file://image/search_bg.png"
+					extendstyle="1111" style="autosize">
+				</image>
+				<image name="Image1" rect="15,10,346,46" src="file://image/search_input.png"
+					extendstyle="1111" style="autosize">
+				</image>
+				<button name="appBtn" rect="375,10,92,46" style="autosize"
+					normal="src:file://image/search_btn.png" sel="src:file://image/search_btn_hover.png"
+					OnSelect="searchOnSelect" extendstyle="1111" />
+				<edit name="etSearch" rect="60,10,281,46" font-size="20"
+					v-center="true" extendstyle="1111" text="" max-size="6"></edit>
+			</node>
+			<node rect="0,132,480,650" extendstyle="1111">
+				<listview name="sampleList" rect="0,0,480,650" border="false"
+					limit="false">
+				</listview>
+			</node>
+
+			<node name="listitem" visible="false" enable="false" active="false"
+				extendstyle="1011" rect="0,0,480,100">
+				<shadow name="listItemBg" rect="0,0,480,100" color="#e8e8e8"
+					alpha="255" extendstyle="1111" />
+				<button name="btnname" rect="0,0,480,100" OnSelect="itemOnSelect"
+					extendstyle="1111">
+					<label rect="10,5,80,30" text="名称：" color="#0" font-size="20" h-align="left"
+						v-align="center" extendstyle="1111" />
+					<label name="textTitle" rect="90,5,370,30" text="" color="#0" font-size="20"
+						h-align="left" v-align="center" extendstyle="1111" />
+					<label rect="10,35,80,30" text="位置：" color="#0" font-size="20" h-align="left"
+						v-align="center" extendstyle="1111" />
+					<label name="textLoc" rect="90,35,370,30" text="" color="#0" font-size="20"
+						h-align="left" v-align="center" extendstyle="1111" />
+					<label rect="10,65,80,30" text="站点：" color="#0" font-size="20" h-align="left"
+						v-align="center" extendstyle="1111" />
+					<label name="textPoint" rect="90,65,370,30" text="" color="#0" font-size="20"
+						h-align="left" v-align="center" extendstyle="1111" />
+				</button>
+			</node>
+		</node>
+	</body>
+    <![CDATA[
+
+    require 'com_wondertek_dw.common.framework'
+    local rootSprite
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        doSearch('')
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if msg == 101 then
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    function doBack()
+        Scene:back()
+    end
+    function searchOnSelect(sprite)
+        local searchKey = Sprite:getText(Sprite:findChild(Sprite:getParent(sprite), 'etSearch'))
+        if searchKey == nil or searchKey == '' then
+            return
+        end
+        doSearch(searchKey)
+    end
+    function doSearch(content)
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list, 1,1)
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), 2, 'loadListItem')
+        ListView:adjust(list)
+    end
+    function loadListItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 100)
+        local listItemBg = Sprite:findChild(item, 'listItemBg')
+        Sprite:setRect(listItemBg, 0, 0, 480, 100)
+        if index / 2 > 0 then
+            Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
+            else
+            Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
+        end
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        local textTitle = Sprite:findChild(item, 'textTitle')
+        local textLoc = Sprite:findChild(item, 'textLoc')
+        local textPoint = Sprite:findChild(item, 'textPoint')
+        Sprite:setProperty(textTitle, 'text', '抢修')
+        Sprite:setProperty(textLoc, 'text', '合肥火车站')
+        Sprite:setProperty(textPoint, 'text', '火车站')
+    end
+    function itemOnSelect(sprite)
+        local regHandle = Reg:create('search')
+        Reg:setString(regHandle, 'titleName', '火车站')
+        Scene:setReturn(Alias.search, Alias.searchDetail)
+        Scene:go(Alias.searchDetail)
+    end
+]]>
+</root>

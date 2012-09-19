@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<shadow rect="0,0,480,800" color="#e8e8e8" alpha="255"
+			extendstyle="1111" />
+		<node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+			<image name="title" rect="0,0,480,66" border="false"
+				src="file://image/title_bg.png" style="autosize" extendstyle="1111">
+				<label rect="0,0,480,66" text="已传隐患" color="#ffffff" v-align="center"
+					h-align="center" font-size="28" extendstyle="1111" />
+			</image>
+
+			<button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
+				OnSelect="doBack" extendstyle="1111">
+				<image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
+					style="autosize" extendstyle="1111">
+				</image>
+				<image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
+					style="autosize" extendstyle="1111">
+				</image>
+				<label rect="15,0,60,45" text="首页" color="#ffffff"
+					extendstyle="1111" style="autosize" h-align="center" v-align="center"
+					font-size="24"></label>
+			</button>
+			<button name="btnForget" rect="387,4,79,56" text="添加" color="#ffffff"
+				extendstyle="1111" OnSelect="addOnSelect"
+				normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+				sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+				font-size="24" />
+		</node>
+		<node name="mainNode" rect="0,0,480,734" enable="true" active="true"
+			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+			<node name="tabNode" rect="0,66,480,60" extendstyle="1111">
+				<image name="title" rect="0,0,480,60" border="false"
+					src="file://image/tab_n.png" style="autosize" extendstyle="1111"></image>
+				<button name="btnTab1" rect="0,0,240,60" text="" color="#ffffff"
+					extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
+					<image name="tabBg" rect="0,0,240,60" border="false" src=""
+						style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111"></image>
+					<label rect="0,0,240,60" text="暂存隐患" color="#ffffff" v-align="center"
+						h-align="center" font-size="22" extendstyle="1111" />
+				</button>
+				<button name="btnTab2" rect="240,0,240,60" text="" color="#ffffff"
+					extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
+					<image name="tabBg" rect="0,0,240,60" border="false" src=""
+						style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111"></image>
+					<label rect="0,0,240,60" text="已报隐患" color="#ffffff" v-align="center"
+						h-align="center" font-size="22" extendstyle="1111" />
+				</button>
+			</node>
+			<node name="listNode" rect="0,126,480,645" extendstyle="1111">
+				<listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
+			</node>
+            <node name="listitem" visible="false" enable="false" active="false"
+                extendstyle="1011" rect="0,200,480,100">
+                <shadow name="listItemBg" rect="0,0,480,100" color="#e8e8e8"
+                    alpha="255" extendstyle="1111" />
+                <button name="btnname" rect="0,0,480,100" OnSelect="itemOnSelect"
+                    extendstyle="1111">
+                    <label rect="10,5,120,30" text="故障工单号：" color="#0"
+                        font-size="18" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" />
+                    <label name="textNum" rect="130,5,340,30" text="" color="#0"
+                        font-size="18" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" />
+                    <label rect="10,35,120,30" text="工单&nbsp;&nbsp;&nbsp;&nbsp;主题：" color="#0" font-size="18"
+                        h-align="left" v-align="center" extendstyle="1111" border="false" />
+                    <label name="textTitle" rect="130,35,340,30" text="" color="#0"
+                        font-size="18" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" />
+                    <label name="textTime" rect="10,65,460,30" text="" color="#0"
+                        font-size="16" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" />
+                </button>
+            </node>
+		</node>
+	</body>
+    <![CDATA[
+
+    require 'com_wondertek_dw.common.framework'
+    local rootSprite
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), 2, 'loadListItem')
+        ListView:adjust(list)
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if msg == 101 then
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    function doBack()
+        Scene:back()
+    end
+    function addOnSelect(sprite)
+        Scene:setReturn(Alias.yinhuanList, Alias.yinhuanshangchuan)
+        Scene:go(Alias.yinhuanshangchuan)
+    end
+    function tabOnSelect(sprite)
+        local tabNode = Sprite:getParent(sprite)
+        local dataInfo = Sprite:getData(sprite)
+        local tab1 = Sprite:findChild(tabNode, 'btnTab1')
+        local tab2 = Sprite:findChild(tabNode, 'btnTab2')
+        Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_n.png')
+        Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_n.png')
+        Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_s.png')
+    end
+    function loadListItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 100)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        local listItemBg = Sprite:findChild(item, 'listItemBg')
+        Sprite:setRect(listItemBg, 0, 0, 480, 100)
+        if index / 2 > 0 then
+            Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
+            else
+            Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
+        end
+        local textNum = Sprite:findChild(item, 'textNum')
+        local textTitle = Sprite:findChild(item, 'textTitle')
+        local textTime = Sprite:findChild(item, 'textTime')
+        Sprite:setProperty(textNum, 'text', 'ID-051-20110516-0003(一级处理中)')
+        Sprite:setProperty(textTitle, 'text', '紧急需要换板卡')
+        Sprite:setProperty(textTime, 'text', '2012-09-15')
+    end
+    function itemOnSelect(sprite)
+        local tabNode = Sprite:getParent(sprite)
+        regHandle=Reg:create('daiban')
+        local textnum=Sprite:findChild(tabNode, 'textNum')
+        local text=Sprite:getText(textnum)
+        Reg:setString(regHandle,'id',text)
+        Scene:setReturn(Alias.yinhuanList, Alias.yinhuanshangchuan)
+        Scene:go(Alias.yinhuanshangchuan)
+    end
+]]>
+</root>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<shadow rect="0,0,480,800" color="#0" alpha="255" extendstyle="1111" />
+		<image name="image1" rect="0,0,480,800" border="false"
+			src="file://image/login_bg.jpg" style="autosize" extendstyle="1111" />
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+			<node name="node1" rect="0,263,480,47">
+				<image name="image2" rect="154,0,277,47" border="false"
+					src="file://image/input.png" style="autosize"></image>
+				<label name="label1" rect="0,0,152,47" border="false" text="用户名："
+					h-align="right" v-align="center" color="#ffffff" font-size="24"></label>
+				<edit name="edit" rect="161,0,265,47" border="false"
+					extendstyle="1111" v-center="true"></edit>
+			</node>
+			<node name="node1" rect="0,353,480,47">
+				<image name="image2" rect="154,0,277,47" border="false"
+					src="file://image/input.png" style="autosize"></image>
+				<label name="label1" rect="0,0,152,47" border="false" text="密  码："
+					h-align="right" v-align="center" color="#ffffff" font-size="24"></label>
+				<edit name="edit" rect="161,0,265,47" border="false"
+					extendstyle="1111" v-center="true"></edit>
+			</node>
+			<node name="node1" rect="-4,415,480,47">
+				<label name="label1" rect="200,0,152,47" border="false" text="记住密码"
+					h-align="center" v-align="center" color="#ffffff" font-size="24"></label>
+				<button name="" rect="155,7,33,34" border="true" text=""
+					color="#ffffff" OnSelect="" extendstyle="1111">
+					<image name="image3" rect="0,0,33,34" border="true"
+						src="file://image/form_psw_s.png" style="autosize" extendstyle="1111"></image>
+				</button>
+			</node>
+			<node name="node2" rect="0,506,480,50">
+				<button name="btnLogin" rect="60,0,150,50" text="登  录" color="#ffffff"
+					extendstyle="1111" OnSelect="loginOnSelect"
+					normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+					sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+					font-size="24" />
+				<button name="btnForget" rect="270,0,150,50" text="忘记密码"
+					color="#ffffff" extendstyle="1111" OnSelect="forgetOnSelect"
+					normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+					sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+					font-size="24" />
+			</node>
+		</node>
+	</body>
+    <![CDATA[
+
+    require 'com_wondertek_dw.common.framework'
+    local rootSprite
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if msg == 101 then
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    function loginOnSelect(sprite)
+        Scene:go(Alias.home)
+    end
+    function forgetOnSelect(sprite)
+        Scene:go(Alias.radioSample)
+    end
+]]>
+</root>
