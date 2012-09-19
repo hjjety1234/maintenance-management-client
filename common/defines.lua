@@ -37,4 +37,5 @@ Alias = {
     noticeDetail = 'MODULE:\\com_wondertek_dw\\noticeDetail.wdml', -- 公告详情
     cheliangguanli = 'MODULE:\\com_wondertek_dw\\cheliangguanli.wdml', -- 车辆管理
     cheliangxiangqing = 'MODULE:\\com_wondertek_dw\\cheliangxiangqing.wdml' -- 车辆详情
+    imageDetail = 'MODULE:\\com_wondertek_dw\\imageDetail.wdml', -- 图片详情
 }
