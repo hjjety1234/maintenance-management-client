@@ -45,7 +45,6 @@ public class ConnectionGeneral extends ConnectionImpl{
 	
 	private static boolean bDCSettingShowFlag	= false;
 	private static boolean bDCConnected		 = false;
-	private boolean m_bNetworkOpening = false;
 	
 	private static ArrayList<WapInfo> wapInfoList = new ArrayList<WapInfo>();
 	
@@ -455,7 +454,6 @@ public class ConnectionGeneral extends ConnectionImpl{
 							Util.Trace("Open APN failure...");
 							m_Device_APN_Proxy	= "";
 							m_Device_APN_Port	= "";
-							m_bNetworkOpening = false;
 							VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_InvalidAPN, 0);
 							return ;
 						}
@@ -467,7 +465,6 @@ public class ConnectionGeneral extends ConnectionImpl{
 						Util.Trace("Open APN successfully... 1");
 						m_Device_APN_Proxy	= TAG_TYPE_WAP_PROXY;
 						m_Device_APN_Port	= TAG_TYPE_WAP_PORT;
-						m_bNetworkOpening = false;
 						VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
 						Util.m_nNetwork_Connected_Type = Util.Network_Connected_WAP;
 						Util_WaitforConnConnected = false;
@@ -587,14 +584,9 @@ public class ConnectionGeneral extends ConnectionImpl{
 	}
 	
 	public boolean SetCurrentAPN(int id, boolean detectNetwork) {
-		
-		if(m_bNetworkOpening == true)
-			return true;
 		boolean res = false;
 		
 		Util.initPhoneManufaturer();
-
-		m_bNetworkOpening = true;
 
 		ContentResolver resolver = VenusApplication.getInstance().getContentResolver();
 		ContentValues values = new ContentValues();
