@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: hewu <hewu2008@gmail.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+
+		<!-- 设置背景 -->
+		<shadow rect="0,0,480,800" color="#ffffff" alpha="255"
+			extendstyle="1111" />
+
+		<!-- 设置头部 -->
+		<node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+			<image name="title" rect="0,0,480,66" border="false"
+				src="file://image/title_bg.png" style="autosize" extendstyle="1111">
+				<label rect="0,0,480,66" text="统计列表" color="#ffffff" v-align="center"
+					h-align="center" font-size="28" extendstyle="1111" />
+			</image>
+			<button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
+				OnSelect="doBack" extendstyle="1111">
+				<image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
+					style="autosize" extendstyle="1111">
+				</image>
+				<image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
+					style="autosize" extendstyle="1111">
+				</image>
+				<label rect="15,0,60,45" text="首页" color="#ffffff"
+					extendstyle="1111" style="autosize" h-align="center" v-align="center"
+					font-size="24"></label>
+			</button>
+		</node>
+
+		<!-- 筛选节点  -->
+<!--		<node name="filterNode" rect="0, 66, 480, 66" enable="true"-->
+<!--			active="true" extendstyle="1111">-->
+<!--			<node name="branchFilterNode" rect="0,0,240,66" enable="true"-->
+<!--				extendstyle="1111">-->
+<!--				<image rect="0,0,240,66" src="file://image/combobox1.png"-->
+<!--					extendstyle="1111" v-align="true">-->
+<!--				</image>-->
+<!--			</node>-->
+<!--		</node>-->
+
+		<!-- 主体节点 -->
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+
+			<!-- 列表 -->
+			<node name="listNode" rect="0,66,480,668" extendstyle="1111">
+				<listview name="sampleList" rect="0,0,480,734" extendstyle="1111" />
+			</node>
+
+			<!-- 列表项模板  -->
+			<node name="listitem" visible="false" enable="false" active="false"
+				extendstyle="1111" rect="0,66,480,80">
+				<label name='label1' rect="30,10,208,30" text="" color="#000000"
+					extendstyle="1111" h-align="left" v-align="center" font-size="28"
+					font-style="" font-family="微软雅黑"></label>
+				<shadow name="histogramImage" rect="30,40,400,30" auto-size="true"
+					style="center" color="#95caca" alpha="128"></shadow>
+			</node>
+		</node>
+	</body>
+    <![CDATA[
+
+    require 'com_wondertek_dw.common.framework'
+    local rootSprite
+    local branchCompanies = {{'合肥', 100},{'芜湖', 80}, {'安庆', 60},{'六安', 40}}
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), table.getn(branchCompanies), 'loadListItem')
+        ListView:adjust(list)
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if msg == 101 then
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    --@brief 加载车辆列表项
+    function loadListItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 80)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        local listItemBg = Sprite:findChild(item, 'listItemBg')
+        local itemLabel = Sprite:findChild(item, 'label1')
+        local bc = branchCompanies[index + 1]
+        local histogramImageSprite = Sprite:findChild(item, 'histogramImage')
+        local text = string.format('%s 巡检率 :%s%%',bc[1], bc[2])
+        Sprite:setProperty(itemLabel, "text", text)
+        x,y,width,height = Sprite:getRect(histogramImageSprite)
+        Sprite:setRect(histogramImageSprite, x, y, width * tonumber(bc[2])/100.0, height)
+    end
+    --@brief 列表项选择消息处理函数
+    function itemOnSelect(sprite)
+    end
+    --@brief 点击搜索按钮消息处理函数
+    function OnSearchButtonClicked(sprite)
+    end
+    --@brief 返回按钮消息处理函数
+    function doBack(sprite)
+        Scene:back()
+    end
+    function onchange()
+    end
+]]>
+</root>

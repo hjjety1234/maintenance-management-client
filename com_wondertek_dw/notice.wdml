@@ -102,10 +102,10 @@
 					<label name="noticeId" rect="0,0,20,65" border="false" text=""
 						h-align="right" v-align="center" color="#000000" font-size="15"
 						extendstyle="1111" visible="false"></label>
-					<scrolltext name="noticeTitle" rect="30,15,290,65"
+					<scrolltext name="noticeTitle" rect="30,15,280,65"
 						border="false" h-align="left" v-align="center" color="#000000"
 						text="" font-size="24" scroll="true" step="4" extendstyle="1111"></scrolltext>
-					<label name="noticeDate" rect="320,15,90,65" border="false"
+					<label name="noticeDate" rect="325,15,90,65" border="false"
 						text="" h-align="right" v-align="center" color="#000000"
 						font-size="15" extendstyle="1111"></label>
 
@@ -140,7 +140,7 @@
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
         rootSprite = sprite
-        requestNoticeList('notice', 101, 'xh', '', '1', '5')
+        requestNoticeList('notice', 101, 'adminhf', '', '1', '5')
     end
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
@@ -153,11 +153,12 @@
     function bodyOnPluginEvent(msg)
         if msg == 101 then
             jsonDecodedNotice = Http:jsonDecode('notice')
-            --Log:write('hewu:', jsonDecodedNotice)
-            local totalPage = tonumber(jsonDecodedNotice["totalpage"])
+            Log:write('hewu:', jsonDecodedNotice)
+            local curPagesize = table.getn(jsonDecodedNotice["value"])
+            Log:write('22222222222:', curPagesize)
             local list = Sprite:findChild(rootSprite, 'listView1')
             ListView:removeAllItems(list)
-            ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem1'), totalPage, 'loadListItem')
+            ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem1'), curPagesize, 'loadListItem')
             ListView:adjust(list)
             refresh(rootSprite)
             elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
@@ -186,9 +187,9 @@
         if (jsonDecodedNotice ~= nil and jsonDecodedNotice['value'] ~= nil) then
             local value = jsonDecodedNotice['value'][index]
             if value ~= nil then
-                Sprite:setProperty(noticeIdSprite, 'text', value["ID"])
-                Sprite:setProperty(noticeTitleSprite, 'text', value["TITLE"])
-                Sprite:setProperty(noticeDateSprite, 'text', string.sub(value["ISSUEDATE"], 1, 10))
+                Sprite:setProperty(noticeIdSprite, 'text', value["id"])
+                Sprite:setProperty(noticeTitleSprite, 'text', value["title"])
+                Sprite:setProperty(noticeDateSprite, 'text', string.sub(value["issuedate"], 1, 10))
             end
         end
     end

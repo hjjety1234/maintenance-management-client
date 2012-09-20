@@ -38,4 +38,5 @@ Alias = {
     cheliangguanli = 'MODULE:\\com_wondertek_dw\\cheliangguanli.wdml', -- 车辆管理
     cheliangxiangqing = 'MODULE:\\com_wondertek_dw\\cheliangxiangqing.wdml', -- 车辆详情
     imageDetail = 'MODULE:\\com_wondertek_dw\\imageDetail.wdml', -- 图片详情
+    tongjiliebiao = 'MODULE:\\com_wondertek_dw\\tongjiliebiao.wdml', -- 统计列表
 }
