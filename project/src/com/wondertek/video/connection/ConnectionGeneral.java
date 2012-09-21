@@ -26,7 +26,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 
 	public static final int APN_SWITCH_TYPE_STATIC		= 0;		//Just use the current APN configuration.
 	public static final int APN_SWITCH_TYPE_DYNAMIC		= 1;		//App will switch the APN to 'WAP' automatically.
-	public static int m_APN_Switch_Type					= APN_SWITCH_TYPE_STATIC;
+	public static int m_APN_Switch_Type					= APN_SWITCH_TYPE_DYNAMIC;
 	
 	private static int preApnId = -1;
 	private static int destApnId = -1;
