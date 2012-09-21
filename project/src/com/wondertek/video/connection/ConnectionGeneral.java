@@ -26,7 +26,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 
 	public static final int APN_SWITCH_TYPE_STATIC		= 0;		//Just use the current APN configuration.
 	public static final int APN_SWITCH_TYPE_DYNAMIC		= 1;		//App will switch the APN to 'WAP' automatically.
-	public static int m_APN_Switch_Type					= APN_SWITCH_TYPE_DYNAMIC;
+	public static int m_APN_Switch_Type					= APN_SWITCH_TYPE_STATIC;
 	
 	private static int preApnId = -1;
 	private static int destApnId = -1;
@@ -45,8 +45,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 	
 	private static boolean bDCSettingShowFlag	= false;
 	private static boolean bDCConnected		 = false;
-	
-	private static boolean bAPNIsRunning = false;
+	private boolean m_bNetworkOpening = false;
 	
 	private static ArrayList<WapInfo> wapInfoList = new ArrayList<WapInfo>();
 	
@@ -217,8 +216,6 @@ public class ConnectionGeneral extends ConnectionImpl{
 
 	//[_id, name, numeric, mcc, mnc, apn, user, server, password, proxy, port, mmsproxy, mmsport, mmsc, authtype, type, current, preset]
 	public void queryDefaultAPNId() {
-		String name		= "";
-		String apn		= "";
 		String proxy 	= "";
 		String port		= "";
 		String current	= "";
@@ -236,14 +233,6 @@ public class ConnectionGeneral extends ConnectionImpl{
 					if (TAG_ID.equals(columnIndex)) 
 					{
 						preApnId = Integer.parseInt(c.getString(i));
-					}
-					else if(TAG_NAME.equals(columnIndex))
-					{
-						name = c.getString(i);
-					}
-					else if(TAG_APN.equals(columnIndex))
-					{
-						apn = c.getString(i);
 					}
 					else if(TAG_PROXY.equals(columnIndex))
 					{
@@ -264,10 +253,8 @@ public class ConnectionGeneral extends ConnectionImpl{
 				}
 				if(m_APN_Switch_Type == APN_SWITCH_TYPE_DYNAMIC)
 				{
-					if ( ((TAG_TYPE_WAP_PROXY.equals(proxy) && TAG_TYPE_WAP_PORT.equals(port)) || (TAG_TYPE_WAP_PROXY_E.equals(proxy) && TAG_TYPE_WAP_PORT.equals(port))) 
-							&& TAG_TYPE_WAP_NAME.equals(name)
-							&& TAG_TYPE_WAP_APN.equals(apn)
-							&& "1".equals(current)) {
+					if ( ((TAG_TYPE_WAP_PROXY.equals(proxy) && TAG_TYPE_WAP_PORT.equals(port))
+					|| (TAG_TYPE_WAP_PROXY_E.equals(proxy) && TAG_TYPE_WAP_PORT.equals(port))) && "1".equals(current)) {
 						if(isApnCfg_TypeCorrect(type))
 						{
 							m_Device_APN_Proxy	= proxy;
@@ -371,9 +358,8 @@ public class ConnectionGeneral extends ConnectionImpl{
 						{
 							if ( ( (TAG_TYPE_WAP_PROXY.equals(proxy) && TAG_TYPE_WAP_PORT.equals(port)) 
 									|| (TAG_TYPE_WAP_PROXY_E.equals(proxy) && TAG_TYPE_WAP_PORT.equals(port)) ) 
-							&& "1".equals(current) 
-							&& TAG_TYPE_WAP_APN.equalsIgnoreCase(apn) 
-							&& (TAG_TYPE_WAP_NAME.equalsIgnoreCase(name)) )
+							&& "1".equals(current) /*&& TAG_TYPE_WAP_APN.equalsIgnoreCase(apn) 
+							&& (TAG_TYPE_WAP_NAME.equalsIgnoreCase(name) || "cmwap".equalsIgnoreCase(name) )*/ )
 							{
 								if(isApnCfg_TypeCorrect(type))
 								{
@@ -456,6 +442,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 							Util.Trace("Open APN failure...");
 							m_Device_APN_Proxy	= "";
 							m_Device_APN_Port	= "";
+							m_bNetworkOpening = false;
 							VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_InvalidAPN, 0);
 							return ;
 						}
@@ -467,6 +454,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 						Util.Trace("Open APN successfully... 1");
 						m_Device_APN_Proxy	= TAG_TYPE_WAP_PROXY;
 						m_Device_APN_Port	= TAG_TYPE_WAP_PORT;
+						m_bNetworkOpening = false;
 						VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
 						Util.m_nNetwork_Connected_Type = Util.Network_Connected_WAP;
 						Util_WaitforConnConnected = false;
@@ -586,14 +574,14 @@ public class ConnectionGeneral extends ConnectionImpl{
 	}
 	
 	public boolean SetCurrentAPN(int id, boolean detectNetwork) {
-        
-        if (bAPNIsRunning) return true;
-        
-        bAPNIsRunning = true;
 		
+		if(m_bNetworkOpening == true)
+			return true;
 		boolean res = false;
 		
 		Util.initPhoneManufaturer();
+
+		m_bNetworkOpening = true;
 
 		ContentResolver resolver = VenusApplication.getInstance().getContentResolver();
 		ContentValues values = new ContentValues();
@@ -672,8 +660,8 @@ public class ConnectionGeneral extends ConnectionImpl{
 		values.put(TAG_SERVER,		"");		
 		values.put(TAG_PROXY,	proxy);
 		values.put(TAG_PORT,	port);
-		values.put(TAG_MMSPROXY,	TAG_TYPE_WAP_PROXY);
-		values.put(TAG_MMSPORT,		TAG_TYPE_WAP_PORT);
+		values.put(TAG_MMSPROXY,	"");
+		values.put(TAG_MMSPORT,		"");
 		if(Util.GetSDK() != Util.SDK_ANDROID_15 && Util.GetSDK() != Util.SDK_ANDROID_16)
 		{
 			values.put(TAG_AUTHTYPE,	"");	/*HTC Hero(G3) doesn't have this configuration*/
@@ -757,49 +745,49 @@ public class ConnectionGeneral extends ConnectionImpl{
 		wapInfoList.add(new WapInfo(4, "010.000.000.172", "80"));
 
 		//Detect the type of SIM card
-//		String imsi = (String)VenusActivity.getInstance().javaGetMachineInfo(VenusActivity.EMachineInfo_IMSI);
-//		if(imsi != null && imsi.length() > 0)
-//		{
-//			
-//			if(imsi.startsWith("46000") || imsi.startsWith("46002") || imsi.startsWith("46007"))
-//			{
-//				//China Mobile
-//				TAG_TYPE_WAP_APN = "cmwap";
-//				TAG_TYPE_WAP_NAME = "cmwap";
-//				TAG_TYPE_NET_APN = "cmnet";
-//				TAG_TYPE_NET_NAME = "cmnet";
-//				
-//				TAG_TYPE_WAP_PROXY			= "10.0.0.172";
-//				TAG_TYPE_WAP_PROXY_E		= "010.000.000.172";
-//				TAG_TYPE_WAP_PORT			= "80";
-//				
-//				
-//			}
-//			else if(imsi.startsWith("46001"))
-//			{
-//				//China Unicom
-//				TAG_TYPE_WAP_APN = "wap";
-//				TAG_TYPE_WAP_NAME = "wap";
-//				TAG_TYPE_NET_APN = "net";
-//				TAG_TYPE_NET_NAME = "net";
-//				
-//				TAG_TYPE_WAP_PROXY			= "10.0.0.172";
-//				TAG_TYPE_WAP_PROXY_E		= "010.000.000.172";
-//				TAG_TYPE_WAP_PORT			= "80";
-//			}
-//			else if(imsi.startsWith("46003"))
-//			{
-//				//China Telecom
-//				TAG_TYPE_WAP_APN = "ctwap";
-//				TAG_TYPE_WAP_NAME = "ctwap";
-//				TAG_TYPE_NET_APN = "ctnet";
-//				TAG_TYPE_NET_NAME = "ctnet";
-//				
-//				TAG_TYPE_WAP_PROXY			= "10.0.0.200";
-//				TAG_TYPE_WAP_PROXY_E		= "010.000.000.200";
-//				TAG_TYPE_WAP_PORT			= "80";
-//			}
-//		}
+		String imsi = (String)VenusActivity.getInstance().javaGetMachineInfo(VenusActivity.EMachineInfo_IMSI);
+		if(imsi != null && imsi.length() > 0)
+		{
+			
+			if(imsi.startsWith("46000") || imsi.startsWith("46002") || imsi.startsWith("46007"))
+			{
+				//China Mobile
+				TAG_TYPE_WAP_APN = "cmwap";
+				TAG_TYPE_WAP_NAME = "cmwap";
+				TAG_TYPE_NET_APN = "cmnet";
+				TAG_TYPE_NET_NAME = "cmnet";
+				
+				TAG_TYPE_WAP_PROXY			= "10.0.0.172";
+				TAG_TYPE_WAP_PROXY_E		= "010.000.000.172";
+				TAG_TYPE_WAP_PORT			= "80";
+				
+				
+			}
+			else if(imsi.startsWith("46001"))
+			{
+				//China Unicom
+				TAG_TYPE_WAP_APN = "wap";
+				TAG_TYPE_WAP_NAME = "wap";
+				TAG_TYPE_NET_APN = "net";
+				TAG_TYPE_NET_NAME = "net";
+				
+				TAG_TYPE_WAP_PROXY			= "10.0.0.172";
+				TAG_TYPE_WAP_PROXY_E		= "010.000.000.172";
+				TAG_TYPE_WAP_PORT			= "80";
+			}
+			else if(imsi.startsWith("46003"))
+			{
+				//China Telecom
+				TAG_TYPE_WAP_APN = "ctwap";
+				TAG_TYPE_WAP_NAME = "ctwap";
+				TAG_TYPE_NET_APN = "ctnet";
+				TAG_TYPE_NET_NAME = "ctnet";
+				
+				TAG_TYPE_WAP_PROXY			= "10.0.0.200";
+				TAG_TYPE_WAP_PROXY_E		= "010.000.000.200";
+				TAG_TYPE_WAP_PORT			= "80";
+			}
+		}
 		queryDefaultAPNId();
 		if(Util.GetSDK() != Util.SDK_ANDROID_40 && Util.GetSDK() != Util.SDK_ANDROID_41)
 		{

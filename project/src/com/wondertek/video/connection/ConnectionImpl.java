@@ -6,8 +6,8 @@ import android.os.Message;
 
 public class ConnectionImpl {
 
-	public static String TAG_TYPE_WAP_APN			= "xgxzhdw.ah";
-	public static String TAG_TYPE_WAP_NAME			= "鑫干线";
+	public static String TAG_TYPE_WAP_APN			= "cmwap";
+	public static String TAG_TYPE_WAP_NAME			= "MobileVideo3";
 	public static String TAG_TYPE_NET_APN			= "cmnet";
 	public static String TAG_TYPE_NET_NAME			= "MobileVideo3";
 	
