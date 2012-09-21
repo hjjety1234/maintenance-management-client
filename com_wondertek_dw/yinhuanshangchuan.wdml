@@ -28,7 +28,7 @@
 				</image>
 
 				<button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
-					OnSelect="doBack" extendstyle="1111">
+					OnSelect="isSave" extendstyle="1111">
 					<image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
 						style="autosize" extendstyle="1111">
 					</image>
@@ -52,14 +52,14 @@
 						<label name="label1" rect="0,0,150,60" border="false" text="所属专业："
 							h-align="right" v-align="center" color="#000000" font-size="24"
 							extendstyle="1111"></label>
-						<button name="button1" rect="150,0,292,60" border="false"
+						<button name="zhuanyeBtn" rect="150,0,292,60" border="false"
 							text="" color="#ffffff" OnSelect="" extendstyle="1111">
 							<image rect="0,0,292,60" src="file://image/input.png" style="autosize"
 								extendstyle="1111">
 								<image rect="245,5,43,51" src="file://image/dropdown_arrow.png"
 									style="autosize" extendstyle="1111" />
 							</image>
-							<label rect="0,0,252,60" text="无线专业" color="#0" extendstyle="1111"
+							<label name="name" rect="0,0,252,60" text="无线专业" color="#0" extendstyle="1111"
 								style="autosize" h-align="center" v-align="center" font-size="24"></label>
 						</button>
 					</node>
@@ -68,14 +68,14 @@
 						<label name="label1" rect="0,0,150,60" border="false" text="隐患类别："
 							h-align="right" v-align="center" color="#000000" font-size="24"
 							extendstyle="1111"></label>
-						<button name="button1" rect="150,0,292,60" border="false"
+						<button name="typeBtn" rect="150,0,292,60" border="false"
 							text="" color="#ffffff" OnSelect="" extendstyle="1111">
 							<image rect="0,0,292,60" src="file://image/input.png" style="autosize"
 								extendstyle="1111">
 								<image rect="245,5,43,51" src="file://image/dropdown_arrow.png"
 									style="autosize" extendstyle="1111" />
 							</image>
-							<label rect="0,0,252,60" text="火患" color="#0" extendstyle="1111"
+							<label name="name" rect="0,0,252,60" text="火患" color="#0" extendstyle="1111"
 								style="autosize" h-align="center" v-align="center" font-size="24"></label>
 						</button>
 					</node>
@@ -83,14 +83,14 @@
 						<label name="label1" rect="0,0,150,60" border="false" text="隐患级别："
 							h-align="right" v-align="center" color="#000000" font-size="24"
 							extendstyle="1111"></label>
-						<button name="button1" rect="150,0,292,60" border="false"
+						<button name="levelBtn" rect="150,0,292,60" border="false"
 							text="" color="#ffffff" OnSelect="" extendstyle="1111">
 							<image rect="0,0,292,60" src="file://image/input.png" style="autosize"
 								extendstyle="1111">
 								<image rect="245,5,43,51" src="file://image/dropdown_arrow.png"
 									style="autosize" extendstyle="1111" />
 							</image>
-							<label rect="0,0,252,60" text="一级" color="#0" extendstyle="1111"
+							<label name="name" rect="0,0,252,60" text="一级" color="#0" extendstyle="1111"
 								style="autosize" h-align="center" v-align="center" font-size="24"></label>
 						</button>
 					</node>
@@ -98,7 +98,7 @@
 						<image rect="0,0,460,270" src="file://image/title_edit_bg.png"
 							style="sudoku-auto" extendstyle="1111" sudoku="20,20,20,20">
 						</image>
-						<edit name="edit" rect="10,10,440,250" border="false"
+						<edit name="detail" rect="10,10,440,250" border="false"
 							extendstyle="1111" multiline="true" font-size="25" max-size="140"
 							OnTextChanged="editOnTextChanged">
 							<label name="hideLabel" rect="0,0,440,250" text="隐患详述" color="#c0c0c0"
@@ -191,6 +191,11 @@
         rootSprite = sprite
         observer = Plugin:getObserver()
         Map:getCurPosition(observer, 1000)
+        if pYinhuanID == nil then
+        	--add
+        else
+        	doLoadSave(pYinhuanID)
+        end
     end
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
@@ -263,7 +268,6 @@
         Sprite:setProperty(locInfo, 'text', '正在定位......')
         Map:getCurPosition(observer, 1000)
         if Config:get("latitude") ~= nil and Config:get("latitude") ~= '' and Config:get("longitude") ~= nil and Config:get("longitude") ~= '' then
-             
  			Map:getLocation(observer, 1001, tonumber(Config:get("latitude")), tonumber(Config:get("longitude")))  
         end
     end
@@ -274,13 +278,53 @@
         Dialog:show('提示','是否确定提交此隐患？','ok_cancel','doUpload','doBack')
     end
     function doUpload()
-        doSave()
+        --doSave()
     end
     function doSave()
+    	Log:write(1)
+    	local yinhuanID = Config:get('yinhuanID')
+    	Log:write(2)
+    	if yinhuanID == nil or yinhuanID == '' then
+    		Config:set('yinhuanID', 1)
+    		yinhuanID = 1
+    	Log:write(4, yinhuanID)
+    	else
+    		yinhuanID = tonumber(yinhuanID) + 1
+    	Log:write(5, yinhuanID)
+    	end
+    	if pYinhuanID ~= nil then
+    	Log:write(3, pYinhuanID)
+    		yinhuanID = pYinhuanID
+    	end
+    	Log:write(6, Config:get('yinhuanIDList'))
+    	local yinhuanIDList = Config:get('yinhuanIDList')
+    	Log:write('222222', yinhuanID)
+
+    	local zhuanyeBtn = Sprite:findChild(rootSprite, 'zhuanyeBtn')
+    	local typeBtn = Sprite:findChild(rootSprite, 'typeBtn')
+    	local levelBtn = Sprite:findChild(rootSprite, 'levelBtn')
+    	local detail = Sprite:findChild(rootSprite, 'detail')
+    	local stringData = string.format('%s;%s;%s;%s;%s;%s;', yinhuanID, Sprite:getProperty(Sprite:findChild(zhuanyeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(typeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(levelBtn, 'name'), 'text'), Sprite:getProperty(detail, 'text'), getCurDate())
+
+    	for i=1, #imageArray do
+    		stringData = stringData .. imageArray[i]
+    	end
+
+    	Config:set('yinhuanID'..yinhuanID, stringData)
+    	Log:write(2,  yinhuanIDList, yinhuanID)
+
+    	if pYinhuanID == nil then
+    		if string.find(yinhuanIDList .. ';', ';' .. yinhuanID .. ';') == nil then
+    			Config:set('yinhuanIDList', yinhuanID .. ';' .. yinhuanIDList)
+    		end
+    	end
+    	Log:write(3, Config:get('yinhuanIDList'))
+    	Config:set('yinhuanID', yinhuanID)
+
         doBack()
     end
     function doTakePic()
-        local fileName = 'ict' .. getCurDateAndTime()
+        local fileName = 'ict' .. getCurDate()
         local result = System:openCamera('onCameraDialog', 'file://image/' .. fileName .. '.jpg', 'jpg')
         if result == 0 then
             Dialog:show('提示', '相机打开失败!', 'ok')
@@ -342,6 +386,30 @@
     			Sprite:setProperty(bg, 'src', imageArray[tonumber(index) * 4 + i])
     		end
     	end
+    end
+    function doLoadSave(pYinhuanID)
+    	-- body
+    	local stringData = Config:get('yinhuanID' .. pYinhuanID)
+
+    	local zhuanyeBtn = Sprite:findChild(rootSprite, 'zhuanyeBtn')
+    	local typeBtn = Sprite:findChild(rootSprite, 'typeBtn')
+    	local levelBtn = Sprite:findChild(rootSprite, 'levelBtn')
+    	local detail = Sprite:findChild(rootSprite, 'detail')
+
+    	local datas = Split(stringData, ';')
+
+    	Sprite:setProperty(Sprite:findChild(zhuanyeBtn, "name"), 'text', datas[2])
+    	Sprite:setProperty(Sprite:findChild(typeBtn, "name"), 'text', datas[3])
+    	Sprite:setProperty(Sprite:findChild(levelBtn, "name"), 'text', datas[4])
+    	if string.len(datas[5]) > 0 then
+    		editOnTextChanged(detail,string.len(datas[5]))
+    	end
+    	Sprite:setProperty(detail, 'text', datas[5])
+
+    	for i=7, #datas do
+    		table.insert(imageArray, datas[i])
+    	end
+    	doChangeImageList()
     end
 ]]>
 </root>

@@ -24,3 +24,33 @@ function getCurDateAndTime()
     local sec = os.date("*t")["sec"]
     return string.format('%04s%02s%02s%02s%02s%02s', year, month, day, hour, minute, sec)
 end
+function getCurDate()
+    local year = os.date("*t")["year"]
+    local month = os.date("*t")["month"]
+    local day = os.date("*t")["day"]
+    return string.format('%04s-%02s-%02s', year, month, day)
+end
+
+function Split(szFullString, szSeparator)
+    local nFindStartIndex = 1
+    local nSplitIndex = 1
+    local nSplitArray = {}
+    while true do
+        local nFindLastIndex = string.find(szFullString, szSeparator, nFindStartIndex)
+        if not nFindLastIndex then
+            local stringData = string.sub(szFullString, nFindStartIndex, string.len(szFullString))
+            
+            if string.len(stringData) > 0 then
+                nSplitArray[nSplitIndex] = stringData
+            end
+            break
+        end
+        local stringData = string.sub(szFullString, nFindStartIndex, nFindLastIndex - 1)
+        if string.len(stringData) > 0 then
+            nSplitArray[nSplitIndex] = stringData
+        end
+        nFindStartIndex = nFindLastIndex + string.len(szSeparator)
+        nSplitIndex = nSplitIndex + 1
+    end
+    return nSplitArray
+end

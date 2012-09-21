@@ -93,18 +93,17 @@
 
     require 'com_wondertek_dw.common.framework'
     local rootSprite
+    local savedDatas
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
         rootSprite = sprite
-        tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
-        local list = Sprite:findChild(rootSprite, 'sampleList')
-        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), 2, 'loadListItem')
-        ListView:adjust(list)
     end
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
+            tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
+            loadSavedDatas()
             elseif msg == MSG_DEACTIVATE then
         end
     end
@@ -141,6 +140,32 @@
         Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_n.png')
         Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_n.png')
         Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_s.png')
+        if tab1 == sprite then
+            loadSavedDatas()
+        else
+            loadUploadDatas()
+        end
+    end
+    function loadSavedListItem(list, item, index)
+        local idString = savedDatas[index+1]
+        Log:write('loadSavedListItemloadSavedListItem', idString , Config:get('yinhuanID' .. idString))
+        local dataString = Split(Config:get('yinhuanID' .. idString), ';')
+
+        Sprite:setRect(item, 0, 0, 480, 100)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        local listItemBg = Sprite:findChild(item, 'listItemBg')
+        Sprite:setRect(listItemBg, 0, 0, 480, 100)
+        if index / 2 > 0 then
+            Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
+            else
+            Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
+        end
+        local textNum = Sprite:findChild(item, 'textNum')
+        local textTitle = Sprite:findChild(item, 'textTitle')
+        local textTime = Sprite:findChild(item, 'textTime')
+        Sprite:setProperty(textNum, 'text', dataString[1] )
+        Sprite:setProperty(textTitle, 'text', dataString[5])
+        Sprite:setProperty(textTime, 'text', dataString[6])
     end
     function loadListItem(list, item, index)
         Sprite:setRect(item, 0, 0, 480, 100)
@@ -161,12 +186,24 @@
     end
     function itemOnSelect(sprite)
         local tabNode = Sprite:getParent(sprite)
-        regHandle=Reg:create('daiban')
-        local textnum=Sprite:findChild(tabNode, 'textNum')
-        local text=Sprite:getText(textnum)
-        Reg:setString(regHandle,'id',text)
-        Scene:setReturn(Alias.yinhuanList, Alias.yinhuanshangchuan)
-        Scene:go(Alias.yinhuanshangchuan)
+        local textNum=Sprite:findChild(tabNode, 'textNum')
+        local text=Sprite:getText(textNum)
+        Log:write('texttexttexttexttext', text)
+        Scene:setReturn(Alias.yinhuanList, Alias.yinhuanshangchuan .. '?pYinhuanID=' .. text)
+        Scene:go(Alias.yinhuanshangchuan .. '?pYinhuanID=' .. text)
+    end
+    function loadSavedDatas()
+        -- body
+        savedDatas = Split(Config:get('yinhuanIDList'), ';')
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list) 
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), #savedDatas, 'loadSavedListItem')
+        ListView:adjust(list)
+    end
+    function loadUploadDatas()
+        -- body
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list)
     end
 ]]>
 </root>
