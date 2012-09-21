@@ -46,6 +46,8 @@ public class ConnectionGeneral extends ConnectionImpl{
 	private static boolean bDCSettingShowFlag	= false;
 	private static boolean bDCConnected		 = false;
 	
+	private static boolean bAPNIsRunning = false;
+	
 	private static ArrayList<WapInfo> wapInfoList = new ArrayList<WapInfo>();
 	
 	class WapInfo
@@ -584,6 +586,11 @@ public class ConnectionGeneral extends ConnectionImpl{
 	}
 	
 	public boolean SetCurrentAPN(int id, boolean detectNetwork) {
+        
+        if (bAPNIsRunning) return true;
+        
+        bAPNIsRunning = true;
+		
 		boolean res = false;
 		
 		Util.initPhoneManufaturer();
