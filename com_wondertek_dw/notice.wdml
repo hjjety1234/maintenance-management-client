@@ -58,6 +58,8 @@
 			<!-- 隐藏的搜索栏 -->
 			<node name="searchBar" rect="0,66,480,56" extendstyle="1111"
 				visible="false">
+                <image name="search_bg" rect="0,0,480,56" src="file://image/title_bar.png"
+                                style="autosize" extendstyle="1111"></image>
 				<image name="searchBarImage" rect="0,5,346,46"
 					src="file://image/search_input.png" style="autosize" extendstyle="1111">
 				</image>
@@ -82,18 +84,20 @@
 			<!-- 公告列表项  -->
 			<node name="listItem1" rect="0,0,480,100" border="false"
 				visible="false" enable="false" active="false" extendstyle="1111">
+                <shadow name="listItemBg" rect="0,0,480,100" color="#e8e8e8"
+                    alpha="255" extendstyle="1111" />
 				<button name="btnname" rect="0,0,480,100" normal="normal"
 					focus="focus" OnSelect="itemOnSelect" extendstyle="1111">
 
 					<!-- 聚焦时的列表项背景图片 -->
 					<node name="focus" rect="0,0,480,100" extendstyle="1111">
-						<image name="focusImage" rect="0,0,480,100" src="file://image/poi_bg_s.png"
+						<image name="focusImage" rect="420,30,24,40" src="file://image/jiantou.png"
 							style="autosize" extendstyle="1111" />
 					</node>
 
 					<!-- 正常情况时列表项背景图片 -->
-					<node name="normal" rect="0,0,480,100" extendstyle="1111">
-						<image name="normalImage" rect="0,0,480,100" src="file://image/poi_bg_n.png"
+					<node name="normal" rect="0,0,480,100" extendstyle="1111" v-align="center" h-align="center">
+						<image name="normalImage" rect="420,30,24,40" src="file://image/jiantou.png"
 							style="autosize" extendstyle="1111">
 						</image>
 					</node>
@@ -140,7 +144,7 @@
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
         rootSprite = sprite
-        Http:connectCMWAP()
+       -- Http:connectCMWAP()
         requestNoticeList('notice', 101, 'adminhf', '', '1', '5')
     end
     -- @brief root节点消息方法
@@ -185,6 +189,16 @@
         local noticeTitleSprite = Sprite:findChild(item, 'noticeTitle')
         local noticeDateSprite = Sprite:findChild(item, 'noticeDate')
         -- 设置列表项的内容
+
+        local listItemBg = Sprite:findChild(item, 'listItemBg')
+        Sprite:setRect(listItemBg, 0, 0, 480, 100)
+        local num = index+1
+        Log:write('index=============================',num%2)
+        if num % 2 > 0 then
+            Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
+            else
+            Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
+        end
         if (jsonDecodedNotice ~= nil and jsonDecodedNotice['value'] ~= nil) then
             local value = jsonDecodedNotice['value'][index]
             if value ~= nil then
