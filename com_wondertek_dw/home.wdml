@@ -37,13 +37,13 @@
 							v-align="center" h-align="center" font-size="24" extendstyle="1111" />
 					</list-item>
 					<dataset>
-						<set iconSrc="file://image/icon_1.png" titleName="我的代办"
+						<set iconSrc="file://image/icon_1.png" titleName="我的待办"
 							dataInfo="01" />
 						<set iconSrc="file://image/icon_2.png" titleName="公告管理"
 							dataInfo="02" />
 						<set iconSrc="file://image/icon_3.png" titleName="巡检任务"
 							dataInfo="03" />
-						<set iconSrc="file://image/icon_4.png" titleName="已传隐患"
+						<set iconSrc="file://image/icon_4.png" titleName="隐患上报"
 							dataInfo="04" />
 						<set iconSrc="file://image/icon_5.png" titleName="基站巡检"
 							dataInfo="05" />
@@ -58,6 +58,12 @@
 					</dataset>
 				</list>
 			</node>
+            <node name="daibanNode" rect="120,75,43,45">
+                <image name="daibanimg" rect="0,0,43,45" style="autosize" extendstyle="1111" border="false" src="file://image/hongquan.png">
+                </image>
+                <label name="daibanNum" rect="5,5,35,35"  color="#FF0000" font-style="bold"
+                            v-align="center" h-align="center" font-size="24" extendstyle="1111" />
+            </node>
 		</node>
 	</body>
     <![CDATA[
@@ -83,6 +89,7 @@
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
+            loadRequest()
             elseif msg == MSG_DEACTIVATE then
         end
     end
@@ -116,6 +123,12 @@
         end
     end
     ---------------------------------------util functions---------------------------
+    function loadRequest()
+        local daibannode = Sprite:findChild(rootSprite, 'daibanNode')
+        local daibanNum = Config:get('tasknum')
+        Log:write('tasknum=================',daibanNum)
+        Sprite:setProperty(Sprite:findChild(daibannode, 'daibanNum'),'text',daibanNum)
+    end
     function listItemOnSelect(sprite)
         local dataInfo = Sprite:getData(sprite)
         if dataInfo == '01' then
@@ -135,6 +148,8 @@
             Scene:setReturn(Alias.home, Alias.search)
             Scene:go(Alias.search)
             elseif dataInfo == '07' then
+            Scene:setReturn(Alias.home, Alias.tongxunlu)
+            Scene:go(Alias.tongxunlu)
             elseif dataInfo == '08' then
             Scene:setReturn(Alias.home, Alias.cheliangguanli)
             Scene:go(Alias.cheliangguanli)
