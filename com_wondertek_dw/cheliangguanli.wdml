@@ -51,6 +51,8 @@
 		<!-- 隐藏的搜索栏 -->
 		<node name="searchBar" rect="0,66,480,56" extendstyle="1111"
 			visible="false">
+			<image name="search_bg" rect="0,0,480,56" src="file://image/title_bar.png"
+                    style="autosize" extendstyle="1111"></image>
 			<image name="searchBarImage" rect="0,5,346,46"
 				src="file://image/search_input.png" style="autosize" extendstyle="1111">
 			</image>
@@ -102,6 +104,8 @@
 					<label name="carStatus" rect="341,65,129,30" text="" color="#0"
 						font-size="18" h-align="left" v-align="center" extendstyle="1111"
 						border="false" />
+					<image name="arrowImage" rect="420,30,24,40" src="file://image/jiantou.png"
+						style="autosize" extendstyle="1111" />
 				</button>
 			</node>
 		</node>
@@ -116,6 +120,7 @@
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
         rootSprite = sprite
+        --requestCarList('carlist', 101, 'zyhefei', '', '1', '5')
         local list = Sprite:findChild(rootSprite, 'sampleList')
         ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), 2, 'loadListItem')
         ListView:adjust(list)
@@ -129,6 +134,7 @@
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg)
         if msg == 101 then
+            Log:write('22222222222222222', Http:jsonDecode('carlist'))
             elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
             elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
             Log:write('拨号失败')
@@ -195,6 +201,16 @@
     --@brief 返回按钮消息处理函数
     function doBack(sprite)
         Scene:back()
+    end
+    
+    --@brief 请求服务器公告列表
+    function requestCarList(tag, num, usercode, keyword, page, pagesize)
+        local server = Config:get("server")
+        local requestURL = string.format('%s/nbspweb/webservice/car!doWebservice.action?cmd=wlbcarlist&usercode=%s&keyword=%s&page=%s&pagesize=%s',server,
+        usercode, keyword, page, pagesize)
+        Log:write("1111111111111111111:", requestURL)
+        Http:connectCMWAP()
+        Http:request(tag, requestURL, num)
     end
 ]]>
 </root>
