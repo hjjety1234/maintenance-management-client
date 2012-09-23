@@ -77,7 +77,7 @@
                     <label name="textNum" rect="130,5,340,30" text="" color="#0"
                         font-size="18" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label rect="10,35,120,30" text="工单&nbsp;&nbsp;&nbsp;&nbsp;主题：" color="#0" font-size="18"
+                    <label rect="10,35,120,30" text="工单主题：" color="#0" font-size="18"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
                     <label name="textTitle" rect="130,35,340,30" text="" color="#0"
                         font-size="18" h-align="left" v-align="center" extendstyle="1111"
@@ -94,6 +94,7 @@
     require 'com_wondertek_dw.common.framework'
     local rootSprite
     local savedDatas
+    local data={}
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
@@ -109,7 +110,27 @@
     end
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg)
+        if Loading:isShow() then Loading:close() end
         if msg == 101 then
+        data = Http:jsonDecode('daiban_data')
+            Log:write("data101 = ", data)
+            if not data or type(data) ~= 'table' then
+                Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+                return
+            end
+            if data ~= nil then
+                if data.code == '0' then
+                    if #data.value > 0 then
+                        loadList(#data.value + 1)
+                    elseif data.value[0] then
+                        loadList(1)
+                    end
+                    else
+                    Dialog:show(rootSprite, '未知错误！', 'ok')
+                end
+                else
+                Dialog:show(rootSprite, '未知错误！', 'ok')
+            end
             elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
             elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
             Log:write('拨号失败')
@@ -155,7 +176,7 @@
         Sprite:setProperty(item, 'extendstyle', '1111')
         local listItemBg = Sprite:findChild(item, 'listItemBg')
         Sprite:setRect(listItemBg, 0, 0, 480, 100)
-        if index / 2 > 0 then
+        if index % 2 > 0 then
             Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
             else
             Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
@@ -167,12 +188,18 @@
         Sprite:setProperty(textTitle, 'text', dataString[5])
         Sprite:setProperty(textTime, 'text', dataString[6])
     end
+    function loadList(count)
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list,true) 
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
+        ListView:adjust(list)
+    end
     function loadListItem(list, item, index)
         Sprite:setRect(item, 0, 0, 480, 100)
         Sprite:setProperty(item, 'extendstyle', '1111')
         local listItemBg = Sprite:findChild(item, 'listItemBg')
         Sprite:setRect(listItemBg, 0, 0, 480, 100)
-        if index / 2 > 0 then
+        if index % 2 > 0 then
             Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
             else
             Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
@@ -180,9 +207,9 @@
         local textNum = Sprite:findChild(item, 'textNum')
         local textTitle = Sprite:findChild(item, 'textTitle')
         local textTime = Sprite:findChild(item, 'textTime')
-        Sprite:setProperty(textNum, 'text', 'ID-051-20110516-0003(一级处理中)')
-        Sprite:setProperty(textTitle, 'text', '紧急需要换板卡')
-        Sprite:setProperty(textTime, 'text', '2012-09-15')
+        Sprite:setProperty(textNum, 'text', data.value[index].id)
+        Sprite:setProperty(textTitle, 'text', data.value[index].name)
+        Sprite:setProperty(textTime, 'text', data.value[index].createTimeDis)
     end
     function itemOnSelect(sprite)
         local tabNode = Sprite:getParent(sprite)
@@ -201,9 +228,11 @@
         ListView:adjust(list)
     end
     function loadUploadDatas()
-        -- body
-        local list = Sprite:findChild(rootSprite, 'sampleList')
-        ListView:removeAllItems(list)
+        local url = 'http://61.191.25.238:7011/nbspweb/webservice/accident!doWebservice.action'
+        local param = '&usercode='..'zyhefei'..'&page=1&pagesize=5'
+        Log:write("param = ", param)
+        Http:request('daiban_data', url, 101, {useCache = false, method = 'post', postData='cmd=wlbdangerlist'..param})
+        Loading:show(rootSprite)
     end
 ]]>
 </root>

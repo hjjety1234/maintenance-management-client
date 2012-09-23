@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <!--
+        ==
+        ============================================================================
+        == | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+        ============================================================================
+        == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+        ============================================================================
+        == | Author: xxxx <xxxx@xxxx.com> ==
+        ============================================================================
+        == | Desc: 页面描述 ==
+        ============================================================================
+    -->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <shadow rect="0,0,480,800" color="#ffffff" alpha="255"
+            extendstyle="1111" />
+        <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+            <image name="title" rect="0,0,480,66" border="false"
+                src="file://image/title_bg.png" style="autosize" extendstyle="1111">
+
+                <label rect="0,0,480,66" text="通讯录" color="#ffffff" v-align="center"
+                    h-align="center" font-size="28" extendstyle="1111" />
+            </image>
+
+            <button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
+                OnSelect="doBack" extendstyle="1111">
+                <image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
+                    style="autosize" extendstyle="1111">
+                </image>
+                <image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
+                    style="autosize" extendstyle="1111">
+                </image>
+                <label rect="15,0,60,45" text="首页" color="#ffffff"
+                    extendstyle="1111" style="autosize" h-align="center" v-align="center"
+                    font-size="24"></label>
+            </button>
+        </node>
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <node name="searchBar" rect="0,66,480,56" extendstyle="1111">
+                <image name="search_bg" rect="0,0,480,56" src="file://image/title_bar.png"
+                                style="autosize" extendstyle="1111"></image>
+                <image name="searchBarImage" rect="0,5,346,46"
+                    src="file://image/search_input.png" style="autosize" extendstyle="1111">
+                </image>
+                <edit name="keywordEdit" rect="42,10,288,46" extendstyle='1111'
+                    v-align="center" text="">
+                </edit>
+                <button name="searchButton" rect="370,5,92,46" OnSelect="OnSearchButtonClicked"
+                    extendstyle="1111">
+                    <image name="searchButtonImage" rect="0,0,92,46"
+                        src="file://image/search_btn_hover.png" style="autosize"
+                        extendstyle="1111">
+                    </image>
+                </button>
+            </node>
+            <!--列表信息-->
+            <node name="listNode" rect="0,126,480,645" extendstyle="1111">
+                <listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
+            </node>
+            
+
+            <node name="listitem" visible="false" enable="false" active="false"
+                extendstyle="1011" rect="0,200,480,100">
+                <shadow name="listItemBg" rect="0,0,480,100" color="#e8e8e8"
+                    alpha="255" extendstyle="1111" />
+                <button name="btnname" rect="0,0,480,100" OnSelect="itemOnSelect"
+                    extendstyle="1111">
+                    <label rect="10,5,150,30" text="姓名：" color="#0"
+                        font-size="18" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" />
+                    <label name="textNum" rect="110,5,300,30" text="" color="#0"
+                        font-size="18" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" />
+                    <label rect="10,35,100,30" text="手机号：" color="#0" font-size="18"
+                        h-align="left" v-align="center" extendstyle="1111" border="false" />
+                    <label name="textTitle" rect="110,35,360,30" text="" color="#0"
+                        font-size="18" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" />
+                        <label rect="10,65,100,30" text="用户部门：" color="#0" font-size="18"
+                        h-align="left" v-align="center" extendstyle="1111" border="false" />
+                    <label name="textTime" rect="110,65,460,30" text="" color="#0"
+                        font-size="16" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" />
+                        <image name="normalImage" rect="420,30,24,40" src="file://image/jiantou.png"
+                            style="autosize" extendstyle="1111">
+                        </image>
+                </button>
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+    require 'com_wondertek_dw.common.framework'
+    local rootSprite
+    local data = {}
+    local name = {'余奇','程川','何武','周瑜'}
+    local phone = {'18756948812','15956909697','13956906950','15156892727'}
+    local dept = {'ICT中心','ICT中心','ICT中心','ICT中心'}
+    
+    local flag 
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            --tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
+            --loadRequest()
+            loadList(4)
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if Loading:isShow() then Loading:close() end
+        if msg == 101 then
+            data = Http:jsonDecode('daiban_data')
+            Log:write("data101 = ", data)
+            if not data or type(data) ~= 'table' then
+                Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+                return
+            end
+            if data ~= nil then
+                if data.code == '0' then
+                    if #data.value > 0 then
+                        loadList(#data.value + 1)
+                    elseif data.value[0] then
+                        loadList(1)
+                    end
+                    else
+                    Dialog:show(rootSprite, '未知错误！', 'ok')
+                end
+                else
+                Dialog:show(rootSprite, '未知错误！', 'ok')
+            end
+            elseif msg ==102 then
+                data = Http:jsonDecode('handled_data')
+            Log:write("data101 = ", data)
+            if not data or type(data) ~= 'table' then
+                Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+                return
+            end
+            if data ~= nil then
+                if data.code == '0' then
+                    if #data.value > 0 then
+                        loadList(#data.value + 1)
+                    elseif data.value[0] then
+                        loadList(1)
+                    end
+                    else
+                    Dialog:show(rootSprite, '未知错误！', 'ok')
+                end
+                else
+                Dialog:show(rootSprite, '未知错误！', 'ok')
+            end
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+
+    function loadRequest()
+        local url = 'http://61.191.25.238:7011/nbspweb/webservice/workorder!doWebservice.action'
+        local param = '&usercode='..'zyhefei'..'&page=1&pagesize=5'
+        Log:write("param = ", param)
+        Http:request('daiban_data', url, 101, {useCache = false, method = 'post', postData='cmd=wlbtasklist'..param})
+        Loading:show(rootSprite)
+    end
+  
+    
+    function loadList(count)
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list,true) 
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
+        ListView:adjust(list)
+    end
+    
+    --[[function loadZanCunItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 100)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        local listItemBg = Sprite:findChild(item, 'listItemBg')
+        Sprite:setRect(listItemBg, 0, 0, 480, 100)
+        local num = index+1
+        Log:write('index=============================',num%2)
+        if num % 2 > 0 then
+            Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
+            else
+            Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
+        end
+        local textNum = Sprite:findChild(item, 'textNum')
+        local textTitle = Sprite:findChild(item, 'textTitle')
+        local textTime = Sprite:findChild(item, 'textTime')
+        --Sprite:setProperty(item, 'data', Config:get('daiban'))
+        Sprite:setProperty(textNum, 'text', Config:get('daiban'))
+        Sprite:setProperty(textTitle, 'text', Config:get('title'))
+        Sprite:setProperty(textTime, 'text', Config:get('shijian'))
+    end]]--
+    function loadListItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 100)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        local listItemBg = Sprite:findChild(item, 'listItemBg')
+        Sprite:setRect(listItemBg, 0, 0, 480, 100)
+        local num = index+1
+        Log:write('index=============================',num%2)
+        if num % 2 > 0 then
+            Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
+            else
+            Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
+        end
+        local textNum = Sprite:findChild(item, 'textNum')
+        local textTitle = Sprite:findChild(item, 'textTitle')
+        local textTime = Sprite:findChild(item, 'textTime')
+        --[[local stepdata=data.value[index].proinstState
+        if  stepdata=='签收' then
+            stepdata='1'
+            elseif stepdata=='退单审核' then
+                stepdata='2'
+                elseif stepdata=='填写回单' then
+                    stepdata='3'
+        end]]--
+        
+        Sprite:setProperty(item, 'data', index)
+        
+        Sprite:setProperty(textNum, 'text', name[index+1])
+        Sprite:setProperty(textTitle, 'text',phone[index+1])
+        Sprite:setProperty(textTime, 'text',dept[index+1])
+        
+        --Sprite:setProperty(textNum, 'text', data.value[index].taskCode)
+        --Sprite:setProperty(textTitle, 'text', data.value[index].taskName)
+        --Sprite:setProperty(textTime, 'text', data.value[index].createDateDis)
+    end
+    function itemOnSelect(sprite)
+        
+        local tabNode = Sprite:getParent(sprite)
+        regHandle=Reg:create('daiban')
+        local textnum=Sprite:findChild(tabNode, 'textNum')
+        local text=Sprite:getText(textnum)
+        local  index = tonumber(Sprite:getData(tabNode))
+        --local dataInfo = Sprite:getData(Sprite:findChild(rootSprite,''))
+        --local stepdata=data.value[index].proinstState
+        
+       
+        Reg:setString(regHandle,'name',name[index+1])
+        Reg:setString(regHandle,'phone',phone[index+1])
+        Reg:setString(regHandle,'dept',dept[index+1])
+        --Reg:setString(regHandle,'step',tostring(data.value[index].step))
+        --Reg:setString(regHandle,'stepdata',index )
+        --Reg:setString(regHandle,'flag',flag)
+        Scene:setReturn(Alias.tongxunlu, Alias.tongxunluDetail)
+        Scene:go(Alias.tongxunluDetail)
+    end
+    function doBack(sprite)
+        Scene:back()
+    end
+]]>
+</root>

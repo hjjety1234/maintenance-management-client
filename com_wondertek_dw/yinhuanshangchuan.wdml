@@ -53,13 +53,13 @@
 							h-align="right" v-align="center" color="#000000" font-size="24"
 							extendstyle="1111"></label>
 						<button name="zhuanyeBtn" rect="150,0,292,60" border="false"
-							text="" color="#ffffff" OnSelect="" extendstyle="1111">
+							text="" color="#ffffff" OnSelect="xunjianOnSelect" extendstyle="1111" data="C30">
 							<image rect="0,0,292,60" src="file://image/input.png" style="autosize"
 								extendstyle="1111">
 								<image rect="245,5,43,51" src="file://image/dropdown_arrow.png"
 									style="autosize" extendstyle="1111" />
 							</image>
-							<label name="name" rect="0,0,252,60" text="无线专业" color="#0" extendstyle="1111"
+							<label name="name" rect="0,0,252,60" text="传输线路" color="#0" extendstyle="1111"
 								style="autosize" h-align="center" v-align="center" font-size="24"></label>
 						</button>
 					</node>
@@ -139,6 +139,39 @@
 					</image>
 				</button>
 			</node>
+            <node name="xunjianSelectNode" rect="0,0,480,800" visible="false"
+                enable="false">
+                <button name="button" rect="0,0,480,800" border="false" text=""
+                    color="#ffffff" OnSelect="hideXunjianSelected"></button>
+                <image rect="70,170,340,390" src="file://image/input.png" style="sudoku-auto"
+                    extendstyle="1111" sudoku="15,15,15,15">
+                </image>
+                <button name="" rect="100,200,280,56" text="传输线路" color="#ffffff"
+                    extendstyle="1111" OnSelect="xunjianGroupOnSelect"
+                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+                    font-size="24" data="C30" />
+                <button name="" rect="100,270,280,56" text="基站设备及配套" color="#ffffff"
+                    extendstyle="1111" OnSelect="xunjianGroupOnSelect"
+                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+                    font-size="24" data="C31" />
+                    <button name="" rect="100,340,280,56" text="直放站室分及WLAN" color="#ffffff"
+                    extendstyle="1111" OnSelect="xunjianGroupOnSelect"
+                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+                    font-size="24" data="C32" />
+                    <button name="" rect="100,410,280,56" text="铁塔及天馈" color="#ffffff"
+                    extendstyle="1111" OnSelect="xunjianGroupOnSelect"
+                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+                    font-size="24" data="C33" />
+                    <button name="" rect="100,480,280,56" text="集客家客" color="#ffffff"
+                    extendstyle="1111" OnSelect="xunjianGroupOnSelect"
+                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+                    font-size="24" data="C34" />
+            </node>
 			<node name="baseSprite" rect="0,723,480,80" extendstyle="1111">
 				<image rect="0,0,480,80" src="file://image/bottom_bg.png"
 					style="autosize" extendstyle="1111">
@@ -184,6 +217,7 @@
     local rootSprite
     local observer
     local mapViewPlugin
+    local curXunjianBtn
     local imageArray = {}
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
@@ -251,6 +285,13 @@
             setAllShoworHide(hideLabel, 1)
         end
     end
+    function xunjianOnSelect(sprite)
+        --@Log:write('tempid===', tempid)
+        local xunjianData = Sprite:getData(sprite)
+        curXunjianBtn = sprite
+         --@Log:write('tempid===', tempid)
+        setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
+    end
     function bottomMenuSelect(sprite)
         local dataInfo = Sprite:getData(sprite)
         if dataInfo == '1' then
@@ -262,6 +303,34 @@
             elseif dataInfo == '4' then
             doRecord()
         end
+    end
+
+    function xunjianGroupOnSelect(sprite)
+        local xunjianData = Sprite:getData(sprite)
+        local xunjianText = Sprite:findChild(curXunjianBtn, 'name')
+        Sprite:setProperty(curXunjianBtn, 'data', xunjianData)
+        if xunjianData == 'C30' then    
+            Sprite:setProperty(xunjianText, 'text', '传输线路')
+            elseif xunjianData == 'C31' then
+            
+            Sprite:setProperty(xunjianText, 'text', '基站设备及配套')
+            elseif xunjianData == 'C32' then
+            
+            Sprite:setProperty(xunjianText, 'text', '直放站室分及WLAN')
+            elseif xunjianData == 'C33' then
+            
+            Sprite:setProperty(xunjianText, 'text', '铁塔及天馈')
+            elseif xunjianData == 'C34' then
+            
+            Sprite:setProperty(xunjianText, 'text', '集客家客')
+             
+        end
+        --@doChangeListHeight(curXunjianBtn)
+        setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 0)
+    end
+
+    function hideXunjianSelected(sprite)
+        setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 0)
     end
     function doLocation()
         local locInfo = Sprite:findChild(rootSprite, 'locInfo')

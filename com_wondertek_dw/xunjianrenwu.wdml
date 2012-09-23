@@ -43,28 +43,28 @@
 			<node name="tabNode" rect="0,66,480,60" extendstyle="1111">
 				<image name="title" rect="0,0,480,60" border="false"
 					src="file://image/tab_n.png" style="autosize" extendstyle="1111"></image>
-				<button name="btnTab1" rect="0,0,160,60" text="" color="#ffffff"
+				<button name="btnTab1" rect="0,0,240,60" text="" color="#ffffff"
 					extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
-					<image name="tabBg" rect="0,0,160,60" border="false"
+					<image name="tabBg" rect="0,0,240,60" border="false"
 						src="file://image/btn_bg_n.png" style="sudoku-auto" sudoku="15,15,15,15"
 						extendstyle="1111"></image>
-					<label rect="0,0,160,60" text="代巡检任务" color="#ffffff"
+					<label rect="0,0,240,60" text="待巡检任务" color="#ffffff"
 						v-align="center" h-align="center" font-size="22" extendstyle="1111" />
 				</button>
-				<button name="btnTab2" rect="160,0,160,60" text="" color="#ffffff"
+				<!--<button name="btnTab2" rect="160,0,160,60" text="" color="#ffffff"
 					extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
 					<image name="tabBg" rect="0,0,160,60" border="false"
 						src="file://image/btn_bg_n.png" style="sudoku-auto" sudoku="15,15,15,15"
 						extendstyle="1111"></image>
 					<label rect="0,0,160,60" text="已存巡检任务" color="#ffffff"
 						v-align="center" h-align="center" font-size="22" extendstyle="1111" />
-				</button>
-				<button name="btnTab3" rect="320,0,160,60" text="" color="#ffffff"
+				</button>-->
+				<button name="btnTab3" rect="240,0,240,60" text="" color="#ffffff"
 					extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="03">
-					<image name="tabBg" rect="0,0,160,60" border="false"
+					<image name="tabBg" rect="0,0,240,60" border="false"
 						src="file://image/btn_bg_n.png" style="sudoku-auto" sudoku="15,15,15,15"
 						extendstyle="1111"></image>
-					<label rect="0,0,160,60" text="已传巡检任务" color="#ffffff"
+					<label rect="0,0,240,60" text="已巡检任务" color="#ffffff"
 						v-align="center" h-align="center" font-size="22" extendstyle="1111" />
 				</button>
 			</node>
@@ -78,9 +78,9 @@
 					alpha="255" extendstyle="1111" />
 				<button name="btnname" rect="0,0,480,70" OnSelect="itemOnSelect"
 					extendstyle="1111">
-					<label rect="10,0,120,70" text="1.巡检名：" color="#0" font-size="20" h-align="left"
+					<label rect="10,0,100,70" text="巡检名：" color="#0" font-size="20" h-align="left"
 						v-align="center" extendstyle="1111" />
-					<label name="texttitle" rect="130,0,330,70" text="" color="#0" font-size="20"
+					<label name="texttitle" rect="110,0,330,70" text="" color="#0" font-size="20"
 						h-align="left" v-align="center" extendstyle="1111" />
 				</button>
 			</node>
@@ -90,24 +90,65 @@
 
     require 'com_wondertek_dw.common.framework'
     local rootSprite
+    local data = {}
+    local flag
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
         rootSprite = sprite
-        tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
-        local list = Sprite:findChild(rootSprite, 'sampleList')
-        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), 2, 'loadListItem')
-        ListView:adjust(list)
+        
+        --loadRequest()
     end
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
+            tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
             elseif msg == MSG_DEACTIVATE then
         end
     end
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg)
+        if Loading:isShow() then Loading:close() end
         if msg == 101 then
+            data = Http:jsonDecode('pay_data')
+            Log:write("data101 = ", data)
+            if not data or type(data) ~= 'table' then
+                Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+                return
+            end
+            if data ~= nil then
+                if data.code == '0' then
+                    if #data.value > 0 then
+                        loadList(#data.value + 1)
+                    elseif data.value[0] then
+                        loadList(1)
+                    end
+                    else
+                    Dialog:show(rootSprite, '未知错误！', 'ok')
+                end
+                else
+                Dialog:show(rootSprite, '未知错误！', 'ok')
+            end
+            elseif msg ==102 then
+                data = Http:jsonDecode('handled_data')
+            Log:write("data101 = ", data)
+            if not data or type(data) ~= 'table' then
+                Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+                return
+            end
+            if data ~= nil then
+                if data.code == '0' then
+                    if #data.value > 0 then
+                        loadList(#data.value + 1)
+                    elseif data.value[0] then
+                        loadList(1)
+                    end
+                    else
+                    Dialog:show(rootSprite, '未知错误！', 'ok')
+                end
+                else
+                Dialog:show(rootSprite, '未知错误！', 'ok')
+            end
             elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
             elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
             Log:write('拨号失败')
@@ -123,28 +164,55 @@
         end
     end
     ---------------------------------------util functions---------------------------
+    function loadRequest()
+        local url = 'http://61.191.25.238:7011/nbspweb/webservice/wplan!doWebservice.action'
+        local param = '&usercode='..'adminhf'..'&title='..''..'&page=1&pagesize=5'
+        Log:write("param = ", param)
+        Http:request('pay_data', url, 101, {useCache = false, method = 'post', postData='cmd=wlbxunjianlist'..param})
+        Loading:show(rootSprite)
+    end
+    function loadDoneRequest()
+        local url = 'http://61.191.25.238:7011/nbspweb/webservice/wplan!doWebservice.action'
+        local param = '&usercode='..'adminhf'..'&title='..''..'&page=1&pagesize=5'
+        Log:write("param = ", param)
+        Http:request('handled_data', url, 102, {useCache = false, method = 'post', postData='cmd=wlbxunjianDonelist'..param})
+        Loading:show(rootSprite)
+    end
+    function loadList(count)
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list,true) 
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
+        ListView:adjust(list)
+    end
     function loadListItem(list, item, index)
+
         Sprite:setRect(item, 0, 0, 480, 70)
         local listItemBg = Sprite:findChild(item, 'listItemBg')
         Sprite:setRect(listItemBg, 0, 0, 480, 70)
-        if index / 2 > 0 then
+        if index % 2 > 0 then
             Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
             else
             Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
         end
         Sprite:setProperty(item, 'extendstyle', '1111')
         local texttitle = Sprite:findChild(item, 'texttitle')
-        Sprite:setProperty(texttitle, 'text', '合肥火车站')
+        Sprite:setProperty(texttitle, 'text', data.value[index].planName)
+        local btnname = Sprite:findChild(item, 'btnname')
+        Sprite:setProperty(btnname, "data", index)
     end
     function itemOnSelect(sprite)
-        local title = Sprite:getText(Sprite:findChild(sprite, 'texttitle'))
+        Sprite:killFocus(sprite)
+        Sprite:releaseCapture(sprite)
+        local index = tonumber(Sprite:getData(sprite))
         local regHandle = Reg:create('xunjian')
-        Reg:setString(regHandle, 'location', '火车站')
-        Reg:setString(regHandle, 'group', '合肥组')
-        Reg:setString(regHandle, 'type', '紧急')
-        Reg:setString(regHandle, 'time', '2012-11-01')
+        Reg:setString(regHandle, 'id', data.value[index].id)
+        Reg:setString(regHandle, 'taskid', tostring(data.value[index].taskid))
+        Reg:setString(regHandle,'flag',flag)
+        if flag=='1' then
+
         Scene:setReturn(Alias.xunjianrenwu, Alias.xunjianEdit)
         Scene:go(Alias.xunjianEdit)
+        end
     end
     function tabOnSelect(sprite)
         local tabNode = Sprite:getParent(sprite)
@@ -156,6 +224,14 @@
         Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_n.png')
         Sprite:setProperty(Sprite:findChild(tab3, 'tabBg'), 'src', 'file://image/tab_n.png')
         Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_s.png')
+        if dataInfo=='01' then   
+            flag='1'
+            loadRequest()
+        elseif dataInfo=='03' then
+            flag='3'
+            loadDoneRequest()
+            
+        end
     end
     function doBack(sprite)
         Scene:back()
