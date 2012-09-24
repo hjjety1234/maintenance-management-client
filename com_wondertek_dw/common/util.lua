@@ -31,6 +31,26 @@ function getCurDate()
     return string.format('%04s-%02s-%02s', year, month, day)
 end
 
+function SplitWithBlank(szFullString, szSeparator)
+    local nFindStartIndex = 1
+    local nSplitIndex = 1
+    local nSplitArray = {}
+    while true do
+        local nFindLastIndex = string.find(szFullString, szSeparator, nFindStartIndex)
+        if not nFindLastIndex then
+            local stringData = string.sub(szFullString, nFindStartIndex, string.len(szFullString))
+            
+                nSplitArray[nSplitIndex] = stringData
+            break
+        end
+        local stringData = string.sub(szFullString, nFindStartIndex, nFindLastIndex - 1)
+            nSplitArray[nSplitIndex] = stringData
+        nFindStartIndex = nFindLastIndex + string.len(szSeparator)
+        nSplitIndex = nSplitIndex + 1
+    end
+    return nSplitArray
+end
+
 function Split(szFullString, szSeparator)
     local nFindStartIndex = 1
     local nSplitIndex = 1

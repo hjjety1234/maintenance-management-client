@@ -59,7 +59,7 @@
 								<image rect="245,5,43,51" src="file://image/dropdown_arrow.png"
 									style="autosize" extendstyle="1111" />
 							</image>
-							<label name="name" rect="0,0,252,60" text="传输线路" color="#0" extendstyle="1111"
+							<label name="name" rect="0,0,252,60" text="" color="#0" extendstyle="1111"
 								style="autosize" h-align="center" v-align="center" font-size="24"></label>
 						</button>
 					</node>
@@ -84,13 +84,13 @@
 							h-align="right" v-align="center" color="#000000" font-size="24"
 							extendstyle="1111"></label>
 						<button name="levelBtn" rect="150,0,292,60" border="false"
-							text="" color="#ffffff" OnSelect="" extendstyle="1111">
+							text="" color="#ffffff" OnSelect="levelOnSelect" extendstyle="1111">
 							<image rect="0,0,292,60" src="file://image/input.png" style="autosize"
 								extendstyle="1111">
 								<image rect="245,5,43,51" src="file://image/dropdown_arrow.png"
 									style="autosize" extendstyle="1111" />
 							</image>
-							<label name="name" rect="0,0,252,60" text="一级" color="#0" extendstyle="1111"
+							<label name="name" rect="0,0,252,60" text="" color="#0" extendstyle="1111"
 								style="autosize" h-align="center" v-align="center" font-size="24"></label>
 						</button>
 					</node>
@@ -99,12 +99,16 @@
 							style="sudoku-auto" extendstyle="1111" sudoku="20,20,20,20">
 						</image>
 						<edit name="detail" rect="10,10,440,250" border="false"
-							extendstyle="1111" multiline="true" font-size="25" max-size="140"
+							extendstyle="0010" multiline="true" font-size="25" max-size="140"
 							OnTextChanged="editOnTextChanged">
 							<label name="hideLabel" rect="0,0,440,250" text="隐患详述" color="#c0c0c0"
 								extendstyle="1111" style="autosize" h-align="left" v-align="top"
 								font-size="24"></label>
 						</edit>
+						<button name="playRecord" rect="320,250,140,30" text="已录音，点击播放" color="#0"
+                                extendstyle="0010" style="autosize" h-align="left" v-align="top"
+                                font-size="15" OnSelect="playRecord"
+                                visible="false" enable="false" active="false"></button>
 					</node>
 				</list-item>
 				<list-item name="imageListNode" rect="0,0,480,0" border="false" extendstyle="1111">
@@ -146,31 +150,10 @@
                 <image rect="70,170,340,390" src="file://image/input.png" style="sudoku-auto"
                     extendstyle="1111" sudoku="15,15,15,15">
                 </image>
-                <button name="" rect="100,200,280,56" text="传输线路" color="#ffffff"
-                    extendstyle="1111" OnSelect="xunjianGroupOnSelect"
-                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-                    font-size="24" data="C30" />
-                <button name="" rect="100,270,280,56" text="基站设备及配套" color="#ffffff"
-                    extendstyle="1111" OnSelect="xunjianGroupOnSelect"
-                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-                    font-size="24" data="C31" />
-                    <button name="" rect="100,340,280,56" text="直放站室分及WLAN" color="#ffffff"
-                    extendstyle="1111" OnSelect="xunjianGroupOnSelect"
-                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-                    font-size="24" data="C32" />
-                    <button name="" rect="100,410,280,56" text="铁塔及天馈" color="#ffffff"
-                    extendstyle="1111" OnSelect="xunjianGroupOnSelect"
-                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-                    font-size="24" data="C33" />
-                    <button name="" rect="100,480,280,56" text="集客家客" color="#ffffff"
-                    extendstyle="1111" OnSelect="xunjianGroupOnSelect"
-                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-                    font-size="24" data="C34" />
+                
+                <listview name="listSelect" rect="100,200,280,320" auto-adjust="true" extendstyle="0010"/>
+                
+                
             </node>
 			<node name="baseSprite" rect="0,723,480,80" extendstyle="1111">
 				<image rect="0,0,480,80" src="file://image/bottom_bg.png"
@@ -209,16 +192,52 @@
 				h-align="left" v-align="center" color="#000000" font-size="18"
 				extendstyle="1111"></label>
 		</node>
+		
+		<node name="recordnode" rect="0,0,480,800" extendstyle="0000" visible="false" enable="false" active="false">
+            <button rect="0,0,480,800" extendstyle="1111" OnSelect="hideRecord"/>
+            <node rect="20,200,440,300" extendstyle="0010" >
+                <image rect="0,0,440,300" extendstyle="0010" style="autosize" src="file://image/record_bg.png"/>
+                <image rect="150,20,120,150" extendstyle="0010" style="autosize" src="file://image/record_icon.png"/>
+                <button name="recordStatus" rect="30,160,95,95" extendstyle="0010" color="#ffffff"
+                    font-size="20" v-align="center" h-align="left" OnSelect="beginRecord" src="file://image/record_begin.png"/>
+                
+                
+                <node rect="130,194,200,24" extendstyle="1110">
+                    <image name="downloadbar" rect="0,0,210,24" style="autosize" src="file://image/download_bg.png" extendstyle="1110"/>
+                    <node rect="5,3,220,20" frame="true" extendstyle="1110">
+                        <image name="progressbar" rect="0,0,0,20" style="autosize" src="file://image/download_bar.png" extendstyle="1110"/>
+                    </node>
+                </node>
+                    
+                <label name="showTime" rect="345,190,50,35" extendstyle="0010" color="#ffffff"
+                    text="00:00" font-size="20" v-align="center" h-align="left"/>
+            </node>
+        </node>
+        
+        <node name="selectItem" rect="0,0,280,76" visible="false" enable="false" active="false">
+                <button rect="0,0,280,56" color="#ffffff"
+                    extendstyle="0010" OnSelect="xunjianGroupOnSelect"
+                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+                    font-size="24" data="C30" />
+        </node>
+        
 	</body>
     <![CDATA[
 
     require 'com_wondertek_dw.common.framework'
 	require 'framework.map'
+	require 'framework.sysplayer'
     local rootSprite
     local observer
     local mapViewPlugin
     local curXunjianBtn
     local imageArray = {}
+    local status = 0
+    local time = 0
+    local recordGot = 0
+    local selectIndex = 1 --第几个下拉框
+    local selectData
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
@@ -259,6 +278,14 @@
                 Sprite:setProperty(locInfo, 'text', postData.address)
             end
             -- postData为Json数据({"address":"北京市西城区后红井胡同2号","city":"北京"})
+        elseif msg == 102 then
+            if Loading:isShow() then Loading:close() end 
+            selectData = Http:jsonDecode('select')
+            Log:write("data:", selectData)
+            if selectData.code == "0" then
+                fillSelect()
+            end
+            
             elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
             elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
             Log:write('拨号失败')
@@ -266,15 +293,45 @@
             Log:write('请求超时')
         end
     end
+    
+    function fillSelect()
+        setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
+        local count = #selectData.value + 1
+        local list = Sprite:findChild(rootSprite, 'listSelect')
+        local item = Sprite:findChild(rootSprite, 'selectItem')
+        ListView:removeAllItems(list, 1, 1)
+        ListView:loadItem(list, item, count, 'loadSelectItem')
+        ListView:adjust(list)
+    end
+    
+    function loadSelectItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 76)
+        Sprite:setProperty(item, 'extendstyle', '0010')
+        
+        local button = Sprite:findChildByClass(item, 'button')
+        if selectIndex == 1 then
+            Sprite:setProperty(button, 'text', selectData.value[index].typeName)
+        elseif selectIndex == 2 then
+            Sprite:setProperty(button, 'text', selectData.value[index].levelName)
+        elseif selectIndex == 3 then
+        end
+    end
+    
     -- @brief 按键响应处理
     function mainNodeOnKeyUp(sprite, kc)
         if kc == Key.F2 then -- 按下返回键
+            Scene:freeByHandle(rootSprite)
+            Player:show(0)
+            Player:stop()
             Scene:back()
             return 1
         end
     end
     ---------------------------------------util functions---------------------------
     function doBack()
+        Scene:freeByHandle(rootSprite)
+        Player:show(0)
+        Player:stop()
         Scene:back()
     end
     function editOnTextChanged(sprite,ncount)
@@ -290,8 +347,25 @@
         local xunjianData = Sprite:getData(sprite)
         curXunjianBtn = sprite
          --@Log:write('tempid===', tempid)
-        setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
+        selectIndex = 1 
+        local url = 'http://61.191.25.238:7011/nbspweb/webservice/accident!doWebservice.action?cmd=wlbyhtypelist&usercode=adminhf' 
+        Http:request('select', url, 102, {useCache = true, method = 'post'})
+        Loading:show(rootSprite)
+        --setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
     end
+    
+    function levelOnSelect(sprite)
+        --@Log:write('tempid===', tempid)
+        local xunjianData = Sprite:getData(sprite)
+        curXunjianBtn = sprite
+         --@Log:write('tempid===', tempid)
+        selectIndex = 2
+        local url = 'http://61.191.25.238:7011/nbspweb/webservice/accident!doWebservice.action?cmd=wlbyhlevellist&usercode=adminhf' 
+        Http:request('select', url, 102, {useCache = true, method = 'post'})
+        Loading:show(rootSprite)
+        --setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
+    end
+    
     function bottomMenuSelect(sprite)
         local dataInfo = Sprite:getData(sprite)
         if dataInfo == '1' then
@@ -308,24 +382,16 @@
     function xunjianGroupOnSelect(sprite)
         local xunjianData = Sprite:getData(sprite)
         local xunjianText = Sprite:findChild(curXunjianBtn, 'name')
-        Sprite:setProperty(curXunjianBtn, 'data', xunjianData)
-        if xunjianData == 'C30' then    
-            Sprite:setProperty(xunjianText, 'text', '传输线路')
-            elseif xunjianData == 'C31' then
-            
-            Sprite:setProperty(xunjianText, 'text', '基站设备及配套')
-            elseif xunjianData == 'C32' then
-            
-            Sprite:setProperty(xunjianText, 'text', '直放站室分及WLAN')
-            elseif xunjianData == 'C33' then
-            
-            Sprite:setProperty(xunjianText, 'text', '铁塔及天馈')
-            elseif xunjianData == 'C34' then
-            
-            Sprite:setProperty(xunjianText, 'text', '集客家客')
-             
+        local index = ListView:getItemIndex(Sprite:getParent(sprite))
+        
+        local title
+        if selectIndex == 1 then
+            title = selectData.value[index].typeName
+        elseif selectIndex == 2 then
+            title = selectData.value[index].levelName
         end
-        --@doChangeListHeight(curXunjianBtn)
+        
+        Sprite:setProperty(xunjianText, 'text', title)
         setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 0)
     end
 
@@ -465,7 +531,7 @@
     	local levelBtn = Sprite:findChild(rootSprite, 'levelBtn')
     	local detail = Sprite:findChild(rootSprite, 'detail')
 
-    	local datas = Split(stringData, ';')
+    	local datas = SplitWithBlank(stringData, ';')
 
     	Sprite:setProperty(Sprite:findChild(zhuanyeBtn, "name"), 'text', datas[2])
     	Sprite:setProperty(Sprite:findChild(typeBtn, "name"), 'text', datas[3])
@@ -480,5 +546,114 @@
     	end
     	doChangeImageList()
     end
+    
+    function bottomMenuSelect()
+        local record = Sprite:findChild(rootSprite, 'recordnode')
+        Sprite:setVisible(record, 1)
+        Sprite:setEnable(record, 1)
+        Sprite:setActive(record, 1)
+    end
+    
+    function hideRecord()
+        local record = Sprite:findChild(rootSprite, 'recordnode')
+        Sprite:setVisible(record, 0)
+        Sprite:setEnable(record, 0)
+        Sprite:setActive(record, 0)
+        time = 0
+        status = 0
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'recordStatus'), 'src', "file://image/record_begin.png")
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'showTime'), 'text', "00:00")
+        if recordGot == 1 then
+            showPlay()
+        end
+        Timer:cancel(1)
+        
+        local progressbar = Sprite:findChild(rootSprite, 'progressbar')
+        local l, t, w, h = Sprite:getRect(progressbar)
+        Sprite:setRect(progressbar, l, t, 0, h)
+        Record:stop()
+    end
+    
+    function beginRecord()
+        local recordStatus = Sprite:findChild(rootSprite, 'recordStatus')
+        if status == 0 then
+            Sprite:setProperty(recordStatus, 'src', "file://image/record_stop.png")
+            status = 1
+            time = 0
+            
+            local path = getDownloadPath() .. 'daiwei'
+            Log:write("path:", path)
+            IO:dirRemove(path, false)
+            IO:dirCreate(path)
+            Timer:set(1, 1000, 'freshProgress')
+            Record:start(path .. '\yinhuan.amr') 
+        else
+            Sprite:setProperty(recordStatus, 'src', "file://image/record_begin.png")
+            status = 0
+            recordGot = 1
+            Timer:cancel(1)
+            Record:stop()
+        end
+    end
+    
+    function showPlay()
+        local playRecord = Sprite:findChild(rootSprite, 'playRecord')
+        Sprite:setVisible(playRecord, 1)
+        Sprite:setEnable(playRecord, 1)
+        Sprite:setActive(playRecord, 1)
+    end
+    
+    function playRecord()
+        Player:create(0, 0, 0, 0)
+        Player:open('WONDER:\\record\\yinhuan.amr')
+        Player:show(1)
+    end
+    
+    function freshProgress(id)
+        local progressbar = Sprite:findChild(rootSprite, 'progressbar')
+        local l, t, w, h = Sprite:getRect(progressbar)
+        w = (220/180)*time
+        if w > 200 then
+            w = 0
+        end
+        Sprite:setRect(progressbar, l, t, w, h)
+        
+        time = time + 1
+        local showTime = Sprite:findChild(rootSprite, 'showTime')
+        local timeText = ""
+        if time < 10 then
+            timeText = "00:0" .. time
+        elseif time < 60 then
+            timeText = "00:" .. time
+        elseif time < 70 then
+            timeText = "01:0" .. (time-60)
+        elseif time < 120 then
+            timeText = "01:" .. (time-60)
+        elseif time < 130 then
+            timeText = "02:0" .. (time-120)
+        elseif time < 180 then
+            timeText = "02:" .. (time-120)
+        else
+            timeText = "03:00"
+        end
+        Sprite:setProperty(showTime, 'text', timeText)
+        if time >= 180 then
+            Timer:cancel(1)
+        end
+        if status == 1 then
+            Timer:set(1, 1000, 'freshProgress')
+        end
+    end
+    
+function getDownloadPath()
+    local downloadPath = ''
+    local flashCard = System:getFlashCardName(1) -- 判断外置存储卡存在性
+    if flashCard and flashCard ~= '' then --存在外置存储卡
+        Log:write('Util:getDownloadPath  flashCard=================', flashCard)
+        downloadPath = flashCard .. '\\'
+    end
+    Log:write('Util:getDownloadPath=======================', downloadPath)
+    return downloadPath
+end
 ]]>
 </root>

@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<shadow rect="0,0,480,800" color="#e8e8e8" alpha="255"
+			extendstyle="1111" />
+
+            <node rect="0,0,480,66" name="NodeTitle" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,66" src="file://image/title_bg.png"
+                    extendstyle="1111" style="autosize" />
+                <button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
+                    OnSelect="isSave" extendstyle="1111">
+                    <image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
+                        style="autosize" extendstyle="1111">
+                    </image>
+                    <image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
+                        style="autosize" extendstyle="1111">
+                    </image>
+                    <label rect="15,0,60,45" text="返回" color="#ffffff"
+                        extendstyle="1111" style="autosize" h-align="center" v-align="center"
+                        font-size="24"></label>
+                </button>
+
+                <scrolltext name="title" rect="105,0,280,66" text="系统设置"
+                    extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true"  step="2"></scrolltext>
+            </node>
+
+            <node name="resultNode" rect="10,70,460,100" extendstyle="1111">
+                <label rect="0,0,460,50" text="服务器连接地址：" color="#0" v-align="center"
+                    h-align="left" font-size="28" extendstyle="1111" />
+                <image rect="0,50,460,50" src="file://image/title_edit_bg.png"
+                    style="sudoku-auto" extendstyle="1111" sudoku="15,15,15,15" />
+                <edit name="editServer" rect="5,50,450,50" border="false"
+                    extendstyle="1111"  v-center="true"/>
+            </node>
+
+            <node name="resultNode" rect="10,190,460,50" extendstyle="1111">
+                <label rect="0,0,200,50" text="是否自动更新" color="#0" v-align="center"
+                    h-align="left" font-size="28" extendstyle="1111" />
+
+                    <button name="btnUpdate" rect="210,0,33,50" border="false" text=""
+                        color="#ffffff" OnSelect="autoUpdate" extendstyle="1111" data="1">
+                        <image name="image3" rect="0,8,33,34" border="false"
+                            src="file://image/form_psw_s.png" style="autosize" extendstyle="1111"></image>
+                    </button>
+            </node>
+
+            <node name="resultNode" rect="10,260,460,50" extendstyle="1111">
+                <label rect="0,0,200,50" text="是否自动登录" color="#0" v-align="center"
+                    h-align="left" font-size="28" extendstyle="1111" />
+
+                    <button name="btnLogin" rect="210,0,33,50" border="false" text=""
+                        color="#ffffff" OnSelect="autoRemeber" extendstyle="1111" data="1">
+                        <image name="image3" rect="0,8,33,34" border="false"
+                            src="file://image/form_psw_s.png" style="autosize" extendstyle="1111"></image>
+                    </button>
+            </node>
+
+            <node name="resultNode" rect="10,320,460,100" extendstyle="1111">
+                <label rect="0,0,460,50" text="分页显示条数：" color="#0" v-align="center"
+                    h-align="left" font-size="28" extendstyle="1111" />
+                <image rect="210,0,210,50" src="file://image/title_edit_bg.png"
+                    style="sudoku-auto" extendstyle="1111"  sudoku="15,15,15,15" />
+                <edit name="editLines" rect="215,0,220,50" border="false"
+                    extendstyle="1111" v-center="true" option="numeric"/>
+            </node>
+
+	</body>
+    <![CDATA[
+
+    require 'com_wondertek_dw.common.framework'
+    local rootSprite
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        init()
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if msg == 101 then
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    function doBack()
+        Scene:back()
+    end
+    function isSave()
+        -- body
+        Dialog:show('提示','是否保存该内容？','ok_cancel','doSave','doBack')
+    end
+    function doSave()
+        -- body
+        local editServer = Sprite:getProperty(Sprite:findChild(rootSprite, 'editServer'), 'text')
+        local editLines = Sprite:getProperty(Sprite:findChild(rootSprite, 'editLines'), 'text')
+        local btnUpdate = Sprite:findChild(rootSprite, 'btnUpdate')
+        local btnLogin = Sprite:findChild(rootSprite, 'btnLogin')
+        if editServer ~= '' then
+            Config:set('server_url', editServer)
+        end
+        if editLines ~= '' then
+            Config:set('lines', editLines)
+        else
+            Config:set('lines', 10)
+        end
+        Config:set('autoUpdate', Sprite:getData(btnUpdate))
+        Config:set('autoRemeber', Sprite:getData(btnLogin))
+        doBack()
+    end
+    function autoRemeber(sprite)
+        local flag = Sprite:getData(sprite)
+        local imgNode = Sprite:findChild(sprite,'image3')
+        if flag=='0' then
+            Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_select.png') 
+            Sprite:setProperty(sprite,'data','1')
+            elseif flag=='1' then
+                Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_s.png') 
+                Sprite:setProperty(sprite,'data','0')
+        end
+
+    end
+    function autoUpdate(sprite)
+        -- body
+        local flag = Sprite:getData(sprite)
+        local imgNode = Sprite:findChild(sprite,'image3')
+        if flag=='0' then
+            Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_select.png') 
+            Sprite:setProperty(sprite,'data','1')
+            elseif flag=='1' then
+                Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_s.png') 
+                Sprite:setProperty(sprite,'data','0')
+        end
+    end
+    function init()
+        -- body
+        local btnUpdate = Sprite:findChild(rootSprite, 'btnUpdate')
+        local btnLogin = Sprite:findChild(rootSprite, 'btnLogin')
+        if Config:get('server_url') ~= nil and Config:get('server_url') ~= '' then
+            Sprite:setProperty(Sprite:findChild(rootSprite, 'editServer'), 'text', Config:get('server_url'))
+        end
+        if Config:get('editLines') ~= nil and Config:get('editLines') ~= '' then
+            Sprite:setProperty(Sprite:findChild(rootSprite, 'editLines'), 'text', Config:get('editLines'))
+        end
+        if Config:get('autoUpdate') ~= nil and Config:get('autoUpdate') ~= '' then
+            Sprite:setProperty(btnUpdate, 'data', Config:get('autoUpdate'))
+            local imgNode = Sprite:findChild(btnUpdate,'image3')
+            if Config:get('autoUpdate') == '1' then
+                Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_select.png') 
+            else
+                Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_s.png') 
+            end
+        end
+        if Config:get('autoRemeber') ~= nil and Config:get('autoRemeber') ~= '' then
+            Sprite:setProperty(btnLogin, 'data', Config:get('autoRemeber'))
+            local imgNode = Sprite:findChild(btnLogin,'image3')
+            if Config:get('autoRemeber') == '1' then
+                Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_select.png') 
+            else
+                Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_s.png') 
+            end
+        end
+
+    end
+   
+]]>
+</root>

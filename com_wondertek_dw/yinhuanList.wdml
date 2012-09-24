@@ -66,23 +66,17 @@
 				<listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
 			</node>
             <node name="listitem" visible="false" enable="false" active="false"
-                extendstyle="1011" rect="0,200,480,100">
-                <shadow name="listItemBg" rect="0,0,480,100" color="#e8e8e8"
+                extendstyle="1011" rect="0,200,480,70">
+                <shadow name="listItemBg" rect="0,0,480,70" color="#e8e8e8"
                     alpha="255" extendstyle="1111" />
-                <button name="btnname" rect="0,0,480,100" OnSelect="itemOnSelect"
-                    extendstyle="1111">
-                    <label rect="10,5,120,30" text="故障工单号：" color="#0"
-                        font-size="18" h-align="left" v-align="center" extendstyle="1111"
-                        border="false" />
-                    <label name="textNum" rect="130,5,340,30" text="" color="#0"
-                        font-size="18" h-align="left" v-align="center" extendstyle="1111"
-                        border="false" />
-                    <label rect="10,35,120,30" text="工单主题：" color="#0" font-size="18"
+                <button name="btnname" rect="0,0,480,70" OnSelect="itemOnSelect"
+                    extendstyle="1111" data="">
+                    <label rect="10,5,120,30" text="工单主题：" color="#0" font-size="18"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="textTitle" rect="130,35,340,30" text="" color="#0"
+                    <label name="textTitle" rect="130,5,340,30" text="" color="#0"
                         font-size="18" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label name="textTime" rect="10,65,460,30" text="" color="#0"
+                    <label name="textTime" rect="10,35,460,30" text="" color="#0"
                         font-size="16" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
                 </button>
@@ -170,21 +164,25 @@
     function loadSavedListItem(list, item, index)
         local idString = savedDatas[index+1]
         Log:write('loadSavedListItemloadSavedListItem', idString , Config:get('yinhuanID' .. idString))
-        local dataString = Split(Config:get('yinhuanID' .. idString), ';')
+        local dataString = SplitWithBlank(Config:get('yinhuanID' .. idString), ';')
 
-        Sprite:setRect(item, 0, 0, 480, 100)
+        Sprite:setRect(item, 0, 0, 480, 70)
         Sprite:setProperty(item, 'extendstyle', '1111')
         local listItemBg = Sprite:findChild(item, 'listItemBg')
-        Sprite:setRect(listItemBg, 0, 0, 480, 100)
+        Sprite:setRect(listItemBg, 0, 0, 480, 70)
         if index % 2 > 0 then
             Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
             else
             Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
         end
-        local textNum = Sprite:findChild(item, 'textNum')
         local textTitle = Sprite:findChild(item, 'textTitle')
         local textTime = Sprite:findChild(item, 'textTime')
-        Sprite:setProperty(textNum, 'text', dataString[1] )
+        local btnname = Sprite:findChild(item, 'btnname')
+        Log:write('11111111111111111', dataString)
+
+        Sprite:setProperty(btnname, 'data', dataString[1] )
+        Log:write('111111111111111113123123', Sprite:getData(btnname))
+
         Sprite:setProperty(textTitle, 'text', dataString[5])
         Sprite:setProperty(textTime, 'text', dataString[6])
     end
@@ -195,29 +193,28 @@
         ListView:adjust(list)
     end
     function loadListItem(list, item, index)
-        Sprite:setRect(item, 0, 0, 480, 100)
+        Sprite:setRect(item, 0, 0, 480, 70)
         Sprite:setProperty(item, 'extendstyle', '1111')
         local listItemBg = Sprite:findChild(item, 'listItemBg')
-        Sprite:setRect(listItemBg, 0, 0, 480, 100)
+        Sprite:setRect(listItemBg, 0, 0, 480, 70)
         if index % 2 > 0 then
             Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
             else
             Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
         end
-        local textNum = Sprite:findChild(item, 'textNum')
         local textTitle = Sprite:findChild(item, 'textTitle')
         local textTime = Sprite:findChild(item, 'textTime')
-        Sprite:setProperty(textNum, 'text', data.value[index].id)
+        local btnname = Sprite:findChild(item, 'btnname')
+        Sprite:setProperty(btnname, 'data', data.value[index].id)
         Sprite:setProperty(textTitle, 'text', data.value[index].name)
         Sprite:setProperty(textTime, 'text', data.value[index].createTimeDis)
     end
     function itemOnSelect(sprite)
-        local tabNode = Sprite:getParent(sprite)
-        local textNum=Sprite:findChild(tabNode, 'textNum')
-        local text=Sprite:getText(textNum)
-        Log:write('texttexttexttexttext', text)
-        Scene:setReturn(Alias.yinhuanList, Alias.yinhuanshangchuan .. '?pYinhuanID=' .. text)
-        Scene:go(Alias.yinhuanshangchuan .. '?pYinhuanID=' .. text)
+        local curId= Sprite:getData(sprite)
+        Log:write('2222222222222333', curId)
+
+        Scene:setReturn(Alias.yinhuanList, Alias.yinhuanshangchuan .. '?pYinhuanID=' .. curId)
+        Scene:go(Alias.yinhuanshangchuan .. '?pYinhuanID=' .. curId)
     end
     function loadSavedDatas()
         -- body

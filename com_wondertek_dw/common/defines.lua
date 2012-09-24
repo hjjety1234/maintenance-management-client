@@ -44,5 +44,6 @@ Alias = {
     tongxunluDetail='MODULE:\\com_wondertek_dw\\tongxunluDetail.wdml', -- 通讯录详情
     gongdandetail='MODULE:\\com_wondertek_dw\\gongdandetail.wdml', -- 待办详情
     gongdan = 'MODULE:\\com_wondertek_dw\\gongdan.wdml', -- 工单列表
+    setting = 'MODULE:\\com_wondertek_dw\\setting.wdml', -- 系统设置页面
     dateDialog = 'MODULE:\\com_wondertek_dw\\dateDialog.wdml', -- 日期选择
 }
