@@ -76,8 +76,8 @@
 			</node>
 
 			<!-- 公告列表视图  -->
-			<node name="listViewNode" rect="0,66,480,734" extendstyle="1111">
-				<listview name="listView1" rect="0,0,480,734" extendstyle="1111"
+			<node name="listViewNode" rect="0,66,480,654" extendstyle="1111">
+				<listview name="listView1" rect="0,0,477,654" extendstyle="1111"
 					border="false" visible="true" auto-scroll="true" />
 			</node>
 
@@ -144,26 +144,24 @@
 			</node>
 
 			<!-- 收藏菜单  -->
-			<node name="ContextMenuNode" rect="0,700,480,100" border="false"
+			<node name="ContextMenuNode" rect="0,720,480,80" border="false"
 				visible="false" enable="true" active="false" extendstyle="1111">
-				<shadow name="ContextMenuNodeBg" rect="0,0,480,100" color="#e8e8e8"
-					alpha="255" extendstyle="1111" />
-				<list name="ContextMenuList" rect="0,0,480,100" extendstyle="1111"
-					line="1" col="3" auto-adjust="true" offset="2,6">
-					<list-item rect="0,0,160,100" extendstyle="1111">
-						<button rect="40,10,80,80" OnSelect="ContextMenuListItemOnSelect"
-							normal="normal" color="#2d547b" data="$(dataInfo)" extendstyle="1111">
-							<node name="normal" extendstyle="1111">
-								<image rect="0,0,80,80" src="$(iconSrc)" style="autosize"
-									extendstyle="1111" />
-							</node>
-						</button>
-					</list-item>
-					<dataset>
-						<set iconSrc="file://image/bookmark1.png" titleName="我的收藏"
-							dataInfo="01" />
-					</dataset>
-				</list>
+				<image name="ContextMenuNodeBgImage" style="autosize" rect="0,0,480,80"
+					src="file://image/tab_n.png" extendstyle="1111" />
+				<node name="FavListImg" rect="0,0,480,80" extendstyle="1111"
+					visible="true">
+					<button name="favListButton" rect="0,0,480,80"
+						OnSelect="ContextMenuListItemOnSelect" extendstyle="1111">
+						<image rect="182,18,40,40" src="file://image/bookmark1.png"
+							style="autosize" border="false" extendstyle="1111" />
+						<label name="noticeDate" rect="325,75,90,20" border="false"
+							text="" h-align="right" v-align="center" color="#000000"
+							font-size="15" extendstyle="1111"></label>
+						<label name="label2" rect="228,23,75,28" border="false"
+							text="我的收藏" h-align="center" color="#000000" font-family="微软雅黑"
+							font-size="24"></label>
+					</button>
+				</node>
 			</node>
 		</node>
 	</body>
@@ -200,7 +198,7 @@
                     len = len + 1
                 end
                 else
-                Dialog:show("搜索结果", "搜索结果为空", "ok")
+                Dialog:show("", "结果为空", "ok")
                 return
             end
             local list = Sprite:findChild(rootSprite, 'listView1')
@@ -345,14 +343,11 @@
             i = i + 1
         end
     end
-    
     --@brief 上下文菜单按钮消息处理函数
-    function ContextMenuListItemOnSelect(sprite) 
+    function ContextMenuListItemOnSelect(sprite)
         local buttonData = Sprite:getData(sprite)
-        if (buttonData == '01') then 
-            Scene:setReturn(Alias.notice, Alias.noticeFav)
-            Scene:go(Alias.noticeFav)
-        end
+        Scene:setReturn(Alias.notice, Alias.noticeFav)
+        Scene:go(Alias.noticeFav)
     end
 ]]>
 </root>
