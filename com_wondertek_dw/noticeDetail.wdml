@@ -41,14 +41,14 @@
 						extendstyle="1111" style="autosize" h-align="center" v-align="center"
 						font-size="24"></label>
 				</button>
-				
+
 				<!-- 收藏按钮 -->
-                <button name="favBtn" rect="420,15,40,40" normal="normal" sel="sel"
-                    OnSelect="OnFavBtnClicked" extendstyle="1111" border="false">
-                    <image name="favBtnImage" rect="0,0,40,40" src="file://image/bookmark0.png"
-                        style="autosize" extendstyle="1111">
-                    </image>
-                </button>
+				<button name="favBtn" rect="420,15,40,40" normal="normal"
+					sel="sel" OnSelect="OnFavBtnClicked" extendstyle="1111" border="false">
+					<image name="favBtnImage" rect="0,0,40,40" src="file://image/bookmark0.png"
+						style="autosize" extendstyle="1111">
+					</image>
+				</button>
 
 				<!-- 公告标题 -->
 				<scrolltext name="title" rect="0,0,480,66" text="公告详情"
@@ -60,13 +60,17 @@
 			<node name="detailNode" rect="0,66,480,734" border="false"
 				extendstyle="1111">
 				<label name="titleName" rect="0,0,480,60" border="false" text="label1"
-					h-align="center" v-align="center" color="#000000" font-size="20"></label>
-				<label name="date" rect="240,60,240,30" border="false" text="label3"
+					h-align="center" v-align="center" color="#000000" font-size="24"></label>
+				<label name="issuePerson" rect="10,60,230,30" border="false"
+					text="发布人：" h-align="left" v-align="center" color="#000000"
+					font-size="18"></label>
+				<label name="date" rect="240,60,230,30" border="false" text="label3"
 					h-align="right" v-align="center" color="#000000" font-size="18"></label>
-				<shadow rect="0,90,480,2" color="#000000" alpha="255"
+				<shadow rect="0,94,480,2" color="#000000" alpha="255"
 					extendstyle="1111" visible="true"></shadow>
-				<textarea name="detail" rect="0,100,480,644" border="false"
-					step="1" font-size="18" extendstyle="1111" h-align="left" loop="false">
+				<textarea name="detail" rect="10,100,460,629" border="false"
+					line-height="35" step="1" font-size="18" extendstyle="1111"
+					h-align="left" loop="false">
 				</textarea>
 			</node>
 		</node>
@@ -75,7 +79,7 @@
 
     require 'com_wondertek_dw.common.framework'
     local rootSprite
-    local noticeId 
+    local noticeId
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
@@ -85,24 +89,31 @@
         local title = Sprite:findChild(rootSprite,"titleName")
         local date = Sprite:findChild(rootSprite,"date")
         local detail = Sprite:findChild(rootSprite,"detail")
+        local issuePerson = Sprite:findChild(rootSprite,"issuePerson")
         -- 从数据仓库中读取各字段的值(id, 标题，日期)
         local noticeDetailHandler = Reg:create("noticeDetail")
         local usercode = Reg:getString(noticeDetailHandler, "usercode")
         noticeId = Reg:getString(noticeDetailHandler, "noticeId")
+        if (noticeId == nil or noticeId == '') then
+            Dialog:show("公告详情", "公告id为空!", "ok")
+            return
+        end
         local noticeTitle = Reg:getString(noticeDetailHandler, "noticeTitle")
         local noticeDate = Reg:getString(noticeDetailHandler, "noticeDate")
+        local noticeIssuePerson = Reg:getString(noticeDetailHandler, "issuePerson")
         -- 确定是否显示收藏图表
         if (Config:get("fav."..noticeId) == '1') then
             local favBtnImageSprite = Sprite:findChild(rootSprite,"favBtnImage")
             Sprite:setProperty(favBtnImageSprite, "src", 'file://image/bookmark1.png')
         end
-        -- 设置公告标题和日期
+        -- 设置公告标题，日期和发布人
         Sprite:setProperty(title, "text", noticeTitle)
         Sprite:setProperty(date, "text", noticeDate)
+        Sprite:setProperty(issuePerson, "text", '发布人：'..noticeIssuePerson)
         -- 构造请求地址
         local server = Config:get("server")
         local requestURL = string.format('%s/nbspweb/webservice/notice!doWebservice.action?cmd=wlbnewsdetail&usercode=%s&id=%s', server, usercode, noticeId)
-        Log:write('+++++++++++++++====='..requestURL)
+        Log:write('INFO.noticeDetail.bodyBuildChildrenFinished.requestURL:',requestURL)
         -- 请求公告内容
         Http:request("noticeDetail", requestURL, 101)
     end
@@ -118,10 +129,13 @@
             Log:write('jsondecode', Http:jsonDecode("noticeDetail"))
             jsonDecodedMsg = Http:jsonDecode("noticeDetail")
             local detailSprite = Sprite:findChild(rootSprite, 'detail')
-            if (detailSprite~= nil and jsonDecodedMsg["contentString"] ~= nil) then 
+            if (detailSprite~= nil and jsonDecodedMsg["contentString"] ~= nil) then
                 -- 正则表达式，去除html标签
                 local contentString = string.gsub(jsonDecodedMsg["contentString"], '<.->', '')
                 contentString = string.gsub(contentString, '&%w+;', '')
+                -- 正则表达式，去除页首的多余空行
+                contentString = string.gsub(contentString, '\r\n\t\r\n\r\n\t\r\n\r\n\t', '')
+                contentString = string.gsub(contentString, '\r\n\t\r\n\r\n\t', ' ')
                 Sprite:setProperty(detailSprite, 'text', contentString)
             end
             elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
@@ -143,13 +157,13 @@
     function doBack()
         Scene:back()
     end
-    
+    -- @brief 收藏按钮消息处理函数
     function OnFavBtnClicked(sprite)
         local favBtnImageSprite = Sprite:findChild(rootSprite, "favBtnImage")
-        if (Sprite:getProperty(favBtnImageSprite, "src") == 'file://image/bookmark0.png') then 
+        if (Sprite:getProperty(favBtnImageSprite, "src") == 'file://image/bookmark0.png') then
             Sprite:setProperty(favBtnImageSprite, "src", 'file://image/bookmark1.png')
             Config:set("fav."..noticeId, "1")
-        else
+            else
             Sprite:setProperty(favBtnImageSprite, "src", 'file://image/bookmark0.png')
             Config:set("fav."..noticeId, "0")
         end

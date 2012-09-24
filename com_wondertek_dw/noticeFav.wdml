@@ -37,13 +37,13 @@
 					<image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
 						style="autosize" extendstyle="1111">
 					</image>
-					<label rect="15,0,60,45" text="主页" color="#ffffff"
+					<label rect="15,0,60,45" text="返回" color="#ffffff"
 						extendstyle="1111" style="autosize" h-align="center" v-align="center"
 						font-size="24"></label>
 				</button>
 
 				<!-- 二级菜单标题 -->
-				<scrolltext name="title" rect="105,0,280,66" text="公告管理"
+				<scrolltext name="title" rect="105,0,280,66" text="我的收藏"
 					extendstyle="1111" font-size="30" h-align="center" v-align="center"
 					color="#ffffff" scroll="true" step="2"></scrolltext>
 
@@ -142,29 +142,6 @@
 					</node>
 				</button>
 			</node>
-
-			<!-- 收藏菜单  -->
-			<node name="ContextMenuNode" rect="0,700,480,100" border="false"
-				visible="false" enable="true" active="false" extendstyle="1111">
-				<shadow name="ContextMenuNodeBg" rect="0,0,480,100" color="#e8e8e8"
-					alpha="255" extendstyle="1111" />
-				<list name="ContextMenuList" rect="0,0,480,100" extendstyle="1111"
-					line="1" col="3" auto-adjust="true" offset="2,6">
-					<list-item rect="0,0,160,100" extendstyle="1111">
-						<button rect="40,10,80,80" OnSelect="ContextMenuListItemOnSelect"
-							normal="normal" color="#2d547b" data="$(dataInfo)" extendstyle="1111">
-							<node name="normal" extendstyle="1111">
-								<image rect="0,0,80,80" src="$(iconSrc)" style="autosize"
-									extendstyle="1111" />
-							</node>
-						</button>
-					</list-item>
-					<dataset>
-						<set iconSrc="file://image/bookmark1.png" titleName="我的收藏"
-							dataInfo="01" />
-					</dataset>
-				</list>
-			</node>
 		</node>
 	</body>
     <![CDATA[
@@ -219,16 +196,6 @@
     function mainNodeOnKeyUp(sprite, kc)
         if kc == Key.F2 then -- 按下返回键
             Scene:back()
-            return 1
-            elseif kc == Key.F1 then -- 按下菜单键
-            local FavListNodeSprite = Sprite:findChild(rootSprite, "ContextMenuNode")
-            if (isFavContextMenuVisible == false) then
-                Sprite:setProperty(FavListNodeSprite, 'visible', 'true')
-                isFavContextMenuVisible = true
-                else
-                Sprite:setProperty(FavListNodeSprite, 'visible', 'false')
-                isFavContextMenuVisible = false
-            end
             return 1
         end
     end
@@ -293,7 +260,7 @@
         Reg:setString(noticeDetailHandler, 'noticeDate', Sprite:getText(noticeDate))
         Reg:setString(noticeDetailHandler, 'issuePerson', Sprite:getText(issuePerson))
         -- 进行页面跳转
-        Scene:setReturn(Alias.notice, Alias.noticeDetail)
+        Scene:setReturn(Alias.noticeFav, Alias.noticeDetail)
         Scene:go(Alias.noticeDetail, true)
     end
     -- @brief 显示或者隐藏搜索条
@@ -343,15 +310,6 @@
                 Sprite:setVisible(myFavNoticeNodeSprite, 0)
             end
             i = i + 1
-        end
-    end
-    
-    --@brief 上下文菜单按钮消息处理函数
-    function ContextMenuListItemOnSelect(sprite) 
-        local buttonData = Sprite:getData(sprite)
-        if (buttonData == '01') then 
-            Scene:setReturn(Alias.notice, Alias.noticeFav)
-            Scene:go(Alias.noticeFav)
         end
     end
 ]]>

@@ -35,6 +35,7 @@ Alias = {
     xunjianEdit = 'MODULE:\\com_wondertek_dw\\xunjianEdit.wdml', -- 巡检上报
     notice = 'MODULE:\\com_wondertek_dw\\notice.wdml', -- 公告列表
     noticeDetail = 'MODULE:\\com_wondertek_dw\\noticeDetail.wdml', -- 公告详情
+    noticeFav = 'MODULE:\\com_wondertek_dw\\noticeFav.wdml', -- 公告详情
     cheliangguanli = 'MODULE:\\com_wondertek_dw\\cheliangguanli.wdml', -- 车辆管理
     cheliangxiangqing = 'MODULE:\\com_wondertek_dw\\cheliangxiangqing.wdml', -- 车辆详情
     imageDetail = 'MODULE:\\com_wondertek_dw\\imageDetail.wdml', -- 图片详情
