@@ -23,10 +23,10 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 //baidu
-import com.baidu.mapapi.BMapManager;
-import com.baidu.mapapi.MKEvent;
-import com.baidu.mapapi.MKGeneralListener;
-import android.widget.Toast;
+//import com.baidu.mapapi.BMapManager;
+//import com.baidu.mapapi.MKEvent;
+//import com.baidu.mapapi.MKGeneralListener;
+//import android.widget.Toast;
 
 import android.app.Activity;
 import android.app.Application;
@@ -82,29 +82,29 @@ public class VenusApplication  extends Application {
 	};
 
 	//TODO baidumap
-	public BMapManager mBMapMan = null;
-	
-	public String mStrKey = "679749BA00AF67C35F02506C6A917EC6BB294ACC";
-	public boolean m_bKeyRight = true;
-	
-	public static class MyGeneralListener implements MKGeneralListener {
-		@Override
-		public void onGetNetworkState(int iError) {
-			Toast.makeText(VenusApplication.sInstance.getApplicationContext(), "network error",
-					Toast.LENGTH_LONG).show();
-		}
-
-		@Override
-		public void onGetPermissionState(int iError) {
-			if (iError ==  MKEvent.ERROR_PERMISSION_DENIED) {
-				Toast.makeText(VenusApplication.sInstance.getApplicationContext(), 
-						"key error",
-						Toast.LENGTH_LONG).show();
-				VenusApplication.sInstance.m_bKeyRight = false;
-			}
-		}
-
-	}
+//	public BMapManager mBMapMan = null;
+//	
+//	public String mStrKey = "679749BA00AF67C35F02506C6A917EC6BB294ACC";
+//	public boolean m_bKeyRight = true;
+//	
+//	public static class MyGeneralListener implements MKGeneralListener {
+//		@Override
+//		public void onGetNetworkState(int iError) {
+//			Toast.makeText(VenusApplication.sInstance.getApplicationContext(), "network error",
+//					Toast.LENGTH_LONG).show();
+//		}
+//
+//		@Override
+//		public void onGetPermissionState(int iError) {
+//			if (iError ==  MKEvent.ERROR_PERMISSION_DENIED) {
+//				Toast.makeText(VenusApplication.sInstance.getApplicationContext(), 
+//						"key error",
+//						Toast.LENGTH_LONG).show();
+//				VenusApplication.sInstance.m_bKeyRight = false;
+//			}
+//		}
+//
+//	}
 
 	public VenusApplication() {
 		sInstance = this;
@@ -217,9 +217,9 @@ public class VenusApplication  extends Application {
 			 }
 		}
 		//baidu
-		mBMapMan = new BMapManager(this);
-		mBMapMan.init(this.mStrKey, new MyGeneralListener());
-		super.onCreate();
+//		mBMapMan = new BMapManager(this);
+//		mBMapMan.init(this.mStrKey, new MyGeneralListener());
+//		super.onCreate();
 
 		DameonService.start(this);
 	}
@@ -238,10 +238,10 @@ public class VenusApplication  extends Application {
 	{
 		Util.Trace("VenusApplication::onTerminate");
 		//baidu
-		if (mBMapMan != null) {
-			mBMapMan.destroy();
-			mBMapMan = null;
-		}
+//		if (mBMapMan != null) {
+//			mBMapMan.destroy();
+//			mBMapMan = null;
+//		}
 		super.onTerminate();
 	}
 

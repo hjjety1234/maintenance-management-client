@@ -122,27 +122,27 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 //TODO baidumap
-import com.baidu.mapapi.BMapManager;
-import com.baidu.mapapi.GeoPoint;
-import com.baidu.mapapi.LocationListener;
-import com.baidu.mapapi.MKAddrInfo;
-import com.baidu.mapapi.MKDrivingRouteResult;
-import com.baidu.mapapi.MKPlanNode;
-import com.baidu.mapapi.MKPoiInfo;
-import com.baidu.mapapi.MKPoiResult;
-import com.baidu.mapapi.MKSearch;
-import com.baidu.mapapi.MKSearchListener;
-import com.baidu.mapapi.MKTransitRouteResult;
-import com.baidu.mapapi.MKWalkingRouteResult;
-import com.baidu.mapapi.MapView;
-import com.baidu.mapapi.Overlay;
-import com.baidu.mapapi.PoiOverlay;
-import com.baidu.mapapi.RouteOverlay;
-import com.baidu.mapapi.TransitOverlay;
-import com.wondertek.activity.R;
-import com.wondertek.activity.AppActivity;
-import android.graphics.Point;
-import android.widget.Toast;
+//import com.baidu.mapapi.BMapManager;
+//import com.baidu.mapapi.GeoPoint;
+//import com.baidu.mapapi.LocationListener;
+//import com.baidu.mapapi.MKAddrInfo;
+//import com.baidu.mapapi.MKDrivingRouteResult;
+//import com.baidu.mapapi.MKPlanNode;
+//import com.baidu.mapapi.MKPoiInfo;
+//import com.baidu.mapapi.MKPoiResult;
+//import com.baidu.mapapi.MKSearch;
+//import com.baidu.mapapi.MKSearchListener;
+//import com.baidu.mapapi.MKTransitRouteResult;
+//import com.baidu.mapapi.MKWalkingRouteResult;
+//import com.baidu.mapapi.MapView;
+//import com.baidu.mapapi.Overlay;
+//import com.baidu.mapapi.PoiOverlay;
+//import com.baidu.mapapi.RouteOverlay;
+//import com.baidu.mapapi.TransitOverlay;
+//import com.wondertek.activity.R;
+//import com.wondertek.activity.AppActivity;
+//import android.graphics.Point;
+//import android.widget.Toast;
 
 //GDMAP
 //import com.amap.mapapi.core.GeoPoint;
@@ -322,24 +322,24 @@ public class VenusActivity implements SurfaceHolder.Callback {
 //	public native void  nativeCurrentPositionCallback(String strResult);
 
 	//TODO baidumap
-	public static VenusApplication app = null;
-	public static MapView mMapView = null;
-	private ArrayList<View> mPopViewList;
-	public LocationListener mLocationListener = null;
-	public MKSearch mSearch = null;
-	private String mapviewStartAddress = "";
-	private String mapviewEndAddress = "";
-	private int mapviewEndlatitude = 0;
-	private int mapviewEndlongitude = 0;
-	private int mapviewStartlatitude = 0;
-	private int mapviewStartlongitude = 0;
-	private int mapviewRouteType = 1;
-	private boolean mapviewSearchRoute = false;
-	private String mapviewStartCityName = "";
-	private String mapviewEndCityName ="";
-	private static final int SearchType_Driving = 1;
-	private static final int SearchType_Bus = 2;
-	private static final int SearchType_Walking = 3;
+//	public static VenusApplication app = null;
+//	public static MapView mMapView = null;
+//	private ArrayList<View> mPopViewList;
+//	public LocationListener mLocationListener = null;
+//	public MKSearch mSearch = null;
+//	private String mapviewStartAddress = "";
+//	private String mapviewEndAddress = "";
+//	private int mapviewEndlatitude = 0;
+//	private int mapviewEndlongitude = 0;
+//	private int mapviewStartlatitude = 0;
+//	private int mapviewStartlongitude = 0;
+//	private int mapviewRouteType = 1;
+//	private boolean mapviewSearchRoute = false;
+//	private String mapviewStartCityName = "";
+//	private String mapviewEndCityName ="";
+//	private static final int SearchType_Driving = 1;
+//	private static final int SearchType_Bus = 2;
+//	private static final int SearchType_Walking = 3;
 
 	//TODO VoiceInput
 //	public VoiceInputManager viManager;
@@ -938,22 +938,22 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		Util.saveMachineSettings(appActivity.getContentResolver());
 
 		//TODO baidumap
-		if(mMapView ==null)
-			mMapView = new MapView(appActivity);
-		al.addView(mMapView);
-		app = (VenusApplication)appActivity.getApplication();
-		if (app.mBMapMan == null) {
-			app.mBMapMan = new BMapManager(appActivity.getApplication());
-			app.mBMapMan.init(app.mStrKey, new VenusApplication.MyGeneralListener());
-		}
-		app.mBMapMan.start();
-        ((AppActivity) appActivity).initMap(app.mBMapMan);
-		mMapView.setLayoutParams(new AbsoluteLayout.LayoutParams(0,0, 0, 0));
-		mMapView.setVisibility(View.INVISIBLE);
-        mMapView.setBuiltInZoomControls(true);
-        mMapView.getController().setZoom(16);
-        mMapView.setDrawOverlayWhenZooming(true);
-        mPopViewList = new ArrayList<View>();
+//		if(mMapView ==null)
+//			mMapView = new MapView(appActivity);
+//		al.addView(mMapView);
+//		app = (VenusApplication)appActivity.getApplication();
+//		if (app.mBMapMan == null) {
+//			app.mBMapMan = new BMapManager(appActivity.getApplication());
+//			app.mBMapMan.init(app.mStrKey, new VenusApplication.MyGeneralListener());
+//		}
+//		app.mBMapMan.start();
+//        ((AppActivity) appActivity).initMap(app.mBMapMan);
+//		mMapView.setLayoutParams(new AbsoluteLayout.LayoutParams(0,0, 0, 0));
+//		mMapView.setVisibility(View.INVISIBLE);
+//        mMapView.setBuiltInZoomControls(true);
+//        mMapView.getController().setZoom(16);
+//        mMapView.setDrawOverlayWhenZooming(true);
+//        mPopViewList = new ArrayList<View>();
 //GDMAP
 //		gdMap = GDMap.getInstance(appActivity,mapHandler);
 //		al.addView(gdMap.getMapView());
@@ -1058,7 +1058,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			WifiObserver.getInstance(this).dealWithWLan(EVENT_PAUSE);
 			AppManager.getInstance(this).dealWithAppManager(EVENT_PAUSE);
 			//TODO baidumap
-			app.mBMapMan.stop();
+			//app.mBMapMan.stop();
 
 			//TODO
 			//keyguardLock.reenableKeyguard();
@@ -1088,7 +1088,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			WifiObserver.getInstance(this).dealWithWLan(EVENT_RESUME);
 			AppManager.getInstance(this).dealWithAppManager(EVENT_RESUME);
 			//TODO baidumap
-			app.mBMapMan.start();
+			//app.mBMapMan.start();
 
 			//TODO
 			//keyguardLock.disableKeyguard();
@@ -1792,9 +1792,9 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public native void nativebrowserreturn(String strUrl, int uType);
 
 	//TODO baidumap
-	public native void  nativeSearchCallback(String strResult);
-	public native void  nativeReverseCallback(String strResult);
-	public native void  nativeCurrentPositionCallback(String strResult);
+//	public native void  nativeSearchCallback(String strResult);
+//	public native void  nativeReverseCallback(String strResult);
+//	public native void  nativeCurrentPositionCallback(String strResult);
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
 	{
@@ -3801,465 +3801,465 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	
 	//TODO baidumap
 	
-	public class MyOverlay extends Overlay{
-		private GeoPoint genPoint;
-		private String text;
-		Paint paint = new Paint();
-
-		public MyOverlay(GeoPoint point,String name)
-		{
-			genPoint = point;
-			text = name;
-		}
-		@Override
-		public void draw(Canvas canvas, MapView mapView, boolean b) {
-			// TODO Auto-generated method stub
-			Point point = mapView.getProjection().toPixels(genPoint, null);
-			paint.setTextSize(24);
-
-			float[] widths = new float[text.length()];
-			int n = paint.getTextWidths (text, widths);
-			paint.setFakeBoldText(true);
-			float width = 0;
-			
-			for(int i=0; i<n;i++)
-				width += widths[i];
-			
-			canvas.drawText(text, point.x - width/2 , point.y + 24, paint);		
-		}			
-	}
-	
-	public boolean javaSetMapViewRect(int x,int y,int w,int h)
-	{
-		Log.d(TAG,"javaSetMapViewRect");
-		if(mMapView != null)
-		{
-			mMapView.setLayoutParams(new AbsoluteLayout.LayoutParams(w,h, x, y));
-	 		mMapView.setBuiltInZoomControls(true);
-   		mMapView.getController().setZoom(16);
-  	 	mMapView.setDrawOverlayWhenZooming(true);
-			javaShowMapView(true);
-		}
-		else
-			return false;
-		return true;
-	}
-
-	public boolean javaShowMapView(boolean bshow)
-	{
-		int nShowState = View.GONE;
-		if(bshow)
-			nShowState = View.VISIBLE;
-		else
-			nShowState = View.INVISIBLE;
-		if(mMapView != null)
-			mMapView.setVisibility(nShowState);
-		else
-			return false;
-		return true;
-	}
-
-	public void javaSetMapViewCenter(int latitude, int longitude,String name ,boolean bremoveAllOverley)
-	{
-		Log.d(TAG,"javaSetMapViewCenter bremoveAllOverley="+bremoveAllOverley);
-		GeoPoint point =new GeoPoint(latitude, longitude);
-		if(mMapView != null)
-		{
-			VenusActivity.getInstance().app.mBMapMan.stop();
-			mMapView.getController().setCenter(point);
-			VenusActivity.getInstance().app.mBMapMan.start();
-
-			if(!name.trim().equals(""))
-			{
-				View mPopView=appActivity.getLayoutInflater().inflate(R.layout.map_popview, null);
-				TextView name_ = (TextView)mPopView.findViewById(R.id.point_name);
-				if(bremoveAllOverley)
-				{
-					while(mPopViewList.size()>0)
-					{
-						View childPopView =mPopViewList.remove(mPopViewList.size()-1);
-						childPopView.setVisibility(View.INVISIBLE);
-						mMapView.removeView(childPopView);
-					}
-
-				}
-				mMapView.addView(mPopView,
-	    	            new MapView.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-	        	        		point, MapView.LayoutParams.BOTTOM_CENTER));
-				mPopViewList.add(mPopView);
-				name_.setText(name);
-			}
-		}
-	}
-
-	public void javaStartGetCurrentPosition()
-	{
-		Log.d(TAG,"javaStartGetCurrentPosition");
-		if(mLocationListener == null)
-		{
-			mLocationListener = new LocationListener(){
-
-				@Override
-				public void onLocationChanged(Location location) {
-					if(location != null){
-						int nLatitude = (int)(location.getLatitude()*1e6);
-						int nLongitude = (int)(location.getLongitude()*1e6);
-						String strResult = "{\"latitude\":\""+nLatitude+"\",\"longitude\":\""+nLongitude+"\"}";
-						Log.d(TAG, strResult);
-						nativeCurrentPositionCallback(strResult);
-						VenusActivity.getInstance().app.mBMapMan.getLocationManager().removeUpdates(mLocationListener);
-					}
-				}
-	        };
-		}
-		if(mLocationListener != null)
-		{
-			VenusActivity.getInstance().app.mBMapMan.stop();
-			VenusActivity.getInstance().app.mBMapMan.getLocationManager().requestLocationUpdates(mLocationListener);
-			VenusActivity.getInstance().app.mBMapMan.start();
-		}
-	}
-
-	public boolean javaStartSearchNearBy(String key, int latitude, int longitude, int radius)
-	{
-		Log.d(TAG,"javaStartSearchNearBy latitude=" +latitude+"; longitude=" +longitude +"; radius=" +radius +"; key=" +key);
-		GeoPoint point =new GeoPoint(latitude,longitude);
-		if(mSearch == null)
-			mSearch = initMKSearch();
-
-		if(mSearch!=null)
-		{
-			String[] keys = key.split(",");
-			boolean rt=false;
-			if(keys.length>1)
-				rt = mSearch.poiMultiSearchNearBy(keys,point,radius)== -1 ? false :true;
-			else
-				rt = mSearch.poiSearchNearBy(key,point,radius)== -1 ? false :true;
-			Log.d(TAG,"javaStartSearchNearBy rt="+rt);
-			return rt;
-		}
-		return false;
-	}
-	
-	public boolean javaPoiSearchInCity(String cityName,String address)
-	{
-		Log.d(TAG,"javaPoiSearchInCity cityName=" +cityName+"; address=" +address);
-		int rt =-1;
-		if(mSearch == null)
-			mSearch = initMKSearch();
-		if(mSearch!=null)
-			rt = mSearch.poiSearchInCity(cityName,address);
-		
-		while(mPopViewList.size()>0)
-		{
-			View childPopView =mPopViewList.remove(mPopViewList.size()-1);
-			childPopView.setVisibility(View.INVISIBLE);
-			mMapView.removeView(childPopView);
-		}
-		return rt==0?true:false;
-	}
-
-	public boolean javaStartreverseGeocode(int latitude, int longitude)
-	{
-		Log.d(TAG,"javaStartreverseGeocode latitude:" +latitude+"; longitude:" +longitude);
-		if(mSearch == null)
-			mSearch = initMKSearch();
-
-		if(mSearch!=null)
-		{
-			GeoPoint point =new GeoPoint(latitude, longitude);
-			boolean rt = mSearch.reverseGeocode(point)== -1 ? false :true;
-			Log.d(TAG,"javaStartreverseGeocode rt =" +rt);
-			return rt;
-		}
-		return false;
-	}
-	
-	public boolean javaSearchRoute(int routeType, String startCityname,String startAddress, int startlatitude, int startlongitude, String endCityname,String endAddress, int endlatitude, int endlongitude)
-	{
-		int rt = -1;
-		Log.d(TAG,"javaStartSearchRoute");
-		if(mSearch == null)
-			mSearch = initMKSearch();
-
-		mapviewStartAddress="";
-		mapviewEndAddress="";
-		mapviewStartlatitude = 0;
-		mapviewStartlongitude = 0;
-		mapviewEndlatitude = 0;
-		mapviewEndlongitude = 0;
-		mapviewSearchRoute = false;
-		mapviewStartCityName = startCityname;
-		mapviewEndCityName = endCityname;
-		if(mSearch!=null)
-		{
-			MKPlanNode stNode = new MKPlanNode();
-			if(startlatitude!=0&&startlongitude!=0)
-			{
-				stNode.pt = new GeoPoint(startlatitude,startlongitude);
-				mapviewStartlatitude = startlatitude;
-				mapviewStartlongitude = startlongitude;
-			}
-			else 
-				if(!startAddress.equals(""))
-				{
-					stNode.name = startAddress;
-					mapviewStartAddress = startAddress;
-				}
-				else
-					return false;
-				
-			MKPlanNode enNode = new MKPlanNode();
-			if(endlatitude!=0&&endlongitude!=0)
-			{	
-				enNode.pt = new GeoPoint(endlatitude,endlongitude);
-				mapviewEndlatitude = endlatitude;
-				mapviewEndlongitude = endlongitude;
-			}
-			else
-				if(!endAddress.equals(""))
-				{
-					enNode.name = endAddress;
-					mapviewEndAddress = endAddress;
-				}
-				else
-					return false;
-			
-			if(!mapviewStartAddress.equals(""))
-			{	
-				if(!startCityname.equals(""))
-				{
-					javaPoiSearchInCity(startCityname,startAddress);
-					mapviewSearchRoute = true;
-				}
-				else
-					return false;
-			}
-			else
-				if(!mapviewEndAddress.equals(""))
-				{
-					javaPoiSearchInCity(endCityname,endAddress);
-					mapviewSearchRoute = true;
-				}
-			
-			if(mapviewStartlatitude == 0 || mapviewStartlongitude == 0 && mapviewEndlatitude == 0 || mapviewEndlongitude == 0)
-			{
-				mapviewRouteType = routeType;
-				return true;
-			}
-			
-			switch(routeType)
-			{
-			case SearchType_Driving:
-				rt = mSearch.drivingSearch(startCityname, stNode, endCityname, enNode);
-				break;
-			case SearchType_Bus:
-				if(!startCityname.equals(""))
-					rt = mSearch.transitSearch(startCityname, stNode, enNode);
-				else
-					return false;
-				break;
-			case SearchType_Walking:
-				rt = mSearch.walkingSearch(startCityname, stNode, endCityname, enNode);
-				break;
-			}
-		}
-		
-		while(mPopViewList.size()>0)
-		{
-			View childPopView =mPopViewList.remove(mPopViewList.size()-1);
-			childPopView.setVisibility(View.INVISIBLE);
-			mMapView.removeView(childPopView);
-		}
-		
-		return rt==0?true:false;
-	}
-
-	public MKSearch initMKSearch()
-	{
-		MKSearch search = new MKSearch();
-		search.init(VenusActivity.getInstance().app.mBMapMan, new MKSearchListener(){
-
-      	public void onGetPoiResult(MKPoiResult res, int type, int error) {
-				if (error != 0 || res == null) {
-					nativeSearchCallback("{}");
-					mapviewSearchRoute =false;
-					return;
-				}
-				if(type == MKSearch.TYPE_POI_LIST)
-				{	
-					Log.d(TAG,"onGetPoiResult Num=" +res.getCurrentNumPois());
-					if (res.getCurrentNumPois() > 0) {
-						if(mapviewSearchRoute)
-						{
-							if(mapviewStartlatitude==0)
-							{
-								mapviewStartlatitude = res.getPoi(0).pt.getLatitudeE6();
-								mapviewStartlongitude= res.getPoi(0).pt.getLongitudeE6();
-								Log.d(TAG,"onGetPoiResult mapviewStartlatitude=" +mapviewStartlatitude);
-								
-								if(mapviewEndlatitude == 0)
-								{
-									Log.d(TAG,"onGetPoiResult mapviewEndCityName=" +mapviewEndCityName);
-									javaPoiSearchInCity(mapviewEndCityName,mapviewEndAddress);
-								}
-							}
-							else
-							{
-								mapviewEndlatitude = res.getPoi(0).pt.getLatitudeE6();
-								mapviewEndlongitude= res.getPoi(0).pt.getLongitudeE6();
-								Log.d(TAG,"onGetPoiResult mapviewEndlatitude=" +mapviewEndlatitude);
-							}
-							Log.d(TAG,"mapviewStartlatitude=" +mapviewStartlatitude +",mapviewStartlongitude=" +mapviewStartlongitude
-									+",mapviewEndlatitude=" +mapviewEndlatitude +",mapviewEndlongitude="+mapviewEndlongitude);
-							if(mapviewStartlatitude != 0 && mapviewStartlongitude != 0 && mapviewEndlatitude != 0 && mapviewEndlongitude != 0)
-								javaSearchRoute(mapviewRouteType, mapviewStartCityName,mapviewStartAddress, mapviewStartlatitude, mapviewStartlongitude, mapviewEndCityName,mapviewEndAddress, mapviewEndlatitude, mapviewEndlongitude);
-							return;
-						}
-						else
-						{
-							PoiOverlay poiOverlay = new PoiOverlay(VenusActivity.appActivity, mMapView);
-							poiOverlay.setData(res.getAllPoi());
-						    mMapView.getOverlays().clear();
-						    mMapView.getOverlays().add(poiOverlay);
-						    mMapView.invalidate();
-					    	mMapView.getController().animateTo(res.getPoi(0).pt);
-					    	Log.d(TAG,"onGetPoiResult LatitudeE6=" +res.getPoi(0).pt.getLatitudeE6()+"锛孡ongitudeE6="+res.getPoi(0).pt.getLongitudeE6());
-					    	
-					    	for(int i = 0; i < res.getCurrentNumPois();i++)
-					    		if(res.getPoi(i)!=null)
-					    			mMapView.getOverlays().add(new MyOverlay(res.getPoi(i).pt, res.getPoi(i).name));
-					    	return;
-						}
-				    }
-					mapviewSearchRoute =false;
-					return;
-				}
-				
-				ArrayList<MKPoiResult> result = res.getMultiPoiResult();
-              if (result == null) {
-                	ArrayList<MKPoiInfo> PoiInforesult =res.getAllPoi();
-                	String strResult ="{";
-              	if(PoiInforesult!=null && PoiInforesult.size()>0)
-                  {
-                		strResult +="\"data1\":[";
-              		for(int i =0; i< PoiInforesult.size();i++)
-                		{
-              			MKPoiInfo poiInfo = PoiInforesult.get(i);
-                			strResult +="{\"latitude\":\"" +poiInfo.pt.getLatitudeE6()+"\",";
-               			strResult +="\"longitude\":\"" +poiInfo.pt.getLongitudeE6()+"\",";
-                 		   	strResult +="\"name\":\"" +poiInfo.name+"\",";
-                 		   	strResult +="\"address\":\"" +poiInfo.address+"\",";
-                 		   	strResult +="\"phoneNum\":\"" +poiInfo.phoneNum+"\"}";
-                 		   	if(i<PoiInforesult.size()-1)
-                 		   		strResult +=",";
-                		}
-                		strResult += "]";
-                    }
-                	else
-               		Toast.makeText(VenusActivity.appActivity,"result is null", Toast.LENGTH_SHORT).show();
-                	strResult += "}";
-                	Log.d(TAG,strResult);
-                	nativeSearchCallback(strResult);
-                   return;
-                }
-
-                Log.d(TAG, "Find" + result.size() + "result");
-
-              if(result.size()>0)
-               {
-            	   String strResult = "{";
-            	   for(int i =0; i< result.size();i++)
-            	   {
-            		   ArrayList<MKPoiInfo> PoiInforesult =result.get(i).getAllPoi();
-            		   strResult +="\"data"+ i+"\":[";
-            		   for(int j =0; j<PoiInforesult.size(); j++)
-            		   {
-                		   MKPoiInfo poiInfo = PoiInforesult.get(j);
-                		   strResult +="{\"latitude\":\"" +poiInfo.pt.getLatitudeE6()+"\",";
-                		   strResult +="\"longitude\":\"" +poiInfo.pt.getLongitudeE6()+"\",";
-                		   strResult +="\"name\":\"" +poiInfo.name+"\",";
-                		   strResult +="\"address\":\"" +poiInfo.address+"\",";
-                		   strResult +="\"phoneNum\":\"" +poiInfo.phoneNum+"\"}";
-                		   if(j<PoiInforesult.size()-1)
-                			   strResult +=",";
-            		   }
-           		   strResult += "]";
-            		   if(i<result.size()-1)
-            			   strResult +=",";
-            	   }
-            	   strResult += "}";
-            	   Log.d(TAG,strResult);
-            	   nativeSearchCallback(strResult);
-               }
-			}
-
-			public void onGetAddrResult(MKAddrInfo res, int error) {
-				Log.d(TAG,"onGetAddrResult");
-				if (error != 0 || res == null) {
-					nativeSearchCallback("{}");
-					return;
-				}
-				if(res.strAddr!=null&&res.addressComponents!=null&&res.addressComponents.city!=null)
-				{
-					String strResult ="{\"address\":\""+res.strAddr +"\","+"\"city\":\""+res.addressComponents.city +"\"}";
-					Log.d(TAG,strResult);
-					nativeReverseCallback(strResult);
-					return;
-				}
-				nativeSearchCallback("{}");
-			}
-			
-			public void onGetDrivingRouteResult(MKDrivingRouteResult res,
-					int error) {
-				if (error != 0 || res == null) {
-					Toast.makeText(VenusActivity.appActivity,"result is error,id=" +error, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				RouteOverlay routeOverlay = new RouteOverlay(VenusActivity.appActivity, mMapView);
-			    routeOverlay.setData(res.getPlan(0).getRoute(0));
-			    mMapView.getOverlays().clear();
-			    mMapView.getOverlays().add(routeOverlay);
-			    mMapView.invalidate();
-			    mMapView.getController().animateTo(res.getStart().pt);
-			    mMapView.getOverlays().add(new MyOverlay(res.getStart().pt, mapviewStartAddress));
-			    mMapView.getOverlays().add(new MyOverlay(res.getEnd().pt, mapviewEndAddress));
-			}
-
-			public void onGetTransitRouteResult(MKTransitRouteResult res,
-					int error) {
-				if (error != 0 || res == null) {
-					Toast.makeText(VenusActivity.appActivity, "result is error,id=" +error, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				TransitOverlay  routeOverlay = new TransitOverlay (VenusActivity.appActivity, mMapView);
-			    routeOverlay.setData(res.getPlan(0));
-			    mMapView.getOverlays().clear();
-			    mMapView.getOverlays().add(routeOverlay);
-			    mMapView.invalidate();
-			    mMapView.getController().animateTo(res.getStart().pt);
-			    mMapView.getOverlays().add(new MyOverlay(res.getStart().pt, mapviewStartAddress));
-			    mMapView.getOverlays().add(new MyOverlay(res.getEnd().pt, mapviewEndAddress));
-			}
-
-			public void onGetWalkingRouteResult(MKWalkingRouteResult res,
-					int error) {
-				if (error != 0 || res == null) {
-					Toast.makeText(VenusActivity.appActivity, "result is error,id=" +error, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				RouteOverlay routeOverlay = new RouteOverlay(VenusActivity.appActivity, mMapView);
-			    routeOverlay.setData(res.getPlan(0).getRoute(0));
-			    mMapView.getOverlays().clear();
-			    mMapView.getOverlays().add(routeOverlay);
-			    mMapView.invalidate();
-			    mMapView.getController().animateTo(res.getStart().pt);
-			    mMapView.getOverlays().add(new MyOverlay(res.getStart().pt, mapviewStartAddress));
-			    mMapView.getOverlays().add(new MyOverlay(res.getEnd().pt, mapviewEndAddress));
-			}
-      });
-		return search;
-	}
+//	public class MyOverlay extends Overlay{
+//		private GeoPoint genPoint;
+//		private String text;
+//		Paint paint = new Paint();
+//
+//		public MyOverlay(GeoPoint point,String name)
+//		{
+//			genPoint = point;
+//			text = name;
+//		}
+//		@Override
+//		public void draw(Canvas canvas, MapView mapView, boolean b) {
+//			// TODO Auto-generated method stub
+//			Point point = mapView.getProjection().toPixels(genPoint, null);
+//			paint.setTextSize(24);
+//
+//			float[] widths = new float[text.length()];
+//			int n = paint.getTextWidths (text, widths);
+//			paint.setFakeBoldText(true);
+//			float width = 0;
+//			
+//			for(int i=0; i<n;i++)
+//				width += widths[i];
+//			
+//			canvas.drawText(text, point.x - width/2 , point.y + 24, paint);		
+//		}			
+//	}
+//	
+//	public boolean javaSetMapViewRect(int x,int y,int w,int h)
+//	{
+//		Log.d(TAG,"javaSetMapViewRect");
+//		if(mMapView != null)
+//		{
+//			mMapView.setLayoutParams(new AbsoluteLayout.LayoutParams(w,h, x, y));
+//	 		mMapView.setBuiltInZoomControls(true);
+//   		mMapView.getController().setZoom(16);
+//  	 	mMapView.setDrawOverlayWhenZooming(true);
+//			javaShowMapView(true);
+//		}
+//		else
+//			return false;
+//		return true;
+//	}
+//
+//	public boolean javaShowMapView(boolean bshow)
+//	{
+//		int nShowState = View.GONE;
+//		if(bshow)
+//			nShowState = View.VISIBLE;
+//		else
+//			nShowState = View.INVISIBLE;
+//		if(mMapView != null)
+//			mMapView.setVisibility(nShowState);
+//		else
+//			return false;
+//		return true;
+//	}
+//
+//	public void javaSetMapViewCenter(int latitude, int longitude,String name ,boolean bremoveAllOverley)
+//	{
+//		Log.d(TAG,"javaSetMapViewCenter bremoveAllOverley="+bremoveAllOverley);
+//		GeoPoint point =new GeoPoint(latitude, longitude);
+//		if(mMapView != null)
+//		{
+//			VenusActivity.getInstance().app.mBMapMan.stop();
+//			mMapView.getController().setCenter(point);
+//			VenusActivity.getInstance().app.mBMapMan.start();
+//
+//			if(!name.trim().equals(""))
+//			{
+//				View mPopView=appActivity.getLayoutInflater().inflate(R.layout.map_popview, null);
+//				TextView name_ = (TextView)mPopView.findViewById(R.id.point_name);
+//				if(bremoveAllOverley)
+//				{
+//					while(mPopViewList.size()>0)
+//					{
+//						View childPopView =mPopViewList.remove(mPopViewList.size()-1);
+//						childPopView.setVisibility(View.INVISIBLE);
+//						mMapView.removeView(childPopView);
+//					}
+//
+//				}
+//				mMapView.addView(mPopView,
+//	    	            new MapView.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
+//	        	        		point, MapView.LayoutParams.BOTTOM_CENTER));
+//				mPopViewList.add(mPopView);
+//				name_.setText(name);
+//			}
+//		}
+//	}
+//
+//	public void javaStartGetCurrentPosition()
+//	{
+//		Log.d(TAG,"javaStartGetCurrentPosition");
+//		if(mLocationListener == null)
+//		{
+//			mLocationListener = new LocationListener(){
+//
+//				@Override
+//				public void onLocationChanged(Location location) {
+//					if(location != null){
+//						int nLatitude = (int)(location.getLatitude()*1e6);
+//						int nLongitude = (int)(location.getLongitude()*1e6);
+//						String strResult = "{\"latitude\":\""+nLatitude+"\",\"longitude\":\""+nLongitude+"\"}";
+//						Log.d(TAG, strResult);
+//						nativeCurrentPositionCallback(strResult);
+//						VenusActivity.getInstance().app.mBMapMan.getLocationManager().removeUpdates(mLocationListener);
+//					}
+//				}
+//	        };
+//		}
+//		if(mLocationListener != null)
+//		{
+//			VenusActivity.getInstance().app.mBMapMan.stop();
+//			VenusActivity.getInstance().app.mBMapMan.getLocationManager().requestLocationUpdates(mLocationListener);
+//			VenusActivity.getInstance().app.mBMapMan.start();
+//		}
+//	}
+//
+//	public boolean javaStartSearchNearBy(String key, int latitude, int longitude, int radius)
+//	{
+//		Log.d(TAG,"javaStartSearchNearBy latitude=" +latitude+"; longitude=" +longitude +"; radius=" +radius +"; key=" +key);
+//		GeoPoint point =new GeoPoint(latitude,longitude);
+//		if(mSearch == null)
+//			mSearch = initMKSearch();
+//
+//		if(mSearch!=null)
+//		{
+//			String[] keys = key.split(",");
+//			boolean rt=false;
+//			if(keys.length>1)
+//				rt = mSearch.poiMultiSearchNearBy(keys,point,radius)== -1 ? false :true;
+//			else
+//				rt = mSearch.poiSearchNearBy(key,point,radius)== -1 ? false :true;
+//			Log.d(TAG,"javaStartSearchNearBy rt="+rt);
+//			return rt;
+//		}
+//		return false;
+//	}
+//	
+//	public boolean javaPoiSearchInCity(String cityName,String address)
+//	{
+//		Log.d(TAG,"javaPoiSearchInCity cityName=" +cityName+"; address=" +address);
+//		int rt =-1;
+//		if(mSearch == null)
+//			mSearch = initMKSearch();
+//		if(mSearch!=null)
+//			rt = mSearch.poiSearchInCity(cityName,address);
+//		
+//		while(mPopViewList.size()>0)
+//		{
+//			View childPopView =mPopViewList.remove(mPopViewList.size()-1);
+//			childPopView.setVisibility(View.INVISIBLE);
+//			mMapView.removeView(childPopView);
+//		}
+//		return rt==0?true:false;
+//	}
+//
+//	public boolean javaStartreverseGeocode(int latitude, int longitude)
+//	{
+//		Log.d(TAG,"javaStartreverseGeocode latitude:" +latitude+"; longitude:" +longitude);
+//		if(mSearch == null)
+//			mSearch = initMKSearch();
+//
+//		if(mSearch!=null)
+//		{
+//			GeoPoint point =new GeoPoint(latitude, longitude);
+//			boolean rt = mSearch.reverseGeocode(point)== -1 ? false :true;
+//			Log.d(TAG,"javaStartreverseGeocode rt =" +rt);
+//			return rt;
+//		}
+//		return false;
+//	}
+//	
+//	public boolean javaSearchRoute(int routeType, String startCityname,String startAddress, int startlatitude, int startlongitude, String endCityname,String endAddress, int endlatitude, int endlongitude)
+//	{
+//		int rt = -1;
+//		Log.d(TAG,"javaStartSearchRoute");
+//		if(mSearch == null)
+//			mSearch = initMKSearch();
+//
+//		mapviewStartAddress="";
+//		mapviewEndAddress="";
+//		mapviewStartlatitude = 0;
+//		mapviewStartlongitude = 0;
+//		mapviewEndlatitude = 0;
+//		mapviewEndlongitude = 0;
+//		mapviewSearchRoute = false;
+//		mapviewStartCityName = startCityname;
+//		mapviewEndCityName = endCityname;
+//		if(mSearch!=null)
+//		{
+//			MKPlanNode stNode = new MKPlanNode();
+//			if(startlatitude!=0&&startlongitude!=0)
+//			{
+//				stNode.pt = new GeoPoint(startlatitude,startlongitude);
+//				mapviewStartlatitude = startlatitude;
+//				mapviewStartlongitude = startlongitude;
+//			}
+//			else 
+//				if(!startAddress.equals(""))
+//				{
+//					stNode.name = startAddress;
+//					mapviewStartAddress = startAddress;
+//				}
+//				else
+//					return false;
+//				
+//			MKPlanNode enNode = new MKPlanNode();
+//			if(endlatitude!=0&&endlongitude!=0)
+//			{	
+//				enNode.pt = new GeoPoint(endlatitude,endlongitude);
+//				mapviewEndlatitude = endlatitude;
+//				mapviewEndlongitude = endlongitude;
+//			}
+//			else
+//				if(!endAddress.equals(""))
+//				{
+//					enNode.name = endAddress;
+//					mapviewEndAddress = endAddress;
+//				}
+//				else
+//					return false;
+//			
+//			if(!mapviewStartAddress.equals(""))
+//			{	
+//				if(!startCityname.equals(""))
+//				{
+//					javaPoiSearchInCity(startCityname,startAddress);
+//					mapviewSearchRoute = true;
+//				}
+//				else
+//					return false;
+//			}
+//			else
+//				if(!mapviewEndAddress.equals(""))
+//				{
+//					javaPoiSearchInCity(endCityname,endAddress);
+//					mapviewSearchRoute = true;
+//				}
+//			
+//			if(mapviewStartlatitude == 0 || mapviewStartlongitude == 0 && mapviewEndlatitude == 0 || mapviewEndlongitude == 0)
+//			{
+//				mapviewRouteType = routeType;
+//				return true;
+//			}
+//			
+//			switch(routeType)
+//			{
+//			case SearchType_Driving:
+//				rt = mSearch.drivingSearch(startCityname, stNode, endCityname, enNode);
+//				break;
+//			case SearchType_Bus:
+//				if(!startCityname.equals(""))
+//					rt = mSearch.transitSearch(startCityname, stNode, enNode);
+//				else
+//					return false;
+//				break;
+//			case SearchType_Walking:
+//				rt = mSearch.walkingSearch(startCityname, stNode, endCityname, enNode);
+//				break;
+//			}
+//		}
+//		
+//		while(mPopViewList.size()>0)
+//		{
+//			View childPopView =mPopViewList.remove(mPopViewList.size()-1);
+//			childPopView.setVisibility(View.INVISIBLE);
+//			mMapView.removeView(childPopView);
+//		}
+//		
+//		return rt==0?true:false;
+//	}
+//
+//	public MKSearch initMKSearch()
+//	{
+//		MKSearch search = new MKSearch();
+//		search.init(VenusActivity.getInstance().app.mBMapMan, new MKSearchListener(){
+//
+//      	public void onGetPoiResult(MKPoiResult res, int type, int error) {
+//				if (error != 0 || res == null) {
+//					nativeSearchCallback("{}");
+//					mapviewSearchRoute =false;
+//					return;
+//				}
+//				if(type == MKSearch.TYPE_POI_LIST)
+//				{	
+//					Log.d(TAG,"onGetPoiResult Num=" +res.getCurrentNumPois());
+//					if (res.getCurrentNumPois() > 0) {
+//						if(mapviewSearchRoute)
+//						{
+//							if(mapviewStartlatitude==0)
+//							{
+//								mapviewStartlatitude = res.getPoi(0).pt.getLatitudeE6();
+//								mapviewStartlongitude= res.getPoi(0).pt.getLongitudeE6();
+//								Log.d(TAG,"onGetPoiResult mapviewStartlatitude=" +mapviewStartlatitude);
+//								
+//								if(mapviewEndlatitude == 0)
+//								{
+//									Log.d(TAG,"onGetPoiResult mapviewEndCityName=" +mapviewEndCityName);
+//									javaPoiSearchInCity(mapviewEndCityName,mapviewEndAddress);
+//								}
+//							}
+//							else
+//							{
+//								mapviewEndlatitude = res.getPoi(0).pt.getLatitudeE6();
+//								mapviewEndlongitude= res.getPoi(0).pt.getLongitudeE6();
+//								Log.d(TAG,"onGetPoiResult mapviewEndlatitude=" +mapviewEndlatitude);
+//							}
+//							Log.d(TAG,"mapviewStartlatitude=" +mapviewStartlatitude +",mapviewStartlongitude=" +mapviewStartlongitude
+//									+",mapviewEndlatitude=" +mapviewEndlatitude +",mapviewEndlongitude="+mapviewEndlongitude);
+//							if(mapviewStartlatitude != 0 && mapviewStartlongitude != 0 && mapviewEndlatitude != 0 && mapviewEndlongitude != 0)
+//								javaSearchRoute(mapviewRouteType, mapviewStartCityName,mapviewStartAddress, mapviewStartlatitude, mapviewStartlongitude, mapviewEndCityName,mapviewEndAddress, mapviewEndlatitude, mapviewEndlongitude);
+//							return;
+//						}
+//						else
+//						{
+//							PoiOverlay poiOverlay = new PoiOverlay(VenusActivity.appActivity, mMapView);
+//							poiOverlay.setData(res.getAllPoi());
+//						    mMapView.getOverlays().clear();
+//						    mMapView.getOverlays().add(poiOverlay);
+//						    mMapView.invalidate();
+//					    	mMapView.getController().animateTo(res.getPoi(0).pt);
+//					    	Log.d(TAG,"onGetPoiResult LatitudeE6=" +res.getPoi(0).pt.getLatitudeE6()+"锛孡ongitudeE6="+res.getPoi(0).pt.getLongitudeE6());
+//					    	
+//					    	for(int i = 0; i < res.getCurrentNumPois();i++)
+//					    		if(res.getPoi(i)!=null)
+//					    			mMapView.getOverlays().add(new MyOverlay(res.getPoi(i).pt, res.getPoi(i).name));
+//					    	return;
+//						}
+//				    }
+//					mapviewSearchRoute =false;
+//					return;
+//				}
+//				
+//				ArrayList<MKPoiResult> result = res.getMultiPoiResult();
+//              if (result == null) {
+//                	ArrayList<MKPoiInfo> PoiInforesult =res.getAllPoi();
+//                	String strResult ="{";
+//              	if(PoiInforesult!=null && PoiInforesult.size()>0)
+//                  {
+//                		strResult +="\"data1\":[";
+//              		for(int i =0; i< PoiInforesult.size();i++)
+//                		{
+//              			MKPoiInfo poiInfo = PoiInforesult.get(i);
+//                			strResult +="{\"latitude\":\"" +poiInfo.pt.getLatitudeE6()+"\",";
+//               			strResult +="\"longitude\":\"" +poiInfo.pt.getLongitudeE6()+"\",";
+//                 		   	strResult +="\"name\":\"" +poiInfo.name+"\",";
+//                 		   	strResult +="\"address\":\"" +poiInfo.address+"\",";
+//                 		   	strResult +="\"phoneNum\":\"" +poiInfo.phoneNum+"\"}";
+//                 		   	if(i<PoiInforesult.size()-1)
+//                 		   		strResult +=",";
+//                		}
+//                		strResult += "]";
+//                    }
+//                	else
+//               		Toast.makeText(VenusActivity.appActivity,"result is null", Toast.LENGTH_SHORT).show();
+//                	strResult += "}";
+//                	Log.d(TAG,strResult);
+//                	nativeSearchCallback(strResult);
+//                   return;
+//                }
+//
+//                Log.d(TAG, "Find" + result.size() + "result");
+//
+//              if(result.size()>0)
+//               {
+//            	   String strResult = "{";
+//            	   for(int i =0; i< result.size();i++)
+//            	   {
+//            		   ArrayList<MKPoiInfo> PoiInforesult =result.get(i).getAllPoi();
+//            		   strResult +="\"data"+ i+"\":[";
+//            		   for(int j =0; j<PoiInforesult.size(); j++)
+//            		   {
+//                		   MKPoiInfo poiInfo = PoiInforesult.get(j);
+//                		   strResult +="{\"latitude\":\"" +poiInfo.pt.getLatitudeE6()+"\",";
+//                		   strResult +="\"longitude\":\"" +poiInfo.pt.getLongitudeE6()+"\",";
+//                		   strResult +="\"name\":\"" +poiInfo.name+"\",";
+//                		   strResult +="\"address\":\"" +poiInfo.address+"\",";
+//                		   strResult +="\"phoneNum\":\"" +poiInfo.phoneNum+"\"}";
+//                		   if(j<PoiInforesult.size()-1)
+//                			   strResult +=",";
+//            		   }
+//           		   strResult += "]";
+//            		   if(i<result.size()-1)
+//            			   strResult +=",";
+//            	   }
+//            	   strResult += "}";
+//            	   Log.d(TAG,strResult);
+//            	   nativeSearchCallback(strResult);
+//               }
+//			}
+//
+//			public void onGetAddrResult(MKAddrInfo res, int error) {
+//				Log.d(TAG,"onGetAddrResult");
+//				if (error != 0 || res == null) {
+//					nativeSearchCallback("{}");
+//					return;
+//				}
+//				if(res.strAddr!=null&&res.addressComponents!=null&&res.addressComponents.city!=null)
+//				{
+//					String strResult ="{\"address\":\""+res.strAddr +"\","+"\"city\":\""+res.addressComponents.city +"\"}";
+//					Log.d(TAG,strResult);
+//					nativeReverseCallback(strResult);
+//					return;
+//				}
+//				nativeSearchCallback("{}");
+//			}
+//			
+//			public void onGetDrivingRouteResult(MKDrivingRouteResult res,
+//					int error) {
+//				if (error != 0 || res == null) {
+//					Toast.makeText(VenusActivity.appActivity,"result is error,id=" +error, Toast.LENGTH_SHORT).show();
+//					return;
+//				}
+//				RouteOverlay routeOverlay = new RouteOverlay(VenusActivity.appActivity, mMapView);
+//			    routeOverlay.setData(res.getPlan(0).getRoute(0));
+//			    mMapView.getOverlays().clear();
+//			    mMapView.getOverlays().add(routeOverlay);
+//			    mMapView.invalidate();
+//			    mMapView.getController().animateTo(res.getStart().pt);
+//			    mMapView.getOverlays().add(new MyOverlay(res.getStart().pt, mapviewStartAddress));
+//			    mMapView.getOverlays().add(new MyOverlay(res.getEnd().pt, mapviewEndAddress));
+//			}
+//
+//			public void onGetTransitRouteResult(MKTransitRouteResult res,
+//					int error) {
+//				if (error != 0 || res == null) {
+//					Toast.makeText(VenusActivity.appActivity, "result is error,id=" +error, Toast.LENGTH_SHORT).show();
+//					return;
+//				}
+//				TransitOverlay  routeOverlay = new TransitOverlay (VenusActivity.appActivity, mMapView);
+//			    routeOverlay.setData(res.getPlan(0));
+//			    mMapView.getOverlays().clear();
+//			    mMapView.getOverlays().add(routeOverlay);
+//			    mMapView.invalidate();
+//			    mMapView.getController().animateTo(res.getStart().pt);
+//			    mMapView.getOverlays().add(new MyOverlay(res.getStart().pt, mapviewStartAddress));
+//			    mMapView.getOverlays().add(new MyOverlay(res.getEnd().pt, mapviewEndAddress));
+//			}
+//
+//			public void onGetWalkingRouteResult(MKWalkingRouteResult res,
+//					int error) {
+//				if (error != 0 || res == null) {
+//					Toast.makeText(VenusActivity.appActivity, "result is error,id=" +error, Toast.LENGTH_SHORT).show();
+//					return;
+//				}
+//				RouteOverlay routeOverlay = new RouteOverlay(VenusActivity.appActivity, mMapView);
+//			    routeOverlay.setData(res.getPlan(0).getRoute(0));
+//			    mMapView.getOverlays().clear();
+//			    mMapView.getOverlays().add(routeOverlay);
+//			    mMapView.invalidate();
+//			    mMapView.getController().animateTo(res.getStart().pt);
+//			    mMapView.getOverlays().add(new MyOverlay(res.getStart().pt, mapviewStartAddress));
+//			    mMapView.getOverlays().add(new MyOverlay(res.getEnd().pt, mapviewEndAddress));
+//			}
+//      });
+//		return search;
+//	}
 
 	//TODO webview
 	public void javaBrowserCreateWindow(int nX,int nY,int nWidth, int nHeight)

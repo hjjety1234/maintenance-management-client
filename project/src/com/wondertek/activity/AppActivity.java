@@ -1,14 +1,14 @@
 package com.wondertek.activity;
 
 //baidu
-import com.baidu.mapapi.BMapManager;
-import com.baidu.mapapi.GeoPoint;
-import com.baidu.mapapi.MapActivity;
-import com.baidu.mapapi.MapView;
-import com.baidu.mapapi.MyLocationOverlay;
-import android.view.WindowManager;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.AbsoluteLayout;
+//import com.baidu.mapapi.BMapManager;
+//import com.baidu.mapapi.GeoPoint;
+//import com.baidu.mapapi.MapActivity;
+//import com.baidu.mapapi.MapView;
+//import com.baidu.mapapi.MyLocationOverlay;
+//import android.view.WindowManager;
+//import android.view.ViewGroup.LayoutParams;
+//import android.widget.AbsoluteLayout;
 
 //import com.phonegap.DroidGap;
 import android.widget.AbsoluteLayout;
@@ -34,12 +34,12 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 //baidu
-public class AppActivity extends MapActivity {
+//public class AppActivity extends MapActivity {
 //phonegap
 //public class AppActivity extends DroidGap {
 //GDMAP
 //public class AppActivity extends MapActivity implements RouteMessageHandler {
-//public class AppActivity extends Activity{
+public class AppActivity extends Activity{
 	private static String SELF	= "AppActivity ";
 	private static AppActivity instance = null;
 	
@@ -65,18 +65,18 @@ public class AppActivity extends MapActivity {
 		
 		VenusActivity.getInstance().onCreate(savedInstanceState);
 //baidu
-		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		String dirname = VenusApplication.appAbsPath + "/lib2/mapview/";
-		System.load(dirname + "libmapview.so");
+//		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//		String dirname = VenusApplication.appAbsPath + "/lib2/mapview/";
+//		System.load(dirname + "libmapview.so");
 
 		VenusApplication.getInstance().addActivity(this);
 		//VenusApplication.getInstance().addActivity(AlixDemo.getInstance());
 	}
 //baidu
-	public void initMap(BMapManager bMapManager)
-	{
-		super.initMapActivity(bMapManager);
-	}
+//	public void initMap(BMapManager bMapManager)
+//	{
+//		super.initMapActivity(bMapManager);
+//	}
 
 	@Override
 	protected void onPause()
@@ -167,10 +167,10 @@ public class AppActivity extends MapActivity {
 	}
 	
 //baidu
-	@Override
-	protected boolean isRouteDisplayed() {
-		return false;
-	}
+//	@Override
+//	protected boolean isRouteDisplayed() {
+//		return false;
+//	}
 	
 //phonegap	
 	public void loadUrl(String url)
