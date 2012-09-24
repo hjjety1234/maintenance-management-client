@@ -23,21 +23,18 @@
 				<image name="title" rect="0,0,480,66" border="false"
 					src="file://image/title_bg.png" style="autosize" extendstyle="1111">
 
-					<label rect="0,0,480,66" text="隐患上传" color="#ffffff" v-align="center"
+					<label rect="0,0,480,66" text="隐患上报" color="#ffffff" v-align="center"
 						h-align="center" font-size="28" extendstyle="1111" />
 				</image>
 
-				<button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
+				<button name="backBtn" rect="0,10,75,45" normal="normal"
 					OnSelect="isSave" extendstyle="1111">
 					<image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
 						style="autosize" extendstyle="1111">
 					</image>
-					<image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
+					<image rect="20,0,50,45" src="file://image/ic_return.png"
 						style="autosize" extendstyle="1111">
 					</image>
-					<label rect="15,0,60,45" text="返回" color="#ffffff"
-						extendstyle="1111" style="autosize" h-align="center" v-align="center"
-						font-size="24"></label>
 				</button>
 				<button name="btnForget" rect="387,4,79,56" text="提交" color="#ffffff"
 					extendstyle="1111" OnSelect="submitOnSelect"
@@ -69,7 +66,7 @@
 							h-align="right" v-align="center" color="#000000" font-size="24"
 							extendstyle="1111"></label>
 						<button name="typeBtn" rect="150,0,292,60" border="false"
-							text="" color="#ffffff" OnSelect="" extendstyle="1111">
+							text="" color="#ffffff" OnSelect="typeOnSelect" extendstyle="1111">
 							<image rect="0,0,292,60" src="file://image/input.png" style="autosize"
 								extendstyle="1111">
 								<image rect="245,5,43,51" src="file://image/dropdown_arrow.png"
@@ -260,7 +257,8 @@
     function bodyOnPluginEvent(msg, param)
         if msg == 101 then
             elseif msg == 1000 then
-            local postData = Param:getString(param, 0)
+            local postDataString = Param:getString(param, 0)
+       		local postData = Json:loadString2Table(postDataString)
             if postData.latitude ~= nil then
                 Config:set("latitude", postData.latitude)
             end
@@ -272,7 +270,8 @@
             end
             -- postData为Json数据({"latitude":"31250614","longitude":"121600975"})
             elseif msg == 1001 then
-            local postData = Param:getString(param, 0)
+            local postDataString = Param:getString(param, 0)
+            local postData = Json:loadString2Table(postDataString)
             local locInfo = Sprite:findChild(rootSprite, 'locInfo')
             if postData.address ~= nil then
                 Sprite:setProperty(locInfo, 'text', postData.address)
@@ -285,7 +284,19 @@
             if selectData.code == "0" then
                 fillSelect()
             end
-            
+        elseif msg == 103 then
+            if Loading:isShow() then Loading:close() end 
+            local updateData = Http:jsonDecode('upload_data')
+            if updateData.code ~= '0' then
+        		Dialog:show('提示',getErrorCode(updateData.code) .. ' ，是否暂存？','ok_cancel','doSave','doBack')
+            else
+		    	if pYinhuanID ~= nil then
+		    		local temp = ';' .. Config:get('yinhuanIDList')
+		    		Config:set('yinhuanIDList', string.gsub(temp, ";" .. pYinhuanID .. ';', ";"))
+		    	end
+        		Dialog:show('提示','上传成功','ok','doBack')
+            end
+
             elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
             elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
             Log:write('拨号失败')
@@ -311,8 +322,10 @@
         local button = Sprite:findChildByClass(item, 'button')
         if selectIndex == 1 then
             Sprite:setProperty(button, 'text', selectData.value[index].typeName)
+            Sprite:setProperty(button, 'data', selectData.value[index].id)
         elseif selectIndex == 2 then
             Sprite:setProperty(button, 'text', selectData.value[index].levelName)
+            Sprite:setProperty(button, 'data', selectData.value[index].id)
         elseif selectIndex == 3 then
         end
     end
@@ -353,6 +366,9 @@
         Loading:show(rootSprite)
         --setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
     end
+    function typeOnSelect(sprite)
+    	-- body
+    end
     
     function levelOnSelect(sprite)
         --@Log:write('tempid===', tempid)
@@ -382,6 +398,7 @@
     function xunjianGroupOnSelect(sprite)
         local xunjianData = Sprite:getData(sprite)
         local xunjianText = Sprite:findChild(curXunjianBtn, 'name')
+
         local index = ListView:getItemIndex(Sprite:getParent(sprite))
         
         local title
@@ -390,7 +407,7 @@
         elseif selectIndex == 2 then
             title = selectData.value[index].levelName
         end
-        
+        Sprite:setProperty(curXunjianBtn, 'data', Sprite:getProperty(sprite, 'data'))
         Sprite:setProperty(xunjianText, 'text', title)
         setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 0)
     end
@@ -410,10 +427,25 @@
         Dialog:show('提示','是否保存该内容？','ok_cancel','doSave','doBack')
     end
     function submitOnSelect(sprites)
-        Dialog:show('提示','是否确定提交此隐患？','ok_cancel','doUpload','doBack')
+        Dialog:show('提示','是否确定提交此隐患？','ok_cancel','doUpload','doSave')
     end
     function doUpload()
-        --doSave()
+    	local zhuanyeBtn = Sprite:findChild(rootSprite, 'zhuanyeBtn')
+    	local typeBtn = Sprite:findChild(rootSprite, 'typeBtn')
+    	local levelBtn = Sprite:findChild(rootSprite, 'levelBtn')
+    	local detail = Sprite:findChild(rootSprite, 'detail')
+
+    	if Config:get("latitude") == nil or Config:get("latitude") == '' then
+            Dialog:show('提示', '定位失败!', 'ok')
+    	end
+    	if Config:get("longitude") == nil or Config:get("longitude") == '' then
+            Dialog:show('提示', '定位失败!', 'ok')
+    	end
+
+    	local url = 'http://61.191.25.238:7011/nbspweb/webservice/accident!doWebservice.action'
+        local param = '&usercode='..'zyhefei'.. '&createrdate=' .. getCurDate() .. '&deptPro=' .. Sprite:getData(zhuanyeBtn) ..  '&dangertype=' .. Sprite:getData(typeBtn) .. '&dangerlevel=' .. Sprite:getData(levelBtn)  .. '&dangercontent=' .. Sprite:getProperty(detail, 'text') .. '&userLongtitute=' .. Config:get("longitude") .. '&userLatitute=' ..  Config:get("latitude")
+        Log:write("param = ", param)
+        Http:request('upload_data', url, 103, {useCache = false, method = 'post', postData='cmd=wlbdangersign'..param})
     end
     function doSave()
     	Log:write(1)
@@ -525,6 +557,10 @@
     function doLoadSave(pYinhuanID)
     	-- body
     	local stringData = Config:get('yinhuanID' .. pYinhuanID)
+
+    	if stringData == nil or stringData == '' then
+    		return
+    	end
 
     	local zhuanyeBtn = Sprite:findChild(rootSprite, 'zhuanyeBtn')
     	local typeBtn = Sprite:findChild(rootSprite, 'typeBtn')
@@ -645,15 +681,18 @@
         end
     end
     
-function getDownloadPath()
-    local downloadPath = ''
-    local flashCard = System:getFlashCardName(1) -- 判断外置存储卡存在性
-    if flashCard and flashCard ~= '' then --存在外置存储卡
-        Log:write('Util:getDownloadPath  flashCard=================', flashCard)
-        downloadPath = flashCard .. '\\'
-    end
-    Log:write('Util:getDownloadPath=======================', downloadPath)
-    return downloadPath
-end
+	function getDownloadPath()
+	    local downloadPath = ''
+	    local flashCard = System:getFlashCardName(1) -- 判断外置存储卡存在性
+	    if flashCard and flashCard ~= '' then --存在外置存储卡
+	        Log:write('Util:getDownloadPath  flashCard=================', flashCard)
+	        downloadPath = flashCard .. '\\'
+	    end
+	    Log:write('Util:getDownloadPath=======================', downloadPath)
+	    return downloadPath
+	end
+	function doLoadFromNet()
+		-- body
+	end
 ]]>
 </root>

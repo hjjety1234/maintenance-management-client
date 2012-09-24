@@ -68,15 +68,17 @@
 				<!-- 月份标签和背景图 -->
 				<label name="label2" rect="5,5,60,50" border="false" text="月份："
 					v-align="center" color="#000000" font-family="微软雅黑" font-size="24"></label>
-				<image rect="65,5,135,50" src="file://image/combobox1.png"
+				<image rect="65,5,135,50" src="file://image/combobox2.png"
 					style="autosize" extendstyle="1111">
 				</image>
 				<!-- 筛选月份，默认为当前月份 -->
 				<label name="selectMonthEdit" rect="65,5,105,45" border="false"
 					font-family="微软雅黑" h-align="center" v-align="center" font-size="24"></label>
-				<!-- 筛选月份按钮 -->
-				<button name="selectMonthButton" rect="170,5,30,50" border="false"
-					text="" color="#ffffff" OnSelect="OnSelectMonthButtonClicked"></button>
+				<!-- 递增和递减月份按钮 -->
+				<button name="DecMonthButton" rect="170,5,30,22" border="false"
+					text="" color="#ffffff" OnSelect="OnDecMonthButtonClicked"></button>
+				<button name="IncMonthButton" rect="170,27,30,28" border="false"
+					text="" color="#ffffff" OnSelect="OnIncMonthButtonClicked"></button>
 			</node>
 
 			<!-- 确定筛选按钮 -->
@@ -145,50 +147,6 @@
 						<set cityName="芜湖市" />
 						<set cityName="六安市" />
 						<set cityName="黄山市" />
-					</dataset>
-				</listview>
-			</node>
-		</node>
-
-		<!-- 月份选择节点-->
-		<node name="monthSelectNode" rect="0,0,480,800" visible="false"
-			enable="false" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1"
-			extendstyle="1111">
-			<!-- 月份列表 -->
-			<node name="monthListViewNode" rect="120,143,240,600"
-				extendstyle="1111">
-				<image rect="0,0,240,600" src="file://image/input.png" style="sudoku-auto"
-					extendstyle="1111" sudoku="15,15,15,15">
-				</image>
-				<listview name="monthListView" rect="0,20,240,560"
-					extendstyle="1111" border="false">
-					<list-item rect="0,0,240,80" extendstyle="1111" border="false">
-						<button rect="20,10,200,60" OnSelect="OnMonthListItemSelect"
-							normal="normal" extendstyle="1111" color="#2d547b">
-							<node name="normal">
-								<image rect="0,0,200,60" sudoku="15,15,15,15"
-									src="file://image/btn_bg_n.png" style="sudoku-auto"
-									extendstyle="1111" />
-							</node>
-						</button>
-						<!-- 显示的标签将上面的按钮完全覆盖 -->
-						<label name="monthNameLabel" rect="20,10,200,60" text="$(monthName)"
-							color="#000000" v-align="center" h-align="center" font-size="24"
-							extendstyle="1111" />
-					</list-item>
-					<dataset>
-						<set monthName="一月" />
-						<set monthName="二月" />
-						<set monthName="三月" />
-						<set monthName="四月" />
-						<set monthName="五月" />
-						<set monthName="六月" />
-						<set monthName="七月" />
-						<set monthName="八月" />
-						<set monthName="九月" />
-						<set monthName="十月" />
-						<set monthName="十一月" />
-						<set monthName="十二月" />
 					</dataset>
 				</listview>
 			</node>
@@ -319,19 +277,6 @@
         Sprite:setProperty(citySelectNodeSprite, "visible", "false")
         Sprite:setProperty(citySelectNodeSprite, "enable", "false")
     end
-    --@brief 用户月份选择消息处理函数
-    function OnMonthListItemSelect(sprite)
-        -- 显示选择的月份
-        local selectMonthEditSprite = Sprite:findChild(rootSprite, "selectMonthEdit")
-        local listItemSprite = Sprite:getParent(sprite)
-        local monthNameLabelSprite = Sprite:findChild(listItemSprite, 'monthNameLabel')
-        local monthNameLabelText = Sprite:getText(monthNameLabelSprite)
-        Sprite:setProperty(selectMonthEditSprite, "text", monthNameLabelText)
-        -- 隐藏月份选择
-        local monthSelectNodeSprite = Sprite:findChild(rootSprite, "monthSelectNode")
-        Sprite:setProperty(monthSelectNodeSprite, "visible", "false")
-        Sprite:setProperty(monthSelectNodeSprite, "enable", "false")
-    end
     --@brief 递增月份消息处理函数
     function OnIncMonthButtonClicked(sprite)
         local selectMonthEditSprite = Sprite:findChild(rootSprite, "selectMonthEdit")
@@ -416,11 +361,6 @@
         searchMonthIndex = j
         Http:connectCMWAP()
         Http:request("StatList", requestURL, 101)
-    end
-    --@brief 选择月份按钮消息处理函数
-    function OnSelectMonthButtonClicked(sprite)
-        Scene:setReturn(Alias.tongjiliebiao, Alias.dateDialog)
-        Scene:go(Alias.dateDialog)
     end
 ]]>
 </root>

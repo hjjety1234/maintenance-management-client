@@ -36,11 +36,14 @@
 					extendstyle="1111" style="autosize" h-align="center" v-align="center"
 					font-size="24"></label>
 			</button>
-			<button name="btnForget" rect="387,4,79,56" text="添加" color="#ffffff"
+			<button name="btnForget" rect="387,4,79,56" text="" color="#ffffff"
 				extendstyle="1111" OnSelect="addOnSelect"
-				normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-				sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-				font-size="24" />
+				font-size="24" border="false">
+                <image  rect="20,0,56,56" src="file://image/ic_add.png"
+                    style="autosize" extendstyle="1111">
+                </image>
+
+            </button>
 		</node>
 		<node name="mainNode" rect="0,0,480,734" enable="true" active="true"
 			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
@@ -93,12 +96,16 @@
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
         rootSprite = sprite
+        Config:set('curYinHuanListTab', '1')
     end
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
-            tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
-            loadSavedDatas()
+            if Config:get('curYinHuanListTab') == '1' then
+                tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
+            else
+                tabOnSelect(Sprite:findChild(rootSprite, 'btnTab2'))
+            end
             elseif msg == MSG_DEACTIVATE then
         end
     end
@@ -157,8 +164,10 @@
         Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_s.png')
         if tab1 == sprite then
             loadSavedDatas()
+            Config:set('curYinHuanListTab', '1')
         else
             loadUploadDatas()
+            Config:set('curYinHuanListTab', '2')
         end
     end
     function loadSavedListItem(list, item, index)
@@ -212,6 +221,16 @@
     function itemOnSelect(sprite)
         local curId= Sprite:getData(sprite)
         Log:write('2222222222222333', curId)
+
+        
+        local stringData = Config:get('yinhuanID' .. curId)
+
+        if stringData == nil or stringData == '' then
+
+        Scene:setReturn(Alias.yinhuanList, Alias.yinhuanDetail .. '?pYinhuanID=' .. curId)
+        Scene:go(Alias.yinhuanDetail .. '?pYinhuanID=' .. curId)
+            return
+        end
 
         Scene:setReturn(Alias.yinhuanList, Alias.yinhuanshangchuan .. '?pYinhuanID=' .. curId)
         Scene:go(Alias.yinhuanshangchuan .. '?pYinhuanID=' .. curId)

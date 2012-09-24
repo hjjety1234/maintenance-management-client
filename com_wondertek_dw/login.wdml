@@ -51,13 +51,25 @@
 					normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
 					sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
 					font-size="24" />
-				<button name="btnForget" rect="270,0,150,50" text="忘记密码"
-					color="#ffffff" extendstyle="1111" OnSelect="forgetOnSelect"
+				<button name="btnForget" rect="270,0,150,50" text="清  空"
+					color="#ffffff" extendstyle="1111" OnSelect="clearOnSelect"
 					normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
 					sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
 					font-size="24" />
 			</node>
 		</node>
+            <node name="menuNode" rect="0,0,480,800" extendstyle="1111" visible="false" enable="false" active="false">
+                <button name="" rect="0,0,480,800" extendstyle="1111" color="#ffffff"
+                    font-size="20" v-align="center" h-align="left" OnSelect="hideMenuNode"/>
+
+                <image name="daibanimg" rect="0,700,480,100" style="autosize" extendstyle="1111" border="false" src="file://image/bottom_bg.png">
+                </image>
+                <button name="recordStatus" rect="0,700,480,100" extendstyle="1111" color="#ffffff"
+                    font-size="20" v-align="center" h-align="left" OnSelect="menuSettingOnSelect"/>
+                <label name="daibanNum" rect="0,700,480,100"  color="#ffffff" font-style="bold" text="系统设置"
+                            v-align="center" h-align="center" font-size="24" extendstyle="1111" />
+                
+            </node>
 	</body>
     <![CDATA[
 
@@ -105,6 +117,10 @@
     function mainNodeOnKeyUp(sprite, kc)
         if kc == Key.F2 then -- 按下返回键
             Scene:back()
+            return 1
+        elseif kc == Key.F1 then
+            local menuNode = Sprite:findChild(rootSprite, 'menuNode')
+            setAllShoworHide(menuNode, 1)
             return 1
         end
     end
@@ -169,10 +185,24 @@
     			Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_s.png') 
     			Sprite:setProperty(sprite,'data','1')
     	end
-
     end
-    function forgetOnSelect(sprite)
-        Scene:go(Alias.radioSample)
+    function hideMenuNode(sprite)
+        local menuNode = Sprite:findChild(rootSprite, 'menuNode')
+        setAllShoworHide(menuNode, 0)
+    end
+    function menuSettingOnSelect(sprite)
+        -- body
+        local menuNode = Sprite:findChild(rootSprite, 'menuNode')
+        setAllShoworHide(menuNode, 0)
+            Scene:setReturn(Alias.login, Alias.setting)
+            Scene:go(Alias.setting)
+    end
+    function clearOnSelect(sprite)
+        -- body
+        local namenode=Sprite:findChild(rootSprite, 'namenode')
+        local pwdnode=Sprite:findChild(rootSprite, 'pwdnode')
+        Sprite:setProperty(Sprite:findChild(namenode, 'edname'), 'text', '')
+        Sprite:setProperty(Sprite:findChild(pwdnode, 'edpwd'), 'text', '')
     end
 ]]>
 </root>

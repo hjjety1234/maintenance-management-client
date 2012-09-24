@@ -58,13 +58,25 @@
 					</dataset>
 				</list>
 			</node>
-            <node name="daibanNode" rect="120,75,43,45">
+            <node name="daibanNode" rect="120,75,43,45" extendstyle="1111">
                 <image name="daibanimg" rect="0,0,43,45" style="autosize" extendstyle="1111" border="false" src="file://image/hongquan.png">
                 </image>
                 <label name="daibanNum" rect="5,5,35,35"  color="#FF0000" font-style="bold"
                             v-align="center" h-align="center" font-size="24" extendstyle="1111" />
             </node>
 		</node>
+            <node name="menuNode" rect="0,0,480,800" extendstyle="1111" visible="false" enable="false" active="false">
+                <button name="" rect="0,0,480,800" extendstyle="1111" color="#ffffff"
+                    font-size="20" v-align="center" h-align="left" OnSelect="hideMenuNode"/>
+
+                <image name="daibanimg" rect="0,700,480,100" style="autosize" extendstyle="1111" border="false" src="file://image/bottom_bg.png">
+                </image>
+                <button name="recordStatus" rect="0,700,480,100" extendstyle="1111" color="#ffffff"
+                    font-size="20" v-align="center" h-align="left" OnSelect="menuSettingOnSelect"/>
+                <label name="daibanNum" rect="0,700,480,100"  color="#ffffff" font-style="bold" text="系统设置"
+                            v-align="center" h-align="center" font-size="24" extendstyle="1111" />
+                
+            </node>
 	</body>
     <![CDATA[
 
@@ -121,6 +133,10 @@
         if kc == Key.F2 then -- 按下返回键
             Dialog:show('', '是否确定退出？', 'ok_cancel', 'doExit')
             return 1
+        elseif kc == Key.F1 then
+            local menuNode = Sprite:findChild(rootSprite, 'menuNode')
+            setAllShoworHide(menuNode, 1)
+            return 1
         end
     end
     ---------------------------------------util functions---------------------------
@@ -146,8 +162,8 @@
             Scene:go(Alias.yinhuanList)
             elseif dataInfo == '05' then
             elseif dataInfo == '06' then
-            Scene:setReturn(Alias.home, Alias.search)
-            Scene:go(Alias.search)
+            Scene:setReturn(Alias.home, Alias.tongjiliebiao)
+            Scene:go(Alias.tongjiliebiao)
             elseif dataInfo == '07' then
             Scene:setReturn(Alias.home, Alias.tongxunlu)
             Scene:go(Alias.tongxunlu)
@@ -159,6 +175,17 @@
             Scene:go(Alias.gongdan)
             else
         end
+    end
+    function hideMenuNode(sprite)
+        local menuNode = Sprite:findChild(rootSprite, 'menuNode')
+        setAllShoworHide(menuNode, 0)
+    end
+    function menuSettingOnSelect(sprite)
+        -- body
+        local menuNode = Sprite:findChild(rootSprite, 'menuNode')
+        setAllShoworHide(menuNode, 0)
+            Scene:setReturn(Alias.home, Alias.setting)
+            Scene:go(Alias.setting)
     end
 ]]>
 </root>
