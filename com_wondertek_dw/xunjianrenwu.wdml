@@ -17,27 +17,27 @@
 		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
 		<shadow rect="0,0,480,800" color="#e8e8e8" alpha="255"
 			extendstyle="1111" />
-        <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
-            <image name="title" rect="0,0,480,66" border="false"
-                src="file://image/title_bg.png" style="autosize" extendstyle="1111">
+		<node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+			<image name="title" rect="0,0,480,66" border="false"
+				src="file://image/title_bg.png" style="autosize" extendstyle="1111">
 
-                <label rect="0,0,480,66" text="巡检任务" color="#ffffff" v-align="center"
-                    h-align="center" font-size="28" extendstyle="1111" />
-            </image>
+				<label rect="0,0,480,66" text="巡检任务" color="#ffffff" v-align="center"
+					h-align="center" font-size="28" extendstyle="1111" />
+			</image>
 
-            <button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
-                OnSelect="doBack" extendstyle="1111">
-                <image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
-                    style="autosize" extendstyle="1111">
-                </image>
-                <image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
-                    style="autosize" extendstyle="1111">
-                </image>
-                <label rect="15,0,60,45" text="首页" color="#ffffff"
-                    extendstyle="1111" style="autosize" h-align="center" v-align="center"
-                    font-size="24"></label>
-            </button>
-        </node>
+			<button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
+				OnSelect="doBack" extendstyle="1111">
+				<image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
+					style="autosize" extendstyle="1111">
+				</image>
+				<image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
+					style="autosize" extendstyle="1111">
+				</image>
+				<label rect="15,0,60,45" text="首页" color="#ffffff"
+					extendstyle="1111" style="autosize" h-align="center" v-align="center"
+					font-size="24"></label>
+			</button>
+		</node>
 		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
 			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
 			<node name="tabNode" rect="0,66,480,60" extendstyle="1111">
@@ -51,14 +51,15 @@
 					<label rect="0,0,240,60" text="待巡检任务" color="#ffffff"
 						v-align="center" h-align="center" font-size="22" extendstyle="1111" />
 				</button>
-				<!--<button name="btnTab2" rect="160,0,160,60" text="" color="#ffffff"
+				<!--
+					<button name="btnTab2" rect="160,0,160,60" text="" color="#ffffff"
 					extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
 					<image name="tabBg" rect="0,0,160,60" border="false"
-						src="file://image/btn_bg_n.png" style="sudoku-auto" sudoku="15,15,15,15"
-						extendstyle="1111"></image>
-					<label rect="0,0,160,60" text="已存巡检任务" color="#ffffff"
-						v-align="center" h-align="center" font-size="22" extendstyle="1111" />
-				</button>-->
+					src="file://image/btn_bg_n.png" style="sudoku-auto"
+					sudoku="15,15,15,15" extendstyle="1111"></image> <label
+					rect="0,0,160,60" text="已存巡检任务" color="#ffffff" v-align="center"
+					h-align="center" font-size="22" extendstyle="1111" /> </button>
+				-->
 				<button name="btnTab3" rect="240,0,240,60" text="" color="#ffffff"
 					extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="03">
 					<image name="tabBg" rect="0,0,240,60" border="false"
@@ -78,10 +79,10 @@
 					alpha="255" extendstyle="1111" />
 				<button name="btnname" rect="0,0,480,70" OnSelect="itemOnSelect"
 					extendstyle="1111">
-					<label rect="10,0,100,70" text="巡检名：" color="#0" font-size="20" h-align="left"
-						v-align="center" extendstyle="1111" />
-					<label name="texttitle" rect="110,0,330,70" text="" color="#0" font-size="20"
+					<label rect="10,0,100,70" text="巡检名：" color="#0" font-size="20"
 						h-align="left" v-align="center" extendstyle="1111" />
+					<label name="texttitle" rect="110,0,330,70" text="" color="#0"
+						font-size="20" h-align="left" v-align="center" extendstyle="1111" />
 				</button>
 			</node>
 		</node>
@@ -96,7 +97,6 @@
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
         rootSprite = sprite
-        
         --loadRequest()
     end
     -- @brief root节点消息方法
@@ -120,9 +120,13 @@
                 if data.code == '0' then
                     if #data.value > 0 then
                         loadList(#data.value + 1)
-                    elseif data.value[0] then
+                        elseif data.value[0] then
                         loadList(1)
+                        else
+                        Dialog:show(rootSprite, '暂无待巡检任务！', 'ok')
                     end
+                    elseif data.code == '50' then
+                    Dialog:show(rootSprite, '暂无待巡检任务！', 'ok')
                     else
                     Dialog:show(rootSprite, '未知错误！', 'ok')
                 end
@@ -130,8 +134,8 @@
                 Dialog:show(rootSprite, '未知错误！', 'ok')
             end
             elseif msg ==102 then
-                data = Http:jsonDecode('handled_data')
-            Log:write("data101 = ", data)
+            data = Http:jsonDecode('handled_data')
+            Log:write("data102 = ", data)
             if not data or type(data) ~= 'table' then
                 Dialog:show(rootSprite, '返回数据格式错误', 'ok')
                 return
@@ -140,9 +144,13 @@
                 if data.code == '0' then
                     if #data.value > 0 then
                         loadList(#data.value + 1)
-                    elseif data.value[0] then
+                        elseif data.value[0] then
                         loadList(1)
+                        else
+                        Dialog:show(rootSprite, '暂无待巡检任务！', 'ok')
                     end
+                    elseif data.code == '50' then
+                    Dialog:show(rootSprite, '暂无已巡检任务！', 'ok')
                     else
                     Dialog:show(rootSprite, '未知错误！', 'ok')
                 end
@@ -180,12 +188,11 @@
     end
     function loadList(count)
         local list = Sprite:findChild(rootSprite, 'sampleList')
-        ListView:removeAllItems(list,true) 
+        ListView:removeAllItems(list,true)
         ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
         ListView:adjust(list)
     end
     function loadListItem(list, item, index)
-
         Sprite:setRect(item, 0, 0, 480, 70)
         local listItemBg = Sprite:findChild(item, 'listItemBg')
         Sprite:setRect(listItemBg, 0, 0, 480, 70)
@@ -209,9 +216,8 @@
         Reg:setString(regHandle, 'taskid', tostring(data.value[index].taskid))
         Reg:setString(regHandle,'flag',flag)
         if flag=='1' then
-
-        Scene:setReturn(Alias.xunjianrenwu, Alias.xunjianEdit)
-        Scene:go(Alias.xunjianEdit)
+            Scene:setReturn(Alias.xunjianrenwu, Alias.xunjianEdit)
+            Scene:go(Alias.xunjianEdit)
         end
     end
     function tabOnSelect(sprite)
@@ -224,13 +230,12 @@
         Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_n.png')
         Sprite:setProperty(Sprite:findChild(tab3, 'tabBg'), 'src', 'file://image/tab_n.png')
         Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_s.png')
-        if dataInfo=='01' then   
+        if dataInfo=='01' then
             flag='1'
             loadRequest()
-        elseif dataInfo=='03' then
+            elseif dataInfo=='03' then
             flag='3'
             loadDoneRequest()
-            
         end
     end
     function doBack(sprite)

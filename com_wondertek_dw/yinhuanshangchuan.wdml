@@ -56,7 +56,7 @@
 								<image rect="245,5,43,51" src="file://image/dropdown_arrow.png"
 									style="autosize" extendstyle="1111" />
 							</image>
-							<label name="name" rect="0,0,252,60" text="" color="#0" extendstyle="1111"
+							<label name="name" rect="0,0,252,60" text="类型1" color="#0" extendstyle="1111"
 								style="autosize" h-align="center" v-align="center" font-size="24"></label>
 						</button>
 					</node>
@@ -72,7 +72,7 @@
 								<image rect="245,5,43,51" src="file://image/dropdown_arrow.png"
 									style="autosize" extendstyle="1111" />
 							</image>
-							<label name="name" rect="0,0,252,60" text="火患" color="#0" extendstyle="1111"
+							<label name="name" rect="0,0,252,60" text="基站设备及配套" color="#0" extendstyle="1111"
 								style="autosize" h-align="center" v-align="center" font-size="24"></label>
 						</button>
 					</node>
@@ -87,7 +87,7 @@
 								<image rect="245,5,43,51" src="file://image/dropdown_arrow.png"
 									style="autosize" extendstyle="1111" />
 							</image>
-							<label name="name" rect="0,0,252,60" text="" color="#0" extendstyle="1111"
+							<label name="name" rect="0,0,252,60" text="紧急" color="#0" extendstyle="1111"
 								style="autosize" h-align="center" v-align="center" font-size="24"></label>
 						</button>
 					</node>
@@ -327,6 +327,8 @@
             Sprite:setProperty(button, 'text', selectData.value[index].levelName)
             Sprite:setProperty(button, 'data', selectData.value[index].id)
         elseif selectIndex == 3 then
+            Sprite:setProperty(button, 'text', selectData.value[index].lable)
+            Sprite:setProperty(button, 'data', selectData.value[index].id)
         end
     end
     
@@ -382,6 +384,18 @@
         --setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
     end
     
+    function typeOnSelect(sprite)
+        --@Log:write('tempid===', tempid)
+        local xunjianData = Sprite:getData(sprite)
+        curXunjianBtn = sprite
+         --@Log:write('tempid===', tempid)
+        selectIndex = 3
+        local url = 'http://61.191.25.238:7011/nbspweb/webservice/dic!doWebservice.action?cmd=wlbzytypelist&usercode=adminhf' 
+        Http:request('select', url, 102, {useCache = true, method = 'post'})
+        Loading:show(rootSprite)
+        --setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
+    end
+    
     function bottomMenuSelect(sprite)
         local dataInfo = Sprite:getData(sprite)
         if dataInfo == '1' then
@@ -406,6 +420,8 @@
             title = selectData.value[index].typeName
         elseif selectIndex == 2 then
             title = selectData.value[index].levelName
+        elseif selectIndex == 3 then
+            title = selectData.value[index].lable
         end
         Sprite:setProperty(curXunjianBtn, 'data', Sprite:getProperty(sprite, 'data'))
         Sprite:setProperty(xunjianText, 'text', title)
@@ -622,7 +638,7 @@
             IO:dirRemove(path, false)
             IO:dirCreate(path)
             Timer:set(1, 1000, 'freshProgress')
-            Record:start(path .. '\yinhuan.amr') 
+            Record:start(path .. '/yinhuan.amr') 
         else
             Sprite:setProperty(recordStatus, 'src', "file://image/record_begin.png")
             status = 0
@@ -681,18 +697,15 @@
         end
     end
     
-	function getDownloadPath()
-	    local downloadPath = ''
-	    local flashCard = System:getFlashCardName(1) -- 判断外置存储卡存在性
-	    if flashCard and flashCard ~= '' then --存在外置存储卡
-	        Log:write('Util:getDownloadPath  flashCard=================', flashCard)
-	        downloadPath = flashCard .. '\\'
-	    end
-	    Log:write('Util:getDownloadPath=======================', downloadPath)
-	    return downloadPath
-	end
-	function doLoadFromNet()
-		-- body
-	end
+function getDownloadPath()
+    local downloadPath = ''
+    local flashCard = System:getFlashCardName(1) -- 判断外置存储卡存在性
+    if flashCard and flashCard ~= '' then --存在外置存储卡
+        Log:write('Util:getDownloadPath  flashCard=================', flashCard)
+        downloadPath = flashCard
+    end
+    Log:write('Util:getDownloadPath=======================', downloadPath)
+    return downloadPath
+end
 ]]>
 </root>
