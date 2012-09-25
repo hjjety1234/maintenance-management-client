@@ -101,52 +101,6 @@
 					h-align="center" v-align="center" color="#000000" font-size="38" extendstyle="1111"></label>
 			</node>
 
-			<node name="nodeHour" rect="120,379,110,185" enable="true"
-				active="true" layouttype="1" extendstyle="1111">
-				<image name="image1" rect="0,0,110,185" border="false"
-					src="file://image/cookbook/addsubtraction_bg.png" style="autosize" extendstyle="1111"></image>
-				<button name="addBtn" rect="1,0,108,56" layouttype="3"
-					OnSelect="onAddSelect" normal="style:autosize;src:file://image/cookbook/add_nor.png"
-					sel="style:autosize;src:file://image/cookbook/add_act.png"
-					extendstyle="1111">
-					<image name="addImg" rect="40,14,28,28" border="false"
-						src="file://image/cookbook/add.png" style="autosize" extendstyle="1111"></image>
-				</button>
-				<button name="subtractionBtn" rect="1,129,108,56" layouttype="3"
-					OnSelect="onSubtractionSelect"
-					normal="style:autosize;src:file://image/cookbook/subtraction_nor.png"
-					sel="style:autosize;src:file://image/cookbook/subtraction_act.png"
-					extendstyle="1111">
-					<image name="subtractionImg" rect="40,14,28,28" border="false"
-						src="file://image/cookbook/subtraction.png" style="autosize" extendstyle="1111"></image>
-				</button>
-				<label name="content" rect="0,56,110,73" border="false" text="2012"
-					h-align="center" v-align="center" color="#000000" font-size="38" extendstyle="1111"></label>
-			</node>
-
-			<node name="nodeMinute" rect="255,379,110,185" enable="true"
-				active="true" layouttype="1" extendstyle="1111">
-				<image name="image1" rect="0,0,110,185" border="false"
-					src="file://image/cookbook/addsubtraction_bg.png" style="autosize" extendstyle="1111"></image>
-				<button name="addBtn" rect="1,0,108,56" layouttype="3"
-					OnSelect="onAddSelect" normal="style:autosize;src:file://image/cookbook/add_nor.png"
-					sel="style:autosize;src:file://image/cookbook/add_act.png"
-					extendstyle="1111">
-					<image name="addImg" rect="40,14,28,28" border="false"
-						src="file://image/cookbook/add.png" style="autosize" extendstyle="1111"></image>
-				</button>
-				<button name="subtractionBtn" rect="1,129,108,56" layouttype="3"
-					OnSelect="onSubtractionSelect"
-					normal="style:autosize;src:file://image/cookbook/subtraction_nor.png"
-					sel="style:autosize;src:file://image/cookbook/subtraction_act.png"
-					extendstyle="1111">
-					<image name="subtractionImg" rect="40,14,28,28" border="false"
-						src="file://image/cookbook/subtraction.png" style="autosize" extendstyle="1111"></image>
-				</button>
-				<label name="content" rect="0,56,110,73" border="false" text="2012"
-					h-align="center" v-align="center" color="#000000" font-size="38" extendstyle="1111"></label>
-			</node>
-
 
 			<button name="okBtn" rect="30,586,207,53" layouttype="3"
 				OnSelect="onOKSelect" normal="src:file://image/cookbook/alert_ok.png;style:autosize"
@@ -177,18 +131,12 @@
         local nodeYear = Sprite:findChild(rootSprite, 'nodeYear')
         local nodeMonth = Sprite:findChild(rootSprite, 'nodeMonth')
         local nodeDay = Sprite:findChild(rootSprite, 'nodeDay')
-        local nodeHour = Sprite:findChild(rootSprite, 'nodeHour')
-        local nodeMinute = Sprite:findChild(rootSprite, 'nodeMinute')
         Sprite:setProperty(nodeYear, 'data', YEAR_NODE)
         Sprite:setProperty(nodeMonth, 'data', MONTH_NODE)
         Sprite:setProperty(nodeDay, 'data', DAY_NODE)
-        Sprite:setProperty(nodeHour, 'data', HOUR_NODE)
-        Sprite:setProperty(nodeMinute, 'data', MINUTE_NODE)
         Sprite:setProperty(Sprite:findChild(nodeYear, 'content'), 'text', os.date("*t")["year"])
         Sprite:setProperty(Sprite:findChild(nodeMonth, 'content'), 'text', os.date("*t")["month"])
         Sprite:setProperty(Sprite:findChild(nodeDay, 'content'), 'text', os.date("*t")["day"])
-        Sprite:setProperty(Sprite:findChild(nodeHour, 'content'), 'text', os.date("*t")["hour"])
-        Sprite:setProperty(Sprite:findChild(nodeMinute, 'content'), 'text', os.date("*t")["min"])
     end
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
@@ -347,25 +295,22 @@
         local nodeYear = Sprite:findChild(rootSprite, 'nodeYear')
         local nodeMonth = Sprite:findChild(rootSprite, 'nodeMonth')
         local nodeDay = Sprite:findChild(rootSprite, 'nodeDay')
-        local nodeHour = Sprite:findChild(rootSprite, 'nodeHour')
-        local nodeMinute = Sprite:findChild(rootSprite, 'nodeMinute')
         local yearContent = Sprite:findChild(nodeYear, 'content')
         local monthContent = Sprite:findChild(nodeMonth, 'content')
         local dayContent = Sprite:findChild(nodeDay, 'content')
-        local hourContent = Sprite:findChild(nodeHour, 'content')
-        local minuteContent = Sprite:findChild(nodeMinute, 'content')
         local year = Sprite:getText(yearContent)
         local month = Sprite:getText(monthContent)
         local day = Sprite:getText(dayContent)
-        local hour = Sprite:getText(hourContent)
-        local minute = Sprite:getText(minuteContent)
-        local regHandle = Reg:create(Regs.regName)
-        Reg:setString(regHandle, Regs.extraTime, year .. '-' .. month .. '-' .. day .. ' ' .. hour .. ':' .. minute)
+            local regHandle1 = Reg:create("tongji")
+            typeCode = Reg:getString(regHandle1, 'type')
+        local regHandle = Reg:create("dateTime")
+        Reg:setString(regHandle, "time", year .. '-' .. month .. '-' .. day)
+        Reg:setString(regHandle, "type", typeCode)
         Scene:back()
     end
     function onCancelSelect()
-        local regHandle = Reg:create(Regs.regName)
-        Reg:setString(regHandle, Regs.extraTime, '')
+        local regHandle = Reg:create("dateTime")
+        Reg:setString(regHandle, "time", '')
         Scene:back()
     end
 ]]>
