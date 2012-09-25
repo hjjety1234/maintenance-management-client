@@ -107,6 +107,9 @@
 					<label name="noticeId" rect="0,0,20,65" border="false" text=""
 						h-align="right" v-align="center" color="#000000" font-size="15"
 						extendstyle="1111" visible="false"></label>
+					<label name="isCollect" rect="0,0,20,65" border="false" text=""
+						h-align="right" v-align="center" color="#000000" font-size="15"
+						extendstyle="1111" visible="false"></label>
 					<scrolltext name="noticeTitle" rect="30,15,360,60"
 						border="false" h-align="left" v-align="center" color="#000000"
 						text="" font-size="24" scroll="true" step="4" extendstyle="1111"></scrolltext>
@@ -173,39 +176,57 @@
     local isFavContextMenuVisible = false
     local nSearchBarWidth = 55
     local jsonDecodedNotice = nil
+    local usercode = 'zyhefei'
+    local MSG_NOTICE_LIST = 101
+    local MSG_NOTICE_NEW_FLAG = MSG_NOTICE_LIST + 1
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
         rootSprite = sprite
         Http:connectCMWAP()
-        requestNoticeList('notice', 101, 'adminhf', '', '1', '5')
     end
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
-            refresh(rootSprite)
+            requestNoticeList('NOTICE_LIST', MSG_NOTICE_LIST, usercode, '', '1', '5')
             elseif msg == MSG_DEACTIVATE then
         end
     end
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg)
-        if msg == 101 then
-            jsonDecodedNotice = Http:jsonDecode('notice')
-            -- 迭代取得列表的长度
-            local len = 0
-            if (jsonDecodedNotice["value"] ~= '') then
-                for i in pairs(jsonDecodedNotice["value"]) do
-                    len = len + 1
-                end
-                else
-                Dialog:show("", "结果为空", "ok")
+        if msg == MSG_NOTICE_LIST then
+            jsonDecodedNotice = Http:jsonDecode('NOTICE_LIST')
+            -- 检查是否有返回结果
+            if (jsonDecodedNotice == nil or jsonDecodedNotice["value"] == nil or
+                jsonDecodedNotice["value"] == '') then
+                Dialog:show("", "返回结果为空", "ok")
                 return
             end
+            -- 迭代取得列表的长度
+            local len = 0
+            for i in pairs(jsonDecodedNotice["value"]) do
+                len = len + 1
+            end
+            if (len == 0) then
+                Dialog:show("", "公告列表长度为零", "ok")
+                return
+            end
+            -- 删除原有列表项
             local list = Sprite:findChild(rootSprite, 'listView1')
             ListView:removeAllItems(list)
+            -- 加载新的列表项
             ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
             ListView:adjust(list)
+            -- 刷新图标
             refresh(rootSprite)
+            elseif msg == MSG_NOTICE_NEW_FLAG then
+            Log:write('进入标记公告已读标志Response处理')
+            local jsonResp = Http:jsonDecode('NOTICE_NEW_FLAG')
+            if jsonResp["code"] == '0' then
+                Log:write('设置已读标志位成功!')
+                else
+                Log:write('设置已读标志位失败，返回码:'..jsonResp["code"])
+            end
             elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
             elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
             Log:write('拨号失败')
@@ -236,6 +257,7 @@
         Sprite:setProperty(item, 'extendstyle', '1111')
         -- 获取要创建的列表项Sprite
         local noticeIdSprite = Sprite:findChild(item, 'noticeId')
+        local isCollectSprite = Sprite:findChild(item, 'isCollect')
         local noticeTitleSprite = Sprite:findChild(item, 'noticeTitle')
         local noticeDateSprite = Sprite:findChild(item, 'noticeDate')
         local issuePersonSprite = Sprite:findChild(item, 'issuePerson')
@@ -253,6 +275,11 @@
             local value = jsonDecodedNotice['value'][index]
             if value ~= nil then
                 Sprite:setProperty(noticeIdSprite, 'text', value["id"])
+                if value.iscollect == nil then
+                    Sprite:setProperty(isCollectSprite, 'text', '1')
+                    else
+                    Sprite:setProperty(isCollectSprite, 'text', value["iscollect"])
+                end
                 Sprite:setProperty(noticeTitleSprite, 'text', value["title"])
                 Sprite:setProperty(noticeDateSprite, 'text', string.sub(value["issuedate"], 1, 10))
                 Sprite:setProperty(issuePersonSprite, 'text', value["issueperson"])
@@ -264,35 +291,42 @@
         Scene:back()
     end
     --@brief 请求服务器公告列表
-    function requestNoticeList(tag, num, usercode, title, page, pagesize)
+    function requestNoticeList(tag, num, ucode, title, page, pagesize)
         local server = Config:get("server")
-        local requestURL = string.format('%s/nbspweb/webservice/notice!doWebservice.action?cmd=wlbnewslist&usercode=%s&title=%s&page=%s&pagesize=%s',server,
-        usercode, title, page, pagesize)
-        Log:write("INFO requestURL:", requestURL)
-        Http:request(tag, requestURL, num)
+        local requestURL = string.format('%s/nbspweb/webservice/notice!doWebservice.action?cmd=wlbnewslist&usercode=%s&title=%s&collectflag=0&page=%s&pagesize=%s',server,
+        ucode, title, page, pagesize)
+        Log:write("请求公告列表:"..requestURL)
+        Http:request('NOTICE_LIST', requestURL, MSG_NOTICE_LIST, {useCache=false})
     end
     -- @brief 列表项选择处理
     function itemOnSelect(sprite)
         -- 获取所选列表项数据
         local noticeId = Sprite:findChild(sprite, 'noticeId')
+        local isCollect = Sprite:findChild(sprite, 'isCollect')
         local noticeTitle = Sprite:findChild(sprite, 'noticeTitle')
         local noticeDate = Sprite:findChild(sprite, 'noticeDate')
         local issuePerson = Sprite:findChild(sprite, 'issuePerson')
-        -- 创建数据仓库，并检查列表项ID在配置文件中的配置
-        local noticeDetailHandler = Reg:create("noticeDetail")
-        local isNew = Config:get(Sprite:getText(noticeId))
-        if (isNew == '' or IsNew == '1') then
-            Config:set('new.'..Sprite:getText(noticeId), '0')
-        end
+        -- 将数据库中该条记录标记为已读
+        setNewFlagToZero(noticeId)
         -- 设置要发送到公告详情的数据
-        Reg:setString(noticeDetailHandler, 'usercode', 'xh')
+        local noticeDetailHandler = Reg:create("noticeDetail")
+        Reg:setString(noticeDetailHandler, 'usercode', usercode)
         Reg:setString(noticeDetailHandler, 'noticeId', Sprite:getText(noticeId))
+        Reg:setString(noticeDetailHandler, 'iscollect', Sprite:getText(isCollect))
         Reg:setString(noticeDetailHandler, 'noticeTitle', Sprite:getText(noticeTitle))
         Reg:setString(noticeDetailHandler, 'noticeDate', Sprite:getText(noticeDate))
         Reg:setString(noticeDetailHandler, 'issuePerson', Sprite:getText(issuePerson))
         -- 进行页面跳转
         Scene:setReturn(Alias.notice, Alias.noticeDetail)
         Scene:go(Alias.noticeDetail, true)
+    end
+    -- @brief将数据库中该条记录标记为已读
+    function setNewFlagToZero(noticeId)
+        local server = Config:get("server")
+        local requestURL = string.format('nbspweb/webservice/notice!doWebservice.action?cmd=wlbupdatenews&usercode=%s&id=%s',server,
+        usercode)
+        Log:write("标记:"..noticeId.."为已阅读:"..requestURL)
+        Http:request('NOTICE_NEW_FLAG', requestURL, MSG_NOTICE_NEW_FLAG)
     end
     -- @brief 显示或者隐藏搜索条
     function OnShowSearchBarButtonClicked(sprite)
@@ -309,7 +343,12 @@
             Sprite:setRect(listViewSprite, x, y - nSearchBarWidth, width, height)
             Sprite:setVisible(searchBarSprite, 0)
             isSearchBarVisible = false
-            requestNoticeList('notice', 101, 'xh', '', '1', '5')
+            -- 重设列表
+            local server = Config:get("server")
+            local requestURL = string.format('%s/nbspweb/webservice/notice!doWebservice.action?cmd=wlbnewslist&usercode=%s&title=&collectflag=0&page=%s&pagesize=%s',server,
+            usercode, '1', '5')
+            Log:write("重设请求公告列表:"..requestURL)
+            Http:request('NOTICE_LIST', requestURL, MSG_NOTICE_LIST)
         end
     end
     --@brief 点击搜索按钮消息处理函数
@@ -318,27 +357,41 @@
         local keywordEditSprite = Sprite:findChild(rootSprite, "keywordEdit")
         local title = Sprite:getText(keywordEditSprite)
         -- 请求搜索
-        requestNoticeList('notice', 101, 'xh', title, '1', '5')
+        local server = Config:get("server")
+        local requestURL = string.format('%s/nbspweb/webservice/notice!doWebservice.action?cmd=wlbnewslist&usercode=%s&title=%s&collectflag=0&page=%s&pagesize=%s',server,
+        usercode, title, '1', '5')
+        Log:write("搜索请求地址:"..requestURL)
+        requestNoticeList('NOTICE_LIST', MSG_NOTICE_LIST, usercode, title, '1', '5')
     end
     -- @brief 刷新页面收藏和新公告图标
     function refresh(rootSprite)
+        Log:write('刷新界面的收藏和新公告按钮')
+        Log:write('返回的json数据:',jsonDecodedNotice["value"])
+        if jsonDecodedNotice["value"] == nil or jsonDecodedNotice["value"] == '' then
+            Log:write('Json数据不存在，不能刷新界面图标!')
+            return
+        end
+        local jsonValue = jsonDecodedNotice["value"]
         local listViewSprite = Sprite:findChild(rootSprite, 'listView1')
         local listItemCount = ListView:getItemCount(listViewSprite)
+        Log:write("目前列表项数目："..listItemCount)
         local i = 0
         while (i < listItemCount) do
             local listItemSprite = ListView:getItem(listViewSprite, i)
             local noticeIdSprite = Sprite:findChild(listItemSprite, 'noticeId')
             local newNoticeImageNodeSprite = Sprite:findChild(listItemSprite, 'newNoticeImageNode')
-            if (Config:get('new.'..Sprite:getText(noticeIdSprite)) == '0') then
-                Sprite:setVisible(newNoticeImageNodeSprite, 0)
-                else
-                Sprite:setVisible(newNoticeImageNodeSprite, 1)
-            end
             local myFavNoticeNodeSprite = Sprite:findChild(listItemSprite, 'MyFavNoticeNode')
-            if (Config:get('fav.'..Sprite:getText(noticeIdSprite)) == '1') then
+            -- 0 为已收藏
+            if (jsonValue[i].iscollect ~= nil and jsonValue[i]["iscollect"] == '0') then
                 Sprite:setVisible(myFavNoticeNodeSprite, 1)
                 else
                 Sprite:setVisible(myFavNoticeNodeSprite, 0)
+            end
+            -- 1 为未读
+            if (jsonValue[i]["newflag"] == '1') then
+                Sprite:setVisible(newNoticeImageNodeSprite, 1)
+                else
+                Sprite:setVisible(newNoticeImageNodeSprite, 0)
             end
             i = i + 1
         end
