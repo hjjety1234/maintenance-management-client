@@ -181,7 +181,7 @@
     function loadRequest()
         local url = 'http://61.191.25.238:7011/nbspweb/webservice/workorder!doWebservice.action'
         local username = Config:get('username')
-        local param = '&usercode='..username..'&page=1&pagesize=5'
+        local param = '&usercode='..username..'&page=1&pagesize=20'
         Log:write("param = ", param)
         Http:request('daiban_data', url, 101, {useCache = false, method = 'post', postData='cmd=wlbtasklist'..param})
         Loading:show(rootSprite)
@@ -312,7 +312,7 @@
             Reg:setString(regHandle,'id',data.value[index].id)
             Reg:setString(regHandle,'pid',data.value[index].pid)
             Reg:setString(regHandle,'taskcode',tostring(data.value[index].taskCode))
-        
+            Log:write('stepdata=================================',stepdata)
             Reg:setString(regHandle,'stepdata',stepdata)
             Reg:setString(regHandle,'flag',flag)
 
@@ -326,25 +326,9 @@
             end
         end
         
-        Log:write('index================',index)
-        Log:write('data.value[index+1].id================',data.value[index].taskCode)
-        Reg:setString(regHandle,'id',data.value[index].id)
-        Reg:setString(regHandle,'pid',data.value[index].pid)
-        Reg:setString(regHandle,'taskcode',tostring(data.value[index].taskCode))
-        
-        Reg:setString(regHandle,'stepdata',stepdata)
-        Reg:setString(regHandle,'flag',flag)
-
-        if flag=='1' then
-            Reg:setString(regHandle,'step',tostring(data.value[index].step))
-            Scene:setReturn(Alias.daibangongdan, Alias.daibandetail)
-            Scene:go(Alias.daibandetail)
-            elseif flag=='3' then
-                Scene:setReturn(Alias.daibangongdan, Alias.yibandetail)
-                Scene:go(Alias.yibandetail)
-            end
+       
     end
-    function doBack(sprite)
+    function doBack()
         Scene:back()
     end
 

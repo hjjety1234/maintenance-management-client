@@ -300,31 +300,7 @@
 				</image>
 				<listview name="xunjianList" rect="0,0,480,645" extendstyle="1111" />
 				
-				<!--<button name="" rect="100,200,280,56" text="余奇" color="#ffffff"
-					extendstyle="1111" OnSelect="zhuanshenGroupOnSelect"
-					normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-					sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-					font-size="24" data="01" />
-				<button name="" rect="100,270,280,56" text="何武" color="#ffffff"
-					extendstyle="1111" OnSelect="zhuanshenGroupOnSelect"
-					normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-					sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-					font-size="24" data="02" />
-				<button name="" rect="100,340,280,56" text="程川" color="#ffffff"
-					extendstyle="1111" OnSelect="zhuanshenGroupOnSelect"
-					normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-					sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-					font-size="24" data="03" />
-				<button name="" rect="100,410,280,56" text="孙自隆" color="#ffffff"
-					extendstyle="1111" OnSelect="zhuanshenGroupOnSelect"
-					normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-					sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-					font-size="24" data="04" />
-				<button name="" rect="100,480,280,56" text="裴庆云" color="#ffffff"
-					extendstyle="1111" OnSelect="zhuanshenGroupOnSelect"
-					normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-					sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-					font-size="24" data="05" />-->
+				
 			</node>
 			<!--拒签处理列表-->
 			<node name="resultSelectNode" rect="0,0,480,800" visible="false"
@@ -460,6 +436,11 @@
         			setAllShoworHide(Sprite:findChild(rootSprite, 'qianshouNode'),0)
         			setAllShoworHide(Sprite:findChild(rootSprite, 'juqian'), 0)
         			setAllShoworHide(Sprite:findChild(rootSprite, 'huidan'), 1)
+        		else 
+        			setAllShoworHide(Sprite:findChild(rootSprite, 'qianshouNode'),0)
+        			setAllShoworHide(Sprite:findChild(rootSprite, 'juqian'), 0)
+        			setAllShoworHide(Sprite:findChild(rootSprite, 'huidan'), 0)
+        			setAllShoworHide(Sprite:findChild(tijiaonode, 'btnForget'),0)
         			end
             elseif msg == MSG_DEACTIVATE then
         end
@@ -496,13 +477,12 @@
             
             if data ~= nil then
                 if data.code == '0' then
-                    Scene:setReturn(Alias.home, Alias.daibangongdan)
-                    Scene:go(Alias.daibangongdan)
+                    Scene:back()
                     else
-                    Dialog:show(rootSprite, '提交失败，请稍后再试！', 'ok')
+                    --Dialog:show(rootSprite, '提交失败，请稍后再试！', 'ok')
                 end
                 else
-                Dialog:show(rootSprite, '未知错误！', 'ok')
+                --Dialog:show(rootSprite, '未知错误！', 'ok')
             end
             elseif msg==103 then
             data = Http:jsonDecode('daibanhuidan')
@@ -514,13 +494,13 @@
             
             if data ~= nil then
                 if data.code == '0' then
-                    Scene:setReturn(Alias.home, Alias.daibangongdan)
-                    Scene:go(Alias.daibangongdan)
+                	Scene:freeByHandle(Sprite:getCurScene())
+                    Scene:back()
                     else
-                    Dialog:show(rootSprite, '提交失败，请稍后再试！', 'ok')
+                    --Dialog:show(rootSprite, '提交失败，请稍后再试！', 'ok')
                 end
                 else
-                Dialog:show(rootSprite, '未知错误！', 'ok')
+               -- Dialog:show(rootSprite, '未知错误！', 'ok')
             end
             
             elseif msg==104 then
@@ -534,13 +514,13 @@
             
             if data ~= nil then
                 if data.code == '0' then
-                    Scene:setReturn(Alias.home, Alias.daibangongdan)
-                    Scene:go(Alias.daibangongdan)
+                	Scene:freeByHandle(Sprite:getCurScene())
+                    Scene:back()
                     else
-                    Dialog:show(rootSprite, '提交失败，请稍后再试！', 'ok')
+                   -- Dialog:show(rootSprite, '提交失败，请稍后再试！', 'ok')
                 end
                 else
-                Dialog:show(rootSprite, '未知错误！', 'ok')
+                --Dialog:show(rootSprite, '未知错误！', 'ok')
             end
             elseif msg==105 then
             	xjData = Http:jsonDecode('group_data')
@@ -558,10 +538,10 @@
                         xunjiancontent(1)
                     end
                     else
-                    Dialog:show(rootSprite, '提交失败，请稍后再试！', 'ok')
+                   -- Dialog:show(rootSprite, '提交失败，请稍后再试！', 'ok')
                 end
                 else
-                Dialog:show(rootSprite, '未知错误！', 'ok')
+                --Dialog:show(rootSprite, '未知错误！', 'ok')
             end
             elseif msg==106 then
             	xjData = Http:jsonDecode('renyuan_data')
@@ -579,10 +559,10 @@
                         renyuancontent(1)
                     end
                     else
-                    Dialog:show(rootSprite, '提交失败，请稍后再试！', 'ok')
+                   -- Dialog:show(rootSprite, '提交失败，请稍后再试！', 'ok')
                 end
                 else
-                Dialog:show(rootSprite, '未知错误！', 'ok')
+                --Dialog:show(rootSprite, '未知错误！', 'ok')
             end
             elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
             elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -594,7 +574,8 @@
     -- @brief 按键响应处理
     function mainNodeOnKeyUp(sprite, kc)
         if kc == Key.F2 then -- 按下返回键
-            Scene:back()
+            Scene:setReturn(Alias.home, Alias.daibangongdan)
+        	Scene:go(Alias.daibangongdan)
             return 1
         end
     end
@@ -648,7 +629,7 @@
     	Log:write('rect=====================',40+count*70)
     	Sprite:setRect(listBg,70,170,340,40+count*70)
         ListView:removeAllItems(list,true) 
-        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadxunjianListItem')
         ListView:adjust(list)
     end
 
@@ -681,15 +662,49 @@
         setAllShoworHide(Sprite:findChild(rootSprite, 'errorTypeSelectNode'), 1)
     end
     function setZancunDetail()
-        local content=Config:get('content')
-        local xunjianName=Config:get('xunjianName')
-        local resultTypeName=Config:get('resultTypeName')
-        local contentnode= Sprite:findChild(rootSprite, 'chulicontent')
-        Sprite:setProperty(Sprite:findChild(contentnode, 'edit'), 'text', content) 
-        local xunjianNode= Sprite:findChild(rootSprite, 'xunjianNode')
-        Sprite:setProperty(Sprite:findChild(xunjianNode, 'xunjianName'), 'text', xunjianName)  
-        local juqian= Sprite:findChild(rootSprite, 'juqian')
-        Sprite:setProperty(Sprite:findChild(juqian, 'resultTypeName'), 'text', resultTypeName) 
+
+    	local dataString = Split(Config:get('daibanID' .. id), ';')
+    	Log:write('dataString=========================',dataString)
+    	local stepflag = dataString[1]
+    	if stepflag=='1' then
+        		local contentnode= Sprite:findChild(rootSprite, 'chulicontent')
+        		Sprite:setProperty(Sprite:findChild(contentnode, 'edit'), 'text', dataString[10]) 
+        		local xunjianNode= Sprite:findChild(rootSprite, 'xunjianNode')
+        		Sprite:setProperty(Sprite:findChild(xunjianNode, 'xunjianName'), 'text', dataString[9])  
+        		local juqian= Sprite:findChild(rootSprite, 'juqian')
+        		Sprite:setProperty(Sprite:findChild(juqian, 'resultTypeName'), 'text', dataString[8]) 
+
+    		elseif stepflag=='2' then
+    			local qianshouNode = Sprite:findChild(rootSprite, 'juqian')
+
+    			local itemNode = Sprite:findChild(qianshouNode, 'resultNode')
+    			Log:write('11111111111111111111')
+    			local errorNde = Sprite:findChild(itemNode,'resultBtn')
+    			Log:write('2222222222222222222222222')
+    			--local itemtext = Sprite:getText(Sprite:findChild(errorNde,'resultTypeName'))
+				Sprite:setProperty(Sprite:findChild(errorNde, 'resultTypeName'), 'text', dataString[8]) 
+    			local xunjianNode = Sprite:findChild(qianshouNode, 'xunjianNode')
+    			local xunjian=Sprite:findChild(xunjianNode,'xunjianBtn')
+    			Log:write('333333333333333333333333333333')
+    			--local xunjiantext = Sprite:getText(Sprite:findChild(xunjian,'xunjianName'))
+				Sprite:setProperty(Sprite:findChild(xunjian, 'xunjianName'), 'text', dataString[9]) 
+    			local chulicontent = Sprite:findChild(qianshouNode, 'chulicontent')
+    			--local contentnode = Sprite:findChild(chulicontent,'label1')
+    			Log:write('444444444444444444444')
+    			if dataString[10]~=nil then
+    			Sprite:setProperty(Sprite:findChild(chulicontent, 'edit'), 'text', dataString[10]) 
+    			end
+				Log:write('55555555555555555555')
+    			elseif stepflag=='3' then
+    				local huidanNode= Sprite:findChild(rootSprite, 'huidan')
+        			local contentnode= Sprite:findChild(huidanNode, 'chulicontent')
+        			local resultNode= Sprite:findChild(huidanNode, 'resultNode')
+        			
+        			Sprite:setProperty(Sprite:findChild(contentnode, 'edit'), 'text', dataString[9])
+        			local issubmit=Sprite:findChild(resultNode,'resultBtn')
+        			--local issubmittext = Sprite:getText(Sprite:findChild(issubmit,'huifuTypeName'))  
+        			Sprite:setProperty(Sprite:findChild(issubmit, 'huifuTypeName'), 'text', dataString[8])  
+        			end 
       
     end
     function xunjianOnSelect(sprite)
@@ -816,6 +831,7 @@
         Dialog:show('工单处理提示：','是否确定提交此工单？','ok_cancel','okCallback','cancelCallback')
     end
      function okCallback()
+     	Log:write('+++++++++++++++++++++++++++++++++++++++++++',stepdata)
      	local url='http://61.191.25.238:7011/nbspweb/webservice/workorder!doWebservice.action'
      	local param
      	--签收处理
@@ -864,7 +880,7 @@
 
     			--stringData = string.format('%s;%s;%s;%s;%s;', stepdata, stringData, itemtext, xunjiantext,contenttext)
         	elseif stepdata=='3' then
-        		Log:write('```````````````````````````````````````````')
+        		
         			local huidanNode= Sprite:findChild(rootSprite, 'huidan')
         			local contentnode= Sprite:findChild(huidanNode, 'chulicontent')
         			local resultNode= Sprite:findChild(huidanNode, 'resultNode')
@@ -965,7 +981,7 @@
     	Log:write('stringData===================',stringData)
 
     	
-
+    	Scene:freeByHandle(Sprite:getCurScene())
         Scene:back()
     end
     function okZancun()
@@ -999,7 +1015,6 @@
        Log:write('content===', content)
        Loading:close()
        Scene:back()
-        
     end
     --巡检组下拉数据源0,0,280,56
     function loadListItem(list, item, index)
@@ -1013,7 +1028,20 @@
         Sprite:setProperty(textNum, 'text', xjData.value[index].username)
         
     end
+
+     function loadxunjianListItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 280, 70)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        
+        local textNum = Sprite:findChild(item, 'btnName')
+        
+        Sprite:setProperty(textNum, 'data', xjData.value[index].id)
+        
+        Sprite:setProperty(textNum, 'text', xjData.value[index].name)
+        
+    end
     function cancelZancun()
+      Scene:freeByHandle(Sprite:getCurScene())
       Scene:back()
     end
     
