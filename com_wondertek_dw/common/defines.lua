@@ -24,6 +24,7 @@ Alias = {
     home = 'MODULE:\\com_wondertek_dw\\home.wdml', -- 首页
     login = 'MODULE:\\com_wondertek_dw\\login.wdml', -- 首页
     xunjianEdit = 'MODULE:\\com_wondertek_dw\\xunjianEdit.wdml', -- 首页
+    xunjianDetail = 'MODULE:\\com_wondertek_dw\\xunjianDetail.wdml', -- 已巡检任务详情
     radioSample = 'MODULE:\\com_wondertek_dw\\radioSample.wdml', -- 首页
     yinhuanList = 'MODULE:\\com_wondertek_dw\\yinhuanList.wdml', -- 隐患列表
     yinhuanshangchuan = 'MODULE:\\com_wondertek_dw\\yinhuanshangchuan.wdml', -- 隐患上报
