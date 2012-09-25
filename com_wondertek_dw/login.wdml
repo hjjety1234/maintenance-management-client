@@ -99,6 +99,120 @@
           
             local result=loginData['code']
                 if result=='0' then
+                   
+                	writeuserInfo()
+                    Scene:go(Alias.home)
+                else
+                Dialog:show('登陆提醒','账户密码错误！','ok')
+            
+            end
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            Dialog:show('', '是否确定退出？', 'ok_cancel', 'doExit')
+            --Scene:back()
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    function loginOnSelect(sprite)
+        local namenode=Sprite:findChild(rootSprite, 'namenode')
+        local pwdnode=Sprite:findChild(rootSprite, 'pwdnode')
+        
+        local username=Sprite:getText(Sprite:findChild(namenode, 'edname')) 
+        local password=Sprite:getText(Sprite:findChild(pwdnode, 'edpwd')) 
+        local dataString=string.format('http://61.191.25.238:7011/nbspweb/webservice/user!doWebservice.action?usercode=%s&password=%s&cmd=%s',username,password,'wlblogin')
+        --Scene:go(Alias.home)
+        Loading:show(rootSprite)
+        Http:request('login_istrue', dataString, 101, {useCache=false})
+        
+        Log:write('dataString=============================',dataString)
+        --@Http:request('login_istrue', 'http://localhost:8080/DaiWeiService/mainServerlet', 101, {method='post',postData=dataString,useCache=false})
+       
+    end
+    function writeuserInfo()
+    	local namenode=Sprite:findChild(rootSprite, 'namenode')
+        local pwdnode=Sprite:findChild(rootSprite, 'pwdnode')
+        local flagnode=Sprite:findChild(rootSprite,'node1')
+        
+        local username=Sprite:getText(Sprite:findChild(namenode, 'edname')) 
+        local password=Sprite:getText(Sprite:findChild(pwdnode, 'edpwd')) 
+        local flag = Sprite:getData(Sprite:findChild(flagnode,'btnwrite'))
+        Config:set('username', username) 
+        if flag=='0' then
+        	Config:set('password', password) 
+        	elseif flag=='1' then
+        		Config:delete('password') 
+        end
+
+    end
+    function readPwd()
+    	local namenode=Sprite:findChild(rootSprite, 'namenode')
+        local pwdnode=Sprite:findChild(rootSprite, 'pwdnode')
+        local flagnode=Sprite:findChild(rootSprite,'node1')
+        
+        local usernamenode=Sprite:findChild(namenode, 'edname') 
+        local passwordnode=Sprite:findChild(pwdnode, 'edpwd')
+        local flagn = Sprite:findChild(flagnode,'btnwrite')
+		local imgNode = Sprite:findChild(flagn,'image3')
+    	local username = Config:get('username')
+    	local password = Config:get('password')
+    	if username~=nil and password~=nil then
+    		Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_select.png') 
+    		Sprite:setProperty(usernamenode,'text',username)
+    		Sprite:setProperty(passwordnode,'text',password)
+    		Sprite:setProperty(flagn,'data','0')
+    	end
+    end
+    function writePwd(sprite)
+    	local flag = Sprite:getData(sprite)
+    	local imgNode = Sprite:findChild(sprite,'image3')
+    	if flag=='1' then
+    		Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_select.png') 
+    		Sprite:setProperty(sprite,'data','0')
+    		elseif flag=='0' then
+    			Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_s.png') 
+    			Sprite:setProperty(sprite,'data','1')
+    	end
+
+    end
+    function forgetOnSelect(sprite)
+        Scene:go(Alias.radioSample)
+    end
+
+    require 'com_wondertek_dw.common.framework'
+    local rootSprite
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then 
+        -- 取帐号密码
+        Log:write('11111111111111111111111111111111111111111')
+            readPwd()
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        Loading:close()
+        Log:write('msg=================================',msg)
+        if msg == 101 then
+            local loginData = Http:jsonDecode('login_istrue')
+            Log:write('+++++++++++++++++',loginData)
+          
+            local result=loginData['code']
+                if result=='0' then
                     Config:set('tasknum', loginData.taskNum) 
                 	writeuserInfo()
                     Scene:go(Alias.home)
@@ -185,6 +299,7 @@
     			Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_s.png') 
     			Sprite:setProperty(sprite,'data','1')
     	end
+
     end
     function hideMenuNode(sprite)
         local menuNode = Sprite:findChild(rootSprite, 'menuNode')
