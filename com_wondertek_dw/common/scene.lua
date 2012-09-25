@@ -33,3 +33,10 @@ function Scene:go(destSceneName, bFreeDestScene, bHiddeMenu, menuIndex)
         --Menu:load(sprite, menuIndex)
     end
 end
+
+Scene._back = Scene.back
+function Scene:back()
+    Log:write('action in Scene:back free scene', Scene:getNameByHandle(Sprite:getCurScene()))
+    Scene:freeByHandle(Sprite:getCurScene())
+    Scene:_back()
+end
