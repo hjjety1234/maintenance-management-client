@@ -40,12 +40,22 @@
             </node>
 
             <node name="resultNode" rect="10,70,460,100" extendstyle="1111">
-                <label rect="0,0,460,50" text="服务器连接地址：" color="#0" v-align="center"
+                <label rect="0,0,460,50" text="服务器连接地址" color="#0" v-align="center"
                     h-align="left" font-size="28" extendstyle="1111" />
-                <image rect="0,50,460,50" src="file://image/title_edit_bg.png"
+                <image rect="0,50,360,50" src="file://image/title_edit_bg.png"
                     style="sudoku-auto" extendstyle="1111" sudoku="15,15,15,15" />
-                <edit name="editServer" rect="5,50,450,50" border="false"
-                    extendstyle="1111"  v-center="true"/>
+                <edit name="editServer" rect="5,50,350,50" border="false"
+                    extendstyle="1111"  v-center="true" OnTextChanged="textChanged">
+                    <label name="hide" rect="0,0,350,50" text="服务器地址" color="#e8e8e8" v-align="center"
+                        h-align="left" font-size="22" extendstyle="1111" />
+                </edit>
+                <image rect="365,50,90,50" src="file://image/title_edit_bg.png"
+                    style="sudoku-auto" extendstyle="1111" sudoku="15,15,15,15" />
+                <edit name="editPort" rect="370,50,80,50" border="false"
+                    extendstyle="1111"  v-center="true" max-size="4" OnTextChanged="textChanged">
+                    <label name="hide" rect="0,0,80,50" text="端口号" color="#e8e8e8" v-align="center"
+                        h-align="left" font-size="22" extendstyle="1111" />
+                </edit>
             </node>
 
             <node name="resultNode" rect="10,190,460,50" extendstyle="1111">
@@ -124,11 +134,15 @@
     function doSave()
         -- body
         local editServer = Sprite:getProperty(Sprite:findChild(rootSprite, 'editServer'), 'text')
+        local editPort = Sprite:getProperty(Sprite:findChild(rootSprite, 'editPort'), 'text')
         local editLines = Sprite:getProperty(Sprite:findChild(rootSprite, 'editLines'), 'text')
         local btnUpdate = Sprite:findChild(rootSprite, 'btnUpdate')
         local btnLogin = Sprite:findChild(rootSprite, 'btnLogin')
         if editServer ~= '' then
             Config:set('server_url', editServer)
+        end
+        if editPort ~= '' then
+            Config:set('server_port', editPort)
         end
         if editLines ~= '' then
             Config:set('lines', editLines)
@@ -170,6 +184,9 @@
         if Config:get('server_url') ~= nil and Config:get('server_url') ~= '' then
             Sprite:setProperty(Sprite:findChild(rootSprite, 'editServer'), 'text', Config:get('server_url'))
         end
+        if Config:get('server_port') ~= nil and Config:get('server_port') ~= '' then
+            Sprite:setProperty(Sprite:findChild(rootSprite, 'editPort'), 'text', Config:get('server_port'))
+        end
         if Config:get('editLines') ~= nil and Config:get('editLines') ~= '' then
             Sprite:setProperty(Sprite:findChild(rootSprite, 'editLines'), 'text', Config:get('editLines'))
         end
@@ -192,6 +209,15 @@
             end
         end
 
+    end
+    function textChanged(sprite,ncount)
+        -- body
+        local hide = Sprite:findChild(sprite, 'hide')
+        if ncount > 0 then
+            setAllShoworHide(hide, 0)
+        else
+            setAllShoworHide(hide, 1)
+        end
     end
    
 ]]>

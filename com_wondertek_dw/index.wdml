@@ -1,67 +1,283 @@
 <?xml version="1.0" encoding="utf-8"?>
-	<!--
-		==
-		============================================================================
-		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
-		============================================================================
-		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
-		============================================================================
-		== | Author: xxxx <xxxx@xxxx.com> ==
-		============================================================================
-		== | Desc: index ==
-		============================================================================
-	-->
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 登陆（入口）页
+ == ============================================================================
+-->
 <root>
-	<header />
-	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
-		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
-		<shadow rect="0,0,480,800" color="#0" alpha="255" extendstyle="1111" />
-		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
-			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
-			<node rect="0,0,480,800" extendstyle="1111">
-				<image name="image1" rect="0,0,480,800" src="file://image/loading_bg.png"
-					style="autosize" extendstyle="1111"></image>
-			</node>
-		</node>
-	</body>
+    <header/>
+    <body resolution="640,960" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,640,960" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image rect="0,0,0,0" extendstyle="0077" src="file://image/index_bg.jpg" style="autosize"/>
+            <image rect="0,0,0,0" extendstyle="0077" src="file://image/light.png" style="autosize"/>
+            <button rect="300,300,42,43" extendstyle="1000" src="file://image/ball6.png" style="autosize"/>
+            <button rect="200,420,123,240" extendstyle="1000" src="file://image/icon6.png" OnTick="icon6OnTick" style="autosize"/>
+            <button rect="230,480,157,149" extendstyle="1000" src="file://image/icon7.png" OnTick="icon7OnTick" style="autosize"/>
+            <button rect="300,550,131,125" extendstyle="1000" src="file://image/icon1.png" OnTick="icon1OnTick" style="autosize"/>
+            <button rect="400,240,61,60" extendstyle="1000" src="file://image/ball2.png" style="autosize"/>
+            <button rect="310,570,132,128" extendstyle="1000" src="file://image/icon2.png" OnTick="icon2OnTick" style="autosize"/>
+            <button rect="280,500,130,221" extendstyle="1000" src="file://image/icon3.png" OnTick="icon3OnTick" style="autosize"/>
+            <button rect="220,600,95,107" extendstyle="1000" src="file://image/icon4.png" OnTick="icon4OnTick" style="autosize"/>
+            <button rect="150,420,56,50" extendstyle="1000" src="file://image/ball3.png" style="autosize"/>
+            <button rect="260,580,110,124" extendstyle="1000" src="file://image/icon5.png" OnTick="icon5OnTick" style="autosize"/>
+            <button rect="280,555,113,109" extendstyle="1000" src="file://image/icon8.png" OnTick="icon8OnTick" style="autosize"/>
+            <button rect="520,370,49,49" extendstyle="1000" src="file://image/ball4.png" style="autosize"/>
+            <button rect="280,540,63,61" extendstyle="1000" src="file://image/ball1.png" style="autosize"/>
+        </node>
+    </body>
     <![CDATA[
 
-    require 'com_wondertek_dw.common.framework'
-    local rootSprite
-    ---------------------------------------callbacks--------------------------------
-    -- @brief root子节点创建完事件
-    function bodyBuildChildrenFinished(sprite)
-        rootSprite = sprite
-        Http:startNetwork()
+require 'com_wondertek_dw.common.framework'
+local rootSprite
+
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    System:setFontSize()
+end
+
+-- @brief 跳转
+function goHome()
+    Scene:go(Alias.login)
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then
+        Timer:set(1, 5000, 'goHome')
+    elseif msg == MSG_DEACTIVATE then
+        Scene:freeByHandle(rootSprite)
     end
-    -- @brief root节点消息方法
-    function bodyOnSpriteEvent(msg, param)
-        if msg == MSG_ACTIVATE then -- 页面激活
-            Timer:set(1, 3000, 'goLogin')
-            elseif msg == MSG_DEACTIVATE then
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+        
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:exit()
+        return 1
+    end
+end
+
+function fun(t, b, c, d)
+    t = t / d
+    return c * t * t * t + b
+end
+
+local t1 = 0
+function icon1OnTick(sprite)
+    local c = 550
+    local d = 60
+    local start = 550
+    if t1 < d then
+        t1 = t1 + 1
+        if t1 > 75 then
+            Sprite:setProperty(sprite, 'alpha', 255 - (t1 - 75) * 10)
+        elseif t1 < 10 then
+            Sprite:setProperty(sprite, 'alpha', t1 * 25)
+        elseif t == 10 then
+            Sprite:setProperty(sprite, 'alpha', 255)
         end
+        Sprite:setRect(sprite, 300 + math.ceil(fun(t1, 0, 200, d)) / 3, start - math.ceil(fun(t1, 0, c, d)), 131, 125)
+    else
+        t1 = 0
+        Sprite:setProperty(sprite, 'alpha', 0)
+        Sprite:setRect(sprite, 300, start - math.ceil(fun(t1, 0, c, d)), 131, 125)
     end
-    -- @brief 插件消息方法
-    function bodyOnPluginEvent(msg, param)
-        if msg == 101 then
-            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
-            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
-            Log:write('拨号失败')
-            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
-            Log:write('请求超时')
+end
+
+local t2 = 0
+function icon2OnTick(sprite)
+    local c = 600
+    local d = 100
+    local start = 570
+    if t2 < d then
+        t2 = t2 + 1
+        if t2 > 95 then
+            Sprite:setProperty(sprite, 'alpha', 255 - (t2 - 95) * 10)
+        elseif t2 < 10 then
+            Sprite:setProperty(sprite, 'alpha', t2 * 25)
+        elseif t2 == 10 then
+            Sprite:setProperty(sprite, 'alpha', 255)
         end
+        Sprite:setRect(sprite, 310 + math.ceil(fun(t2, 0, 200, d)) / 2, start - math.ceil(fun(t2, 0, c, d)), 132, 128)
+    else
+        t2 = 0
+        Sprite:setProperty(sprite, 'alpha', 0)
+        Sprite:setRect(sprite, 310, start - math.ceil(fun(t2, 0, c, d)), 132, 128)
     end
-    -- @brief 按键响应处理
-    function mainNodeOnKeyUp(sprite, kc)
-        if kc == Key.F2 then -- 按下返回键
-            -- 跳转到该页面时，需要Scene:setReturn才能跳回
-            Scene:back()
-            return 1
+end
+
+local t3 = 0
+function icon3OnTick(sprite)
+    local c = 400
+    local d = 110
+    local start = 500
+    if t3 < d then
+        t3 = t3 + 1
+        if t3 > d - 25 then
+            Sprite:setProperty(sprite, 'alpha', 255 - (t3 - (d - 25)) * 10)
+        elseif t3 < 10 then
+            Sprite:setProperty(sprite, 'alpha', t3 * 25)
+        elseif t3 == 10 then
+            Sprite:setProperty(sprite, 'alpha', 255)
         end
+        Sprite:setRect(sprite, 280, start - math.ceil(fun(t3, 0, c, d)), 130, 221)
+    else
+        t3 = 0
+        Sprite:setRect(sprite, 280, start - math.ceil(fun(t3, 0, c, d)), 130, 221)
     end
-    ---------------------------------------util functions---------------------------
-    function goLogin()
-        Scene:go(Alias.login)
+end
+
+local t4 = 0
+function icon4OnTick(sprite)
+    local c = 600
+    local d = 70
+    local start = 600
+    if t4 < d then
+        t4 = t4 + 1
+        if t4 > d - 25 then
+            Sprite:setProperty(sprite, 'alpha', 255 - (t4 - (d - 25)) * 10)
+        elseif t4 < 10 then
+            Sprite:setProperty(sprite, 'alpha', t4 * 25)
+        elseif t4 == 10 then
+            Sprite:setProperty(sprite, 'alpha', 255)
+        end
+        Sprite:setRect(sprite, 220 - math.ceil(fun(t4, 0, 200, d)) / 2, start - math.ceil(fun(t4, 0, c, d)), 95, 107)
+    else
+        t4 = 0
+        Sprite:setRect(sprite, 220, start - math.ceil(fun(t4, 0, c, d)), 95, 107)
     end
-]]>
+end
+
+local t5 = 0
+function icon5OnTick(sprite)
+    local c = 580
+    local d = 50
+    local start = 580
+    if t5 < d then
+        t5 = t5 + 1
+        if t5 > d - 25 then
+            Sprite:setProperty(sprite, 'alpha', 255 - (t5 - (d - 25)) * 10)
+        elseif t5 < 10 then
+            Sprite:setProperty(sprite, 'alpha', t5 * 25)
+        elseif t5 == 10 then
+            Sprite:setProperty(sprite, 'alpha', 255)
+        end
+        Sprite:setRect(sprite, 260 - math.ceil(fun(t5, 0, 200, d)), start - math.ceil(fun(t5, 0, c, d)), 110, 124)
+    else
+        t5 = 0
+        Sprite:setRect(sprite, 260, start - math.ceil(fun(t5, 0, c, d)), 110, 124)
+    end
+end
+
+local t6 = 0
+function icon6OnTick(sprite)
+    local c = 380
+    local d = 65
+    local start = 420
+    if t6 < d then
+        t6 = t6 + 1
+        if t6 > d - 25 then
+            Sprite:setProperty(sprite, 'alpha', 255 - (t6 - (d - 25)) * 10)
+        elseif t6 < 10 then
+            Sprite:setProperty(sprite, 'alpha', t6 * 25)
+        elseif t6 == 10 then
+            Sprite:setProperty(sprite, 'alpha', 255)
+        end
+        Sprite:setRect(sprite, 200 - math.ceil(fun(t6, 0, 200, d)) / 2.5, start - math.ceil(fun(t6, 0, c, d)), 123, 240)
+    else
+        t6 = 0
+        Sprite:setRect(sprite, 200, start - math.ceil(fun(t6, 0, c, d)), 123, 240)
+    end
+end
+
+local t7 = 0
+function icon7OnTick(sprite)
+    local c = 450
+    local d = 75
+    local start = 480
+    if t7 < d then
+        t7 = t7 + 1
+        if t7 > d - 25 then
+            Sprite:setProperty(sprite, 'alpha', 255 - (t7 - (d - 25)) * 10)
+        elseif t7 < 10 then
+            Sprite:setProperty(sprite, 'alpha', t7 * 25)
+        elseif t7 == 10 then
+            Sprite:setProperty(sprite, 'alpha', 255)
+        end
+        Sprite:setRect(sprite, 230 - math.ceil(fun(t7, 0, 200, d)) / 2, start - math.ceil(fun(t7, 0, c, d)), 157, 149)
+    else
+        t7 = 0
+        Sprite:setRect(sprite, 230, start - math.ceil(fun(t7, 0, c, d)), 157, 149)
+    end
+end
+
+local t8 = 0
+function icon8OnTick(sprite)
+    local c = 505
+    local d = 55
+    local start = 555
+    if t8 < d then
+        t8 = t8 + 1
+        if t8 > d - 25 then
+            Sprite:setProperty(sprite, 'alpha', 255 - (t8 - (d - 25)) * 10)
+        elseif t8 < 10 then
+            Sprite:setProperty(sprite, 'alpha', t8 * 25)
+        elseif t8 == 10 then
+            Sprite:setProperty(sprite, 'alpha', 255)
+        end
+        Sprite:setRect(sprite, 280 + math.ceil(fun(t8, 0, 200, d)) / 2, start - math.ceil(fun(t8, 0, c, d)), 113, 109)
+    else
+        t8 = 0
+        Sprite:setRect(sprite, 280, start - math.ceil(fun(t8, 0, c, d)), 113, 109)
+    end
+end
+
+--~ local bt1 = 0
+--~ local flag1 = 0
+--~ function ball1OnTick(sprite)
+--~     if flag1 == 0 then
+--~         if bt1 <= 24 then
+--~             bt1 = bt1 + 1
+--~             Sprite:setProperty(sprite, 'alpha', 255 - bt1 * 10)
+--~         elseif bt1 > 24 then
+--~             bt1 = 0
+--~             flag1 = 1
+--~             Sprite:setProperty(sprite, 'alpha', 10)
+--~         end
+--~     else
+--~         if bt1 <= 24 then
+--~             bt1 = bt1 + 1
+--~             Sprite:setProperty(sprite, 'alpha', bt1 * 10)
+--~         elseif bt1 > 24 then
+--~             bt1 = 0
+--~             flag1 = 0
+--~             Sprite:setProperty(sprite, 'alpha', 255)
+--~         end
+--~     end
+--~ end
+---------------------------------------util functions---------------------------
+
+    ]]>
 </root>

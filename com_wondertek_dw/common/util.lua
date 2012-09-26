@@ -8,7 +8,29 @@
 -- | Desc: 常用功能函数
 -- -----------------------------------------------------------------------------
 
+function getWholeUrl(urlContent , params)
+    local port = '7011'
+    if Config:get('server_port') ~= nil and Config:get('server_port') ~= '' then
+        port = ':' .. Config:get('server_port')
+    end
 
+    if Config:get('server_url') == nil or Config:get('server_url') ~= '' then
+        Config:set('server_url', '61.191.25.238')
+    end
+
+    local nFindLastIndex = string.find(Config:get('server_url'), 'http://')
+    if not nFindLastIndex then
+        url = 'http://' .. Config:get('server_url') .. port .. '/'
+    else
+        url = Config:get('server_url') .. port .. '/'
+    end
+    local lines = '10'
+    if Config:get('lines') ~= nil and Config:get('lines') ~= '' then
+        lines = Config:get('lines')
+    end
+    url = url .. urlContent .. '?' .. 'usercode=' .. Config:get('username') .. '&pagesize=' .. lines .. params
+    return url
+end
 function setAllShoworHide(sprite, isShow)
     Sprite:setVisible(sprite, isShow)
     Sprite:setActive(sprite, isShow)
