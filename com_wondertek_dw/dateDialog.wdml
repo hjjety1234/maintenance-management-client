@@ -20,7 +20,7 @@
 		</shadow>
 		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
 			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
-			<image name="downloadBgImg" rect="0,81,480,580"
+			<image name="downloadBgImg" rect="0,81,480,400"
 				src="file://image/cookbook/alert_bg.png" style="sudoku-auto"
 				extendstyle="1111" sudoku="20,20,20,20">
 				<image name="image2" rect="16,16,447,58" border="false"
@@ -102,12 +102,12 @@
 			</node>
 
 
-			<button name="okBtn" rect="30,586,207,53" layouttype="3"
+			<button name="okBtn" rect="30,400,207,53" layouttype="3"
 				OnSelect="onOKSelect" normal="src:file://image/cookbook/alert_ok.png;style:autosize"
 				sel="src:file://image/cookbook/alert_ok_hover.png;style:autosize"
 				extendstyle="1111" text="" color="#ffffff" font-size="24">
 			</button>
-			<button name="cancelBtn" rect="240,586,207,53" layouttype="3"
+			<button name="cancelBtn" rect="240,400,207,53" layouttype="3"
 				OnSelect="onCancelSelect" normal="src:file://image/cookbook/alert_cancel.png;style:autosize"
 				sel="src:file://image/cookbook/alert_cancel_hover.png;style:autosize"
 				extendstyle="1111" text="" color="#ffffff" font-size="24">
@@ -134,9 +134,25 @@
         Sprite:setProperty(nodeYear, 'data', YEAR_NODE)
         Sprite:setProperty(nodeMonth, 'data', MONTH_NODE)
         Sprite:setProperty(nodeDay, 'data', DAY_NODE)
+        local regHandle = Reg:create('dateDialog')
+        local yearText = Reg:getString(regHandle, 'year')
+        local monthText = Reg:getString(regHandle, 'month')
+        local dayText = Reg:getString(regHandle, 'day')
+        if yearText ~= nil and yearText ~= '' then
+        Sprite:setProperty(Sprite:findChild(nodeYear, 'content'), 'text', yearText)
+        else
         Sprite:setProperty(Sprite:findChild(nodeYear, 'content'), 'text', os.date("*t")["year"])
+        end
+        if monthText ~= nil and monthText ~= '' then
+        Sprite:setProperty(Sprite:findChild(nodeMonth, 'content'), 'text', monthText)
+        else
         Sprite:setProperty(Sprite:findChild(nodeMonth, 'content'), 'text', os.date("*t")["month"])
+        end
+        if dayText ~= nil and dayText ~= '' then
+        Sprite:setProperty(Sprite:findChild(nodeDay, 'content'), 'text', dayText)
+        else
         Sprite:setProperty(Sprite:findChild(nodeDay, 'content'), 'text', os.date("*t")["day"])
+        end
     end
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)

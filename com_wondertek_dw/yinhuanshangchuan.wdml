@@ -62,7 +62,7 @@
 			    </list-item>
 				<list-item name="textNode" rect="0,0,480,480" extendstyle="1111" border="false">
 					<node name="baseSprite" rect="0,0,480,60" extendstyle="1111">
-						<label name="label1" rect="0,0,150,60" border="false" text="所属专业："
+						<label name="label1" rect="0,0,150,60" border="false" text="隐患类别："
 							h-align="right" v-align="center" color="#000000" font-size="24"
 							extendstyle="1111"></label>
 						<button name="zhuanyeBtn" rect="150,0,292,60" border="false"
@@ -78,7 +78,7 @@
 					</node>
 
 					<node name="baseSprite" rect="0,70,480,60" extendstyle="1111">
-						<label name="label1" rect="0,0,150,60" border="false" text="隐患类别："
+						<label name="label1" rect="0,0,150,60" border="false" text="所属专业："
 							h-align="right" v-align="center" color="#000000" font-size="24"
 							extendstyle="1111"></label>
 						<button name="typeBtn" rect="150,0,292,60" border="false"
@@ -253,7 +253,7 @@
     local selectIndex = 1 --第几个下拉框
     local selectData
     local playStatus = 0 --0未播 1 播放中 2暂停中
-    local recordName = 0
+    local recordName = '0'
     local tempRecordName
     
     local zhuanyeValue = 0
@@ -498,33 +498,34 @@
     	if Config:get("longitude") == nil or Config:get("longitude") == '' then
             --Dialog:show('提示', '定位失败!', 'ok')
     	end
-
-        if recordName == 0 then
-            Dialog:show('提示', '没有录音文件!', 'ok')
-            return
-        end
         
     	local url = 'http://61.191.25.238:7011/nbspweb/webservice/accident!doWebservice.action'
-        local param = '&usercode='.. Config:get('username')..'&deptPro=' .. zhuanyeValue ..  '&dangertype=' .. typeValue .. '&dangerlevel=' .. levelValue  .. '&dangercontent=' .. Sprite:getProperty(detail, 'text') .. '&userLongtitute=' .. Config:get("longitude") .. '&userLatitute=' ..  Config:get("latitude") .. '&name=' .. name .. '&positionRemark=' .. addr
-        Log:write("-------------url------------", url .. param)
+        local param = '&usercode='.. Config:get('username')..'&deptPro=' .. typeValue ..  '&dangertype=' .. zhuanyeValue .. '&dangerlevel=' .. levelValue  .. '&dangercontent=' .. Sprite:getProperty(detail, 'text') .. '&userLongtitute=' .. Config:get("longitude") .. '&userLatitute=' ..  Config:get("latitude") .. '&name=' .. name .. '&positionRemark=' .. addr
+        Log:write("-------------url------------", url .. '?cmd=wlbdangersign'..param)
         Http:request('upload_data', url, 103, {useCache = false, method = 'post', postData='cmd=wlbdangersign'..param})
+        Loading:show(rootSprite)
     end
     
     function getUploadUrl()
-        local path = getDownloadPath() .. 'daiwei'
+        if imageArray[1] ~= nil and imageArray[1] ~= '' then
+            
+            local _,_,fileName = string.find(imageArray[1], '([^/\\%.]+)%.?[^/\\]*$')
         
-        local url = 'http://61.191.25.238:7011/nbspweb/upload/UGC_GetUploadUrl.html'
-        local param = 'FILE_NAME=' .. recordName .. '&C_TYPE=' .. 'amr' .. '&C_LEN=' .. IO:fileSize(path .. '/' .. recordName .. '.amr')
-        Log:write("-------------url upload------------", url .. param)
-        Http:request('upload_url', url, 104, {useCache = false, method = 'post', postData= param})
+            local url = 'http://61.191.25.238:7011/nbspweb/upload/UGC_GetUploadUrl.html'
+            local param = 'FILE_NAME=' .. fileName .. '&C_TYPE=' .. 'jpg' .. '&C_LEN=' .. IO:fileSize(imageArray[1])
+            Log:write("-------------url upload------------", url .. param)
+            Http:request('upload_url', url, 104, {useCache = false, method = 'post', postData= param})
+        else
+            if Loading:isShow() then Loading:close() end 
+            Dialog:show('', '信息发布成功！', 'ok', 'doBack')
+        end
     end
     
     function doRealUpload(url, param)
-        local path = getDownloadPath() .. 'daiwei'
-        
+        local _,_,fileName = string.find(imageArray[1], '([^/\\%.]+)%.?[^/\\]*$')
         local poststr = 'id=' .. orderId
         deleleUploadItems()
-        Upload:append(url, param .. poststr, path .. '/' .. recordName .. '.amr', recordName .. '.amr', 'test', 'amr')
+        Upload:append(url, param .. poststr, imageArray[1], fileName .. '.jpg', 'test', 'jpg')
         Timer:set(1, 500, 'onGetUploadStatus')
     end
     
@@ -535,7 +536,7 @@ function onGetUploadStatus()
     if status[1].status == 5 then
         deleleUploadItems()
         if Loading:isShow() then Loading:close() end 
-        Dialog:show('', '信息发布成功！', 'ok', 'backOnSelect')
+        Dialog:show('', '信息发布成功！', 'ok', 'doBack')
     elseif status[1].status == 6 or status[1].status == 1 or status[1].status == 4 then
         deleleUploadItems()
         if Loading:isShow() then Loading:close() end 
@@ -576,7 +577,11 @@ end
     	local typeBtn = Sprite:findChild(rootSprite, 'typeBtn')
     	local levelBtn = Sprite:findChild(rootSprite, 'levelBtn')
     	local detail = Sprite:findChild(rootSprite, 'detail')
-    	local stringData = string.format('%s;%s;%s;%s;%s;%s;', yinhuanID, Sprite:getProperty(Sprite:findChild(zhuanyeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(typeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(levelBtn, 'name'), 'text'), Sprite:getProperty(detail, 'text'), getCurDate())
+    	local name =  Sprite:getProperty(Sprite:findChild(rootSprite, 'yinhuanName'), 'text')
+    	
+    	
+    
+    	local stringData = string.format('%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;', yinhuanID, Sprite:getProperty(Sprite:findChild(zhuanyeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(typeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(levelBtn, 'name'), 'text'), Sprite:getProperty(detail, 'text'), getCurDate(), name,zhuanyeValue,typeValue,levelValue,recordName)
 
     	for i=1, #imageArray do
     		stringData = stringData .. imageArray[i]
@@ -676,6 +681,18 @@ end
     	Sprite:setProperty(Sprite:findChild(zhuanyeBtn, "name"), 'text', datas[2])
     	Sprite:setProperty(Sprite:findChild(typeBtn, "name"), 'text', datas[3])
     	Sprite:setProperty(Sprite:findChild(levelBtn, "name"), 'text', datas[4])
+    	
+    	Sprite:setProperty(Sprite:findChild(rootSprite, "yinhuanName"), 'text', datas[7])
+    	
+    	zhuanyeValue = datas[8]
+        typeValue = datas[9]
+        levelValue = datas[10]
+        
+        recordName = datas[10]
+        if recordName ~= '0' then
+            showPlay()
+        end
+    
     	if string.len(datas[5]) > 0 then
     		editOnTextChanged(detail,string.len(datas[5]))
     	end

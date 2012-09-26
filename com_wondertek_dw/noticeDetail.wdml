@@ -144,6 +144,9 @@
                 contentString = string.gsub(contentString, '\r\n\r\n\t', '\r\n')
                 contentString = string.gsub(contentString, '$\r\n\t', ' ')
                 Sprite:setProperty(detailSprite, 'text', contentString)
+        local newscontX, newscontY, newscontW, newscontH = Sprite:getRect(detailSprite)
+        Sprite:setRect(detailSprite, newscontX, 0, newscontW, newscontH)
+        resetListViewItemHeight()
             end
             elseif msg == 102 then
             local jsonResp = Http:jsonDecode("fav")
@@ -182,6 +185,16 @@
     -- @brief 返回按钮处理
     function doBack()
         Scene:back()
+    end
+    function resetListViewItemHeight()
+        local detailSprite = Sprite:findChild(rootSprite, 'detail')
+        local item = Sprite:getParent(detailSprite)
+        local x,y,w = Sprite:getRect(item)
+        local _,_,_,th = Sprite:getRect(detailSprite)
+        local height = th
+        Sprite:setRect(item, x,y,w,height)
+        ListView:setItemToTop(Sprite:getParent(item), 0)
+        ListView:adjust(Sprite:getParent(item))
     end
     -- @brief 收藏按钮消息处理函数
     function OnFavBtnClicked(sprite)
