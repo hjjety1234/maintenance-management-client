@@ -85,6 +85,12 @@
 						font-size="20" h-align="left" v-align="center" extendstyle="1111" />
 				</button>
 			</node>
+
+			<node name="nullNode" rect="0,220,480,220" extendstyle="1010"
+				visible="false" enable="false" active="false">
+				<label rect="0,25,480,35" extendstyle="1010" text="暂无巡检任务"
+					h-align="center" v-align="center" color="#686868" font-size="24" />
+			</node>
 		</node>
 	</body>
     <![CDATA[
@@ -93,21 +99,26 @@
     local rootSprite
     local data = {}
     local flag
+    local list
+    local nullNode
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
         rootSprite = sprite
+        nullNode = Sprite:findChild(rootSprite, 'nullNode')
+        list = Sprite:findChild(rootSprite, 'sampleList')
         --loadRequest()
+        tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
     end
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
-            tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
             elseif msg == MSG_DEACTIVATE then
         end
     end
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg)
+        showOrHideNullNode(0)
         if Loading:isShow() then Loading:close() end
         if msg == 101 then
             data = Http:jsonDecode('pay_data')
@@ -123,9 +134,11 @@
                         elseif data.value[0] then
                         loadList(1)
                         else
+                        showOrHideNullNode(1)
                         Dialog:show(rootSprite, '暂无待巡检任务！', 'ok')
                     end
                     elseif data.code == '50' then
+                    showOrHideNullNode(1)
                     Dialog:show(rootSprite, '暂无待巡检任务！', 'ok')
                     else
                     Dialog:show(rootSprite, '未知错误！', 'ok')
@@ -147,9 +160,11 @@
                         elseif data.value[0] then
                         loadList(1)
                         else
-                        Dialog:show(rootSprite, '暂无待巡检任务！', 'ok')
+                        showOrHideNullNode(1)
+                        Dialog:show(rootSprite, '暂无已巡检任务！', 'ok')
                     end
                     elseif data.code == '50' then
+                    showOrHideNullNode(1)
                     Dialog:show(rootSprite, '暂无已巡检任务！', 'ok')
                     else
                     Dialog:show(rootSprite, '未知错误！', 'ok')
@@ -167,6 +182,7 @@
     -- @brief 按键响应处理
     function mainNodeOnKeyUp(sprite, kc)
         if kc == Key.F2 then -- 按下返回键
+            Scene:freeByHandle(rootSprite)
             Scene:back()
             return 1
         end
@@ -174,20 +190,19 @@
     ---------------------------------------util functions---------------------------
     function loadRequest()
         local url = 'http://61.191.25.238:7011/nbspweb/webservice/wplan!doWebservice.action'
-        local param = '&usercode='..'adminhf'..'&title='..''..'&page=1&pagesize=5'
+        local param = '&usercode='..Config:get('username') ..'&title='..''..'&page=1&pagesize=5'
         Log:write("param = ", param)
         Http:request('pay_data', url, 101, {useCache = false, method = 'post', postData='cmd=wlbxunjianlist'..param})
         Loading:show(rootSprite)
     end
     function loadDoneRequest()
         local url = 'http://61.191.25.238:7011/nbspweb/webservice/wplan!doWebservice.action'
-        local param = '&usercode='..'adminhf'..'&title='..''..'&page=1&pagesize=5'
+        local param = '&usercode='..Config:get('username')..'&title='..''..'&page=1&pagesize=5'
         Log:write("param = ", param)
         Http:request('handled_data', url, 102, {useCache = false, method = 'post', postData='cmd=wlbxunjianDonelist'..param})
         Loading:show(rootSprite)
     end
     function loadList(count)
-        local list = Sprite:findChild(rootSprite, 'sampleList')
         ListView:removeAllItems(list,true)
         ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
         ListView:adjust(list)
@@ -214,10 +229,13 @@
         local regHandle = Reg:create('xunjian')
         Reg:setString(regHandle, 'id', data.value[index].id)
         Reg:setString(regHandle, 'taskid', tostring(data.value[index].taskid))
-        Reg:setString(regHandle,'flag',flag)
-        if flag=='1' then
+        Reg:setString(regHandle, 'flag', flag)
+        if flag == '1' then
             Scene:setReturn(Alias.xunjianrenwu, Alias.xunjianEdit)
             Scene:go(Alias.xunjianEdit)
+            else
+            Scene:setReturn(Alias.xunjianrenwu, Alias.xunjianDetail)
+            Scene:go(Alias.xunjianDetail)
         end
     end
     function tabOnSelect(sprite)
@@ -239,7 +257,25 @@
         end
     end
     function doBack(sprite)
+        Scene:freeByHandle(rootSprite)
         Scene:back()
+    end
+    function showOrHideNullNode(showOrHide)
+        if showOrHide == 0 then
+            Sprite:setEnable(nullNode, 0)
+            Sprite:setActive(nullNode, 0)
+            Sprite:setVisible(nullNode, 0)
+            Sprite:setEnable(list, 1)
+            Sprite:setActive(list, 1)
+            Sprite:setVisible(list, 1)
+            else
+            Sprite:setEnable(nullNode, 1)
+            Sprite:setActive(nullNode, 1)
+            Sprite:setVisible(nullNode, 1)
+            Sprite:setEnable(list, 0)
+            Sprite:setActive(list, 0)
+            Sprite:setVisible(list, 0)
+        end
     end
 ]]>
 </root>

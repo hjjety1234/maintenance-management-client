@@ -72,7 +72,7 @@
             </node>
 	</body>
     <![CDATA[
-
+--[[
     require 'com_wondertek_dw.common.framework'
     local rootSprite
     ---------------------------------------callbacks--------------------------------
@@ -186,7 +186,7 @@
     function forgetOnSelect(sprite)
         Scene:go(Alias.radioSample)
     end
-
+--]]
     require 'com_wondertek_dw.common.framework'
     local rootSprite
     ---------------------------------------callbacks--------------------------------
@@ -230,11 +230,21 @@
     -- @brief 按键响应处理
     function mainNodeOnKeyUp(sprite, kc)
         if kc == Key.F2 then -- 按下返回键
-            Scene:back()
-            return 1
+	        if Loading:isShow() then 
+	           Loading:close()
+	           else
+	           Dialog:show('', '是否确定退出？', 'ok_cancel', 'doExit')
+	           --Scene:freeByHandle(rootSprite)
+	           --Scene:back()
+	        end
+	        return 1 
         elseif kc == Key.F1 then
             local menuNode = Sprite:findChild(rootSprite, 'menuNode')
-            setAllShoworHide(menuNode, 1)
+            if Sprite:isVisible(menuNode) == 1 then
+                setAllShoworHide(menuNode, 0)
+                else
+                setAllShoworHide(menuNode, 1)
+            end
             return 1
         end
     end
@@ -299,7 +309,6 @@
     			Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_s.png') 
     			Sprite:setProperty(sprite,'data','1')
     	end
-
     end
     function hideMenuNode(sprite)
         local menuNode = Sprite:findChild(rootSprite, 'menuNode')

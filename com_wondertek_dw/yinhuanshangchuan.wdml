@@ -56,7 +56,7 @@
 								<image rect="245,5,43,51" src="file://image/dropdown_arrow.png"
 									style="autosize" extendstyle="1111" />
 							</image>
-							<label name="name" rect="0,0,252,60" text="类型1" color="#0" extendstyle="1111"
+							<label name="name" rect="0,0,252,60" text="" color="#0" extendstyle="1111"
 								style="autosize" h-align="center" v-align="center" font-size="24"></label>
 						</button>
 					</node>
@@ -72,7 +72,7 @@
 								<image rect="245,5,43,51" src="file://image/dropdown_arrow.png"
 									style="autosize" extendstyle="1111" />
 							</image>
-							<label name="name" rect="0,0,252,60" text="基站设备及配套" color="#0" extendstyle="1111"
+							<label name="name" rect="0,0,252,60" text="" color="#0" extendstyle="1111"
 								style="autosize" h-align="center" v-align="center" font-size="24"></label>
 						</button>
 					</node>
@@ -87,7 +87,7 @@
 								<image rect="245,5,43,51" src="file://image/dropdown_arrow.png"
 									style="autosize" extendstyle="1111" />
 							</image>
-							<label name="name" rect="0,0,252,60" text="紧急" color="#0" extendstyle="1111"
+							<label name="name" rect="0,0,252,60" text="" color="#0" extendstyle="1111"
 								style="autosize" h-align="center" v-align="center" font-size="24"></label>
 						</button>
 					</node>
@@ -102,7 +102,7 @@
 								extendstyle="1111" style="autosize" h-align="left" v-align="top"
 								font-size="24"></label>
 						</edit>
-						<button name="playRecord" rect="320,250,140,30" text="已录音，点击播放" color="#0"
+						<button name="playRecord" rect="400,215,61,55" src="file://image/play.png" color="#0"
                                 extendstyle="0010" style="autosize" h-align="left" v-align="top"
                                 font-size="15" OnSelect="playRecord"
                                 visible="false" enable="false" active="false"></button>
@@ -224,7 +224,7 @@
 
     require 'com_wondertek_dw.common.framework'
 	require 'framework.map'
-	require 'framework.sysplayer'
+	require 'framework.nativeplayer'
     local rootSprite
     local observer
     local mapViewPlugin
@@ -235,12 +235,13 @@
     local recordGot = 0
     local selectIndex = 1 --第几个下拉框
     local selectData
+    local playStatus = 0 --0未播 1 播放中 2暂停中
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
         rootSprite = sprite
         observer = Plugin:getObserver()
-        Map:getCurPosition(observer, 1000)
+        --Map:getCurPosition(observer, 1000)
         if pYinhuanID == nil then
         	--add
         else
@@ -256,8 +257,10 @@
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg, param)
         if msg == 101 then
-            elseif msg == 1000 then
+        elseif msg == 1000 then
+            Log:write("-------------location got1--------------")
             local postDataString = Param:getString(param, 0)
+            Log:write("-------------location got2--------------", postDataString)
        		local postData = Json:loadString2Table(postDataString)
             if postData.latitude ~= nil then
                 Config:set("latitude", postData.latitude)
@@ -266,11 +269,14 @@
                 Config:set("longitude", postData.longitude)
             end
             if postData.longitude ~= nil and postData.latitude ~= nil then
+                Log:write("-------------location got3--------------")
  				Map:getLocation(observer, 1001, tonumber(postData.latitude), tonumber(postData.longitude))  
             end
             -- postData为Json数据({"latitude":"31250614","longitude":"121600975"})
-            elseif msg == 1001 then
+        elseif msg == 1001 then
+            Log:write("-------------location got4--------------")
             local postDataString = Param:getString(param, 0)
+            Log:write("-------------location got5--------------", postDataString)
             local postData = Json:loadString2Table(postDataString)
             local locInfo = Sprite:findChild(rootSprite, 'locInfo')
             if postData.address ~= nil then
@@ -328,7 +334,7 @@
             Sprite:setProperty(button, 'data', selectData.value[index].id)
         elseif selectIndex == 3 then
             Sprite:setProperty(button, 'text', selectData.value[index].lable)
-            Sprite:setProperty(button, 'data', selectData.value[index].id)
+            Sprite:setProperty(button, 'data', selectData.value[index].codevalue)
         end
     end
     
@@ -336,8 +342,7 @@
     function mainNodeOnKeyUp(sprite, kc)
         if kc == Key.F2 then -- 按下返回键
             Scene:freeByHandle(rootSprite)
-            Player:show(0)
-            Player:stop()
+            NativePlayer:stop()
             Scene:back()
             return 1
         end
@@ -345,8 +350,7 @@
     ---------------------------------------util functions---------------------------
     function doBack()
         Scene:freeByHandle(rootSprite)
-        Player:show(0)
-        Player:stop()
+        NativePlayer:stop()
         Scene:back()
     end
     function editOnTextChanged(sprite,ncount)
@@ -363,7 +367,7 @@
         curXunjianBtn = sprite
          --@Log:write('tempid===', tempid)
         selectIndex = 1 
-        local url = 'http://61.191.25.238:7011/nbspweb/webservice/accident!doWebservice.action?cmd=wlbyhtypelist&usercode=adminhf' 
+        local url = 'http://61.191.25.238:7011/nbspweb/webservice/accident!doWebservice.action?cmd=wlbyhtypelist&usercode=' .. Config:get('username')
         Http:request('select', url, 102, {useCache = true, method = 'post'})
         Loading:show(rootSprite)
         --setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
@@ -378,7 +382,7 @@
         curXunjianBtn = sprite
          --@Log:write('tempid===', tempid)
         selectIndex = 2
-        local url = 'http://61.191.25.238:7011/nbspweb/webservice/accident!doWebservice.action?cmd=wlbyhlevellist&usercode=adminhf' 
+        local url = 'http://61.191.25.238:7011/nbspweb/webservice/accident!doWebservice.action?cmd=wlbyhlevellist&usercode=' .. Config:get('username')
         Http:request('select', url, 102, {useCache = true, method = 'post'})
         Loading:show(rootSprite)
         --setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
@@ -390,23 +394,10 @@
         curXunjianBtn = sprite
          --@Log:write('tempid===', tempid)
         selectIndex = 3
-        local url = 'http://61.191.25.238:7011/nbspweb/webservice/dic!doWebservice.action?cmd=wlbzytypelist&usercode=adminhf' 
+        local url = 'http://61.191.25.238:7011/nbspweb/webservice/dic!doWebservice.action?cmd=wlbzytypelist&usercode=' .. Config:get('username')
         Http:request('select', url, 102, {useCache = true, method = 'post'})
         Loading:show(rootSprite)
         --setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
-    end
-    
-    function bottomMenuSelect(sprite)
-        local dataInfo = Sprite:getData(sprite)
-        if dataInfo == '1' then
-            doBack()
-            elseif dataInfo == '2' then
-            doLocation()
-            elseif dataInfo == '3' then
-            doTakePic()
-            elseif dataInfo == '4' then
-            doRecord()
-        end
     end
 
     function xunjianGroupOnSelect(sprite)
@@ -435,9 +426,9 @@
         local locInfo = Sprite:findChild(rootSprite, 'locInfo')
         Sprite:setProperty(locInfo, 'text', '正在定位......')
         Map:getCurPosition(observer, 1000)
-        if Config:get("latitude") ~= nil and Config:get("latitude") ~= '' and Config:get("longitude") ~= nil and Config:get("longitude") ~= '' then
- 			Map:getLocation(observer, 1001, tonumber(Config:get("latitude")), tonumber(Config:get("longitude")))  
-        end
+        --if Config:get("latitude") ~= nil and Config:get("latitude") ~= '' and Config:get("longitude") ~= nil and Config:get("longitude") ~= '' then
+ 		--	Map:getLocation(observer, 1001, tonumber(Config:get("latitude")), tonumber(Config:get("longitude")))  
+        --end
     end
     function isSave(sprites)
         Dialog:show('提示','是否保存该内容？','ok_cancel','doSave','doBack')
@@ -516,15 +507,10 @@
     end
     function onCameraDialog(photoPath, photoType)
     	table.insert(imageArray, photoPath)
+    	Log:write("imageArray0", imageArray)
     	doChangeImageList()
     end
-    function doRecord()
-
-    	local result = Record:start('MODULE:\\demo\\test.arm')
-    	if result ~= true then
-            Dialog:show('提示', '录音功能打开失败!', 'ok')
-    	end
-    end
+    
     function doEndRecord()
     	Record:stop()
     	return
@@ -560,10 +546,13 @@
 	        Sprite:findChild(item, 'pic3'),
 	        Sprite:findChild(item, 'pic4'),
     	}
+    	Log:write("imageArray1", imageArray)
     	for i=1,#picArray do
     		if imageArray[tonumber(index) * 4 + i] == nil then
+    		Log:write("imageArray2", i)
     			break
     		end
+    		Log:write("imageArray3", i)
     		local bg = Sprite:findChild(picArray[i], 'bg')
     		if Sprite:getProperty(bg, 'src') ~= nil and Sprite:getProperty(bg, 'src') == '' then
     			Sprite:setProperty(bg, 'src', imageArray[tonumber(index) * 4 + i])
@@ -599,7 +588,20 @@
     	doChangeImageList()
     end
     
-    function bottomMenuSelect()
+    function bottomMenuSelect(sprite)
+        local dataInfo = Sprite:getData(sprite)
+        if dataInfo == '1' then
+            doBack()
+            elseif dataInfo == '2' then
+            doLocation()
+            elseif dataInfo == '3' then
+            doTakePic()
+            elseif dataInfo == '4' then
+            doRecord()
+        end
+    end
+    
+    function doRecord()
         local record = Sprite:findChild(rootSprite, 'recordnode')
         Sprite:setVisible(record, 1)
         Sprite:setEnable(record, 1)
@@ -623,6 +625,11 @@
         local progressbar = Sprite:findChild(rootSprite, 'progressbar')
         local l, t, w, h = Sprite:getRect(progressbar)
         Sprite:setRect(progressbar, l, t, 0, h)
+        
+        playStatus = 0 
+        local playRecord = Sprite:findChild(rootSprite, 'playRecord')
+        Sprite:setProperty(playRecord, 'src', "file://image/play.png")
+            
         Record:stop()
     end
     
@@ -638,13 +645,19 @@
             IO:dirRemove(path, false)
             IO:dirCreate(path)
             Timer:set(1, 1000, 'freshProgress')
+            
+            playStatus = 0 
+            local playRecord = Sprite:findChild(rootSprite, 'playRecord')
+            Sprite:setProperty(playRecord, 'src', "file://image/play.png")
+            
             Record:start(path .. '/yinhuan.amr') 
         else
             Sprite:setProperty(recordStatus, 'src', "file://image/record_begin.png")
             status = 0
             recordGot = 1
             Timer:cancel(1)
-            Record:stop()
+            hideRecord()
+            --Record:stop()
         end
     end
     
@@ -656,9 +669,22 @@
     end
     
     function playRecord()
-        Player:create(0, 0, 0, 0)
-        Player:open('WONDER:\\record\\yinhuan.amr')
-        Player:show(1)
+        local path = getDownloadPath() .. 'daiwei'
+        local playRecord = Sprite:findChild(rootSprite, 'playRecord')
+            
+        if playStatus == 0 then
+            playStatus = 1
+            Sprite:setProperty(playRecord, 'src', "file://image/pause.png")
+            NativePlayer:open(path .. '/yinhuan.amr')
+        elseif playStatus == 1 then
+            playStatus = 2
+            Sprite:setProperty(playRecord, 'src', "file://image/play.png")
+            NativePlayer:pause()
+        elseif playStatus == 2 then
+            playStatus = 1
+            Sprite:setProperty(playRecord, 'src', "file://image/pause.png")
+            NativePlayer:play()
+        end
     end
     
     function freshProgress(id)
