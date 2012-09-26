@@ -32,18 +32,34 @@
 					<image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
 						style="autosize" extendstyle="1111">
 					</image>
-					<image rect="20,0,50,45" src="file://image/ic_return.png"
+					<image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
 						style="autosize" extendstyle="1111">
 					</image>
+					<label rect="15,0,60,45" text="返回" color="#ffffff"
+						extendstyle="1111" style="autosize" h-align="center" v-align="center"
+						font-size="24"></label>
 				</button>
-				<button name="btnForget" rect="387,4,79,56" text="提交" color="#ffffff"
+				<button name="btnForget" rect="387,4,79,56" text="" color="#ffffff"
 					extendstyle="1111" OnSelect="submitOnSelect"
-					normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-					sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-					font-size="24" />
+					normal="src:file://image/ic_title_upload.png;style:autosize;color:#ffffff"
+					sel="src:file://image/ic_title_upload.png;style:autosize;color:#000000"
+					 font-size="24"/>
 			</node>
 
 			<listview name="listview" rect="0,66,480,620" col="1" extendstyle="1111" limit="true" border="false">
+			    <list-item rect="0,0,480,80" extendstyle="1111" border="false">
+			        <label name="label1" rect="0,0,150,60" border="false" text="隐患名称："
+                            h-align="right" v-align="center" color="#000000" font-size="24"
+                            extendstyle="1111"></label>
+                        <node rect="150,0,292,60" border="false"
+                            text="" color="#ffffff" extendstyle="1111" >
+                            <image rect="0,0,292,60" src="file://image/input.png" style="autosize"
+                                extendstyle="1111">
+                            </image>
+                            <edit name="yinhuanName" rect="5,18,252,60" text="" color="#0" extendstyle="1111"
+                                style="autosize" h-align="center" v-align="top" font-size="24"></edit>
+                        </node>
+			    </list-item>
 				<list-item name="textNode" rect="0,0,480,480" extendstyle="1111" border="false">
 					<node name="baseSprite" rect="0,0,480,60" extendstyle="1111">
 						<label name="label1" rect="0,0,150,60" border="false" text="所属专业："
@@ -108,12 +124,12 @@
                                 visible="false" enable="false" active="false"></button>
 					</node>
 				</list-item>
-				<list-item name="imageListNode" rect="0,0,480,0" border="false" extendstyle="1111">
-					<listview name="imageList" rect="0,0,480,0" limit="true" extendstyle="1111" />
+				<list-item name="imageListNode" rect="0,0,480,120" extendstyle="1111">
+					<panorama name="imageList" rect="0,0,480,120" extendstyle="0010" style="circle" foreground="foreground" alpha="255"/>
 				</list-item>
 
 			</listview>
-			<node name="imageListItem" rect="10,560,460,120" extendstyle="1111">
+			<node name="imageListItem" rect="10,0,460,120" extendstyle="1111" visible="false" enable="false" active="false">
 
 				<button name="pic1" rect="0,0,110,110" border="false" text=""
 					color="#ffffff" OnSelect="picOnSelect" extendstyle="1111">
@@ -223,6 +239,7 @@
     <![CDATA[
 
     require 'com_wondertek_dw.common.framework'
+    require 'framework.upload'
 	require 'framework.map'
 	require 'framework.nativeplayer'
     local rootSprite
@@ -236,6 +253,14 @@
     local selectIndex = 1 --第几个下拉框
     local selectData
     local playStatus = 0 --0未播 1 播放中 2暂停中
+    local recordName = 0
+    local tempRecordName
+    
+    local zhuanyeValue = 0
+    local typeValue = 0
+    local levelValue = 0
+    local orderId
+    
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
@@ -291,19 +316,33 @@
                 fillSelect()
             end
         elseif msg == 103 then
-            if Loading:isShow() then Loading:close() end 
             local updateData = Http:jsonDecode('upload_data')
+            Log:write("updateData:", updateData)
             if updateData.code ~= '0' then
         		Dialog:show('提示',getErrorCode(updateData.code) .. ' ，是否暂存？','ok_cancel','doSave','doBack')
             else
-		    	if pYinhuanID ~= nil then
-		    		local temp = ';' .. Config:get('yinhuanIDList')
-		    		Config:set('yinhuanIDList', string.gsub(temp, ";" .. pYinhuanID .. ';', ";"))
-		    	end
-        		Dialog:show('提示','上传成功','ok','doBack')
+                orderId = updateData.data
+                getUploadUrl()
+		    	--if pYinhuanID ~= nil then
+		    	--	local temp = ';' .. Config:get('yinhuanIDList')
+		    	--	Config:set('yinhuanIDList', string.gsub(temp, ";" .. pYinhuanID .. ';', ";"))
+		    	--end
+        		--Dialog:show('提示','上传成功','ok','doBack')
             end
-
-            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+        elseif msg == 104 then
+            
+            local uploadData = Http:xmlDecode('upload_url', 'RESULT')
+            Log:write("upload url:", updateData)
+            local url = uploadData.URL
+            Log:write('url', url)
+            local param = uploadData.PARAM
+            if param then
+                param = param .. '&'
+            else
+                param = ''
+            end
+            doRealUpload(url, param)
+        elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
             elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
             Log:write('拨号失败')
             elseif msg > MSG_NETWORK_ERROR then -- 请求超时
@@ -402,17 +441,25 @@
 
     function xunjianGroupOnSelect(sprite)
         local xunjianData = Sprite:getData(sprite)
+        Log:write("xunjianDataxunjianDataxunjianDataxunjianDataxunjianDataxunjianData", xunjianData)
         local xunjianText = Sprite:findChild(curXunjianBtn, 'name')
 
         local index = ListView:getItemIndex(Sprite:getParent(sprite))
         
         local title
+        local zhuanyeBtn = Sprite:findChild(rootSprite, 'zhuanyeBtn')
+        local typeBtn = Sprite:findChild(rootSprite, 'typeBtn')
+        local levelBtn = Sprite:findChild(rootSprite, 'levelBtn')
+        
         if selectIndex == 1 then
             title = selectData.value[index].typeName
+            zhuanyeValue = xunjianData
         elseif selectIndex == 2 then
             title = selectData.value[index].levelName
+            levelValue = xunjianData
         elseif selectIndex == 3 then
             title = selectData.value[index].lable
+            typeValue = xunjianData
         end
         Sprite:setProperty(curXunjianBtn, 'data', Sprite:getProperty(sprite, 'data'))
         Sprite:setProperty(xunjianText, 'text', title)
@@ -441,19 +488,70 @@
     	local typeBtn = Sprite:findChild(rootSprite, 'typeBtn')
     	local levelBtn = Sprite:findChild(rootSprite, 'levelBtn')
     	local detail = Sprite:findChild(rootSprite, 'detail')
+    	local name =  Sprite:getProperty(Sprite:findChild(rootSprite, 'yinhuanName'), 'text')
+    	local locInfo = Sprite:findChild(rootSprite, 'locInfo')
+        local addr = Sprite:getProperty(locInfo, 'text')
 
     	if Config:get("latitude") == nil or Config:get("latitude") == '' then
-            Dialog:show('提示', '定位失败!', 'ok')
+            --Dialog:show('提示', '定位失败!', 'ok')
     	end
     	if Config:get("longitude") == nil or Config:get("longitude") == '' then
-            Dialog:show('提示', '定位失败!', 'ok')
+            --Dialog:show('提示', '定位失败!', 'ok')
     	end
 
+        if recordName == 0 then
+            Dialog:show('提示', '没有录音文件!', 'ok')
+            return
+        end
+        
     	local url = 'http://61.191.25.238:7011/nbspweb/webservice/accident!doWebservice.action'
-        local param = '&usercode='..'zyhefei'.. '&createrdate=' .. getCurDate() .. '&deptPro=' .. Sprite:getData(zhuanyeBtn) ..  '&dangertype=' .. Sprite:getData(typeBtn) .. '&dangerlevel=' .. Sprite:getData(levelBtn)  .. '&dangercontent=' .. Sprite:getProperty(detail, 'text') .. '&userLongtitute=' .. Config:get("longitude") .. '&userLatitute=' ..  Config:get("latitude")
-        Log:write("param = ", param)
+        local param = '&usercode='.. Config:get('username')..'&deptPro=' .. zhuanyeValue ..  '&dangertype=' .. typeValue .. '&dangerlevel=' .. levelValue  .. '&dangercontent=' .. Sprite:getProperty(detail, 'text') .. '&userLongtitute=' .. Config:get("longitude") .. '&userLatitute=' ..  Config:get("latitude") .. '&name=' .. name .. '&positionRemark=' .. addr
+        Log:write("-------------url------------", url .. param)
         Http:request('upload_data', url, 103, {useCache = false, method = 'post', postData='cmd=wlbdangersign'..param})
     end
+    
+    function getUploadUrl()
+        local path = getDownloadPath() .. 'daiwei'
+        
+        local url = 'http://61.191.25.238:7011/nbspweb/upload/UGC_GetUploadUrl.html'
+        local param = 'FILE_NAME=' .. recordName .. '&C_TYPE=' .. 'amr' .. '&C_LEN=' .. IO:fileSize(path .. '/' .. recordName .. '.amr')
+        Log:write("-------------url upload------------", url .. param)
+        Http:request('upload_url', url, 104, {useCache = false, method = 'post', postData= param})
+    end
+    
+    function doRealUpload(url, param)
+        local path = getDownloadPath() .. 'daiwei'
+        
+        local poststr = 'id=' .. orderId
+        deleleUploadItems()
+        Upload:append(url, param .. poststr, path .. '/' .. recordName .. '.amr', recordName .. '.amr', 'test', 'amr')
+        Timer:set(1, 500, 'onGetUploadStatus')
+    end
+    
+function onGetUploadStatus()
+    Log:write('onGetUploadStatus=========================')
+    local status = Upload:getStatus()
+    Log:write('status', status)
+    if status[1].status == 5 then
+        deleleUploadItems()
+        if Loading:isShow() then Loading:close() end 
+        Dialog:show('', '信息发布成功！', 'ok', 'backOnSelect')
+    elseif status[1].status == 6 or status[1].status == 1 or status[1].status == 4 then
+        deleleUploadItems()
+        if Loading:isShow() then Loading:close() end 
+        Dialog:show('', '信息发布失败，请稍后再试！', 'ok')
+    else
+        Timer:set(1, 500, 'onGetUploadStatus')
+    end
+end
+
+function deleleUploadItems()
+    local count = Upload:getCount()
+    for i=1,count do
+        Upload:delete(i)
+    end
+end
+    
     function doSave()
     	Log:write(1)
     	local yinhuanID = Config:get('yinhuanID')
@@ -528,16 +626,17 @@
     	end
         local imageListNode = Sprite:findChild(rootSprite, 'imageListNode')
         local imageList = Sprite:findChild(imageListNode, 'imageList')
-    	ListView:removeAllItems(imageList) 
-        ListView:loadItem(imageList, Sprite:findChild(rootSprite, 'imageListItem'), realCount, 'loadListItem')
+    	Panorama:removeAllItems(imageList) 
+        Panorama:loadItem(imageList, Sprite:findChild(rootSprite, 'imageListItem'), realCount, 'loadListItem')
         local x,y,w,h = Sprite:getRect(imageList)
-        Sprite:setRect(imageList, x,y,w, 120 * realCount)
+        --Sprite:setRect(imageList, x,y,w, 120 * realCount)
         x,y,w,h = Sprite:getRect(imageListNode)
-        Sprite:setRect(imageListNode, x,y,w, 120 * realCount)
-        ListView:adjust(imageList)
+        --Sprite:setRect(imageListNode, x,y,w, 120 * realCount)
+        Panorama:adjust(imageList)
         ListView:adjust(Sprite:getParent(imageListNode))
     end
     function loadListItem(list, item, index)
+    Log:write("!!!!!!!!!!!!!!!!!!!!!!!")
         Sprite:setRect(item, 10, 0, 460, 120)
         Sprite:setProperty(item, 'extendstyle', '1111')
         local picArray = {
@@ -650,12 +749,14 @@
             local playRecord = Sprite:findChild(rootSprite, 'playRecord')
             Sprite:setProperty(playRecord, 'src', "file://image/play.png")
             
-            Record:start(path .. '/yinhuan.amr') 
+            tempRecordName = os.time()
+            Record:start(path .. '/' .. tempRecordName .. '.amr') 
         else
             Sprite:setProperty(recordStatus, 'src', "file://image/record_begin.png")
             status = 0
             recordGot = 1
             Timer:cancel(1)
+            recordName = tempRecordName
             hideRecord()
             --Record:stop()
         end
@@ -675,7 +776,7 @@
         if playStatus == 0 then
             playStatus = 1
             Sprite:setProperty(playRecord, 'src', "file://image/pause.png")
-            NativePlayer:open(path .. '/yinhuan.amr')
+            NativePlayer:open(path .. '/' .. recordName .. '.amr')
         elseif playStatus == 1 then
             playStatus = 2
             Sprite:setProperty(playRecord, 'src', "file://image/play.png")

@@ -9,12 +9,15 @@
 -- -----------------------------------------------------------------------------
 
 function getWholeUrl(urlContent , params)
-    local port = '7011'
+    local port
+    if Config:get('server_port') == nil or Config:get('server_port') == '' then
+        Config:set('server_port', '7011')
+    end
     if Config:get('server_port') ~= nil and Config:get('server_port') ~= '' then
         port = ':' .. Config:get('server_port')
     end
 
-    if Config:get('server_url') == nil or Config:get('server_url') ~= '' then
+    if Config:get('server_url') == nil or Config:get('server_url') == '' then
         Config:set('server_url', '61.191.25.238')
     end
 
@@ -28,7 +31,7 @@ function getWholeUrl(urlContent , params)
     if Config:get('lines') ~= nil and Config:get('lines') ~= '' then
         lines = Config:get('lines')
     end
-    url = url .. urlContent .. '?' .. 'usercode=' .. Config:get('username') .. '&pagesize=' .. lines .. params
+    url = url .. urlContent .. '?' .. 'usercode=' .. Config:get('username') .. '&pagesize=' .. lines.. '&' .. params
     return url
 end
 function setAllShoworHide(sprite, isShow)

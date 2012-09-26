@@ -39,11 +39,11 @@
 					extendstyle="1111" font-size="30" h-align="center" v-align="center"
 					color="#ffffff" scroll="true" step="2"></scrolltext>
 
-				<button name="btnForget" rect="387,4,79,56" text="提交" color="#ffffff"
-					extendstyle="1111" OnSelect="submitOnSelect"
-					normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-					sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-					font-size="24" />
+                <button name="btnForget" rect="387,4,79,56" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="submitOnSelect"
+                    normal="src:file://image/ic_title_upload.png;style:autosize;color:#ffffff"
+                    sel="src:file://image/ic_title_upload.png;style:autosize;color:#000000"
+                     font-size="24"/>
 			</node>
 			<node rect="0,66,480,730" extendstyle="1111">
 				<listview name="sampleList" rect="0,10,480,710" col="1"
@@ -124,7 +124,7 @@
 					<image rect="150,0,310,50" src="file://image/input.png"
 						style="autosize" extendstyle="1111">
 					</image>
-					<edit name="address" rect="155,0,300,50" border="false"
+					<edit name="exEdit" rect="155,0,300,50" border="false"
 						v-center="true" extendstyle="1111"></edit>
 					<label name="label1" rect="0,60,150,50" border="false" text="处理描述："
 						h-align="right" v-align="center" color="#000000" font-size="22"
@@ -132,20 +132,8 @@
 					<image rect="150,60,310,50" src="file://image/input.png"
 						style="autosize" extendstyle="1111">
 					</image>
-					<edit name="address" rect="155,60,300,50" border="false"
+					<edit name="doEdit" rect="155,60,300,50" border="false"
 						v-center="true" extendstyle="1111"></edit>
-
-					<button name="takePicBtn" rect="10,120,130,50" border="false"
-						text="button1" color="#ffffff" OnSelect="takePicOnSelect"
-						extendstyle="1111">
-						<image rect="0,0,130,50" src="file://image/take_pic.png"
-							style="autosize" extendstyle="1111">
-						</image>
-					</button>
-
-					<panorama name="picPanorama" rect="150,120,310,100"
-						extendstyle="0010" foreground="panoramaItem"></panorama>
-
 				</node>
 			</node>
 			<node name="errorTypeSelectNode" rect="0,0,480,800" visible="false"
@@ -167,28 +155,6 @@
 					font-size="24" data="02" />
 			</node>
 
-			<node name="panoramaItem" extendstyle="0010" visible="false"
-				enable="false" active="false">
-				<button name="picBtn1" rect="0,0,100,100" border="false"
-					text="" color="#ffffff" OnSelect="picOnSelect" extendstyle="1111">
-					<image name="bg1" rect="0,0,100,100" src="" style="autosize"
-						extendstyle="1111">
-					</image>
-				</button>
-				<button name="picBtn2" rect="102,0,100,100" border="false"
-					text="" color="#ffffff" OnSelect="picOnSelect" extendstyle="1111">
-					<image name="bg2" rect="0,0,100,100" src="" style="autosize"
-						extendstyle="1111">
-					</image>
-				</button>
-				<button name="picBtn3" rect="204,0,100,100" border="false"
-					text="" color="#ffffff" OnSelect="picOnSelect" extendstyle="1111">
-					<image name="bg3" rect="0,0,100,100" src="" style="autosize"
-						extendstyle="1111">
-					</image>
-				</button>
-			</node>
-
 		</node>
 	</body>
     <![CDATA[
@@ -203,14 +169,6 @@
     local taskid = ''
     local data = {}
     local stations = {}
-    local picPathAry1 = {}
-    local picPathAry2 = {}
-    local errorCount
-    local selectIndex = 1
-    local selectAry = {}
-    local picPathList1 = {}
-    --local picPathList2 = {}
-    --local picPathAry2 = {{"file://image//label_blue_new.png","file://image//label_blue_new.png","file://image//label_blue_new.png"},{"file://image//label_blue_new.png","",""}}
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
@@ -251,18 +209,14 @@
                     setTopSpriteValue()
                     stations = data.stations
                     if #stations > 0 then
-                        errorCount = #stations + 1
-                        initPicPathList(#stations + 1)
                         fillContent(#stations + 1)
                         elseif stations[0] then
-                        errorCount = 1
-                        initPicPathList(1)
                         fillContent(1)
                         else
                         Dialog:show(rootSprite, '巡检任务明细暂无数据！', 'ok')
                     end
                     else
-                    Dialog:show(rootSprite, '未知错误！', 'ok')
+                    Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
                 end
                 else
                 Dialog:show(rootSprite, '未知错误！', 'ok')
@@ -276,10 +230,11 @@
             end
             if data ~= nil then
                 if data.code == '0' then
+                    clearFromConfig()
                     Scene:setReturn(Alias.home, Alias.xunjianrenwu)
                     Scene:go(Alias.xunjianrenwu)
                     else
-                    Dialog:show(rootSprite, '提交失败，请稍后再试！', 'ok')
+                    Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
                 end
                 else
                 Dialog:show(rootSprite, '未知错误！', 'ok')
@@ -294,17 +249,18 @@
     -- @brief 按键响应处理
     function mainNodeOnKeyUp(sprite, kc)
         if kc == Key.F2 then -- 按下返回键
-            Scene:freeByHandle(rootSprite)
-            Scene:back()
+            Dialog:show('提示','是否保存该页面内容？','ok_cancel','saveToConfig','doBack')
             return 1
         end
     end
     ---------------------------------------util functions---------------------------
     function loadRequest()
-        local url = 'http://61.191.25.238:7011/nbspweb/webservice/wplan!doWebservice.action'
-        local param = '&usercode='..Config:get('username')..'&code='..id..'&taskid='..taskid
+        --local url = 'http://61.191.25.238:7011/nbspweb/webservice/wplan!doWebservice.action'
+        local wholeUrl = getWholeUrl('nbspweb/webservice/wplan!doWebservice.action', "")
+        Log:write("wholeUrl = ", wholeUrl)
+        local param = '&code='..id..'&taskid='..taskid
         Log:write("param = ", param)
-        Http:request('pay_data', url, 101, {useCache = false, method = 'post', postData='cmd=wlbxunjianDetail'..param})
+        Http:request('pay_data', wholeUrl, 101, {useCache = false, method = 'post', postData='&cmd=wlbxunjianDetail'..param})
         Loading:show(rootSprite)
     end
     function setTopSpriteValue()
@@ -331,17 +287,26 @@
         Sprite:setProperty(item, 'extendstyle', '1111')
         local errorTitle = Sprite:findChild(item, 'errorTitle')
         local errorBtn = Sprite:findChild(item, 'errorBtn')
-        local takePicBtn = Sprite:findChild(item, 'takePicBtn')
-        Sprite:setProperty(takePicBtn, 'data', index + 1)
         local errorNode = Sprite:findChild(item, 'errorNode')
+        local exEdit = Sprite:findChild(item, 'exEdit')
+        local doEdit = Sprite:findChild(item, 'doEdit')
         Sprite:setProperty(errorTitle, 'text', (index + 1)..'、'..stations[index].resourceTypename)
+        --带入上次缓存起来的数据
+        local bufferStr = Config:get(stations[index].resourceId)
+        Log:write("bufferStr = ", bufferStr)
+        Log:write("stations[index].resourceId = ", stations[index].resourceId)
+        if bufferStr ~= nil and bufferStr ~= "" then
+            Sprite:setProperty(exEdit, "text", Util:split(bufferStr, ";")[1])
+            Sprite:setProperty(doEdit, "text", Util:split(bufferStr, ";")[2])
+        end
+        --动态设置高度
         if Sprite:getData(errorBtn) == '01' then
             Log:write(12)
             setAllShoworHide(errorNode, 0)
             else
             Log:write(13)
             setAllShoworHide(errorNode, 1)
-            Sprite:setRect(item, 0,0,460,60 + 230)
+            Sprite:setRect(item, 0,0,460,60 + 120)
         end
         Log:write(14)
         local x,y,w,h = Sprite:getRect(item)
@@ -349,11 +314,6 @@
         Sprite:setProperty(item, 'data', h)
         errorListTotalHeight = errorListTotalHeight + h
         Log:write(16, errorListTotalHeight)
-        --[[
-        if picPathList2[index] ~= nil and #picPathList2[index] > 0 then
-            loadPicPanorama(#picPathList2[index])
-        end
-        --]]
     end
     function errorOnSelect(sprite)
         local btnData = Sprite:getData(sprite)
@@ -414,16 +374,15 @@
         Log:write('2222', Sprite:getRect(Sprite:getParent(Sprite:getParent(errorList))))
     end
     function isSave(sprite)
-        Scene:freeByHandle(rootSprite)
-        Scene:back()
-        --Dialog:show('提示','是否保存该巡检报告？','ok_cancel','doSave','doBack')
+        Dialog:show('提示','是否保存该页面内容？','ok_cancel','saveToConfig','doBack')
     end
     function doSave(sprite)
-        --Reg:create('巡检任务' .. id)
-        local url = 'http://61.191.25.238:7011/nbspweb/webservice/wplan!doWebservice.action'
-        local param = '&usercode='..Config:get('username')..'&code='..id..'&taskid='..taskid..'&dealflag='..'pass'..'&content='..'同意'
+        --local url = 'http://61.191.25.238:7011/nbspweb/webservice/wplan!doWebservice.action'
+        local wholeUrl = getWholeUrl('nbspweb/webservice/wplan!doWebservice.action', "")
+        Log:write("wholeUrl = ", wholeUrl)
+        local param = '&code='..id..'&taskid='..taskid..'&dealflag='..'pass'..'&content='..'同意'
         Log:write("param = ", param)
-        Http:request('handled_data', url, 102, {useCache = false, method = 'post', postData='cmd=wlbxunjianAudit'..param})
+        Http:request('handled_data', wholeUrl, 102, {useCache = false, method = 'post', postData='&cmd=wlbxunjianAudit'..param})
         Loading:show(rootSprite)
         doBack()
     end
@@ -437,149 +396,21 @@
     function doUpload()
         doSave()
     end
-    function takePicOnSelect(sprite)
-        selectIndex = tonumber(Sprite:getData(sprite))
-        Log:write("selectIndex = ", selectIndex)
-        local fileName = 'ict' .. getCurDateAndTime()
-        local result = System:openCamera('onCameraDialog', 'file://image/' .. fileName .. '.jpg', 'jpg')
-        if result == 0 then
-            Dialog:show('提示', '相机打开失败!', 'ok')
-            return 1
+    --缓存填写数据到本地
+    function saveToConfig()
+        for i = 0, #stations do
+            local item = ListView:getItem(editList, i)
+            local exEdit = Sprite:findChild(item, "exEdit")
+            local doEdit = Sprite:findChild(item, "doEdit")
+            Config:set(stations[i].resourceId, Sprite:getText(exEdit)..";"..Sprite:getText(doEdit))
         end
+        doBack()
     end
-    function onCameraDialog(photoPath, photoType)
-        picPathAry1 = picPathList1[selectIndex]
-        local aryTemp = copyBufferAry(picPathAry1)
-        table.insert(aryTemp, photoPath)
-        picPathList1[selectIndex] = aryTemp
-        Log:write("picPathList1 = ", picPathList1)
-        Log:write("picPathAry1 count = ", #picPathAry1)
-        picPathAry2 = pathAry2Ary(aryTemp)
-        --picPathList2[selectIndex] = picPathAry2
-        --获取对应下标的控件刷新
-        local eNode = ListView:getItem(editList, selectIndex - 1)
-        local ePanorama = Sprite:findChild(eNode, 'picPanorama')
-        local eItem = Sprite:findChild(rootSprite, 'panoramaItem')
-        Panorama:removeAllItems(ePanorama, 1, 1)
-        Panorama:loadItem(ePanorama, eItem, #picPathAry2, 'panoramaLoadItem')
-        Panorama:adjust(ePanorama)
-    end
-    --本地测试方法
-    function addNewPic()
-        Log:write("selectIndex = ", selectIndex)
-        photoPath = "file://image//label_blue_new.png"
-        Log:write("picPathList1 =0 ", picPathList1)
-        picPathAry1 = picPathList1[selectIndex]
-        local aryTemp = copyBufferAry(picPathAry1)
-        table.insert(aryTemp, photoPath)
-        --table.remove(picPathList1, selectIndex)
-        --table.insert(picPathList1, selectIndex, {1})
-        picPathList1[selectIndex] = aryTemp
-        Log:write("picPathList1 =1 ", picPathList1)
-        Log:write("picPathAry1 = ", picPathAry1)
-        Log:write("picPathAry1 count = ", #picPathAry1)
-        picPathAry2 = pathAry2Ary(aryTemp)
-        --picPathList2[selectIndex] = picPathAry2
-        --获取对应下标的控件刷新
-        local eNode = ListView:getItem(editList, selectIndex - 1)
-        local ePanorama = Sprite:findChild(eNode, 'picPanorama')
-        local eItem = Sprite:findChild(rootSprite, 'panoramaItem')
-        Panorama:removeAllItems(ePanorama, 1, 1)
-        Panorama:loadItem(ePanorama, eItem, #picPathAry2, 'panoramaLoadItem')
-        Panorama:adjust(ePanorama)
-    end
-    ------------------------------------List方式显示图片-----------------------------------------
-    function loadPicList()
-        Log:write("==loadPicList==")
-        local picList = Sprite:findChild(rootSprite, 'picList')
-        local picItem = Sprite:findChild(rootSprite, 'picItem')
-        List:removeAllItems(picList, 1, 1)
-        List:loadItem(picList, picItem, #picPathAry, 'loadPicListItem')
-        List:adjust(picList)
-    end
-    function loadPicListItem(list, item, index)
-        index = index + 1
-        Sprite:setRect(item, 0, 0, 100, 100)
-        Sprite:setProperty(item, 'extendstyle', '1010')
-        local bg = Sprite:findChild(item, 'bg')
-        local button = Sprite:findChildByClass(item, 'button')
-        Sprite:setProperty(bg, 'src', picPathAry[index])
-        Sprite:setProperty(button, 'data', picPathAry[index])
-        Sprite:setProperty(item, 'data', index)
-    end
-    function listBuildChildrenFinished(sprite)
-        local count = List:getItemCount(sprite)
-        Sprite:setProperty(sprite, 'line', tostring(count))
-        local x,y = Sprite:getRect(sprite)
-        local height = 100 * count
-        Sprite:setRect(sprite, x, y, 300, height)
-        List:adjust(sprite)
-    end
-    function picBtnOnSelect(sprite)
-        local path = Sprite:getParent(sprite)
-        local index = Sprite:getData(Sprite:getParent(sprite))
-        local reg = Reg:create("pic_show_data")
-        Reg:setString(reg, "path", path)
-        Scene:setReturn(Alias.xunjianEdit, Alias.page)
-        Scene:go(Alias.page)
-    end
-    ------------------------------------Panorama方式显示图片-----------------------------------------
-    function loadPicPanorama(count)
-        local picPanorama = Sprite:findChild(rootSprite, 'picPanorama')
-        local panoramaItem = Sprite:findChild(rootSprite, 'panoramaItem')
-        Panorama:removeAllItems(picPanorama, 1, 1)
-        Panorama:loadItem(picPanorama, panoramaItem, count, 'panoramaLoadItem')
-        Panorama:adjust(picPanorama)
-    end
-    function panoramaLoadItem(panorama, item, index)
-        index = index + 1
-        Sprite:setRect(item, 0, 0, 300, 100)
-        Sprite:setProperty(item, 'extendstyle', '1010')
-        local picBtn1 = Sprite:findChild(item, 'picBtn1')
-        local picBtn2 = Sprite:findChild(item, 'picBtn2')
-        local picBtn3 = Sprite:findChild(item, 'picBtn3')
-        local bg1 = Sprite:findChild(picBtn1, 'bg1')
-        local bg2 = Sprite:findChild(picBtn2, 'bg2')
-        local bg3 = Sprite:findChild(picBtn3, 'bg3')
-        Sprite:setProperty(bg1, 'src', picPathAry2[index][1])
-        Sprite:setProperty(bg2, 'src', picPathAry2[index][2])
-        Sprite:setProperty(bg3, 'src', picPathAry2[index][3])
-        Sprite:setProperty(picBtn1, 'data', picPathAry2[index][1])
-        Sprite:setProperty(picBtn2, 'data', picPathAry2[index][2])
-        Sprite:setProperty(picBtn3, 'data', picPathAry2[index][3])
-        Sprite:setProperty(item, 'data', index)
-    end
-    function pathAry2Ary(pathAry)
-        local num = 0
-        local objectAry = {}
-        local line = math.ceil(#pathAry/3)
-        Log:write("line = ", line)
-        for i = 1, line do
-            objectAry[i] = {}
-            for j = 1, 3 do
-                num = num + 1
-                if pathAry[num] == nil or pathAry[num] == "" then
-                    objectAry[i][j] = ""
-                    else
-                    objectAry[i][j] = pathAry[num]
-                end
-            end
+    --提交时清除本地缓存数据
+    function clearFromConfig()
+        for i = 0, #stations do
+            Config:delete(stations[i].resourceId)
         end
-        Log:write("objectAry = ", objectAry)
-        return objectAry
-    end
-    function initPicPathList(count)
-        local tempAry = {}
-        for i = 1, count do
-            picPathList1[i] = tempAry
-        end
-    end
-    function copyBufferAry(ary)
-        local tempAry = {}
-        for i = 1, #ary do
-            tempAry[i] = ary[i]
-        end
-        return tempAry
     end
 ]]>
 </root>

@@ -27,17 +27,14 @@
 				<label rect="0,0,480,66" text="统计列表" color="#ffffff" v-align="center"
 					h-align="center" font-size="28" extendstyle="1111" />
 			</image>
-			<button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
+			<button name="backBtn" rect="0,4,75,58" normal="normal" sel="sel"
 				OnSelect="doBack" extendstyle="1111">
-				<image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
+				<image name="normal" rect="0,0,75,58" src="file://image/ic_home.png"
 					style="autosize" extendstyle="1111">
 				</image>
-				<image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
+				<image name="sel" rect="0,0,75,58" src="file://image/ic_home.png"
 					style="autosize" extendstyle="1111">
 				</image>
-				<label rect="15,0,60,45" text="首页" color="#ffffff"
-					extendstyle="1111" style="autosize" h-align="center" v-align="center"
-					font-size="24"></label>
 			</button>
 		</node>
 
@@ -196,11 +193,11 @@
         local nextMonthString = string.format('%s-%s-%s', year,
         nextMonth, '1') -- 下月
         local server = Config:get('server')
-        local requestURL = string.format('%s/nbspweb/webservice/patrolstatistic!doWebservice.action?cmd=wlbtongjilist&area=&usercode=%s&page=%s&pagesize=%s&startmonth=%s&endmonth=%s',
-        server,'adminhf', '1', '5', currentMonthString, nextMonthString)
+        local requestURL = string.format('&cmd=wlbtongjilist&area=&page=%s&startmonth=%s&endmonth=%s', '1', currentMonthString, nextMonthString)
         -- 进行http请求
         searchMonthIndex = curMonth
-        Http:request("StatList", requestURL, 101)
+        local reqURL = getWholeUrl('nbspweb/webservice/patrolstatistic!doWebservice.action', requestURL)
+        Http:request("StatList", reqURL, 101)
     end
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
@@ -381,11 +378,11 @@
         if (selectCityLabelText == '所有') then
             selectCityLabelText = ''
         end
-        local requestURL = string.format('%s/nbspweb/webservice/patrolstatistic!doWebservice.action?cmd=wlbtongjilist&area=%s&usercode=%s&page=%s&pagesize=%s&startmonth=%s&endmonth=%s',
-        server,selectCityLabelText,'liuguoli', '1', '5', Sprite:getText(startContent), Sprite:getText(endContent))
+        local requestURL = string.format('&cmd=wlbtongjilist&area=%s&page=%s&startmonth=%s&endmonth=%s',selectCityLabelText, '1', Sprite:getText(startContent), Sprite:getText(endContent))
         -- 进行http请求
         searchMonthIndex = j
-        Http:request("StatList", requestURL, 101)
+        local reqURL = getWholeUrl('nbspweb/webservice/patrolstatistic!doWebservice.action', requestURL)
+        Http:request("StatList", reqURL, 101)
     end
     function timeOnSelect(sprite)
         -- body

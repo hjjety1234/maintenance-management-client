@@ -250,10 +250,10 @@
     end
     ---------------------------------------util functions---------------------------
      function loadRequest()
-        local url = 'http://61.191.25.238:7011/nbspweb/webservice/workorder!doWebservice.action'
-        local param = '&usercode='..'zyhefei'..'&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&step='..step
+        local param =  '&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&step='..step
         Log:write("param = ", param)
-        Http:request('daibandetail_data', url, 101, {useCache = false, method = 'post', postData='cmd=wlbtaskdetail'..param})
+        local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
+        Http:request('daibandetail_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbtaskdetail'})
         Loading:show(rootSprite)
     end
     function fillContent()
@@ -302,9 +302,11 @@
                 signflag='untread'
                 end
 
-        param = '&usercode='..'zyhefei'..'&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&step='..step..'&signflag='..signflag..'&signdetail='..content..'&patrolgroupcode=zy'
+        param = '&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&step='..step..'&signflag='..signflag..'&signdetail='..content..'&patrolgroupcode=zy'
         Log:write("param = ", param)
-        Http:request('daibanqianshou', url, 102, {useCache = false, method = 'post', postData='cmd=wlbtaskdealsign'..param})
+
+        local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
+        Http:request('daibanqianshou', reqURL, 102, {useCache = false, method = 'post', postData='cmd=wlbtaskdealsign'})
         Loading:show(rootSprite)
         elseif stepdata=='2' then
 
@@ -322,9 +324,11 @@
                         elseif issubmit=='02' then
                             issubmit='1'
                         end
-                    param = '&usercode='..'zyhefei'..'&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&step='..step..'&issubmit='..issubmit..'&remark='..content
+                    param = '&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&step='..step..'&issubmit='..issubmit..'&remark='..content
+                    
+                    local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
                     Log:write("param = ", param)
-                    Http:request('daibanhuidan', url, 103, {useCache = false, method = 'post', postData='cmd=wlbtaskdealrequest'..param})
+                    Http:request('daibanhuidan', reqURL, 103, {useCache = false, method = 'post', postData='cmd=wlbtaskdealrequest'})
                     Loading:show(rootSprite)
                     
         end

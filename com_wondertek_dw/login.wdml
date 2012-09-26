@@ -255,10 +255,12 @@
         
         local username=Sprite:getText(Sprite:findChild(namenode, 'edname')) 
         local password=Sprite:getText(Sprite:findChild(pwdnode, 'edpwd')) 
-        local dataString=string.format('http://61.191.25.238:7011/nbspweb/webservice/user!doWebservice.action?usercode=%s&password=%s&cmd=%s',username,password,'wlblogin')
+        local dataString=string.format('&password=%s&cmd=%s',password,'wlblogin')
         --Scene:go(Alias.home)
         Loading:show(rootSprite)
-        Http:request('login_istrue', dataString, 101, {useCache=false})
+
+        local reqURL = getWholeUrl('nbspweb/webservice/user!doWebservice.action', dataString)
+        Http:request('login_istrue', reqURL, 101, {useCache=false})
         
         Log:write('dataString=============================',dataString)
         --@Http:request('login_istrue', 'http://localhost:8080/DaiWeiService/mainServerlet', 101, {method='post',postData=dataString,useCache=false})

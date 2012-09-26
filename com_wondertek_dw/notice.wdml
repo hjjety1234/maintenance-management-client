@@ -292,10 +292,11 @@
     --@brief 请求服务器公告列表
     function requestNoticeList(tag, num, ucode, title, page, pagesize)
         local server = Config:get("server")
-        local requestURL = string.format('%s/nbspweb/webservice/notice!doWebservice.action?cmd=wlbnewslist&usercode=%s&title=%s&collectflag=0&page=%s&pagesize=%s',server,
-        ucode, title, page, pagesize)
-        Log:write("请求公告列表:"..requestURL)
-        Http:request('NOTICE_LIST', requestURL, MSG_NOTICE_LIST, {useCache=false})
+        local param = string.format('&title=%s&collectflag=0&page=%s&cmd=wlbnewslist', title, page)
+        Log:write("请求公告列表:"..param)
+
+        local reqURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', param)
+        Http:request('NOTICE_LIST', reqURL, MSG_NOTICE_LIST, {useCache=false})
     end
     -- @brief 列表项选择处理
     function itemOnSelect(sprite)
@@ -322,10 +323,10 @@
     -- @brief将数据库中该条记录标记为已读
     function setNewFlagToZero(noticeId)
         local server = Config:get("server")
-        local requestURL = string.format('nbspweb/webservice/notice!doWebservice.action?cmd=wlbupdatenews&usercode=%s&id=%s',server,
-        usercode)
-        Log:write("标记:"..noticeId.."为已阅读:"..requestURL)
-        Http:request('NOTICE_NEW_FLAG', requestURL, MSG_NOTICE_NEW_FLAG)
+
+        local reqURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', '&cmd=wlbupdatenews&id=')
+        Log:write("标记:"..noticeId.."为已阅读:"..reqURL)
+        Http:request('NOTICE_NEW_FLAG', reqURL, MSG_NOTICE_NEW_FLAG)
     end
     -- @brief 显示或者隐藏搜索条
     function OnShowSearchBarButtonClicked(sprite)
@@ -344,10 +345,10 @@
             isSearchBarVisible = false
             -- 重设列表
             local server = Config:get("server")
-            local requestURL = string.format('%s/nbspweb/webservice/notice!doWebservice.action?cmd=wlbnewslist&usercode=%s&title=&collectflag=0&page=%s&pagesize=%s',server,
-            usercode, '1', '5')
+            local requestURL = string.format('&cmd=wlbnewslist&title=&collectflag=0&page=%s', '1')
             Log:write("重设请求公告列表:"..requestURL)
-            Http:request('NOTICE_LIST', requestURL, MSG_NOTICE_LIST)
+            local reqURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', requestURL)
+            Http:request('NOTICE_LIST', reqURL, MSG_NOTICE_LIST)
         end
     end
     --@brief 点击搜索按钮消息处理函数

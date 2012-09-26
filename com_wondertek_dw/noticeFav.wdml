@@ -251,10 +251,10 @@
     --@brief 请求服务器公告收藏列表
     function requestFavNoticeList(tag, num, usercode, title, page, pagesize)
         local server = Config:get("server")
-        local requestURL = string.format('%s/nbspweb/webservice/notice!doWebservice.action?cmd=wlbnewslist&usercode=%s&collectflag=1&title=%s&page=%s&pagesize=%s',server,
-        usercode, title, page, pagesize)
+        local requestURL = string.format('&cmd=wlbnewslist&collectflag=1&title=%s&page=%s', title, page)
         Log:write("请求收藏地址:", requestURL)
-        Http:request(tag, requestURL, num, {useCache=false})
+        local reqURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', requestURL)
+        Http:request(tag, reqURL, num, {useCache=false})
     end
     -- @brief 列表项选择处理
     function itemOnSelect(sprite)

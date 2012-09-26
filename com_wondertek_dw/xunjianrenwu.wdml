@@ -25,17 +25,14 @@
 					h-align="center" font-size="28" extendstyle="1111" />
 			</image>
 
-			<button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
+			<button name="backBtn" rect="0,4,75,58" normal="normal" sel="sel"
 				OnSelect="doBack" extendstyle="1111">
-				<image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
+				<image name="normal" rect="0,0,75,58" src="file://image/ic_home.png"
 					style="autosize" extendstyle="1111">
 				</image>
-				<image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
+				<image name="sel" rect="0,0,75,58" src="file://image/ic_home.png"
 					style="autosize" extendstyle="1111">
 				</image>
-				<label rect="15,0,60,45" text="首页" color="#ffffff"
-					extendstyle="1111" style="autosize" h-align="center" v-align="center"
-					font-size="24"></label>
 			</button>
 		</node>
 		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
@@ -81,8 +78,9 @@
 					extendstyle="1111">
 					<label rect="10,0,100,70" text="巡检名：" color="#0" font-size="20"
 						h-align="left" v-align="center" extendstyle="1111" />
-					<label name="texttitle" rect="110,0,330,70" text="" color="#0"
-						font-size="20" h-align="left" v-align="center" extendstyle="1111" />
+					<scrolltext name="texttitle" rect="110,0,340,70"
+						extendstyle="1010" font-size="20" h-align="left" v-align="center"
+						color="#0" scroll="true" step="2"></scrolltext>
 				</button>
 			</node>
 
@@ -137,11 +135,9 @@
                         showOrHideNullNode(1)
                         Dialog:show(rootSprite, '暂无待巡检任务！', 'ok')
                     end
-                    elseif data.code == '50' then
-                    showOrHideNullNode(1)
-                    Dialog:show(rootSprite, '暂无待巡检任务！', 'ok')
                     else
-                    Dialog:show(rootSprite, '未知错误！', 'ok')
+                    showOrHideNullNode(1)
+                    Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
                 end
                 else
                 Dialog:show(rootSprite, '未知错误！', 'ok')
@@ -163,11 +159,9 @@
                         showOrHideNullNode(1)
                         Dialog:show(rootSprite, '暂无已巡检任务！', 'ok')
                     end
-                    elseif data.code == '50' then
-                    showOrHideNullNode(1)
-                    Dialog:show(rootSprite, '暂无已巡检任务！', 'ok')
                     else
-                    Dialog:show(rootSprite, '未知错误！', 'ok')
+                    showOrHideNullNode(1)
+                    Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
                 end
                 else
                 Dialog:show(rootSprite, '未知错误！', 'ok')
@@ -189,17 +183,21 @@
     end
     ---------------------------------------util functions---------------------------
     function loadRequest()
-        local url = 'http://61.191.25.238:7011/nbspweb/webservice/wplan!doWebservice.action'
-        local param = '&usercode='..Config:get('username') ..'&title='..''..'&page=1&pagesize=5'
+        --local url = 'http://61.191.25.238:7011/nbspweb/webservice/wplan!doWebservice.action'
+        local wholeUrl = getWholeUrl('nbspweb/webservice/wplan!doWebservice.action', "")
+        Log:write("wholeUrl = ", wholeUrl)
+        local param = '&title='..''..'&page=1'
         Log:write("param = ", param)
-        Http:request('pay_data', url, 101, {useCache = false, method = 'post', postData='cmd=wlbxunjianlist'..param})
+        Http:request('pay_data', wholeUrl, 101, {useCache = false, method = 'post', postData='&cmd=wlbxunjianlist'..param})
         Loading:show(rootSprite)
     end
     function loadDoneRequest()
-        local url = 'http://61.191.25.238:7011/nbspweb/webservice/wplan!doWebservice.action'
-        local param = '&usercode='..Config:get('username')..'&title='..''..'&page=1&pagesize=5'
+        --local url = 'http://61.191.25.238:7011/nbspweb/webservice/wplan!doWebservice.action'
+        local wholeUrl = getWholeUrl('nbspweb/webservice/wplan!doWebservice.action', "")
+        Log:write("wholeUrl = ", wholeUrl)
+        local param = '&title='..''..'&page=1'
         Log:write("param = ", param)
-        Http:request('handled_data', url, 102, {useCache = false, method = 'post', postData='cmd=wlbxunjianDonelist'..param})
+        Http:request('handled_data', wholeUrl, 102, {useCache = false, method = 'post', postData='&cmd=wlbxunjianDonelist'..param})
         Loading:show(rootSprite)
     end
     function loadList(count)
