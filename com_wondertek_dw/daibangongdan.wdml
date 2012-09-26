@@ -176,17 +176,20 @@
     ---------------------------------------util functions---------------------------
 
     function loadRequest()
-        local url = 'http://61.191.25.238:7011/nbspweb/webservice/workorder!doWebservice.action'
+        --local url = 'http://61.191.25.238:7011/nbspweb/webservice/workorder!doWebservice.action'
         local username = Config:get('username')
-        local param = '&usercode='..username..'&page=1&pagesize=20'
+        local param = '&page=1'
+
+        local url= getWholeUrl('nbspweb/webservice/workorder!doWebservice.action' , '')
         Log:write("param = ", param)
         Http:request('daiban_data', url, 101, {useCache = false, method = 'post', postData='cmd=wlbtasklist'..param})
         Loading:show(rootSprite)
     end
     function loadDoneRequest()
-        local url = 'http://61.191.25.238:7011/nbspweb/webservice/workorder!doWebservice.action'
+        local url= getWholeUrl('nbspweb/webservice/workorder!doWebservice.action' , '')
+        --local url = 'http://61.191.25.238:7011/nbspweb/webservice/workorder!doWebservice.action'
         local username = Config:get('username')
-        local param = '&usercode='..username..'&page=1&pagesize=5'
+        local param = '&page=1'
         Log:write("param = ", param)
         Http:request('handled_data', url, 102, {useCache = false, method = 'post', postData='cmd=wlbhandledtasklist'..param})
         Loading:show(rootSprite)
@@ -305,6 +308,8 @@
                 stepdata='2'
                 elseif stepdata=='3' then
                     stepdata='3'
+                    elseif stepdata=='4' then
+                        stepdata='4'
             end
             Reg:setString(regHandle,'id',data.value[index].id)
             Reg:setString(regHandle,'pid',data.value[index].pid)

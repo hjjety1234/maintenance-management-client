@@ -257,6 +257,7 @@
 				</edit>
 				
 				</node>
+
 			</node>
 			<!--巡检组列表-->
 			<node name="xunjianSelectNode" rect="0,0,480,800" visible="false"
@@ -425,7 +426,7 @@
         	setAllShoworHide(Sprite:findChild(rootSprite, 'qianshouNode'), 1)
         	setAllShoworHide(Sprite:findChild(rootSprite, 'juqian'), 0)
         	setAllShoworHide(Sprite:findChild(rootSprite, 'huidan'), 0)
-        	elseif stepdata=='2' then
+        	elseif stepdata=='2'or stepdata=='4' then
         		
         		setAllShoworHide(Sprite:findChild(rootSprite, 'qianshouNode'),0)
         		setAllShoworHide(Sprite:findChild(rootSprite, 'juqian'), 1)
@@ -674,7 +675,7 @@
         		local juqian= Sprite:findChild(rootSprite, 'juqian')
         		Sprite:setProperty(Sprite:findChild(juqian, 'resultTypeName'), 'text', dataString[8]) 
 
-    		elseif stepflag=='2' then
+    		elseif stepflag=='2' or stepflag=='4' then
     			local qianshouNode = Sprite:findChild(rootSprite, 'juqian')
 
     			local itemNode = Sprite:findChild(qianshouNode, 'resultNode')
@@ -853,7 +854,7 @@
         Log:write("param = ", param)
         Http:request('daibanqianshou', url, 102, {useCache = false, method = 'post', postData='cmd=wlbtaskdealsign'..param})
         Loading:show(rootSprite)
-        elseif stepdata=='2' then
+        elseif stepdata=='2' or stepdata=='4' then
         		local qianshouNode = Sprite:findChild(rootSprite, 'juqian')
 
     			local itemNode = Sprite:findChild(qianshouNode, 'resultNode')
@@ -873,9 +874,15 @@
     			local chulicontent = Sprite:findChild(qianshouNode, 'chulicontent')
     		
     			local contenttext=Sprite:getText(Sprite:findChild(chulicontent,'edit'))
-    			param = '&usercode='..Config:get('username')..'&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&step='..step..'&remark='..contenttext..'&result='..itemtext..'&approvercode=0010000935'
+    			
         		Log:write("param = ", param)
+        		if stepdata=='2' then
+					param = '&usercode='..Config:get('username')..'&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&step='..step..'&remark='..contenttext..'&result='..itemtext..'&approvercode=0010000935'
         		Http:request('daibanjuqian', url, 104, {useCache = false, method = 'post', postData='cmd=wlbtaskdealrefuse'..param})
+        		elseif stepdata=='4' then
+        			param = '&usercode='..Config:get('username')..'&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&step='..step..'&remark='..contenttext..'&result='..itemtext..'&approvercode=0010000935'
+        			Http:request('daibanjuqian', url, 104, {useCache = false, method = 'post', postData='cmd=wlbtaskdealcheck'..param})
+        		end
         		Loading:show(rootSprite)
 
     			--stringData = string.format('%s;%s;%s;%s;%s;', stepdata, stringData, itemtext, xunjiantext,contenttext)
