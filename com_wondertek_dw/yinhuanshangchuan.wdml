@@ -260,6 +260,7 @@
     local typeValue = 0
     local levelValue = 0
     local orderId
+    local location = ''
     
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
@@ -305,6 +306,7 @@
             local postData = Json:loadString2Table(postDataString)
             local locInfo = Sprite:findChild(rootSprite, 'locInfo')
             if postData.address ~= nil then
+                location = postData.address
                 Sprite:setProperty(locInfo, 'text', postData.address)
             end
             -- postData为Json数据({"address":"北京市西城区后红井胡同2号","city":"北京"})
@@ -523,7 +525,7 @@
     
     function doRealUpload(url, param)
         local _,_,fileName = string.find(imageArray[1], '([^/\\%.]+)%.?[^/\\]*$')
-        local poststr = 'id=' .. orderId
+        local poststr = 'id=' .. orderId .. '&markid=&interfaceMainType=2&usercode=' .. Config:get('username') .. '&uploadFileName=' .. fileName .. '.jpg'
         deleleUploadItems()
         Upload:append(url, param .. poststr, imageArray[1], fileName .. '.jpg', 'test', 'jpg')
         Timer:set(1, 500, 'onGetUploadStatus')
@@ -581,7 +583,7 @@ end
     	
     	
     
-    	local stringData = string.format('%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;', yinhuanID, Sprite:getProperty(Sprite:findChild(zhuanyeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(typeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(levelBtn, 'name'), 'text'), Sprite:getProperty(detail, 'text'), getCurDate(), name,zhuanyeValue,typeValue,levelValue,recordName)
+    	local stringData = string.format('%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;', yinhuanID, Sprite:getProperty(Sprite:findChild(zhuanyeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(typeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(levelBtn, 'name'), 'text'), Sprite:getProperty(detail, 'text'), getCurDate(), name,zhuanyeValue,typeValue,levelValue,recordName,location)
 
     	for i=1, #imageArray do
     		stringData = stringData .. imageArray[i]
@@ -688,7 +690,11 @@ end
         typeValue = datas[9]
         levelValue = datas[10]
         
-        recordName = datas[10]
+        recordName = datas[11]
+        
+        local locInfo = Sprite:findChild(rootSprite, 'locInfo')
+        Sprite:setProperty(locInfo, 'text', datas[12])
+        
         if recordName ~= '0' then
             showPlay()
         end
