@@ -12,17 +12,17 @@
 Dialog.propTable = {
     shadow = {rect='0,0,480,800',alpha='128',color='#000000', extendstyle='1111'},
     extendable = {visible='0',rect='', extendstyle='1111'},
-    bgImg = {rect='18,200,444,291', src='WONDER:\\framework\\image\\dialog_bg.png', style='sudoku-auto', sudoku='4,4,4,4', extendstyle='1111'},
+    bgImg = {rect='18,200,444,291', src='file://image/bg_dialog.png', style='sudoku-auto', sudoku='10,0,10,0', extendstyle='1111'},
     iconImg = {rect='58,230,48,48', src='', extendstyle='1111'},
     noticeLabel = {rect='128,235,148,48', color='#ffffff', text='', extendstyle='1111'}, -- 对话框标题
-    messageText = {rect='34,300,410,55', ['h-align']='center', color='#FFFFFF', -- 对话框内容
-        text='textarea 文本描述', frame='true', ['line-height']='28', loop='true', step='1', top='0', extendstyle='1111'},
+    messageText = {rect='34,300,410,55', ['h-align']='center', color='#000000', -- 对话框内容
+        text='textarea 文本描述', frame='true', ['line-height']='28',['font-size']='24', loop='true', step='1', top='0', extendstyle='1111'},
     okBtn = {rect='32,407,203,65', OnSelect='_dialogClose', text='确定', color='#FFFFFF',
-            normal = 'src:WONDER:\\framework\\image\\button.png;style:sudoku-auto;sudoku:4,4,4,4',
-            focus = 'src:WONDER:\\framework\\image\\button_f.png;style:sudoku-auto;sudoku:4,4,4,4', extendstyle='1111'},
+            normal = 'src:file://image/button1_normal.png;style:sudoku-auto;sudoku:10,10,10,10',
+            sel = 'src:file://image/button1_focus.png;style:sudoku-auto;sudoku:10,10,10,10', extendstyle='1111'},
     cancelBtn = {rect='245 ,407,203,65', OnSelect='_dialogClose', text='取消', color='#FFFFFF',
-            normal = 'src:WONDER:\\framework\\image\\button.png;style:sudoku-auto;sudoku:4,4,4,4',
-            focus = 'src:WONDER:\\framework\\image\\button_f.png;style:sudoku-auto;sudoku:4,4,4,4', extendstyle='1111'},
+            normal = 'src:file://image/button1_normal.png;style:sudoku-auto;sudoku:10,10,10,10',
+            sel = 'src:file://image/button1_focus.png;style:sudoku-auto;sudoku:10,10,10,10', extendstyle='1111'},
 }
 
 --[[
