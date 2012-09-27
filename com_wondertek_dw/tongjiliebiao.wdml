@@ -198,12 +198,6 @@
         searchMonthIndex = curMonth
         local reqURL = getWholeUrl('nbspweb/webservice/patrolstatistic!doWebservice.action', requestURL)
         Http:request("StatList", reqURL, 101)
-            local startTime = Sprite:findChild(rootSprite, 'startTime')
-            local endTime = Sprite:findChild(rootSprite, 'endTime')
-            local startContent = Sprite:findChild(startTime, 'timeContent')
-            local endContent = Sprite:findChild(endTime, 'timeContent')
-            Sprite:setProperty(startContent, 'text', currentMonthString)
-            Sprite:setProperty(endContent, 'text', nextMonthString)
     end
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
@@ -392,30 +386,23 @@
     end
     function timeOnSelect(sprite)
         -- body
-            Log:write('11111111111111111111111111')
+        Log:write(1)
         local startTime = Sprite:findChild(rootSprite, 'startTime')
-            Log:write('2')
         local endTime = Sprite:findChild(rootSprite, 'endTime')
-            Log:write('3')
+        Log:write(2)
         local regHandle = Reg:create("tongji")
-            Log:write('4', startTime, endTime, sprite)
+        Log:write(3, startTime, endTime, sprite)
         if tonumber(startTime) == tonumber(sprite) then
+        Log:write(4)
             Reg:setString(regHandle, 'type', 'start')
         elseif tonumber(endTime) == tonumber(sprite) then
+        Log:write(5)
             Reg:setString(regHandle, 'type', 'end')
         else
+        Log:write('return')
             return
-        end
-
-        local content = Sprite:findChild(Sprite:getParent(sprite), 'timeContent')
-        local date = Sprite:getText(content)
-
-        local stringDate = Split(date, '-')
-
-        local regHandle = Reg:create('dateDialog')
-        Reg:setString(regHandle, 'year', stringDate[1])
-        Reg:setString(regHandle, 'month', stringDate[2])
-        Reg:setString(regHandle, 'day', stringDate[3])
+        end 
+        Log:write(6)
         Scene:setReturn(Alias.tongjiliebiao, Alias.dateDialog)
         Scene:go(Alias.dateDialog)
     end

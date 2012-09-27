@@ -117,13 +117,13 @@
                 return
             end
             if data ~= nil then
-                if data.code == '0' or data.code=='20' then
+                if data.code == '0' then
                     
                         setDaibanNum(data.total)
                     
                     
                     else
-                    --Dialog:show(rootSprite, '请求超时！请检查服务器地址和端口是否设置正确！', 'ok')
+                    Dialog:show(rootSprite, '未知错误！', 'ok')
                 end
                 else
                 Dialog:show(rootSprite, '未知错误！', 'ok')
@@ -169,15 +169,8 @@
     end
 
     function setDaibanNum(num)
-
         local daibannode = Sprite:findChild(rootSprite, 'daibanNode')
-        Log:write('num================',num)
-        if tonumber(num)==0 or num=='' or num==nil then
-            Log:write('+++++++++++++++++++++++++++++++++++++')
-            setAllShoworHide(Sprite:findChild(daibannode, 'daibanimg'), 0)
-            else
-            Sprite:setProperty(Sprite:findChild(daibannode, 'daibanNum'),'text',num)
-        end
+        Sprite:setProperty(Sprite:findChild(daibannode, 'daibanNum'),'text',num)
     end
     function listItemOnSelect(sprite)
         local dataInfo = Sprite:getData(sprite)
