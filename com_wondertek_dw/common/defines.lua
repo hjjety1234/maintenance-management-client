@@ -49,4 +49,5 @@ Alias = {
     yinhuanDetail = 'MODULE:\\com_wondertek_dw\\yinhuanDetail.wdml', -- 系统设置页面
     dateDialog = 'MODULE:\\com_wondertek_dw\\dateDialog.wdml', -- 日期选择
     yibandetail='MODULE:\\com_wondertek_dw\\yibandetail.wdml', -- 待办详情
+    jump='MODULE:\\com_wondertek_dw\\Jump.wdml', -- 跳转页
 }

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <!--
+        ==
+        ============================================================================
+        == | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+        ============================================================================
+        == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+        ============================================================================
+        == | Author: xxxx <xxxx@xxxx.com> ==
+        ============================================================================
+        == | Desc: 页面描述 ==
+        ============================================================================
+    -->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <shadow rect="0,0,480,800" color="#e8e8e8" alpha="255"
+            extendstyle="1111" />
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <panorama name="panorama" rect="0,0,480,800" alpha="255">
+                <panoramaitem name="$(itemname)"  OnSelect='panoramaItemOnSelect' extendstyle="1111">
+                    <button name="recommendImg" rect="0,0,480,800" style="autosize" src="$(pimage)" extendstyle="1111" OnMouseDown="panoramaOnMouseDown" OnMouseMove="panoramaOnMouseMove" OnMouseUp="panoramaOnMouseUp"/>
+                </panoramaitem>
+                <dataset>
+                    <set itemname="item1" pimage="file://image/t1.png" />
+                    <set itemname="item2" pimage="file://image/t2.png" />
+                </dataset>
+            </panorama>
+                    <image name="img1" rect="200,750,30,30" style="autosize" src="file://image/point_n.png" extendstyle="1111"/>
+                    <image name="img2" rect="240,750,30,30" style="autosize" src="file://image/point_s.png" extendstyle="1111"/>
+        </node>
+    </body>
+    <![CDATA[
+
+    require 'com_wondertek_dw.common.framework'
+    local rootSprite
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        local rootSprite = sprite
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if msg == 101 then
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Dialog:show('提示', '数据连接请求超时。', 'ok')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            --Scene:back()
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    function panoramaItemOnSelect(sprite)
+        -- body
+        local panorama = Sprite:getParent(sprite)
+        local index = Panorama:getCurItem(panorama)
+        local img1 = Sprite:findChild(Sprite:getParent(panorama), 'img1')
+        local img2 = Sprite:findChild(Sprite:getParent(panorama),'img2')
+
+        Sprite:setProperty(img1, 'src', 'file://image/point_n.png')
+        Sprite:setProperty(img2, 'src', 'file://image/point_n.png')
+        if index == 0 then
+            Sprite:setProperty(img1, 'src', 'file://image/point_s.png')
+        else
+            Sprite:setProperty(img2, 'src', 'file://image/point_s.png')
+        end
+    end
+    function panoramaOnMouseDown(sprite, x, y)
+        mouseX, mouseY = x, y
+        return 0
+    end
+
+    function panoramaOnMouseMove(sprite, x, y)
+        moveX, moveY = x, y
+        return 0
+    end
+
+    function panoramaOnMouseUp(sprite, x, y)
+        Sprite:releaseCapture(sprite)
+        local panorama = Sprite:getParent(sprite)
+        local diffX = mouseX - x
+        local diffY = mouseY - y
+        if diffX >= 50 and math.abs(diffX) >= math.abs(diffY) then -- 下一张图片
+            local panoramaItem = Sprite:getParent(sprite)
+            local index = Panorama:getItemIndex(panoramaItem)
+            Log:write(' 333333333   ', Panorama:getItemCount(Sprite:getParent(panoramaItem)), index)
+            if index == Panorama:getItemCount(Sprite:getParent(panoramaItem)) - 1 then
+                Scene:go(Alias.login)
+                --Config:set('isJump', 1)
+            else
+                Panorama:setCurItem(panorama, 1) 
+            end
+        end
+        return 0
+    end
+]]>
+</root>

@@ -39,8 +39,28 @@
 					extendstyle="1111" font-size="30" h-align="center" v-align="center"
 					color="#ffffff" scroll="true" step="2"></scrolltext>
 			</node>
-			<node rect="0,66,480,730" extendstyle="1111">
-				<listview name="sampleList" rect="0,10,480,710" col="1"
+
+			<button rect="0,66,240,60" normal="normal" extendstyle="1111"
+				OnSelect="time1OnSelect">
+				<image name="normal" rect="0,0,240,60" src="file://image//tab_n.png"
+					style="autosize" extendstyle="1111">
+				</image>
+				<label name="time1" rect="0,0,240,60" text="到达时间" color="#ffffff"
+					extendstyle="1111" style="autosize" h-align="center" v-align="center"
+					font-size="22"></label>
+			</button>
+			<button rect="240,66,240,60" normal="normal" extendstyle="1111"
+				OnSelect="time2OnSelect">
+				<image name="normal" rect="0,0,240,60" src="file://image//tab_s.png"
+					style="autosize" extendstyle="1111">
+				</image>
+				<label name="time2" rect="0,0,240,60" text="离开时间" color="#ffffff"
+					extendstyle="1111" style="autosize" h-align="center" v-align="center"
+					font-size="22"></label>
+			</button>
+
+			<node rect="0,126,480,670" extendstyle="1111">
+				<listview name="sampleList" rect="0,10,480,650" col="1"
 					extendstyle="1111">
 					<list-item rect="0,0,480,170" extendstyle="1111">
 						<node name="baseSprite" rect="10,0,230,50" extendstyle="1111">
@@ -213,7 +233,9 @@
         local errorTitle = Sprite:findChild(item, 'errorTitle')
         local errorBtn = Sprite:findChild(item, 'errorBtn')
         local errorNode = Sprite:findChild(item, 'errorNode')
-        Sprite:setProperty(errorTitle, 'text', (index + 1)..'、'..stations[index].resourceTypename)
+        Sprite:setProperty(errorTitle, 'border', 1)
+        Log:write(stations[index])
+        Sprite:setProperty(errorTitle, 'text', (index + 1)..'、'..stations[index].resourceTypename )
         if Sprite:getData(errorBtn) == '01' then
             Log:write(12)
             setAllShoworHide(errorNode, 0)
@@ -290,6 +312,16 @@
     function isSave(sprite)
         Scene:freeByHandle(rootSprite)
         Scene:back()
+    end
+    function time1OnSelect()
+        local time = os.date("*t")["year"].."-"..os.date("*t")["month"].."-"..os.date("*t")["day"].." "..os.date("*t")["hour"]..":"..os.date("*t")["min"].." 到达"
+        local time1 = Sprite:findChild(rootSprite, 'time1')
+        Sprite:setProperty(time1, "text", time)
+    end
+    function time2OnSelect()
+        local time = os.date("*t")["year"].."-"..os.date("*t")["month"].."-"..os.date("*t")["day"].." "..os.date("*t")["hour"]..":"..os.date("*t")["min"].." 离开"
+        local time2 = Sprite:findChild(rootSprite, 'time2')
+        Sprite:setProperty(time2, "text", time)
     end
 ]]>
 </root>

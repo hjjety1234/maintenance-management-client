@@ -18,20 +18,20 @@
 		<shadow rect="0,0,480,800" color="#e8e8e8" alpha="255"
 			extendstyle="1111" />
 
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
             <node rect="0,0,480,66" name="NodeTitle" extendstyle="1111">
                 <image name="titleBg" rect="0,0,480,66" src="file://image/title_bg.png"
                     extendstyle="1111" style="autosize" />
-                <button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
+
+                <button name="backBtn" rect="0,4,75,58" normal="normal" sel="sel"
                     OnSelect="isSave" extendstyle="1111">
-                    <image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
+                    <image name="normal" rect="0,0,75,58" src="file://image/ic_home.png"
                         style="autosize" extendstyle="1111">
                     </image>
-                    <image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
+                    <image name="sel" rect="0,0,75,58" src="file://image/ic_home.png"
                         style="autosize" extendstyle="1111">
                     </image>
-                    <label rect="15,0,60,45" text="返回" color="#ffffff"
-                        extendstyle="1111" style="autosize" h-align="center" v-align="center"
-                        font-size="24"></label>
                 </button>
 
                 <scrolltext name="title" rect="105,0,280,66" text="系统设置"
@@ -88,6 +88,7 @@
                 <edit name="editLines" rect="215,0,220,50" border="false"
                     extendstyle="1111" v-center="true" option="numeric"/>
             </node>
+        </node>
 
 	</body>
     <![CDATA[
@@ -119,7 +120,7 @@
     -- @brief 按键响应处理
     function mainNodeOnKeyUp(sprite, kc)
         if kc == Key.F2 then -- 按下返回键
-        Scene:back()
+            Scene:back()
             return 1
         end
     end
@@ -145,7 +146,12 @@
             Config:set('server_port', editPort)
         end
         if editLines ~= '' then
-            Config:set('lines', editLines)
+            if isStrAllNum(editLines) then
+                Config:set('lines', editLines)
+            else
+                Dialog:show('提示','分页显示条数必须全为数字？','ok')
+                return
+            end
         else
             Config:set('lines', 10)
         end
@@ -181,6 +187,9 @@
         -- body
         local btnUpdate = Sprite:findChild(rootSprite, 'btnUpdate')
         local btnLogin = Sprite:findChild(rootSprite, 'btnLogin')
+        if Config:get('editLines') == nil or Config:get('editLines') == '' then
+            Config:get('editLines', 10)
+        end
         if Config:get('server_url') ~= nil and Config:get('server_url') ~= '' then
             Sprite:setProperty(Sprite:findChild(rootSprite, 'editServer'), 'text', Config:get('server_url'))
             textChanged(Sprite:findChild(rootSprite, 'editServer'),1)
@@ -189,8 +198,9 @@
             Sprite:setProperty(Sprite:findChild(rootSprite, 'editPort'), 'text', Config:get('server_port'))
             textChanged(Sprite:findChild(rootSprite, 'editPort'),1)
         end
-        if Config:get('editLines') ~= nil and Config:get('editLines') ~= '' then
-            Sprite:setProperty(Sprite:findChild(rootSprite, 'editLines'), 'text', Config:get('editLines'))
+        Log:write('1111111111111111111111111111111111', Config:get('lines'))
+        if Config:get('lines') ~= nil and Config:get('lines') ~= '' then
+            Sprite:setProperty(Sprite:findChild(rootSprite, 'editLines'), 'text', Config:get('lines'))
         end
         if Config:get('autoUpdate') ~= nil and Config:get('autoUpdate') ~= '' then
             Sprite:setProperty(btnUpdate, 'data', Config:get('autoUpdate'))

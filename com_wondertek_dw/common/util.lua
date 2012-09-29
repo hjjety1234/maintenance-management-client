@@ -52,6 +52,28 @@ function getJsonArrayCount(data)
     end
     return count
 end
+function isStrAllAlphAndNum(str)
+    local len = string.len(str)
+    for i = 1, len do
+        local ch = string.sub(str, i, i)
+        if not ((ch >= 'a' and ch <= 'z') or (ch >= 'A' and ch <= 'Z')) then
+            if isStrAllNum(ch) == false then
+                return false
+            end
+        end
+    end
+    return true
+end
+function isStrAllNum(str)
+    local len = string.len(str)
+    for i = 1, len do
+        local ch = string.sub(str, i, i)
+        if ch < '0' or ch > '9' then
+            return false
+        end
+    end
+    return true
+end
 
 function getCurDateAndTime()
     local year = os.date("*t")["year"]

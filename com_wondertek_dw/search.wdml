@@ -59,22 +59,18 @@
 			</node>
 
 			<node name="listitem" visible="false" enable="false" active="false"
-				extendstyle="1011" rect="0,0,480,100">
-				<shadow name="listItemBg" rect="0,0,480,100" color="#e8e8e8"
+				extendstyle="1011" rect="0,0,480,70">
+				<shadow name="listItemBg" rect="0,0,480,70" color="#e8e8e8"
 					alpha="255" extendstyle="1111" />
-				<button name="btnname" rect="0,0,480,100" OnSelect="itemOnSelect"
+				<button name="btnname" rect="0,0,480,70" OnSelect="itemOnSelect"
 					extendstyle="1111">
-					<label rect="10,5,80,30" text="名称：" color="#0" font-size="20"
+					<label rect="10,5,100,30" text="资源名称：" color="#0" font-size="20"
 						h-align="left" v-align="center" extendstyle="1111" />
-					<label name="textTitle" rect="90,5,370,30" text="" color="#0"
+					<label name="textTitle" rect="100,5,370,30" text="" color="#0"
 						font-size="20" h-align="left" v-align="center" extendstyle="1111" />
-					<label rect="10,35,80,30" text="位置：" color="#0" font-size="20"
+					<label rect="10,35,100,30" text="位置描述：" color="#0" font-size="20"
 						h-align="left" v-align="center" extendstyle="1111" />
-					<label name="textLoc" rect="90,35,370,30" text="" color="#0"
-						font-size="20" h-align="left" v-align="center" extendstyle="1111" />
-					<label rect="10,65,80,30" text="站点：" color="#0" font-size="20"
-						h-align="left" v-align="center" extendstyle="1111" />
-					<label name="textPoint" rect="90,65,370,30" text="" color="#0"
+					<label name="textLoc" rect="100,35,370,30" text="" color="#0"
 						font-size="20" h-align="left" v-align="center" extendstyle="1111" />
 				</button>
 			</node>
@@ -84,21 +80,30 @@
 
     require 'com_wondertek_dw.common.framework'
     local rootSprite
+    local data
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
         rootSprite = sprite
-        doSearch('')
+
     end
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
+        	doSearch('')
             elseif msg == MSG_DEACTIVATE then
         end
     end
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg)
         if msg == 101 then
+            if Loading:isShow() then Loading:close() end 
+            data = Http:jsonDecode('search_data')
+            Log:write("data:", data)
+            if data.code == "0" then
+                fillSelect()
+            end
+
             elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
             elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
             Log:write('拨号失败')
@@ -125,33 +130,38 @@
         doSearch(searchKey)
     end
     function doSearch(content)
-        local list = Sprite:findChild(rootSprite, 'sampleList')
-        ListView:removeAllItems(list, 1,1)
-        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), 2, 'loadListItem')
-        ListView:adjust(list)
+
+
+        local dataString=string.format('&cmd=%s&resourceName=%s&resourceType=%s&page=1','wlbresourceSearch', content, '')
+        local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
+        Http:request('search_data', reqURL, 101, {useCache = false, method = 'post', postData=dataString})
+        Loading:show(rootSprite)
     end
     function loadListItem(list, item, index)
-        Sprite:setRect(item, 0, 0, 480, 100)
+        Sprite:setRect(item, 0, 0, 480, 70)
         local listItemBg = Sprite:findChild(item, 'listItemBg')
-        Sprite:setRect(listItemBg, 0, 0, 480, 100)
-        if index / 2 > 0 then
+        Sprite:setRect(listItemBg, 0, 0, 480, 70)
+        if index % 2 > 0 then
             Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
             else
             Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
         end
         Sprite:setProperty(item, 'extendstyle', '1111')
+        Log:write('111111111111111111111111111')
         local textTitle = Sprite:findChild(item, 'textTitle')
+        Log:write('222222222222222222222222222')
         local textLoc = Sprite:findChild(item, 'textLoc')
-        local textPoint = Sprite:findChild(item, 'textPoint')
-        Sprite:setProperty(textTitle, 'text', '抢修')
-        Sprite:setProperty(textLoc, 'text', '合肥火车站')
-        Sprite:setProperty(textPoint, 'text', '火车站')
+        Log:write('333333333333333333333333333')
+        Sprite:setProperty(textTitle, 'text', data.value[index].resourcename)
+        Sprite:setProperty(textLoc, 'text', data.value[index].position)
     end
     function itemOnSelect(sprite)
-        local regHandle = Reg:create('search')
-        Reg:setString(regHandle, 'titleName', '火车站')
-        Scene:setReturn(Alias.search, Alias.searchDetail)
-        Scene:go(Alias.searchDetail)
+    end
+    function fillSelect()
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list, 1,1)
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), #data.value+1, 'loadListItem')
+        ListView:adjust(list)
     end
 ]]>
 </root>

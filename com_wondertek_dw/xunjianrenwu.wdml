@@ -78,9 +78,12 @@
 					extendstyle="1111">
 					<label rect="10,0,100,70" text="巡检名：" color="#0" font-size="20"
 						h-align="left" v-align="center" extendstyle="1111" />
-					<scrolltext name="texttitle" rect="110,0,340,70"
+					<scrolltext name="texttitle" rect="110,0,310,70"
 						extendstyle="1010" font-size="20" h-align="left" v-align="center"
 						color="#0" scroll="true" step="2"></scrolltext>
+
+					<image name="cacheIcon" rect="430,13,42,42" border="false"
+						src="file://image//buffer_icon.png" style="autosize" extendstyle="1111"></image>
 				</button>
 			</node>
 
@@ -112,6 +115,7 @@
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
             elseif msg == MSG_DEACTIVATE then
+            Scene:freeByHandle(rootSprite)
         end
     end
     -- @brief 插件消息方法
@@ -219,6 +223,18 @@
         Sprite:setProperty(texttitle, 'text', data.value[index].planName)
         local btnname = Sprite:findChild(item, 'btnname')
         Sprite:setProperty(btnname, "data", index)
+        --显示缓存图标
+        local cacheIcon = Sprite:findChild(item, 'cacheIcon')
+        if flag == '1' then
+            local bufferStr = Config:get(data.value[index].taskid)
+            if bufferStr ~= nil and bufferStr ~= "" then
+                Sprite:setVisible(cacheIcon, 1)
+                else
+                Sprite:setVisible(cacheIcon, 0)
+            end
+            else
+            Sprite:setVisible(cacheIcon, 0)
+        end
     end
     function itemOnSelect(sprite)
         Sprite:killFocus(sprite)

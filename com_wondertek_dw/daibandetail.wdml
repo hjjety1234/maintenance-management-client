@@ -390,9 +390,8 @@
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
         rootSprite = sprite
-       --@ local xunjianNode = Sprite:findChild(rootSprite, 'xunjianNode')
-        --@setAllShoworHide(xunjianNode, 1)
-        
+       
+        --deleteZancunDetail()
         
     end
     -- @brief root节点消息方法
@@ -462,10 +461,10 @@
                    
                     fillContent()
                     else
-                    Dialog:show(rootSprite, '未知错误！', 'ok')
+                    --Dialog:show(rootSprite, '未知错误！', 'ok')
                 end
                 else
-                Dialog:show(rootSprite, '未知错误！', 'ok')
+               -- Dialog:show(rootSprite, '未知错误！', 'ok')
             end
             elseif msg==102 then
 
@@ -478,9 +477,15 @@
             
             if data ~= nil then
                 if data.code == '0' then
+                	local daibanIDList = Config:get('daibanIDList')
+
+                	if string.find(daibanIDList .. ';', id .. ';') ~=nil then
+           				deleteZancunDetail()
+           			end
+           			Dialog:show('提醒：', '工单提交成功！', 'ok')
                     Scene:back()
                     else
-                    --Dialog:show(rootSprite, '提交失败，请稍后再试！', 'ok')
+                    
                 end
                 else
                 --Dialog:show(rootSprite, '未知错误！', 'ok')
@@ -495,7 +500,11 @@
             
             if data ~= nil then
                 if data.code == '0' then
-                	Scene:freeByHandle(Sprite:getCurScene())
+                	local daibanIDList = Config:get('daibanIDList')
+                	if string.find(daibanIDList .. ';', id .. ';') ~=nil then
+           				deleteZancunDetail()
+           			end
+           			Dialog:show('提醒：', '工单提交成功！', 'ok')
                     Scene:back()
                     else
                     --Dialog:show(rootSprite, '提交失败，请稍后再试！', 'ok')
@@ -515,7 +524,11 @@
             
             if data ~= nil then
                 if data.code == '0' then
-                	Scene:freeByHandle(Sprite:getCurScene())
+                	local daibanIDList = Config:get('daibanIDList')
+                	if string.find(daibanIDList .. ';', id .. ';') ~=nil then
+           				deleteZancunDetail()
+           			end
+           			Dialog:show('提醒：', '工单提交成功！', 'ok')
                     Scene:back()
                     else
                    -- Dialog:show(rootSprite, '提交失败，请稍后再试！', 'ok')
@@ -953,7 +966,7 @@
     	local contenttext=Sprite:getText(Sprite:findChild(contentnode,'edit'))
 
     	stringData = string.format('%s;%s;%s;%s;%s;', stepdata,stringData, itemtext, xunjiantext,contenttext)
-    	elseif stepdata=='2' then
+    	elseif stepdata=='2'or stepdata=='4' then
     		local qianshouNode = Sprite:findChild(rootSprite, 'juqian')
 
     		local itemNode = Sprite:findChild(qianshouNode, 'resultNode')
@@ -991,38 +1004,30 @@
     	Scene:freeByHandle(Sprite:getCurScene())
         Scene:back()
     end
-    function okZancun()
-       Loading:show(rootSprite)
-       local taskidnode= Sprite:findChild(rootSprite, 'Codenode')
-       local taskid=Sprite:getText(Sprite:findChild(taskidnode, 'lblcode')) 
-       local titlenode= Sprite:findChild(rootSprite, 'titlenode')
-       local titlename=Sprite:getText(Sprite:findChild(titlenode, 'lblcode')) 
-       local timenode= Sprite:findChild(rootSprite, 'timenode')
-       local datetime=Sprite:getText(Sprite:findChild(timenode, 'lblcode')) 
-       
-       local xunjianNode= Sprite:findChild(rootSprite, 'xunjianNode')
-       local xunjianName=Sprite:getText(Sprite:findChild(xunjianNode, 'xunjianName')) 
-       local juqian= Sprite:findChild(rootSprite, 'juqian')
-       local resultTypeName=Sprite:getText(Sprite:findChild(juqian, 'resultTypeName')) 
-       
-       local qianshouNode= Sprite:findChild(rootSprite, 'qianshouNode')
-       local contentnode= Sprite:findChild(qianshouNode, 'chulicontent')
-       local content=Sprite:getText(Sprite:findChild(contentnode, 'edit')) 
-       
-       Config:set('daiban', taskid)
-       Config:set('title', titlename)
-       Config:set('shijian', datetime)
-       Config:set('content', content)
-       Config:set('xunjianName', xunjianName)
-       Config:set('resultTypeName', resultTypeName)
-       
-       Log:write('taskid===', taskid)
-       Log:write('titlename===', titlename)
-       Log:write('datetime===', datetime)
-       Log:write('content===', content)
-       Loading:close()
-       Scene:back()
+
+    function deleteZancunDetail()
+		Log:write('99999999999999999999999999999999999999999')
+  		local savedDatas =Split(Config:get('daibanIDList'), ';')
+  		local newDataString ='' 	
+    	for k, v in pairs(savedDatas) do
+    		
+    		Log:write('k==============================',k)
+    		Log:write('v==============================',v)
+    		Log:write('id=============================',id)
+    		if v~=id then
+    			Config:delete('daibanID' .. id)
+    			newDataString=newDataString..';'..v
+    		end
+    		Log:write('newDataString======+++++++++++++++++++++++============',newDataString)
+
+		end
+		if newDataString==''or newDataString==nil then
+    			Config:delete('daibanIDList')
+    	else
+    			Config:set('daibanIDList',newDataString)
+    	end
     end
+    
     --巡检组下拉数据源0,0,280,56
     function loadListItem(list, item, index)
         Sprite:setRect(item, 0, 0, 280, 70)
