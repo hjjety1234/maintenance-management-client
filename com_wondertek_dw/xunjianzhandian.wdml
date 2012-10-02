@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+
+			<!-- 页面背景  -->
+			<shadow rect="0,0,480,800" color="#e8e8e8" alpha="255"
+				extendstyle="1111" />
+
+			<!-- 巡检站点头部  -->
+			<node name="headSprite" rect="0,0,480,66" extendstyle="1111">
+				<image name="titleBg" rect="0,0,480,66" src="file://image/title_bg.png"
+					extendstyle="1111" style="autosize" />
+				<!-- 返回按钮 -->
+				<button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
+					OnSelect="doBack" extendstyle="1111">
+					<image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
+						style="autosize" extendstyle="1111">
+					</image>
+					<image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
+						style="autosize" extendstyle="1111">
+					</image>
+					<label rect="15,0,60,45" text="返回" color="#ffffff"
+						extendstyle="1111" style="autosize" h-align="center" v-align="center"
+						font-size="24"></label>
+				</button>
+				<!-- 页面标题  -->
+				<scrolltext name="title" rect="0,0,480,66" text="巡检站点"
+					extendstyle="1111" font-size="30" h-align="center" v-align="center"
+					color="#ffffff" scroll="true" step="2"></scrolltext>
+				<!-- 显示搜索条 -->
+				<button name="searchDialogButton" rect="412,-12,64,84"
+					font-size="24" extendstyle="1111" text="" color="#ffffff"
+					normal="src:file://image/icon_search_press.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+					sel="src:file://image/icon_search_press.png.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+					OnSelect="showSearchDialog"></button>
+			</node>
+
+			<!-- 站点列表  -->
+			<node name="listviewNode" rect="0,66,480,730" extendstyle="1111">
+				<listview name="listview1" rect="0,0,480,730" extendstyle="1111" />
+			</node>
+
+			<!-- 站点列表项 -->
+			<node name="listitem" visible="false" enable="false" active="false"
+				extendstyle="1011" rect="0,66,480,70">
+				<shadow name="listItemBg" rect="0,0,480,70" color="#e8e8e8"
+					alpha="255" extendstyle="1111" />
+				<button name="btnname" rect="0,0,480,70" OnSelect="itemOnSelect"
+					extendstyle="1111" data="">
+					<image name="stationStatusImage" rect="10,20,30,30" src=""
+						style="autosize" extendstyle="1111">
+					</image>
+					<label name="stationName" rect="50,10,420,50" text="" color="#0"
+						font-size="16" h-align="left" v-align="center" extendstyle="1111"
+						border="false" />
+				</button>
+			</node>
+
+			<!-- 站点搜索对话框 -->
+			<node name="stationSearchDialog" rect="0,66,480,734" visible="false"
+				enable="false" active="false" extendstyle="1111">
+				<shadow rect="0,0,480,734" color="#f2f2f2" alpha="255"
+					extendstyle="1111" />
+				<button rect="0,0,480,734" extendstyle="1111" OnSelect="hideSearchDialog" />
+				<!-- 对话框内容  -->
+				<node rect="20,200,440,300" extendstyle="1111">
+					<node name="dlgTitle" rect="0,0,440,50" extendstyle="1111">
+						<image rect="0,0,440,50" src="file://image/tab_s.png" style="autosize"
+							extendstyle="1111">
+							<label rect="10,0,440,50" text="站点选择" font-family="微软雅黑"
+								font-size="24" v-align="center"></label>
+						</image>
+					</node>
+					<label rect="10,80,100,50" text="站点范围：" font-family="微软雅黑"
+						font-size="24" v-align="center"></label>
+					<edit name="radiusEdit" rect="110,80,230,50" border="true">
+						<shadow rect="0,0,230,50" color="#ffffff"></shadow>
+					</edit>
+					<label rect="350,80,40,50" text="米" font-family="微软雅黑"
+						font-size="24" v-align="center"></label>
+					<button name="" rect="160,170,120,45" OnSelect="doSearch"
+						normal="normal" extendstyle="1111">
+						<image name="normal" rect="0,0,120,45" src="file://image/button1_normal.png"
+							style="autosize" extendstyle="1111">
+						</image>
+						<label rect="0,0,127,45" text="确定" font-family="微软雅黑"
+							font-size="24" h-align="center" v-align="center"></label>
+					</button>
+				</node>
+			</node>
+		</node>
+	</body>
+    <![CDATA[
+
+    require 'com_wondertek_dw.common.framework'
+    require 'framework.map'
+    local rootSprite = nil
+    local respValue = nil
+    local usercode = nil
+    local total = 0
+    local page = 1
+    local pagezise = 10
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        usercode = Config:get('username')
+        pagesize = Config:get('pagesize')
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            getNearbyStationByDefaultRadius()
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if msg == 1001 then
+            -- 请求默认范围内的基站列表
+            local postData = Param:getString(param, 0)
+            local latitude = postData.latitude
+            local longitude = postData.longitude
+            local defaultRadius = 100
+            local param = string.format('cmd=xxx&page=%s&pagesize=%s',page, pagesize)
+            local requestURL = Config:get(server)..''
+            Http:request('stationList', requestURL..param, 1003)
+            elseif msg == 1002 then
+            -- 请求指定范围内的基站列表
+            local postData = Param:getString(param, 0)
+            local latitude = postData.latitude
+            local longitude = postData.longitude
+            local radius = Sprite:getText(Sprite:findChild(rootSprite, 'radiusEdit'))
+            local param = ''
+            local requestURL = ''
+            Http:request('stationList', requestURL..param, 1003)
+            elseif msg == 1003 then
+            -- 删除原来的列表
+            local listview = Sprite:findChild(rootSprite, 'listview1')
+            ListView:removeAllItems(listview)
+            -- 解析返回的列表
+            local resp = Http:jsonDecode('stationList')
+            if (resp[code] == nil or resp[code] ~= '0') then
+                Dialog:show('', '服务端返回错误', 'ok')
+                Loading:close()
+                return
+                elseif (getTableLen(resp[value]) == 0) then
+                Dialog:show('', '返回数据为空!', 'ok')
+                Loading:close()
+                return
+            end
+            total = resp['total']
+            respValue = resp['value']
+            local len = getTableLen(respValue)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+            ListView:adjust(list)
+            Loading:close()
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            doBack()
+            return 1
+        end
+    end
+    -- 搜索按钮响应处理,显示搜索对话框
+    function showSearchDialog(sprite)
+        local searchDialog = Sprite:findChild(rootSprite, "stationSearchDialog")
+        Sprite:setVisible(searchDialog, 1)
+        Sprite:setEnable(searchDialog, 1)
+    end
+    -- 隐藏搜索对话框相应处理
+    function hideSearchDialog(sprite)
+        local searchDialog = Sprite:findChild(rootSprite, "stationSearchDialog")
+        Sprite:setVisible(searchDialog, 0)
+        Sprite:setEnable(searchDialog, 0)
+    end
+    -- 搜索指定范围内的基站消息处理
+    function doSearch(sprite)
+        getNearbyStationByRadius()
+    end
+    ---------------------------------------util functions---------------------------
+    function doBack()
+        if (Loading:isShow() == true) then
+            Loading:close()
+        end
+        Scene:back()
+    end
+    -- 取得默认范围内的基站
+    function getNearbyStationByDefaultRadius()
+        local observer = Plugin:getObserver()
+        Map:getCurPosition(observer, 1001)
+        Loading:show()
+    end
+    -- 请求指定范围内的基站
+    function getNearbyStationByRadius()
+        local observer = Plugin:getObserver()
+        Map:getCurPosition(observer, 1002)
+        Loading:show()
+    end
+    function loadListItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 70)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        local listItemBg = Sprite:findChild(item, 'listItemBg')
+        Sprite:setRect(listItemBg, 0, 0, 480, 70)
+        if index % 2 > 0 then
+            Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
+            else
+            Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
+        end
+        local itemValue = respValue[index]
+        local status = itemValue.status
+        local stationName = itemValue.name
+    end
+    -- 取得表的长度
+    function getTableLen(tab)
+        if tab == nil then
+            return 0
+        end
+        local n = 0
+        for i in ipairs(tab) do
+            n = n + 1
+        end
+        return n
+    end
+]]>
+</root>
