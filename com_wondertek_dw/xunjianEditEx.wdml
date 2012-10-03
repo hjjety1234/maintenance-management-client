@@ -540,8 +540,7 @@
     end
 
     --大类的数据伸缩
-    --mainItemNode mainTitleNode btnImg NodeImg
-    --        subListviewNode  subListView
+    
     function ImgOnSelect(sprite)
         -- body
         local NodeImg = Sprite:findChild(sprite,"NodeImg")
@@ -561,14 +560,16 @@
             setAllShoworHide(subListView,0)
             Sprite:setProperty(sprite,"data","2")
             Sprite:setProperty(NodeImg,"src","file://image/down.png")
-            --Sprite:setRect(mainListView,0, 0, 480, 60)
-            Sprite:setRect(mainItemNode,0, 0, 480, 50)
-            --Sprite:setRect(mainTitleNode,0, 0, 480, 50)
-            ListView:adjust(mainListView)
+            Sprite:setRect(mainItemNode,0, 0, 480, 50)  
+            ListView:adjust(mainListView)         
             elseif dataflag=='2' then
-                Sprite:setProperty(subListviewNode,"visible","true")
+                x,y,width,heigh=Sprite:getRect(subListviewNode)
+                Sprite:setRect(mainItemNode,0, 0, 480, 50+heigh) 
+                setAllShoworHide(subListviewNode,1)
+                setAllShoworHide(subListView,1)
                 Sprite:setProperty(sprite,"data","1")
                 Sprite:setProperty(NodeImg,"src","file://image/up.png")
+                ListView:adjust(mainListView)  
         end
     end
 ]]>
