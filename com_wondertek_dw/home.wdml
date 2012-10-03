@@ -56,25 +56,29 @@
 					</dataset>
 				</list>
 			</node>
-            <node name="daibanNode" rect="120,75,43,45" extendstyle="1111">
-                <image name="daibanimg" rect="0,0,43,45" style="autosize" extendstyle="1111" border="false" src="file://image/hongquan.png">
-                </image>
-                <label name="daibanNum" rect="5,5,35,35"  color="#FF0000" font-style="bold"
-                            v-align="center" h-align="center" font-size="24" extendstyle="1111" />
-            </node>
+			<node name="daibanNode" rect="120,75,43,45" extendstyle="1111">
+				<image name="daibanimg" rect="0,0,43,45" style="autosize"
+					extendstyle="1111" border="false" src="file://image/hongquan.png">
+				</image>
+				<label name="daibanNum" rect="5,5,35,35" color="#FF0000"
+					font-style="bold" v-align="center" h-align="center" font-size="24"
+					extendstyle="1111" />
+			</node>
 		</node>
-            <node name="menuNode" rect="0,0,480,800" extendstyle="1111" visible="false" enable="false" active="false">
-                <button name="" rect="0,0,480,800" extendstyle="1111" color="#ffffff"
-                    font-size="20" v-align="center" h-align="left" OnSelect="hideMenuNode"/>
-
-                <image name="daibanimg" rect="0,700,480,100" style="autosize" extendstyle="1111" border="false" src="file://image/bottom_bg.png">
-                </image>
-                <button name="recordStatus" rect="0,700,480,100" extendstyle="1111" color="#ffffff"
-                    font-size="20" v-align="center" h-align="left" OnSelect="menuSettingOnSelect"/>
-                <label name="daibanNum" rect="0,700,480,100"  color="#ffffff" font-style="bold" text="系统设置"
-                            v-align="center" h-align="center" font-size="24" extendstyle="1111" />
-                
-            </node>
+		<node name="menuNode" rect="0,0,480,800" extendstyle="1111"
+			visible="false" enable="false" active="false">
+			<button name="" rect="0,0,480,800" extendstyle="1111" color="#ffffff"
+				font-size="20" v-align="center" h-align="left" OnSelect="hideMenuNode" />
+			<image name="daibanimg" rect="0,700,480,100" style="autosize"
+				extendstyle="1111" border="false" src="file://image/bottom_bg.png">
+			</image>
+			<button name="recordStatus" rect="0,700,480,100" extendstyle="1111"
+				color="#ffffff" font-size="20" v-align="center" h-align="left"
+				OnSelect="menuSettingOnSelect" />
+			<label name="daibanNum" rect="0,700,480,100" color="#ffffff"
+				font-style="bold" text="系统设置" v-align="center" h-align="center"
+				font-size="24" extendstyle="1111" />
+		</node>
 	</body>
     <![CDATA[
 
@@ -91,8 +95,8 @@
         local regHandle = Reg:create(Regs.regName)
         --mapViewPlugin = Reg:getInteger(regHandle, "map_handle")
         --if mapViewPlugin == 0 then
-        --    mapViewPlugin = pluginCreate("MapView", "MapView")
-        --    Reg:setInteger(regHandle, "map_handle", mapViewPlugin)
+        -- mapViewPlugin = pluginCreate("MapView", "MapView")
+        -- Reg:setInteger(regHandle, "map_handle", mapViewPlugin)
         --end
         --pluginInvoke(mapViewPlugin, "getCurrentPosition", observer, 1000)
         --Map:getCurPosition(observer, 1000)
@@ -116,10 +120,7 @@
             end
             if data ~= nil then
                 if data.code == '0' or data.code=='20' then
-                    
-                        setDaibanNum(data.total)
-                    
-                    
+                    setDaibanNum(data.total)
                     else
                     --Dialog:show(rootSprite, '请求超时！请检查服务器地址和端口是否设置正确！', 'ok')
                 end
@@ -150,7 +151,7 @@
         if kc == Key.F2 then -- 按下返回键
             Dialog:show('', '是否确定退出？', 'ok_cancel', 'doExit')
             return 1
-        elseif kc == Key.F1 then
+            elseif kc == Key.F1 then
             local menuNode = Sprite:findChild(rootSprite, 'menuNode')
             setAllShoworHide(menuNode, 1)
             return 1
@@ -165,9 +166,7 @@
         Http:request('daiban_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbtasklist'})
         Loading:show(rootSprite)
     end
-
     function setDaibanNum(num)
-
         local daibannode = Sprite:findChild(rootSprite, 'daibanNode')
         Log:write('num================',num)
         if tonumber(num)==0 or num=='' or num==nil then
@@ -189,8 +188,8 @@
             Scene:setReturn(Alias.home, Alias.notice)
             Scene:go(Alias.notice)
             elseif dataInfo == '03' then
-            Scene:setReturn(Alias.home, Alias.xunjianrenwu)
-            Scene:go(Alias.xunjianrenwu)
+            Scene:setReturn(Alias.home, Alias.xunjianjihua)
+            Scene:go(Alias.xunjianjihua)
             elseif dataInfo == '04' then
             Scene:setReturn(Alias.home, Alias.yinhuanList)
             Scene:go(Alias.yinhuanList)
@@ -218,8 +217,8 @@
         -- body
         local menuNode = Sprite:findChild(rootSprite, 'menuNode')
         setAllShoworHide(menuNode, 0)
-            Scene:setReturn(Alias.home, Alias.setting)
-            Scene:go(Alias.setting)
+        Scene:setReturn(Alias.home, Alias.setting)
+        Scene:go(Alias.setting)
     end
 ]]>
 </root>

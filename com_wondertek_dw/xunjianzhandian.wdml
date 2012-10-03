@@ -66,6 +66,9 @@
 					<image name="stationStatusImage" rect="10,20,30,30" src=""
 						style="autosize" extendstyle="1111">
 					</image>
+					<label name="stationId" rect="40,20,10,30" text="" color="#0"
+                        font-size="16" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" visible="false" />
 					<label name="stationName" rect="50,10,420,50" text="" color="#0"
 						font-size="16" h-align="left" v-align="center" extendstyle="1111"
 						border="false" />
@@ -74,12 +77,13 @@
 
 			<!-- 站点搜索对话框 -->
 			<node name="stationSearchDialog" rect="0,66,480,734" visible="false"
-				enable="false" active="false" extendstyle="1111">
-				<shadow rect="0,0,480,734" color="#f2f2f2" alpha="255"
-					extendstyle="1111" />
+				enable="false" extendstyle="1111">
 				<button rect="0,0,480,734" extendstyle="1111" OnSelect="hideSearchDialog" />
 				<!-- 对话框内容  -->
 				<node rect="20,200,440,300" extendstyle="1111">
+					<shadow rect="0,0,440,300" color="#f2f2f2" alpha="255"
+						extendstyle="1111">
+					</shadow>
 					<node name="dlgTitle" rect="0,0,440,50" extendstyle="1111">
 						<image rect="0,0,440,50" src="file://image/tab_s.png" style="autosize"
 							extendstyle="1111">
@@ -89,8 +93,9 @@
 					</node>
 					<label rect="10,80,100,50" text="站点范围：" font-family="微软雅黑"
 						font-size="24" v-align="center"></label>
-					<edit name="radiusEdit" rect="110,80,230,50" border="true">
-						<shadow rect="0,0,230,50" color="#ffffff"></shadow>
+					<edit name="radiusEdit" rect="110,80,230,50" text="1000"
+						enable="true" border="true" font-family="微软雅黑" font-size="24"
+						v-center="true" h-align="center" extendstyle="1111">
 					</edit>
 					<label rect="350,80,40,50" text="米" font-family="微软雅黑"
 						font-size="24" v-align="center"></label>
@@ -111,17 +116,20 @@
     require 'com_wondertek_dw.common.framework'
     require 'framework.map'
     local rootSprite = nil
-    local respValue = nil
-    local usercode = nil
+    local respValue = nil -- 站点列表值
+    local planId = nil
+    local templateId = nil
     local total = 0
     local page = 1
-    local pagezise = 10
+    local isSimulate = true
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
         rootSprite = sprite
-        usercode = Config:get('username')
-        pagesize = Config:get('pagesize')
+        -- 获取巡检计划页面传来的计划ID和模板ID
+        local regHandle = Reg:create('xunjianrenwu')
+        planId = Reg:getString(regHandle, 'planId')
+        templateId = Reg:getString(regHandle, 'templateId')
     end
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
@@ -134,44 +142,60 @@
     function bodyOnPluginEvent(msg)
         if msg == 1001 then
             -- 请求默认范围内的基站列表
+            -- 获取当前位置的经纬度
             local postData = Param:getString(param, 0)
             local latitude = postData.latitude
             local longitude = postData.longitude
-            local defaultRadius = 100
-            local param = string.format('cmd=xxx&page=%s&pagesize=%s',page, pagesize)
-            local requestURL = Config:get(server)..''
-            Http:request('stationList', requestURL..param, 1003)
-            elseif msg == 1002 then
+            local posValue = string.format('%s,%s', longitude, latitude)
+            Dialog:show('当前经纬度:', posValue, 'ok')
+            Log:write('get current position by gps has successed, msg no. is 1001.')
+            -- 请求附近的基站列表
+            local defaultRadius = 100000
+            local param = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&value=%s&radius=%s&page=%s',
+            planId, posValue, defaultRadius, page)
+            local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', param)
+            Http:request('stationList', requestURL, 1003)
+       elseif msg == 1002 then
             -- 请求指定范围内的基站列表
+            -- 获取当前位置的经纬度
             local postData = Param:getString(param, 0)
             local latitude = postData.latitude
             local longitude = postData.longitude
+            local posValue = string.format('%s,%s', longitude, latitude)
+            Dialog:show('当前经纬度:', posValue, 'ok')
+            Log:write('get current position by gps has successed, msg no. is 1002.')
+            -- 请求附近的基站列表
             local radius = Sprite:getText(Sprite:findChild(rootSprite, 'radiusEdit'))
-            local param = ''
-            local requestURL = ''
-            Http:request('stationList', requestURL..param, 1003)
-            elseif msg == 1003 then
+            local param = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&value=%s&radius=%s&page=%s',
+            planId, posValue, radius, page)
+            local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', param)
+            Http:request('stationList', requestURL, 1003)
+       elseif msg == 1003 then
             -- 删除原来的列表
-            local listview = Sprite:findChild(rootSprite, 'listview1')
-            ListView:removeAllItems(listview)
+            local listView = Sprite:findChild(rootSprite, 'listview1')
+            ListView:removeAllItems(listView)
             -- 解析返回的列表
             local resp = Http:jsonDecode('stationList')
-            if (resp[code] == nil or resp[code] ~= '0') then
-                Dialog:show('', '服务端返回错误', 'ok')
+            Log:write(resp.value)
+            if (resp.code == nil or resp.code ~= '0') then
+                Dialog:show('', '服务端返回错误:'..getErrorCode(resp.code), 'ok')
                 Loading:close()
                 return
-                elseif (getTableLen(resp[value]) == 0) then
+                elseif (getJsonArrayCount(resp.value) == 0 or resp.value=='') then
                 Dialog:show('', '返回数据为空!', 'ok')
                 Loading:close()
                 return
             end
             total = resp['total']
-            respValue = resp['value']
-            local len = getTableLen(respValue)
+            respValue = resp.value
+            Log:write('remote server responsed with value:',respValue)
+            local len = getJsonArrayCount(respValue)
             -- 加载列表项
-            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
-            ListView:adjust(list)
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listitem'), len, 'loadListItem')
+            ListView:adjust(listView)
             Loading:close()
+            -- 隐藏搜索对话框
+            hideSearchDialog(Sprite:findChild(rootSprite, 'stationSearchDialog'))
         end
     end
     -- @brief 按键响应处理
@@ -206,17 +230,42 @@
     end
     -- 取得默认范围内的基站
     function getNearbyStationByDefaultRadius()
-        local observer = Plugin:getObserver()
-        Map:getCurPosition(observer, 1001)
+        if isSimulate == false then
+            -- 真机环境下，调用GPS获取当前位置
+            local observer = Plugin:getObserver()
+            Map:getCurPosition(observer, 1001)
+        else
+            -- 模拟环境下，设置默认经纬度
+            local posValue = '117.251339,31.849438'
+            -- 请求默认附近10km的基站列表
+            local defaultRadius = 100000
+            local param = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&value=%s&radius=%s&page=%s',
+            planId, posValue, defaultRadius, page)
+            local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', param)
+            Http:request('stationList', requestURL, 1003)
+        end
         Loading:show()
     end
     -- 请求指定范围内的基站
     function getNearbyStationByRadius()
-        local observer = Plugin:getObserver()
-        Map:getCurPosition(observer, 1002)
+        if isSimulate == false then
+            local observer = Plugin:getObserver()
+            Map:getCurPosition(observer, 1002)
+        else
+            -- 模拟环境下，设置默认经纬度
+            local posValue = '117.251339,31.849438'
+            -- 请求附近的基站列表
+            local radius = Sprite:getText(Sprite:findChild(rootSprite, 'radiusEdit'))
+            local param = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&value=%s&radius=%s&page=%s',
+            planId, posValue, radius, page)
+            local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', param)
+            Http:request('stationList', requestURL, 1003)
+        end
         Loading:show()
     end
+    -- 加载列表项
     function loadListItem(list, item, index)
+        -- 设置列表项的大小的背景色
         Sprite:setRect(item, 0, 0, 480, 70)
         Sprite:setProperty(item, 'extendstyle', '1111')
         local listItemBg = Sprite:findChild(item, 'listItemBg')
@@ -226,20 +275,27 @@
             else
             Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
         end
+        -- 取得对应列表项的数据
         local itemValue = respValue[index]
-        local status = itemValue.status
-        local stationName = itemValue.name
-    end
-    -- 取得表的长度
-    function getTableLen(tab)
-        if tab == nil then
-            return 0
+        if itemValue == nil then
+            Log:write('列表项数据为空',index)
+            return
         end
-        local n = 0
-        for i in ipairs(tab) do
-            n = n + 1
+        local stationId = itemValue.stationId
+        local stationNameText = itemValue.stationName
+        local isPatroled = itemValue.isPatroled
+        Log:write(string.format('station_id:%s, station_name=%s, is_patroled:%s', stationId, stationNameText, isPatroled))
+        -- 设置列表项的值
+        local stationStatusImage = Sprite:findChild(rootSprite, 'stationStatusImage')
+        local stationIdSprite = Sprite:findChild(rootSprite, 'stationId')
+        local stationName = Sprite:findChild(rootSprite, 'stationName')
+        if isPatroled == 'Y' then
+            Sprite:setProperty(stationStatusImage, "src", "file://image/ball6.png")
+            else
+            Sprite:setProperty(stationStatusImage, "src", "file://image/ball5.png")
         end
-        return n
+        Sprite:setProperty(stationIdSprite, "text", stationId)
+        Sprite:setProperty(stationName, "text", stationNameText)
     end
 ]]>
 </root>
