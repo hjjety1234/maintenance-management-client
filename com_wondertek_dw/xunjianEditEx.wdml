@@ -92,7 +92,7 @@
                 </node>
 
             </node>
-
+ 
             <node name="subItemNode" rect="0,0,480,50" enable="false" active="false"
                 visible="false" extendstyle="1111">
                 <node name="errorTitleNode1" rect="0,0,480,50" extendstyle="1111">
@@ -148,10 +148,10 @@
                         color="#0" extendstyle="1111" style="autosize" h-align="center"
                         v-align="center" font-size="24"></label>
                     <edit name="editInput" rect="310,13,130,45" option="numeric"
-                        style="autosize" extendstyle="1111" font-size="18"  data='1'></edit>
+                        style="autosize" extendstyle="1111" font-size="18" OnLostFocus="doSave" data='1'></edit>
                 </node>
                 <node name="errorHideNode" rect="0,50,480,0" extendstyle="1111"
-                    enable="false" active="false" visible="false" data="150">
+                    enable="false" active="false" visible="false" data="1">
                     <label name="label1" rect="0,0,150,50" border="false" text="异常描述："
                         h-align="right" v-align="center" color="#000000" font-size="22"
                         extendstyle="1111"></label>
@@ -167,7 +167,7 @@
                         style="autosize" extendstyle="1111">
                     </image>
                     <edit name="doEdit" rect="155,50,300,50" border="false"
-                        v-center="true" extendstyle="1111"></edit>
+                        v-center="true" extendstyle="1111" OnLostFocus="ErrorSave"></edit>
 
                     <button name="takePicBtn" rect="10,100,130,50" border="false"
                         text="" color="#ffffff" OnSelect="takePicOnSelect"
@@ -213,6 +213,7 @@
     local curNameContent
     local curCodeContent
     local Inflag='0'  --进站标志位
+    local resultId --巡检结果ID
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
@@ -229,6 +230,22 @@
     function bodyOnPluginEvent(msg)
         if Loading:isShow() then Loading:close() end
         if msg == 101 then
+            elseif msg == 103 then -- 阶段保存提交
+            local data = Http:jsonDecode('Submitdata')
+            Log:write("Submitdata ================= ", data)
+            if not data or type(data) ~= 'table' then
+                Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+                return
+            end
+            if data ~= nil then
+                if data.code == '0' then
+                    
+                    else
+                    Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+                end
+                else
+                Dialog:show(rootSprite, '未知错误！', 'ok')
+            end
             elseif msg == 105 then -- 进站请求
             local data = Http:jsonDecode('Indata')
             Log:write("data105 ================= ", data)
@@ -238,6 +255,7 @@
             end
             if data ~= nil then
                 if data.code == '0' then
+                    resultId=data.data
                     InHandle(data.inTime)
                     else
                     Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
@@ -330,6 +348,7 @@
             local errorTypeNameListType1 = Sprite:findChild(errorTitleBtnType1, 'errorTypeNameList')
             local errorTypeCodeListType1 = Sprite:findChild(errorTitleBtnType1, 'errorTypeCodeList')
 
+            Sprite:setProperty(errorTitleNode1,'data',curSubItemData[6])
             Sprite:setProperty(errorTitleNameType1, 'text', tostring(index+1)..'、'..curSubItemData[2])
             Sprite:setProperty(errorTypeNameListType1, 'data', curSubItemData[4])
             Sprite:setProperty(errorTypeCodeListType1, 'data', curSubItemData[5])
@@ -340,6 +359,7 @@
             local errorCodeMaxMinType2 = Sprite:findChild(errorTitleNode2, 'errorCodeMaxMin')
             Sprite:setProperty(errorTitleNameType2, 'text', tostring(index+1)..'、'..curSubItemData[2])
             Sprite:setProperty(errorCodeMaxMinType2, 'data', curSubItemData[4])
+            Sprite:setProperty(errorTitleNode2,'data',curSubItemData[6])
         elseif curSubItemData[3] == '3' then
             setAllShoworHide(errorTitleNode3, 1)
             local errorTitleNameType3 = Sprite:findChild(errorTitleNode3, 'errorTitleName')
@@ -347,6 +367,7 @@
             local errorCodeMaxMinType3 = Sprite:findChild(errorTitleNode3, 'errorCodeMaxMin')
             Sprite:setProperty(errorTitleNameType3, 'text', tostring(index+1)..'、'..curSubItemData[2])
             Sprite:setProperty(errorCodeMaxMinType3, 'data', curSubItemData[4])
+            Sprite:setProperty(errorTitleNode3,'data',curSubItemData[6])
         else
             return
         end
@@ -369,9 +390,11 @@
             newData = '0'
         else
             newData = '1'
+            --正常保存提交
+            doSave(sprite)
         end
         Sprite:setProperty(sprite, 'data', newData)
-        changeErrorDetailNode(oldData, newData, sprite)
+        changeErrorDetailNode(oldData, newData, sprite,'2')
     end
     function hideSelectNode(sprite)
         -- body
@@ -421,13 +444,15 @@
         local oldData = Sprite:getData(curErrorBtn)
         Sprite:setProperty(curErrorBtn, 'data', errorCode)
         Sprite:setProperty(Sprite:findChild(curErrorBtn, 'errorTypeName'), 'text', errorName)
-
-        changeErrorDetailNode(oldData, errorCode, curErrorBtn)
+        if errorCode=='1' then
+            doSave(curErrorBtn)
+        end
+        changeErrorDetailNode(oldData, errorCode, curErrorBtn,'1')
 
         hideSelectNode(sprite)
     end
-    --下拉伸缩
-    function changeErrorDetailNode(oldData, newData, sprite)
+    --下拉伸缩 flag表示是什么类型的输入框
+    function changeErrorDetailNode(oldData, newData, sprite,flag)
         -- body
         if oldData == newData then
             return
@@ -435,6 +460,7 @@
 
         local itemNode = Sprite:getParent(Sprite:getParent(sprite))
         local errorHideNode = Sprite:findChild(itemNode, 'errorHideNode')
+        Sprite:setProperty(errorHideNode, 'data', flag) 
         local subListView = Sprite:getParent(itemNode)
         local subListViewNode = Sprite:getParent(subListView)
         local mainItem = Sprite:getParent(subListViewNode)
@@ -572,5 +598,88 @@
                 ListView:adjust(mainListView)  
         end
     end
+
+    --巡检任务提交
+
+    function submitOnSelect(sprite)
+        -- body
+
+    end
+
+    --正常时保存提交
+    function doSave(sprite)
+        -- body
+        local patrolResult = Sprite:getText(sprite)
+        if patrolResult==nil or patrolResult=='' then
+            patrolResult=Sprite:getText(Sprite:findChild(sprite,'errorTypeName'))
+            if patrolResult==nil or patrolResult=='' then
+                Dialog:show(rootSprite, '巡检结果不可为空！', 'ok')
+                return
+            end
+        end
+        if  resultId=='' or resultId==nil then
+            Dialog:show(rootSprite, '请先执行进站操作，否则无法记录巡检结果！', 'ok')
+        else
+            --取巡检子项ID
+            local errorTitleNode =Sprite:getParent(sprite)
+            local subitemId = Sprite:getData(errorTitleNode)
+            if subitemId=='' or subitemId==nil  then
+                Dialog:show(rootSprite, '巡检子项编号为空，请联系系统管理员！', 'ok')
+            else
+                local url=getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
+                --local username = Config:get('username')
+                local param = '&usercode='..'jingxinhf'..'&resultId='..resultId..'&subitemId='..subitemId..'&patrolResult='..patrolResult..'&exception='
+                Log:write("param = ", param)
+                Http:request('Submitdata', url, 103, {useCache = false, method = 'post', postData='cmd=wlbxunjianDeal'..param})
+                setAllShoworHide(Sprite:findChild(errorTitleNode,'SaveFlag'),1)
+            end
+        end
+    end
+
+    --异常信息保存   
+    function ErrorSave(sprite)
+        local dealdetail=Sprite:getText(sprite)
+        local errorHideNode = Sprite:getParent(sprite)
+        local exception=Sprite:getText(Sprite:findChild(errorHideNode,'exEdit'))
+        local flag=Sprite:getData(errorHideNode)
+        --处理结果
+        local patrolResult
+        local subitemId 
+
+        local subItemNode=Sprite:getParent(errorHideNode)
+        local errorTitleNode
+        if flag=='1' then
+            errorTitleNode = Sprite:findChild(subItemNode,'errorTitleNode1')
+            subitemId=Sprite:getData(errorTitleNode)
+            local errorTitleBtn = Sprite:findChild(errorTitleNode,'errorTitleBtn')
+            local errorTypeName = Sprite:findChild(errorTitleBtn,'errorTypeName')
+            patrolResult=Sprite:getText(errorTypeName)
+            elseif flag=='2' then   
+                errorTitleNode = Sprite:findChild(subItemNode,'errorTitleNode2')
+                subitemId=Sprite:getData(errorTitleNode)
+                local editInput = Sprite:findChild(errorTitleNode,'editInput')
+                patrolResult=Sprite:getText(editInput)
+        end
+
+        if patrolResult==nil or patrolResult=='' then   
+            Dialog:show(rootSprite, '巡检结果不可为空！', 'ok')
+        end
+        if  resultId=='' or resultId==nil then
+            Dialog:show(rootSprite, '请先执行进站操作，否则无法记录巡检结果！', 'ok')
+        else
+            
+            if subitemId=='' or subitemId==nil  then
+                Dialog:show(rootSprite, '巡检子项编号为空，请联系系统管理员！', 'ok')
+            else
+                local url=getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
+                --local username = Config:get('username')
+                local param = '&usercode='..'jingxinhf'..'&resultId='..resultId..'&subitemId='..subitemId..'&patrolResult='..patrolResult..'&exception='..exception
+                Log:write("param = ", param)
+                Http:request('Submitdata', url, 103, {useCache = false, method = 'post', postData='cmd=wlbxunjianDeal'..param})
+                setAllShoworHide(Sprite:findChild(errorTitleNode,'SaveFlag'),1)
+            end
+        end
+    end
+
 ]]>
 </root>
