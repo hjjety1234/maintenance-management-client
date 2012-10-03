@@ -1,0 +1,575 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <!--
+        ==
+        ============================================================================
+        == | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+        ============================================================================
+        == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+        ============================================================================
+        == | Author: xxxx <xxxx@xxxx.com> ==
+        ============================================================================
+        == | Desc: 页面描述 ==
+        ============================================================================
+    -->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <shadow rect="0,0,480,800" color="#e8e8e8" alpha="255"
+            extendstyle="1111" />
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <node name="NodeTitle" rect="0,0,480,66" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,66" src="file://image/title_bg.png"
+                    extendstyle="1111" style="autosize" />
+                <button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
+                    OnSelect="isSave" extendstyle="1111">
+                    <image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
+                        style="autosize" extendstyle="1111">
+                    </image>
+                    <image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
+                        style="autosize" extendstyle="1111">
+                    </image>
+                    <label rect="15,0,60,45" text="返回" color="#ffffff"
+                        extendstyle="1111" style="autosize" h-align="center" v-align="center"
+                        font-size="24"></label>
+                </button>
+
+                <scrolltext name="title" rect="105,0,280,66" text="巡检情况"
+                    extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2"></scrolltext>
+
+                <button name="btnForget" rect="387,4,79,56" text="提交" color="#ffffff"
+                    extendstyle="1111" OnSelect="submitOnSelect"
+                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+                     font-size="24"/>
+            </node>
+            <!--进站出站操作-->
+            <node name="tabNode" rect="0,66,480,60" extendstyle="1111">
+                <image name="title" rect="0,0,480,60" border="false"
+                    src="file://image/tab_n.png" style="autosize" extendstyle="1111"></image>
+                <button name="btnTab1" rect="0,0,240,60" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
+                    <image name="tabBg" rect="0,0,240,60" border="false"
+                        src="file://image/tab_n.png" style="sudoku-auto" sudoku="15,15,15,15"
+                        extendstyle="1111"></image>
+                    <label name="labeltab" rect="0,0,240,60" text="到达巡检点" color="#ffffff"
+                        v-align="center" h-align="center" font-size="22" extendstyle="1111" />
+                </button>
+                <button name="btnTab2" rect="240,0,240,60" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
+                    <image name="tabBg" rect="0,0,240,60" border="false"
+                        src="file://image/tab_n.png" style="sudoku-auto" sudoku="15,15,15,15"
+                        extendstyle="1111"></image>
+                    <label name="labeltab" rect="0,0,240,60" text="离开巡检点" color="#ffffff"
+                        v-align="center" h-align="center" font-size="22" extendstyle="1111" />
+                </button>
+            </node>
+            <node name="mainNodeContent" rect="0,126,480,674" extendstyle="1111">
+                <listview name="mainListView" rect="0,10,480,710" col="1" limit="true"
+                    extendstyle="1111">
+                </listview>
+            </node>
+
+            <node name="mainItemNode" rect="0,0,480,50" enable="false" active="false"
+                visible="false" extendstyle="1111">
+                <node name="mainTitleNode" rect="0,0,480,50" extendstyle="1111">
+                    <image rect="0,0,480,50" src="file://image/title_bar.png"  style="autosize" extendstyle="1111" />
+                
+                    <scrolltext name="mainTitleName" rect="10,0,440,50"
+                        extendstyle="1111" font-size="22" font-style="bold" h-align="left" v-align="center"
+                        color="#ffffff" scroll="true" step="2"></scrolltext>
+                    <button name="btnImg" rect="450,0,30,50" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="ImgOnSelect" font-size="24" data="1">   
+                        <image name="NodeImg" rect="13,20,7,10" src="file://image/up.png" style="autosize" extendstyle="1111" />
+                    </button>
+                </node>
+                <node name="subListviewNode" rect="0,50,480,50" extendstyle="1111" >
+                    <listview name="subListView" rect="0,0,480,710" col="1" limit="true"
+                        extendstyle="1111" border="true" >
+                    </listview>
+                </node>
+
+            </node>
+
+            <node name="subItemNode" rect="0,0,480,50" enable="false" active="false"
+                visible="false" extendstyle="1111">
+                <node name="errorTitleNode1" rect="0,0,480,50" extendstyle="1111">
+                    <image name="SaveFlag" rect="5,7,30,30" src="file://image/s3.png"
+                                 style="autosize" extendstyle="1111"  visible="false"/>
+                    <scrolltext name="errorTitleName" rect="40,0,480,50"
+                        extendstyle="1010" font-size="20" h-align="left" v-align="center"
+                        color="#0" scroll="true" step="2"></scrolltext>
+                    <button name="errorTitleBtn" rect="300,0,160,50" border="false"
+                        text="" color="#ffffff" OnSelect="errorOnSelect"
+                        extendstyle="1111" data="1">
+                        <image rect="0,0,160,50" src="file://image/input.png"  style="sudoku-auto" sudoku="15,15,15,15"
+                            extendstyle="1111">
+                            <image rect="112,0,43,48" src="file://image/dropdown_arrow.png"
+                                 style="autosize" extendstyle="1111" />
+                        </image>
+                        <label name="errorTypeName" rect="7,0,112,50" text=""
+                            color="#0" extendstyle="1111" style="autosize" h-align="center"
+                            v-align="center" font-size="24"></label>
+                        <label name="errorTypeNameList" rect="0,0,0,0" text=""
+                            color="#0" extendstyle="1111" style="autosize" h-align="center"
+                            v-align="center" font-size="24"></label>
+                        <label name="errorTypeCodeList" rect="0,0,0,0" text=""
+                            color="#0" extendstyle="1111" style="autosize" h-align="center"
+                            v-align="center" font-size="24"></label>
+                    </button>
+                </node>
+                <node name="errorTitleNode2" rect="0,0,480,50" extendstyle="1111">
+                <image name="SaveFlag" rect="5,7,30,30" src="file://image/s3.png"
+                                 style="autosize" extendstyle="1111"  visible="false"/>
+                    <scrolltext name="errorTitleName" rect="40,0,480,50"
+                        extendstyle="1111" font-size="20" h-align="left" v-align="center"
+                        color="#0" scroll="true" step="2"></scrolltext>
+                       
+                    <image rect="300,0,160,50" src="file://image/input.png"
+                         style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111"></image>
+                    <label name="errorCodeMaxMin" rect="0,0,0,0" text=""
+                        color="#0" extendstyle="1111" style="autosize" h-align="center"
+                        v-align="center" font-size="24"></label>
+                    <edit name="editInput" rect="310,13,130,45" option="numeric"
+                        style="autosize" extendstyle="1111" font-size="18" OnLostFocus="onTextLostFocus" data='1'></edit>
+                </node>
+                <node name="errorTitleNode3" rect="0,0,480,50" extendstyle="1111">
+                <image name="SaveFlag" rect="5,7,30,30" src="file://image/s3.png"
+                                 style="autosize" extendstyle="1111"  visible="false"/>
+                    <scrolltext name="errorTitleName" rect="40,0,480,50"
+                        extendstyle="1111" font-size="20" h-align="left" v-align="center"
+                        color="#0" scroll="true" step="2"></scrolltext>
+                       
+                    <image rect="300,0,160,50" src="file://image/input.png"
+                         style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111"></image>
+                    <label name="errorCodeMaxMin" rect="0,0,0,0" text=""
+                        color="#0" extendstyle="1111" style="autosize" h-align="center"
+                        v-align="center" font-size="24"></label>
+                    <edit name="editInput" rect="310,13,130,45" option="numeric"
+                        style="autosize" extendstyle="1111" font-size="18"  data='1'></edit>
+                </node>
+                <node name="errorHideNode" rect="0,50,480,0" extendstyle="1111"
+                    enable="false" active="false" visible="false" data="150">
+                    <label name="label1" rect="0,0,150,50" border="false" text="异常描述："
+                        h-align="right" v-align="center" color="#000000" font-size="22"
+                        extendstyle="1111"></label>
+                    <image rect="150,0,310,50" src="file://image/input.png"
+                        style="autosize" extendstyle="1111">
+                    </image>
+                    <edit name="exEdit" rect="155,0,300,50" border="false"
+                        v-center="true" extendstyle="1111"></edit>
+                    <label name="label1" rect="0,50,150,50" border="false" text="处理描述："
+                        h-align="right" v-align="center" color="#000000" font-size="22"
+                        extendstyle="1111"></label>
+                    <image rect="150,50,310,50" src="file://image/input.png"
+                        style="autosize" extendstyle="1111">
+                    </image>
+                    <edit name="doEdit" rect="155,50,300,50" border="false"
+                        v-center="true" extendstyle="1111"></edit>
+
+                    <button name="takePicBtn" rect="10,100,130,50" border="false"
+                        text="" color="#ffffff" OnSelect="takePicOnSelect"
+                        extendstyle="1111">
+                        <image rect="0,0,130,50" src="file://image/take_pic.png"
+                            style="autosize" extendstyle="1111">
+                        </image>
+                    </button>
+                </node>
+            </node>
+        </node>
+
+        <node name="selectNode" rect="0,0,480,800" enable="false" active="false"
+                visible="false" extendstyle="1111">
+            <shadow rect="0,0,480,800" color="#000000" alpha="128"
+                extendstyle="1111" />
+            <button name="hideSelectNode" rect="0,0,480,800" border="false"
+                text="" color="#ffffff" OnSelect="hideSelectNode"
+                extendstyle="1111">
+            </button>
+            <image name="imgNode" rect="70,170,340,180" src="file://image/input.png" style="sudoku-auto"
+                extendstyle="1111" sudoku="15,15,15,15">
+            </image>
+            <listview name="listSelect" rect="100,200,280,320" auto-adjust="true" extendstyle="1111"/>
+        </node>
+        
+        <node name="selectItem" rect="0,0,280,76" visible="false" enable="false" active="false">
+                <button rect="0,0,280,56" color="#ffffff"
+                    extendstyle="1111" OnSelect="errorTypeOnSelect"
+                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+                    font-size="24" data="C30" />
+        </node>
+    </body>
+    <![CDATA[
+
+    require 'com_wondertek_dw.common.framework'
+    require 'com_wondertek_dw.common.tempData'
+    local rootSprite
+    local mainListView
+    local curMainIndex = 0 --当前的主索引
+    local curErrorBtn
+    local curNameContent
+    local curCodeContent
+    local Inflag='0'  --进站标志位
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        loadTempData()
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if Loading:isShow() then Loading:close() end
+        if msg == 101 then
+            elseif msg == 105 then -- 进站请求
+            local data = Http:jsonDecode('Indata')
+            Log:write("data105 ================= ", data)
+            if not data or type(data) ~= 'table' then
+                Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+                return
+            end
+            if data ~= nil then
+                if data.code == '0' then
+                    InHandle(data.inTime)
+                    else
+                    Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+                end
+                else
+                Dialog:show(rootSprite, '未知错误！', 'ok')
+            end
+            elseif msg == 106 then -- 出站请求
+            local data = Http:jsonDecode('Outdata')
+            Log:write("data106 ================= ", data)
+            if not data or type(data) ~= 'table' then
+                Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+                return
+            end
+            if data ~= nil then
+                if data.code == '0' then
+                    OutHandle(data.outTime)
+                    else
+                    Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+                end
+                else
+                Dialog:show(rootSprite, '未知错误！', 'ok')
+            end
+            elseif msg == 102 then -- 不提交图片时提交相应
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    function loadTempData()
+        local mainNodeContent = Sprite:findChild(rootSprite,'mainNodeContent')
+        local mainListView = Sprite:findChild(mainNodeContent,'mainListView')
+
+        local mainItemNode = Sprite:findChild(rootSprite,'mainItemNode')
+
+        ListView:removeAllItems(mainListView, 1, 1)
+        ListView:loadItem(mainListView, mainItemNode, #jdtitleItems, 'loadMainListItem')
+        ListView:adjust(mainListView)
+    end
+    function loadMainListItem(list, item, index)
+        Sprite:setRect(item, 0,0,480,50)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        curMainIndex = index + 1
+        local mainTitleNode = Sprite:findChild(item, 'mainTitleNode')
+        local mainTitleName = Sprite:findChild(mainTitleNode, 'mainTitleName')
+        Sprite:setProperty(mainTitleName, 'text', jdtitleItems[curMainIndex][3])
+
+        local subListviewNode = Sprite:findChild(item, 'subListviewNode')
+        local subListView = Sprite:findChild(subListviewNode, 'subListView')
+        local subItemNode = Sprite:findChild(rootSprite, 'subItemNode')
+
+        ListView:removeAllItems(subListView, 1, 1)
+        ListView:loadItem(subListView, subItemNode, #jdtitleItems[curMainIndex][4], 'loadSubListItem')
+        local x,y,w,h = Sprite:getRect(subListView)
+        Sprite:setRect(subListView, x, y, w, #jdtitleItems[curMainIndex][4] * 50)
+        x,y,w,h = Sprite:getRect(subListviewNode)
+        Sprite:setRect(subListviewNode, x, y, w, #jdtitleItems[curMainIndex][4] * 50)
+        Sprite:setRect(item, 0, 0, 480, #jdtitleItems[curMainIndex][4] * 50 + 50)
+        ListView:adjust(subListView)
+    end
+    function loadSubListItem(list, item, index)
+        Log:write(index)
+        Sprite:setRect(item, 0,0,480,50)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        local subIndex = index + 1
+        local curSubItemData = jdtitleItems[curMainIndex][4][subIndex]
+
+        --根据type设置显示的node
+        local errorTitleNode1 = Sprite:findChild(item, 'errorTitleNode1')
+        local errorTitleNode2 = Sprite:findChild(item, 'errorTitleNode2')
+        local errorTitleNode3 = Sprite:findChild(item, 'errorTitleNode3')
+        setAllShoworHide(errorTitleNode1, 0)
+        setAllShoworHide(errorTitleNode2, 0)
+        setAllShoworHide(errorTitleNode3, 0)
+        if curSubItemData[3] == '1' then
+            setAllShoworHide(errorTitleNode1, 1)
+
+            local errorTitleNameType1 = Sprite:findChild(errorTitleNode1, 'errorTitleName')
+            local errorTitleBtnType1 = Sprite:findChild(errorTitleNode1, 'errorTitleBtn')
+            local errorTypeNameType1 = Sprite:findChild(errorTitleBtnType1, 'errorTypeName')
+            local errorTypeNameListType1 = Sprite:findChild(errorTitleBtnType1, 'errorTypeNameList')
+            local errorTypeCodeListType1 = Sprite:findChild(errorTitleBtnType1, 'errorTypeCodeList')
+
+            Sprite:setProperty(errorTitleNameType1, 'text', tostring(index+1)..'、'..curSubItemData[2])
+            Sprite:setProperty(errorTypeNameListType1, 'data', curSubItemData[4])
+            Sprite:setProperty(errorTypeCodeListType1, 'data', curSubItemData[5])
+        elseif curSubItemData[3] == '2' then
+            setAllShoworHide(errorTitleNode2, 1)    
+            local errorTitleNameType2 = Sprite:findChild(errorTitleNode2, 'errorTitleName')
+            local editInputType2 = Sprite:findChild(errorTitleNode2, 'editInput')
+            local errorCodeMaxMinType2 = Sprite:findChild(errorTitleNode2, 'errorCodeMaxMin')
+            Sprite:setProperty(errorTitleNameType2, 'text', tostring(index+1)..'、'..curSubItemData[2])
+            Sprite:setProperty(errorCodeMaxMinType2, 'data', curSubItemData[4])
+        elseif curSubItemData[3] == '3' then
+            setAllShoworHide(errorTitleNode3, 1)
+            local errorTitleNameType3 = Sprite:findChild(errorTitleNode3, 'errorTitleName')
+            local editInputType3 = Sprite:findChild(errorTitleNode3, 'editInput')
+            local errorCodeMaxMinType3 = Sprite:findChild(errorTitleNode3, 'errorCodeMaxMin')
+            Sprite:setProperty(errorTitleNameType3, 'text', tostring(index+1)..'、'..curSubItemData[2])
+            Sprite:setProperty(errorCodeMaxMinType3, 'data', curSubItemData[4])
+        else
+            return
+        end
+
+        local errorHideNode = Sprite:findChild(item, 'errorHideNode')
+        local exEdit = Sprite:findChild(errorHideNode, 'exEdit')
+        local doEdit = Sprite:findChild(errorHideNode, 'doEdit')
+        local takePicBtn = Sprite:findChild(errorHideNode, 'takePicBtn')
+
+    end
+    function onTextLostFocus(sprite)
+        local content=tonumber(Sprite:getText(sprite))
+        local oldData = Sprite:getData(sprite)
+        local newData = '1'
+        local errorCodeMaxMin = Sprite:findChild(Sprite:getParent(sprite), 'errorCodeMaxMin')
+        local minAndMax = Split(Sprite:getData(errorCodeMaxMin), ',')
+        local min = tonumber(minAndMax[1])
+        local max = tonumber(minAndMax[2])
+        if content < min or content > max then
+            newData = '0'
+        else
+            newData = '1'
+        end
+        Sprite:setProperty(sprite, 'data', newData)
+        changeErrorDetailNode(oldData, newData, sprite)
+    end
+    function hideSelectNode(sprite)
+        -- body
+        local selectNode = Sprite:findChild(rootSprite, 'selectNode')
+        setAllShoworHide(selectNode, 0)
+    end
+    function showSelectNode()
+        -- body
+        local selectNode = Sprite:findChild(rootSprite, 'selectNode')
+        setAllShoworHide(selectNode, 1)
+    end
+    function errorOnSelect(sprite)
+        showSelectNode()
+
+        local errorTypeNameList = Sprite:findChild(sprite, 'errorTypeNameList')
+        local errorTypeCodeList = Sprite:findChild(sprite, 'errorTypeCodeList')
+
+        curErrorBtn = sprite
+        curNameContent = Split(Sprite:getData(errorTypeNameList), ',')
+        curCodeContent = Split(Sprite:getData(errorTypeCodeList), ',')
+        Log:write('111', curNameContent)
+        Log:write('222', curCodeContent)
+        local count = #curNameContent
+        local list = Sprite:findChild(rootSprite, 'listSelect')
+        local item = Sprite:findChild(rootSprite, 'selectItem')
+
+        local imgNode =  Sprite:findChild(rootSprite, 'imgNode')
+        Sprite:setRect(imgNode,70,170,340,40+count*70)
+
+        ListView:removeAllItems(list, 1, 1)
+        ListView:loadItem(list, item, count, 'loadSelectItem')
+        ListView:adjust(list)
+    end
+    --下拉数据源
+    function loadSelectItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 76)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        
+        local button = Sprite:findChildByClass(item, 'button')
+        Sprite:setProperty(button, 'text', curNameContent[index + 1])
+        Sprite:setProperty(button, 'data', curCodeContent[index + 1])
+    end
+    --下拉选择控制
+    function errorTypeOnSelect(sprite)
+        local errorCode = Sprite:getData(sprite)
+        local errorName = Sprite:getProperty(sprite, 'text')
+        local oldData = Sprite:getData(curErrorBtn)
+        Sprite:setProperty(curErrorBtn, 'data', errorCode)
+        Sprite:setProperty(Sprite:findChild(curErrorBtn, 'errorTypeName'), 'text', errorName)
+
+        changeErrorDetailNode(oldData, errorCode, curErrorBtn)
+
+        hideSelectNode(sprite)
+    end
+    --下拉伸缩
+    function changeErrorDetailNode(oldData, newData, sprite)
+        -- body
+        if oldData == newData then
+            return
+        end
+
+        local itemNode = Sprite:getParent(Sprite:getParent(sprite))
+        local errorHideNode = Sprite:findChild(itemNode, 'errorHideNode')
+        local subListView = Sprite:getParent(itemNode)
+        local subListViewNode = Sprite:getParent(subListView)
+        local mainItem = Sprite:getParent(subListViewNode)
+        local mainListView = Sprite:getParent(mainItem)
+        local x,y,w,h = Sprite:getRect(errorHideNode)
+        if newData == '0' then
+            setAllShoworHide(errorHideNode, 1)
+            x,y,w,h = Sprite:getRect(itemNode)
+            Sprite:setRect(itemNode, x, y, w, h + 150)
+            x,y,w,h = Sprite:getRect(subListView)
+            Sprite:setRect(subListView, x, y, w, h + 150)
+            x,y,w,h = Sprite:getRect(subListViewNode)
+            Sprite:setRect(subListViewNode, x, y, w, h + 150)
+            x,y,w,h = Sprite:getRect(mainItem)
+            Sprite:setRect(mainItem, x, y, w, h + 150)
+            ListView:adjust(subListView)
+            ListView:adjust(mainListView)
+        else
+            setAllShoworHide(errorHideNode, 0)
+            x,y,w,h = Sprite:getRect(itemNode)
+            Sprite:setRect(itemNode, x, y, w, h - 150)
+            x,y,w,h = Sprite:getRect(subListView)
+            Sprite:setRect(subListView, x, y, w, h - 150)
+            x,y,w,h = Sprite:getRect(subListViewNode)
+            Sprite:setRect(subListViewNode, x, y, w, h - 150)
+            x,y,w,h = Sprite:getRect(mainItem)
+            Sprite:setRect(mainItem, x, y, w, h - 150)
+            ListView:adjust(subListView)
+            ListView:adjust(mainListView)
+        end
+
+    end
+    --进站请求
+    function inRequest()
+        
+        local url=getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
+        --local username = Config:get('username')
+        local param = '&usercode='..'jingxinhf'..'&code='..'000001000600'..'&resourceId='..'A24000032317'
+        Log:write("param = ", param)
+        Http:request('Indata', url, 105, {useCache = false, method = 'post', postData='cmd=wlbxunjianStart'..param})
+        Loading:show(rootSprite)
+        --Dialog:show('提示','功能正在开发中！','ok')
+    end
+
+    function InHandle(time)
+        -- body tabNode  btnTab1 labeltab
+        local tabNode=Sprite:findChild(rootSprite,"tabNode")
+        local btnTab1 = Sprite:findChild(tabNode,"btnTab1")
+        local labeltab = Sprite:findChild(btnTab1,"labeltab")
+        Sprite:setProperty(labeltab,"font-size","18")
+        Sprite:setProperty(labeltab,"text",time.."进站")
+        Sprite:setProperty(btnTab1,"enable","false")
+        Inflag='1'
+    end
+    --出站请求
+    function outRequest()
+        -- body
+        local tabNode=Sprite:findChild(rootSprite,"tabNode")
+        local btnTab2 = Sprite:findChild(tabNode,"btnTab2")
+        
+        Log:write('Inflag=======================================',Inflag)
+        local url=getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
+        --local username = Config:get('username')
+        local param = '&usercode='..'jingxinhf'..'&code='..'000001000600'..'&resourceId='..'A24000032317'
+        Log:write("param = ", param)
+
+        if Inflag=='1' then
+            Http:request('Outdata', url, 106, {useCache = false, method = 'post', postData='cmd=wlbxunjianEnd'..param})
+            Loading:show(rootSprite)
+        else
+            Sprite:setProperty(Sprite:findChild(btnTab2, 'tabBg'), 'src', 'file://image/tab_n.png')
+            Dialog:show('提示','请先执行进站操作！','ok')
+        end
+    end
+
+    function OutHandle(time)
+        -- body tabNode  btnTab2 labeltab
+        local tabNode=Sprite:findChild(rootSprite,"tabNode")
+        local btnTab2 = Sprite:findChild(tabNode,"btnTab2")
+        local labeltab = Sprite:findChild(btnTab2,"labeltab")
+        Sprite:setProperty(labeltab,"font-size","18")
+        Sprite:setProperty(labeltab,"text",time.."离站")
+        Sprite:setProperty(btnTab2,"enable","false")
+    end
+    
+   
+    --进站出站操作
+    function tabOnSelect(sprite)
+        local tabNode = Sprite:getParent(sprite)
+        local dataInfo = Sprite:getData(sprite)
+        local tab1 = Sprite:findChild(tabNode, 'btnTab1')
+        local tab2 = Sprite:findChild(tabNode, 'btnTab2')
+        Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_s.png')
+        if dataInfo=='01' then
+           
+            --进站请求
+            inRequest()
+            elseif dataInfo=='02' then
+            --出站请求
+           
+            outRequest()
+        end
+    end
+
+    --大类的数据伸缩
+    --mainItemNode mainTitleNode btnImg NodeImg
+    --        subListviewNode  subListView
+    function ImgOnSelect(sprite)
+        -- body
+        local NodeImg = Sprite:findChild(sprite,"NodeImg")
+        local mainTitleNode=Sprite:getParent(sprite)
+        local mainItemNode = Sprite:getParent(mainTitleNode)
+        local mainListView = Sprite:getParent(mainItemNode)
+        local subListviewNode = Sprite:findChild(mainItemNode,"subListviewNode")
+        local subListView = Sprite:findChild(subListviewNode,"subListView")
+        Log:write('mainListView================',Sprite:getRect(mainListView))
+        Log:write('mainTitleNode================',Sprite:getRect(mainTitleNode))
+        Log:write('mainItemNode================',Sprite:getRect(mainItemNode))
+        Log:write('subListviewNode================',Sprite:getRect(subListviewNode))
+        Log:write('subListView================',Sprite:getRect(subListView))
+        local dataflag = Sprite:getData(sprite)
+        if  dataflag=='1' then
+            setAllShoworHide(subListviewNode,0)
+            setAllShoworHide(subListView,0)
+            Sprite:setProperty(sprite,"data","2")
+            Sprite:setProperty(NodeImg,"src","file://image/down.png")
+            --Sprite:setRect(mainListView,0, 0, 480, 60)
+            Sprite:setRect(mainItemNode,0, 0, 480, 50)
+            --Sprite:setRect(mainTitleNode,0, 0, 480, 50)
+            ListView:adjust(mainListView)
+            elseif dataflag=='2' then
+                Sprite:setProperty(subListviewNode,"visible","true")
+                Sprite:setProperty(sprite,"data","1")
+                Sprite:setProperty(NodeImg,"src","file://image/up.png")
+        end
+    end
+]]>
+</root>
