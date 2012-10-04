@@ -43,17 +43,11 @@
 				<scrolltext name="title" rect="0,0,480,66" text="巡检站点"
 					extendstyle="1111" font-size="30" h-align="center" v-align="center"
 					color="#ffffff" scroll="true" step="2"></scrolltext>
-				<!-- 显示搜索条 -->
-				<button name="searchDialogButton" rect="412,-12,64,84"
-					font-size="24" extendstyle="1111" text="" color="#ffffff"
-					normal="src:file://image/icon_search_press.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-					sel="src:file://image/icon_search_press.png.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-					OnSelect="showSearchDialog"></button>
 			</node>
 
 			<!-- 站点列表  -->
-			<node name="listviewNode" rect="0,66,480,730" extendstyle="1111">
-				<listview name="listview1" rect="0,0,480,730" extendstyle="1111" />
+			<node name="listviewNode" rect="0,66,480,654" extendstyle="1111">
+				<listview name="listview1" rect="0,0,480,654" extendstyle="1111" />
 			</node>
 
 			<!-- 站点列表项 -->
@@ -64,21 +58,59 @@
 				<button name="btnname" rect="0,0,480,70" OnSelect="itemOnSelect"
 					extendstyle="1111" data="">
 					<image name="stationStatusImage" rect="10,20,30,30" src=""
-						style="autosize" extendstyle="1111">
+						style="autosize" extendstyle="1100">
 					</image>
 					<label name="stationId" rect="40,20,10,30" text="" color="#0"
-                        font-size="16" h-align="left" v-align="center" extendstyle="1111"
-                        border="false" visible="false" />
-					<label name="stationName" rect="50,10,420,50" text="" color="#0"
 						font-size="16" h-align="left" v-align="center" extendstyle="1111"
-						border="false" />
+						border="false" visible="false" />
+					<label name="stationName" rect="50,10,300,50" text="" color="#0"
+						font-size="30" h-align="left" v-align="center" extendstyle="1111"
+						border="false" font-family="微软雅黑" />
+					<label name="stationDistance" rect="390,10,80,50" text="923米"
+						color="#0" font-size="30" h-align="left" v-align="center"
+						extendstyle="1111" border="false" font-family="微软雅黑" />
 				</button>
 			</node>
 
-			<!-- 站点搜索对话框 -->
-			<node name="stationSearchDialog" rect="0,66,480,734" visible="false"
+			<!-- 页面底部，站点选择方式  -->
+			<node name="footerNode" rect="0,720,480,80" extendstyle="1111">
+				<image rect="0,0,480,80" src="file://image/bottom_bg.png"
+					style="autosize" extendstyle="1111">
+				</image>
+				<button name="button1" rect="20,1,96,75" border="false" text=""
+					color="#ffffff" OnSelect="bottomMenuSelect" extendstyle="1111"
+					data="1">
+					<image rect="0,0,96,75" src="file://image/ic_back_home.png"
+						style="autosize" extendstyle="1111">
+					</image>
+				</button>
+				<button name="button1" rect="136,1,96,75" border="false"
+					text="" color="#ffffff" OnSelect="bottomMenuSelect" extendstyle="1111"
+					data="2">
+					<image rect="0,0,96,75" src="file://image/ic_location.png"
+						style="autosize" extendstyle="1111">
+					</image>
+				</button>
+				<button name="button1" rect="252,1,96,75" border="false"
+					text="" color="#ffffff" OnSelect="bottomMenuSelect" extendstyle="1111"
+					data="3">
+					<image rect="0,0,96,75" src="file://image/ic_take_pic.png"
+						style="autosize" extendstyle="1111">
+					</image>
+				</button>
+				<button name="button1" rect="368,1,96,75" border="false"
+					text="" color="#ffffff" OnSelect="bottomMenuSelect" extendstyle="1111"
+					data="4">
+					<image rect="0,0,96,75" src="file://image/search.png" style="autosize"
+						extendstyle="1111">
+					</image>
+				</button>
+			</node>
+
+			<!-- GPS方式站点搜索对话框 -->
+			<node name="gpsSearchDialog" rect="0,0,480,800" visible="false"
 				enable="false" extendstyle="1111">
-				<button rect="0,0,480,734" extendstyle="1111" OnSelect="hideSearchDialog" />
+				<button rect="0,0,480,800" extendstyle="1111" OnSelect="hideGpsSearchDialog" />
 				<!-- 对话框内容  -->
 				<node rect="20,200,440,300" extendstyle="1111">
 					<shadow rect="0,0,440,300" color="#f2f2f2" alpha="255"
@@ -87,7 +119,7 @@
 					<node name="dlgTitle" rect="0,0,440,50" extendstyle="1111">
 						<image rect="0,0,440,50" src="file://image/tab_s.png" style="autosize"
 							extendstyle="1111">
-							<label rect="10,0,440,50" text="站点选择" font-family="微软雅黑"
+							<label rect="10,0,440,50" text="站点范围搜索" font-family="微软雅黑"
 								font-size="24" v-align="center"></label>
 						</image>
 					</node>
@@ -99,7 +131,42 @@
 					</edit>
 					<label rect="350,80,40,50" text="米" font-family="微软雅黑"
 						font-size="24" v-align="center"></label>
-					<button name="" rect="160,170,120,45" OnSelect="doSearch"
+					<button name="" rect="160,170,120,45" OnSelect="getNearbyStationByRadius"
+						normal="normal" extendstyle="1111">
+						<image name="normal" rect="0,0,120,45" src="file://image/button1_normal.png"
+							style="autosize" extendstyle="1111">
+						</image>
+						<label rect="0,0,127,45" text="确定" font-family="微软雅黑"
+							font-size="24" h-align="center" v-align="center"></label>
+					</button>
+				</node>
+			</node>
+
+			<!-- 模糊搜索对话框 -->
+			<node name="fuzzyNameSearchDialog" rect="0,0,480,800" visible="false"
+				enable="false" extendstyle="1111">
+				<button rect="0,0,480,800" extendstyle="1111"
+					OnSelect="hideFuzzyNameSearchDialog" />
+				<!-- 对话框内容  -->
+				<node rect="20,200,440,300" extendstyle="1111">
+					<shadow rect="0,0,440,300" color="#f2f2f2" alpha="255"
+						extendstyle="1111">
+					</shadow>
+					<node name="fuzzySearchdlgTitle" rect="0,0,440,50"
+						extendstyle="1111">
+						<image rect="0,0,440,50" src="file://image/tab_s.png" style="autosize"
+							extendstyle="1111">
+							<label rect="10,0,440,50" text="站点名称搜索" font-family="微软雅黑"
+								font-size="24" v-align="center"></label>
+						</image>
+					</node>
+					<label rect="10,80,100,50" text="站点名称：" font-family="微软雅黑"
+						font-size="24" v-align="center"></label>
+					<edit name="stationNameEdit" rect="110,80,230,50" text=""
+						enable="true" border="true" font-family="微软雅黑" font-size="24"
+						v-center="true" h-align="center" extendstyle="1111">
+					</edit>
+					<button name="" rect="160,170,120,45" OnSelect="doFuzzyNameSearch"
 						normal="normal" extendstyle="1111">
 						<image name="normal" rect="0,0,120,45" src="file://image/button1_normal.png"
 							style="autosize" extendstyle="1111">
@@ -115,6 +182,7 @@
 
     require 'com_wondertek_dw.common.framework'
     require 'framework.map'
+    require 'framework.barcode'
     local rootSprite = nil
     local respValue = nil -- 站点列表值
     local planId = nil
@@ -122,8 +190,8 @@
     local total = 0
     local page = 1
     local isSimulate = true
-    ---------------------------------------callbacks--------------------------------
-    -- @brief root子节点创建完事件
+    ---------------------------------------回调函数列表--------------------------------
+    -- root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
         rootSprite = sprite
         -- 获取巡检计划页面传来的计划ID和模板ID
@@ -131,15 +199,15 @@
         planId = Reg:getString(regHandle, 'planId')
         templateId = Reg:getString(regHandle, 'templateId')
     end
-    -- @brief root节点消息方法
+    -- root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
             getNearbyStationByDefaultRadius()
             elseif msg == MSG_DEACTIVATE then
         end
     end
-    -- @brief 插件消息方法
-    function bodyOnPluginEvent(msg)
+    -- 插件消息方法
+    function bodyOnPluginEvent(msg, param)
         if msg == 1001 then
             -- 请求默认范围内的基站列表
             -- 获取当前位置的经纬度
@@ -151,10 +219,10 @@
             Log:write('get current position by gps has successed, msg no. is 1001.')
             -- 请求附近的基站列表
             local defaultRadius = 100000
-            local param = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&value=%s&radius=%s&page=%s',
+            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&value=%s&radius=%s&page=%s',
             planId, posValue, defaultRadius, page)
-            local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', param)
-            Http:request('stationList', requestURL, 1003)
+            local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
+            Http:request('stationList', requestURL, 1004)
        elseif msg == 1002 then
             -- 请求指定范围内的基站列表
             -- 获取当前位置的经纬度
@@ -166,14 +234,21 @@
             Log:write('get current position by gps has successed, msg no. is 1002.')
             -- 请求附近的基站列表
             local radius = Sprite:getText(Sprite:findChild(rootSprite, 'radiusEdit'))
-            local param = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&value=%s&radius=%s&page=%s',
+            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&value=%s&radius=%s&page=%s',
             planId, posValue, radius, page)
-            local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', param)
-            Http:request('stationList', requestURL, 1003)
+            local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
+            Http:request('stationList', requestURL, 1004)
        elseif msg == 1003 then
-            -- 删除原来的列表
-            local listView = Sprite:findChild(rootSprite, 'listview1')
-            ListView:removeAllItems(listView)
+            -- 二维码搜索
+            local path = Param:getString(param, 0) -- 条码图片路径
+            local code = Param:getString(param, 1) -- 解码后的文本
+            Log:write('二维码解码后的文本为:'..code)
+            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=3&value=%s',
+            planId, code)
+            local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
+            Http:request('stationList', requestURL, 1004)
+       elseif msg == 1004 then
+            -- 服务端返回结果解析
             -- 解析返回的列表
             local resp = Http:jsonDecode('stationList')
             Log:write(resp.value)
@@ -186,6 +261,9 @@
                 Loading:close()
                 return
             end
+             -- 删除原来的列表
+            local listView = Sprite:findChild(rootSprite, 'listview1')
+            ListView:removeAllItems(listView)
             total = resp['total']
             respValue = resp.value
             Log:write('remote server responsed with value:',respValue)
@@ -194,32 +272,17 @@
             ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listitem'), len, 'loadListItem')
             ListView:adjust(listView)
             Loading:close()
-            -- 隐藏搜索对话框
-            hideSearchDialog(Sprite:findChild(rootSprite, 'stationSearchDialog'))
+            -- 隐藏所有的对话框
+            hideGpsSearchDialog()
+            hideFuzzyNameSearchDialog()
         end
     end
-    -- @brief 按键响应处理
+    -- 按键响应处理
     function mainNodeOnKeyUp(sprite, kc)
         if kc == Key.F2 then -- 按下返回键
             doBack()
             return 1
         end
-    end
-    -- 搜索按钮响应处理,显示搜索对话框
-    function showSearchDialog(sprite)
-        local searchDialog = Sprite:findChild(rootSprite, "stationSearchDialog")
-        Sprite:setVisible(searchDialog, 1)
-        Sprite:setEnable(searchDialog, 1)
-    end
-    -- 隐藏搜索对话框相应处理
-    function hideSearchDialog(sprite)
-        local searchDialog = Sprite:findChild(rootSprite, "stationSearchDialog")
-        Sprite:setVisible(searchDialog, 0)
-        Sprite:setEnable(searchDialog, 0)
-    end
-    -- 搜索指定范围内的基站消息处理
-    function doSearch(sprite)
-        getNearbyStationByRadius()
     end
     -- 点击站点列表项处理函数
     function itemOnSelect(sprite)
@@ -232,50 +295,60 @@
         Reg:setString(regHandle, 'templateId', templateId)
         Reg:setString(regHandle, 'stationId', Sprite:getText(stationId))
         -- 跳转到巡检子项
-        --Scene:setReturn(Alias.xunjianzhandian, Alias.xunjianzhandian)
-        --Scene:go(Alias.xunjianzhandian, true)
+        Scene:setReturn(Alias.xunjianzhandian, Alias.xunjianEditEx)
+        Scene:go(Alias.xunjianEditEx)
     end
-    ---------------------------------------util functions---------------------------
+    -- 底部菜单按钮响应分发
+    function bottomMenuSelect(sprite)
+        local dataInfo = Sprite:getData(sprite)
+        if dataInfo == '1' then
+            goHome()
+            elseif dataInfo == '2' then
+            showGpsSearchDialog()
+            elseif dataInfo == '3' then
+            startBarCodeScanner()
+            elseif dataInfo == '4' then
+            showFuzzyNameSearchDialog()
+        end
+    end
+    ---------------------------------------界面操作函数列表---------------------------
+    -- 跳转到上一个页面
     function doBack()
         if (Loading:isShow() == true) then
             Loading:close()
         end
         Scene:back()
     end
-    -- 取得默认范围内的基站
-    function getNearbyStationByDefaultRadius()
-        if isSimulate == false then
-            -- 真机环境下，调用GPS获取当前位置
-            local observer = Plugin:getObserver()
-            Map:getCurPosition(observer, 1001)
-        else
-            -- 模拟环境下，设置默认经纬度
-            local posValue = '117.251339,31.849438'
-            -- 请求默认附近10km的基站列表
-            local defaultRadius = 100000
-            local param = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&value=%s&radius=%s&page=%s',
-            planId, posValue, defaultRadius, page)
-            local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', param)
-            Http:request('stationList', requestURL, 1003)
+    -- 跳转到首页
+    function goHome()
+        if (Loading:isShow() == true) then
+            Loading:close()
         end
-        Loading:show()
+        Scene:go(Alias.home)
     end
-    -- 请求指定范围内的基站
-    function getNearbyStationByRadius()
-        if isSimulate == false then
-            local observer = Plugin:getObserver()
-            Map:getCurPosition(observer, 1002)
-        else
-            -- 模拟环境下，设置默认经纬度
-            local posValue = '117.251339,31.849438'
-            -- 请求附近的基站列表
-            local radius = Sprite:getText(Sprite:findChild(rootSprite, 'radiusEdit'))
-            local param = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&value=%s&radius=%s&page=%s',
-            planId, posValue, radius, page)
-            local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', param)
-            Http:request('stationList', requestURL, 1003)
-        end
-        Loading:show()
+    -- 显示gps定位搜索对话框
+    function showGpsSearchDialog()
+        local searchDialog = Sprite:findChild(rootSprite, "gpsSearchDialog")
+        Sprite:setVisible(searchDialog, 1)
+        Sprite:setEnable(searchDialog, 1)
+    end
+    -- 隐藏gps定位搜索对话框
+    function hideGpsSearchDialog()
+        local searchDialog = Sprite:findChild(rootSprite, "gpsSearchDialog")
+        Sprite:setVisible(searchDialog, 0)
+        Sprite:setEnable(searchDialog, 0)
+    end
+    -- 显示模糊搜索对话框
+    function showFuzzyNameSearchDialog()
+        local searchDialog = Sprite:findChild(rootSprite, "fuzzyNameSearchDialog")
+        Sprite:setVisible(searchDialog, 1)
+        Sprite:setEnable(searchDialog, 1)
+    end
+    -- 隐藏模糊搜索对话框
+    function hideFuzzyNameSearchDialog()
+        local searchDialog = Sprite:findChild(rootSprite, "fuzzyNameSearchDialog")
+        Sprite:setVisible(searchDialog, 0)
+        Sprite:setEnable(searchDialog, 0)
     end
     -- 加载列表项
     function loadListItem(list, item, index)
@@ -304,12 +377,73 @@
         local stationIdSprite = Sprite:findChild(rootSprite, 'stationId')
         local stationName = Sprite:findChild(rootSprite, 'stationName')
         if isPatroled == 'Y' then
-            Sprite:setProperty(stationStatusImage, "src", "file://image/ball6.png")
+            Sprite:setProperty(stationStatusImage, "src", "file://image/s1.png")
             else
             Sprite:setProperty(stationStatusImage, "src", "")
         end
         Sprite:setProperty(stationIdSprite, "text", stationId)
         Sprite:setProperty(stationName, "text", '站点名称：'..stationNameText)
+    end
+    ---------------------------------------与服务端交互函数列表---------------------------
+    -- 取得默认范围内的基站
+    function getNearbyStationByDefaultRadius()
+        if isSimulate == false then
+            -- 真机环境下，调用GPS获取当前位置
+            local observer = Plugin:getObserver()
+            Map:getCurPosition(observer, 1001)
+            else
+            -- 模拟环境下，设置默认经纬度
+            local posValue = '117.251339,31.849438'
+            -- 请求默认附近10km的基站列表
+            local defaultRadius = 100000
+            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&value=%s&radius=%s&page=%s',
+            planId, posValue, defaultRadius, page)
+            local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
+            Http:request('stationList', requestURL, 1004)
+        end
+        Loading:show()
+    end
+    -- 请求指定范围内的基站
+    function getNearbyStationByRadius(sprite)
+        if isSimulate == false then
+            local observer = Plugin:getObserver()
+            Map:getCurPosition(observer, 1002)
+            else
+            -- 模拟环境下，设置默认经纬度
+            local posValue = '117.251339,31.849438'
+            -- 请求附近的基站列表
+            local radius = Sprite:getText(Sprite:findChild(rootSprite, 'radiusEdit'))
+            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&value=%s&radius=%s&page=%s',
+            planId, posValue, radius, page)
+            local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
+            Http:request('stationList', requestURL, 1004)
+        end
+        Loading:show()
+    end
+    -- 开始二维码扫描
+    function startBarCodeScanner()
+        if isSimulate == false then
+            local observer = Plugin:getObserver()
+            local ret1 = BarCode:setPreferences('front_light',
+                 'true') -- 开启闪光灯
+            local ret2 = BarCode:setPreferences('play_beep', 'true') -- 开启提示音
+            local ret3 = BarCode:setPreferences('vibrate', 'true') -- 开启震动
+            local ret = BarCode:startScanner(observer, 1003)
+            else
+            local code = '000001'
+            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=3&value=%s',
+            planId, code)
+            local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
+            Http:request('stationList', requestURL, 1004)
+        end
+    end
+    -- 根据站点名称进行搜索
+    function doFuzzyNameSearch(sprite)
+        local stationName = Sprite:getText(Sprite:findChild(rootSprite, 'stationNameEdit'))
+        local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=2&value=%s&page=%s',
+        planId, stationName, page)
+        local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
+        Http:request('stationList', requestURL, 1004)
     end
 ]]>
 </root>

@@ -37,34 +37,33 @@
 		</node>
 		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
 			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
-			<!--<node name="tabNode" rect="0,66,480,60" extendstyle="1111">
-				<image name="title" rect="0,0,480,60" border="false"
-					src="file://image/tab_n.png" style="autosize" extendstyle="1111"></image>
-				<button name="btnTab1" rect="0,0,240,60" text="" color="#ffffff"
-					extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
-					<image name="tabBg" rect="0,0,240,60" border="false"
-						src="file://image/btn_bg_n.png" style="sudoku-auto" sudoku="15,15,15,15"
-						extendstyle="1111"></image>
-					<label rect="0,0,240,60" text="待巡检任务" color="#ffffff"
-						v-align="center" h-align="center" font-size="22" extendstyle="1111" />
-				</button>
-					<button name="btnTab2" rect="160,0,160,60" text="" color="#ffffff"
-					extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
-					<image name="tabBg" rect="0,0,160,60" border="false"
-					src="file://image/btn_bg_n.png" style="sudoku-auto"
-					sudoku="15,15,15,15" extendstyle="1111"></image> <label
-					rect="0,0,160,60" text="已存巡检任务" color="#ffffff" v-align="center"
-					h-align="center" font-size="22" extendstyle="1111" /> </button>
-				
+			<!--
+				<node name="tabNode" rect="0,66,480,60" extendstyle="1111"> <image
+				name="title" rect="0,0,480,60" border="false"
+				src="file://image/tab_n.png" style="autosize"
+				extendstyle="1111"></image> <button name="btnTab1" rect="0,0,240,60"
+				text="" color="#ffffff" extendstyle="1111" OnSelect="tabOnSelect"
+				font-size="24" data="01"> <image name="tabBg" rect="0,0,240,60"
+				border="false" src="file://image/btn_bg_n.png" style="sudoku-auto"
+				sudoku="15,15,15,15" extendstyle="1111"></image> <label
+				rect="0,0,240,60" text="待巡检任务" color="#ffffff" v-align="center"
+				h-align="center" font-size="22" extendstyle="1111" /> </button>
+				<button name="btnTab2" rect="160,0,160,60" text="" color="#ffffff"
+				extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
+				<image name="tabBg" rect="0,0,160,60" border="false"
+				src="file://image/btn_bg_n.png" style="sudoku-auto"
+				sudoku="15,15,15,15" extendstyle="1111"></image> <label
+				rect="0,0,160,60" text="已存巡检任务" color="#ffffff" v-align="center"
+				h-align="center" font-size="22" extendstyle="1111" /> </button>
+
 				<button name="btnTab3" rect="240,0,240,60" text="" color="#ffffff"
-					extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="03">
-					<image name="tabBg" rect="0,0,240,60" border="false"
-						src="file://image/btn_bg_n.png" style="sudoku-auto" sudoku="15,15,15,15"
-						extendstyle="1111"></image>
-					<label rect="0,0,240,60" text="已巡检任务" color="#ffffff"
-						v-align="center" h-align="center" font-size="22" extendstyle="1111" />
-				</button>
-			</node>
+				extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="03">
+				<image name="tabBg" rect="0,0,240,60" border="false"
+				src="file://image/btn_bg_n.png" style="sudoku-auto"
+				sudoku="15,15,15,15" extendstyle="1111"></image> <label
+				rect="0,0,240,60" text="已巡检任务" color="#ffffff" v-align="center"
+				h-align="center" font-size="22" extendstyle="1111" /> </button>
+				</node>
 			-->
 			<node name="listNode" rect="0,60,480,645" extendstyle="1111">
 				<listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
@@ -219,18 +218,15 @@
         Sprite:killFocus(sprite)
         Sprite:releaseCapture(sprite)
         local index = tonumber(Sprite:getData(sprite))
-        
         -- 获取计划信息
         local planId = data.value[index].id
         local templateId = data.value[index].templateId
         Log:write(string.format('下标:%s 巡检计划Id=%s, 巡检模板Id=%s', index, planId, templateId))
-        
         -- 页面传值，保证值都是新的
         local regHandle = Reg:create('xunjianrenwu')
         Reg:clear(regHandle)
         Reg:setString(regHandle, 'planId', planId)
         Reg:setString(regHandle, 'templateId', templateId)
-        
         -- 页面跳转，跳转到站点列表
         Scene:setReturn(Alias.xunjianjihua, Alias.xunjianzhandian)
         Scene:go(Alias.xunjianzhandian, true)
