@@ -136,41 +136,36 @@
 
     require 'com_wondertek_dw.common.framework'
     local rootSprite
-    local errorListTotalHeight = 0
-    local curErrorBtn
-    local curXunjianBtn
-    local curresult
-    local curzhuanshen
-    local curhuifu
-    regHandle=Reg:create('daiban')
-    local id
-    local taskcode
-    local pid
-    local step
-    local stepdata 
-    local flag 
+  
+    regHandle=Reg:create('useInfo')
+    local userid
+    local username
+    local flag
+    local phone
+   
     local data = {}
 
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
         rootSprite = sprite
-       --@ local xunjianNode = Sprite:findChild(rootSprite, 'xunjianNode')
-        --@setAllShoworHide(xunjianNode, 1)
-        
         
     end
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
-             --id= Reg:getString(regHandle,'id') 
-           name= Reg:getString(regHandle,'name') 
-           phone= Reg:getString(regHandle,'phone') 
-           dept= Reg:getString(regHandle,'dept') 
-           --stepdata = Reg:getString(regHandle,'stepdata')
-          -- flag = Reg:getString(regHandle,'flag')
-           --loadRequest()
- fillContent()
+            flag= Reg:getString(regHandle,'flag') 
+            if flag=='1' then
+                username= Reg:getString(regHandle,'username') 
+           
+                phone= Reg:getString(regHandle,'phone') 
+                fillZancunContent()
+            else
+                userid= Reg:getString(regHandle,'userid') 
+                Log:write('userid=================',userid)
+                loadRequest()
+            end
+            
             elseif msg == MSG_DEACTIVATE then
         end
     end
@@ -178,7 +173,7 @@
     function bodyOnPluginEvent(msg)
         if Loading:isShow() then Loading:close() end
         if msg == 101 then
-            data = Http:jsonDecode('daibandetail_data')
+            data = Http:jsonDecode('txldetail_data')
             Log:write("data101 = ", data)
             if not data or type(data) ~= 'table' then
                 Dialog:show(rootSprite, '返回数据格式错误', 'ok')
@@ -187,7 +182,7 @@
             
             if data ~= nil then
                 if data.code == '0' then
-                   
+                    Log:write('data=================',data)
                     fillContent()
                     else
                     Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
@@ -195,45 +190,7 @@
                 else
                 Dialog:show(rootSprite, '未知错误！', 'ok')
             end
-            elseif msg==102 then
-
-            data = Http:jsonDecode('daibanqianshou')
-            Log:write("data101 = ", data)
-            if not data or type(data) ~= 'table' then
-                Dialog:show(rootSprite, '返回数据格式错误', 'ok')
-                return
-            end
             
-            if data ~= nil then
-                if data.code == '0' then
-                    Scene:setReturn(Alias.home, Alias.daibangongdan)
-                    Scene:go(Alias.daibangongdan)
-                    else
-                    Dialog:show(rootSprite, '提交失败，请稍后再试！', 'ok')
-                end
-                else
-                Dialog:show(rootSprite, '未知错误！', 'ok')
-            end
-            elseif msg==103 then
-            data = Http:jsonDecode('daibanhuidan')
-            Log:write("data101 = ", data)
-            if not data or type(data) ~= 'table' then
-                Dialog:show(rootSprite, '返回数据格式错误', 'ok')
-                return
-            end
-            
-            if data ~= nil then
-                if data.code == '0' then
-                    Scene:setReturn(Alias.home, Alias.daibangongdan)
-                    Scene:go(Alias.daibangongdan)
-                    else
-                    Dialog:show(rootSprite, '提交失败，请稍后再试！', 'ok')
-                end
-                else
-                Dialog:show(rootSprite, '未知错误！', 'ok')
-            end
-            
-
             elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
             elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
             Log:write('拨号失败')
@@ -250,10 +207,10 @@
     end
     ---------------------------------------util functions---------------------------
      function loadRequest()
-        local param =  '&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&step='..step
+        local param =  '&usercode='..userid
         Log:write("param = ", param)
-        local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
-        Http:request('daibandetail_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbtaskdetail'})
+        local reqURL = 'http://61.191.25.238:7011/nbspweb/webservice/addressList!doWebservice.action'
+        Http:request('txldetail_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbtxldetail'..param})
         Loading:show(rootSprite)
     end
     function fillContent()
@@ -264,82 +221,33 @@
         local contentnode= Sprite:findChild(rootSprite, 'content')
         local typenode= Sprite:findChild(rootSprite, 'typenode')
         
-        Sprite:setProperty(Sprite:findChild(typenode, "lblcode"), 'text', phone)
-        Sprite:setProperty(Sprite:findChild(taskidnode, "lblcode"), 'text', '00123256')
-        Sprite:setProperty(Sprite:findChild(titlenode, 'lblcode'), 'text', name)
-        Sprite:setProperty(Sprite:findChild(timenode, 'lblcode'), 'text', dept)
+        Sprite:setProperty(Sprite:findChild(typenode, "lblcode"), 'text','')
+        Sprite:setProperty(Sprite:findChild(taskidnode, "lblcode"), 'text',data.userid)
+        Sprite:setProperty(Sprite:findChild(titlenode, 'lblcode'), 'text', data.username)
+        Sprite:setProperty(Sprite:findChild(timenode, 'lblcode'), 'text', data.orgname)
         Sprite:setProperty(Sprite:findChild(contentnode, 'hideLabel'), 'text', '')
-        local sampleList = Sprite:findChild(rootSprite, "sampleList")
-        local editList = Sprite:findChild(sampleList, "editList")
-       
-        local x,y,w,h = Sprite:getRect(editList)
-        Sprite:setRect(editList, x,y,w, errorListTotalHeight)
-        Sprite:setRect(Sprite:getParent(editList), x,y,w, errorListTotalHeight)
-        ListView:adjust(editList)
-        ListView:adjust(sampleList)
-        Log:write('11111', Sprite:getRect(sampleList))
+ 
+    end
+
+    function fillZancunContent()
+        
+        local taskidnode= Sprite:findChild(rootSprite, 'Codenode')
+        local titlenode= Sprite:findChild(rootSprite, 'titlenode')
+        local timenode= Sprite:findChild(rootSprite, 'timenode')
+        local contentnode= Sprite:findChild(rootSprite, 'content')
+        local typenode= Sprite:findChild(rootSprite, 'typenode')
+        
+        Sprite:setProperty(Sprite:findChild(typenode, "lblcode"), 'text', phone)
+        Sprite:setProperty(Sprite:findChild(taskidnode, "lblcode"), 'text', '')
+        Sprite:setProperty(Sprite:findChild(titlenode, 'lblcode'), 'text', username)
+        Sprite:setProperty(Sprite:findChild(timenode, 'lblcode'), 'text', '')
+        Sprite:setProperty(Sprite:findChild(contentnode, 'hideLabel'), 'text', '')
+   
     end
     
+    
    
-    function submitOnSelect(sprite)   
-     Dialog:show('工单处理提示：','是否确定提交此工单？','ok_cancel','okCallback','cancelCallback')
-     end
-     function okCallback()
-        local url='http://61.191.25.238:7011/nbspweb/webservice/workorder!doWebservice.action'
-        local param
-        --签收处理
-        if stepdata=='1' then
-        local qianshouNode= Sprite:findChild(rootSprite, 'qianshouNode')
-        local contentnode= Sprite:findChild(qianshouNode, 'chulicontent')
-        local itemNode= Sprite:findChild(qianshouNode, 'itemNode')
-        local xunjianNode= Sprite:findChild(qianshouNode, 'xunjianNode')
-        local content=Sprite:getText(Sprite:findChild(contentnode, 'edit'))
-        local signflag=Sprite:getData(Sprite:findChild(itemNode,'errorBtn'))
-        local patrolgroupcode =Sprite:getData(Sprite:findChild(xunjianNode,'xunjianBtn'))
-        if signflag=='01' then
-            signflag='pass'
-            elseif signflag=='02' then
-                signflag='untread'
-                end
-
-        param = '&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&step='..step..'&signflag='..signflag..'&signdetail='..content..'&patrolgroupcode=zy'
-        Log:write("param = ", param)
-
-        local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
-        Http:request('daibanqianshou', reqURL, 102, {useCache = false, method = 'post', postData='cmd=wlbtaskdealsign'})
-        Loading:show(rootSprite)
-        elseif stepdata=='2' then
-
-            elseif stepdata=='3' then
-                Log:write('```````````````````````````````````````````')
-                    local huidanNode= Sprite:findChild(rootSprite, 'huidan')
-                    local contentnode= Sprite:findChild(huidanNode, 'chulicontent')
-                    local resultNode= Sprite:findChild(huidanNode, 'resultNode')
-                    
-                    local content=Sprite:getText(Sprite:findChild(contentnode, 'edit'))
-                    local issubmit=Sprite:getData(Sprite:findChild(resultNode,'resultBtn'))
-
-                    if issubmit=='01' then
-                        issubmit='0'
-                        elseif issubmit=='02' then
-                            issubmit='1'
-                        end
-                    param = '&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&step='..step..'&issubmit='..issubmit..'&remark='..content
-                    
-                    local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
-                    Log:write("param = ", param)
-                    Http:request('daibanhuidan', reqURL, 103, {useCache = false, method = 'post', postData='cmd=wlbtaskdealrequest'})
-                    Loading:show(rootSprite)
-                    
-        end
-           --Scene:setReturn(Alias.home, Alias.daibangongdan)
-           --Scene:go(Alias.daibangongdan)
-     end
-     function cancelCallback()
-           if Dialog:isShow() then
-           Dialog:close() 
-           end
-     end
+  
      
     function sendSMSOnSelect(sprite)
         Sprite:releaseCapture(sprite)
@@ -355,7 +263,12 @@
         if smscontent==nil or smscontent=='' then
         Dialog:show(rootSprite, '短信内容为空！', 'ok')
         elseif phone ~= nil and phone ~= '' then
-            Util:sendSMS(phone, smscontent)
+            if Util:sendSMS(phone, smscontent) then
+                Dialog:show(rootSprite, '发送成功！', 'ok')
+                else
+                Dialog:show(rootSprite, '发送失败，请稍后再试！', 'ok')
+            end
+            --Util:sendSMS(phone, smscontent)
             else
             Dialog:show(rootSprite, '电话号码为空！', 'ok')
         end
@@ -367,15 +280,19 @@
         --Sprite:setProperty(Sprite:findChild(typenode, "lblcode"), 'text', phone)
         local phone = Sprite:getText(Sprite:findChild(typenode, "lblcode")) 
         if phone ~= nil and phone ~= '' then
-            Util:openCallDialog('callFinished',phone, 0)
+            if Util:openCallDialog('callFinished',phone, 0) then
+
+            else
+               Dialog:show(rootSprite, '调用接口失败，请检查手机设置！', 'ok')
+           end
+
+            
             else
             Dialog:show(rootSprite, '电话号码为空！', 'ok')
         end
     end
     
-    function cancelZancun()
-      Scene:back()
-    end
+   
     
     function doBack()
        Scene:back()
