@@ -66,7 +66,7 @@
 					<label name="stationName" rect="50,10,300,50" text="" color="#0"
 						font-size="30" h-align="left" v-align="center" extendstyle="1111"
 						border="false" font-family="微软雅黑" />
-					<label name="stationDistance" rect="390,10,80,50" text="923米"
+					<label name="stationDistance" rect="390,10,80,50" text=""
 						color="#0" font-size="30" h-align="left" v-align="center"
 						extendstyle="1111" border="false" font-family="微软雅黑" />
 				</button>
@@ -187,6 +187,7 @@
     local respValue = nil -- 站点列表值
     local planId = nil
     local templateId = nil
+    local code = nil
     local total = 0
     local page = 1
     local isSimulate = true
@@ -219,10 +220,10 @@
             Log:write('get current position by gps has successed, msg no. is 1001.')
             -- 请求附近的基站列表
             local defaultRadius = 100000
-            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&value=%s&radius=%s&page=%s',
+            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&curLoc=%s&value=%s&page=%s',
             planId, posValue, defaultRadius, page)
             local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
-            Http:request('stationList', requestURL, 1004)
+            Http:request('stationList', requestURL, 1006)
        elseif msg == 1002 then
             -- 请求指定范围内的基站列表
             -- 获取当前位置的经纬度
@@ -234,20 +235,46 @@
             Log:write('get current position by gps has successed, msg no. is 1002.')
             -- 请求附近的基站列表
             local radius = Sprite:getText(Sprite:findChild(rootSprite, 'radiusEdit'))
-            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&value=%s&radius=%s&page=%s',
+            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&curLoc=%s&value=%s&page=%s',
             planId, posValue, radius, page)
             local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
-            Http:request('stationList', requestURL, 1004)
+            Http:request('stationList', requestURL, 1006)
        elseif msg == 1003 then
-            -- 二维码搜索
+            -- 获取扫描的二维码
             local path = Param:getString(param, 0) -- 条码图片路径
-            local code = Param:getString(param, 1) -- 解码后的文本
+            code = Param:getString(param, 1) -- 解码后的文本
             Log:write('二维码解码后的文本为:'..code)
-            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=3&value=%s',
-            planId, code)
+            -- 请求当前的位置
+            local observer = Plugin:getObserver()
+            Map:getCurPosition(observer, 1004)
+      elseif msg == 1004 then
+            -- 根据二维码进行搜索
+            -- 获取当前位置的经纬度
+            local postData = Param:getString(param, 0)
+            local latitude = postData.latitude
+            local longitude = postData.longitude
+            local posValue = string.format('%s,%s', longitude, latitude)
+            Dialog:show('当前经纬度:', posValue, 'ok')
+            Log:write('get current position by gps has successed, msg no. is 1002.')
+            -- 请求二维码搜索
+            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=3&curLoc=%s&value=%s&page=%s',
+            planId, posValue, code, page)
             local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
-            Http:request('stationList', requestURL, 1004)
-       elseif msg == 1004 then
+            Http:request('stationList', requestURL, 1006)
+      elseif msg == 1005 then
+            -- 根据站点名称进行搜索
+            -- 获取当前位置的经纬度
+            local postData = Param:getString(param, 0)
+            local latitude = postData.latitude
+            local longitude = postData.longitude
+            local posValue = string.format('%s,%s', longitude, latitude)
+            -- 请求名称模糊搜索
+            local stationName = Sprite:getText(Sprite:findChild(rootSprite, 'stationNameEdit'))
+            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=2&curLoc=%s&value=%s&page=%s',
+            planId, posValue, stationName, page)
+            local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
+            Http:request('stationList', requestURL, 1006)
+      elseif msg == 1006 then
             -- 服务端返回结果解析
             -- 解析返回的列表
             local resp = Http:jsonDecode('stationList')
@@ -261,7 +288,7 @@
                 Loading:close()
                 return
             end
-             -- 删除原来的列表
+            -- 删除原来的列表
             local listView = Sprite:findChild(rootSprite, 'listview1')
             ListView:removeAllItems(listView)
             total = resp['total']
@@ -275,6 +302,9 @@
             -- 隐藏所有的对话框
             hideGpsSearchDialog()
             hideFuzzyNameSearchDialog()
+       else
+            if Loading:isShow() then Loading:close() end
+            Dialog:show('未知插件消息:'..msg)
         end
     end
     -- 按键响应处理
@@ -371,11 +401,17 @@
         local stationId = itemValue.stationId
         local stationNameText = itemValue.stationName
         local isPatroled = itemValue.isPatroled
+        local distance = itemValue.distance
+        local i,j = string.find(itemValue.distance, '%.')
+        if i >= 1 then
+            distance = string.sub(itemValue.distance, 1, i-1)
+        end
         Log:write(string.format('station_id:%s, station_name=%s, is_patroled:%s', stationId, stationNameText, isPatroled))
         -- 设置列表项的值
         local stationStatusImage = Sprite:findChild(rootSprite, 'stationStatusImage')
         local stationIdSprite = Sprite:findChild(rootSprite, 'stationId')
         local stationName = Sprite:findChild(rootSprite, 'stationName')
+        local stationDistance = Sprite:findChild(rootSprite, 'stationDistance')
         if isPatroled == 'Y' then
             Sprite:setProperty(stationStatusImage, "src", "file://image/s1.png")
             else
@@ -383,6 +419,7 @@
         end
         Sprite:setProperty(stationIdSprite, "text", stationId)
         Sprite:setProperty(stationName, "text", '站点名称：'..stationNameText)
+        Sprite:setProperty(stationDistance, "text", distance..'米')
     end
     ---------------------------------------与服务端交互函数列表---------------------------
     -- 取得默认范围内的基站
@@ -396,10 +433,10 @@
             local posValue = '117.251339,31.849438'
             -- 请求默认附近10km的基站列表
             local defaultRadius = 100000
-            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&value=%s&radius=%s&page=%s',
+            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&curLoc=%s&value=%s&page=%s',
             planId, posValue, defaultRadius, page)
             local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
-            Http:request('stationList', requestURL, 1004)
+            Http:request('stationList', requestURL, 1006)
         end
         Loading:show()
     end
@@ -413,10 +450,10 @@
             local posValue = '117.251339,31.849438'
             -- 请求附近的基站列表
             local radius = Sprite:getText(Sprite:findChild(rootSprite, 'radiusEdit'))
-            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&value=%s&radius=%s&page=%s',
+            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&curLoc=%s&value=%s&page=%s',
             planId, posValue, radius, page)
             local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
-            Http:request('stationList', requestURL, 1004)
+            Http:request('stationList', requestURL, 1006)
         end
         Loading:show()
     end
@@ -425,25 +462,38 @@
         if isSimulate == false then
             local observer = Plugin:getObserver()
             local ret1 = BarCode:setPreferences('front_light',
-                 'true') -- 开启闪光灯
+            'true') -- 开启闪光灯
             local ret2 = BarCode:setPreferences('play_beep', 'true') -- 开启提示音
             local ret3 = BarCode:setPreferences('vibrate', 'true') -- 开启震动
             local ret = BarCode:startScanner(observer, 1003)
-            else
-            local code = '000001'
-            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=3&value=%s',
-            planId, code)
+         else
+            -- 模拟环境下，设置默认经纬度
+            local posValue = '117.251339,31.849438'
+            -- 模拟环境下，默认二维码
+            local code = 'a34ee'
+            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=3&curLoc=%s&value=%s&page=%s',
+            planId, posValue, code, page)
             local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
-            Http:request('stationList', requestURL, 1004)
+            Http:request('stationList', requestURL, 1006)
+            Loading:show()
         end
     end
     -- 根据站点名称进行搜索
     function doFuzzyNameSearch(sprite)
-        local stationName = Sprite:getText(Sprite:findChild(rootSprite, 'stationNameEdit'))
-        local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=2&value=%s&page=%s',
-        planId, stationName, page)
-        local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
-        Http:request('stationList', requestURL, 1004)
+        if isSimulate == false then
+            local observer = Plugin:getObserver()
+            Map:getCurPosition(observer, 1005)
+        else
+            -- 模拟环境下，设置默认经纬度
+            local posValue = '117.251339,31.849438'
+            -- 模拟环境下，默认搜索站点
+            local stationName = Sprite:getText(Sprite:findChild(rootSprite, 'stationNameEdit'))
+            local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=2&curLoc=%s&value=%s&page=%s',
+            planId, posValue, stationName, page)
+            local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
+            Http:request('stationList', requestURL, 1006)
+            Loading:show()
+        end
     end
 ]]>
 </root>
