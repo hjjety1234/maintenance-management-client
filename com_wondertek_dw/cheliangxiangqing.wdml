@@ -45,14 +45,13 @@
 			<node rect="0,66,480,734" extendstyle="1111">
 				<listview name="sampleList" rect="0,10,480,734" col="1"
 					extendstyle="1111">
-
 					<!-- 基本信息  -->
 					<list-item rect="0,0,480,170" extendstyle="1111">
 						<node name="baseSprite" rect="10,0,230,50" extendstyle="1111">
 							<label name="label1" rect="0,0,90,50" border="false" text="车牌号码："
 								h-align="left" v-align="center" color="#000000" font-size="22"
 								extendstyle="1111"></label>
-							<label name="carId" rect="100,0,120,50" border="false"
+							<label name="carNo" rect="100,0,120,50" border="false"
 								text="" h-align="left" v-align="center" color="#000000"
 								font-size="22" extendstyle="1111"></label>
 						</node>
@@ -60,7 +59,7 @@
 							<label name="label1" rect="0,0,90,50" border="false" text="车辆类型："
 								h-align="left" v-align="center" color="#000000" font-size="22"
 								extendstyle="1111"></label>
-							<label name="type" rect="100,0,120,50" border="false" text=""
+							<label name="carType" rect="100,0,120,50" border="false" text=""
 								h-align="left" v-align="center" color="#000000" font-size="22"
 								extendstyle="1111"></label>
 						</node>
@@ -90,7 +89,7 @@
 						</node>
 					</list-item>
 
-					<!-- 附件信息  -->
+					<!-- 附加信息  -->
 					<list-item rect="0,180,480,300" extendstyle="1111">
 						<!-- 驾驶员 -->
 						<node name="driverNode" rect="0,0,480,60" extendstyle="1111">
@@ -98,7 +97,7 @@
 								h-align="right" v-align="center" color="#000000" font-size="22"
 								extendstyle="1111"></label>
 							<label name="driver" v-align="center" h-align="left"
-								rect="150,0,292,60" text="" color="#000000" extendstyle="1111">
+								rect="150,0,292,60" text="" color="#000000" extendstyle="1111" font-size="22">
 							</label>
 						</node>
 						<!-- 驾驶员手机  -->
@@ -108,7 +107,7 @@
 								h-align="right" v-align="center" color="#000000" font-size="22"
 								extendstyle="1111"></label>
 							<label name="driverPhoneNo" v-align="center" h-align="left"
-								rect="150,0,292,60" text="" color="#000000" extendstyle="1111">
+								rect="150,0,292,60" text="" color="#000000" extendstyle="1111" font-size="22">
 							</label>
 						</node>
 						<!-- 产权属性 -->
@@ -118,7 +117,7 @@
 								h-align="right" v-align="center" color="#000000" font-size="22"
 								extendstyle="1111"></label>
 							<label name="propertyRights" v-align="center" h-align="left"
-								rect="150,0,292,60" text="" color="#000000" extendstyle="1111">
+								rect="150,0,292,60" text="" color="#000000" extendstyle="1111" font-size="22">
 							</label>
 						</node>
 						<!-- 代维公司  -->
@@ -127,7 +126,7 @@
 								h-align="right" v-align="center" color="#000000" font-size="22"
 								extendstyle="1111"></label>
 							<label name="company" v-align="center" h-align="left"
-								rect="150,0,292,60" text="" color="#000000" extendstyle="1111">
+								rect="150,0,292,60" text="" color="#000000" extendstyle="1111" font-size="22">
 							</label>
 						</node>
 						<!-- 车辆状态  -->
@@ -136,24 +135,21 @@
 								h-align="right" v-align="center" color="#000000" font-size="22"
 								extendstyle="1111"></label>
 							<label name="carStatus" v-align="center" h-align="left"
-								rect="150,0,292,60" text="" color="#000000" extendstyle="1111">
+								rect="150,0,292,60" text="" color="#000000" extendstyle="1111" font-size="22">
 							</label>
 						</node>
 					</list-item>
-                    
-                    <!-- 标注 -->
+
+					<!-- 标注 -->
 					<list-item rect="10,480,460,240" extendstyle="1111">
 						<node name="baseSprite" rect="10,10,440,220" extendstyle="1111">
 							<image rect="0,0,440,220" src="file://image/title_edit_bg.png"
 								style="sudoku-auto" extendstyle="1111" sudoku="20,20,20,20">
 							</image>
-							<edit name="edit" rect="10,10,410,190" border="false"
-								extendstyle="1111" multiline="true" font-size="25" max-size="140"
-								OnTextChanged="editOnTextChanged">
-								<label name="hideLabel" rect="0,0,410,190" text="备注"
-									color="#c0c0c0" extendstyle="1111" style="autosize" h-align="left"
-									v-align="top" font-size="24"></label>
-							</edit>
+							<textarea name="taskDetailNode" rect="10,10,410,190"
+								border="false" extendstyle="1111" multiline="true" font-size="22"
+								max-size="140">
+							</textarea>
 						</node>
 					</list-item>
 				</listview>
@@ -164,6 +160,10 @@
 
     require 'com_wondertek_dw.common.framework'
     local rootSprite
+    local carId = nil -- 车辆编号
+    local carNo = nil -- 车牌号码
+    local companyName = nil -- 公司名称
+    local carType = nil -- 车辆类型
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
@@ -178,12 +178,49 @@
     end
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg)
-        if msg == 101 then
-            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
-            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
-            Log:write('拨号失败')
-            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
-            Log:write('请求超时')
+       if msg == 101 then
+            -- 返回结果合法性判断
+            local resp = Http:jsonDecode('car_detail')
+            if (resp.code == nil or resp.code ~= '0') then
+                Dialog:show('', '服务端返回错误:'..getErrorCode(resp.code), 'ok')
+                Loading:close()
+                return
+            end
+            -- 解析返回结果
+            Log:write("服务端返回",resp)
+            local id = resp.id
+            local carno = resp.carno
+            local carstate = resp.carstate
+            local orgname = resp.orgname
+            local cartype = resp.cartype
+            local mentor = resp.mentor
+            local taskdetail = resp.taskdetail
+            -- 获取车辆详情字段的Sprite
+            local carNoSprite = Sprite:findChild(rootSprite, "carNo")
+            local carStatusSprite = Sprite:findChild(rootSprite, "carStatus")
+            local carTypeSprite = Sprite:findChild(rootSprite, "carType")
+            local driverSprite = Sprite:findChild(rootSprite, "driver")
+            local taskDetailNode = Sprite:findChild(rootSprite, "taskDetailNode")
+            local company = Sprite:findChild(rootSprite, "company")
+            -- 设置界面各字段值
+            if carNo ~= nil then
+                Sprite:setProperty(carNoSprite, 'text', carNo)
+            end
+            if carstate ~= nil then
+                Sprite:setProperty(carStatusSprite, 'text', carstate)
+            end
+            if cartype ~= nil then
+                Sprite:setProperty(carTypeSprite, 'text', cartype)
+            end
+            if mentor ~= nil then
+                Sprite:setProperty(driverSprite, 'text', mentor)
+            end
+            if company ~= nil then
+                Sprite:setProperty(company, 'text', orgname)
+            end
+            if taskdetail ~= nil then
+                Sprite:setProperty(taskDetailNode, 'text', taskdetail)
+            end
         end
     end
     -- @brief 按键响应处理
@@ -200,31 +237,16 @@
     end
     --@brief 获取车辆的详细信息
     function getCarInfo()
-        -- 合法性检查
-        if rootSprite == nil then
-            return
-        end
-        -- 获取车辆详情字段的Sprite
-        local carIdSprite = Sprite:findChild(rootSprite, "carId")
-        local carTypeSprite = Sprite:findChild(rootSprite, "carType")
-        local carBrandSprite = Sprite:findChild(rootSprite, "carBrand")
-        local carModelSprite = Sprite:findChild(rootSprite, "carModel")
-        local driverPhoneNoSprite = Sprite:findChild(rootSprite, "driverPhoneNo")
-        local propertyRightsSprite = Sprite:findChild(rootSprite, "propertyRights")
-        local companySprite = Sprite:findChild(rootSprite, "company")
-        --local carStatusSprite = Sprite:findChild(rootSprite, "carStatus")
         -- 获取车牌号码
-        local regHandle = Reg:create('car')
-        local carIdText = Reg:getString(regHandle, 'carId')
-        Log:write("DEBUG:getCarInfo->carIdText:", carIdText)
-        -- TODO:进行http请求，获取该车牌号下车辆的详细信息
-        -- 显示到界面上
-        Sprite:setProperty(carIdSprite, 'text', carIdText)
-    end
-    
-    function editOnTextChanged(sprite) 
-        local hideLabelSprite = Sprite:findChild(sprite, "hideLabel")
-        Sprite:setProperty(hideLabelSprite, "text", "")
+        local regHandle = Reg:create('carDetail')
+        carId = Reg:getString(regHandle, 'carId')
+        carNo = Reg:getString(regHandle, 'carNo')
+        companyName = Reg:getString(regHandle, 'companyName')
+        carType = Reg:getString(regHandle, 'carType')
+        -- 提交http请求
+        local requestParam = string.format('cmd=wlbcardetail&carcode=%s', carId)
+        local requestURL = getWholeUrl('nbspweb/webservice/car!doWebservice.action', requestParam)
+        Http:request('car_detail', requestURL, 101)
     end
 ]]>
 </root>
