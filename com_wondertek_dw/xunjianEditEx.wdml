@@ -170,11 +170,53 @@
                         v-center="true" extendstyle="1111" OnLostFocus="ErrorSave"></edit>
 
                     <button name="takePicBtn" rect="10,100,130,50" border="false"
-                        text="" color="#ffffff" OnSelect="takePicOnSelect"
+                        text="" color="#ffffff" OnSelect="doTakePic" data="0"
                         extendstyle="1111">
                         <image rect="0,0,130,50" src="file://image/take_pic.png"
                             style="autosize" extendstyle="1111">
                         </image>
+                    </button>
+                    <button name="pic1" rect="150,100,100,50" border="false"
+                        text="" color="#ffffff" OnSelect="picOnSelect"
+                        extendstyle="1111">
+                        <image name="bg" rect="0,0,100,50" src="" style="autosize"
+                            extendstyle="1111">
+                        </image>
+                    </button>
+                    <button name="pic2" rect="260,100,100,50" border="false"
+                        text="" color="#ffffff" OnSelect="picOnSelect"
+                        extendstyle="1111">
+                        <image name="bg" rect="0,0,100,50" src="" style="autosize"
+                            extendstyle="1111">
+                        </image>
+                    </button>
+                    <button name="pic3" rect="370,100,100,50" border="false"
+                        text="" color="#ffffff" OnSelect="picOnSelect"
+                        extendstyle="1111">
+                        <image name="bg" rect="0,0,100,50" src="" style="autosize"
+                            extendstyle="1111">
+                        </image>
+                    </button>
+                </node>
+            </node>
+
+            <!-- 收藏菜单  -->
+            <node name="ContextMenuNode" rect="0,720,480,80" border="false"
+                visible="false" enable="true" active="false" extendstyle="1111">
+                <image name="ContextMenuNodeBgImage" style="autosize" rect="0,0,480,80"
+                    src="file://image/tab_n.png" extendstyle="1111" />
+                <node name="FavListImg" rect="0,0,480,80" extendstyle="1111"
+                    visible="true">
+                    <button name="favListButton" rect="0,0,480,80"
+                        OnSelect="ContextMenuListItemOnSelect" extendstyle="1111">
+                        <image rect="182,18,40,40" src="file://image/bookmark1.png"
+                            style="autosize" border="false" extendstyle="1111" />
+                        <label name="noticeDate" rect="325,75,90,20" border="false"
+                            text="" h-align="right" v-align="center" color="#000000"
+                            font-size="15" extendstyle="1111"></label>
+                        <label name="label2" rect="228,18,120,40" border="false"
+                            text="我的上传" h-align="left" v-align="center" color="#000000"
+                            font-family="微软雅黑" font-size="24" extendstyle="1111"></label>
                     </button>
                 </node>
             </node>
@@ -214,6 +256,11 @@
     local curCodeContent
     local Inflag='0'  --进站标志位
     local resultId --巡检结果ID
+    local imageArray = {}
+    local subitemidArray = {}
+    local taskidArray = {}
+    local piccurrbtn
+    local imgnum=0 --记录上传图片的个数
 
     local TempID  --保存已上传的巡检子项ID
     ---------------------------------------callbacks--------------------------------
@@ -248,6 +295,19 @@
                 else
                 Dialog:show(rootSprite, '未知错误！', 'ok')
             end
+            elseif msg == 104 then
+            imgnum=imgnum+1
+            local uploadData = Http:xmlDecode('upload_url', 'RESULT')
+            Log:write("upload url:", updateData)
+            local url = uploadData.URL
+            Log:write('url', url)
+            local param = uploadData.PARAM
+            if param then
+                param = param .. '&'
+            else
+                param = ''
+            end
+            doRealUpload(url, param,imgnum)
             elseif msg == 105 then -- 进站请求
             local data = Http:jsonDecode('Indata')
             Log:write("data105 ================= ", data)
@@ -292,6 +352,10 @@
     -- @brief 按键响应处理
     function mainNodeOnKeyUp(sprite, kc)
         if kc == Key.F2 then -- 按下返回键
+            return 1
+            elseif kc==Key.F1 then--按下菜单键
+                local FavListNodeSprite = Sprite:findChild(rootSprite, "ContextMenuNode")
+                setAllShoworHide(FavListNodeSprite,1)
             return 1
         end
     end
@@ -623,7 +687,7 @@
             else
                 local url=getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
                 --local username = Config:get('username')
-                local param = '&usercode='..'jingxinhf'..'&resultId='..resultId..'&subitemId='..subitemId..'&patrolResult='..patrolResult..'&exception='
+                local param = '&usercode='..'jingxinhf'..'&resultId='..resultId..'&subitemId='..subitemId..'&patrolResult='..patrolResult..'&exception='..'&dealDetail='
                 Log:write("param = ", param)
                 Http:request('Submitdata', url, 103, {useCache = false, method = 'post', postData='cmd=wlbxunjianDeal'..param})
                 setAllShoworHide(Sprite:findChild(errorTitleNode,'SaveFlag'),1)
@@ -673,7 +737,7 @@
             else
                 local url=getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
                 --local username = Config:get('username')
-                local param = '&usercode='..'jingxinhf'..'&resultId='..resultId..'&subitemId='..subitemId..'&patrolResult='..patrolResult..'&exception='..exception
+                local param = '&usercode='..'jingxinhf'..'&resultId='..resultId..'&subitemId='..subitemId..'&patrolResult='..patrolResult..'&exception='..exception..'&dealDetail='..dealdetail
                 Log:write("param = ", param)
                 Http:request('Submitdata', url, 103, {useCache = false, method = 'post', postData='cmd=wlbxunjianDeal'..param})
                 setAllShoworHide(Sprite:findChild(errorTitleNode,'SaveFlag'),1)
@@ -725,6 +789,14 @@
                 exception=Sprite:getText(exEdit)
                 local doEdit = Sprite:findChild(errorHideNode,'doEdit')
                 dealdetail=Sprite:getText(doEdit)
+
+                --判断是否有图片 有图片则上传
+                if imageArray[1] ~= nil and imageArray[1] ~= '' then
+                    for k,v in pairs(imageArray) do
+                        getUploadUrl(v) 
+                    end
+                end
+
                 --下拉选择输入框
                 if inputFlag=='1' then
                     local errorTitleNode1=Sprite:findChild(subItemNode,'errorTitleNode1')
@@ -787,7 +859,7 @@
         else
             local url=getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
             --local username = Config:get('username')
-            local param = '&usercode='..'jingxinhf'..'&resultId='..resultId..'&subitemId='..subitemId..'&patrolResult='..patrolResult..'&exception='..exception
+            local param = '&usercode='..'jingxinhf'..'&resultId='..resultId..'&subitemId='..subitemId..'&patrolResult='..patrolResult..'&exception='..exception..'&dealDetail='..dealdetail
             Log:write("param = ", param)
             Http:request('Submitdata', url, 103, {useCache = false, method = 'post', postData='cmd=wlbxunjianDeal'..param})
                 
@@ -798,6 +870,66 @@
             end
         end
         
+    end
+    --获取图片的url地址
+    function getUploadUrl(photoPath) 
+        local _,_,fileName = string.find(photoPath, '([^/\\%.]+)%.?[^/\\]*$')
+        
+        local url = 'http://61.191.25.238:7011/nbspweb/upload/UGC_GetUploadUrl.html'
+        local param = 'FILE_NAME=' .. fileName .. '&C_TYPE=' .. 'jpg' .. '&C_LEN=' .. IO:fileSize(photoPath)
+        Log:write("-------------url upload------------", url .. param)
+        Http:request('upload_url', url, 104, {useCache = false, method = 'post', postData= param})
+    end
+
+    function doRealUpload(url, param,imgnum)
+        local _,_,fileName = string.find(imageArray[imgnum], '([^/\\%.]+)%.?[^/\\]*$')
+        local poststr = 'id=' .. taskidArray[imgnum] .. '&markid='..subitemidArray[imgnum]..'&interfaceMainType=3&usercode=' .. Config:get('username') .. '&uploadFileName=' .. fileName .. '.jpg'
+        --deleleUploadItems()
+        Upload:append(url, param .. poststr, imageArray[imgnum], fileName .. '.jpg', 'test', 'jpg')
+        
+    end
+    function doTakePic(sprite)
+        local fileName = 'ict' .. getCurDate()
+        local num=tonumber(Sprite:getData(sprite))
+        if num>2 then
+            local result = System:openCamera('onCameraDialog', 'file://image/' .. fileName .. '.jpg', 'jpg')
+            if result == 0 then
+                Dialog:show('提示', '相机打开失败!', 'ok')
+                return 1
+                else
+                    piccurrbtn=sprite
+                    Log:write('num==============',num)
+                    Sprite:setProperty(sprite,'data',tostring(num+1))
+            end
+            else
+            Dialog:show('提示', '最多拍3张照片!', 'ok')
+        end
+    end
+    function onCameraDialog(photoPath, photoType)
+
+        table.insert(imageArray, photoPath)
+        --预留存储巡检计划号、基站号、巡检子项号
+        
+        --table.insert(imageArray, photoPath)000001000599
+        table.insert(taskidArray, '000001000599')
+
+        Log:write("imageArray0", imageArray)
+        local errorHideNode = Sprite:getParent(piccurrbtn)
+        local subItemNode = Sprite:getParent(errorHideNode)
+        --存储子巡检项的ID号
+        table.insert(subitemidArray, Sprite:getData(subItemNode))
+        local dataflag=Sprite:getData(piccurrbtn)
+
+        local imgNode=Sprite:findChild(errorHideNode,'pic'..dataflag)
+
+        Sprite:setProperty(imgNode,'src',photoPath)
+        
+    end
+
+    function ContextMenuListItemOnSelect(sprite)
+        -- body
+        Scene:setReturn(Alias.xunjianSubmit, Alias.xunjianupload)
+        Scene:go(Alias.xunjianupload)
     end
 ]]>
 </root>
