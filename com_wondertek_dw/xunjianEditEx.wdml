@@ -80,9 +80,9 @@
                     <scrolltext name="mainTitleName" rect="10,0,440,50"
                         extendstyle="1111" font-size="22" font-style="bold" h-align="left" v-align="center"
                         color="#ffffff" scroll="true" step="2"></scrolltext>
-                    <button name="btnImg" rect="450,0,30,50" text="" color="#ffffff"
+                    <button name="btnImg" rect="0,0,480,50" text="" color="#ffffff"
                     extendstyle="1111" OnSelect="ImgOnSelect" font-size="24" data="1">   
-                        <image name="NodeImg" rect="13,20,7,10" src="file://image/up.png" style="autosize" extendstyle="1111" />
+                        <image name="NodeImg" rect="453,20,7,10" src="file://image/up.png" style="autosize" extendstyle="1111" />
                     </button>
                 </node>
                 <node name="subListviewNode" rect="0,50,480,50" extendstyle="1111" >
@@ -202,7 +202,7 @@
 
             <!-- 收藏菜单  -->
             <node name="ContextMenuNode" rect="0,720,480,80" border="false"
-                visible="false" enable="true" active="false" extendstyle="1111">
+                visible="false" enable="false" active="false" extendstyle="1111">
                 <image name="ContextMenuNodeBgImage" style="autosize" rect="0,0,480,80"
                     src="file://image/tab_n.png" extendstyle="1111" />
                 <node name="FavListImg" rect="0,0,480,80" extendstyle="1111"
@@ -889,10 +889,13 @@
         
     end
     function doTakePic(sprite)
+
+     
+
         local fileName = 'ict' .. getCurDate()
         local num=tonumber(Sprite:getData(sprite))
-        if num>2 then
-            local result = System:openCamera('onCameraDialog', 'file://image/' .. fileName .. '.jpg', 'jpg')
+        if num<4 then
+           -- local result = System:openCamera('onCameraDialog', 'file://image/' .. fileName .. '.jpg', 'jpg')
             if result == 0 then
                 Dialog:show('提示', '相机打开失败!', 'ok')
                 return 1
@@ -922,7 +925,9 @@
 
         local imgNode=Sprite:findChild(errorHideNode,'pic'..dataflag)
 
-        Sprite:setProperty(imgNode,'src',photoPath)
+        local bg=Sprite:findChild(imgNode,'bg')
+
+        Sprite:setProperty(bg,'src',photoPath)
         
     end
 
