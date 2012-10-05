@@ -56,4 +56,5 @@ Alias = {
     xunjianjihua = 'MODULE:\\com_wondertek_dw\\xunjianjihua.wdml', -- 巡检计划
     xunjianzhandian = 'MODULE:\\com_wondertek_dw\\xunjianzhandian.wdml', -- 巡检站点
     xunjianEditEx = 'MODULE:\\com_wondertek_dw\\xunjianEditEx.wdml', -- 巡检子项列表
+    xunjianupload = 'MODULE:\\com_wondertek_dw\\xunjianupload.wdml', -- 巡检上传
 }
