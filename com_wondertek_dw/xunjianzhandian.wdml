@@ -190,7 +190,7 @@
     local code = nil
     local total = 0
     local page = 1
-    local isSimulate = true
+    local isSimulate = false
     ---------------------------------------回调函数列表--------------------------------
     -- root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
@@ -261,7 +261,7 @@
             planId, posValue, code, page)
             local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
             Http:request('stationList', requestURL, 1006)
-      elseif msg == 1005 then
+       elseif msg == 1005 then
             -- 根据站点名称进行搜索
             -- 获取当前位置的经纬度
             local postData = Param:getString(param, 0)
@@ -274,7 +274,7 @@
             planId, posValue, stationName, page)
             local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
             Http:request('stationList', requestURL, 1006)
-      elseif msg == 1006 then
+            elseif msg == 1006 then
             -- 服务端返回结果解析
             -- 解析返回的列表
             local resp = Http:jsonDecode('stationList')
@@ -302,7 +302,7 @@
             -- 隐藏所有的对话框
             hideGpsSearchDialog()
             hideFuzzyNameSearchDialog()
-       else
+            else
             if Loading:isShow() then Loading:close() end
             Dialog:show('未知插件消息:'..msg)
         end
@@ -428,7 +428,7 @@
             -- 真机环境下，调用GPS获取当前位置
             local observer = Plugin:getObserver()
             Map:getCurPosition(observer, 1001)
-            else
+        else
             -- 模拟环境下，设置默认经纬度
             local posValue = '117.251339,31.849438'
             -- 请求默认附近10km的基站列表
@@ -445,7 +445,7 @@
         if isSimulate == false then
             local observer = Plugin:getObserver()
             Map:getCurPosition(observer, 1002)
-            else
+        else
             -- 模拟环境下，设置默认经纬度
             local posValue = '117.251339,31.849438'
             -- 请求附近的基站列表
@@ -466,7 +466,7 @@
             local ret2 = BarCode:setPreferences('play_beep', 'true') -- 开启提示音
             local ret3 = BarCode:setPreferences('vibrate', 'true') -- 开启震动
             local ret = BarCode:startScanner(observer, 1003)
-         else
+        else
             -- 模拟环境下，设置默认经纬度
             local posValue = '117.251339,31.849438'
             -- 模拟环境下，默认二维码
