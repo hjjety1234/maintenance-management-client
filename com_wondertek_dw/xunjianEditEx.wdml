@@ -23,7 +23,7 @@
                 <image name="titleBg" rect="0,0,480,66" src="file://image/title_bg.png"
                     extendstyle="1111" style="autosize" />
                 <button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
-                    OnSelect="isSave" extendstyle="1111">
+                    OnSelect="doBack" extendstyle="1111">
                     <image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
                         style="autosize" extendstyle="1111">
                     </image>
@@ -757,7 +757,7 @@
 
     function doBack(sprite)
         Scene:freeByHandle(rootSprite)
-        --Scene:back()
+        Scene:back()
     end
 
     --全部保存
@@ -807,8 +807,8 @@
                         patrolResult=Sprite:getText(errorTypeName)
                         
                         if patrolResult==nil or patrolResult=='' then
-                            Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok')
-                            return
+                         --   Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok')
+                         --   return
                         else
                             setAllShoworHide(Sprite:findChild(errorTitleNode1,'SaveFlag'),1)
                             HttpRequest(subitemId,patrolResult,exception,dealdetail)
@@ -824,8 +824,8 @@
                             
                             --if
                             if patrolResult==nil or patrolResult=='' then
-                                Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok')
-                                return
+                               -- Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok')
+                               -- return
                             else
                                 setAllShoworHide(Sprite:findChild(errorTitleNode2,'SaveFlag'),1)
                                 HttpRequest(subitemId,patrolResult,exception,dealdetail)
@@ -841,8 +841,8 @@
                             patrolResult=Sprite:getText(editInput)
                             
                             if patrolResult==nil or patrolResult=='' then
-                                Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok')
-                                return
+                                --Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok')
+                               --return
                             else
                                 setAllShoworHide(Sprite:findChild(errorTitleNode3,'SaveFlag'),1)
                                 HttpRequest(subitemId,patrolResult,exception,dealdetail)
@@ -933,6 +933,8 @@
 
     function ContextMenuListItemOnSelect(sprite)
         -- body
+		local FavListNodeSprite = Sprite:findChild(rootSprite, "ContextMenuNode")
+        setAllShoworHide(FavListNodeSprite,0)
         Scene:setReturn(Alias.xunjianEditEx, Alias.xunjianupload)
         Scene:go(Alias.xunjianupload)
     end
