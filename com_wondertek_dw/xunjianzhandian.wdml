@@ -212,12 +212,11 @@
         if msg == 1001 then
             -- 请求默认范围内的基站列表
             -- 获取当前位置的经纬度
-            local postData = Param:getString(param, 0)
-            local latitude = postData.latitude
-            local longitude = postData.longitude
-            local posValue = string.format('%s,%s', longitude, latitude)
-            Dialog:show('当前经纬度:', posValue, 'ok')
-            Log:write('get current position by gps has successed, msg no. is 1001.')
+            local postData = Json:loadString2Table(Param:getString(param, 0))
+            local latitude = tonumber(postData.latitude) / 1000000.0
+            local longitude = tonumber(postData.longitude) / 1000000.0
+            local posValue = string.format('%f,%f', longitude, latitude)
+            Log:write('消息号1001，当前经纬度'..posValue)
             -- 请求附近的基站列表
             local defaultRadius = 100000
             local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&curLoc=%s&value=%s&page=%s',
@@ -227,12 +226,11 @@
        elseif msg == 1002 then
             -- 请求指定范围内的基站列表
             -- 获取当前位置的经纬度
-            local postData = Param:getString(param, 0)
-            local latitude = postData.latitude
-            local longitude = postData.longitude
-            local posValue = string.format('%s,%s', longitude, latitude)
-            Dialog:show('当前经纬度:', posValue, 'ok')
-            Log:write('get current position by gps has successed, msg no. is 1002.')
+            local postData = Json:loadString2Table(Param:getString(param, 0))
+            local latitude = tonumber(postData.latitude) / 1000000.0
+            local longitude = tonumber(postData.longitude) / 1000000.0
+            local posValue = string.format('%f,%f', longitude, latitude)
+            Log:write('消息号1002，当前经纬度'..posValue)
             -- 请求附近的基站列表
             local radius = Sprite:getText(Sprite:findChild(rootSprite, 'radiusEdit'))
             local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&curLoc=%s&value=%s&page=%s',
@@ -250,12 +248,11 @@
       elseif msg == 1004 then
             -- 根据二维码进行搜索
             -- 获取当前位置的经纬度
-            local postData = Param:getString(param, 0)
-            local latitude = postData.latitude
-            local longitude = postData.longitude
-            local posValue = string.format('%s,%s', longitude, latitude)
-            Dialog:show('当前经纬度:', posValue, 'ok')
-            Log:write('get current position by gps has successed, msg no. is 1002.')
+            local postData = Json:loadString2Table(Param:getString(param, 0))
+            local latitude = tonumber(postData.latitude) / 1000000.0
+            local longitude = tonumber(postData.longitude) / 1000000.0
+            local posValue = string.format('%f,%f', longitude, latitude)
+            Log:write('消息号1004，当前经纬度'..posValue)
             -- 请求二维码搜索
             local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=3&curLoc=%s&value=%s&page=%s',
             planId, posValue, code, page)
@@ -264,17 +261,18 @@
        elseif msg == 1005 then
             -- 根据站点名称进行搜索
             -- 获取当前位置的经纬度
-            local postData = Param:getString(param, 0)
-            local latitude = postData.latitude
-            local longitude = postData.longitude
-            local posValue = string.format('%s,%s', longitude, latitude)
+            local postData = Json:loadString2Table(Param:getString(param, 0))
+            local latitude = tonumber(postData.latitude) / 1000000.0
+            local longitude = tonumber(postData.longitude) / 1000000.0
+            local posValue = string.format('%f,%f', longitude, latitude)
+            Log:write('消息号1005，当前经纬度'..posValue)
             -- 请求名称模糊搜索
             local stationName = Sprite:getText(Sprite:findChild(rootSprite, 'stationNameEdit'))
             local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=2&curLoc=%s&value=%s&page=%s',
             planId, posValue, stationName, page)
             local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
             Http:request('stationList', requestURL, 1006)
-            elseif msg == 1006 then
+       elseif msg == 1006 then
             -- 服务端返回结果解析
             -- 解析返回的列表
             local resp = Http:jsonDecode('stationList')
@@ -475,8 +473,8 @@
             planId, posValue, code, page)
             local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
             Http:request('stationList', requestURL, 1006)
-            Loading:show()
         end
+        Loading:show()
     end
     -- 根据站点名称进行搜索
     function doFuzzyNameSearch(sprite)
@@ -492,8 +490,8 @@
             planId, posValue, stationName, page)
             local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
             Http:request('stationList', requestURL, 1006)
-            Loading:show()
         end
+        Loading:show()
     end
 ]]>
 </root>
