@@ -13,12 +13,13 @@ package com.wondertek.activity;
 //import com.phonegap.DroidGap;
 import android.widget.AbsoluteLayout;
 //GDMAP
-//import com.mapabc.mapapi.core.GeoPoint;
-//import com.mapabc.mapapi.map.MapActivity;
-//import com.mapabc.mapapi.map.MapView;
-//import com.mapabc.mapapi.map.RouteMessageHandler;
-//import com.mapabc.mapapi.map.RouteOverlay;
+import com.mapabc.mapapi.core.GeoPoint;
+import com.mapabc.mapapi.map.MapActivity;
+import com.mapabc.mapapi.map.MapView;
+import com.mapabc.mapapi.map.RouteMessageHandler;
+import com.mapabc.mapapi.map.RouteOverlay;
 //import com.wondertek.plugins.alipay.AlixDemo;
+import com.wondertek.plugins.mapview.MapViewDLL;
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;
@@ -32,14 +33,15 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.ViewGroup;
 
 //baidu
 //public class AppActivity extends MapActivity {
 //phonegap
 //public class AppActivity extends DroidGap {
 //GDMAP
-//public class AppActivity extends MapActivity implements RouteMessageHandler {
-public class AppActivity extends Activity{
+public class AppActivity extends MapActivity implements RouteMessageHandler {
+// public class AppActivity extends Activity{
 	private static String SELF	= "AppActivity ";
 	private static AppActivity instance = null;
 	
@@ -71,6 +73,15 @@ public class AppActivity extends Activity{
 
 		VenusApplication.getInstance().addActivity(this);
 		//VenusApplication.getInstance().addActivity(AlixDemo.getInstance());
+		
+		//GDMAP
+		System.load(VenusApplication.appAbsPath + "/lib2/mapview/libmapview.so");        
+		MapViewDLL mapViewConten = MapViewDLL.getInstance(this);
+	       
+        ViewGroup mainview = VenusActivity.getInstance().GetBaseView();
+        
+        if(mainview != null)
+                mainview.addView(mapViewConten.gdMap.getMapView());
 	}
 //baidu
 //	public void initMap(BMapManager bMapManager)
@@ -190,32 +201,32 @@ public class AppActivity extends Activity{
 		return null;
     }
 //	GDMAP
-//	@Override
-//	public void onDrag(MapView arg0, RouteOverlay arg1, int arg2, GeoPoint arg3) {
-//		// TODO Auto-generated method stub
-//		
-//	}
-//
-//	@Override
-//	public void onDragBegin(MapView arg0, RouteOverlay arg1, int arg2,
-//			GeoPoint arg3) {
-//		// TODO Auto-generated method stub
-//		
-//	}
-//
-//	@Override
-//	public void onDragEnd(MapView arg0, RouteOverlay arg1, int arg2,
-//			GeoPoint arg3) {
-//		// TODO Auto-generated method stub
-//		
-//	}
-//
-//	@Override
-//	public boolean onRouteEvent(MapView arg0, RouteOverlay arg1, int arg2,
-//			int arg3) {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
+	@Override
+	public void onDrag(MapView arg0, RouteOverlay arg1, int arg2, GeoPoint arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onDragBegin(MapView arg0, RouteOverlay arg1, int arg2,
+			GeoPoint arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onDragEnd(MapView arg0, RouteOverlay arg1, int arg2,
+			GeoPoint arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean onRouteEvent(MapView arg0, RouteOverlay arg1, int arg2,
+			int arg3) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 	
 	public int getResID(String name, String defType)
 	{

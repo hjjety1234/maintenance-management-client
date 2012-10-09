@@ -3,6 +3,7 @@ package com.wondertek.plugins.mapview;
 import com.mapabc.mapapi.core.GeoPoint;
 import com.wondertek.plugins.mapview.gdmap.Constants;
 import com.wondertek.plugins.mapview.gdmap.GDMap;
+import com.wondertek.video.VenusApplication;
 
 import android.app.Activity;
 import android.os.Handler;
@@ -152,6 +153,8 @@ public class MapViewDLL{
 	}
 	
 	static {
-		System.loadLibrary("mapview");
+		  String libpath = VenusApplication.appAbsPath
+				    + "/lib2/mapview/libmapview.so";
+				  System.load(libpath);
 	}
 }

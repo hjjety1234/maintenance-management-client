@@ -8,8 +8,8 @@ public class ConnectionImpl {
 
 	public static String TAG_TYPE_WAP_APN			= "cmwap";
 	public static String TAG_TYPE_WAP_NAME			= "MobileVideo3";
-	public static String TAG_TYPE_NET_APN			= "cmnet";
-	public static String TAG_TYPE_NET_NAME			= "MobileVideo3";
+	public static String TAG_TYPE_NET_APN			= "xgxzhdw.ah";
+	public static String TAG_TYPE_NET_NAME			= "xgxzhdw.ah";
 	
 	public static String TAG_TYPE_WAP_PROXY			= "10.0.0.172";
 	public static String TAG_TYPE_WAP_PROXY_E		= "010.000.000.172";
@@ -18,7 +18,7 @@ public class ConnectionImpl {
 	public static final int APN_TYPE_WAP		= 0;
 	public static final int APN_TYPE_NET		= 1;
 	public static final int APN_TYPE_UNKNOWN	= -1;
-	public static int APN_TYPE					= APN_TYPE_WAP;
+	public static int APN_TYPE					= APN_TYPE_NET;
 
 	public static final Uri PREFERRED_APN_URI = Uri
 	.parse("content://telephony/carriers/preferapn");		//URI for the current APN configuration. /data/data/com.android.providers.telephony/databases/telephony.db

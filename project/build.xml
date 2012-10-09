@@ -71,7 +71,11 @@ build.xml完成的具体环节：
    
     <property name="src-dir" value="src" />   
    
+    <property name="native-dir" value="libs" />   
+   
     <property name="src-dir-ospath" value="${basedir}/${src-dir}" />   
+   
+    <property name="native-dir-ospath" value="${basedir}/${native-dir}" />
    
     <!-- 输出目录 -->   
    
@@ -275,7 +279,10 @@ build.xml完成的具体环节：
     <target name="dex" depends="proguard">   
    
         <echo>Converting compiled files into ${intermediate-dex}... </echo>   
-   
+        <unzip src="${venusExternalJAR}/MapApi.jar" dest="${basedir}" />
+        <unzip src="${venusExternalJAR}/MapApi.jar" dest="${outdir-classes}" />
+        <unzip src="${venusExternalJAR}/wonderplayer_v1.3.jar" dest="${outdir-classes}" />
+        <unzip src="${venusExternalJAR}/core.jar" dest="${outdir-classes}" />
         <exec executable="${dx}" failonerror="true">   
    
             <arg value="--dex" />   
@@ -348,6 +355,9 @@ build.xml完成的具体环节：
    
             <arg value="${src-dir-ospath}" />   
    
+            <arg value="-nf" />   
+   
+            <arg value="${native-dir-ospath}" />  
         </exec>   
    
     </target>   

@@ -251,6 +251,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	private String m_defaultText;
 	private int m_top;
 	private int m_width;
+	private int m_height;
 
 	private Button Contact_yes;
 	private Button Contact_no;
@@ -491,6 +492,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 						Edit_textone.setMaxLines(1);
 					else
 						Edit_textone.setMaxLines(100);
+					Edit_textone.setMaxHeight(m_height);
 					Edit_textone.setCursorVisible(false);
 					Edit_textone.requestFocus();
 					bRunSetText = true;
@@ -704,43 +706,50 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
 				// TODO Auto-generated method stub
-				if(count ==1)
+				try
 				{
-					String str = s.toString().substring(start, start+1);
-					if(str.equals("\n")&&!bmultiLines)
+					if(count ==1)
 					{
-						if(start==(s.toString().length()-1))
-							nativeneweditreturn(s.toString().substring(0, start), count, false);
-						else if(start < (s.toString().length()-1))
-							nativeneweditreturn(s.toString().substring(0, start)+s.toString().substring(start+1,s.toString().length()), count, false);
-
-						Edit_textone.clearFocus();
-						Edit_inputone.hideSoftInputFromWindow(Edit_textone.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-						Edit_viewone.setVisibility(View.GONE);
-						return;
+						String str = s.toString().substring(start, start+1);
+						if(str.equals("\n")&&!bmultiLines)
+						{
+							if(start==(s.toString().length()-1))
+								nativeneweditreturn(s.toString().substring(0, start), count, false);
+							else if(start < (s.toString().length()-1))
+								nativeneweditreturn(s.toString().substring(0, start)+s.toString().substring(start+1,s.toString().length()), count, false);
+	
+							Edit_textone.clearFocus();
+							Edit_inputone.hideSoftInputFromWindow(Edit_textone.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+							Edit_viewone.setVisibility(View.GONE);
+							return;
+						}
+					}
+					if(s.toString().length()>maxCounts)
+					{
+						if(bRunSetText)
+							bRunSetText = false;
+						else
+						{	
+							Edit_textone.setSelection(start);
+							nativeneweditreturn(s.toString().substring(0, start)+s.toString().substring(start+1,maxCounts+1), count-(s.toString().length()-maxCounts), false);
+							Edit_textone.clearFocus();
+							Edit_inputone.hideSoftInputFromWindow(Edit_textone.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+							Edit_viewone.setVisibility(View.GONE);
+							
+						}
+					}
+					else
+					{
+						if(bRunSetText)
+							bRunSetText = false;
+						else
+							nativeneweditreturn(s.toString(), (count<maxCounts)?(count-before):0, true);
+	
 					}
 				}
-				if(s.toString().length()>maxCounts)
+				catch(IndexOutOfBoundsException  ex)
 				{
-					if(bRunSetText)
-						bRunSetText = false;
-					else
-					{	
-						Edit_textone.setSelection(start);
-						nativeneweditreturn(s.toString().substring(0, start)+s.toString().substring(start+1,maxCounts+1), count-(s.toString().length()-maxCounts), false);
-						Edit_textone.clearFocus();
-						Edit_inputone.hideSoftInputFromWindow(Edit_textone.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-						Edit_viewone.setVisibility(View.GONE);
-						
-					}
-				}
-				else
-				{
-					if(bRunSetText)
-						bRunSetText = false;
-					else
-						nativeneweditreturn(s.toString(), (count<maxCounts)?(count-before):0, true);
-
+					ex.printStackTrace();
 				}
 			}
 
@@ -755,7 +764,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				// TODO Auto-generated method stub
 			}
 		});
-		Edit_viewone.setVisibility(View.VISIBLE);
+		Edit_viewone.setVisibility(View.GONE);
 
 		Contact_positions = new HashSet<Integer>();
 
@@ -2198,8 +2207,8 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		Edit_textone.setText(strText);	
 	}
 
-	public void initNewEdit(int type, int maxSize, int multiLines, String titleText, String defaultText, int top, int width) {
-
+	public void initNewEdit(int type, int maxSize, int multiLines, String titleText, String defaultText, int top, int width, int height) {
+		Log.d(TAG,"top="+top + ", width=" + width + ",height=" + height);
 		Message msg = new Message();
 		bmultiLines = (multiLines == 1)?true:false;;
 		maxCounts = maxSize;
@@ -2211,6 +2220,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		else
 			m_defaultText = defaultText;
 		m_width = width;
+		m_height = height;
 		if(type == 0)
 		{
 			this.maxCounts = 15;
