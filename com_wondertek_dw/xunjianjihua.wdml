@@ -93,6 +93,7 @@
     <![CDATA[
 
     require 'com_wondertek_dw.common.framework'
+	require 'framework.barcode'
     local rootSprite
     local data = {}
     local flag
@@ -181,16 +182,19 @@
     end
     ---------------------------------------util functions---------------------------
     function loadRequest()
-        local Url = 'http://61.191.25.238:7011/nbspweb/webservice/wplan!doWebservice.action'
-        local param = '&usercode=jingxinhf'..'&page=1'..'&pagesize=5'
+        --local Url = 'http://61.191.25.238:7011/nbspweb/webservice/wplan!doWebservice.action'
+        local param = '&page=1'..'&pagesize=5'
         Log:write("param ===================================>>>> ", param)
+        local Url = getWholeUrl('nbspweb/webservice/wplan!doWebservice.action', "")
         Http:request('pay_data', Url, 101, {useCache = false, method = 'post', postData='&cmd=wlbxunjianPatrolList'..param})
         Loading:show(rootSprite)
     end
     function loadDoneRequest()
-        local Url = 'http://61.191.25.238:7011/nbspweb/webservice/wplan!doWebservice.action'
-        local param = '&usercode=jingxinhf'..'&page=1'..'&pagesize=5'
-        Log:write("param = ", param)
+        --local Url = 'http://61.191.25.238:7011/nbspweb/webservice/wplan!doWebservice.action'
+        --local param = '&usercode=jingxinhf'..'&page=1'..'&pagesize=5'
+        --Log:write("param = ", param)
+        local Url = getWholeUrl('nbspweb/webservice/wplan!doWebservice.action', "")
+        local param = '&page=1'..'&pagesize=5'
         Http:request('handled_data', Url, 102, {useCache = false, method = 'post', postData='&cmd=wlbxunjianPatrolList'..param})
         Loading:show(rootSprite)
     end

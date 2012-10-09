@@ -165,6 +165,26 @@
                 
                 
             </node>
+            <!-- 收藏菜单  -->
+            <node name="ContextMenuNode" rect="0,720,480,80" border="false"
+                visible="false" enable="false" active="false" extendstyle="1111">
+                <image name="ContextMenuNodeBgImage" style="autosize" rect="0,0,480,80"
+                    src="file://image/tab_n.png" extendstyle="1111" />
+                <node name="FavListImg" rect="0,0,480,80" extendstyle="1111"
+                    visible="true">
+                    <button name="favListButton" rect="0,0,480,80"
+                        OnSelect="ContextMenuListItemOnSelect" extendstyle="1111">
+                        <image rect="182,18,40,40" src="file://image/bookmark1.png"
+                            style="autosize" border="false" extendstyle="1111" />
+                        <label name="noticeDate" rect="325,75,90,20" border="false"
+                            text="" h-align="right" v-align="center" color="#000000"
+                            font-size="15" extendstyle="1111"></label>
+                        <label name="label2" rect="228,18,120,40" border="false"
+                            text="我的上传" h-align="left" v-align="center" color="#000000"
+                            font-family="微软雅黑" font-size="24" extendstyle="1111"></label>
+                    </button>
+                </node>
+            </node>
 			<node name="baseSprite" rect="0,723,480,80" extendstyle="1111">
 				<image rect="0,0,480,80" src="file://image/bottom_bg.png"
 					style="autosize" extendstyle="1111">
@@ -325,6 +345,7 @@
             else
                 orderId = updateData.data
                 getUploadUrl()
+                Scene:back()
 		    	--if pYinhuanID ~= nil then
 		    	--	local temp = ';' .. Config:get('yinhuanIDList')
 		    	--	Config:set('yinhuanIDList', string.gsub(temp, ";" .. pYinhuanID .. ';', ";"))
@@ -399,6 +420,12 @@
             NativePlayer:stop()
             Scene:back()
             return 1
+            elseif kc==Key.F1 then--按下菜单键
+            	Scene:freeByHandle(rootSprite)
+            	NativePlayer:stop()
+                local FavListNodeSprite = Sprite:findChild(rootSprite, "ContextMenuNode")
+                setAllShoworHide(FavListNodeSprite,1)
+            return 1
         end
     end
     ---------------------------------------util functions---------------------------
@@ -423,7 +450,7 @@
         selectIndex = 1 
         local url = 'http://61.191.25.238:7011/nbspweb/webservice/accident!doWebservice.action?cmd=wlbyhtypelist&usercode=' .. Config:get('username')
         Http:request('select', url, 102, {useCache = true, method = 'post'})
-        Loading:show(rootSprite)
+       -- Loading:show(rootSprite)
         --setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
     end
     function typeOnSelect(sprite)
@@ -519,7 +546,7 @@
         local param = '&usercode='.. Config:get('username')..'&deptPro=' .. typeValue ..  '&dangertype=' .. zhuanyeValue .. '&dangerlevel=' .. levelValue  .. '&dangercontent=' .. Sprite:getProperty(detail, 'text') .. '&userLongtitute=' .. Config:get("longitude") .. '&userLatitute=' ..  Config:get("latitude") .. '&name=' .. name .. '&positionRemark=' .. addr
         Log:write("-------------url------------", url .. '?cmd=wlbdangersign'..param)
         Http:request('upload_data', url, 103, {useCache = false, method = 'post', postData='cmd=wlbdangersign'..param})
-        Loading:show(rootSprite)
+        --Loading:show(rootSprite)
     end
     
     function getUploadUrl()
@@ -667,7 +694,18 @@ end
         end
     end
     function onCameraDialog(photoPath, photoType)
-    	table.insert(imageArray, photoPath)
+        -- 添加图片压缩支持
+        local tmpSplitArray = Split(photoPath,'%.')
+        local dest = tmpSplitArray[1] .. 'temp.jpg'
+        Log:write('目标文件路径为:'..dest)
+        local ret = ScaleImageAsJpg(photoPath, dest, 480, 800, 0)
+        if ret == 1 then
+            table.insert(imageArray, dest)
+            Log:write('图片压缩成功，压缩后的图片位置为:'..dest)
+        else
+            table.insert(imageArray, photoPath)
+            Log:write('警告：图片压缩失败，使用未压缩的图片:'..photoPath)
+        end
     	Log:write("imageArray0", imageArray)
     	doChangeImageList()
     end
@@ -926,5 +964,14 @@ function getDownloadPath()
     Log:write('Util:getDownloadPath=======================', downloadPath)
     return downloadPath
 end
+
+
+function ContextMenuListItemOnSelect(sprite)
+        -- body
+        local FavListNodeSprite = Sprite:findChild(rootSprite, "ContextMenuNode")
+        setAllShoworHide(FavListNodeSprite,0)
+        Scene:setReturn(Alias.xunjianSubmit, Alias.xunjianupload)
+        Scene:go(Alias.xunjianupload)
+    end
 ]]>
 </root>

@@ -42,7 +42,7 @@ local rootSprite
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     System:setFontSize()
-    Http:startNetwork()
+    connectToWAP()
 end
 
 -- @brief 跳转
@@ -258,6 +258,24 @@ function icon8OnTick(sprite)
         Sprite:setRect(sprite, 280, start - math.ceil(fun(t8, 0, c, d)), 113, 109)
     end
 end
+
+function connectToWAP()
+    local APNtype = Http:getCurrentAPNType()
+    Log:write('APN类型为:'..APNtype)
+    if APNtype == 1 then                     -- Net网
+        Http:setProxy('')
+    elseif APNtype == 2 then                 --移动wap
+        Http:setProxy('http://10.0.0.172:80/')
+    elseif APNtype == 3 then                 --电信wap
+        Http:setProxy('http://10.0.0.200:80/')
+    elseif APNtype == 4 then                 --联通wap
+        Http:setProxy('http://10.0.0.172:80/')
+    else
+        Http:setProxy('')
+    end
+    Http:connectCMWAP()
+end
+
 
 --~ local bt1 = 0
 --~ local flag1 = 0

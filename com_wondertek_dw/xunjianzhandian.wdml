@@ -63,12 +63,12 @@
 					<label name="stationId" rect="40,20,10,30" text="" color="#0"
 						font-size="16" h-align="left" v-align="center" extendstyle="1111"
 						border="false" visible="false" />
-					<scrolltext name="stationName" rect="50,10,280,50" text=""
-						color="#0" font-size="30" h-align="left" v-align="center" scroll="true"
-						extendstyle="1111" border="false" font-family="微软雅黑" />
-					<label name="stationDistance" rect="340,10,130,50" text=""
-						color="#0" font-size="30" h-align="left" v-align="center"
-						extendstyle="1111" border="false" font-family="微软雅黑" />
+					<scrolltext name="stationName" rect="50,10,270,50" text=""
+						color="#0" font-size="22" h-align="left" v-align="center" scroll="true"
+						extendstyle="1111" border="false" />
+					<label name="stationDistance" rect="330,10,130,50" text=""
+						color="#0" font-size="22" h-align="left" v-align="center"
+						extendstyle="1111" border="false" />
 				</button>
 			</node>
 
@@ -459,11 +459,11 @@
     function startBarCodeScanner()
         if isSimulate == false then
             local observer = Plugin:getObserver()
-            local ret1 = BarCode:setPreferences('front_light',
-            'true') -- 开启闪光灯
-            local ret2 = BarCode:setPreferences('play_beep', 'true') -- 开启提示音
-            local ret3 = BarCode:setPreferences('vibrate', 'true') -- 开启震动
             local ret = BarCode:startScanner(observer, 1003)
+            if ret == 0 then
+                Dialog:show("", '开启二维码扫描失败!', 'ok')
+                return 
+            end
             else
             -- 模拟环境下，设置默认经纬度
             local posValue = '117.251339,31.849438'
