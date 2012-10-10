@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <!--
-        ==
-        ============================================================================
-        == | WonderTek [ 网络无处不在，沟通及时到达 ] ==
-        ============================================================================
-        == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
-        ============================================================================
-        == | Author: xxxx <xxxx@xxxx.com> ==
-        ============================================================================
-        == | Desc: 页面描述 ==
-        ============================================================================
-    -->
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: xxxx <xxxx@xxxx.com> ==
+============================================================================
+== | Desc: 页面描述 ==
+============================================================================
+-->
 <root>
     <header />
     <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
@@ -28,36 +28,34 @@
             <button name="backBtn" rect="0,4,75,58" normal="normal" sel="sel"
                 OnSelect="doBack" extendstyle="1111">
                 <image name="normal" rect="0,0,75,58" src="file://image/ic_home.png"
-                    style="autosize" extendstyle="1111">
-                </image>
+                    style="autosize" extendstyle="1111" />
                 <image name="sel" rect="0,0,75,58" src="file://image/ic_home.png"
-                    style="autosize" extendstyle="1111">
-                </image>
+                    style="autosize" extendstyle="1111" />
             </button>
         </node>
         <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
             OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
             <node name="tabNode" rect="0,66,480,60" extendstyle="1111">
                 <image name="title" rect="0,0,480,60" border="false"
-                    src="file://image/tab_n.png" style="autosize" extendstyle="1111"></image>
+                    src="file://image/tab_n.png" style="autosize" extendstyle="1111" />
                 <button name="btnTab1" rect="0,0,160,60" text="" color="#ffffff"
                     extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
                     <image name="tabBg" rect="0,0,160,60" border="false" src=""
-                        style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111"></image>
+                        style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                     <label rect="0,0,160,60" text="待办工单" color="#ffffff" v-align="center"
                         h-align="center" font-size="22" extendstyle="1111" />
                 </button>
                 <button name="btnTab2" rect="160,0,160,60" text="" color="#ffffff"
                     extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
                     <image name="tabBg" rect="0,0,160,60" border="false" src=""
-                        style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111"></image>
+                        style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                     <label rect="0,0,160,60" text="暂存工单" color="#ffffff" v-align="center"
                         h-align="center" font-size="22" extendstyle="1111" />
                 </button>
                 <button name="btnTab3" rect="320,0,160,60" text="" color="#ffffff"
                     extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="03">
                     <image name="tabBg" rect="0,0,160,60" border="false" src=""
-                        style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111"></image>
+                        style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                     <label rect="0,0,160,60" text="已办工单" color="#ffffff" v-align="center"
                         h-align="center" font-size="22" extendstyle="1111" />
                 </button>
@@ -66,7 +64,7 @@
             <node name="listNode" rect="0,126,480,645" extendstyle="1111">
                 <listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
             </node>
-            
+
 
             <node name="listitem" visible="false" enable="false" active="false"
                 extendstyle="1011" rect="0,200,480,100">
@@ -96,219 +94,221 @@
     </body>
     <![CDATA[
 
-    require 'com_wondertek_dw.common.framework'
-    local rootSprite
-    local data = {}
-    local flag 
-    ---------------------------------------callbacks--------------------------------
-    -- @brief root子节点创建完事件
-    function bodyBuildChildrenFinished(sprite)
-        rootSprite = sprite
-        
- 
-    end
-    -- @brief root节点消息方法
-    function bodyOnSpriteEvent(msg, param)
-        if msg == MSG_ACTIVATE then -- 页面激活
-            tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
-            --loadRequest()
-            elseif msg == MSG_DEACTIVATE then
-        end
-    end
-    -- @brief 插件消息方法
-    function bodyOnPluginEvent(msg)
-        if Loading:isShow() then Loading:close() end
-        if msg == 101 then
-            data = Http:jsonDecode('daiban_data')
-            Log:write("data101 = ", data)
-            if not data or type(data) ~= 'table' then
-                Dialog:show(rootSprite, '返回数据格式错误', 'ok')
-                return
-            end
-            if data ~= nil then
-                if data.code == '0' then
-                    if #data.value > 0 then
-                        loadList(#data.value + 1)
-                    elseif data.value[0] then
-                        loadList(1)
-                    end
-                    else
-                    Dialog:show(rootSprite, '未知错误！', 'ok')
-                end
-                else
-                Dialog:show(rootSprite, '未知错误！', 'ok')
-            end
-            elseif msg ==102 then
-                data = Http:jsonDecode('handled_data')
-            Log:write("data101 = ", data)
-            if not data or type(data) ~= 'table' then
-                Dialog:show(rootSprite, '返回数据格式错误', 'ok')
-                return
-            end
-            if data ~= nil then
-                if data.code == '0' then
-                    if #data.value > 0 then
-                        loadList(#data.value + 1)
-                    elseif data.value[0] then
-                        loadList(1)
-                    end
-                    else
-                    Dialog:show(rootSprite, '未知错误！', 'ok')
-                end
-                else
-                Dialog:show(rootSprite, '未知错误！', 'ok')
-            end
-            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
-            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
-            Log:write('拨号失败')
-            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
-            Log:write('请求超时')
-        end
-    end
-    -- @brief 按键响应处理
-    function mainNodeOnKeyUp(sprite, kc)
-        if kc == Key.F2 then -- 按下返回键
-            Scene:back()
-            return 1
-        end
-    end
-    ---------------------------------------util functions---------------------------
+require 'com_wondertek_dw.common.framework'
+local rootSprite
+local data = {}
+local flag
 
-    function loadRequest()
-        local url = 'http://61.191.25.238:7011/nbspweb/webservice/workorder!doWebservice.action'
-        local param = '&usercode='..'zyhefei'..'&page=1&pagesize=5'
-        Log:write("param = ", param)
-        Http:request('daiban_data', url, 101, {useCache = false, method = 'post', postData='cmd=wlbtasklist'..param})
-        Loading:show(rootSprite)
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
+        --loadRequest()
+    elseif msg == MSG_DEACTIVATE then
     end
-    function loadDoneRequest()
-        local url = 'http://61.191.25.238:7011/nbspweb/webservice/workorder!doWebservice.action'
-        local param = '&usercode='..'zyhefei'..'&page=1&pagesize=5'
-        Log:write("param = ", param)
-        Http:request('handled_data', url, 102, {useCache = false, method = 'post', postData='cmd=wlbhandledtasklist'..param})
-        Loading:show(rootSprite)
-    end
-    
-    function loadList(count)
-        local list = Sprite:findChild(rootSprite, 'sampleList')
-        ListView:removeAllItems(list,true) 
-        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
-        ListView:adjust(list)
-    end
-    function tabOnSelect(sprite)
-        local tabNode = Sprite:getParent(sprite)
-        local dataInfo = Sprite:getData(sprite)
-        Log:write('dataInfo===', dataInfo)
-        local tab1 = Sprite:findChild(tabNode, 'btnTab1')
-        local tab2 = Sprite:findChild(tabNode, 'btnTab2')
-        local tab3 = Sprite:findChild(tabNode, 'btnTab3')
-        local list = Sprite:findChild(rootSprite, 'sampleList')
-        Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_n.png')
-        Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_n.png')
-        Sprite:setProperty(Sprite:findChild(tab3, 'tabBg'), 'src', 'file://image/tab_n.png')
-        Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_s.png')
-        if dataInfo=='02' then   
-            flag='2'
-             ListView:removeAllItems(list,true) 
-             Log:write('config===================================',Config:get('daiban'))
-             local daiban =Config:get('daiban')
-             local num=0
-             if daiban~= nil and daiban~='' then
-                 num=1
-             end
-             ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), num, 'loadZanCunItem')
-             ListView:adjust(list)
-        elseif dataInfo=='03' then
-            flag='3'
-             ListView:removeAllItems(list,true) 
-             loadDoneRequest()
-             
-        elseif dataInfo=='01' then
-            flag='1'
-             loadRequest()
-             
+end
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if Loading:isShow() then Loading:close() end
+    if msg == 101 then
+        data = Http:jsonDecode('daiban_data')
+        Log:write("data101 = ", data)
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
         end
-        
-    end
-    function loadZanCunItem(list, item, index)
-        Sprite:setRect(item, 0, 0, 480, 100)
-        Sprite:setProperty(item, 'extendstyle', '1111')
-        local listItemBg = Sprite:findChild(item, 'listItemBg')
-        Sprite:setRect(listItemBg, 0, 0, 480, 100)
-        local num = index+1
-        Log:write('index=============================',num%2)
-        if num % 2 > 0 then
-            Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
+        if data ~= nil then
+            if data.code == '0' then
+                if #data.value > 0 then
+                    loadList(#data.value + 1)
+                elseif data.value[0] then
+                    loadList(1)
+                end
             else
-            Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
+                Dialog:show(rootSprite, '未知错误！', 'ok')
+            end
+        else
+            Dialog:show(rootSprite, '未知错误！', 'ok')
         end
-        local textNum = Sprite:findChild(item, 'textNum')
-        local textTitle = Sprite:findChild(item, 'textTitle')
-        local textTime = Sprite:findChild(item, 'textTime')
-        --Sprite:setProperty(item, 'data', Config:get('daiban'))
-        Sprite:setProperty(textNum, 'text', Config:get('daiban'))
-        Sprite:setProperty(textTitle, 'text', Config:get('title'))
-        Sprite:setProperty(textTime, 'text', Config:get('shijian'))
-    end
-    function loadListItem(list, item, index)
-        Sprite:setRect(item, 0, 0, 480, 100)
-        Sprite:setProperty(item, 'extendstyle', '1111')
-        local listItemBg = Sprite:findChild(item, 'listItemBg')
-        Sprite:setRect(listItemBg, 0, 0, 480, 100)
-        local num = index+1
-        Log:write('index=============================',num%2)
-        if num % 2 > 0 then
-            Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
+    elseif msg ==102 then
+        data = Http:jsonDecode('handled_data')
+        Log:write("data101 = ", data)
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        end
+        if data ~= nil then
+            if data.code == '0' then
+                if #data.value > 0 then
+                    loadList(#data.value + 1)
+                elseif data.value[0] then
+                    loadList(1)
+                end
             else
-            Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
+                Dialog:show(rootSprite, '未知错误！', 'ok')
+            end
+        else
+            Dialog:show(rootSprite, '未知错误！', 'ok')
         end
-        local textNum = Sprite:findChild(item, 'textNum')
-        local textTitle = Sprite:findChild(item, 'textTitle')
-        local textTime = Sprite:findChild(item, 'textTime')
-        --[[local stepdata=data.value[index].proinstState
-        if  stepdata=='签收' then
-            stepdata='1'
-            elseif stepdata=='退单审核' then
-                stepdata='2'
-                elseif stepdata=='填写回单' then
-                    stepdata='3'
-        end]]--
-        
-        Sprite:setProperty(item, 'data', index)
-        
-        Sprite:setProperty(textNum, 'text', data.value[index].taskCode)
-        Sprite:setProperty(textTitle, 'text', data.value[index].taskName)
-        Sprite:setProperty(textTime, 'text', data.value[index].createDateDis)
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
     end
-    function itemOnSelect(sprite)
-        
-        local tabNode = Sprite:getParent(sprite)
-        regHandle=Reg:create('daiban')
-        local textnum=Sprite:findChild(tabNode, 'textNum')
-        local text=Sprite:getText(textnum)
-        local  index = tonumber(Sprite:getData(tabNode))
-        local dataInfo = Sprite:getData(Sprite:findChild(rootSprite,''))
-        local stepdata=data.value[index].proinstState
-        if  stepdata=='签收' then
-            stepdata='1'
-            elseif stepdata=='退单审核' then
-                stepdata='2'
-                elseif stepdata=='回单' then
-                    stepdata='3'
-        end
-        Log:write('index================',index)
-        Log:write('data.value[index+1].id================',data.value[index].id)
-        Reg:setString(regHandle,'id',data.value[index].id)
-        Reg:setString(regHandle,'pid',data.value[index].pid)
-        Reg:setString(regHandle,'taskcode',tostring(data.value[index].taskcode))
-        Reg:setString(regHandle,'step',tostring(data.value[index].step))
-        Reg:setString(regHandle,'stepdata',stepdata)
-        Reg:setString(regHandle,'flag',flag)
-        Scene:setReturn(Alias.gongdan, Alias.gondandetail)
-        Scene:go(Alias.gongdandetail)
-    end
-    function doBack(sprite)
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
         Scene:back()
+        return 1
     end
-]]>
+end
+
+---------------------------------------util functions---------------------------
+function loadRequest()
+    local url = 'http://61.191.25.238:7011/nbspweb/webservice/workorder!doWebservice.action'
+    local param = '&usercode='..'zyhefei'..'&page=1&pagesize=5'
+    Log:write("param = ", param)
+    Http:request('daiban_data', url, 101, {useCache = false, method = 'post', postData='cmd=wlbtasklist'..param})
+    Loading:show(rootSprite)
+end
+
+function loadDoneRequest()
+    local url = 'http://61.191.25.238:7011/nbspweb/webservice/workorder!doWebservice.action'
+    local param = '&usercode='..'zyhefei'..'&page=1&pagesize=5'
+    Log:write("param = ", param)
+    Http:request('handled_data', url, 102, {useCache = false, method = 'post', postData='cmd=wlbhandledtasklist'..param})
+    Loading:show(rootSprite)
+end
+
+function loadList(count)
+    local list = Sprite:findChild(rootSprite, 'sampleList')
+    ListView:removeAllItems(list,true)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
+    ListView:adjust(list)
+end
+
+function tabOnSelect(sprite)
+    local tabNode = Sprite:getParent(sprite)
+    local dataInfo = Sprite:getData(sprite)
+    Log:write('dataInfo===', dataInfo)
+    local tab1 = Sprite:findChild(tabNode, 'btnTab1')
+    local tab2 = Sprite:findChild(tabNode, 'btnTab2')
+    local tab3 = Sprite:findChild(tabNode, 'btnTab3')
+    local list = Sprite:findChild(rootSprite, 'sampleList')
+    Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_n.png')
+    Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_n.png')
+    Sprite:setProperty(Sprite:findChild(tab3, 'tabBg'), 'src', 'file://image/tab_n.png')
+    Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_s.png')
+    if dataInfo=='02' then
+        flag='2'
+         ListView:removeAllItems(list,true)
+         Log:write('config===================================',Config:get('daiban'))
+         local daiban =Config:get('daiban')
+         local num=0
+         if daiban~= nil and daiban~='' then
+             num=1
+         end
+         ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), num, 'loadZanCunItem')
+         ListView:adjust(list)
+    elseif dataInfo=='03' then
+        flag='3'
+         ListView:removeAllItems(list,true)
+         loadDoneRequest()
+    elseif dataInfo=='01' then
+         flag='1'
+         loadRequest()
+    end
+end
+
+function loadZanCunItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 100)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local listItemBg = Sprite:findChild(item, 'listItemBg')
+    Sprite:setRect(listItemBg, 0, 0, 480, 100)
+    local num = index+1
+    Log:write('index=============================',num%2)
+    if num % 2 > 0 then
+        Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
+    else
+        Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
+    end
+    local textNum = Sprite:findChild(item, 'textNum')
+    local textTitle = Sprite:findChild(item, 'textTitle')
+    local textTime = Sprite:findChild(item, 'textTime')
+    --Sprite:setProperty(item, 'data', Config:get('daiban'))
+    Sprite:setProperty(textNum, 'text', Config:get('daiban'))
+    Sprite:setProperty(textTitle, 'text', Config:get('title'))
+    Sprite:setProperty(textTime, 'text', Config:get('shijian'))
+end
+
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 100)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local listItemBg = Sprite:findChild(item, 'listItemBg')
+    Sprite:setRect(listItemBg, 0, 0, 480, 100)
+    local num = index+1
+    Log:write('index=============================',num%2)
+    if num % 2 > 0 then
+        Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
+    else
+        Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
+    end
+    local textNum = Sprite:findChild(item, 'textNum')
+    local textTitle = Sprite:findChild(item, 'textTitle')
+    local textTime = Sprite:findChild(item, 'textTime')
+    --[[local stepdata=data.value[index].proinstState
+    if  stepdata=='签收' then
+        stepdata='1'
+        elseif stepdata=='退单审核' then
+            stepdata='2'
+            elseif stepdata=='填写回单' then
+                stepdata='3'
+    end]]--
+
+    Sprite:setProperty(item, 'data', index)
+    Sprite:setProperty(textNum, 'text', data.value[index].taskCode)
+    Sprite:setProperty(textTitle, 'text', data.value[index].taskName)
+    Sprite:setProperty(textTime, 'text', data.value[index].createDateDis)
+end
+
+function itemOnSelect(sprite)
+    local tabNode = Sprite:getParent(sprite)
+    regHandle=Reg:create('daiban')
+    local textnum=Sprite:findChild(tabNode, 'textNum')
+    local text=Sprite:getText(textnum)
+    local  index = tonumber(Sprite:getData(tabNode))
+    local dataInfo = Sprite:getData(Sprite:findChild(rootSprite,''))
+    local stepdata=data.value[index].proinstState
+    if  stepdata=='签收' then
+        stepdata='1'
+    elseif stepdata=='退单审核' then
+        stepdata='2'
+    elseif stepdata=='回单' then
+        stepdata='3'
+    end
+    Log:write('index================',index)
+    Log:write('data.value[index+1].id================',data.value[index].id)
+    Reg:setString(regHandle,'id',data.value[index].id)
+    Reg:setString(regHandle,'pid',data.value[index].pid)
+    Reg:setString(regHandle,'taskcode',tostring(data.value[index].taskcode))
+    Reg:setString(regHandle,'step',tostring(data.value[index].step))
+    Reg:setString(regHandle,'stepdata',stepdata)
+    Reg:setString(regHandle,'flag',flag)
+    Scene:setReturn(Alias.gongdan, Alias.gondandetail)
+    Scene:go(Alias.gongdandetail)
+end
+
+function doBack(sprite)
+    Scene:back()
+end
+    ]]>
 </root>

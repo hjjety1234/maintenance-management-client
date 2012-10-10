@@ -99,12 +99,11 @@ function SplitWithBlank(szFullString, szSeparator)
         local nFindLastIndex = string.find(szFullString, szSeparator, nFindStartIndex)
         if not nFindLastIndex then
             local stringData = string.sub(szFullString, nFindStartIndex, string.len(szFullString))
-            
-                nSplitArray[nSplitIndex] = stringData
+            nSplitArray[nSplitIndex] = stringData
             break
         end
         local stringData = string.sub(szFullString, nFindStartIndex, nFindLastIndex - 1)
-            nSplitArray[nSplitIndex] = stringData
+        nSplitArray[nSplitIndex] = stringData
         nFindStartIndex = nFindLastIndex + string.len(szSeparator)
         nSplitIndex = nSplitIndex + 1
     end

@@ -21,19 +21,17 @@
                 <button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
                     OnSelect="doBack" extendstyle="1111">
                     <image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
-                        style="autosize" extendstyle="1111">
-                    </image>
+                        style="autosize" extendstyle="1111" />
                     <image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
-                        style="autosize" extendstyle="1111">
-                    </image>
+                        style="autosize" extendstyle="1111" />
                     <label rect="15,0,60,45" text="返回" color="#ffffff"
                         extendstyle="1111" style="autosize" h-align="center" v-align="center"
-                        font-size="24"></label>
+                        font-size="24" />
                 </button>
 
                 <scrolltext name="title" rect="105,0,280,66" text="上传列表"
                     extendstyle="1111" font-size="30" h-align="center" v-align="center"
-                    color="#ffffff" scroll="true" step="2"></scrolltext>
+                    color="#ffffff" scroll="true" step="2" />
 
                 <button rect="20,620,203,65" sudoku="4,4,4,4" visible="false" OnSelect="addBtnOnSelect" text="添加一个" color="#FFFFFF"
                 normal="style:sudoku-tile;src:WONDER:\\framework\\image\\button.png" 
@@ -61,18 +59,14 @@
         </node>
     </body>
     <![CDATA[
-    require 'com_wondertek_dw.common.framework'
-    require 'framework.upload'
 
+require 'com_wondertek_dw.common.framework'
+require 'framework.upload'
 
 local rootSprite -- 场景根节点
 local progressWidth = 200 -- 进度条长度
 local speadTable = {}
-local downloadSamples = {
-    {path = 'DOWNLOAD:\\download_sample1.zip', name = 'download_sample1', url = 'http://192.168.1.191:8000/samples/download_sample1.zip'},
-    {path = 'DOWNLOAD:\\download_sample2.zip', name = 'download_sample2', url = 'http://192.168.1.191:8000/samples/download_sample2.zip'},
-    {path = 'DOWNLOAD:\\download_sample3.zip', name = 'download_sample3', url = 'http://192.168.1.191:8000/samples/download_sample3.zip'},
-}
+
 
 ---------------------------------------callbacks--------------------------------
 function bodyBuildChildrenFinished(sprite)
@@ -108,6 +102,11 @@ function pauseBtnOnSelect(sprite)
     local item = Sprite:getParent(sprite)
     local index = ListView:getItemIndex(item)
     Upload:pause(index + 1)
+    local continueBtn = Sprite:findChild(Sprite:getParent(sprite), 'continueBtn')
+    Sprite:setEnable(continueBtn, 1)
+    Sprite:setVisible(continueBtn, 1)
+    Sprite:setEnable(sprite, 0)
+    Sprite:setVisible(sprite, 0)
 end
 
 -- @brief 继续按钮
@@ -118,6 +117,11 @@ function continueBtnOnSelect(sprite)
     local item = Sprite:getParent(sprite)
     local index = ListView:getItemIndex(item)
     Upload:start(index + 1)
+    local pauseBtn = Sprite:findChild(Sprite:getParent(sprite), 'pauseBtn')
+    Sprite:setEnable(pauseBtn, 1)
+    Sprite:setVisible(pauseBtn, 1)
+    Sprite:setEnable(sprite, 0)
+    Sprite:setVisible(sprite, 0)
 end
 
 -- @brief 删除按钮
