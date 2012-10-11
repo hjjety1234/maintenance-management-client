@@ -80,20 +80,19 @@
 require 'com_wondertek_dw.common.framework'
 local rootSprite
 local noticeId
-local usercode
 
----------------------------------------callbacks--------------------------------
--- @brief root子节点创建完事件
+---------------------------------------回调函数列表--------------------------------
+--  root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
-    -- 获取公告详情各字段的Sprite
     rootSprite = sprite
+    
+    -- 获取公告详情各字段的Sprite
     local title = Sprite:findChild(rootSprite,"titleName")
     local date = Sprite:findChild(rootSprite,"date")
-    local detail = Sprite:findChild(rootSprite,"detail")
     local issuePerson = Sprite:findChild(rootSprite,"issuePerson")
+    
     -- 从数据仓库中读取各字段的值(id, 标题，日期)
     local noticeDetailHandler = Reg:create("noticeDetail")
-    usercode = Reg:getString(noticeDetailHandler, "usercode")
     noticeId = Reg:getString(noticeDetailHandler, "noticeId")
     if (noticeId == nil or noticeId == '') then
         Dialog:show("公告详情", "公告id为空!", "ok")
@@ -103,30 +102,28 @@ function bodyBuildChildrenFinished(sprite)
     local iscollect = Reg:getString(noticeDetailHandler, "iscollect")
     local noticeDate = Reg:getString(noticeDetailHandler, "noticeDate")
     local noticeIssuePerson = Reg:getString(noticeDetailHandler, "issuePerson")
+    
     -- 确定是否显示收藏图表
     if (iscollect == '0') then
         local favBtnImageSprite = Sprite:findChild(rootSprite,"favBtnImage")
         Sprite:setProperty(favBtnImageSprite, "src", 'file://image/bookmark1.png')
     end
+    
     -- 设置公告标题，日期和发布人
     Sprite:setProperty(title, "text", noticeTitle)
     Sprite:setProperty(date, "text", noticeDate)
     Sprite:setProperty(issuePerson, "text", '发布人：'..noticeIssuePerson)
-    -- 构造请求地址
-    local param = string.format('cmd=wlbnewsdetail&id=%s', noticeId)
-    local reqURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', param)
-    Http:request("noticeDetail", reqURL, 101)
-    Loading:show()
 end
 
--- @brief root节点消息方法
+--  root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        requstNoticeDetail()
     elseif msg == MSG_DEACTIVATE then
     end
 end
 
--- @brief 插件消息方法
+--  插件消息方法
 function bodyOnPluginEvent(msg)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
@@ -141,7 +138,6 @@ function bodyOnPluginEvent(msg)
             -- 正则表达式，去除页首的多余空行
             contentString = string.gsub(contentString, '\r\n\r\n\t', '\r\n')
             contentString = string.gsub(contentString, '$\r\n\t', ' ')
-            Log:write('212123123123123123123123123123123', contentString)
             Sprite:setProperty(detailSprite, 'text', contentString)
             local newscontX, newscontY, newscontW, newscontH = Sprite:getRect(detailSprite)
             Sprite:setRect(detailSprite, newscontX, 0, newscontW, newscontH)
@@ -174,7 +170,7 @@ function bodyOnPluginEvent(msg)
     end
 end
 
--- @brief 按键响应处理
+--  按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
         if Loading:isShow() then Loading:close() end
@@ -183,13 +179,23 @@ function mainNodeOnKeyUp(sprite, kc)
     end
 end
 
----------------------------------------util functions---------------------------
--- @brief 返回按钮处理
+---------------------------------------Http请求函数列表---------------------------
+--  返回按钮处理
 function doBack()
-    if Loading:isShow() then Loading:close() end
+    if Loading:isShow() then Loading:close() end 
     Scene:back()
 end
 
+-- 请求公告详情
+function requstNoticeDetail() 
+	-- 构造请求地址
+	local param = string.format('cmd=wlbnewsdetail&id=%s', noticeId)
+	local reqURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', param)
+	Http:request("noticeDetail", reqURL, 101, {useCache=false})
+	Loading:show()
+end
+
+-- 调整公告详情页的内容，使其能够上下滑动
 function resetListViewItemHeight()
     local detailSprite = Sprite:findChild(rootSprite, 'detail')
     local item = Sprite:getParent(detailSprite)
@@ -201,7 +207,7 @@ function resetListViewItemHeight()
     ListView:adjust(Sprite:getParent(item))
 end
 
--- @brief 收藏按钮消息处理函数
+--  收藏按钮消息处理函数
 function OnFavBtnClicked(sprite)
     local favBtnImageSprite = Sprite:findChild(rootSprite, "favBtnImage")
     if (Sprite:getProperty(favBtnImageSprite, "src") == 'file://image/bookmark0.png') then
