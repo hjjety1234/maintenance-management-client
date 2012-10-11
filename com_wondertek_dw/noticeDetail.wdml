@@ -119,6 +119,7 @@ function bodyBuildChildrenFinished(sprite)
     -- 请求公告内容
     local reqURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', requestURL)
     Http:request("noticeDetail", reqURL, 101)
+    Loading:show()
 end
 
 -- @brief root节点消息方法
@@ -130,6 +131,7 @@ end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
+    if Loading:isShow() then Loading:close() end
     if msg == 101 then
         Log:write('jsondecode', Http:jsonDecode("noticeDetail"))
         jsonDecodedMsg = Http:jsonDecode("noticeDetail")
@@ -178,6 +180,7 @@ end
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
+         if Loading:isShow() then Loading:close() end
         Scene:back()
         return 1
     end
@@ -186,6 +189,7 @@ end
 ---------------------------------------util functions---------------------------
 -- @brief 返回按钮处理
 function doBack()
+    if Loading:isShow() then Loading:close() end
     Scene:back(true)
 end
 
