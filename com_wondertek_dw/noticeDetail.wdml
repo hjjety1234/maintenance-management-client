@@ -113,11 +113,8 @@ function bodyBuildChildrenFinished(sprite)
     Sprite:setProperty(date, "text", noticeDate)
     Sprite:setProperty(issuePerson, "text", '发布人：'..noticeIssuePerson)
     -- 构造请求地址
-    local server = Config:get("server")
-    local requestURL = string.format('&cmd=wlbnewsdetail&id=%s', noticeId)
-    Log:write('公告详情地址：',requestURL)
-    -- 请求公告内容
-    local reqURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', requestURL)
+    local param = string.format('cmd=wlbnewsdetail&id=%s', noticeId)
+    local reqURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', param)
     Http:request("noticeDetail", reqURL, 101)
     Loading:show()
 end
@@ -190,7 +187,7 @@ end
 -- @brief 返回按钮处理
 function doBack()
     if Loading:isShow() then Loading:close() end
-    Scene:back(true)
+    Scene:back()
 end
 
 function resetListViewItemHeight()
@@ -206,22 +203,19 @@ end
 
 -- @brief 收藏按钮消息处理函数
 function OnFavBtnClicked(sprite)
-    local server = Config:get("server")
-    local requestURL = string.format('%s//nbspweb/webservice/notice!doWebservice.action?cmd=wlbaddcollectnews&usercode=%s&id=%s',server,
-    usercode, noticeId)
     local favBtnImageSprite = Sprite:findChild(rootSprite, "favBtnImage")
     if (Sprite:getProperty(favBtnImageSprite, "src") == 'file://image/bookmark0.png') then
-        local requestURL = string.format('&cmd=wlbaddcollectnews&id=%s', noticeId)
+        local param = string.format('cmd=wlbaddcollectnews&id=%s', noticeId)
         Log:write('添加收藏')
-        local reqURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', requestURL)
+        local reqURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', param)
         Http:request('fav', reqURL, 102)
     else
-        local requestURL = string.format('&cmd=wlbdeletecollectnews&id=%s', noticeId)
+        local param = string.format('cmd=wlbdeletecollectnews&id=%s', noticeId)
         Log:write('取消收藏')
-        local reqURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', requestURL)
+        local reqURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', param)
         Http:request('fav', reqURL, 103)
     end
 end
 
-    ]]>
+]]>
 </root>
