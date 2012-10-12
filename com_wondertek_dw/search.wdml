@@ -52,6 +52,7 @@
                 <listview name="sampleList" rect="0,0,480,650" border="false"
                     limit="false">
                 </listview>
+                <label name="nullTips" rect="0,0,480,650" extendstyle="1111" text="对不起，没有搜到你要的结果！" v-align="center" h-align="center" visible="0" />
             </node>
 
             <node name="listitem" visible="false" enable="false" active="false"
@@ -99,8 +100,18 @@ function bodyOnPluginEvent(msg)
         if Loading:isShow() then Loading:close() end
         data = Http:jsonDecode('search_data')
         Log:write("data:", data)
-        if data.code == "0" then
+        local nullTips = Sprite:findChild(rootSprite,'nullTips')
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        if data.code == "0" and data.total ~= "0" then
+            Sprite:setVisible(nullTips,0)
+            Sprite:setVisible(list,1)
+            Sprite:setEnable(list,1)
             fillSelect()
+        else
+            ListView:removeAllItems(list, 1,1)
+            Sprite:setVisible(list,0)
+            Sprite:setEnable(list,0)
+            Sprite:setVisible(nullTips,1)
         end
 
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
@@ -133,7 +144,7 @@ function searchOnSelect(sprite)
 end
 
 function doSearch(content)
-    local dataString=string.format('cmd=%s&resourceName=%s&resourceType=%s&page=1','wlbresourceSearch', content, '')
+    local dataString=string.format('&cmd=%s&resourceName=%s&resourceType=%s&page=1','wlbresourceSearch', content, '')
     local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
     Http:request('search_data', reqURL, 101, {useCache = false, method = 'post', postData=dataString})
     Loading:show(rootSprite)
@@ -149,11 +160,8 @@ function loadListItem(list, item, index)
         Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
     end
     Sprite:setProperty(item, 'extendstyle', '1111')
-    Log:write('111111111111111111111111111')
     local textTitle = Sprite:findChild(item, 'textTitle')
-    Log:write('222222222222222222222222222')
     local textLoc = Sprite:findChild(item, 'textLoc')
-    Log:write('333333333333333333333333333')
     Sprite:setProperty(textTitle, 'text', data.value[index].resourcename)
     Sprite:setProperty(textLoc, 'text', data.value[index].position)
 end

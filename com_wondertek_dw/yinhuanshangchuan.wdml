@@ -435,8 +435,9 @@ function xunjianOnSelect(sprite)
     curXunjianBtn = sprite
      --@Log:write('tempid===', tempid)
     selectIndex = 1
-    local url = 'http://61.191.25.238:7011/nbspweb/webservice/accident!doWebservice.action?cmd=wlbyhtypelist&usercode=' .. Config:get('username')
-    Http:request('select', url, 102, {useCache = true, method = 'post'})
+    local param = 'cmd=wlbyhtypelist&usercode=' .. Config:get('username')
+    local url = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
+    Http:request('select', url, 102, {useCache = true})
    -- Loading:show(rootSprite)
     --setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
 end
@@ -447,7 +448,8 @@ function levelOnSelect(sprite)
     curXunjianBtn = sprite
      --@Log:write('tempid===', tempid)
     selectIndex = 2
-    local url = 'http://61.191.25.238:7011/nbspweb/webservice/accident!doWebservice.action?cmd=wlbyhlevellist&usercode=' .. Config:get('username')
+    local param = 'cmd=wlbyhlevellist&usercode=' .. Config:get('username')
+    local url = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
     Http:request('select', url, 102, {useCache = true, method = 'post'})
     Loading:show(rootSprite)
     --setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
@@ -459,7 +461,8 @@ function typeOnSelect(sprite)
     curXunjianBtn = sprite
      --@Log:write('tempid===', tempid)
     selectIndex = 3
-    local url = 'http://61.191.25.238:7011/nbspweb/webservice/dic!doWebservice.action?cmd=wlbzytypelist&usercode=' .. Config:get('username')
+    local param = 'cmd=wlbzytypelist&usercode=' .. Config:get('username')
+    local url = getWholeUrl('nbspweb/webservice/dic!doWebservice.action', param)
     Http:request('select', url, 102, {useCache = true, method = 'post'})
     Loading:show(rootSprite)
     --setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
@@ -540,7 +543,7 @@ function doUpload()
         --Dialog:show('提示', '定位失败!', 'ok')
     end
 
-    local url = 'http://61.191.25.238:7011/nbspweb/webservice/accident!doWebservice.action'
+    local url = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', '')
 
     local param = '&usercode='.. Config:get('username')..'&deptPro=' .. typeValue ..  '&dangertype=' .. zhuanyeValue .. '&dangerlevel=' .. levelValue  .. '&dangercontent=' .. Sprite:getProperty(detail, 'text') .. '&userLongtitute=' .. Config:get("longitude") .. '&userLatitute=' ..  Config:get("latitude") .. '&name=' .. name .. '&positionRemark=' .. addr
     Log:write("-------------url------------", url .. '?cmd=wlbdangersign'..param)
@@ -555,7 +558,7 @@ function getUploadUrl()
 
         local _,_,fileName = string.find(imageArray[1], '([^/\\%.]+)%.?[^/\\]*$')
 
-        local url = 'http://61.191.25.238:7011/nbspweb/upload/UGC_GetUploadUrl.html'
+        local url = getWholeUrl('nbspweb/upload/UGC_GetUploadUrl.html', '')
         local param = 'FILE_NAME=' .. fileName .. '&C_TYPE=' .. 'jpg' .. '&C_LEN=' .. IO:fileSize(imageArray[1])
         Log:write("-------------url upload------------", url .. param)
         Http:request('upload_url', url, 104, {useCache = false, method = 'post', postData= param})
@@ -563,7 +566,7 @@ function getUploadUrl()
         upStatus = 2
 
         local path = getDownloadPath() .. 'daiwei'
-        local url = 'http://61.191.25.238:7011/nbspweb/upload/UGC_GetUploadUrl.html'
+        local url = getWholeUrl('nbspweb/upload/UGC_GetUploadUrl.html', '')
         local param = 'FILE_NAME=' .. recordName .. '&C_TYPE=' .. 'amr' .. '&C_LEN=' .. IO:fileSize(path .. '/' .. recordName .. '.amr')
         Log:write("-------------url upload------------", url .. param)
         Http:request('upload_url', url, 105, {useCache = false, method = 'post', postData= param})
@@ -607,7 +610,7 @@ function onGetUploadStatus()
                 upStatus = 3
 
                 local path = getDownloadPath() .. 'daiwei'
-                local url = 'http://61.191.25.238:7011/nbspweb/upload/UGC_GetUploadUrl.html'
+                local url = getWholeUrl('nbspweb/upload/UGC_GetUploadUrl.html', param)
                 local param = 'FILE_NAME=' .. recordName .. '&C_TYPE=' .. 'amr' .. '&C_LEN=' .. IO:fileSize(path .. '/' .. recordName .. '.amr')
                 Log:write("-------------url upload------------", url .. param)
                 Http:request('upload_url', url, 105, {useCache = false, method = 'post', postData= param})
