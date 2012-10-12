@@ -239,7 +239,7 @@
 
 require 'com_wondertek_dw.common.framework'
 require 'com_wondertek_dw.common.tempData'
---require 'com_wondertek_dw.common.tempDataZHFG'
+require 'com_wondertek_dw.common.tempDataZHFG'
 require 'framework.upload'
 local rootSprite
 local mainListView
@@ -257,6 +257,8 @@ local imgnum=0 --记录上传图片的个数
 
 local TempID  --保存已上传的巡检子项ID
 
+local jdtitleItems
+
 local planId
 local templateId
 local stationId
@@ -264,7 +266,7 @@ local stationId
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    loadTempData()
+    
     ContractionSet()
 
     local regHandle = Reg:create('xunjianzhixiang')
@@ -272,11 +274,23 @@ function bodyBuildChildrenFinished(sprite)
     planId=Reg:getString(regHandle, 'planId')
     templateId=Reg:getString(regHandle, 'templateId')
     stationId=Reg:getString(regHandle, 'stationId')
+    if templateId=='000000039103' then
+        jdtitleItems=jztitleItems
+        loadTempData()
+        elseif templateId=='000000069526' then
+            jdtitleItems=zhfgtitleItems
+            loadTempData()
+        else
+            Dialog:show('','暂无巡检项模版！请联系系统管理员！','ok')
+            doBack()
+    end
+    
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -289,7 +303,7 @@ function bodyOnPluginEvent(msg)
         local data = Http:jsonDecode('Submitdata')
         Log:write("Submitdata ================= ", data)
         if not data or type(data) ~= 'table' then
-            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            --Dialog:show(rootSprite, '返回数据格式错误', 'ok')
             return
         end
         if data ~= nil then
@@ -299,7 +313,7 @@ function bodyOnPluginEvent(msg)
                 --Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
             end
         else
-            Dialog:show(rootSprite, '未知错误！', 'ok')
+            --Dialog:show(rootSprite, '未知错误！', 'ok')
         end
     elseif msg == 104 then
         imgnum=imgnum+1
@@ -314,10 +328,7 @@ function bodyOnPluginEvent(msg)
             param = ''
         end
         doRealUpload(url, param,imgnum)
-        local numSum = #imageArray
-        if imgnum==numSum then
-            doBack()
-        end
+        
     elseif msg == 105 then -- 进站请求
         local data = Http:jsonDecode('Indata')
         Log:write("data105 ================= ", data)
@@ -870,6 +881,14 @@ function doUpload(sprite)
             end
         end
     end
+    Timer:set(1, 500, 'doBackStatue')
+end
+function doBackStatue()
+    local numSum = #imageArray
+    if imgnum==numSum then
+        Timer:cancel(1) 
+        doBack()
+    end
 end
 
 --提交请求
@@ -896,7 +915,7 @@ end
 function getUploadUrl(photoPath)
     local _,_,fileName = string.find(photoPath, '([^/\\%.]+)%.?[^/\\]*$')
 
-    local url = getWholeUrl('nbspweb/upload/UGC_GetUploadUrl.html', "")
+    local url = 'http://61.191.25.238:7011/nbspweb/upload/UGC_GetUploadUrl.html'
     if Config:get('server_url') == nil or Config:get('server_url') == '' then
         Config:set('server_url', '61.191.25.238')
     end
