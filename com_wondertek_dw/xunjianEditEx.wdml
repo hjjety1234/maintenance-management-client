@@ -257,7 +257,7 @@ local imgnum=0 --记录上传图片的个数
 
 local TempID  --保存已上传的巡检子项ID
 
-local jdtitleItems
+--local jdtitleItems
 
 local planId
 local templateId
@@ -274,16 +274,19 @@ function bodyBuildChildrenFinished(sprite)
     planId=Reg:getString(regHandle, 'planId')
     templateId=Reg:getString(regHandle, 'templateId')
     stationId=Reg:getString(regHandle, 'stationId')
-    if templateId=='000000039103' then
+    loadTempData()
+    --[[if templateId=='000000039103' then
+        Log:write('巡检管理---------------基站模版')
         jdtitleItems=jztitleItems
         loadTempData()
         elseif templateId=='000000069526' then
+            Log:write('巡检管理---------------综合覆盖模版')
             jdtitleItems=zhfgtitleItems
             loadTempData()
         else
             Dialog:show('','暂无巡检项模版！请联系系统管理员！','ok')
             doBack()
-    end
+    end]]--
     
 end
 
@@ -303,7 +306,7 @@ function bodyOnPluginEvent(msg)
         local data = Http:jsonDecode('Submitdata')
         Log:write("Submitdata ================= ", data)
         if not data or type(data) ~= 'table' then
-            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            --Dialog:show(rootSprite, '返回数据格式错误', 'ok')
             return
         end
         if data ~= nil then
@@ -313,7 +316,7 @@ function bodyOnPluginEvent(msg)
                 --Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
             end
         else
-            Dialog:show(rootSprite, '未知错误！', 'ok')
+            --Dialog:show(rootSprite, '未知错误！', 'ok')
         end
     elseif msg == 104 then
         imgnum=imgnum+1
@@ -333,7 +336,7 @@ function bodyOnPluginEvent(msg)
         local data = Http:jsonDecode('Indata')
         Log:write("data105 ================= ", data)
         if not data or type(data) ~= 'table' then
-            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            --Dialog:show(rootSprite, '返回数据格式错误', 'ok')
             return
         end
         if data ~= nil then
@@ -344,13 +347,13 @@ function bodyOnPluginEvent(msg)
                 Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
             end
         else
-            Dialog:show(rootSprite, '未知错误！', 'ok')
+            --Dialog:show(rootSprite, '未知错误！', 'ok')
         end
     elseif msg == 106 then -- 出站请求
         local data = Http:jsonDecode('Outdata')
         Log:write("data106 ================= ", data)
         if not data or type(data) ~= 'table' then
-            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            --Dialog:show(rootSprite, '返回数据格式错误', 'ok')
             return
         end
         if data ~= nil then
@@ -360,7 +363,7 @@ function bodyOnPluginEvent(msg)
                 Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
             end
         else
-            Dialog:show(rootSprite, '未知错误！', 'ok')
+            --Dialog:show(rootSprite, '未知错误！', 'ok')
         end
     elseif msg == 102 then -- 不提交图片时提交相应
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
@@ -384,6 +387,7 @@ end
 
 ---------------------------------------util functions---------------------------
 function loadTempData()
+    Log:write('模版数据源：----------------',jdtitleItems)
     local mainNodeContent = Sprite:findChild(rootSprite,'mainNodeContent')
     local mainListView = Sprite:findChild(mainNodeContent,'mainListView')
 
