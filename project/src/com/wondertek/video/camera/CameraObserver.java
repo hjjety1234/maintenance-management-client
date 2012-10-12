@@ -67,7 +67,7 @@ public class CameraObserver {
 
 		if(!status.equals(Environment.MEDIA_MOUNTED))
 		{
-			Toast.makeText(VenusActivity.appActivity, "sd卡不存在",Toast.LENGTH_LONG).show();
+			Toast.makeText(VenusActivity.appActivity, "sd card is not exist",Toast.LENGTH_LONG).show();
 			return false;
 		}
 		return true;
