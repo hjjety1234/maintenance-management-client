@@ -303,7 +303,7 @@ function bodyOnPluginEvent(msg)
         local data = Http:jsonDecode('Submitdata')
         Log:write("Submitdata ================= ", data)
         if not data or type(data) ~= 'table' then
-            --Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
             return
         end
         if data ~= nil then
@@ -313,7 +313,7 @@ function bodyOnPluginEvent(msg)
                 --Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
             end
         else
-            --Dialog:show(rootSprite, '未知错误！', 'ok')
+            Dialog:show(rootSprite, '未知错误！', 'ok')
         end
     elseif msg == 104 then
         imgnum=imgnum+1
@@ -888,6 +888,8 @@ function doBackStatue()
     if imgnum==numSum then
         Timer:cancel(1) 
         doBack()
+        else
+            Timer:set(1, 500, 'doBackStatue')
     end
 end
 
@@ -975,10 +977,22 @@ function doTakePic(sprite)
 end
 
 function onCameraDialog(photoPath, photoType)
-    table.insert(imageArray, photoPath)
+    --table.insert(imageArray, photoPath)
     --预留存储巡检计划号、基站号、巡检子项号
     --table.insert(imageArray, photoPath)000001000599
-    table.insert(taskidArray, '000001000599')
+    table.insert(taskidArray, planId)
+
+    local tmpSplitArray = Split(photoPath,'%.')
+    local dest = tmpSplitArray[1] .. 'temp.jpg'
+    Log:write('目标文件路径为:'..dest)
+    local ret = ScaleImageAsJpg(photoPath, dest, 480, 800, 0)
+    if ret == 1 then
+        table.insert(imageArray, dest)
+        Log:write('图片压缩成功，压缩后的图片位置为:'..dest)
+    else
+        table.insert(imageArray, photoPath)
+        Log:write('警告：图片压缩失败，使用未压缩的图片:'..photoPath)
+    end
 
     Log:write("imageArray0", imageArray)
     local errorHideNode = Sprite:getParent(piccurrbtn)
