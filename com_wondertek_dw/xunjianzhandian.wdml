@@ -50,10 +50,10 @@
 
             <!-- 状态栏  -->
             <node name="statusBar" rect="0,670,480,50" extendstyle="1111">
-                <label name ="statusBarText" rect="0,0,430,50" text="" color="#000000"
+                <scrolltext name ="statusBarText" rect="0,0,430,50" text="" color="#000000"
                     extendstyle="1111" style="autosize" h-align="left" v-align="center"
-                    font-size="24">
-                </label>
+                    font-size="22" scroll="true">
+                </scrolltext>
                  <button name="getLocButton" rect="430,0,50,50" OnSelect="doGetLocAgain"
                     extendstyle="1111" border="false">
                     <image name="getLocImage" rect="0,0,50,50" src="file://image/refresh.png"
@@ -410,6 +410,10 @@ end
 
 -- 取得默认范围内的基站
 function getNearbyStationByDefaultRadius()
+    --  显示状态栏
+    local statusBar = Sprite:findChild(rootSprite, 'statusBar')
+    Sprite:setProperty(statusBar, 'visible', 'true')
+    Sprite:setProperty(statusBar, 'enable', 'true')
     if isSimulate == false then
         -- 真机环境下，调用GPS获取当前位置
         local result = System:setGPSStatus(1)
@@ -421,6 +425,7 @@ function getNearbyStationByDefaultRadius()
         else
             Sprite:setProperty(statusBarText, 'text', 'GPS开启失败')
         end
+        
     else
         -- 模拟环境下，设置默认经纬度
         local posValue = '117.251339,31.849438'
@@ -469,6 +474,10 @@ end
 
 -- 请求指定范围内的基站
 function getNearbyStationByRadius(sprite)
+    --  显示状态栏
+    local statusBar = Sprite:findChild(rootSprite, 'statusBar')
+    Sprite:setProperty(statusBar, 'visible', 'true')
+    Sprite:setProperty(statusBar, 'enable', 'true')
     if isSimulate == false then
         -- 真机环境下，调用GPS获取当前位置
         local result = System:setGPSStatus(1)
@@ -527,6 +536,10 @@ end
 
 -- 开始二维码扫描
 function startBarCodeScanner()
+    --  隐藏状态栏
+    local statusBar = Sprite:findChild(rootSprite, 'statusBar')
+    Sprite:setProperty(statusBar, 'visible', 'false')
+    Sprite:setProperty(statusBar, 'enable', 'false')
     if isSimulate == false then
         local observer = Plugin:getObserver()
         local ret = BarCode:startScanner(observer, 1001)
@@ -551,6 +564,10 @@ end
 
 -- 根据站点名称进行搜索
 function doFuzzyNameSearch(sprite)
+    -- 隐藏状态栏
+    local statusBar = Sprite:findChild(rootSprite, 'statusBar')
+    Sprite:setProperty(statusBar, 'visible', 'false')
+    Sprite:setProperty(statusBar, 'enable', 'false')
     -- 模拟环境下，设置默认经纬度
     local posValue = '117.251339,31.849438'
     -- 默认搜索站点
