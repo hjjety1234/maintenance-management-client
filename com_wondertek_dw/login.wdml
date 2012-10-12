@@ -139,12 +139,10 @@ end
 function loginOnSelect(sprite)
     local username=Sprite:getText(Sprite:findChild(rootSprite, 'edname'))
     local password=Sprite:getText(Sprite:findChild(rootSprite, 'edpwd'))
-    local dataString=string.format('&password=%s&cmd=%s',password,'wlblogin')
-    Log:write('dataString=============================',dataString)
+    local dataString=string.format('usercode=%s&password=%s&cmd=%s',username, password,'wlblogin')
+    local reqURL = getUrl()..'nbspweb/webservice/user!doWebservice.action'
+    Http:request('login_istrue', reqURL, 101, {useCache=false, postData=dataString})
     Loading:show(rootSprite)
-    local reqURL = getWholeUrl('nbspweb/webservice/user!doWebservice.action', dataString)
-    Http:request('login_istrue', reqURL, 101, {useCache=false})
-    --@Http:request('login_istrue', 'http://localhost:8080/DaiWeiService/mainServerlet', 101, {method='post',postData=dataString,useCache=false})
 end
 
 function writeuserInfo()
