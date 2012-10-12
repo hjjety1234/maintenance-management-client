@@ -8,6 +8,9 @@
 -- | Desc: 常用功能函数
 -- -----------------------------------------------------------------------------
 
+-- 2012/10/12 revised by hewu
+-- 修改默认的服务器地址为内网地址
+-- 注意，该函数会自动添加usercode和pagesize参数，建议在GET方式请求时调用该函数。
 function getWholeUrl(urlContent , params)
     local port
     if Config:get('server_port') == nil or Config:get('server_port') == '' then
@@ -18,7 +21,7 @@ function getWholeUrl(urlContent , params)
     end
 
     if Config:get('server_url') == nil or Config:get('server_url') == '' then
-        Config:set('server_url', '61.191.25.238')
+        Config:set('server_url', '10.225.222.5')
     end
 
     local nFindLastIndex = string.find(Config:get('server_url'), 'http://')
@@ -34,6 +37,33 @@ function getWholeUrl(urlContent , params)
     url = url .. urlContent .. '?' .. 'usercode=' .. Config:get('username') .. '&pagesize=' .. lines.. '&' .. params
     return url
 end
+
+-- 读取配置的服务端地址和端口，组合请求的URL前缀。
+-- 注意：得到的地址没有任何后缀，GET方式请求时需要添加?符号
+-- 建议在文件上传和POST方式请求时，调用此函数。
+function getUrlPrefix(urlContent)
+    local port
+    if Config:get('server_port') == nil or Config:get('server_port') == '' then
+        Config:set('server_port', '7011')
+    end
+    if Config:get('server_port') ~= nil and Config:get('server_port') ~= '' then
+        port = ':' .. Config:get('server_port')
+    end
+
+    if Config:get('server_url') == nil or Config:get('server_url') == '' then
+        Config:set('server_url', '10.225.222.5')
+    end
+
+    local nFindLastIndex = string.find(Config:get('server_url'), 'http://')
+    if not nFindLastIndex then
+        url = 'http://' .. Config:get('server_url') .. port .. '/'
+    else
+        url = Config:get('server_url') .. port .. '/'
+    end
+    url = url .. urlContent
+    return url
+end
+
 function setAllShoworHide(sprite, isShow)
     Sprite:setVisible(sprite, isShow)
     Sprite:setActive(sprite, isShow)
