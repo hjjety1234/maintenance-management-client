@@ -126,18 +126,18 @@ function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     -- 设置当前月份
     local now = os.date("*t")
-        local curMonth = now['month']
-        local monthFilterNode = Sprite:findChild(rootSprite, "monthFilterNode")
-        local timeContent=Sprite:findChild(monthFilterNode,"timeContent")
+    local curMonth = now['month']
+    local monthFilterNode = Sprite:findChild(rootSprite, "monthFilterNode")
+    local timeContent=Sprite:findChild(monthFilterNode,"timeContent")
 
-        local monthEndNode = Sprite:findChild(rootSprite, "monthEndNode")
-        local timeContentEnd=Sprite:findChild(monthEndNode,"timeContent")
+    local monthEndNode = Sprite:findChild(rootSprite, "monthEndNode")
+    local timeContentEnd=Sprite:findChild(monthEndNode,"timeContent")
 
-        local currentMonthString = string.format('%s-%s-%s %s:%s', now['year'], now['month'], now["day"],now["hour"],now["min"])
+    local currentMonthString = string.format('%s-%s-%s %s:%s', now['year'], now['month'], now["day"],now["hour"],now["min"])
 
-        Sprite:setProperty(timeContent, "text",currentMonthString)
+    Sprite:setProperty(timeContent, "text",currentMonthString)
 
-        Sprite:setProperty(timeContentEnd, "text",currentMonthString)
+    Sprite:setProperty(timeContentEnd, "text",currentMonthString)
 end
 
 -- @brief root节点消息方法
@@ -145,112 +145,110 @@ function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         local regHandle = Reg:create("dateTime")
         retuenTime = Reg:getString(regHandle, "time")
-            local type = Reg:getString(regHandle, "type")
+        local type = Reg:getString(regHandle, "type")
 
-            if retuenTime ~= '' and retuenTime ~= nil then
-                if type=='start' then
+        if retuenTime ~= '' and retuenTime ~= nil then
+            if type=='start' then
                 local monthFilterNode = Sprite:findChild(rootSprite, "monthFilterNode")
                 local timeContent=Sprite:findChild(monthFilterNode,"timeContent")
                 Sprite:setProperty(timeContent, "text", retuenTime)
-                else
-                  local monthEndNode = Sprite:findChild(rootSprite, "monthEndNode")
-                  local timeContentEnd=Sprite:findChild(monthEndNode,"timeContent")
-                  Sprite:setProperty(timeContentEnd, "text", retuenTime)
-                end
+            else
+                local monthEndNode = Sprite:findChild(rootSprite, "monthEndNode")
+                local timeContentEnd=Sprite:findChild(monthEndNode,"timeContent")
+                Sprite:setProperty(timeContentEnd, "text", retuenTime)
             end
-
-            elseif msg == MSG_DEACTIVATE then
         end
-    end
-    -- @brief 插件消息方法
-    function bodyOnPluginEvent(msg)
-        if msg == 101 then
 
-
-
-            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
-            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
-            Log:write('拨号失败')
-            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
-            Log:write('请求超时')
-        end
+    elseif msg == MSG_DEACTIVATE then
     end
-    -- @brief 按键响应处理
-    function mainNodeOnKeyUp(sprite, kc)
-        if kc == Key.F2 then -- 按下返回键
-            Scene:back()
-            return 1
-        end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
     end
-    ---------------------------------------util functions---------------------------
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+---------------------------------------util functions---------------------------
 
 --@brief 返回按钮消息处理函数
 function doBack(sprite)
     Scene:back()
 end
 
-
-    function timeOnSelect(sprite)
+function timeOnSelect(sprite)
     Log:write("str========54654654")
-        local content = Sprite:findChild(Sprite:getParent(sprite), 'timeContent')
-        local date = Sprite:getText(content)
-        local stringDate = Split(date, '-')
-        Log:write("str========",stringDate)
-        local startTime = Sprite:findChild(rootSprite, 'startTime')
+    local content = Sprite:findChild(Sprite:getParent(sprite), 'timeContent')
+    local date = Sprite:getText(content)
+    local stringDate = Split(date, '-')
+    Log:write("str========",stringDate)
+    local startTime = Sprite:findChild(rootSprite, 'startTime')
 
-        local endTime = Sprite:findChild(rootSprite, 'endTime')
-            Log:write('4', startTime, endTime, sprite)
-        local regHandle = Reg:create("startEnd")
+    local endTime = Sprite:findChild(rootSprite, 'endTime')
+        Log:write('4', startTime, endTime, sprite)
+    local regHandle = Reg:create("startEnd")
 
-        if tonumber(startTime) == tonumber(sprite) then
-            Reg:setString(regHandle, 'type', 'start')
-        elseif tonumber(endTime) == tonumber(sprite) then
-            Reg:setString(regHandle, 'type', 'end')
-        else
-            return
-        end
-
-        local regHandle = Reg:create('dateDialog')
-        Reg:setString(regHandle, 'year', stringDate[1])
-        Reg:setString(regHandle, 'month', stringDate[2])
-        Reg:setString(regHandle, 'day', stringDate[3])
-        Scene:setReturn(Alias.cardispatch, Alias.dateDialog)
-        Scene:go(Alias.dateDialog)
+    if tonumber(startTime) == tonumber(sprite) then
+        Reg:setString(regHandle, 'type', 'start')
+    elseif tonumber(endTime) == tonumber(sprite) then
+        Reg:setString(regHandle, 'type', 'end')
+    else
+        return
     end
+
+    local regHandle = Reg:create('dateDialog')
+    Reg:setString(regHandle, 'year', stringDate[1])
+    Reg:setString(regHandle, 'month', stringDate[2])
+    Reg:setString(regHandle, 'day', stringDate[3])
+    Scene:setReturn(Alias.cardispatch, Alias.dateDialog)
+    Scene:go(Alias.dateDialog)
+end
 
 function submitOnSelect(sprite)
     local monthFilterNode = Sprite:findChild(rootSprite, "monthFilterNode")
     local timeContent=Sprite:findChild(monthFilterNode,"timeContent")
 
-        local monthEndNode = Sprite:findChild(rootSprite, "monthEndNode")
-        local timeContentEnd=Sprite:findChild(monthEndNode,"timeContent")
+    local monthEndNode = Sprite:findChild(rootSprite, "monthEndNode")
+    local timeContentEnd=Sprite:findChild(monthEndNode,"timeContent")
 
-        local UserNode = Sprite:findChild(rootSprite,"UserNode")
-        local userInfo = Sprite:findChild(UserNode,"timeContent")
+    local UserNode = Sprite:findChild(rootSprite,"UserNode")
+    local userInfo = Sprite:findChild(UserNode,"timeContent")
 
     local reasonNode=Sprite:findChild(rootSprite,"reasonNode")
     local Content = Sprite:findChild(reasonNode,"Content")
 
-        local time = Sprite:getText(timeContent)
-        local user = Sprite:getText(userInfo)
-        local reason=Sprite:getText(Content)
-        local timeEnd = Sprite:getText(timeContentEnd)
+    local time = Sprite:getText(timeContent)
+    local user = Sprite:getText(userInfo)
+    local reason=Sprite:getText(Content)
+    local timeEnd = Sprite:getText(timeContentEnd)
 
-        local smsstring=user..'申请在'..time..'至'..timeEnd..'调用车辆。原因：'..reason
-        Log:write('smsstring===================',smsstring)
-        --local phone = '18756948812'
-        local phone = '10658476002'
-        if user==nil or user==''or reason==nil or reason=='' then
-            Dialog:show(rootSprite, '申请内容不允许为空！', 'ok')
-            return
-            elseif phone ~= nil and phone ~= '' then
-                if Util:sendSMS(phone, smsstring) then
-                    Dialog:show(rootSprite, '申请成功！', 'ok')
-                    Scene:back()
-                    else
-                    Dialog:show(rootSprite, '请求发送失败，请稍后再试！', 'ok')
-                end
-            --Util:sendSMS(phone, smscontent)
+    local smsstring=user..'申请在'..time..'至'..timeEnd..'调用车辆。原因：'..reason
+    Log:write('smsstring===================',smsstring)
+    --local phone = '18756948812'
+    local phone = '10658476002'
+    if user==nil or user==''or reason==nil or reason=='' then
+        Dialog:show(rootSprite, '申请内容不允许为空！', 'ok')
+        return
+    elseif phone ~= nil and phone ~= '' then
+        if Util:sendSMS(phone, smsstring) then
+            Dialog:show(rootSprite, '申请成功！', 'ok')
+            Scene:back()
+        else
+            Dialog:show(rootSprite, '请求发送失败，请稍后再试！', 'ok')
+        end
+        --Util:sendSMS(phone, smscontent)
     else
         Dialog:show(rootSprite, '调度接口异常！', 'ok')
     end
