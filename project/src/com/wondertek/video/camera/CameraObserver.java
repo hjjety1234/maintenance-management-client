@@ -67,7 +67,7 @@ public class CameraObserver {
 
 		if(!status.equals(Environment.MEDIA_MOUNTED))
 		{
-			Toast.makeText(VenusActivity.appActivity, "sd¿¨²»´æÔÚ",Toast.LENGTH_LONG).show();
+			Toast.makeText(VenusActivity.appActivity, "sdå¡ä¸å­˜åœ¨",Toast.LENGTH_LONG).show();
 			return false;
 		}
 		return true;
