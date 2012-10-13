@@ -33,7 +33,11 @@ function getWholeUrl(urlContent, params)
     if isPost then
         return url .. urlContent
     end
-    return url .. urlContent .. '?' .. 'usercode=' .. Config:get('username') .. '&pagesize=' .. lines.. '&' .. params
+    if params and params ~= '' then
+        return url .. urlContent .. '?' .. 'usercode=' .. Config:get('username') .. '&pagesize=' .. lines.. '&' .. params
+    else
+        return url .. urlContent .. '?' .. 'usercode=' .. Config:get('username') .. '&pagesize=' .. lines
+    end
 end
 
 function setAllShoworHide(sprite, isShow)
