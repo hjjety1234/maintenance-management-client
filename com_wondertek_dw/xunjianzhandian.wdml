@@ -193,7 +193,8 @@ local total = 0
 local page = 1
 local isSimulate = false
 local stationDistanceVisible = false
-local getGPSDataNum = 10
+local statusBarText
+local timerNum = 20
 ---------------------------------------回调函数列表--------------------------------
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -202,11 +203,12 @@ function bodyBuildChildrenFinished(sprite)
     local regHandle = Reg:create('xunjianrenwu')
     planId = Reg:getString(regHandle, 'planId')
     templateId = Reg:getString(regHandle, 'templateId')
+    statusBarText =  Sprite:findChild(sprite, 'statusBarText')
 end
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        getNearbyStationByDefaultRadius()
+        getNearbyStationByRadius()
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -405,73 +407,7 @@ end
 ---------------------------------------与服务端交互函数列表---------------------------
 -- issue #18 提供重新定位按钮
 function doGetLocAgain(sprite)
-    getNearbyStationByDefaultRadius()
-end
-
--- 取得默认范围内的基站
-function getNearbyStationByDefaultRadius()
-    --  显示状态栏
-    local statusBar = Sprite:findChild(rootSprite, 'statusBar')
-    Sprite:setProperty(statusBar, 'visible', 'true')
-    Sprite:setProperty(statusBar, 'enable', 'true')
-    if isSimulate == false then
-        -- 真机环境下，调用GPS获取当前位置
-        local result = System:setGPSStatus(1)
-        local statusBarText =  Sprite:findChild(rootSprite, 'statusBarText')
-        -- 设置状态栏
-        if result then
-            Sprite:setProperty(statusBarText, 'text', '正在定位...')
-            Timer:set(1, 1000, '_requestNearbyStationByDefaultRadius')
-        else
-            Sprite:setProperty(statusBarText, 'text', 'GPS开启失败')
-        end
-        
-    else
-        -- 模拟环境下，设置默认经纬度
-        local posValue = '117.251339,31.849438'
-        -- 请求默认附近10km的基站列表
-        local defaultRadius = 1000
-        local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&curLoc=%s&value=%s&page=%s',
-        planId, posValue, defaultRadius, page)
-        local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
-        Http:request('stationList', requestURL, 1003, {useCache=false})
-        stationDistanceVisible =  true --显示距离
-        Loading:show()
-    end
-end
-
--- 由经纬度获得默认范围内的基站列表
-function _requestNearbyStationByDefaultRadius()
-    -- 需要对gps的数据请求多次
-    local longitude,latitude = System:getGPSData()
-    local statusBarText =  Sprite:findChild(rootSprite, 'statusBarText')
-    if longitude ~= 0 and latitude ~=0 then
-        Timer:cancel(111)
-        System:setGPSStatus(0)
-        getGPSDataNum = 10
-        -- 判断定位是否成功
-        local latitudeValue = tonumber(latitude) / 10000000.0
-        local longitudeValue = tonumber(longitude) / 10000000.0
-        local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
-        Sprite:setProperty(statusBarText, 'text', '定位成功，经纬度为:'.. posValue)
-
-        -- 请求站点列表
-        local defaultRadius = 1000
-        local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&curLoc=%s&value=%s&page=%s', planId, posValue, defaultRadius, page)
-        local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
-        Http:request('stationList', requestURL, 1003, {useCache=false})
-        stationDistanceVisible =  true --显示距离
-        Loading:show()
-    elseif getGPSDataNum > 0 then
-        getGPSDataNum = getGPSDataNum - 1
-        System:setGPSStatus(1)
-        Timer:set(111, 1000, '_requestNearbyStationByDefaultRadius')
-    else
-        Timer:cancel(111)
-        System:setGPSStatus(0)
-        getGPSDataNum = 10
-        Sprite:setProperty(statusBarText, 'text', '定位失败，请稍候再试.')
-    end
+    getNearbyStationByRadius()
 end
 
 -- 请求指定范围内的基站
@@ -480,39 +416,33 @@ function getNearbyStationByRadius(sprite)
     local statusBar = Sprite:findChild(rootSprite, 'statusBar')
     Sprite:setProperty(statusBar, 'visible', 'true')
     Sprite:setProperty(statusBar, 'enable', 'true')
-    if isSimulate == false then
-        -- 真机环境下，调用GPS获取当前位置
-        local result = System:setGPSStatus(1)
-        local statusBarText =  Sprite:findChild(rootSprite, 'statusBarText')
-        -- 设置状态栏
-        if result then
-            Sprite:setProperty(statusBarText, 'text', '正在定位...')
-            Timer:set(1, 1000, '_requestNearbyStationByRadius')
+    local result = System:getGPSStatus()
+    if result == -1 then
+        Sprite:setProperty(statusBarText, 'text', '对不起，当前GPS不可用')
+    elseif result == 0 then
+        local gpsStatus = System:setGPSStatus(1)
+        if gpsStatus then
+            Sprite:setProperty(statusBarText, 'text', '开启成功，正在定位...')
+            Timer:set(111, 1000, '_requestNearbyStationByRadius')
         else
             Sprite:setProperty(statusBarText, 'text', 'GPS开启失败')
         end
-    else
-        -- 模拟环境下，设置默认经纬度
-        local posValue = '117.251339,31.849438'
-        -- 请求默认附近10km的基站列表
-        local defaultRadius = 1000
-        local requestParam = string.format('cmd=wlbxunjianResSearch&planId=%s&condition=1&curLoc=%s&value=%s&page=%s', planId, posValue, defaultRadius, page)
-        local requestURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', requestParam)
-        Http:request('stationList', requestURL, 1003, {useCache=false})
-        stationDistanceVisible =  true --显示距离
-        Loading:show()
+    elseif result == 1 then
+        Sprite:setProperty(statusBarText, 'text', '已经开启，正在定位...')
+        Timer:set(111, 1000, '_requestNearbyStationByRadius')
     end
 end
 
 -- 由经纬度获请求指定范围内的基站
 function _requestNearbyStationByRadius()
     -- 需要对gps的数据请求多次
-    local longitude,latitude = System:getGPSData()
-    local statusBarText =  Sprite:findChild(rootSprite, 'statusBarText')
-    if longitude ~= 0 and latitude ~=0 then
-        Timer:cancel(112)
+    local longitude,latitude,time,accuracy,speed,bearing,altitude = System:getGPSData()
+    Log:write('danny test longitude =========', longitude)
+    Log:write('danny test latitude =========', latitude)
+    if longitude and longitude ~= 0 and latitude and latitude ~= 0 then
+        timerNum = 20
+        Timer:cancel(111)
         System:setGPSStatus(0)
-        getGPSDataNum = 10
         -- 判断定位是否成功
         local latitudeValue = tonumber(latitude) / 10000000.0
         local longitudeValue = tonumber(longitude) / 10000000.0
@@ -526,14 +456,13 @@ function _requestNearbyStationByRadius()
         Http:request('stationList', requestURL, 1003, {useCache=false})
         stationDistanceVisible =  true --显示距离
         Loading:show()
-    elseif getGPSDataNum > 0 then
-        getGPSDataNum = getGPSDataNum - 1
-        System:setGPSStatus(1)
-        Timer:set(112, 1000, '_requestNearbyStationByRadius')
+    elseif timerNum > 0 then
+        timerNum = timerNum - 1
+        Timer:set(111, 1000, '_requestNearbyStationByRadius')
     else
-        Timer:cancel(112)
+        Timer:cancel(111)
         System:setGPSStatus(0)
-        getGPSDataNum = 10
+        timerNum = 20
         Sprite:setProperty(statusBarText, 'text', '定位失败，请稍候再试.')
     end
 end
