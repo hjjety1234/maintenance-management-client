@@ -806,12 +806,7 @@ function doUpload(sprite)
     local mainNodeContent=Sprite:findChild(rootSprite,'mainNodeContent')
     local mainListView =Sprite:findChild(mainNodeContent,'mainListView')
     local MLVcount= ListView:getItemCount(mainListView)
-        --判断是否有图片 有图片则上传
-        if imageArray[1] ~= nil and imageArray[1] ~= '' then
-            for k,v in pairs(imageArray) do
-                getUploadUrl(v) 
-            end
-        end
+        
     for i=1,MLVcount do
         local mainItemNode = ListView:getItem(mainListView, i-1)
         local subListviewNode = Sprite:findChild(mainItemNode,'subListviewNode')
@@ -839,8 +834,8 @@ function doUpload(sprite)
                     patrolResult=Sprite:getText(errorTypeName)
 
                     if patrolResult==nil or patrolResult=='' then
-                         Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok')
-                         return
+                        Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok')
+                        return
                     else
                         setAllShoworHide(Sprite:findChild(errorTitleNode1,'SaveFlag'),1)
                         HttpRequest(subitemId,patrolResult,exception,dealdetail)
@@ -874,7 +869,7 @@ function doUpload(sprite)
 
                     if patrolResult==nil or patrolResult=='' then
                         Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok')
-                        return
+                       return
                     else
                         setAllShoworHide(Sprite:findChild(errorTitleNode3,'SaveFlag'),1)
                         HttpRequest(subitemId,patrolResult,exception,dealdetail)
@@ -883,12 +878,20 @@ function doUpload(sprite)
             end
         end
     end
+    Loading:show(rootSprite)
+    --判断是否有图片 有图片则上传
+    if imageArray[1] ~= nil and imageArray[1] ~= '' then
+        for k,v in pairs(imageArray) do
+            getUploadUrl(v) 
+        end
+    end
     Timer:set(1, 500, 'doBackStatue')
 end
 function doBackStatue()
     local numSum = #imageArray
     if imgnum==numSum then
         Timer:cancel(1) 
+        if Loading:isShow() then Loading:close() end
         doBack()
         else
             Timer:set(1, 500, 'doBackStatue')
@@ -928,7 +931,7 @@ function doRealUpload(url, param,imgnum)
     local _,_,fileName = string.find(imageArray[imgnum], '([^/\\%.]+)%.?[^/\\]*$')
     local poststr = 'id=' .. taskidArray[imgnum] .. '&markid='..subitemidArray[imgnum]..'&interfaceMainType=3&usercode=' .. Config:get('username') .. '&uploadFileName=' .. fileName .. '.jpg'
     --deleleUploadItems()
-    Upload:append(url, param .. poststr, imageArray[imgnum], fileName .. '.jpg', 'test', 'jpg')
+    Upload:append(url, param .. poststr, imageArray[imgnum], fileName .. '.jpg', fileName, 'jpg')
 end
 
 --默认收缩
@@ -964,7 +967,7 @@ function doTakePic(sprite)
 end
 
 function onCameraDialog(photoPath, photoType)
-    --table.insert(imageArray, photoPath)
+    table.insert(imageArray, photoPath)
     --预留存储巡检计划号、基站号、巡检子项号
     --table.insert(imageArray, photoPath)000001000599
     table.insert(taskidArray, planId)
@@ -972,14 +975,14 @@ function onCameraDialog(photoPath, photoType)
     local tmpSplitArray = Split(photoPath,'%.')
     local dest = tmpSplitArray[1] .. 'temp.jpg'
     Log:write('目标文件路径为:'..dest)
-    local ret = ScaleImageAsJpg(photoPath, dest, 480, 800, 0)
-    if ret == 1 then
-        table.insert(imageArray, dest)
-        Log:write('图片压缩成功，压缩后的图片位置为:'..dest)
-    else
-        table.insert(imageArray, photoPath)
-        Log:write('警告：图片压缩失败，使用未压缩的图片:'..photoPath)
-    end
+   -- local ret = ScaleImageAsJpg(photoPath, dest, 480, 800, 0)
+   -- if ret == 1 then
+   --     table.insert(imageArray, dest)
+   --     Log:write('图片压缩成功，压缩后的图片位置为:'..dest)
+   -- else
+   --     table.insert(imageArray, photoPath)
+   --     Log:write('警告：图片压缩失败，使用未压缩的图片:'..photoPath)
+   -- end
 
     Log:write("imageArray0", imageArray)
     local errorHideNode = Sprite:getParent(piccurrbtn)

@@ -105,11 +105,12 @@ end
 function pauseBtnOnSelect(sprite)
     Sprite:killFocus(sprite)
     Sprite:releaseCapture(sprite)
-    Sprite:releaseCapture(sprite)
+    Log:write('暂停前的状态。。。。。。。。。。。。', Upload:getStatus())
     local item = Sprite:getParent(sprite)
     local index = ListView:getItemIndex(item)
     Upload:pause(index + 1)
     local continueBtn = Sprite:findChild(Sprite:getParent(sprite), 'continueBtn')
+    Log:write('暂停后的状态。。。。。。。。。。。。', Upload:getStatus())
     Sprite:setEnable(continueBtn, 1)
     Sprite:setVisible(continueBtn, 1)
     Sprite:setEnable(sprite, 0)
@@ -118,13 +119,15 @@ end
 
 -- @brief 继续按钮
 function continueBtnOnSelect(sprite)
+    Log:write('继续前的状态。。。。。。。。。。。。', Upload:getStatus())
     Sprite:killFocus(sprite)
     Sprite:releaseCapture(sprite)
-    Sprite:releaseCapture(sprite)
+    
     local item = Sprite:getParent(sprite)
     local index = ListView:getItemIndex(item)
     Upload:start(index + 1)
     local pauseBtn = Sprite:findChild(Sprite:getParent(sprite), 'pauseBtn')
+    Log:write('继续后的状态。。。。。。。。。。。。', Upload:getStatus())
     Sprite:setEnable(pauseBtn, 1)
     Sprite:setVisible(pauseBtn, 1)
     Sprite:setEnable(sprite, 0)
@@ -135,9 +138,10 @@ end
 function deleteBtnOnSelect(sprite)
     Sprite:killFocus(sprite)
     Sprite:releaseCapture(sprite)
-    Sprite:releaseCapture(sprite)
+    Log:write('删除前的状态。。。。。。。。。。。。', Upload:getStatus())
     local item = Sprite:getParent(sprite)
     local index = ListView:getItemIndex(item)
+    Log:write('删除后的状态。。。。。。。。。。。。', Upload:getStatus())
     Upload:delete(index + 1, 1)
     ListView:removeItem(Sprite:getParent(item), item, 1, 1)
 end
@@ -153,6 +157,7 @@ end
 ---------------------------------------util functions---------------------------
 function downloadInit()
     local count = Upload:getCount() 
+    Log:write('任务数：',count)
     ListView:removeAllItems(downloadListview, 1, 1)
     ListView:loadItem(downloadListview, downloadlistviewItem, count, 'onDownloadlistviewItem')
 end
@@ -171,7 +176,7 @@ function onGetDownloadStatus()
     local finishedTask
     for i = 1, count do
         local task = Upload:getStatus(i)
-        Log:write('task', task)
+        Log:write('上传状态：==============', task)
         local spead = task.size - (speadTable[i] or 0)
         speadTable[i] = task.size
         local item = ListView:getItem(downloadListview, i - 1)
@@ -192,26 +197,27 @@ function onGetDownloadStatus()
             finishedTask = task
             finishedTask.item = item
         end
-        if task.status ~='5' then
-            if task.status == '0' then
+        Log:write('任务状态===============',task.status)
+        if task.status ~=5 then
+            if task.status == 0 then
                 Sprite:setProperty(downloadStatusImg, 'src', 'file://image/download_wait.png')
                 Sprite:setEnable(pauseBtn, 1)
                 Sprite:setVisible(pauseBtn, 1)
                 Sprite:setEnable(continueBtn, 0)
                 Sprite:setVisible(continueBtn, 0)
-            elseif task.status == '3' then -- 如果为等待和下载状态则显示暂停按钮
+            elseif task.status == 3 then -- 如果为等待和下载状态则显示暂停按钮
                 Sprite:setProperty(downloadStatusImg, 'src', 'file://image/download_run.png')
                 Sprite:setEnable(pauseBtn, 1)
                 Sprite:setVisible(pauseBtn, 1)
                 Sprite:setEnable(continueBtn, 0)
                 Sprite:setVisible(continueBtn, 0)
-            elseif task.status =='4' then -- 如果为暂停状态则显示继续按钮
+            elseif task.status ==4 then -- 如果为暂停状态则显示继续按钮
                 Sprite:setProperty(downloadStatusImg, 'src', 'file://image/download_pause.png')
                 Sprite:setEnable(pauseBtn, 0)
                 Sprite:setVisible(pauseBtn, 0)
                 Sprite:setEnable(continueBtn, 1)
                 Sprite:setVisible(continueBtn, 1)
-            elseif task.status == '6' then -- 如果为失败状态则只显示删除按钮
+            elseif task.status == 6 then -- 如果为失败状态则只显示删除按钮
                 Sprite:setProperty(downloadStatusImg, 'src', 'file://image/download_fail.png')
                 Sprite:setEnable(pauseBtn, 0)
                 Sprite:setVisible(pauseBtn, 0)
