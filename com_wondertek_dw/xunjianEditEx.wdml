@@ -918,22 +918,7 @@ end
 --获取图片的url地址
 function getUploadUrl(photoPath)
     local _,_,fileName = string.find(photoPath, '([^/\\%.]+)%.?[^/\\]*$')
-
-    local url = 'http://61.191.25.238:7011/nbspweb/upload/UGC_GetUploadUrl.html'
-    if Config:get('server_url') == nil or Config:get('server_url') == '' then
-        Config:set('server_url', '61.191.25.238')
-    end
-    local port = ':7011'
-    if Config:get('server_port') ~= nil and Config:get('server_port') ~= '' then
-        port = ':' .. Config:get('server_port')
-    end
-
-    local nFindLastIndex = string.find(Config:get('server_url'), 'http://')
-    if not nFindLastIndex then
-        url = 'http://' .. Config:get('server_url') .. port .. '/nbspweb/upload/UGC_GetUploadUrl.html'
-    else
-        url = Config:get('server_url') .. port .. '/nbspweb/upload/UGC_GetUploadUrl.html'
-    end
+	local url = getUrl() .. 'nbspweb/upload/UGC_GetUploadUrl.html'
     local param = 'FILE_NAME=' .. fileName .. '&C_TYPE=' .. 'jpg' .. '&C_LEN=' .. IO:fileSize(photoPath)
     Log:write("-------------url upload------------", url .. param)
     Http:request('upload_url', url, 104, {useCache = false, method = 'post', postData= param})
