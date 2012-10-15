@@ -78,7 +78,6 @@
 require 'com_wondertek_dw.common.framework'
 local rootSprite
 local data
-local isTips = 0
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -97,9 +96,8 @@ end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
-    if msg == 101 then
-    		isTips = 1
-        if Loading:isShow() then Loading:close() end
+    if msg == 101 and Loading:isShow() then
+        Loading:close()
         data = Http:jsonDecode('search_data')
         Log:write("data:", data)
         local nullTips = Sprite:findChild(rootSprite,'nullTips')
@@ -115,7 +113,6 @@ function bodyOnPluginEvent(msg)
             Sprite:setEnable(list,0)
             Sprite:setVisible(nullTips,1)
         end
-
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -147,20 +144,15 @@ end
 
 function doSearch(content)
     local dataString=string.format('cmd=%s&resourceName=%s&resourceType=%s&page=1','wlbresourceSearch', content, '')
-    Log:write('777777777777777',dataString)
     local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
     Http:request('search_data', reqURL, 101, {useCache = false, method = 'post', postData=dataString})
     Loading:show(rootSprite)
-    Timer:set(1,8000,'loadingClose')
+    Timer:set(1,8000, 'loadingClose')
 end
 
 function loadingClose()
-		if isTips == 0 then
-				if Loading:isShow() then Loading:close() end
-				Dialog:show('服务器提醒','连接超时！','ok')
-		else isTips == 1 then
-				isTips = 0
-		end
+    if Loading:isShow() then Loading:close() end
+    Dialog:show('服务器提醒', '连接超时！', 'ok')
 end
 
 function loadListItem(list, item, index)
