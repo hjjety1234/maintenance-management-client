@@ -210,6 +210,7 @@ function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         getNearbyStationByRadius()
     elseif msg == MSG_DEACTIVATE then
+        System:setGPSStatus(0)
     end
 end
 -- 插件消息方法
@@ -416,6 +417,7 @@ function getNearbyStationByRadius(sprite)
     local statusBar = Sprite:findChild(rootSprite, 'statusBar')
     Sprite:setProperty(statusBar, 'visible', 'true')
     Sprite:setProperty(statusBar, 'enable', 'true')
+    -- 检查当前gps状态
     local result = System:getGPSStatus()
     if result == -1 then
         Sprite:setProperty(statusBarText, 'text', '对不起，当前GPS不可用')
@@ -437,8 +439,6 @@ end
 function _requestNearbyStationByRadius()
     -- 需要对gps的数据请求多次
     local longitude,latitude,time,accuracy,speed,bearing,altitude = System:getGPSData()
-    Log:write('danny test longitude =========', longitude)
-    Log:write('danny test latitude =========', latitude)
     if longitude and longitude ~= 0 and latitude and latitude ~= 0 then
         timerNum = 20
         Timer:cancel(111)

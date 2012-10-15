@@ -123,10 +123,10 @@ function bodyOnPluginEvent(msg)
                     loadList(1)
                 end
             else
-                Dialog:show(rootSprite, '未知错误！', 'ok')
+                Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
             end
         else
-            Dialog:show(rootSprite, '未知错误！', 'ok')
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
         end
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -249,10 +249,9 @@ function loadSavedDatas()
 end
 
 function loadUploadDatas()
-    local url = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', "")
-    local param = '&usercode='..Config:get('username')..'&page=1&pagesize=50'
-    Log:write("param = ", param)
-    Http:request('daiban_data', url, 101, {useCache = false, method = 'post', postData='cmd=wlbdangerlist'..param})
+    local param = 'cmd=wlbdangerlist&page=1'
+    local url = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
+    Http:request('daiban_data', url, 101, {useCache = false})
     Loading:show(rootSprite)
 end
 
