@@ -78,6 +78,7 @@
 require 'com_wondertek_dw.common.framework'
 local rootSprite
 local data
+local isTips = 0
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -97,6 +98,7 @@ end
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
     if msg == 101 then
+    		isTips = 1
         if Loading:isShow() then Loading:close() end
         data = Http:jsonDecode('search_data')
         Log:write("data:", data)
@@ -145,9 +147,20 @@ end
 
 function doSearch(content)
     local dataString=string.format('cmd=%s&resourceName=%s&resourceType=%s&page=1','wlbresourceSearch', content, '')
+    Log:write('777777777777777',dataString)
     local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
     Http:request('search_data', reqURL, 101, {useCache = false, method = 'post', postData=dataString})
     Loading:show(rootSprite)
+    Timer:set(1,8000,'loadingClose')
+end
+
+function loadingClose()
+		if isTips == 0 then
+				if Loading:isShow() then Loading:close() end
+				Dialog:show('服务器提醒','连接超时！','ok')
+		else isTips == 1 then
+				isTips = 0
+		end
 end
 
 function loadListItem(list, item, index)
