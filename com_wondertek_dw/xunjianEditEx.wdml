@@ -473,6 +473,7 @@ function loadSubListItem(list, item, index)
     local takePicBtn = Sprite:findChild(errorHideNode, 'takePicBtn')
 end
 
+-- 数字类型输入框焦点消失响应处理
 function onTextLostFocus(sprite)
     local content=tonumber(Sprite:getText(sprite))
     local oldData = Sprite:getData(sprite)
@@ -484,6 +485,9 @@ function onTextLostFocus(sprite)
     if content < min or content > max then
         newData = '0'
         Dialog:show('提示','已超出正常范围！','ok')
+    elseif content == nil then
+		newData = '0'
+        Dialog:show('提示','输入必须是数字！','ok')
     else
         newData = '1'
         --正常保存提交
