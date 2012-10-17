@@ -98,6 +98,13 @@ local flag
 local list
 local nullNode
 
+-- 优化GPS用户体验，在巡检计划中提前开启gps
+-- 如果获得经纬度，则直接传给下一个页面
+-- local longitude = 1172513390
+-- local latitude = 318494380
+local longitude = 0
+local latitude = 0
+
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -105,6 +112,7 @@ function bodyBuildChildrenFinished(sprite)
     nullNode = Sprite:findChild(rootSprite, 'nullNode')
     list = Sprite:findChild(rootSprite, 'sampleList')
     loadRequest()
+    getCurrentLoc()
 end
 
 -- @brief root节点消息方法
@@ -233,6 +241,8 @@ function itemOnSelect(sprite)
     Reg:clear(regHandle)
     Reg:setString(regHandle, 'planId', planId)
     Reg:setString(regHandle, 'templateId', templateId)
+    Reg:setString(regHandle, 'longitude', longitude)
+    Reg:setString(regHandle, 'latitude', latitude)
     -- 页面跳转，跳转到站点列表
     Scene:setReturn(Alias.xunjianjihua, Alias.xunjianzhandian)
     Scene:go(Alias.xunjianzhandian, true)
@@ -277,6 +287,36 @@ function showOrHideNullNode(showOrHide)
         Sprite:setEnable(list, 0)
         Sprite:setActive(list, 0)
         Sprite:setVisible(list, 0)
+    end
+end
+
+---------------------------------------GPS相关函数---------------------------
+-- 取得当前的经纬度，设置全局变量
+function getCurrentLoc()
+    local result = System:getGPSStatus()
+    if result == -1 then
+       Log:write('gps不可用')
+    elseif result == 0 then
+        local gpsStatus = System:setGPSStatus(1)
+        if gpsStatus then
+            Timer:set(111, 1000, '__getGpsData')
+        else
+           Log:write('gps开启失败')
+        end
+    elseif result == 1 then
+        Log:write('gps已经开启')
+        Timer:set(111, 1000, '__getGpsData')
+    end
+end
+
+-- gps已经打开的情况下，获取gps数据
+function __getGpsData()
+    longitude, latitude = System:getGPSData()
+    if longitude and longitude ~= 0 and latitude and latitude ~= 0 then
+         System:setGPSStatus(0)
+    else
+        -- 重设定时器
+        Timer:set(111, 1000, '__getGpsData')
     end
 end
 
