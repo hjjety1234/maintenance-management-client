@@ -25,7 +25,7 @@
                     extendstyle="1111" style="autosize" />
 
                 <button name="backBtn" rect="0,4,75,58" normal="normal" sel="sel"
-                    OnSelect="isSave" extendstyle="1111">
+                    OnSelect="doBack" extendstyle="1111">
                     <image name="normal" rect="0,0,75,58" src="file://image/ic_home.png"
                         style="autosize" extendstyle="1111" />
                     <image name="sel" rect="0,0,75,58" src="file://image/ic_home.png"
@@ -86,6 +86,15 @@
                 <edit name="editLines" rect="215,0,220,50" border="false"
                     extendstyle="1111" v-center="true" option="numeric"/>
             </node>
+            
+            <!-- 保存配置  -->
+            <node name="saveNode" rect="10,420,460,100" extendstyle="1111">
+                <button name="saveButton" rect="150,25,160,50" text="确定" color="#ffffff"
+                    extendstyle="1111" OnSelect="doSave"
+                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+                     font-size="24" />
+            </node>
         </node>
     </body>
     <![CDATA[
@@ -131,11 +140,6 @@ function doBack()
     Scene:back()
 end
 
-function isSave()
-    -- body
-    Dialog:show('提示','是否保存该内容？','ok_cancel','doSave','doBack')
-end
-
 function doSave()
     -- body
     local editServer = Sprite:getProperty(Sprite:findChild(rootSprite, 'editServer'), 'text')
@@ -161,7 +165,7 @@ function doSave()
     end
     Config:set('autoUpdate', Sprite:getData(btnUpdate))
     Config:set('autoRemeber', Sprite:getData(btnLogin))
-    doBack()
+    Dialog:show('提示','配置已保存！','ok')
 end
 
 function autoRemeber(sprite)

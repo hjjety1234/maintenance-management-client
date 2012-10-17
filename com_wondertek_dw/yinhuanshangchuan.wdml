@@ -455,6 +455,7 @@ function editOnTextChanged(sprite,ncount)
     end
 end
 
+-- 巡检类别选择
 function xunjianOnSelect(sprite)
     --@Log:write('tempid===', tempid)
     local xunjianData = Sprite:getData(sprite)
@@ -462,21 +463,14 @@ function xunjianOnSelect(sprite)
      --@Log:write('tempid===', tempid)
     selectIndex = 1
     
-     -- 设置默认隐患类别(仅供演示)
-    local list = Sprite:findChild(rootSprite, 'listSelect')
-    local item = Sprite:findChild(rootSprite, 'selectItem')
-    ListView:removeAllItems(list, 1, 1)
-    ListView:loadItem(list, item, 1, 'loadDefaultSelectItem')
-    ListView:adjust(list)
-    -----------------------------------
-    
     local param = 'cmd=wlbyhtypelist&usercode=' .. Config:get('username')
     local url = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
-    --Http:request('select', url, 102, {useCache = true})
-    --Loading:show(rootSprite)
+    Http:request('select', url, 102, {useCache = true})
+    Loading:show(rootSprite)
     setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
 end
 
+-- 巡检级别选择
 function levelOnSelect(sprite)
     --@Log:write('tempid===', tempid)
     local xunjianData = Sprite:getData(sprite)
@@ -484,21 +478,14 @@ function levelOnSelect(sprite)
      --@Log:write('tempid===', tempid)
     selectIndex = 2
     
-    -- 设置默认隐患级别（仅供演示）
-    local list = Sprite:findChild(rootSprite, 'listSelect')
-    local item = Sprite:findChild(rootSprite, 'selectItem')
-    ListView:removeAllItems(list, 1, 1)
-    ListView:loadItem(list, item, 3, 'loadDefaultSelectItem')
-    ListView:adjust(list)
-    -----------------------------------
-    
     local param = 'cmd=wlbyhlevellist&usercode=' .. Config:get('username')
     local url = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
-    --Http:request('select', url, 102, {useCache = true, method = 'post'})
-    --Loading:show(rootSprite)
+    Http:request('select', url, 102, {useCache = true, method = 'post'})
+    Loading:show(rootSprite)
     setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
 end
 
+-- 所属专业选择
 function typeOnSelect(sprite)
     --@Log:write('tempid===', tempid)
     local xunjianData = Sprite:getData(sprite)
@@ -525,12 +512,10 @@ function xunjianGroupOnSelect(sprite)
     local levelBtn = Sprite:findChild(rootSprite, 'levelBtn')
 
     if selectIndex == 1 then
-        --title = selectData.value[index].typeName
-        title = defaultTypeSelectData[index+1].name
+        title = selectData.value[index].typeName
         zhuanyeValue = xunjianData
     elseif selectIndex == 2 then
-        --title = selectData.value[index].levelName
-        title = defaultLevelOnSelect[index+1].name
+        title = selectData.value[index].levelName
         levelValue = xunjianData
     elseif selectIndex == 3 then
         title = selectData.value[index].lable

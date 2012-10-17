@@ -191,7 +191,7 @@ local templateId = nil
 local code = nil
 local total = 0
 local page = 1
-local isSimulate = false
+local isSimulate = true
 local stationDistanceVisible = false
 local statusBarText
 local timerNum = 20
@@ -251,7 +251,7 @@ function bodyOnPluginEvent(msg, param)
         local resp = Http:jsonDecode('stationList')
         Log:write(resp.value)
         if (resp.code == nil or resp.code ~= '0') then
-            Dialog:show('', '服务端返回错误:'..getErrorCode(resp.code), 'ok')
+            Dialog:show('', getErrorCode(resp.code), 'ok')
             Loading:close()
             return
         elseif (getJsonArrayCount(resp.value) == 0 or resp.value=='') then
