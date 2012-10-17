@@ -120,17 +120,20 @@ local respValue = nil
 local page = 1
 local isSearchBarVisible = false
 local nSearchBarWidth = 56
-
+local bIsFirst = true
 ---------------------------------------回调函数--------------------------------
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    getCarList()
 end
 
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        if bIsFirst == true then 
+            getCarList()
+            bIsFirst = false
+        end
     elseif msg == MSG_DEACTIVATE then
     end
 end
