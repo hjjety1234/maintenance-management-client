@@ -90,6 +90,7 @@ local mapViewPlugin
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    loadRequest()
     --observer = Plugin:getObserver()
     --local regHandle = Reg:create(Regs.regName)
     --mapViewPlugin = Reg:getInteger(regHandle, "map_handle")
@@ -104,7 +105,6 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        loadRequest()
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -159,7 +159,6 @@ function loadRequest()
     local param = '&page=1'
     local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
     Http:request('daiban_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbtasklist'})
-    Loading:show(rootSprite)
 end
 
 function setDaibanNum(num)
