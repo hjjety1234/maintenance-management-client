@@ -168,6 +168,12 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        imageArray = {}
+        thumbImageArray = {}
+        if pYinhuanID==nil or pYinhuanID=='' then
+            local regHandle = Reg:create("imageId")
+            pYinhuanID=Reg:getString(regHandle, "pYinhuanID")
+        end
         local param = 'cmd=wlbdangerdetail&id='..pYinhuanID
         local reqURL = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
         Http:request('daiban_data', reqURL, 101, {useCache = false})
@@ -358,7 +364,8 @@ function picOnSelect(sprite)
     local url= Sprite:getData(sprite)
     local regHandle = Reg:create("imageDetail")
     Reg:setString(regHandle, "imageSrc", url)
-    Scene:setReturn(Alias.yinhuanshangchuan, Alias.imageDetail)
+    Reg:setString(regHandle, "pYinhuanID", pYinhuanID)
+    Scene:setReturn(Alias.yinhuanDetail, Alias.imageDetail)
     Scene:go(Alias.imageDetail, 1)
 end
 
