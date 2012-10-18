@@ -304,27 +304,45 @@ function itemOnSelect(sprite)
         Scene:go(Alias.daibandetail)
     else
         index = tonumber(Sprite:getData(tabNode))
-        stepdata=data.value[index].taskState
-        if  stepdata=='2' then
-            stepdata='1'
-        elseif stepdata=='b' then
-            stepdata='2'
-        elseif stepdata=='3' then
-            stepdata='3'
-        elseif stepdata=='4' then
-            stepdata='4'
-        else
-            --Dialog:show('','无法处理该任务，请联系系统管理员','ok')
-            --return
-        end
         Reg:setString(regHandle,'id',data.value[index].id)
         Reg:setString(regHandle,'pid',data.value[index].pid)
         Reg:setString(regHandle,'taskcode',tostring(data.value[index].taskCode))
-        Log:write('stepdata=================================',stepdata)
-        Reg:setString(regHandle,'stepdata',stepdata)
+        
+        
         Reg:setString(regHandle,'flag',flag)
 
         if flag=='1' then
+            
+            --taskstate字段接口服务器出现垃圾数据  待办任务出现为5（已结束数据，杨隽建议暂用proinstTaskState字段）
+            --[[
+            if  stepdata=='2' then
+                stepdata='1'
+            elseif stepdata=='b' then
+                stepdata='2'
+            elseif stepdata=='3' then
+                stepdata='3'
+            elseif stepdata=='4' then
+                stepdata='4'
+            else
+                Dialog:show('','无法处理该任务，请联系系统管理员','ok')
+                return
+            end
+            ]]--
+            stepdata=data.value[index].proinstTaskState
+            if  stepdata=='签收' then
+                stepdata='1'
+            elseif stepdata=='退单审核' then
+                stepdata='2'
+            elseif stepdata=='填写回单' then
+                stepdata='3'
+            elseif stepdata=='验证回单' then
+                stepdata='4'
+            else
+                Dialog:show('','无法处理该任务，请联系系统管理员','ok')
+                return
+            end
+
+            Reg:setString(regHandle,'stepdata',stepdata)
             Reg:setString(regHandle,'step',tostring(data.value[index].step))
             Scene:setReturn(Alias.daibangongdan, Alias.daibandetail)
             Scene:go(Alias.daibandetail)
