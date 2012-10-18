@@ -327,6 +327,7 @@ function bodyOnPluginEvent(msg, param)
         local updateData = Http:jsonDecode('upload_data')
         Log:write("updateData:", updateData)
         if updateData.code ~= '0' then
+            if Loading:isShow() then Loading:close() end
             Dialog:show('提示',getErrorCode(updateData.code) .. ' ，是否暂存？','ok_cancel','doSave','doBack')
         else
             orderId = updateData.data
