@@ -40,7 +40,7 @@
                      font-size="24"/>
             </node>
 
-            <listview name="listview" rect="0,66,480,680" col="1" extendstyle="1111" limit="true" border="false">
+            <listview name="listview" rect="0,66,480,656" col="1" extendstyle="1111" limit="true" border="false">
                 <list-item rect="0,0,480,80" extendstyle="1111" border="false">
                     <label name="label1" rect="0,0,150,60" border="false" text="隐患名称："
                             h-align="right" v-align="center" color="#000000" font-size="24"
@@ -116,6 +116,19 @@
                                 font-size="15" OnSelect="playRecord"
                                 visible="false" enable="false" active="false"></button>
                     </node>
+                </list-item>
+                <!--隐患地址-->
+                <list-item rect="0,0,480,80" extendstyle="1111" border="false">
+                    <label name="label1" rect="0,0,150,60" border="false" text="隐患位置："
+                            h-align="right" v-align="center" color="#000000" font-size="24"
+                            extendstyle="1111" />
+                        <node rect="150,0,292,60" border="false"
+                            text="" color="#ffffff" extendstyle="1111" >
+                            <image rect="0,0,292,60" src="file://image/input.png" style="autosize"
+                                extendstyle="1111" />
+                            <edit name="yinhuanLocName" rect="5,18,252,60" text="" color="#0" extendstyle="1111"
+                                style="autosize" h-align="center" v-align="top" font-size="24" />
+                        </node>
                 </list-item>
                 <list-item name="imageListNode" rect="0,0,480,120" extendstyle="1111">
                     <panorama name="imageList" rect="0,0,480,120" extendstyle="1111" style="circle" foreground="foreground" alpha="255"/>
@@ -266,6 +279,12 @@ local location = ''
 
 local upStatus = 0
 
+
+-- gps重试次数和经纬度信息
+local timerNum = 10
+local longitude = 0
+local latitude = 0
+
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -283,6 +302,7 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         upStatus = 0
+        System:setGPSStatus(0)
         elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -533,11 +553,51 @@ end
 function doLocation()
     local locInfo = Sprite:findChild(rootSprite, 'locInfo')
     Sprite:setProperty(locInfo, 'text', '正在定位......')
-    Map:getCurPosition(observer, 1000)
-    --if Config:get("latitude") ~= nil and Config:get("latitude") ~= '' and Config:get("longitude") ~= nil and Config:get("longitude") ~= '' then
-    --  Map:getLocation(observer, 1001, tonumber(Config:get("latitude")), tonumber(Config:get("longitude")))
-    --end
+    --Map:getCurPosition(observer, 1000)
+    -- 当前无经纬度信息，检查当前gps状态
+    local result = System:getGPSStatus()
+    if result == -1 then
+        Sprite:setProperty(locInfo, 'text', '对不起，当前GPS不可用')
+    elseif result == 0 then
+        local gpsStatus = System:setGPSStatus(1)
+        if gpsStatus then
+            Sprite:setProperty(locInfo, 'text', 'GPS开启成功，正在定位...')
+            Timer:set(222, 1000, 'getLoctude')
+        else
+            Sprite:setProperty(locInfo, 'text', 'GPS开启失败')
+        end
+    elseif result == 1 then
+        Sprite:setProperty(locInfo, 'text', 'GPS已经开启，正在定位...')
+        Timer:set(222, 1000, 'getLoctude')
+    end
+    
 end
+
+function getLoctude()
+    -- 需要对gps的数据请求多次
+    local locInfo = Sprite:findChild(rootSprite, 'locInfo')
+    longitude,latitude = System:getGPSData()
+    if longitude and longitude ~= 0 and latitude and latitude ~= 0 then
+        timerNum = 10
+        Timer:cancel(222)
+        System:setGPSStatus(0)
+        
+        -- 判断定位是否成功
+        local latitudeValue = tonumber(latitude) / 10000000.0
+        local longitudeValue = tonumber(longitude) / 10000000.0
+        local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
+        Sprite:setProperty(locInfo, 'text', '定位成功，经纬度为:'.. posValue)
+    elseif timerNum > 0 then
+        timerNum = timerNum - 1
+        Timer:set(222, 1000, 'getLoctude')
+    else
+        Timer:cancel(222)
+        System:setGPSStatus(0)
+        timerNum = 10
+        Sprite:setProperty(locInfo, 'text', '定位失败，请稍候再试.')
+    end
+end
+
 function isSave(sprites)
     Dialog:show('提示','是否保存该内容？','ok_cancel','doSave','doBack')
 end
@@ -546,6 +606,7 @@ function submitOnSelect(sprites)
     local zhuanyeBtnText = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'zhuanyeBtn'), 'name'), 'text')
     local typeBtnText = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'typeBtn'), 'name'), 'text')
     local levelBtnText = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'levelBtn'), 'name'), 'text')
+    local yinhuanLocNameText=Sprite:getProperty(Sprite:findChild(rootSprite, 'yinhuanLocName'), 'text')
     if yinhuanNameText and yinhuanNameText == '' then
         Dialog:show('提示', '对不起，隐患名称为空！', 'ok')
     elseif zhuanyeBtnText and zhuanyeBtnText == '' then
@@ -554,6 +615,8 @@ function submitOnSelect(sprites)
         Dialog:show('提示', '对不起，所属专业为空！', 'ok')
     elseif levelBtnText and levelBtnText == '' then
         Dialog:show('提示', '对不起，隐患级别为空！', 'ok')
+    elseif yinhuanLocNameText and yinhuanLocNameText=='' then
+        Dialog:show('提示', '对不起，隐患位置为空！', 'ok')
     else
         Dialog:show('提示','是否确定提交此隐患？','ok_cancel','doUpload','doSave')
     end
@@ -566,7 +629,9 @@ function doUpload()
     local detail = Sprite:findChild(rootSprite, 'detail')
     local name =  Sprite:getProperty(Sprite:findChild(rootSprite, 'yinhuanName'), 'text')
     local locInfo = Sprite:findChild(rootSprite, 'locInfo')
-    local addr = Sprite:getProperty(locInfo, 'text')
+    --改成手动填写 2012-10-19  余奇
+    --local addr = Sprite:getProperty(locInfo, 'text')
+    local addr=Sprite:getProperty(Sprite:findChild(rootSprite, 'yinhuanLocName'), 'text')
 
     if Config:get("latitude") == nil or Config:get("latitude") == '' then
         --Dialog:show('提示', '定位失败!', 'ok')
