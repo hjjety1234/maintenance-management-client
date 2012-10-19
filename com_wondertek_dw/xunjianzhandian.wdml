@@ -65,8 +65,6 @@
             
             <!-- 搜索框  -->
             <node border="0" name="searchStationNameNode" rect="0,126,480,60" extendstyle="1111">
-                <image name="Image1" rect="0,0,480,66" src="file://image/search_bg.png"
-                    extendstyle="1111" style="autosize" />
                 <image name="search_bg" rect="0,0,480,60" src="file://image/title_bar.png"
                     style="autosize" extendstyle="1111" />
                 <image name="Image1" rect="15,10,346,46" src="file://image/search_input.png"
@@ -79,8 +77,8 @@
             </node>
 
             <!-- 站点列表  -->
-            <node name="listviewNode" rect="0,186,480,564" extendstyle="1111">
-                <listview border="0" name="listview1" rect="0,0,480,564" extendstyle="1111" />
+            <node name="listviewNode" border="false" rect="0,186,480,564" extendstyle="1111">
+                <listview name="listview1" border="false" rect="0,0,480,564" extendstyle="1111" />
             </node>
 
             <!-- 状态栏  -->
@@ -98,7 +96,7 @@
 
             <!-- 站点列表项 -->
             <node name="listitem" visible="false" enable="false" active="false"
-                extendstyle="1011" rect="0,126,480,70">
+                extendstyle="1011" rect="0,256,480,70">
                 <shadow name="listItemBg" rect="0,0,480,70" color="#e8e8e8"
                     alpha="255" extendstyle="1111" />
                 <button name="btnname" rect="0,0,480,70" OnSelect="itemOnSelect"
@@ -115,39 +113,6 @@
                         color="#0" font-size="22" h-align="left" v-align="center"
                         extendstyle="1111" border="false" />
                 </button>
-            </node>
-
-            <!-- GPS方式站点搜索对话框 -->
-            <node name="gpsSearchDialog" rect="0,0,480,800" visible="false"
-                enable="false" extendstyle="1111">
-                <button rect="0,0,480,800" extendstyle="1111" OnSelect="hideGpsSearchDialog" />
-                <!-- 对话框内容  -->
-                <node rect="20,200,440,300" extendstyle="1111">
-                    <shadow rect="0,0,440,300" color="#f2f2f2" alpha="255"
-                        extendstyle="1111" />
-                    <node name="dlgTitle" rect="0,0,440,50" extendstyle="1111">
-                        <image rect="0,0,440,50" src="file://image/tab_s.png" style="autosize"
-                            extendstyle="1111">
-                            <label rect="10,0,440,50" text="站点范围搜索" font-family="微软雅黑"
-                                font-size="24" v-align="center" />
-                        </image>
-                    </node>
-                    <label rect="10,80,100,50" text="站点范围：" font-family="微软雅黑"
-                        font-size="24" v-align="center" />
-                    <edit name="radiusEdit" rect="110,80,230,50" text="1000"
-                        enable="true" border="true" font-family="微软雅黑" font-size="24"
-                        v-center="true" h-align="center" extendstyle="1111">
-                    </edit>
-                    <label rect="350,80,40,50" text="米" font-family="微软雅黑"
-                        font-size="24" v-align="center" />
-                    <button name="" rect="160,170,120,45" OnSelect="getNearbyStationByRadius"
-                        normal="normal" extendstyle="1111">
-                        <image name="normal" rect="0,0,120,45" src="file://image/button1_normal.png"
-                            style="autosize" extendstyle="1111" />
-                        <label rect="0,0,127,45" text="确定" font-family="微软雅黑"
-                            font-size="24" h-align="center" v-align="center" />
-                    </button>
-                </node>
             </node>
         </node>
     </body>
@@ -171,6 +136,7 @@ local statusBarText
 local timerNum = 10
 local longitude = 0
 local latitude = 0
+
 ---------------------------------------回调函数列表--------------------------------
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -182,7 +148,14 @@ function bodyBuildChildrenFinished(sprite)
     statusBarText =  Sprite:findChild(sprite, 'statusBarText')
     longitude = Reg:getString(regHandle, 'longitude')
     latitude = Reg:getString(regHandle, 'latitude')
-    tabOnSelect(Sprite:findChild(rootSprite,'btnTab1'))
+    
+    -- 默认选择tab1
+    local tab1 = Sprite:findChild(rootSprite,'btnTab1')
+    Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_s.png')
+
+    -- 默认加载5个站点
+    local posValue = '117.251339,31.849438'
+    request('2', posValue, '大', page, 1001)
 end
 
 -- root节点消息方法
@@ -263,35 +236,23 @@ function tabOnSelect(sprite)
     Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_n.png')
     Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_n.png')
     Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_s.png')
- 
-    if Sprite:getProperty(sprite, 'name') == 'btnTab1' then
-        Sprite:setProperty(sprite, 'enable', 'false')
-        Sprite:setProperty(tab2, 'enable', 'true')
-    elseif Sprite:getProperty(sprite, 'name') == 'btnTab2' then
-        Sprite:setProperty(sprite, 'enable', 'false')
-        Sprite:setProperty(tab1, 'enable', 'true')
-    end
-           
-    if dataInfo == '01' and Sprite:isEnable(sprite) then
+  
+    if dataInfo == '01' then
         -- 显示搜索栏
 	    local searchStationNameNodeSprite = Sprite:findChild(rootSprite, 'searchStationNameNode')
 	    local x,y,width,height = Sprite:getRect(searchStationNameNodeSprite)
 	    Sprite:setProperty(searchStationNameNodeSprite, "visible", "true")
 	    Sprite:setProperty(searchStationNameNodeSprite, "enable", "true")
-	    
-	    local listviewNodeSprite = Sprite:findChild(rootSprite, 'listviewNode')
-	    local x1,y1,width1,height1 = Sprite:getRect(listviewNodeSprite)
-	    Sprite:setRect(listviewNodeSprite, x1, y1 + height, width1, height1 - height)
-    elseif dataInfo=='02' then
+    elseif dataInfo=='02'  then
          -- 隐藏搜索栏
 	    local searchStationNameNodeSprite = Sprite:findChild(rootSprite, 'searchStationNameNode')
 	    local x,y,width,height = Sprite:getRect(searchStationNameNodeSprite)
 	    Sprite:setProperty(searchStationNameNodeSprite, "visible", "false")
 	    Sprite:setProperty(searchStationNameNodeSprite, "enable", "false")
 	    
-	    local listviewNodeSprite = Sprite:findChild(rootSprite, 'listviewNode')
-	    local x1,y1,width1,height1 = Sprite:getRect(listviewNodeSprite)
-	    Sprite:setRect(listviewNodeSprite, x1, y1-height, width1, height1 + height)
+	    -- 删除以前的列表
+	    local listviewSprite = Sprite:findChild(rootSprite, 'listview1')
+	    ListView:removeAllItems(listviewSprite)
         -- 周边站点标签页
         getNearbyStationByRadius()
     end
@@ -374,6 +335,7 @@ function getNearbyStationByRadius(sprite)
         local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
         Sprite:setProperty(statusBarText, 'text', '定位成功，经纬度为:'.. posValue)
         request('1', posValue, '1000', page, 1001)
+        Loading:show()
         return
 	end
         
@@ -412,6 +374,7 @@ function _requestNearbyStationByRadius()
 
         -- 请求站点列表
         request('1', posValue, '1000', page, 1001)
+        Loading:show()
     elseif timerNum > 0 then
         timerNum = timerNum - 1
         Timer:set(111, 1000, '_requestNearbyStationByRadius')
@@ -437,6 +400,7 @@ function doSearchStationName(sprite)
     -- 默认搜索站点
     local stationName = Sprite:getText(Sprite:findChild(rootSprite, 'stationName'))
     request('2', posValue, stationName, page, 1001)
+    Loading:show()
 end
 
 -- 进行http请求
@@ -453,7 +417,6 @@ function request(condition, curLoc, value, page, msgno)
 	else
 	    stationDistanceVisible = false --隐藏距离
 	end
-	Loading:show()
 end
 ]]>
 </root>
