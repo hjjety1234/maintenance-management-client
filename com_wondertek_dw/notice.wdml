@@ -51,13 +51,16 @@
 
             <!-- 隐藏的搜索栏 -->
             <node name="searchBar" rect="0,66,480,56" extendstyle="1111"
-                visible="false">
+                visible="true">
                 <image name="search_bg" rect="0,0,480,56" src="file://image/title_bar.png"
                     style="autosize" extendstyle="1111" />
                 <image name="searchBarImage" rect="0,5,346,46"
                     src="file://image/search_input.png" style="autosize" extendstyle="1111" />
                 <edit name="keywordEdit" rect="42,10,288,46" extendstyle='1111'
-                    v-align="center" text="">
+                    v-align="center" font-size="22" text="" OnTextChanged="editOnTextChanged">
+                     <label name="hideLabel" rect="10,0,278,46" text="搜索标题" color="#c0c0c0"
+                        extendstyle="1111" style="autosize" h-align="left" v-align="center"
+                        font-size="22" />
                 </edit>
                 <button name="searchButton" rect="370,5,92,46" OnSelect="OnSearchButtonClicked"
                     extendstyle="1111">
@@ -182,10 +185,16 @@ end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
+    if Loading:isShow() then Loading:close() end
     if msg == 101 then
         local resp = Http:jsonDecode('notice_list')
         -- 检查是否有返回结果
         if (resp.code ~= '0') then
+            -- issue45 修改提示数据不存在
+            if (resp.code == '50') then
+                Dialog:show("提示", '没有找到公告!', "ok")
+                return
+            end
             Dialog:show("", getErrorCode(resp.code), "ok")
             return
         end
@@ -222,6 +231,7 @@ end
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
+        if Loading:isShow() then Loading:close() end
         Scene:back()
         return 1
     elseif kc == Key.F1 then -- 按下菜单键
@@ -274,6 +284,7 @@ end
 
 -- @brief 返回按钮处理
 function doBack()
+    if Loading:isShow() then Loading:close() end
     Scene:back()
 end
 
@@ -283,6 +294,8 @@ function requestNoticeList(title)
     Log:write("请求公告列表:"..param)
     local requestURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', param)
     Http:request('notice_list', requestURL, 101, {useCache=false})
+    -- issue#56 开始是空白，进去后速度慢 
+    Loading:show()
 end
 
 -- @brief 列表项选择处理
@@ -381,6 +394,16 @@ function ContextMenuListItemOnSelect(sprite)
     local buttonData = Sprite:getData(sprite)
     Scene:setReturn(Alias.notice, Alias.noticeFav)
     Scene:go(Alias.noticeFav)
+end
+
+-- 显示或隐藏搜索提示
+function editOnTextChanged(sprite,ncount)
+    local hideLabel = Sprite:findChild(sprite, 'hideLabel')
+    if ncount > 0 then
+        setAllShoworHide(hideLabel, 0)
+    else
+        setAllShoworHide(hideLabel, 1)
+    end
 end
 
     ]]>
