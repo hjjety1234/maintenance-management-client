@@ -23,8 +23,8 @@
                 <image name="title" rect="0,0,480,66" border="false"
                     src="file://image/title_bg.png" style="autosize" extendstyle="1111" />
 
-                    <label rect="0,0,480,66" text="隐患上报" color="#ffffff" v-align="center"
-                        h-align="center" font-size="28" extendstyle="1111" />
+                <label rect="0,0,480,66" text="隐患上报" color="#ffffff" v-align="center"
+                    h-align="center" font-size="28" extendstyle="1111" />
 
                 <button name="backBtn" rect="0,10,75,45" normal="normal"
                     OnSelect="isSave" extendstyle="1111">
@@ -45,13 +45,13 @@
                     <label name="label1" rect="0,0,150,60" border="false" text="隐患名称："
                             h-align="right" v-align="center" color="#000000" font-size="24"
                             extendstyle="1111" />
-                        <node rect="150,0,292,60" border="false"
-                            text="" color="#ffffff" extendstyle="1111" >
-                            <image rect="0,0,292,60" src="file://image/input.png" style="autosize"
-                                extendstyle="1111" />
-                            <edit name="yinhuanName" rect="5,18,252,60" text="" color="#0" extendstyle="1111"
-                                style="autosize" h-align="center" v-align="top" font-size="24" />
-                        </node>
+                    <node rect="150,0,292,60" border="false"
+                        text="" color="#ffffff" extendstyle="1111" >
+                        <image rect="0,0,292,60" src="file://image/input.png" style="autosize"
+                            extendstyle="1111" />
+                        <edit name="yinhuanName" rect="5,18,252,60" text="" color="#0" extendstyle="1111"
+                            style="autosize" h-align="center" v-align="top" font-size="24" />
+                    </node>
                 </list-item>
                 <list-item name="textNode" rect="0,0,480,480" extendstyle="1111" border="false">
                     <node name="baseSprite" rect="0,0,480,60" extendstyle="1111">
@@ -129,9 +129,9 @@
                                 font-size="24" />
                         </edit>
                         <button name="playRecord" rect="400,215,61,65" src="file://image/play.png" color="#0"
-                                extendstyle="1111" style="autosize" h-align="left" v-align="top"
-                                font-size="15" OnSelect="playRecord"
-                                visible="false" enable="false" active="false"></button>
+                            extendstyle="1111" style="autosize" h-align="left" v-align="top"
+                            font-size="15" OnSelect="playRecord"
+                            visible="false" enable="false" active="false"></button>
                     </node>
                 </list-item>
                 
@@ -245,11 +245,11 @@
         </node>
 
         <node name="selectItem" rect="0,0,280,76" visible="false" enable="false" active="false">
-                <button rect="0,0,280,56" color="#ffffff"
-                    extendstyle="1111" OnSelect="xunjianGroupOnSelect"
-                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-                    font-size="24" data="C30" />
+            <button rect="0,0,280,56" color="#ffffff"
+                extendstyle="1111" OnSelect="xunjianGroupOnSelect"
+                normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+                sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+                font-size="24" data="C30" />
         </node>
 
     </body>
@@ -375,7 +375,6 @@ function bodyOnPluginEvent(msg, param)
         end
         doRealUploadPic(url, param)
     elseif msg == 105 then
-
         local uploadData = Http:xmlDecode('upload_url', 'RESULT')
         Log:write("upload url:", updateData)
         local url = uploadData.URL
@@ -646,112 +645,95 @@ function doUpload()
 
     local param = '&usercode='.. Config:get('username')..'&deptPro=' .. typeValue ..  '&dangertype=' .. zhuanyeValue .. '&dangerlevel=' .. levelValue  .. '&dangercontent=' .. Sprite:getProperty(detail, 'text') .. '&userLongtitute=' .. Config:get("longitude") .. '&userLatitute=' ..  Config:get("latitude") .. '&name=' .. name .. '&positionRemark=' .. addr
     Log:write("-------------url------------", url .. '?cmd=wlbdangersign'..param)
-    Http:request('upload_data', url, 103, {useCache = false, method = 'post', postData='cmd=wlbdangersign'..param})
     Loading:show(rootSprite)
+    Http:request('upload_data', url, 103, {useCache = false, method = 'post', postData='cmd=wlbdangersign'..param})
 end
 
 function getUploadUrl()
-    if imageArray[1] ~= nil and imageArray[1] ~= '' then
-        upStatus = 1
-
-
-        local _,_,fileName = string.find(imageArray[1], '([^/\\%.]+)%.?[^/\\]*$')
-
-        local url = getWholeUrl('nbspweb/upload/UGC_GetUploadUrl.html', '')
-        local param = 'FILE_NAME=' .. fileName .. '&C_TYPE=' .. 'jpg' .. '&C_LEN=' .. IO:fileSize(imageArray[1])
-        Log:write("-------------url upload------------", url .. param)
-        Http:request('upload_url', url, 104, {useCache = false, method = 'post', postData= param})
-    elseif recordName ~= '0' then
-        upStatus = 2
-
-        local path = getDownloadPath() .. 'daiwei'
-        local url = getWholeUrl('nbspweb/upload/UGC_GetUploadUrl.html', '')
-        local param = 'FILE_NAME=' .. recordName .. '&C_TYPE=' .. 'amr' .. '&C_LEN=' .. IO:fileSize(path .. '/' .. recordName .. '.amr')
-        Log:write("-------------url upload------------", url .. param)
-        Http:request('upload_url', url, 105, {useCache = false, method = 'post', postData= param})
-    else
+    -- 如果没有图片和声音，说明已经提交成功，程序返回
+    if #imageArray < 1 and recordName == '0' then
         if Loading:isShow() then Loading:close() end
         Dialog:show('', '隐患提交成功！', 'ok', 'doBack')
+        return
+    end
+    deleleUploadItems()
+
+    -- 请求图片上传队列中的上传地址
+    requestPicUrl(imageArray[#imageArray])
+end
+
+function requestPicUrl(imageUrl)
+    if imageUrl and imageUrl ~= '' then
+        local _,_,fileName = string.find(imageUrl, '([^/\\%.]+)%.?[^/\\]*$')
+        local url = getWholeUrl('nbspweb/upload/UGC_GetUploadUrl.html', '')
+        local param = 'FILE_NAME=' .. fileName .. '&C_TYPE=' .. 'jpg' .. '&C_LEN=' .. IO:fileSize(imageUrl)
+        Log:write("-------------pic url upload------------", url .. param)
+        Http:request('upload_url', url, 104, {useCache = false, method = 'post', postData= param})
     end
 end
 
 function doRealUploadPic(url, param)
-    local _,_,fileName = string.find(imageArray[1], '([^/\\%.]+)%.?[^/\\]*$')
-    local poststr = 'id=' .. orderId .. '&markid=&interfaceMainType=2&usercode=' .. Config:get('username') .. '&uploadFileName=' .. fileName .. '.jpg'
-    deleleUploadItems()
-    Upload:append(url, param .. poststr, imageArray[1], fileName .. '.jpg', 'test', 'jpg')
-    Timer:set(1, 500, 'onGetUploadStatus')
+    if #imageArray >= 1 then
+        local _,_,fileName = string.find(imageArray[#imageArray], '([^/\\%.]+)%.?[^/\\]*$')
+        local poststr = 'id=' .. orderId .. '&markid=&interfaceMainType=2&usercode=' .. Config:get('username') .. '&uploadFileName=' .. fileName .. '.jpg'
+        Upload:append(url, param .. poststr, imageArray[#imageArray], fileName .. '.jpg', 'test', 'jpg')
+        table.remove(imageArray, #imageArray)
+        checkImageArrayLen()
+    else
+        -- 不应该走到这里
+        Log:write('doRealUploadPic error!')
+    end
+    requestPicUrl(imageArray[#imageArray])
 end
 
 function doRealUploadRecord(url, param)
-   local path = getDownloadPath() .. 'daiwei'
-   local poststr = 'id=' .. orderId .. '&markid=&interfaceMainType=2&usercode=' .. Config:get('username') .. '&uploadFileName=' .. recordName .. '.amr'
-   deleleUploadItems()
-   Upload:append(url, param .. poststr, path .. '/' .. recordName .. '.amr', recordName .. '.amr', 'test', 'amr')
-   Timer:set(1, 500, 'onGetUploadStatus')
+    local path = getDownloadPath() .. 'daiwei'
+    local poststr = 'id=' .. orderId .. '&markid=&interfaceMainType=2&usercode=' .. Config:get('username') .. '&uploadFileName=' .. recordName .. '.amr'
+    local uploadRet = Upload:append(url, param .. poststr, path .. '/' .. recordName .. '.amr', recordName .. '.amr', 'test', 'amr')
+    Log:write('uploadRet============', uploadRet)
+    recordName = '0'
+    if Loading:isShow() then Loading:close() end
+    Dialog:show('', '已加入上传队列中！', 'ok', 'doBack')
 end
 
-function onGetUploadStatus()
-    Log:write('onGetUploadStatus=========================')
-    local status = Upload:getStatus()
-    Log:write('status', status)
-    if status[1].status == 5 then
-        deleleUploadItems()
-
-        if upStatus == 2 or upStatus == 3 then
+function checkImageArrayLen()
+    if #imageArray < 1 then
+        -- 请求音频文件的上传地址
+        if recordName ~= '0' then
+            upStatus = 2
+            local path = getDownloadPath() .. 'daiwei'
+            local url = getWholeUrl('nbspweb/upload/UGC_GetUploadUrl.html', '')
+            local param = 'FILE_NAME=' .. recordName .. '&C_TYPE=' .. 'amr' .. '&C_LEN=' .. IO:fileSize(path .. '/' .. recordName .. '.amr')
+            Log:write("-------------record url upload------------", url .. param)
+            Http:request('upload_url', url, 105, {useCache = false, method = 'post', postData= param})
+        else
             if Loading:isShow() then Loading:close() end
-            Dialog:show('', '隐患上报成功！', 'ok', 'doBack')
-        elseif upStatus == 1 then
-            if recordName == '0' then
-                if Loading:isShow() then Loading:close() end
-                Dialog:show('', '隐患上报成功！', 'ok', 'doBack')
-            else
-                upStatus = 3
-
-                local path = getDownloadPath() .. 'daiwei'
-                local url = getWholeUrl('nbspweb/upload/UGC_GetUploadUrl.html', param)
-                local param = 'FILE_NAME=' .. recordName .. '&C_TYPE=' .. 'amr' .. '&C_LEN=' .. IO:fileSize(path .. '/' .. recordName .. '.amr')
-                Log:write("-------------url upload------------", url .. param)
-                Http:request('upload_url', url, 105, {useCache = false, method = 'post', postData= param})
-            end
+            Dialog:show('', '已加入上传队列中！', 'ok', 'doBack')
         end
-    elseif status[1].status == 6 or status[1].status == 1 or status[1].status == 4 then
-        deleleUploadItems()
-        if Loading:isShow() then Loading:close() end
-        Dialog:show('', '隐患上报失败，请稍后再试！', 'ok')
-    else
-        Timer:set(1, 500, 'onGetUploadStatus')
     end
 end
 
 function deleleUploadItems()
-local count = Upload:getCount()
-for i=1,count do
-    Upload:delete(i)
-end
+    local count = Upload:getCount()
+    for i=1,count do
+        Upload:delete(i)
+    end
 end
 
 function doSave()
-    Log:write(1)
     local yinhuanID = Config:get('yinhuanID')
-    Log:write(2)
     if yinhuanID == nil or yinhuanID == '' then
         Config:set('yinhuanID', 1)
         yinhuanID = 1
-    Log:write(4, yinhuanID)
     else
         yinhuanID = tonumber(yinhuanID) + 1
-    Log:write(5, yinhuanID)
     end
     if pYinhuanID ~= nil then
-    Log:write(3, pYinhuanID)
         yinhuanID = pYinhuanID
     end
 	
 	
-    Log:write(6, Config:get('yinhuanIDList'))
     local yinhuanIDList = Config:get('yinhuanIDList')
-    Log:write('222222', yinhuanID)
 
     local zhuanyeBtn = Sprite:findChild(rootSprite, 'zhuanyeBtn')
     local typeBtn = Sprite:findChild(rootSprite, 'typeBtn')
@@ -778,14 +760,12 @@ function doSave()
     end
 
     Config:set('yinhuanID'..yinhuanID, stringData)
-    Log:write(2,  yinhuanIDList, yinhuanID)
 
     if pYinhuanID == nil then
         if string.find(yinhuanIDList .. ';', ';' .. yinhuanID .. ';') == nil then
             Config:set('yinhuanIDList', yinhuanID .. ';' .. yinhuanIDList)
         end
     end
-    Log:write(3, Config:get('yinhuanIDList'))
     Config:set('yinhuanID', yinhuanID)
 
     doBack()
@@ -801,7 +781,7 @@ end
 function onCameraDialog(photoPath, photoType)
     -- 添加图片压缩支持
     local tmpSplitArray = Split(photoPath,'%.')
-    local dest = tmpSplitArray[1] .. 'temp.jpg'
+    local dest = tmpSplitArray[1] .. 'temp' .. System:getTickTime() .. '.jpg'
     Log:write('目标文件路径为:'..dest)
     local ret = ScaleImageAsJpg(photoPath, dest, 480, 800, 0)
     if ret == 1 then
@@ -811,7 +791,7 @@ function onCameraDialog(photoPath, photoType)
         table.insert(imageArray, photoPath)
         Log:write('警告：图片压缩失败，使用未压缩的图片:'..photoPath)
     end
-    Log:write("imageArray0", imageArray)
+    Log:write("imageArray", imageArray)
     doChangeImageList()
 end
 
@@ -820,7 +800,6 @@ function doEndRecord()
     return
 end
 function doChangeImageList()
-    Log:write('1')
     local count = #imageArray
     local realCount = 0
     if count > 0 then
@@ -841,8 +820,8 @@ function doChangeImageList()
     Panorama:adjust(imageList)
     ListView:adjust(Sprite:getParent(imageListNode))
 end
+
 function loadListItem(list, item, index)
-Log:write("!!!!!!!!!!!!!!!!!!!!!!!")
     Sprite:setRect(item, 10, 0, 460, 120)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local picArray = {
@@ -851,13 +830,10 @@ Log:write("!!!!!!!!!!!!!!!!!!!!!!!")
         Sprite:findChild(item, 'pic3'),
         Sprite:findChild(item, 'pic4'),
     }
-    Log:write("imageArray1", imageArray)
     for i=1,#picArray do
         if imageArray[tonumber(index) * 4 + i] == nil then
-        Log:write("imageArray2", i)
             break
         end
-        Log:write("imageArray3", i)
         local bg = Sprite:findChild(picArray[i], 'bg')
         if Sprite:getProperty(bg, 'src') ~= nil and Sprite:getProperty(bg, 'src') == '' then
             Sprite:setProperty(bg, 'src', imageArray[tonumber(index) * 4 + i])
@@ -879,7 +855,6 @@ end
 function doLoadSave(pYinhuanID)
     -- body
     local stringData = Config:get('yinhuanID' .. pYinhuanID)
-
     if stringData == nil or stringData == '' then
         return
     end
@@ -895,13 +870,11 @@ function doLoadSave(pYinhuanID)
     Sprite:setProperty(Sprite:findChild(zhuanyeBtn, "name"), 'text', datas[2])
     Sprite:setProperty(Sprite:findChild(typeBtn, "name"), 'text', datas[3])
     Sprite:setProperty(Sprite:findChild(levelBtn, "name"), 'text', datas[4])
-
     Sprite:setProperty(Sprite:findChild(rootSprite, "yinhuanName"), 'text', datas[7])
 
     zhuanyeValue = datas[8]
     typeValue = datas[9]
     levelValue = datas[10]
-
     recordName = datas[11]
 
     local locInfo = Sprite:findChild(rootSprite, 'locInfo')
@@ -915,9 +888,7 @@ function doLoadSave(pYinhuanID)
         editOnTextChanged(detail,string.len(datas[5]))
     end
     Sprite:setProperty(detail, 'text', datas[5])
-	
 	Sprite:setProperty(yinhuanLocName,'text',datas[13])
-
     local pics = Util:split(datas[14], '|')
     for i=1, #pics do
         table.insert(imageArray, pics[i])
@@ -929,11 +900,11 @@ function bottomMenuSelect(sprite)
     local dataInfo = Sprite:getData(sprite)
     if dataInfo == '1' then
         doBack()
-        elseif dataInfo == '2' then
+    elseif dataInfo == '2' then
         doLocation()
-        elseif dataInfo == '3' then
+    elseif dataInfo == '3' then
         doTakePic()
-        elseif dataInfo == '4' then
+    elseif dataInfo == '4' then
         doRecord()
     end
 end
@@ -987,7 +958,8 @@ function beginRecord()
         local playRecord = Sprite:findChild(rootSprite, 'playRecord')
         Sprite:setProperty(playRecord, 'src', "file://image/play.png")
 
-        tempRecordName = os.time()
+        tempRecordName = System:getTickTime()
+        Log:write('tempRecordName----------------', tempRecordName)
         Record:start(path .. '/' .. tempRecordName .. '.amr')
     else
         Sprite:setProperty(recordStatus, 'src', "file://image/record_begin.png")

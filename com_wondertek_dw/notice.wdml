@@ -54,17 +54,17 @@
                 visible="true">
                 <image name="search_bg" rect="0,0,480,56" src="file://image/title_bar.png"
                     style="autosize" extendstyle="1111" />
-                <image name="searchBarImage" rect="0,5,346,46"
+                <image name="searchBarImage" rect="15,5,386,46"
                     src="file://image/search_input.png" style="autosize" extendstyle="1111" />
-                <edit name="keywordEdit" rect="42,10,288,46" extendstyle='1111'
+                <edit name="keywordEdit" rect="37,10,340,46" extendstyle='1111'
                     v-align="center" font-size="22" text="" OnTextChanged="editOnTextChanged">
                      <label name="hideLabel" rect="10,0,278,46" text="搜索标题" color="#c0c0c0"
                         extendstyle="1111" style="autosize" h-align="left" v-align="center"
-                        font-size="22" />
+                        font-size="24" />
                 </edit>
-                <button name="searchButton" rect="370,5,92,46" OnSelect="OnSearchButtonClicked"
+                <button name="searchButton" rect="415,5,50,50" OnSelect="OnSearchButtonClicked"
                     extendstyle="1111">
-                    <image name="searchButtonImage" rect="0,0,92,46"
+                    <image name="searchButtonImage" rect="0,0,50,50"
                         src="file://image/search_btn_hover.png" style="autosize"
                         extendstyle="1111" />
                 </button>
@@ -358,6 +358,10 @@ function OnSearchButtonClicked(sprite)
     -- 获取用户输入
     local keywordEditSprite = Sprite:findChild(rootSprite, "keywordEdit")
     local title = Sprite:getText(keywordEditSprite)
+    if title == '' then
+        Dialog:show('提示', '搜索内容不能为空!', 'ok')
+        return
+    end
     -- 请求搜索
     requestNoticeList(title)
 end
@@ -394,16 +398,6 @@ function ContextMenuListItemOnSelect(sprite)
     local buttonData = Sprite:getData(sprite)
     Scene:setReturn(Alias.notice, Alias.noticeFav)
     Scene:go(Alias.noticeFav)
-end
-
--- 显示或隐藏搜索提示
-function editOnTextChanged(sprite,ncount)
-    local hideLabel = Sprite:findChild(sprite, 'hideLabel')
-    if ncount > 0 then
-        setAllShoworHide(hideLabel, 0)
-    else
-        setAllShoworHide(hideLabel, 1)
-    end
 end
 
     ]]>

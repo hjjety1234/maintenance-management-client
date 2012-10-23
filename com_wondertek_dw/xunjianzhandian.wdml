@@ -45,35 +45,40 @@
             
            <!-- 标签页  -->
            <node border="0" name="tabNode" rect="0,66,480,60" extendstyle="1111">
-                <image name="title" rect="0,0,480,60" border="false"
-                    src="file://image/tab_n.png" style="autosize" extendstyle="1111" />
                 <button name="btnTab1" rect="0,0,240,60" text="" color="#ffffff"
                     extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
-                    <image name="tabBg" rect="0,0,240,60" border="false" src=""
-                        style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+                    <image name="tabBg" rect="0,0,240,60" border="false" src="file://image/zd_tab_s.png"
+                        style="autosize" extendstyle="1111" />
                     <label rect="0,0,240,60" text="查询站点" color="#ffffff" v-align="center"
-                        h-align="center" font-size="28" extendstyle="1111" />
+                        h-align="center" font-size="22" extendstyle="1111" />
                 </button>
-                <button name="btnTab2" rect="240,0,240,60" text="" color="#ffffff"
+                <button name="btnTab2" rect="241,0,240,60" text="" color="#ffffff"
                     extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
-                    <image name="tabBg" rect="0,0,240,60" border="false" src=""
-                        style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+                    <image name="tabBg" rect="0,0,240,60" border="false" src="file://image/zd_tab_n.png"
+                        style="autosize" extendstyle="1111" />
                     <label rect="0,0,240,60" text="周边站点" color="#ffffff" v-align="center"
-                        h-align="center" font-size="28" extendstyle="1111" />
+                        h-align="center" font-size="22" extendstyle="1111" />
                 </button>
+                <shadow name="sepShadow" rect="240,0,2,60" color="#C4C4C4"
+                     extendstyle="1111" />
             </node>
             
             <!-- 搜索框  -->
             <node border="0" name="searchStationNameNode" rect="0,126,480,60" extendstyle="1111">
-                <image name="search_bg" rect="0,0,480,60" src="file://image/title_bar.png"
+                <image name="search_bg" rect="0,0,480,60" src="file://image/search_bg_1.png"
                     style="autosize" extendstyle="1111" />
-                <image name="Image1" rect="15,10,346,46" src="file://image/search_input.png"
+                <button name="searchStationNameBtn" rect="415,7,50,50" style="autosize" extendstyle="1111" normal="src:file://image/search_btn.png" sel="src:file://image/search_btn_hover.png" OnSelect="doSearchStationName">
+                </button>
+
+                <image name="Image1" rect="15,10,386,46" src="file://image/search_input.png"
                     extendstyle="1111" style="autosize" />
-                <button name="searchStationNameBtn" rect="375,10,92,46" style="autosize"
-                    normal="src:file://image/search_btn.png" sel="src:file://image/search_btn_hover.png"
-                    OnSelect="doSearchStationName" extendstyle="1111" />
-                <edit name="stationName" rect="60,10,281,46" font-size="20"
-                    v-center="true" extendstyle="1111" text="" max-size="6" />
+                <edit name="stationName" rect="37,10,346,46" font-size="20"
+                    v-center="true" extendstyle="1111" text="" max-size="6" 
+                    OnTextChanged="editOnTextChanged">
+                     <label name="hideLabel" rect="0,0,346,46" text="请输入站点名称" color="#c0c0c0"
+                        extendstyle="1111" style="autosize" h-align="left" v-align="center"
+                        font-size="22" />
+                </edit>
             </node>
 
             <!-- 站点列表  -->
@@ -161,7 +166,7 @@ function bodyBuildChildrenFinished(sprite)
     
     -- 默认选择tab1
     local tab1 = Sprite:findChild(rootSprite,'btnTab1')
-    Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_s.png')
+    Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/zd_tab_s.png')
 
     -- 默认加载5个站点
     local posValue = '117.251339,31.849438'
@@ -289,9 +294,9 @@ function tabOnSelect(sprite)
     local tab1 = Sprite:findChild(tabNode, 'btnTab1')
     local tab2 = Sprite:findChild(tabNode, 'btnTab2')
     local list = Sprite:findChild(rootSprite, 'listview1')
-    Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_n.png')
-    Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_n.png')
-    Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_s.png')
+    Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/zd_tab_n.png')
+    Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/zd_tab_n.png')
+    Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/zd_tab_s.png')
   
     if dataInfo == '01' then
         -- 显示搜索栏
@@ -357,6 +362,8 @@ function loadListItem(list, item, index)
         Sprite:setProperty(stationStatusImage, "src", "file://image/s1.png")
     else
         Sprite:setProperty(stationStatusImage, "src", "")
+        Sprite:setProperty(stationName, 'color', '#ff0000')
+        Sprite:setProperty(stationDistance, 'color', '#ff0000')
     end
     
     -- 显示站点名称
@@ -456,6 +463,11 @@ function doSearchStationName(sprite)
     
     -- 默认搜索站点
     local stationName = Sprite:getText(Sprite:findChild(rootSprite, 'stationName'))
+    if stationName == '' then
+        Dialog:show('提示', '搜索内容不能为空!', 'ok')
+        return
+    end
+    
     request('2', posValue, stationName, page, 1001)
     Loading:show()
 end
@@ -475,5 +487,6 @@ function request(condition, curLoc, value, page, msgno)
 	    stationDistanceVisible = false --隐藏距离
 	end
 end
+
 ]]>
 </root>

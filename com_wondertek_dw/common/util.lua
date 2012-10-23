@@ -182,3 +182,13 @@ function getErrorCode(code)
         return '未知错误'
     end
 end
+
+-- 显示或隐藏搜索提示
+function editOnTextChanged(sprite,ncount)
+    local hideLabel = Sprite:findChild(sprite, 'hideLabel')
+    if ncount > 0 then
+        setAllShoworHide(hideLabel, 0)
+    else
+        setAllShoworHide(hideLabel, 1)
+    end
+end

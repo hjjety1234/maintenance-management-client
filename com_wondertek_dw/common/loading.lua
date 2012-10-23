@@ -50,7 +50,7 @@ function loadingProcess(idEvent)
     else
         math.random()
         local num = math.random(5)+curNum
-        if num >= 100 then
+        if num >= 90 then
             Sprite:setProperty(processLbl, 'text', '95')
         else
             Sprite:setProperty(processLbl, 'text', tostring(num))
