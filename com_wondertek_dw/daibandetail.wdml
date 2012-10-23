@@ -262,12 +262,12 @@
 
             </node>
             <node name="listitem" visible="false" enable="false" active="false"
-                extendstyle="1011" rect="100,200,280,70">
+                extendstyle="1011">
                 <!--
                     <shadow name="listItemBg" rect="0,0,280,56" color="#e8e8e8"
                     alpha="255" extendstyle="1111" />
                 -->
-                <button name="btnName" rect="100,200,280,56" text="" color="#ffffff"
+                <button name="btnName" rect="0,7,280,56" text="" border='1' 
                     extendstyle="1111" OnSelect="xunjianGroupOnSelect"
                     normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
                     sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
@@ -293,7 +293,7 @@
                     color="#ffffff" OnSelect="hidezhuanshenSelected"></button>
                 <image rect="70,170,340,390" name="listBg" src="file://image/input.png"
                     style="sudoku-auto" extendstyle="1111" sudoku="15,15,15,15" />
-                <listview name="xunjianList" rect="0,0,480,645"
+                <listview name="xunjianList" border='3' rect="0,0,480,645"
                     extendstyle="1111" />
 
             </node>
@@ -592,7 +592,8 @@ function renyuancontent(count)
     local list = Sprite:findChild(xunjianSelectNode, 'xunjianList')
     local listBg = Sprite:findChild(xunjianSelectNode, 'listBg')
     Log:write('rect=====================',40+count*70)
-    Sprite:setRect(listBg,70,170,340,40+count*70)
+    Sprite:setRect(listBg,70,170,340,count*70)
+    Sprite:setRect(list,70,170,340,count*70)
     ListView:removeAllItems(list,true)
     ListView:loadItem(list, Sprite:findChild(rootSprite, 'zhuanshenitem'), count, 'loadListItem')
     ListView:adjust(list)
@@ -603,7 +604,8 @@ function xunjiancontent(count)
     local list = Sprite:findChild(xunjianSelectNode, 'xunjianList')
     local listBg = Sprite:findChild(xunjianSelectNode, 'listBg')
     Log:write('rect=====================',40+count*70)
-    Sprite:setRect(listBg,70,170,340,40+count*70)
+    Sprite:setRect(listBg,70,170,340,count*70)
+    Sprite:setRect(list,70,170,340,count*70)
     ListView:removeAllItems(list,true)
     ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadxunjianListItem')
     ListView:adjust(list)
@@ -977,7 +979,7 @@ function loadListItem(list, item, index)
 end
 
 function loadxunjianListItem(list, item, index)
-    Sprite:setRect(item, 0, 0, 280, 70)
+    Sprite:setRect(item, 30, 0, 280, 70)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local textNum = Sprite:findChild(item, 'btnName')
     Sprite:setProperty(textNum, 'data', xjData.value[index].id)

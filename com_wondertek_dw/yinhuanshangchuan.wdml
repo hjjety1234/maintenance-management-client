@@ -103,21 +103,21 @@
                     </node>
                     <node name="baseSprite" rect="0,210,460,270" extendstyle="1111">
                         <!--隐患地址-->
-		                <list-item rect="0,0,480,80" extendstyle="1111" border="false">
-		                    <label name="label1" rect="0,0,150,60" border="false" text="隐患位置："
-		                            h-align="right" v-align="center" color="#000000" font-size="24"
-		                            extendstyle="1111" />
-		                        <node rect="150,0,292,60" border="false"
-		                            text="" color="#ffffff" extendstyle="1111" >
-		                            <image rect="0,0,292,60" src="file://image/input.png" style="autosize"
-		                                extendstyle="1111" />
-		                            <edit name="yinhuanLocName" rect="0,18,252,60" text="" color="#0" extendstyle="1111"
-		                                style="autosize" h-align="center" v-align="top" font-size="24" />
-		                        </node>
-				                <label name="locInfo" rect="150,60,300,30" border="false" text=""
-				                h-align="left" v-align="center" color="#000000" font-size="18"
-				                extendstyle="1111" />
-		                </list-item>
+                        <list-item rect="0,0,480,100" extendstyle="1111" border="false">
+                            <label name="label1" rect="0,0,150,60" border="false" text="隐患位置："
+                                    h-align="right" v-align="center" color="#000000" font-size="24"
+                                    extendstyle="1111" />
+                            <node rect="150,0,292,60" border="false"
+                                text="" color="#ffffff" extendstyle="1111" >
+                                <image rect="0,0,292,60" src="file://image/input.png" style="autosize"
+                                    extendstyle="1111" />
+                                <edit name="yinhuanLocName" rect="0,18,252,60" text="" color="#0" extendstyle="1111"
+                                    style="autosize" h-align="center" v-align="top" font-size="24" />
+                            </node>
+                            <label name="locInfo" rect="0,60,480,40" border="false" text=""
+                                h-align="center" v-align="center" color="#000000" font-size="18"
+                                extendstyle="1111" />
+                        </list-item>
                         
                         <image rect="5,100,460,180" src="file://image/title_edit_bg.png"
                             style="sudoku-auto" extendstyle="1111" sudoku="20,20,20,20" />
@@ -363,30 +363,26 @@ function bodyOnPluginEvent(msg, param)
         end
     elseif msg == 104 then
         local uploadData = Http:xmlDecode('upload_url', 'RESULT')
-        if uploadData then
-            Log:write("upload url:", updateData)
-            local url = uploadData.URL
-            Log:write('url', url)
-            local param = uploadData.PARAM
-            if param then
-                param = param .. '&'
-            else
-                param = ''
-            end
+        Log:write("upload url:", updateData)
+        local url = uploadData.URL
+        Log:write('url', url)
+        local param = uploadData.PARAM
+        if param then
+            param = param .. '&'
+        else
+            param = ''
         end
         doRealUploadPic(url, param)
     elseif msg == 105 then
         local uploadData = Http:xmlDecode('upload_url', 'RESULT')
-        if uploadData then
-            Log:write("upload url:", updateData)
-            local url = uploadData.URL
-            Log:write('url', url)
-            local param = uploadData.PARAM
-            if param then
-                param = param .. '&'
-            else
-                param = ''
-            end
+        Log:write("upload url:", updateData)
+        local url = uploadData.URL
+        Log:write('url', url)
+        local param = uploadData.PARAM
+        if param then
+            param = param .. '&'
+        else
+            param = ''
         end
         doRealUploadRecord(url, param)
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -660,9 +656,14 @@ function getUploadUrl()
         return
     end
     deleleUploadItems()
-
-    -- 请求图片上传队列中的上传地址
-    requestPicUrl(imageArray[#imageArray])
+    if #imageArray < 1 then
+        if recordName ~= '0' then
+            requestRecordUrl()
+        end
+    else
+        -- 请求图片上传队列中的上传地址
+        requestPicUrl(imageArray[#imageArray])
+    end
 end
 
 function requestPicUrl(imageUrl)
@@ -703,17 +704,21 @@ function checkImageArrayLen()
     if #imageArray < 1 then
         -- 请求音频文件的上传地址
         if recordName ~= '0' then
-            upStatus = 2
-            local path = getDownloadPath() .. 'daiwei'
-            local url = getWholeUrl('nbspweb/upload/UGC_GetUploadUrl.html', '')
-            local param = 'FILE_NAME=' .. recordName .. '&C_TYPE=' .. 'amr' .. '&C_LEN=' .. IO:fileSize(path .. '/' .. recordName .. '.amr')
-            Log:write("-------------record url upload------------", url .. param)
-            Http:request('upload_url', url, 105, {useCache = false, method = 'post', postData= param})
+            requestRecordUrl()
         else
             if Loading:isShow() then Loading:close() end
             Dialog:show('', '已加入上传队列中！', 'ok', 'doBack')
         end
     end
+end
+
+function requestRecordUrl()
+    upStatus = 2
+    local path = getDownloadPath() .. 'daiwei'
+    local url = getWholeUrl('nbspweb/upload/UGC_GetUploadUrl.html', '')
+    local param = 'FILE_NAME=' .. recordName .. '&C_TYPE=' .. 'amr' .. '&C_LEN=' .. IO:fileSize(path .. '/' .. recordName .. '.amr')
+    Log:write("-------------record url upload------------", url .. param)
+    Http:request('upload_url', url, 105, {useCache = false, method = 'post', postData= param})
 end
 
 function deleleUploadItems()
@@ -734,8 +739,8 @@ function doSave()
     if pYinhuanID ~= nil then
         yinhuanID = pYinhuanID
     end
-	
-	
+    
+    
     local yinhuanIDList = Config:get('yinhuanIDList')
 
     local zhuanyeBtn = Sprite:findChild(rootSprite, 'zhuanyeBtn')
@@ -743,8 +748,8 @@ function doSave()
     local levelBtn = Sprite:findChild(rootSprite, 'levelBtn')
     local detail = Sprite:findChild(rootSprite, 'detail')
     local name =  Sprite:getProperty(Sprite:findChild(rootSprite, 'yinhuanName'), 'text')
-	local yinhuanLocName = Sprite:getProperty(Sprite:findChild(rootSprite,'yinhuanLocName'),'text')
-	
+    local yinhuanLocName = Sprite:getProperty(Sprite:findChild(rootSprite,'yinhuanLocName'),'text')
+    
     --imageArray
     local pics=""
     for i=1, #imageArray do
@@ -866,7 +871,7 @@ function doLoadSave(pYinhuanID)
     local typeBtn = Sprite:findChild(rootSprite, 'typeBtn')
     local levelBtn = Sprite:findChild(rootSprite, 'levelBtn')
     local detail = Sprite:findChild(rootSprite, 'detail')
-	local yinhuanLocName = Sprite:findChild(rootSprite,'yinhuanLocName')
+    local yinhuanLocName = Sprite:findChild(rootSprite,'yinhuanLocName')
 
     local datas = SplitWithBlank(stringData, ';')
 
@@ -891,7 +896,7 @@ function doLoadSave(pYinhuanID)
         editOnTextChanged(detail,string.len(datas[5]))
     end
     Sprite:setProperty(detail, 'text', datas[5])
-	Sprite:setProperty(yinhuanLocName,'text',datas[13])
+    Sprite:setProperty(yinhuanLocName,'text',datas[13])
     local pics = Util:split(datas[14], '|')
     for i=1, #pics do
         table.insert(imageArray, pics[i])

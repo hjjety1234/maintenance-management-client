@@ -299,25 +299,21 @@ function getCurrentLoc()
     elseif result == 0 then
         local gpsStatus = System:setGPSStatus(1)
         if gpsStatus then
-            Timer:set(111, 1000, '__getGpsData')
+            --Timer:set(111, 1000, '__getGpsData')
         else
            Log:write('gps开启失败')
         end
     elseif result == 1 then
         Log:write('gps已经开启')
-        Timer:set(111, 1000, '__getGpsData')
+        --Timer:set(111, 1000, '__getGpsData')
     end
 end
 
 -- gps已经打开的情况下，获取gps数据
 function __getGpsData()
     longitude, latitude = System:getGPSData()
-    if longitude and longitude ~= 0 and latitude and latitude ~= 0 then
-         System:setGPSStatus(0)
-    else
-        -- 重设定时器
-        Timer:set(111, 1000, '__getGpsData')
-    end
+    -- 重设定时器
+    Timer:set(111, 1000, '__getGpsData')
 end
 
 ]]>

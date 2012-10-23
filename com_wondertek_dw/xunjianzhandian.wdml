@@ -145,9 +145,9 @@ local stationDistanceVisible = false
 local statusBarText
 
 -- gps重试次数和经纬度信息
-local timerNum = 10
-local longitude = 0
-local latitude = 0
+local timerNum = 50
+local lastLongitude = 0
+local lastLatitude = 0
 local clickTime -- 长按巡检名称时的时间
 local longClickItemIndex -- 当前长按按钮列表索引
 local firtClick_y -- 第一次点击时的纵坐标
@@ -161,8 +161,8 @@ function bodyBuildChildrenFinished(sprite)
     planId = Reg:getString(regHandle, 'planId')
     templateId = Reg:getString(regHandle, 'templateId')
     statusBarText =  Sprite:findChild(sprite, 'statusBarText')
-    longitude = Reg:getString(regHandle, 'longitude')
-    latitude = Reg:getString(regHandle, 'latitude')
+    --longitude = Reg:getString(regHandle, 'longitude')
+    --latitude = Reg:getString(regHandle, 'latitude')
     
     -- 默认选择tab1
     local tab1 = Sprite:findChild(rootSprite,'btnTab1')
@@ -237,7 +237,7 @@ function itemOnSelect(sprite)
     Reg:setString(regHandle, 'planId', planId)
     Reg:setString(regHandle, 'templateId', templateId)
     Reg:setString(regHandle, 'stationId', Sprite:getText(stationId))
-    Reg:setString(regHandle, 'stationName', Sprite:getText(stationName))
+    Reg:setString(regHandle, 'stationName', string.sub(Sprite:getText(stationName), 11))
     -- 跳转到巡检子项
     Scene:setReturn(Alias.xunjianzhandian, Alias.xunjianEditEx)
     Scene:go(Alias.xunjianEditEx)
@@ -395,15 +395,15 @@ function getNearbyStationByRadius(sprite)
     Sprite:setProperty(statusBar, 'enable', 'true')
     
     -- 检查当前经纬度信息
-    if longitude ~= '0' and longitude ~= 0 and latitude ~= '0' and latitude ~= 0 then
-        local latitudeValue = tonumber(latitude) / 10000000.0
-        local longitudeValue = tonumber(longitude) / 10000000.0
-        local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
-        Sprite:setProperty(statusBarText, 'text', '定位成功，经纬度为:'.. posValue)
-        request('1', posValue, '1000', page, 1001)
-        Loading:show()
-        return
-	end
+    --if longitude ~= '0' and longitude ~= 0 and latitude ~= '0' and latitude ~= 0 then
+    --    local latitudeValue = tonumber(latitude) / 10000000.0
+    --    local longitudeValue = tonumber(longitude) / 10000000.0
+    --    local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
+    --    Sprite:setProperty(statusBarText, 'text', '定位成功，经纬度为:'.. posValue)
+    --    request('1', posValue, '1000', page, 1001)
+    --    Loading:show()
+    --    return
+	--end
         
     -- 当前无经纬度信息，检查当前gps状态
     local result = System:getGPSStatus()
@@ -413,12 +413,14 @@ function getNearbyStationByRadius(sprite)
         local gpsStatus = System:setGPSStatus(1)
         if gpsStatus then
             Sprite:setProperty(statusBarText, 'text', 'GPS开启成功，正在定位...')
+            Timer:cancel(111)
             Timer:set(111, 1000, '_requestNearbyStationByRadius')
         else
             Sprite:setProperty(statusBarText, 'text', 'GPS开启失败')
         end
     elseif result == 1 then
         Sprite:setProperty(statusBarText, 'text', 'GPS已经开启，正在定位...')
+        Timer:cancel(111)
         Timer:set(111, 1000, '_requestNearbyStationByRadius')
     end
 end
@@ -426,9 +428,11 @@ end
 -- 由经纬度获请求指定范围内的基站
 function _requestNearbyStationByRadius()
     -- 需要对gps的数据请求多次
-    longitude,latitude = System:getGPSData()
-    if longitude and longitude ~= 0 and latitude and latitude ~= 0 then
-        timerNum = 10
+    local longitude,latitude = System:getGPSData()
+    if longitude and longitude ~= 0 and latitude and latitude ~= 0 and
+         isLocationChanaged(longitude, latitude) == true then
+    
+        timerNum = 50
         Timer:cancel(111)
         System:setGPSStatus(0)
         
@@ -443,15 +447,42 @@ function _requestNearbyStationByRadius()
         Loading:show()
     elseif timerNum > 0 then
         timerNum = timerNum - 1
+        Sprite:setProperty(statusBarText, 'text', 'GPS已经开启，正在定位，超时剩余'..timerNum..'秒.')
         Timer:set(111, 1000, '_requestNearbyStationByRadius')
     else
         Timer:cancel(111)
         System:setGPSStatus(0)
-        timerNum = 10
+        timerNum = 50
+        
+        -- 是否有gps缓存
+        if longitude ~= 0 and latitude ~=0  then
+            local latitudeValue = tonumber(latitude) / 10000000.0
+            local longitudeValue = tonumber(longitude) / 10000000.0
+            local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
+            Sprite:setProperty(statusBarText, 'text', '使用经纬度缓存:'.. posValue)
+            request('1', posValue, '1000', page, 1001)
+            return
+        end
+        
+        -- 定位失败
         Sprite:setProperty(statusBarText, 'text', '定位失败，请稍候再试.')
     end
 end
 
+-- 检查是否有位置变化
+function isLocationChanaged(longitude, latitude)
+    if lastLongitude == 0 or lastLatitude == 0 then
+        lastLongitude = longitude
+        lastLatitude =  latitude
+        return false
+    elseif  lastLongitude ~= longitude and lastLatitude ~= latitude then
+        lastLongitude = longitude
+        lastLatitude =  latitude
+        return true
+    else
+        return false
+    end
+end
 
 -- 根据站点名称进行搜索
 function doSearchStationName(sprite)
