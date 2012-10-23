@@ -56,7 +56,7 @@
                         src="file://image/tab_n.png" style="sudoku-auto" sudoku="15,15,15,15"
                         extendstyle="1111" />
                     <label name="labeltab" rect="0,0,240,60" text="到达巡检点" color="#ffffff"
-                        v-align="center" h-align="center" font-size="22" extendstyle="1111" />
+                        v-align="center" h-align="center" font-size="28" extendstyle="1111" />
                 </button>
                 <button name="btnTab2" rect="240,0,240,60" text="" color="#ffffff"
                     extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
@@ -64,7 +64,7 @@
                         src="file://image/tab_n.png" style="sudoku-auto" sudoku="15,15,15,15"
                         extendstyle="1111" />
                     <label name="labeltab" rect="0,0,240,60" text="离开巡检点" color="#ffffff"
-                        v-align="center" h-align="center" font-size="22" extendstyle="1111" />
+                        v-align="center" h-align="center" font-size="28" extendstyle="1111" />
                 </button>
             </node>
            
@@ -105,8 +105,8 @@
                 <node name="errorTitleNode1" rect="0,0,480,50" extendstyle="1111">
                     <image name="SaveFlag" rect="5,7,30,30" src="file://image/s3.png"
                                  style="autosize" extendstyle="1111"  visible="false"/>
-                    <scrolltext name="errorTitleName" rect="40,0,480,50"
-                        extendstyle="1010" font-size="20" h-align="left" v-align="center"
+                    <scrolltext name="errorTitleName" rect="20,0,480,50"
+                        extendstyle="1010" font-size="24" h-align="left" v-align="center"
                         color="#0" scroll="true" step="2" />
                     <button name="errorTitleBtn" rect="300,0,160,50" border="false"
                         text="" color="#ffffff" OnSelect="errorOnSelect"
@@ -132,8 +132,8 @@
                 <node name="errorTitleNode2" rect="0,0,480,50" extendstyle="1111">
                 <image name="SaveFlag" rect="5,7,30,30" src="file://image/s3.png"
                                  style="autosize" extendstyle="1111"  visible="false"/>
-                    <scrolltext name="errorTitleName" rect="40,0,480,50"
-                        extendstyle="1111" font-size="20" h-align="left" v-align="center"
+                    <scrolltext name="errorTitleName" rect="20,0,480,50"
+                        extendstyle="1111" font-size="24" h-align="left" v-align="center"
                         color="#0" scroll="true" step="2" />
 
                     <image rect="300,0,160,50" src="file://image/input.png"
@@ -149,8 +149,8 @@
                 <node name="errorTitleNode3" rect="0,0,480,50" extendstyle="1111">
                 <image name="SaveFlag" rect="5,7,30,30" src="file://image/s3.png"
                                  style="autosize" extendstyle="1111"  visible="false"/>
-                    <scrolltext name="errorTitleName" rect="40,0,480,50"
-                        extendstyle="1111" font-size="20" h-align="left" v-align="center"
+                    <scrolltext name="errorTitleName" rect="20,0,480,50"
+                        extendstyle="1111" font-size="24" h-align="left" v-align="center"
                         color="#0" scroll="true" step="2" />
 
                     <image rect="300,0,160,50" src="file://image/input.png"
@@ -280,6 +280,8 @@ local jdtitleItems
 local planId
 local templateId
 local stationId
+local errorItemNode
+local errorDetailBtn
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -651,13 +653,6 @@ end
 -- 出站请求
 -- issue#: 出站前需要判断输入是否合法
 function outRequest()
-    -- 确认是否已经进站
-    if Inflag ~= '1' then
-        Sprite:setProperty(Sprite:findChild(btnTab2, 'tabBg'), 'src', 'file://image/tab_n.png')
-        Dialog:show('提示','请先执行进站操作！','ok')
-        return
-    end
-    
     -- 对用户输入合法性进行判断
     -- 返回非0时，检查失败，无法出站
     if checkUserInput() ~= 0 then
@@ -687,17 +682,21 @@ end
 
 --进站出站操作
 function tabOnSelect(sprite)
-    local tabNode = Sprite:getParent(sprite)
     local dataInfo = Sprite:getData(sprite)
-    local tab1 = Sprite:findChild(tabNode, 'btnTab1')
-    local tab2 = Sprite:findChild(tabNode, 'btnTab2')
     Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_s.png')
     if dataInfo=='01' then
         --进站请求
         inRequest()
     elseif dataInfo=='02' then
-        --出站请求
-        outRequest()
+        -- 确认是否已经进站
+        if Inflag ~= '1' then
+            Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_n.png')
+            Dialog:show('提示','请先执行进站操作！','ok')
+            return
+        else
+            --出站请求
+            outRequest()
+        end
     end
 end
 
@@ -877,9 +876,9 @@ function checkUserInput()
                     local errorTitleBtn=Sprite:findChild(errorTitleNode1,'errorTitleBtn')
                     local errorTypeName=Sprite:findChild(errorTitleBtn,'errorTypeName')
                     patrolResult=Sprite:getText(errorTypeName)
-
                     if patrolResult==nil or patrolResult=='' then
-                        Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok')
+                        checkIsSpread(errorTypeName, mainItemNode)
+                        Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok', 'showErrorInfo')
                         return 1
                     else
                         setAllShoworHide(Sprite:findChild(errorTitleNode1,'SaveFlag'),1)
@@ -894,8 +893,9 @@ function checkUserInput()
                     local editInput=Sprite:findChild(errorTitleNode2,'editInput')
                     patrolResult=Sprite:getText(editInput)
                     if patrolResult==nil or patrolResult=='' then
-                       Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok')
-                       return 1
+                        checkIsSpread(editInput, mainItemNode)
+                        Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok', 'showErrorInfo')
+                        return 1
                     else
                         setAllShoworHide(Sprite:findChild(errorTitleNode2,'SaveFlag'),1)
                         HttpRequest(subitemId,patrolResult,exception,dealdetail)
@@ -909,8 +909,10 @@ function checkUserInput()
                     local editInput=Sprite:findChild(errorTitleNode3,'editInput')
                     patrolResult=Sprite:getText(editInput)
                     if patrolResult==nil or patrolResult=='' then
-                        Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok')
-                       return 1
+                        checkIsSpread(editInput, mainItemNode)
+                        ImgOnSelect(Sprite:findChild(mainItemNode, 'btnImg'))
+                        Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok', 'showErrorInfo')
+                        return 1
                     else
                         setAllShoworHide(Sprite:findChild(errorTitleNode3,'SaveFlag'),1)
                         HttpRequest(subitemId,patrolResult,exception,dealdetail)
@@ -921,6 +923,22 @@ function checkUserInput()
     end
     -- 检查完毕，无错误返回0
     return 0 
+end
+
+function checkIsSpread(errorEdit, mainItemNode)
+    if errorItemNode then
+        local btnImg = Sprite:findChild(errorItemNode, 'btnImg')
+        if Sprite:getData(btnImg) == '1' then
+            ImgOnSelect(btnImg)
+        end
+    end
+    errorItemNode = mainItemNode
+    errorDetailBtn = errorEdit
+end
+
+function showErrorInfo()
+    ImgOnSelect(Sprite:findChild(errorItemNode, 'btnImg'))
+    Sprite:setFocus(errorDetailBtn)
 end
 
 function doBackStatue()
