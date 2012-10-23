@@ -51,7 +51,7 @@ function loadingProcess(idEvent)
         math.random()
         local num = math.random(5)+curNum
         if num >= 100 then
-            Sprite:setProperty(processLbl, 'text', '100')
+            Sprite:setProperty(processLbl, 'text', '95')
         else
             Sprite:setProperty(processLbl, 'text', tostring(num))
             Timer:set(1234, 1000, 'loadingProcess')
