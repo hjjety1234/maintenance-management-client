@@ -229,13 +229,15 @@ end
 -- 点击站点列表项处理函数
 function itemOnSelect(sprite)
     -- 获取当前选中站点的ID号
-    local stationId = Sprite:findChild(rootSprite, "stationId")
+    local stationId = Sprite:findChild(sprite, "stationId")
+    local stationName = Sprite:findChild(sprite, "stationName")
     -- 设置要传递给巡检子项的参数
     local regHandle = Reg:create('xunjianzhixiang')
     Reg:clear(regHandle)
     Reg:setString(regHandle, 'planId', planId)
     Reg:setString(regHandle, 'templateId', templateId)
     Reg:setString(regHandle, 'stationId', Sprite:getText(stationId))
+    Reg:setString(regHandle, 'stationName', Sprite:getText(stationName))
     -- 跳转到巡检子项
     Scene:setReturn(Alias.xunjianzhandian, Alias.xunjianEditEx)
     Scene:go(Alias.xunjianEditEx)
