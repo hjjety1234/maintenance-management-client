@@ -148,16 +148,8 @@ end
 function doSearch(content)
     local dataString=string.format('cmd=%s&resourceName=%s&resourceType=%s&page=1','wlbresourceSearch', content, '')
     local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
-    Http:request('search_data', reqURL, 101, {useCache = false, method = 'post', postData=dataString})
     Loading:show(rootSprite)
-    Timer:set(1,8000, 'loadingClose')
-end
-
-function loadingClose()
-    if Loading:isShow() then 
-        Loading:close()
-        --Dialog:show('服务器提醒', '连接超时！', 'ok') 
-    end
+    Http:request('search_data', reqURL, 101, {useCache = false, method = 'post', postData=dataString})
 end
 
 function loadListItem(list, item, index)
@@ -172,8 +164,12 @@ function loadListItem(list, item, index)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local textTitle = Sprite:findChild(item, 'textTitle')
     local textLoc = Sprite:findChild(item, 'textLoc')
-    Sprite:setProperty(textTitle, 'text', data.value[index].resourcename)
-    Sprite:setProperty(textLoc, 'text', data.value[index].position)
+    if data.value[index].resourcename then
+        Sprite:setProperty(textTitle, 'text', data.value[index].resourcename)
+    end
+    if data.value[index].position then
+        Sprite:setProperty(textLoc, 'text', data.value[index].position)
+    end
 end
 
 function itemOnSelect(sprite)
