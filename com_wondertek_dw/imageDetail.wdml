@@ -123,6 +123,7 @@ end
 
 -- 定时器获取下载状态
 local lastsize = 0
+local fakepercent = 0
 function onGetDownloadStatus()
     Log:write('onGetDownloadStatus===========')
     local task = Download:getStatus(1, true)
@@ -140,6 +141,12 @@ function onGetDownloadStatus()
     
     if task.status == Download.status.Downloading then
         Log:write('正在下载...')
+        -- 虚拟百分比
+        fakepercent =  fakepercent + math.random(5)
+        if fakepercent > 100 then
+             fakepercent = 100
+        end
+        percent = fakepercent
         Sprite:setRect(imageShadow, x, y, width, height * percent)
         Sprite:setProperty(percentLbl, 'text', percent .. '%')
     elseif task.status == Download.status.Finished then -- 如果下载结束则记录此条记录信息，以便后面将其安装并删除
