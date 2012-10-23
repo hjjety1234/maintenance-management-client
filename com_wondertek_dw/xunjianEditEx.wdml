@@ -305,14 +305,6 @@ function bodyOnSpriteEvent(msg, param)
         local titleNode =  Sprite:findChild(rootSprite, 'titleNode')
         Sprite:setProperty(titleNode, 'text', stationName)
         
-        -- 检查是否是演示版，确定是否要加载演示版数据
-        if usercode ~= nil and usercode == 'zyhefei1' then
-            jdtitleItems = testTitleItems
-            loadTempData()
-            ContractionSet()
-            return
-        end
-    
         if templateId ~= nil and templateId == '000000039103' then
             jdtitleItems=jztitleItems
             loadTempData()
@@ -666,12 +658,22 @@ function InHandle(time)
     Inflag='1'
 end
 
+-- 是否是特权用户
+function isSupervisor()
+    if usercode ~= nil then
+        if usercode == 'zyhefei1' or usercode == '0554' or usercode == '0564' then
+            return true
+        end
+    end
+    return false
+end
+
 -- 出站请求
 -- issue#: 出站前需要判断输入是否合法
 function outRequest()
     -- 对用户输入合法性进行判断
     -- 返回非0时，检查失败，无法出站
-    if usercode ~= 'zyhefei1' then
+    if isSupervisor() == false then
 	    if checkUserInput() ~= 0 then
 	        return
 	    end
@@ -845,7 +847,7 @@ end
 -- 全部保存
 function doUpload(sprite)
     -- 执行用户输入检查
-    if usercode ~= 'zyhefei1' then
+    if isSupervisor()== false then
 	    if checkUserInput() ~= 0 then
 	        return
 	    end
