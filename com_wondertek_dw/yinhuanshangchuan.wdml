@@ -362,28 +362,31 @@ function bodyOnPluginEvent(msg, param)
             --Dialog:show('提示','上传成功','ok','doBack')
         end
     elseif msg == 104 then
-
         local uploadData = Http:xmlDecode('upload_url', 'RESULT')
-        Log:write("upload url:", updateData)
-        local url = uploadData.URL
-        Log:write('url', url)
-        local param = uploadData.PARAM
-        if param then
-            param = param .. '&'
-        else
-            param = ''
+        if uploadData then
+            Log:write("upload url:", updateData)
+            local url = uploadData.URL
+            Log:write('url', url)
+            local param = uploadData.PARAM
+            if param then
+                param = param .. '&'
+            else
+                param = ''
+            end
         end
         doRealUploadPic(url, param)
     elseif msg == 105 then
         local uploadData = Http:xmlDecode('upload_url', 'RESULT')
-        Log:write("upload url:", updateData)
-        local url = uploadData.URL
-        Log:write('url', url)
-        local param = uploadData.PARAM
-        if param then
-            param = param .. '&'
-        else
-            param = ''
+        if uploadData then
+            Log:write("upload url:", updateData)
+            local url = uploadData.URL
+            Log:write('url', url)
+            local param = uploadData.PARAM
+            if param then
+                param = param .. '&'
+            else
+                param = ''
+            end
         end
         doRealUploadRecord(url, param)
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
