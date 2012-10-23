@@ -52,14 +52,14 @@
                     <image name="tabBg" rect="0,0,240,60" border="false" src=""
                         style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                     <label rect="0,0,240,60" text="查询站点" color="#ffffff" v-align="center"
-                        h-align="center" font-size="22" extendstyle="1111" />
+                        h-align="center" font-size="28" extendstyle="1111" />
                 </button>
                 <button name="btnTab2" rect="240,0,240,60" text="" color="#ffffff"
                     extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
                     <image name="tabBg" rect="0,0,240,60" border="false" src=""
                         style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                     <label rect="0,0,240,60" text="周边站点" color="#ffffff" v-align="center"
-                        h-align="center" font-size="22" extendstyle="1111" />
+                        h-align="center" font-size="28" extendstyle="1111" />
                 </button>
             </node>
             
@@ -99,7 +99,7 @@
                 extendstyle="1011" rect="0,256,480,70">
                 <shadow name="listItemBg" rect="0,0,480,70" color="#e8e8e8"
                     alpha="255" extendstyle="1111" />
-                <button name="btnname" rect="0,0,480,70" OnSelect="itemOnSelect"
+                <button name="btnname" rect="0,0,480,70" OnMouseDown="nameOnMouseDown" OnMouseUp="nameOnMouseUp" 
                     extendstyle="1111" data="">
                     <image name="stationStatusImage" rect="10,20,30,30" src=""
                         style="autosize" extendstyle="1111" />
@@ -107,13 +107,20 @@
                         font-size="16" h-align="left" v-align="center" extendstyle="1111"
                         border="false" visible="false" />
                     <scrolltext name="stationName" rect="50,10,270,50" text=""
-                        color="#0" font-size="22" h-align="left" v-align="center" scroll="true"
+                        color="#0" font-size="24" h-align="left" v-align="center" scroll="true"
                         extendstyle="1111" border="false" />
                     <label name="stationDistance" rect="330,10,130,50" text=""
-                        color="#0" font-size="22" h-align="left" v-align="center"
+                        color="#0" font-size="24" h-align="left" v-align="center"
                         extendstyle="1111" border="false" />
                 </button>
             </node>
+
+            <button name="cancelDetailBtn" rect="0,0,0,0" OnSelect="hideDetialNodeSel" visible="false" enable="false" extendstyle="1177" />
+            <node name="seeDetailNode" rect="0,0,120,60" visible="false" enable="false" extendstyle="1111">
+                <shadow rect="0,0,0,0" color="#555555" alpha="255" extendstyle="1177" />
+                <button rect="0,0,0,0" text="查看详情" OnSelect="gotoXunjianmingDetail" extendstyle="1177" />
+            </node>
+
         </node>
     </body>
     <![CDATA[
@@ -136,6 +143,9 @@ local statusBarText
 local timerNum = 10
 local longitude = 0
 local latitude = 0
+local clickTime -- 长按巡检名称时的时间
+local longClickItemIndex -- 当前长按按钮列表索引
+local firtClick_y -- 第一次点击时的纵坐标
 
 ---------------------------------------回调函数列表--------------------------------
 -- root子节点创建完事件
@@ -226,6 +236,52 @@ function itemOnSelect(sprite)
     Scene:go(Alias.xunjianEditEx)
 end
 
+function nameOnMouseDown(sprite, x, y)
+    clickTime = System:getTickTime()
+    firtClick_y = y
+end
+
+function nameOnMouseUp(sprite, x, y)
+    if firtClick_y == y then
+        local durTime = System:getTickTime() - clickTime
+        if durTime >= 1500 then
+            setDetailNodeEnable(1)
+            longClickItemIndex = ListView:getItemIndex(Sprite:getParent(sprite))
+            Sprite:setRect(Sprite:findChild(rootSprite, 'seeDetailNode'), x, 186+y+longClickItemIndex*70, 0, 0)
+        else
+            itemOnSelect(sprite)
+        end
+    end
+end
+
+function gotoXunjianmingDetail(sprite)
+    local itemValue = respValue[longClickItemIndex]
+    local reg = Reg:create(Reg.com_wondertek_dw.xunjianzhandianDetail)
+    Reg:setString(reg, 'stationId', itemValue.stationId)
+    Reg:setString(reg, 'stationName', itemValue.stationName)
+    Reg:setString(reg, 'isPatroled', itemValue.isPatroled)
+    Reg:setString(reg, 'distance', itemValue.distance)
+
+    setDetailNodeEnable(0)
+    Scene:setReturn(Alias.xunjianzhandian, Alias.xunjianzhandianDetail)
+    Scene:go(Alias.xunjianzhandianDetail)
+end
+
+function hideDetialNodeSel(sprite)
+    setDetailNodeEnable(0)
+end
+
+function setDetailNodeEnable(isEnable)
+    local seeDetailNode = Sprite:findChild(rootSprite, 'seeDetailNode')
+    local cancelDetailBtn = Sprite:findChild(rootSprite, 'cancelDetailBtn')
+    Sprite:setVisible(seeDetailNode, isEnable)
+    Sprite:setEnable(seeDetailNode, isEnable)
+    Sprite:setActive(seeDetailNode, isEnable)
+    Sprite:setVisible(cancelDetailBtn, isEnable)
+    Sprite:setEnable(cancelDetailBtn, isEnable)
+    Sprite:setActive(cancelDetailBtn, isEnable)
+end
+
 -- 标签页选择
 function tabOnSelect(sprite)
     local tabNode = Sprite:getParent(sprite)
@@ -257,6 +313,7 @@ function tabOnSelect(sprite)
         getNearbyStationByRadius()
     end
 end
+
 ---------------------------------------界面操作函数列表---------------------------
 -- 跳转到上一个页面
 function doBack()
