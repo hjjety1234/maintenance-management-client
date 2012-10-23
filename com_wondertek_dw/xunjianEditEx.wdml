@@ -258,6 +258,7 @@
 require 'com_wondertek_dw.common.framework'
 require 'com_wondertek_dw.common.tempData'
 require 'com_wondertek_dw.common.tempDataZHFG'
+require 'com_wondertek_dw.common.tempDataTest' -- 测试模板，用于演示
 require 'framework.upload'
 local rootSprite
 local mainListView
@@ -283,10 +284,12 @@ local stationId
 local stationName
 local errorItemNode
 local errorDetailBtn
+local usercode
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    usercode = Config:get('username')
 end
 
 -- @brief root节点消息方法
@@ -301,12 +304,20 @@ function bodyOnSpriteEvent(msg, param)
         
         local titleNode =  Sprite:findChild(rootSprite, 'titleNode')
         Sprite:setProperty(titleNode, 'text', stationName)
+        
+        -- 检查是否是演示版，确定是否要加载演示版数据
+        if usercode ~= nil and usercode == 'zyhefei1' then
+            jdtitleItems = testTitleItems
+            loadTempData()
+            ContractionSet()
+            return
+        end
     
-        if templateId~=nil and templateId=='000000039103' then
+        if templateId ~= nil and templateId == '000000039103' then
             jdtitleItems=jztitleItems
             loadTempData()
             ContractionSet()
-        elseif templateId~=nil and templateId=='000000069526' then
+        elseif templateId ~= nil and templateId == '000000069526' then
             jdtitleItems=zhfgtitleItems
             loadTempData()
             ContractionSet()
@@ -401,7 +412,7 @@ end
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-        doBack()
+        Dialog:show('', '您即将离开巡检页面,是否继续？','ok_cancel','doBack')
         return 1
     elseif kc==Key.F1 then--按下菜单键
         local FavListNodeSprite = Sprite:findChild(rootSprite, "ContextMenuNode")
@@ -660,10 +671,11 @@ end
 function outRequest()
     -- 对用户输入合法性进行判断
     -- 返回非0时，检查失败，无法出站
-    if checkUserInput() ~= 0 then
-        return
+    if usercode ~= 'zyhefei1' then
+	    if checkUserInput() ~= 0 then
+	        return
+	    end
     end
-    
     -- 请求出站
     local tabNode=Sprite:findChild(rootSprite,"tabNode")
     local btnTab2 = Sprite:findChild(tabNode,"btnTab2")
@@ -833,8 +845,10 @@ end
 -- 全部保存
 function doUpload(sprite)
     -- 执行用户输入检查
-    if checkUserInput() ~= 0 then
-        return
+    if usercode ~= 'zyhefei1' then
+	    if checkUserInput() ~= 0 then
+	        return
+	    end
     end
     Loading:show(rootSprite)
     --判断是否有图片 有图片则上传
