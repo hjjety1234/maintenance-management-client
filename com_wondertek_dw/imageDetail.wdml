@@ -137,6 +137,8 @@ function onGetDownloadStatus()
     -- 获取页面元素
     local percentLbl = Sprite:findChild(rootSprite, 'percentLabel')
     local imageShadow =  Sprite:findChild(rootSprite, 'imageShadow')
+    local loadingImage =  Sprite:findChild(rootSprite, 'loadingImage')
+    local lx, ly, lwidth, lheight = Sprite:getRect(loadingImage)
     local x,y,width,height = Sprite:getRect(imageShadow)
     
     if task.status == Download.status.Downloading then
@@ -147,7 +149,7 @@ function onGetDownloadStatus()
              fakepercent = 100
         end
         percent = fakepercent
-        Sprite:setRect(imageShadow, x, y, width, height * percent)
+        Sprite:setRect(imageShadow, x, y, width, lheight * percent / 100.0)
         Sprite:setProperty(percentLbl, 'text', percent .. '%')
     elseif task.status == Download.status.Finished then -- 如果下载结束则记录此条记录信息，以便后面将其安装并删除
         Log:write('下载完成')
