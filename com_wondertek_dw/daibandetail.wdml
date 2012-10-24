@@ -33,7 +33,7 @@
                         extendstyle="1111" style="autosize" h-align="center" v-align="center"
                         font-size="24" />
                 </button>
-
+        
                 <scrolltext name="title" rect="105,0,280,66" text="待办详情"
                     extendstyle="1111" font-size="30" h-align="center" v-align="center"
                     color="#ffffff" scroll="true" step="2" />
@@ -72,6 +72,7 @@
                 <label name="lblcode" v-align="center" h-align="left"
                     font-size="20" rect="150,0,292,50" text="" color="#000000"
                     extendstyle="1111" />
+                 <label name="lblcreateDate" rect="0,100,292,50" visible="false"></label>
             </node>
             <node name="contentnode" rect="0,270,480,50" extendstyle="1111">
                 <label name="label1" rect="0,0,150,60" border="false" text="任务内容："
@@ -366,6 +367,7 @@ local curXunjianBtn
 local curresult
 local curzhuanshen
 local curhuifu
+local createDate
 regHandle=Reg:create('daiban')
 local id
 local taskcode
@@ -394,6 +396,8 @@ function bodyOnSpriteEvent(msg, param)
         step= Reg:getString(regHandle,'step')
         stepdata = Reg:getString(regHandle,'stepdata')
         flag = Reg:getString(regHandle,'flag')
+        createDate = Reg:getString(regHandle, 'createDate');
+        Log:write('createDate======================'..createDate)
         loadRequest()
         -- local daibanid=Config:get('daiban')
         local daibanIDList = Config:get('daibanIDList')
@@ -617,11 +621,13 @@ function fillContent()
     local timenode= Sprite:findChild(rootSprite, 'timenode')
     local contentnode= Sprite:findChild(rootSprite, 'content')
     local typenode= Sprite:findChild(rootSprite, 'typenode')
+    local lblcreateDate = Sprite:findChild(rootSprite, 'lblcreateDate');
     Sprite:setProperty(Sprite:findChild(typenode, "lblcode"), 'text', data.taskTypeDis)
     Sprite:setProperty(Sprite:findChild(taskidnode, "lblcode"), 'text', data.taskCode)
     Sprite:setProperty(Sprite:findChild(titlenode, 'lblcode'), 'text', data.taskName)
     Sprite:setProperty(Sprite:findChild(timenode, 'lblcode'), 'text', data.taskDate)
     Sprite:setProperty(Sprite:findChild(contentnode, 'hideLabel'), 'text', data.taskDetail)
+    Sprite:setProperty(Sprite:findChild(timenode, 'lblcreateDate'), 'text', createDate)
     local sampleList = Sprite:findChild(rootSprite, "sampleList")
     local editList = Sprite:findChild(sampleList, "editList")
     local x,y,w,h = Sprite:getRect(editList)
@@ -905,7 +911,7 @@ function doSave()
     local titlenode= Sprite:findChild(rootSprite,'titlenode')
     local timenode = Sprite:findChild(rootSprite,'timenode')
     local titile = Sprite:getText(Sprite:findChild(titlenode,'lblcode'))
-    local time = Sprite:getText(Sprite:findChild(timenode,'lblcode'))
+    local time = Sprite:getText(Sprite:findChild(timenode,'lblcreateDate'))
     local stringData=id..';'..pid..';'..taskcode..';'..step..';'..titile..';'..time
     --签收
     if stepdata=='1' then

@@ -285,9 +285,11 @@ function loadListItem(list, item, index)
 end
 
 function itemOnSelect(sprite)
+    local createDate = Sprite:getText(Sprite:findChild(sprite, 'textTime'));
     local tabNode = Sprite:getParent(sprite)
     local dataString = Split(Config:get('daibanID' .. Sprite:getData(tabNode)), ';')
     regHandle=Reg:create('daiban')
+    Reg:setString(regHandle, "createDate",createDate)
     local textnum=Sprite:findChild(tabNode, 'textNum')
     local text=Sprite:getText(textnum)
     local  index 
@@ -307,7 +309,6 @@ function itemOnSelect(sprite)
         Reg:setString(regHandle,'id',data.value[index].id)
         Reg:setString(regHandle,'pid',data.value[index].pid)
         Reg:setString(regHandle,'taskcode',tostring(data.value[index].taskCode))
-        
         
         Reg:setString(regHandle,'flag',flag)
 
