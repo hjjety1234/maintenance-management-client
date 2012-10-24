@@ -91,6 +91,7 @@ local mapViewPlugin
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     loadRequest()
+    updateDaibanNum()
     --observer = Plugin:getObserver()
     --local regHandle = Reg:create(Regs.regName)
     --mapViewPlugin = Reg:getInteger(regHandle, "map_handle")
@@ -100,6 +101,14 @@ function bodyBuildChildrenFinished(sprite)
     --end
     --pluginInvoke(mapViewPlugin, "getCurrentPosition", observer, 1000)
     --Map:getCurPosition(observer, 1000)
+end
+
+function updateDaibanNum()
+    local username=Config:get('username')
+    local password=Config:get('password')
+    local dataString=string.format('usercode=%s&password=%s&cmd=%s',username, password,'wlblogin')
+    local reqURL = getUrl()..'nbspweb/webservice/user!doWebservice.action?'..dataString
+    Http:request('login_istrue', reqURL, 102, {useCache=false})
 end
 
 -- @brief root节点消息方法
@@ -123,6 +132,15 @@ function bodyOnPluginEvent(msg, param)
             setDaibanNum(data.total)
         else
             --Dialog:show(rootSprite, '请求超时！请检查服务器地址和端口是否设置正确！', 'ok')
+        end
+    elseif msg == 102 then
+    	local loginData = Http:jsonDecode('login_istrue')
+        local result=loginData['code']
+        if result=='0' then
+            Config:set('tasknum', loginData.taskNum)
+            local daibanNode = Sprite:findChild(rootSprite,'daibanNode')
+            local daibanNum = Sprite:findChild(daibanNode,'daibanNum')
+            Sprite:setProperty(daibanNum, 'text', loginData.taskNum)
         end
     elseif msg == 1000 then
         local postData = Param:getString(param, 0)
