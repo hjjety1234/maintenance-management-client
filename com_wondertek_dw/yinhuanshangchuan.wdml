@@ -667,27 +667,26 @@ function getUploadUrl()
 end
 
 function requestPicUrl(imageUrl)
-    if imageUrl and imageUrl ~= '' then
-        local _,_,fileName = string.find(imageUrl, '([^/\\%.]+)%.?[^/\\]*$')
-        local url = getWholeUrl('nbspweb/upload/UGC_GetUploadUrl.html', '')
-        local param = 'FILE_NAME=' .. fileName .. '&C_TYPE=' .. 'jpg' .. '&C_LEN=' .. IO:fileSize(imageUrl)
-        Log:write("-------------pic url upload------------", url .. param)
-        Http:request('upload_url', url, 104, {useCache = false, method = 'post', postData= param})
-    end
+    local _,_,fileName = string.find(imageUrl, '([^/\\%.]+)%.?[^/\\]*$')
+    local url = getWholeUrl('nbspweb/upload/UGC_GetUploadUrl.html', '')
+    local param = 'FILE_NAME=' .. fileName .. '&C_TYPE=' .. 'jpg' .. '&C_LEN=' .. IO:fileSize(imageUrl)
+    Log:write("-------------pic url upload------------", url .. param)
+    Http:request('upload_url', url, 104, {useCache = false, method = 'post', postData= param})
 end
 
 function doRealUploadPic(url, param)
-    if #imageArray >= 1 then
-        local _,_,fileName = string.find(imageArray[#imageArray], '([^/\\%.]+)%.?[^/\\]*$')
-        local poststr = 'id=' .. orderId .. '&markid=&interfaceMainType=2&usercode=' .. Config:get('username') .. '&uploadFileName=' .. fileName .. '.jpg'
-        Upload:append(url, param .. poststr, imageArray[#imageArray], fileName .. '.jpg', 'test', 'jpg')
-        table.remove(imageArray, #imageArray)
-        checkImageArrayLen()
+    local _,_,fileName = string.find(imageArray[#imageArray], '([^/\\%.]+)%.?[^/\\]*$')
+    local poststr = 'id=' .. orderId .. '&markid=&interfaceMainType=2&usercode=' .. Config:get('username') .. '&uploadFileName=' .. fileName .. '.jpg'
+    Upload:append(url, param .. poststr, imageArray[#imageArray], fileName .. '.jpg', 'test', 'jpg')
+    table.remove(imageArray, #imageArray)
+    if imageArray[#imageArray] and imageArray[#imageArray] ~= '' then
+        requestPicUrl(imageArray[#imageArray])
+    elseif recordName ~= '0' then
+        requestRecordUrl()
     else
-        -- 不应该走到这里
-        Log:write('doRealUploadPic error!')
+        if Loading:isShow() then Loading:close() end
+        Dialog:show('', '已加入上传队列中！', 'ok', 'doBack')
     end
-    requestPicUrl(imageArray[#imageArray])
 end
 
 function doRealUploadRecord(url, param)
@@ -698,18 +697,6 @@ function doRealUploadRecord(url, param)
     recordName = '0'
     if Loading:isShow() then Loading:close() end
     Dialog:show('', '已加入上传队列中！', 'ok', 'doBack')
-end
-
-function checkImageArrayLen()
-    if #imageArray < 1 then
-        -- 请求音频文件的上传地址
-        if recordName ~= '0' then
-            requestRecordUrl()
-        else
-            if Loading:isShow() then Loading:close() end
-            Dialog:show('', '已加入上传队列中！', 'ok', 'doBack')
-        end
-    end
 end
 
 function requestRecordUrl()
