@@ -618,7 +618,7 @@ function submitOnSelect(sprites)
     elseif yinhuanLocNameText and yinhuanLocNameText=='' then
         Dialog:show('提示', '对不起，隐患位置为空！', 'ok')
     else
-        Dialog:show('提示','是否确定提交此隐患？','ok_cancel','doUpload','doSave')
+        Dialog:show('提示','是否确定提交此隐患？','ok_cancel','doUpload')
     end
 end
 
@@ -640,7 +640,7 @@ function doUpload()
         --Dialog:show('提示', '定位失败!', 'ok')
     end
 
-    local url = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', '')
+    local url = getUrl()..'nbspweb/webservice/accident!doWebservice.action'
 
     local param = '&usercode='.. Config:get('username')..'&deptPro=' .. typeValue ..  '&dangertype=' .. zhuanyeValue .. '&dangerlevel=' .. levelValue  .. '&dangercontent=' .. Sprite:getProperty(detail, 'text') .. '&userLongtitute=' .. Config:get("longitude") .. '&userLatitute=' ..  Config:get("latitude") .. '&name=' .. name .. '&positionRemark=' .. addr
     Log:write("-------------url------------", url .. '?cmd=wlbdangersign'..param)
@@ -652,6 +652,7 @@ function getUploadUrl()
     -- 如果没有图片和声音，说明已经提交成功，程序返回
     if #imageArray < 1 and recordName == '0' then
         if Loading:isShow() then Loading:close() end
+        doDelSave(pYinhuanID)
         Dialog:show('', '隐患提交成功！', 'ok', 'doBack')
         return
     end
@@ -685,6 +686,7 @@ function doRealUploadPic(url, param)
         requestRecordUrl()
     else
         if Loading:isShow() then Loading:close() end
+        doDelSave(pYinhuanID)
         Dialog:show('', '已加入上传队列中！', 'ok', 'doBack')
     end
 end
@@ -696,6 +698,7 @@ function doRealUploadRecord(url, param)
     Log:write('uploadRet============', uploadRet)
     recordName = '0'
     if Loading:isShow() then Loading:close() end
+    doDelSave(pYinhuanID)
     Dialog:show('', '已加入上传队列中！', 'ok', 'doBack')
 end
 
@@ -886,9 +889,28 @@ function doLoadSave(pYinhuanID)
     Sprite:setProperty(yinhuanLocName,'text',datas[13])
     local pics = Util:split(datas[14], '|')
     for i=1, #pics do
-        table.insert(imageArray, pics[i])
+        if pics[i] ~= '' then
+            table.insert(imageArray, pics[i])
+        end
     end
     doChangeImageList()
+end
+
+-- 删除暂存的隐患
+function doDelSave(pYinhuanID)
+    -- 入参检查
+    if pYinhuanID == nil then
+        return 
+    end
+    Log:write('删除暂存隐患，id号为:'..pYinhuanID)
+    Config:delete('yinhuanID'..pYinhuanID)
+    
+    -- 去除隐患列表中的id号
+    local yinhuanIDList = Config:get('yinhuanIDList')
+    --Log:write('原yinhuanIDList为:', yinhuanIDList)
+    local yinhuanIDListNew = string.gsub(yinhuanIDList, pYinhuanID..';', '')
+   -- Log:write('新yinhuanIDList:', yinhuanIDListNew)
+    Config:set('yinhuanIDList', yinhuanIDListNew)
 end
 
 function bottomMenuSelect(sprite)
