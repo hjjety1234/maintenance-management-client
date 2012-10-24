@@ -328,9 +328,8 @@ end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
-    if Loading:isShow() then Loading:close() end
-    if msg == 101 then
-    elseif msg == 103 then -- 阶段保存提交
+    if msg == 103 then -- 阶段保存提交
+        Loading:close()
         local data = Http:jsonDecode('Submitdata')
         Log:write("Submitdata ================= ", data)
         if not data or type(data) ~= 'table' then
@@ -347,7 +346,6 @@ function bodyOnPluginEvent(msg)
             --Dialog:show(rootSprite, '未知错误！', 'ok')
         end
     elseif msg == 104 then
-        
         local uploadData = Http:xmlDecode('upload_url', 'RESULT')
         Log:write("upload url:", updateData)
         local url = uploadData.URL
@@ -362,6 +360,7 @@ function bodyOnPluginEvent(msg)
         imgnum=imgnum + 1
         
     elseif msg == 105 then -- 进站请求
+        Loading:close()
         local data = Http:jsonDecode('Indata')
         Log:write("data105 ================= ", data)
         if not data or type(data) ~= 'table' then
@@ -379,6 +378,7 @@ function bodyOnPluginEvent(msg)
             --Dialog:show(rootSprite, '未知错误！', 'ok')
         end
     elseif msg == 106 then -- 出站请求
+        Loading:close()
         local data = Http:jsonDecode('Outdata')
         Log:write("data106 ================= ", data)
         if not data or type(data) ~= 'table' then
@@ -394,11 +394,11 @@ function bodyOnPluginEvent(msg)
         else
             --Dialog:show(rootSprite, '未知错误！', 'ok')
         end
-    elseif msg == 102 then -- 不提交图片时提交相应
-    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Loading:close()
         Log:write('拨号失败')
     elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Loading:close()
         Log:write('请求超时')
     end
 end
@@ -855,13 +855,9 @@ function doUpload(sprite)
 	    end
     end
     Loading:show(rootSprite)
-    --判断是否有图片 有图片则上传
-    if imageArray[1] ~= nil and imageArray[1] ~= '' then
-        for k,v in pairs(imageArray) do
-            getUploadUrl(v) 
-        end
+    if #imageArray >= 1 then
+        getUploadUrl(imageArray[#imageArray]) 
     end
-    Timer:set(1, 500, 'doBackStatue')
 end
 
 -- 检查用户输入，成功返回0，否则返回1
@@ -964,17 +960,6 @@ function showErrorInfo()
     Sprite:setFocus(errorDetailBtn)
 end
 
-function doBackStatue()
-    local numSum = #imageArray
-    if imgnum==numSum then
-        Timer:cancel(1) 
-        if Loading:isShow() then Loading:close() end
-        doBack()
-        else
-            Timer:set(1, 500, 'doBackStatue')
-    end
-end
-
 --提交请求
 function HttpRequest(subitemId,patrolResult,exception,dealdetail)
     if subitemId=='' or subitemId==nil  then
@@ -1005,10 +990,16 @@ function getUploadUrl(photoPath)
 end
 
 function doRealUpload(url, param,imgnum)
-    local _,_,fileName = string.find(imageArray[imgnum], '([^/\\%.]+)%.?[^/\\]*$')
-    local poststr = 'id=' .. taskidArray[imgnum] .. '&markid='..subitemidArray[imgnum]..'&interfaceMainType=3&usercode=' .. Config:get('username') .. '&uploadFileName=' .. fileName .. '.jpg'
-    --deleleUploadItems()
-    Upload:append(url, param .. poststr, imageArray[imgnum], fileName .. '.jpg', fileName, 'jpg')
+    local _,_,fileName = string.find(imageArray[#imageArray], '([^/\\%.]+)%.?[^/\\]*$')
+    local poststr = 'id=' .. planId .. '&markid='..subitemidArray[#imageArray]..'&interfaceMainType=3&usercode=' .. Config:get('username') .. '&uploadFileName=' .. fileName .. '.jpg'
+    Upload:append(url, param .. poststr, imageArray[#imageArray], fileName .. '.jpg', fileName, 'jpg')
+    table.remove(imageArray, #imageArray)
+    if imageArray[#imageArray] and imageArray[#imageArray] ~= '' then
+        getUploadUrl(imageArray[#imageArray])
+    else
+        if Loading:isShow() then Loading:close() end
+        Dialog:show('', '已加入上传队列中！', 'ok', 'doBack')
+    end
 end
 
 --默认收缩
@@ -1044,24 +1035,22 @@ function doTakePic(sprite)
 end
 
 function onCameraDialog(photoPath, photoType)
-    table.insert(imageArray, photoPath)
     --预留存储巡检计划号、基站号、巡检子项号
     --table.insert(imageArray, photoPath)000001000599
-    table.insert(taskidArray, planId)
 
     local tmpSplitArray = Split(photoPath,'%.')
-    local dest = tmpSplitArray[1] .. 'temp.jpg'
+    local dest = tmpSplitArray[1] .. 'temp' .. System:getTickTime() .. '.jpg'
     Log:write('目标文件路径为:'..dest)
-   -- local ret = ScaleImageAsJpg(photoPath, dest, 480, 800, 0)
-   -- if ret == 1 then
-   --     table.insert(imageArray, dest)
-   --     Log:write('图片压缩成功，压缩后的图片位置为:'..dest)
-   -- else
-   --     table.insert(imageArray, photoPath)
-   --     Log:write('警告：图片压缩失败，使用未压缩的图片:'..photoPath)
-   -- end
+    local ret = ScaleImageAsJpg(photoPath, dest, 480, 800, 0)
+    if ret == 1 then
+        table.insert(imageArray, dest)
+        Log:write('图片压缩成功，压缩后的图片位置为:'..dest)
+    else
+        table.insert(imageArray, photoPath)
+        Log:write('警告：图片压缩失败，使用未压缩的图片:'..photoPath)
+    end
 
-    Log:write("imageArray0", imageArray)
+    Log:write("imageArray", imageArray)
     local errorHideNode = Sprite:getParent(piccurrbtn)
     local subItemNode = Sprite:getParent(errorHideNode)
     --存储子巡检项的ID号
