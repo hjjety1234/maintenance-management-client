@@ -967,8 +967,13 @@ function beginRecord()
 
         local path = getDownloadPath() .. 'daiwei'
         Log:write("path:", path)
-        IO:dirRemove(path, false)
-        IO:dirCreate(path)
+        
+        if(IO:dirExist(path)~=true) then
+            --IO:dirRemove(path, false)
+            IO:dirCreate(path)
+        end
+        
+        
         Timer:set(1, 1000, 'freshProgress')
 
         playStatus = 0
