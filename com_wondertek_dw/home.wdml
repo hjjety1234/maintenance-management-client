@@ -56,7 +56,7 @@
                     </dataset>
                 </list>
             </node>
-            <node name="daibanNode" rect="120,75,43,45" extendstyle="1111">
+            <node name="daibanNode" visible="0" rect="120,75,43,45" extendstyle="1111">
                 <image name="daibanimg" rect="0,0,43,45" style="autosize"
                     extendstyle="1111" border="false" src="file://image/hongquan.png" />
                 <label name="daibanNum" rect="5,5,35,35" color="#FF0000"
@@ -140,7 +140,12 @@ function bodyOnPluginEvent(msg, param)
             Config:set('tasknum', loginData.taskNum)
             local daibanNode = Sprite:findChild(rootSprite,'daibanNode')
             local daibanNum = Sprite:findChild(daibanNode,'daibanNum')
-            Sprite:setProperty(daibanNum, 'text', loginData.taskNum)
+            if loginData.taskNum == '0' then
+                Sprite:setVisible(daibanNode, 0)
+            else
+                Sprite:setVisible(daibanNode, 1)
+                Sprite:setProperty(daibanNum, 'text', loginData.taskNum)
+            end
         end
     elseif msg == 1000 then
         local postData = Param:getString(param, 0)
