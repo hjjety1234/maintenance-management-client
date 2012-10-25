@@ -650,28 +650,38 @@ function setZancunDetail()
     local stepflag = dataString[1]
     if stepflag=='1' then
         local contentnode= Sprite:findChild(rootSprite, 'chulicontent')
-        Sprite:setProperty(Sprite:findChild(contentnode, 'edit'), 'text', dataString[10])
+        if dataString[10] then
+            Sprite:setProperty(Sprite:findChild(contentnode, 'edit'), 'text', dataString[10])
+        end
         local xunjianNode= Sprite:findChild(rootSprite, 'xunjianNode')
-        Sprite:setProperty(Sprite:findChild(xunjianNode, 'xunjianName'), 'text', dataString[9])
+        if dataString[9] then
+            Sprite:setProperty(Sprite:findChild(xunjianNode, 'xunjianName'), 'text', dataString[9])
+        end
         local juqian= Sprite:findChild(rootSprite, 'juqian')
-        Sprite:setProperty(Sprite:findChild(juqian, 'resultTypeName'), 'text', dataString[8])
+        if dataString[8] then
+            Sprite:setProperty(Sprite:findChild(juqian, 'resultTypeName'), 'text', dataString[8])
+        end
     elseif stepflag=='2' or stepflag=='4' then
-        local qianshouNode = Sprite:findChild(rootSprite, 'juqian')
-        local itemNode = Sprite:findChild(qianshouNode, 'resultNode')
+        local juqianNode = Sprite:findChild(rootSprite, 'juqian')
+        local itemNode = Sprite:findChild(juqianNode, 'resultNode')
         Log:write('11111111111111111111')
         local errorNde = Sprite:findChild(itemNode,'resultBtn')
         Log:write('2222222222222222222222222')
         --local itemtext = Sprite:getText(Sprite:findChild(errorNde,'resultTypeName'))
-        Sprite:setProperty(Sprite:findChild(errorNde, 'resultTypeName'), 'text', dataString[8])
-        local xunjianNode = Sprite:findChild(qianshouNode, 'xunjianNode')
+        if dataString[8] then
+            Sprite:setProperty(Sprite:findChild(errorNde, 'resultTypeName'), 'text', dataString[8])
+        end
+        local xunjianNode = Sprite:findChild(juqianNode, 'xunjianNode')
         local xunjian=Sprite:findChild(xunjianNode,'xunjianBtn')
         Log:write('333333333333333333333333333333')
         --local xunjiantext = Sprite:getText(Sprite:findChild(xunjian,'xunjianName'))
-        Sprite:setProperty(Sprite:findChild(xunjian, 'xunjianName'), 'text', dataString[9])
-        local chulicontent = Sprite:findChild(qianshouNode, 'chulicontent')
+        if dataString[9] then
+            Sprite:setProperty(Sprite:findChild(xunjian, 'xunjianName'), 'text', dataString[9])
+        end
+        local chulicontent = Sprite:findChild(juqianNode, 'chulicontent')
         --local contentnode = Sprite:findChild(chulicontent,'label1')
         Log:write('444444444444444444444')
-        if dataString[10]~=nil then
+        if dataString[10] then
             Sprite:setProperty(Sprite:findChild(chulicontent, 'edit'), 'text', dataString[10])
         end
         Log:write('55555555555555555555')
@@ -679,10 +689,14 @@ function setZancunDetail()
         local huidanNode= Sprite:findChild(rootSprite, 'huidan')
         local contentnode= Sprite:findChild(huidanNode, 'chulicontent')
         local resultNode= Sprite:findChild(huidanNode, 'resultNode')
-        Sprite:setProperty(Sprite:findChild(contentnode, 'edit'), 'text', dataString[9])
+        if dataString[9] then
+            Sprite:setProperty(Sprite:findChild(contentnode, 'edit'), 'text', dataString[9])
+        end
         local issubmit=Sprite:findChild(resultNode,'resultBtn')
         --local issubmittext = Sprite:getText(Sprite:findChild(issubmit,'huifuTypeName'))
-        Sprite:setProperty(Sprite:findChild(issubmit, 'huifuTypeName'), 'text', dataString[8])
+        if dataString[8] then
+            Sprite:setProperty(Sprite:findChild(issubmit, 'huifuTypeName'), 'text', dataString[8])
+        end
     end
 end
 
@@ -838,15 +852,15 @@ function okCallback()
         Http:request('daibanqianshou', reqURL, 102, {useCache = false, method = 'post', postData='cmd=wlbtaskdealsign'..param})
         Loading:show(rootSprite)
     elseif stepdata=='2' or stepdata=='4' then
-        local qianshouNode = Sprite:findChild(rootSprite, 'juqian')
-        local itemNode = Sprite:findChild(qianshouNode, 'resultNode')
+        local juqianNode = Sprite:findChild(rootSprite, 'juqian')
+        local itemNode = Sprite:findChild(juqianNode, 'resultNode')
         local errorNde = Sprite:findChild(itemNode,'resultBtn')
         local itemtext = Sprite:getData(errorNde)
         
-        local xunjianNode = Sprite:findChild(qianshouNode, 'xunjianNode')
+        local xunjianNode = Sprite:findChild(juqianNode, 'xunjianNode')
         local xunjian=Sprite:findChild(xunjianNode,'xunjianBtn')
         local xunjiantext = Sprite:getText(Sprite:findChild(xunjian,'xunjianName'))
-        local chulicontent = Sprite:findChild(qianshouNode, 'chulicontent')
+        local chulicontent = Sprite:findChild(juqianNode, 'chulicontent')
         local contenttext=Sprite:getText(Sprite:findChild(chulicontent,'edit'))
         local approvercode=Sprite:getData(xunjian)
         if itemtext=='01' then
@@ -925,16 +939,16 @@ function doSave()
         local xunjiantext = Sprite:getText(Sprite:findChild(xunjian,'xunjianName'))
         local contentnode = Sprite:findChild(chulicontent,'label1')
         local contenttext=Sprite:getText(Sprite:findChild(contentnode,'edit'))
-        stringData = string.format('%s;%s;%s;%s;%s;', stepdata,stringData, itemtext, xunjiantext,contenttext)
+        stringData = string.format('%s;%s;%s;%s;%s;', stepdata, stringData, itemtext, xunjiantext, contenttext)
     elseif stepdata=='2'or stepdata=='4' then
-        local qianshouNode = Sprite:findChild(rootSprite, 'juqian')
-        local itemNode = Sprite:findChild(qianshouNode, 'resultNode')
+        local juqianNode = Sprite:findChild(rootSprite, 'juqian')
+        local itemNode = Sprite:findChild(juqianNode, 'resultNode')
         local errorNde = Sprite:findChild(itemNode,'resultBtn')
         local itemtext = Sprite:getText(Sprite:findChild(errorNde,'resultTypeName'))
-        local xunjianNode = Sprite:findChild(qianshouNode, 'xunjianNode')
+        local xunjianNode = Sprite:findChild(juqianNode, 'xunjianNode')
         local xunjian=Sprite:findChild(xunjianNode,'xunjianBtn')
         local xunjiantext = Sprite:getText(Sprite:findChild(xunjian,'xunjianName'))
-        local chulicontent = Sprite:findChild(qianshouNode, 'chulicontent')
+        local chulicontent = Sprite:findChild(juqianNode, 'chulicontent')
         --local contentnode = Sprite:findChild(chulicontent,'label1')
         local contenttext=Sprite:getText(Sprite:findChild(chulicontent,'edit'))
         stringData = string.format('%s;%s;%s;%s;%s;', stepdata, stringData, itemtext, xunjiantext,contenttext)
