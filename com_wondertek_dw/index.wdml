@@ -46,7 +46,8 @@
             <button rect="520,370,49,49" extendstyle="1000" src="file://image/ball4.png" style="autosize"/>
             <button rect="280,540,63,61" extendstyle="1000" src="file://image/ball1.png" style="autosize"/>
 
-            <label name="noticeLbl" rect="0,685,480,30" font-size="25" text="版本检测中..." v-align="center" h-align="center" color="#000000" extendstyle="1171" />
+            <label name="noticeLbl" rect="0,685,480,30" font-size="25" text="" v-align="center" 
+                h-align="center" color="#000000" extendstyle="1171" />
             <node name="downloadingNode" rect="0,660,0,30" visible="false" enable="false" extendstyle="1171">
                 <image name="progressBg" rect="163,8,154,10" src="file://image/login_progress_bg.png" style="autosize" extendstyle="1111" />
                 <image name="progressImg" rect="163,8,0,10" src="file://image/login_progress.png" style="sudoku-auto" sudoku="2,2,2,0" extendstyle="1111" />
@@ -78,25 +79,18 @@ function bodyBuildChildrenFinished(sprite)
     speedLab = Sprite:findChild(downloadingNode, 'speedLab')
     proLab = Sprite:findChild(downloadingNode, 'proLab')
     progressImg = Sprite:findChild(downloadingNode, 'progressImg')
-    connectToNetWork()
 end
 
 -- @brief 跳转
 function goHome()
     Scene:go(Alias.login)
-    --[[
-    if Config:get('isJump') == nil or Config:get('isJump') ~= '1' then
-        Scene:go(Alias.jump)
-    else
-        Scene:go(Alias.login)
-    end
-    --]]
 end
 
 -- @brief root节点消息方法
+-- 如果网络连接成功，则检查是否有新版本
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then
-        --checkClientVersion()
+        checkAPNSetting()
     elseif msg == MSG_DEACTIVATE then
         Scene:freeByHandle(rootSprite)
     elseif msg == MSG_NETWORK then
@@ -106,13 +100,14 @@ function bodyOnSpriteEvent(msg, param)
         if paramStatus == NETWORK_CONNECTED then
             checkClientVersion()
         elseif paramStatus == NETWORK_ERROR then
-            if paramFlag == 5 then
-                 Dialog:show('提示', 'APN设置失败，要打开系统设置界面进行设置吗？', 'ok_cancel', 'showSysSetting', 'exitApp')
+            if paramFlag == 5  then
+                 Dialog:show('提示', '网络连接失败，要打开APN设置界面进行设置吗？', 'ok_cancel', 'showSysSetting', 'exitApp')
             end
         end
     end
 end
 
+-- 显示系统设置
 function showSysSetting()
     ShowNetSetting()
 end
@@ -336,7 +331,11 @@ function icon8OnTick(sprite)
     end
 end
 
-function connectToNetWork()
+function checkAPNSetting()
+    -- 检查APN状态
+    local noticeLblSprite = Sprite:findChild(rootSprite, "noticeLbl")
+    Sprite:setProperty(noticeLblSprite, "text", "正在检查APN设置...")
+    -- 尝试连接网络
     local APNtype = Http:getCurrentAPNType()
     Log:write('APN类型为:'..APNtype)
     if APNtype == 1 then                     -- Net网
@@ -355,8 +354,11 @@ end
 
 ---------------------------------------util functions---------------------------
 
+-- 目前为外网地址，实际使用时，应该部署在内网
 function checkClientVersion()
-    local updateUrl = 'http://192.168.1.88:8080/webcloud/sso/sso_auth.html?appkey=1111&version=' .. Config:get('app_version')
+    local noticeLblSprite = Sprite:findChild(rootSprite, "noticeLbl")
+    Sprite:setProperty(noticeLblSprite, "text", "版本检测中...")
+    local updateUrl = 'http://211.136.108.205:8003/webcloud/sso/sso_auth.html?appkey=1111&version=' .. Config:get('app_version')
     Http:request('index_checkversion', updateUrl, 101, {useCache=false})
 end
 
@@ -425,5 +427,5 @@ function onGetDownloadStatus()
     Timer:set(111, 500, 'onGetDownloadStatus')
 end
 
-    ]]>
+]]>
 </root>
