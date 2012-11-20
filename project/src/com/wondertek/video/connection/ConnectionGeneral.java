@@ -81,8 +81,9 @@ public class ConnectionGeneral extends ConnectionImpl{
 	public void OpenDataConnection() {
 		if(m_APN_Switch_Type == APN_SWITCH_TYPE_DYNAMIC)
 		{
-			//Util.queryDefaultAPNId();
-			//Util.EnumerateAPNs();
+			queryDefaultAPNId();
+			EnumerateAPNs();
+			Util.Trace(String.format("OpenDataConnection current defaultAPNType=%d, destApnId=%d", this.defaultAPNType, this.destApnId));
 			ConnectivityManager connMan = (ConnectivityManager)VenusActivity.appContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 			try {
 				IsDataConnectionOpened();
@@ -637,6 +638,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 			}
 			else
 			{
+				Util.Trace("DefaultAPNType is APN_TYPE, start to detect APN connection...");
 				if(detectNetwork)
 					detectAPNConnectionStart();
 			}
@@ -890,7 +892,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 				new Thread(new Runnable(){
 
 					public void run() {
-						int detectCount = 10;
+						int detectCount = 20;
 						while(detectCount>0)
 						{
 							try {
@@ -929,7 +931,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 						new Thread(new Runnable(){
 
 							public void run() {
-								int detectCount = 10;
+								int detectCount = 20;
 								while(detectCount>0)
 								{
 									try {
@@ -937,13 +939,13 @@ public class ConnectionGeneral extends ConnectionImpl{
 									} catch (InterruptedException e) {
 									}
 									queryDefaultAPNId();
-									if(defaultAPNType == APN_TYPE_WAP)
+									if(defaultAPNType == APN_TYPE_NET)
 									{
 										if(apnIsConnected())
 										{
 											Util.Trace("Open APN successfully... 2");
 											VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
-											Util.m_nNetwork_Connected_Type = Util.Network_Connected_WAP;
+											Util.m_nNetwork_Connected_Type = Util.Network_Connected_NET;
 											Util_WaitforConnConnected = false;
 											return;
 										}
