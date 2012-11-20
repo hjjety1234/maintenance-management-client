@@ -120,6 +120,7 @@ end
 function bodyOnPluginEvent(msg)
     if msg == 101 then
         local checkversionData = Http:jsonDecode('index_checkversion')
+        Log:write('check_version_data', checkversionData)
         if checkversionData then
             local versionTable = checkversionData.version
             if versionTable and versionTable.isNeedUpdate and versionTable.isNeedUpdate ~= '0' then
@@ -138,9 +139,13 @@ function bodyOnPluginEvent(msg)
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
-        Log:write('拨号失败')
+        local noticeLblSprite = Sprite:findChild(rootSprite, "noticeLbl")
+        Sprite:setProperty(noticeLblSprite, "text", "拨号失败")
+        Timer:set(1, 3000, 'goHome')
     elseif msg > MSG_NETWORK_ERROR then -- 请求超时
-        Log:write('请求超时')
+        local noticeLblSprite = Sprite:findChild(rootSprite, "noticeLbl")
+        Sprite:setProperty(noticeLblSprite, "text", "请求超时")
+        Timer:set(1, 3000, 'goHome')
     end
 end
 
