@@ -41,6 +41,15 @@
                 <scrolltext name="title" rect="0,0,480,66" text="巡检站点"
                     extendstyle="1111" font-size="30" h-align="center" v-align="center"
                     color="#ffffff" scroll="true" step="2" />
+                <!-- 二维码扫描按钮 -->
+                <button name="barcodeScanBtn" rect="380,10,85,45" normal="normal"
+                    OnSelect="doBarcodeSanner" extendstyle="1111">
+                    <image name="normal" rect="0,0,85,45" src="file://image/btn_bg_n.png"
+                        style="autosize" extendstyle="1111" />
+                    <label rect="5,0,75,45" text="二维码" color="#ffffff"
+                        extendstyle="1111" style="autosize" h-align="center" v-align="center"
+                        font-size="24" />
+                </button>
             </node>
             
            <!-- 标签页  -->
@@ -128,8 +137,8 @@
 
         </node>
     </body>
-    <![CDATA[
 
+<![CDATA[
 require 'com_wondertek_dw.common.framework'
 require 'framework.map'
 require 'framework.barcode'
@@ -209,6 +218,40 @@ function bodyOnPluginEvent(msg, param)
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listitem'), len, 'loadListItem')
         ListView:adjust(listView)
         Loading:close()
+    elseif msg ==  1002 then 
+        Log:write('进入二维码响应函数...')
+        -- 获取扫描的二维码
+        local path = Param:getString(param, 0) -- 条码图片路径
+        code = Param:getString(param, 1) -- 解码后的文本
+        Log:write('二维码解码后的文本为:'..code)
+        local posValue = '117.251339,31.849438'
+        Log:write('消息号1002，二维码响应，默认经纬度'..posValue)
+        -- 请求二维码搜索
+        request('3', posValue, code, page, 1003)
+    elseif msg == 1003 then 
+        Log:write('进入二维码服务器请求响应处理函数...')
+        local resp = Http:jsonDecode('stationList')
+        Log:write(resp.value)
+        if (resp.code == nil or resp.code ~= '0') then
+            Dialog:show('', getErrorCode(resp.code), 'ok')
+            Loading:close()
+            return
+        elseif (getJsonArrayCount(resp.value) == 0 or resp.value=='') then
+            Dialog:show('', '返回数据为空!', 'ok')
+            Loading:close()
+            return
+        end
+        respValue = resp.value
+        local itemValue = respValue[0]
+	    local reg = Reg:create('xunjianzhixiang')
+	    Reg:clear(reg)
+	    Reg:setString(reg, 'stationId', itemValue.stationId)
+	    Reg:setString(reg, 'stationName', itemValue.stationName)
+	    Reg:setString(reg, 'isPatroled', itemValue.isPatroled)
+	    Reg:setString(reg, 'distance', itemValue.distance)
+	    local msgInfo = string.format('设备：%s,巡检状态：%s,是否巡检？', 
+	       itemValue.stationName, itemValue.isPatroled)
+	    Dialog:show('', msgInfo, 'ok_cancel', 'okSelect', 'cancelSelect')
     elseif msg > MSG_NETWORK_ERROR then
         if Loading:isShow() then Loading:close() end
         Dialog:show('','网络错误', 'ok')
@@ -519,6 +562,30 @@ function request(condition, curLoc, value, page, msgno)
 	else
 	    stationDistanceVisible = false --隐藏距离
 	end
+end
+
+---------------------------------------二维码相关函数---------------------------
+-- 开始二维码扫描
+function doBarcodeSanner()
+     local observer = Plugin:getObserver()
+     local ret = BarCode:startScanner(observer, 1002)
+     if ret == 0 then
+         Dialog:show("", '开启二维码扫描失败!', 'ok')
+         return
+     else
+         Log:write('开启二维码成功')
+     end
+end
+
+-- 巡检二维码扫描的结果
+function okSelect()
+    -- 跳转到巡检子项
+    Scene:setReturn(Alias.xunjianzhandian, Alias.xunjianEditEx)
+    Scene:go(Alias.xunjianEditEx)
+end
+
+-- 取消二维码扫描结果
+function cancelSelect()
 end
 
 ]]>
