@@ -44,7 +44,7 @@
                 <!-- 二维码扫描按钮 -->
                 <button name="barcodeScanBtn" rect="380,10,85,45" normal="normal"
                     OnSelect="doBarcodeSanner" extendstyle="1111">
-                    <image name="normal" rect="0,0,85,45" src="file://image/btn_bg_n.png"
+                    <image name="normal" rect="0,0,85,45" src="file://image/button1_normal.png"
                         style="autosize" extendstyle="1111" />
                     <label rect="5,0,75,45" text="二维码" color="#ffffff"
                         extendstyle="1111" style="autosize" h-align="center" v-align="center"
@@ -170,8 +170,6 @@ function bodyBuildChildrenFinished(sprite)
     planId = Reg:getString(regHandle, 'planId')
     templateId = Reg:getString(regHandle, 'templateId')
     statusBarText =  Sprite:findChild(sprite, 'statusBarText')
-    --longitude = Reg:getString(regHandle, 'longitude')
-    --latitude = Reg:getString(regHandle, 'latitude')
     
     -- 默认选择tab1
     local tab1 = Sprite:findChild(rootSprite,'btnTab1')
@@ -221,8 +219,8 @@ function bodyOnPluginEvent(msg, param)
     elseif msg ==  1002 then 
         Log:write('进入二维码响应函数...')
         -- 获取扫描的二维码
-        local path = Param:getString(param, 0) -- 条码图片路径
-        code = Param:getString(param, 1) -- 解码后的文本
+        local path = Param:getString(param, 0)  -- 条码图片路径
+        code = Param:getString(param, 1)        -- 解码后的文本
         Log:write('二维码解码后的文本为:'..code)
         local posValue = '117.251339,31.849438'
         Log:write('消息号1002，二维码响应，默认经纬度'..posValue)
@@ -245,10 +243,10 @@ function bodyOnPluginEvent(msg, param)
         local itemValue = respValue[0]
 	    local reg = Reg:create('xunjianzhixiang')
 	    Reg:clear(reg)
-	    Reg:setString(reg, 'stationId', itemValue.stationId)
-	    Reg:setString(reg, 'stationName', itemValue.stationName)
-	    Reg:setString(reg, 'isPatroled', itemValue.isPatroled)
-	    Reg:setString(reg, 'distance', itemValue.distance)
+	    Reg:setString(regHandle, 'planId', planId)
+	    Reg:setString(regHandle, 'templateId', templateId)
+	    Reg:setString(regHandle, 'stationId', itemValue.stationId)
+	    Reg:setString(regHandle, 'stationName', itemValue.stationName)
 	    local msgInfo = string.format('设备：%s,巡检状态：%s,是否巡检？', 
 	       itemValue.stationName, itemValue.isPatroled)
 	    Dialog:show('', msgInfo, 'ok_cancel', 'okSelect', 'cancelSelect')
