@@ -41,15 +41,6 @@
                 <scrolltext name="title" rect="0,0,480,66" text="巡检站点"
                     extendstyle="1111" font-size="30" h-align="center" v-align="center"
                     color="#ffffff" scroll="true" step="2" />
-                <!-- 二维码扫描按钮 -->
-                <button name="barcodeScanBtn" rect="380,10,85,45" normal="normal"
-                    OnSelect="doBarcodeSanner" extendstyle="1111">
-                    <image name="normal" rect="0,0,85,45" src="file://image/button1_normal.png"
-                        style="autosize" extendstyle="1111" />
-                    <label rect="5,0,75,45" text="二维码" color="#ffffff"
-                        extendstyle="1111" style="autosize" h-align="center" v-align="center"
-                        font-size="24" />
-                </button>
             </node>
             
            <!-- 标签页  -->
@@ -145,6 +136,7 @@ require 'framework.barcode'
 local rootSprite = nil
 local respValue = nil -- 站点列表值
 local planId = nil
+local g_planName = nil -- 计划名称
 local templateId = nil
 local code = nil
 local total = 0
@@ -170,6 +162,7 @@ function bodyBuildChildrenFinished(sprite)
     planId = Reg:getString(regHandle, 'planId')
     templateId = Reg:getString(regHandle, 'templateId')
     statusBarText =  Sprite:findChild(sprite, 'statusBarText')
+    g_planName = Reg:getString(regHandle, 'planName')
     
     -- 默认选择tab1
     local tab1 = Sprite:findChild(rootSprite,'btnTab1')
@@ -177,7 +170,7 @@ function bodyBuildChildrenFinished(sprite)
 
     -- 默认加载5个站点
     local posValue = '117.251339,31.849438'
-    request('2', posValue, '大', page, 1001)
+    request('2', posValue, '合', page, 1001)
 end
 
 -- root节点消息方法
@@ -280,8 +273,13 @@ function itemOnSelect(sprite)
     Reg:setString(regHandle, 'stationId', Sprite:getText(stationId))
     Reg:setString(regHandle, 'stationName', string.sub(Sprite:getText(stationName), 15))
     -- 跳转到巡检子项
-    Scene:setReturn(Alias.xunjianzhandian, Alias.xunjianEditEx)
-    Scene:go(Alias.xunjianEditEx)
+    if string.find(g_planName, '直放站') ~= nil then
+	    Scene:setReturn(Alias.xunjianzhandian, Alias.xunjiantijiao)
+	    Scene:go(Alias.xunjiantijiao)
+    else
+        Scene:setReturn(Alias.xunjianzhandian, Alias.xunjianEditEx)
+        Scene:go(Alias.xunjianEditEx)
+	end
 end
 
 function nameOnMouseDown(sprite, x, y)
