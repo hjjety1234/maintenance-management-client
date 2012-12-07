@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: hewu <hewu2008@gmail.com> ==
+============================================================================
+== | Desc: 页面描述 ==
+============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            
+             <!-- 设置背景 -->
+            <image rect="0,0,0,0" src="file://image/backgroundImg.png" style="autosize" extendstyle="1177" />
+            
+            <!-- 设置头部 -->
+            <node name="NodeTitle" rect="0,0,480,66" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,66" src="file://image/title_bg_new.png" extendstyle="1111" style="autosize" />
+                <button name="backBtn" rect="17,13,40,40" normal="normal" sel="sel"
+                    OnSelect="doBack" extendstyle="1111">
+                    <image name="normal" rect="0,0,40,40" src="file://image/title_back_new.png"
+                        style="autosize" extendstyle="1111" />
+                    <image name="sel" rect="0,0,40,40" src="file://image/title_back_new.png"
+                        style="autosize" extendstyle="1111" />
+                </button>
+
+                <scrolltext name="title" rect="100,0,280,66" text="车辆申请"
+                    extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2" />
+
+                <button name="btnForget" rect="423,13,40,40" color="#ffffff"
+                    extendstyle="1111" OnSelect="submitOnSelect"
+                   normal="src:file://image/ic_title_upload_new.png;style:autosize;color:#ffffff"
+                    sel="src:file://image/ic_title_upload_new.png;style:autosize;color:#000000"
+                     font-size="24" />
+            </node>
+
+            <!-- 选择月份 -->
+            <node name="monthFilterNode" rect="10,80,460,50" enable="true" extendstyle="1111">
+                <!-- 月份标签和背景图 -->
+                <label name="label2" rect="5,0,100,50" border="false" text="开始时间："
+                    v-align="center" color="#000000"  font-size="22" />
+
+                <image rect="110,5,200,40" src="file://image/select_bg.png"  style="sudoku-auto" sudoku="15,15,15,15"
+                    extendstyle="1111">                  
+                </image>
+                <button name="startTime" rect="110,5,200,40" border="false"
+                    text="" color="#0" OnSelect="timeOnSelect">
+                    <label name="timeContent" rect="5,0,170,40" border="false" text=""
+                        v-align="center" color="#000000" font-size="22" />
+                </button>
+            </node>
+
+        <shadow rect="0,137,480,56" color="#e8e9ed" alpha="255" extendstyle="1111" />
+
+            <!-- 选择月份 -->
+            <node name="monthEndNode" rect="10,140,460,50" enable="true"
+                extendstyle="1111">
+                <!-- 月份标签和背景图 -->
+                <label name="label2" rect="5,0,100,50" border="false" text="结束时间："
+                    v-align="center" color="#000000"  font-size="22" />
+
+                <image rect="110,5,200,40" src="file://image/select_bg.png"  style="sudoku-auto" sudoku="15,15,15,15"
+                    extendstyle="1111">
+                </image>
+                <button name="endTime" rect="110,5,200,40" border="false"
+                    text="" color="#0" OnSelect="timeOnSelect">
+                    <label name="timeContent" rect="5,0,170,40" border="false" text=""
+                        v-align="center" color="#000000" font-size="22" />
+                </button>
+            </node>
+
+            <!-- 用车人员 -->
+            <node name="UserNode" rect="10,200,460,50" enable="true" extendstyle="1111">
+                <label name="label2" rect="5,0,100,50" border="false" text="用车人员："
+                    v-align="center" color="#000000" font-size="22" />
+                <image rect="110,3,205,44" src="file://image/input.png"  style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+                <button name="userContent" rect="110,3,200,44" border="false"
+                    text="" color="#0" OnSelect="timeOnSelect">
+                <edit name="timeContent" rect="5,0,200,44" border="false" text="" autoup ="true"
+                    v-align="center" color="#000000" font-size="22" />
+                    </button>
+            </node>
+            
+             <shadow rect="0,257,480,56" color="#e8e9ed" alpha="255" extendstyle="1111" />
+            
+            <!-- 用车原因 -->
+            <node name="reasonNode" rect="10,260,440,300" enable="true"
+                extendstyle="1111">
+
+                <label name="label2" rect="5,0,100,50" border="false" text="用车原因："
+                    v-align="center" color="#000000" font-size="22" />
+                <image rect="15,60,430,160" src="file://image/input.png"  style="sudoku-auto" sudoku="15,15,15,15"
+                            extendstyle="1111" />
+                <button name="reasonContent" rect="5,60,420,160" border="false"
+                    text="" color="#0" >
+                <edit name="Content" max-size="20" multiline="true" rect="20,5,420,140" direction="vertical" border="false" text="" autoup ="true"
+                    v-align="left" color="#000000" font-size="22" />
+                    </button>
+            </node>
+
+
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+require 'os'
+local rootSprite
+local values
+local searchMonthIndex = 1
+local month = {'一月','二月', '三月', '四月', '五月', '六月', '七月',
+'八月', '九月', '十月', '十一月', '十二月'}
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    -- 设置当前月份
+    local now = os.date("*t")
+    local curMonth = now['month']
+    local monthFilterNode = Sprite:findChild(rootSprite, "monthFilterNode")
+    local timeContent=Sprite:findChild(monthFilterNode,"timeContent")
+
+    local monthEndNode = Sprite:findChild(rootSprite, "monthEndNode")
+    local timeContentEnd=Sprite:findChild(monthEndNode,"timeContent")
+
+    local currentMonthString = string.format('%s-%s-%s %s:%s', now['year'], now['month'], now["day"],now["hour"],now["min"])
+
+    Sprite:setProperty(timeContent, "text",currentMonthString)
+
+    Sprite:setProperty(timeContentEnd, "text",currentMonthString)
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        local regHandle = Reg:create("dateTime")
+        retuenTime = Reg:getString(regHandle, "time")
+        local type = Reg:getString(regHandle, "type")
+
+        if retuenTime ~= '' and retuenTime ~= nil then
+            if type=='start' then
+                local monthFilterNode = Sprite:findChild(rootSprite, "monthFilterNode")
+                local timeContent=Sprite:findChild(monthFilterNode,"timeContent")
+                Sprite:setProperty(timeContent, "text", retuenTime)
+            else
+                local monthEndNode = Sprite:findChild(rootSprite, "monthEndNode")
+                local timeContentEnd=Sprite:findChild(monthEndNode,"timeContent")
+                Sprite:setProperty(timeContentEnd, "text", retuenTime)
+            end
+        end
+
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+---------------------------------------util functions---------------------------
+
+--@brief 返回按钮消息处理函数
+function doBack(sprite)
+    Scene:back()
+end
+
+function timeOnSelect(sprite)
+    Log:write("str========54654654")
+    local content = Sprite:findChild(Sprite:getParent(sprite), 'timeContent')
+    local date = Sprite:getText(content)
+    local stringDate = Split(date, '-')
+    Log:write("str========",stringDate)
+    local startTime = Sprite:findChild(rootSprite, 'startTime')
+
+    local endTime = Sprite:findChild(rootSprite, 'endTime')
+        Log:write('4', startTime, endTime, sprite)
+    local regHandle = Reg:create("startEnd")
+
+     if tonumber(startTime) == tonumber(sprite) then
+        Reg:setString(regHandle, 'type', 'start')
+    elseif tonumber(endTime) == tonumber(sprite) then
+        Reg:setString(regHandle, 'type', 'end')
+    else
+        return
+    end
+
+    local regHandle = Reg:create('dateDialog')
+    Reg:setString(regHandle, 'year', stringDate[1])
+    Reg:setString(regHandle, 'month', stringDate[2])
+    Reg:setString(regHandle, 'day', stringDate[3])
+    Scene:setReturn(Alias.cardispatch, Alias.dateDialog)
+    Scene:go(Alias.dateDialog)
+end
+
+function submitOnSelect(sprite)
+    local monthFilterNode = Sprite:findChild(rootSprite, "monthFilterNode")
+    local timeContent=Sprite:findChild(monthFilterNode,"timeContent")
+
+    local monthEndNode = Sprite:findChild(rootSprite, "monthEndNode")
+    local timeContentEnd=Sprite:findChild(monthEndNode,"timeContent")
+
+    local UserNode = Sprite:findChild(rootSprite,"UserNode")
+    local userInfo = Sprite:findChild(UserNode,"timeContent")
+
+    local reasonNode=Sprite:findChild(rootSprite,"reasonNode")
+    local Content = Sprite:findChild(reasonNode,"Content")
+
+    local time = Sprite:getText(timeContent)
+    local user = Sprite:getText(userInfo)
+    local reason=Sprite:getText(Content)
+    local timeEnd = Sprite:getText(timeContentEnd)
+
+    local smsstring=user..'申请在'..time..'至'..timeEnd..'调用车辆。原因：'..reason
+    Log:write('smsstring===================',smsstring)
+    --local phone = '18756948812'
+    local phone = '10658476002'
+    if user==nil or user==''or reason==nil or reason=='' then
+        Dialog:show(rootSprite, '申请内容不允许为空！', 'ok')
+        return
+    elseif phone ~= nil and phone ~= '' then
+        if Util:sendSMS(phone, smsstring) then
+            Dialog:show(rootSprite, '申请成功！', 'ok', 'doBack')
+        else
+            Dialog:show(rootSprite, '请求发送失败，请稍后再试！', 'ok')
+        end
+        --Util:sendSMS(phone, smscontent)
+    else
+        Dialog:show(rootSprite, '调度接口异常！', 'ok')
+    end
+end
+
+    ]]>
+</root>
