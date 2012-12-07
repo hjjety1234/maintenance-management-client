@@ -69,6 +69,9 @@ local speedLab
 local proLab
 local progressImg
 
+local umsagentPlugin = nil
+local umsagentHasAppkey = 0
+
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -79,6 +82,13 @@ function bodyBuildChildrenFinished(sprite)
     speedLab = Sprite:findChild(downloadingNode, 'speedLab')
     proLab = Sprite:findChild(downloadingNode, 'proLab')
     progressImg = Sprite:findChild(downloadingNode, 'progressImg')
+    
+    umsagentPlugin = pluginCreate("UmsAgent")
+    local reg = Reg:create(Alias.index)
+    Reg:setInteger(reg, 'UmsAgent', umsagentPlugin)
+    pluginInvoke(umsagentPlugin, 'SetDefaultReportPolicy', 1)
+    Reg:setInteger(reg, 'umsagentHasAppkey', 1)
+    umsagentHasAppkey = Reg:getInteger(reg, 'umsagentHasAppkey')
 end
 
 -- @brief 跳转
@@ -90,10 +100,16 @@ end
 -- 如果网络连接成功，则检查是否有新版本
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then
-        Http:startNetwork()
+        connectToWAP()
         Timer:set(1, 3000, 'goHome')
+        if umsagentHasAppkey == 1 then
+            pluginInvoke(umsagentPlugin, "OnActivate", string.match(Alias.index, 'MODULE:\\(.*)'))
+        end
         --checkAPNSetting()
     elseif msg == MSG_DEACTIVATE then
+        if umsagentHasAppkey == 1 then
+            pluginInvoke(umsagentPlugin, "OnDeactivate")
+        end
         Scene:freeByHandle(rootSprite)
     elseif msg == MSG_NETWORK then
         Log:write('param', param)
@@ -433,6 +449,23 @@ function onGetDownloadStatus()
         end
     end
     Timer:set(111, 500, 'onGetDownloadStatus')
+end
+
+-- @brief 连接移动网络
+function connectToWAP()
+    local APNtype = Http:getCurrentAPNType()
+    if APNtype == 1 then                     -- Net网
+        Http:setProxy('')
+    elseif APNtype == 2 then                 --移动wap
+        Http:setProxy('http://10.0.0.172:80/')
+    elseif APNtype == 3 then                 --电信wap
+        Http:setProxy('http://10.0.0.200:80/')
+    elseif APNtype == 4 then                 --联通wap
+        Http:setProxy('http://10.0.0.172:80/')
+    else
+        Http:setProxy('')
+    end
+    Http:connectCMWAP()
 end
 
 ]]>

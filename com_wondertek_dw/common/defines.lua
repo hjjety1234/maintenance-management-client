@@ -60,4 +60,5 @@ Alias = {
     xunjianupload = 'MODULE:\\com_wondertek_dw\\xunjianupload.wdml', -- 巡检上传
     xunjianzhandianDetail = 'MODULE:\\com_wondertek_dw\\xunjianzhandianDetail.wdml', -- 巡检站点详情页面
     xunjiantijiao = 'MODULE:\\com_wondertek_dw\\xunjiantijiao.wdml', -- 巡检项提交页面
+    chart = 'MODULE:\\com_wondertek_dw\\chart.wdml', -- 统计报表demo
 }

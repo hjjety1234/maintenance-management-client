@@ -181,7 +181,7 @@
                         v-center="true" extendstyle="1111" OnLostFocus="ErrorSave" />
                     <button name="takePicBtn" rect="10,100,130,50" border="false"
                         text="" color="#ffffff" OnSelect="doTakePic"
-                        extendstyle="1111">
+                        extendstyle="1111" data="0">
                         <image rect="0,0,130,50" src="file://image/take_pic.png"
                             style="autosize" extendstyle="1111" />
                     </button>
@@ -943,8 +943,8 @@ end
 function doTakePic(sprite)
     local errorHideNode = Sprite:getParent(sprite)
     local fileName = 'ict' .. getCurDate()
-    local num = tonumber(Sprite:getData(sprite))
-    if num < 4 then
+    local num = tonumber(Sprite:getData(sprite)) --  当前照片数
+    if num < 3 then
         local result = System:openCamera('onCameraDialog', 'file://image/' .. fileName .. '.jpg', 'jpg')
         if result == 0 then
             Dialog:show('提示', '相机打开失败!', 'ok')
@@ -964,9 +964,11 @@ function onCameraDialog(photoPath, photoType)
     --预留存储巡检计划号、基站号、巡检子项号
     --table.insert(g_imageArray, photoPath)000001000599
 
-    local tmpSplitArray = Split(photoPath,'%.')
+    --[[
+    local tmpSplitArray = Split(photoPath, '%.')
     local dest = tmpSplitArray[1] .. 'temp' .. System:getTickTime() .. '.jpg'
     Log:write('目标文件路径为:'..dest)
+
     local ret = ScaleImageAsJpg(photoPath, dest, 480, 800, 0)
     if ret == 1 then
         table.insert(g_imageArray, dest)
@@ -975,16 +977,26 @@ function onCameraDialog(photoPath, photoType)
         table.insert(g_imageArray, photoPath)
         Log:write('警告：图片压缩失败，使用未压缩的图片:'..photoPath)
     end
+    --]]
 
+    table.insert(g_imageArray, photoPath)
     Log:write("g_imageArray", g_imageArray)
+    
     local errorHideNode = Sprite:getParent(g_piccurrbtn)
     local subItemNode = Sprite:getParent(errorHideNode)
+    
+    -- 获取当前的巡检子项下标
+    local curItem = Sprite:getParent(Sprite:getParent(Sprite:getParent(subItemNode)))
+    
+    local subItemIndex = tonumber(Sprite:getData(subItemNode))
+    local itemIndex = tonumber(Sprite:getData(curItem))
+
     --存储子巡检项的ID号
-    table.insert(g_subitemidArray, Sprite:getData(subItemNode))
+    table.insert(g_subitemidArray, g_items[itemIndex].subitems[subItemIndex].id)
     local dataflag = Sprite:getData(g_piccurrbtn)
-    local imgNode = Sprite:findChild(errorHideNode,'pic'..dataflag)
-    local bg = Sprite:findChild(imgNode,'bg')
-    Sprite:setProperty(bg,'src',photoPath)
+    local imgNode = Sprite:findChild(errorHideNode, 'pic'..dataflag)
+    local bg = Sprite:findChild(imgNode, 'bg')
+    Sprite:setProperty(bg,'src', photoPath)
 end
 
 -- 上传图片
@@ -997,9 +1009,16 @@ function doUpload(sprite)
     if #g_imageArray >= 1 then
         getUploadUrl(g_imageArray[#g_imageArray]) 
     else
-        Dialog:show('', '提交成功','ok','doBack')
+        Timer:set(2, 3000, 'submitOkProc')
     end
 end
+
+-- 提交成功定时器处理函数
+function submitOkProc()
+    Loading:close()
+    Dialog:show('巡检提交', '提交成功','ok','doBack')
+end
+
 
 -- 获取图片的url地址
 function getUploadUrl(photoPath)
