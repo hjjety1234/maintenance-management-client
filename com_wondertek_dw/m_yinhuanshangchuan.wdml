@@ -52,7 +52,7 @@
                     </node>
                 </list-item>
                 <list-item name="textNode" rect="0,0,480,480" extendstyle="1111" border="false">
-                    <node name="baseSprite" rect="0,0,480,60" extendstyle="1111">
+                    <node name="baseSprite" rect="0,60,480,60" extendstyle="1111">
                         <label name="label1" rect="0,5,150,50" border="false" text="隐患类别："
                             h-align="right" v-align="center" color="#000000" font-size="24"
                             extendstyle="1111" />
@@ -66,7 +66,7 @@
                         </button>
                     </node>
 
-                    <node name="baseSprite" rect="0,60,480,60" extendstyle="1111">
+                    <node name="baseSprite" rect="0,0,480,60" extendstyle="1111">
 			<shadow name="listItemBg" rect="0,0,480,60" color="" alpha="20" extendstyle="1111" />
                         <label name="label1" rect="0,5,150,50" border="false" text="所属专业："
                             h-align="right" v-align="center" color="#000000" font-size="24"
@@ -336,10 +336,14 @@ function bodyOnPluginEvent(msg, param)
         -- postData为Json数据({"address":"北京市西城区后红井胡同2号","city":"北京"})
     elseif msg == 102 then
         if Loading:isShow() then Loading:close() end
+	local list = Sprite:findChild(rootSprite, 'listSelect')
+        local item = Sprite:findChild(rootSprite, 'selectItem')
+	ListView:removeAllItems(list, 1, 1)
         selectData = Http:jsonDecode('select')
         Log:write("data:", selectData)
+	Log:write("selectData.code = "..selectData.code)
         if selectData.code == "0" then
-            fillSelect()
+            fillSelect()  
         end
     elseif msg == 103 then
         local updateData = Http:jsonDecode('upload_data')
