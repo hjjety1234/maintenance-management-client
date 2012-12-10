@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: xxxx <xxxx@xxxx.com> ==
+============================================================================
+== | Desc: 页面描述 ==
+============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+           <!-- 设置背景 -->
+	   <image rect="0,0,0,0" src="file://image/backgroundImg.png" style="autosize" extendstyle="1177" />
+           <!-- 设置头部 -->
+           <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+	            <image name="title" rect="0,0,480,66" border="false"
+	                src="file://image/title_bg_new.png" style="autosize" extendstyle="1111" />
+	            <label rect="0,0,480,66" text="已传隐患" color="#ffffff" v-align="center"
+	                    h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />	
+	            <button name="backBtn" rect="17,13,40,40" normal="normal" sel="sel"
+	                OnSelect="doBack" extendstyle="1111">
+	                <image name="normal" rect="0,0,40,40" src="file://image/ic_home_new.png"
+	                    style="autosize" extendstyle="1111" />
+	                <image name="sel" rect="0,0,40,40" src="file://image/ic_home_new.png"
+	                    style="autosize" extendstyle="1111" />
+	            </button>
+	            <button name="btnForget" rect="423,13,40,40" OnSelect="addOnSelect"
+	                text="" color="#ffffff" font-size="24" border="false" extendstyle="1111"
+	                normal="src:file://image/ic_title_submit_new.png;style:autosize;color:#ffffff"
+	                sel="src:file://image/ic_title_submit_new.png;style:autosize;color:#000000"/>
+          </node>
+        
+            <node name="tabNode" rect="0,66,480,60" extendstyle="1111">
+                <button name="btnTab1" rect="0,0,240,60" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
+                    <image name="tabBg" rect="0,0,240,60" border="false" src="file://image/tab_s_new.png"
+                        style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+                    <label rect="0,0,240,60" text="暂存隐患" color="#ffffff" v-align="center"
+                        h-align="center" font-size="22" extendstyle="1111" />
+                </button>
+                <button name="btnTab2" rect="240,0,240,60" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
+                    <image name="tabBg" rect="0,0,240,60" border="false" src="file://image/tab_n_new.png"
+                        style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+                    <label rect="0,0,240,60" text="已报隐患" color="#ffffff" v-align="center"
+                        h-align="center" font-size="22" extendstyle="1111" />
+                </button>
+            </node>
+            <node name="listNode" rect="0,126,480,645" extendstyle="1111">
+                <listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
+            </node>
+            <node name="listitem" visible="false" enable="false" active="false"
+                extendstyle="1011" rect="0,200,480,70">
+                <button name="btnname" rect="0,0,480,70" OnSelect="itemOnSelect"
+                    style="autosize" border="false" extendstyle="1111" data="">
+		    <!--<image name="selectImage" rect="0,0,480,70" border="false" src=""
+                        style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />-->
+		    <shadow name="listItemBg" rect="0,0,480,70" color="" alpha="0" extendstyle="1111" />
+                    <label rect="10,5,120,30" text="工单主题：" color="#0" font-size="24"
+                        h-align="left" v-align="center" extendstyle="1111" border="false" />
+                    <!--<label name="textTitle" rect="130,5,340,30" text="" color="#0"
+                        font-size="24" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" />
+                    -->
+                    <scrolltext rect="130,5,340,30" name="textTitle" color="#0" font-size="24"
+                     h-align="left" v-align="center" extendstyle="1111" border="false" scroll="true"></scrolltext>
+                    <label name="textTime" rect="10,35,460,30" text="" color="#0"
+                        font-size="18" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" />
+                </button>
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+local rootSprite
+local savedDatas
+local data={}
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    Config:set('curYinHuanListTab', '1')
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        if Config:get('curYinHuanListTab') == '1' then
+            tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
+        else
+            tabOnSelect(Sprite:findChild(rootSprite, 'btnTab2'))
+        end
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if Loading:isShow() then Loading:close() end
+    if msg == 101 then
+        data = Http:jsonDecode('daiban_data')
+        Log:write("data101 = ", data)
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        end
+        if data ~= nil then
+            if data.code == '0' then
+                if #data.value > 0 then
+                    loadList(#data.value + 1)
+                elseif data.value[0] then
+                    loadList(1)
+                end
+            else
+                Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+            end
+        else
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+        end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function doBack()
+    Scene:back()
+end
+
+function addOnSelect(sprite)
+    Scene:setReturn(Alias.yinhuanList, Alias.yinhuanshangchuan)
+    Scene:go(Alias.yinhuanshangchuan)
+end
+
+function tabOnSelect(sprite)
+    local tabNode = Sprite:getParent(sprite)
+    local dataInfo = Sprite:getData(sprite)
+    local tab1 = Sprite:findChild(tabNode, 'btnTab1')
+    local tab2 = Sprite:findChild(tabNode, 'btnTab2')
+    Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_n_new.png')
+    Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_n_new.png')
+    Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_s_new.png')
+    if tab1 == sprite then
+        loadSavedDatas()
+        Config:set('curYinHuanListTab', '1')
+    else
+        loadUploadDatas()
+        Config:set('curYinHuanListTab', '2')
+    end
+end
+
+function loadSavedListItem(list, item, index)
+    local idString = savedDatas[index+1]
+    Log:write('loadSavedListItemloadSavedListItem', idString , Config:get('yinhuanID' .. idString))
+    local dataString = SplitWithBlank(Config:get('yinhuanID' .. idString), ';')
+
+    Sprite:setRect(item, 0, 0, 480, 70)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local listItemBg = Sprite:findChild(item, 'listItemBg')
+    local selectImage = Sprite:findChild(btnname1,'selectImage')
+    local btnname1 = Sprite:findChild(item, 'btnname')
+    Sprite:setRect(listItemBg, 0, 0, 480, 70)
+    if index % 2 > 0 then
+       Sprite:setProperty(listItemBg, 'alpha', '0')
+       --Sprite:setProperty(selectImage, 'src', 'file://image/poi_bg_n.png')
+    else
+       Sprite:setProperty(listItemBg, 'alpha', '20')
+       --Sprite:setProperty(selectImage, 'src', 'file://image/poi_bg_s.png')
+    end
+    local textTitle = Sprite:findChild(item, 'textTitle')
+    local textTime = Sprite:findChild(item, 'textTime')
+    local btnname = Sprite:findChild(item, 'btnname')
+    Log:write('11111111111111111', dataString)
+    if dataString[1] then
+        Sprite:setProperty(btnname, 'data', dataString[1] )
+        Log:write('111111111111111113123123', Sprite:getData(btnname))
+    end
+    if dataString[7] then
+        Sprite:setProperty(textTitle, 'text', dataString[7])
+    end
+    if dataString[6] then
+        Sprite:setProperty(textTime, 'text', dataString[6])
+    end
+end
+
+function loadList(count)
+    local list = Sprite:findChild(rootSprite, 'sampleList')
+    ListView:removeAllItems(list,true)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
+    ListView:adjust(list)
+end
+
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 70)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local listItemBg = Sprite:findChild(item, 'listItemBg')
+    local btnname1 = Sprite:findChild(item, 'btnname')
+    local selectImage = Sprite:findChild(btnname1,'selectImage')
+    Sprite:setRect(listItemBg, 0, 0, 480, 70)
+    if index % 2 > 0 then
+        Sprite:setProperty(listItemBg, 'alpha', '0')
+	--Sprite:setProperty(selectImage, 'src', 'file://image/poi_bg_n.png')
+    else
+        Sprite:setProperty(listItemBg, 'alpha', '20')
+	--Sprite:setProperty(selectImage, 'src', 'file://image/poi_bg_s.png')
+    end
+    local textTitle = Sprite:findChild(item, 'textTitle')
+    local textTime = Sprite:findChild(item, 'textTime')
+    local btnname = Sprite:findChild(item, 'btnname')
+    Sprite:setProperty(btnname, 'data', data.value[index].id)
+    Sprite:setProperty(textTitle, 'text', data.value[index].name)
+    Sprite:setProperty(textTime, 'text', data.value[index].createTimeDis)
+end
+
+function itemOnSelect(sprite)
+    local curId= Sprite:getData(sprite)
+    Log:write('2222222222222333', curId)
+    local stringData = Config:get('yinhuanID' .. curId)
+    if stringData == nil or stringData == '' then
+        Scene:setReturn(Alias.yinhuanList, Alias.yinhuanDetail .. '?pYinhuanID=' .. curId)
+        Scene:go(Alias.yinhuanDetail .. '?pYinhuanID=' .. curId)
+        return
+    end
+    Scene:setReturn(Alias.yinhuanList, Alias.yinhuanshangchuan .. '?pYinhuanID=' .. curId)
+    Scene:go(Alias.yinhuanshangchuan .. '?pYinhuanID=' .. curId)
+end
+
+function loadSavedDatas()
+    -- body
+    savedDatas = Split(Config:get('yinhuanIDList'), ';')
+    local list = Sprite:findChild(rootSprite, 'sampleList')
+    ListView:removeAllItems(list)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), #savedDatas, 'loadSavedListItem')
+    ListView:adjust(list)
+end
+
+function loadUploadDatas()
+    local param = 'cmd=wlbdangerlist&page=1'
+    local url = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
+    Http:request('daiban_data', url, 101, {useCache = false})
+    Loading:show(rootSprite)
+end
+
+    ]]>
+</root>
