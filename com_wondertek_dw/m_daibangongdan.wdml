@@ -15,9 +15,14 @@
     <header />
     <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
         OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
-        <shadow rect="0,0,480,800" color="#ffffff" alpha="255"
-            extendstyle="1111" />
-        <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+        
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            
+                        <!-- 设置背景 -->
+            <image rect="0,0,0,0" src="file://image/backgroundImg.png" style="autosize" extendstyle="1177" />
+            
+            <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
             <image name="title" rect="0,0,480,66" border="false"
                 src="file://image/title_bg_new.png" style="autosize" extendstyle="1111">
 
@@ -33,10 +38,9 @@
                     style="autosize" extendstyle="1111" />
             </button>
         </node>
-        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
-            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            
             <node name="tabNode" rect="0,66,480,47" extendstyle="1111">
-                <image name="title" rect="0,0,480,47" border="false"
+                <image name="title" rect="0,0,480,45" border="false"
                     src="file://image/tab_n_new.png" style="autosize" extendstyle="1111" />
                 <button name="btnTab1" rect="0,0,160,45" text="" color="#ffffff"
                     extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
@@ -68,25 +72,30 @@
 
             <node name="listitem" visible="false" enable="false" active="false"
                 extendstyle="1011" rect="0,200,480,120">
-                <shadow name="listItemBg" rect="0,0,480,120" color="#e8e8e8"
+                <shadow name="listItemBg" rect="0,0,480,150" color="#e8e8e8"
                     alpha="255" extendstyle="1111" />
                 <button name="btnname" rect="0,0,480,100" OnSelect="itemOnSelect"
                     extendstyle="1111">
                     <label rect="10,5,150,30" text="工单编号：" color="#3C57C4"
                         font-size="24" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label name="textNum" rect="120,5,300,30" text="" color="#0"
+                    <label name="textNum" rect="120,5,300,30" text="" color="#3C57C4"
                         font-size="24" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label rect="10,35,150,30" text="工单标题：" color="#3C57C4" font-size="24"
+                    <label rect="10,30,150,30" text="工单标题：" color="#0" font-size="18"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="textTitle" rect="120,35,360,30" text="" color="#0"
-                        font-size="24" h-align="left" v-align="center" extendstyle="1111"
+                    <label name="textTitle" rect="120,30,360,30" text="" color="#0"
+                        font-size="18" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                        <label rect="10,65,150,30" text="派发时间：" color="#3C57C4" font-size="24"
+                    <label rect="10,55,150,30" text="派发时间：" color="#0" font-size="18"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="textTime" rect="120,65,460,30" text="" color="#0"
-                        font-size="24" h-align="left" v-align="center" extendstyle="1111"
+                    <label name="textTime" rect="120,55,460,30" text="" color="#0"
+                        font-size="18" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" />
+                    <label name="timeLabel" rect="10,80,150,30" text="完成时限：" color="#0" font-size="18"
+                        h-align="left" v-align="center" extendstyle="1111" border="false" />
+                    <label name="finishTime" rect="120,80,460,30" text="" color="#0"
+                        font-size="18" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
                 </button>
             </node>
@@ -197,7 +206,7 @@ function loadDoneRequest()
     local param = '&page=1'
     Log:write("param = ", param)
     Http:request('handled_data', url, 102, {useCache = false, method = 'post', postData='cmd=wlbhandledtasklist'..param})
-    Loading:show(rootSprite)
+    --Loading:show(rootSprite)
 end
 
 function loadList(count)
@@ -262,26 +271,28 @@ function loadZanCunItem(list, item, index)
 end
 
 function loadListItem(list, item, index)
-    Sprite:setRect(item, 0, 0, 480, 100)
+    Sprite:setRect(item, 0, 0, 480, 115)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local listItemBg = Sprite:findChild(item, 'listItemBg')
-    Sprite:setRect(listItemBg, 0, 0, 480, 100)
+    Sprite:setRect(listItemBg, 0, 0, 480, 115)
     local num = index+1
     Log:write('index=============================',num%2)
     if num % 2 > 0 then
-        Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
+        Sprite:setVisible(listItemBg, 0)
     else
-        Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
+        Sprite:setVisible(listItemBg, 1)
     end
     local textNum = Sprite:findChild(item, 'textNum')
     local textTitle = Sprite:findChild(item, 'textTitle')
     local textTime = Sprite:findChild(item, 'textTime')
-   
+    local finishTime=Sprite:findChild(item, 'finishTime')
+
     Sprite:setProperty(item, 'data', index)
     
     Sprite:setProperty(textNum, 'text', data.value[index].taskCode)
     Sprite:setProperty(textTitle, 'text', data.value[index].taskName)
     Sprite:setProperty(textTime, 'text', data.value[index].createDateDis)
+    Sprite:setProperty(finishTime, 'text', '已过期'..os.date()..'天')
 end
 
 function itemOnSelect(sprite)
