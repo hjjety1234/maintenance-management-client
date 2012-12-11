@@ -184,7 +184,7 @@
                   </node>
                   <image rect="86,410,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
             </node>
-            <node name="xunjianSelectNode" rect="0,0,480,800" visible="false"
+            <!--<node name="xunjianSelectNode" rect="0,0,480,800" visible="false"
                 enable="false" extendstyle="1111">
                 <button name="button" rect="0,0,480,800" border="false" text=""
                     color="#ffffff" OnSelect="hideXunjianSelected"></button>
@@ -194,6 +194,24 @@
                 <listview name="listSelect" rect="100,200,280,320" auto-adjust="true" extendstyle="0010"/>
 
             </node>
+            -->
+            <!-- 下拉框  -->
+            <node name="xunjianSelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
+                <button name="button" rect="0,0,480,800" OnSelect="hideXunjianSelected">
+                    <shadow rect="0,0,480,800"  alpha="150" color="#0"  extendstyle="1111">
+                    </shadow>
+                </button>
+                <node rect="66,200,368,68" extendstyle="1111"  border="false">
+                    <image rect="0,0,368,68" src="file://image/top.png"  style="autosize" extendstyle="0010" />
+                    <image rect="20,30,31,32" src="file://image/icon_arrow.png"  style="autosize" extendstyle="0010" />
+                    <label rect="40,10,120,68" border="false" color="#FFFFFF" style="autosize"
+                     text="选择类型" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                </node>
+                <image rect="66,268,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" />
+                <listview name="listSelect" rect="66,268,368,216" auto-scroll="true" style="autosize"
+                    auto-adjust="true" extendstyle="1111" />
+                <image rect="66,483,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
+         </node>
             <!-- 收藏菜单  -->
             <node name="ContextMenuNode" rect="0,720,480,80" border="false"
                 visible="false" enable="false" active="false" extendstyle="1111">
@@ -263,8 +281,7 @@
                 <label name="showTime" rect="345,190,50,35" extendstyle="1111" color="#ffffff"
                     text="00:00" font-size="20" v-align="center" h-align="left"/>
             </node>
-        </node>
-
+        </node><!--
         <node name="selectItem" rect="0,0,280,76" visible="false" enable="false" active="false">
             <button rect="0,0,280,56" color="#ffffff"
                 extendstyle="1111" OnSelect="xunjianGroupOnSelect"
@@ -272,6 +289,15 @@
                 sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
                 font-size="24" data="C30" />
         </node>
+        --><node name="selectItem" rect="0,0,368,72" visible="false" enable="false" active="false">                   
+                 <button rect="12,0,342,61" text="" color="#FFFFFF" h-align="left" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
+                    extendstyle="0010" OnSelect="xunjianGroupOnSelect"
+                    normal="src:file://image/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                    sel="src:file://image/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+                    data="C30"  >           
+                     <image rect="12,70,342,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
+                 </button>
+             </node>
 
     </body>
     <![CDATA[
@@ -362,12 +388,12 @@ function bodyOnPluginEvent(msg, param)
         -- postData为Json数据({"address":"北京市西城区后红井胡同2号","city":"北京"})
     elseif msg == 102 then
         if Loading:isShow() then Loading:close() end
-	local list = Sprite:findChild(rootSprite, 'listSelect')
+	    local list = Sprite:findChild(rootSprite, 'listSelect')
         local item = Sprite:findChild(rootSprite, 'selectItem')
-	ListView:removeAllItems(list, 1, 1)
+	    ListView:removeAllItems(list, 1, 1)
         selectData = Http:jsonDecode('select')
         Log:write("data:", selectData)
-	Log:write("selectData.code = "..selectData.code)
+	    Log:write("selectData.code = "..selectData.code)
         if selectData.code == "0" then
             fillSelect()  
         end
@@ -434,13 +460,13 @@ function loadSelectItem(list, item, index)
 
     local button = Sprite:findChildByClass(item, 'button')
     if selectIndex == 1 then
-        Sprite:setProperty(button, 'text', selectData.value[index].typeName)
+        Sprite:setProperty(button, 'text', "        "..selectData.value[index].typeName)
         Sprite:setProperty(button, 'data', selectData.value[index].id)
     elseif selectIndex == 2 then
-        Sprite:setProperty(button, 'text', selectData.value[index].levelName)
+        Sprite:setProperty(button, 'text', "        "..selectData.value[index].levelName)
         Sprite:setProperty(button, 'data', selectData.value[index].id)
     elseif selectIndex == 3 then
-        Sprite:setProperty(button, 'text', selectData.value[index].lable)
+        Sprite:setProperty(button, 'text', "        "..selectData.value[index].lable)
         Sprite:setProperty(button, 'data', selectData.value[index].codevalue)
     end
 end
