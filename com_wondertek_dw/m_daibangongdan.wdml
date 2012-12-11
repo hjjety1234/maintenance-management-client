@@ -92,9 +92,9 @@
                     <label name="textTime" rect="120,55,460,30" text="" color="#0"
                         font-size="18" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label name="timeLabel" rect="10,80,150,30" text="完成时限：" color="#0" font-size="18"
+                    <label name="timeLabel" rect="10,80,150,30" text="完成时限：" color="#FF0000" font-size="18"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="finishTime" rect="120,80,460,30" text="" color="#0"
+                    <label name="finishTime" rect="120,80,460,30" text="" color="#FF0000"
                         font-size="18" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
                 </button>
@@ -250,16 +250,16 @@ function loadZanCunItem(list, item, index)
     local idString = savedDatas[index+1]
     Log:write('loadSavedListItemloadSavedListItem', idString , Config:get('daibanID' .. idString))
     local dataString = Split(Config:get('daibanID' .. idString), ';')
-    Sprite:setRect(item, 0, 0, 480, 100)
+    Sprite:setRect(item, 0, 0, 480, 115)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local listItemBg = Sprite:findChild(item, 'listItemBg')
-    Sprite:setRect(listItemBg, 0, 0, 480, 100)
+    Sprite:setRect(listItemBg, 0, 0, 480, 115)
     local num = index+1
     Log:write('index=============================',num%2)
     if num % 2 > 0 then
-        Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
+      Sprite:setVisible(listItemBg, 0)
     else
-        Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
+        Sprite:setVisible(listItemBg, 1)
     end
     local textNum = Sprite:findChild(item, 'textNum')
     local textTitle = Sprite:findChild(item, 'textTitle')
@@ -285,14 +285,40 @@ function loadListItem(list, item, index)
     local textNum = Sprite:findChild(item, 'textNum')
     local textTitle = Sprite:findChild(item, 'textTitle')
     local textTime = Sprite:findChild(item, 'textTime')
+    local timeLabel=Sprite:findChild(item, 'timeLabel')
     local finishTime=Sprite:findChild(item, 'finishTime')
+    local timeString=Split(data.value[index].overtimeSetDis," ") 
+    local timeDate=Split(timeString[1],"-")
+    local timeHour=Split(timeString[2],":")
 
-    Sprite:setProperty(item, 'data', index)
+    local from={year=timeDate[1], month=timeDate[2], day=timeDate[3], hour=timeHour[1],min=timeHour[2],sec=timeHour[3],isdst=false}
+    local dd = os.date("*t",os.time())
+    local to={year=dd.year,month=dd.month,day=dd.day,hour=dd.hour,min=dd.min,sec=dd.sec,isdst=false}  
+    local hours=math.floor((os.time(to)-os.time(from))/3600)
+    local remaindays=math.floor(hours/24)
+    local remainhours=math.floor((os.time(to)-os.time(from))/3600)%24
+    local secs=(os.time(to)-os.time(from))%3600  
+    local remainmins=math.floor(secs/60)
+    local remainsecs=secs%60 
+     
+    Log:write('index=============================',index)
+   
+    Sprite:setProperty(item, 'data', index)   
     
     Sprite:setProperty(textNum, 'text', data.value[index].taskCode)
     Sprite:setProperty(textTitle, 'text', data.value[index].taskName)
     Sprite:setProperty(textTime, 'text', data.value[index].createDateDis)
-    Sprite:setProperty(finishTime, 'text', '已过期'..os.date()..'天')
+    if hours<0 then
+    if -remaindays>=5 then
+    Sprite:setProperty(finishTime, 'text', data.value[index].overtimeSetDis)
+   Sprite:setProperty(timeLabel, 'color','#0')
+    Sprite:setProperty(finishTime, 'color','#0')
+    else
+    Sprite:setProperty(finishTime, 'text', '还剩'..-remaindays..'天'..remainhours..'小时'..remainmins..'分钟'..remainsecs..'秒')
+    end
+    else
+    Sprite:setProperty(finishTime, 'text', '已过期'..remaindays..'天'..remainhours..'小时'..remainmins..'分钟'..remainsecs..'秒')
+    end 
 end
 
 function itemOnSelect(sprite)
