@@ -90,16 +90,16 @@ local data={}
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    Config:set('curYinHuanListTab', '1')
+    Config:set('curYinHuanListTab', '2')
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        if Config:get('curYinHuanListTab') == '1' then
-            tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
-        else
+        if Config:get('curYinHuanListTab') == '2' then
             tabOnSelect(Sprite:findChild(rootSprite, 'btnTab2'))
+        else
+            tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
         end
     elseif msg == MSG_DEACTIVATE then
     end
@@ -229,9 +229,15 @@ function loadListItem(list, item, index)
     local textTitle = Sprite:findChild(item, 'textTitle')
     local textTime = Sprite:findChild(item, 'textTime')
     local btnname = Sprite:findChild(item, 'btnname')
-    Sprite:setProperty(btnname, 'data', data.value[index].id)
-    Sprite:setProperty(textTitle, 'text', data.value[index].name)
-    Sprite:setProperty(textTime, 'text', data.value[index].createTimeDis)
+    if data.value[index].id ~= nil then
+        Sprite:setProperty(btnname, 'data', data.value[index].id)
+    end
+    if data.value[index].name ~= nil then
+        Sprite:setProperty(textTitle, 'text', data.value[index].name)
+    end
+    if data.value[index].createTimeDis ~= nil then
+        Sprite:setProperty(textTime, 'text', data.value[index].createTimeDis)
+    end
 end
 
 function itemOnSelect(sprite)
@@ -257,7 +263,7 @@ function loadSavedDatas()
 end
 
 function loadUploadDatas()
-    local param = 'cmd=wlbdangerlist&page=1'
+    local param = 'cmd=wlbdangerlist&page=2'
     local url = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
     Http:request('daiban_data', url, 101, {useCache = false})
     Loading:show(rootSprite)
