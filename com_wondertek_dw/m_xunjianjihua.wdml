@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: xxxx <xxxx@xxxx.com> ==
+============================================================================
+== | Desc: 页面描述 ==
+============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        
+        <!-- 页面背景  -->
+        <node rect="0,0,480,800" extendstyle="1111">
+			<image name="background" rect="0,0,480,800" border="false"
+			    src="file://image/background.png" style="autosize" extendstyle="1111">
+			</image>
+        </node>
+                
+        <!-- 页面头部  -->
+        <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+            <image name="title" rect="0,0,480,66" border="false"
+                src="file://image/nav_bar.png" style="autosize" extendstyle="1111">
+                <label rect="0,0,480,66" text="巡检计划" color="#ffffff" v-align="center"
+                    h-align="center" font-size="28" font-family="黑体"  extendstyle="1111" />
+            </image>
+            <!-- 返回首页按钮  -->
+            <button name="backBtn" rect="10,13,40,40" normal="normal" sel="sel"
+                OnSelect="doBack" extendstyle="1111">
+                <image name="normal" rect="0,0,40,40" src="file://image/ico_home.png"
+                    style="autosize" extendstyle="1111" />
+                <image name="sel" rect="0,0,40,40" src="file://image/ico_home.png"
+                    style="autosize" extendstyle="1111" />
+            </button>
+        </node>
+        
+        <!-- 页面主体  -->
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <node name="listNode" rect="0,60,480,645" extendstyle="1111">
+                <listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
+            </node>
+            <!-- 列表项模板  -->
+            <node name="listitem" visible="false" enable="false" active="false"
+                extendstyle="1011" rect="0,200,480,70">
+                <image name="listItemBg" rect="0,0,480,100" src="file://image/item_bg_m.png" 
+                    style="autosize" extendstyle="1111" />
+                <button name="btnname" rect="0,0,480,100" OnSelect="itemOnSelect"
+                    extendstyle="1111">
+                    <!-- 计划标题  -->
+                    <scrolltext name="texttitle" rect="20,0,420,50"
+                        extendstyle="1010" font-size="23" font-family="黑体"
+                        h-align="left" v-align="center" color="#0" scroll="true" step="2" />
+                    <!-- 完成总数  -->
+                    <label rect="20,50,80,50" text="完成总数：" color="#0" v-align="center"
+                        h-align="left" font-size="14" font-family="黑体" extendstyle="1111" />
+                    <label rect="105,50,20,50" text="40" color="#0062ab" v-align="center"
+                        h-align="left" font-size="14" font-family="黑体" extendstyle="1111" />
+                    <label rect="125,50,10,50" text="/" color="#0" v-align="center"
+                        h-align="left" font-size="14" font-family="黑体" extendstyle="1111" />
+                    <label rect="135,50,40,50" text="100" color="#dd512e" v-align="center"
+                        h-align="left" font-size="14" font-family="黑体" extendstyle="1111" />
+                    <!-- 发布时间  -->
+                    <label rect="240,50,220,50" text="发布时间：2012-12-11" 
+                        color="#0" v-align="center" font-family="黑体" 
+                        h-align="left" font-size="14" extendstyle="1111" />
+                </button>
+                <image rect="460,0,20,100" src="file://image/ico_r.png" style="center"
+                    extendstyle="1111" />
+            </node>
+            <!-- 无巡检任务时的提示信息  -->
+            <node name="nullNode" rect="0,220,480,220" extendstyle="1010"
+                visible="false" enable="false" active="false">
+                <label rect="0,25,480,35" extendstyle="1010" text="暂无巡检任务"
+                    h-align="center" v-align="center" color="#686868" font-size="24" />
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+require 'framework.barcode'
+local rootSprite
+local data = {}
+local flag
+local list
+local nullNode
+
+-- 优化GPS用户体验，在巡检计划中提前开启gps
+-- 如果获得经纬度，则直接传给下一个页面
+-- local longitude = 1172513390
+-- local latitude = 318494380
+local longitude = 0
+local latitude = 0
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    nullNode = Sprite:findChild(rootSprite, 'nullNode')
+    list = Sprite:findChild(rootSprite, 'sampleList')
+    loadRequest()
+    getCurrentLoc()
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    showOrHideNullNode(0)
+    if Loading:isShow() then Loading:close() end
+    if msg == 101 then
+        data = Http:jsonDecode('pay_data')
+        Log:write("data101 = ", data)
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        end
+        if data ~= nil then
+            if data.code == '0' then
+                if #data.value > 0 then
+                    loadList(#data.value + 1)
+                elseif data.value[0] then
+                    loadList(1)
+                else
+                    showOrHideNullNode(1)
+                    Dialog:show(rootSprite, '暂无待巡检任务！', 'ok')
+                end
+            else
+                showOrHideNullNode(1)
+                Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+            end
+        else
+            Dialog:show(rootSprite, '未知错误！', 'ok')
+        end
+    elseif msg ==102 then
+        data = Http:jsonDecode('handled_data')
+        Log:write("data102 = ", data)
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        end
+        if data ~= nil then
+            if data.code == '0' then
+                if #data.value > 0 then
+                    loadList(#data.value + 1)
+                elseif data.value[0] then
+                    loadList(1)
+                else
+                    showOrHideNullNode(1)
+                    Dialog:show(rootSprite, '暂无已巡检任务！', 'ok')
+                end
+            else
+                showOrHideNullNode(1)
+                Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+            end
+        else
+            Dialog:show(rootSprite, '未知错误！', 'ok')
+        end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:freeByHandle(rootSprite)
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function loadRequest()
+    local param = 'cmd=wlbxunjianPatrolList&page=1'
+    local Url = getWholeUrl('nbspweb/webservice/wplan!doWebservice.action', param)
+    Http:request('pay_data', Url, 101, {useCache = false})
+    Loading:show(rootSprite)
+end
+
+function loadDoneRequest()
+    local param = 'cmd=wlbxunjianPatrolList&page=1'
+    local Url = getWholeUrl('nbspweb/webservice/wplan!doWebservice.action', param)
+    Http:request('handled_data', Url, 102, {useCache = false})
+    Loading:show(rootSprite)
+end
+
+function loadList(count)
+    ListView:removeAllItems(list,true)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
+    ListView:adjust(list)
+end
+
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 100)
+    local listItemBg = Sprite:findChild(item, 'listItemBg')
+    Sprite:setRect(listItemBg, 0, 0, 480, 100)
+    if index % 2 > 0 then
+        Sprite:setProperty(listItemBg, 'src', '')
+    else
+        Sprite:setProperty(listItemBg, 'src', 'file://image/item_bg_m.png')
+    end
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local texttitle = Sprite:findChild(item, 'texttitle')
+    Sprite:setProperty(texttitle, 'text', data.value[index].planName)
+    local btnname = Sprite:findChild(item, 'btnname')
+    Sprite:setProperty(btnname, "data", index)
+end
+
+function itemOnSelect(sprite)
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    local index = tonumber(Sprite:getData(sprite))
+    -- 获取计划信息
+    local planId = data.value[index].id
+    local planName = data.value[index].planName
+    local templateId = data.value[index].templateId
+    Log:write(string.format('下标:%s 巡检计划Id=%s, 巡检模板Id=%s', index, planId, templateId))
+    -- 页面传值，保证值都是新的
+    local regHandle = Reg:create('xunjianrenwu')
+    Reg:clear(regHandle)
+    Reg:setString(regHandle, 'planId', planId)
+    Reg:setString(regHandle, 'planName', planName)
+    Reg:setString(regHandle, 'templateId', templateId)
+    Reg:setString(regHandle, 'longitude', longitude)
+    Reg:setString(regHandle, 'latitude', latitude)
+    -- 页面跳转，跳转到站点列表
+    Scene:setReturn(Alias.xunjianjihua, Alias.xunjianzhandian)
+    Scene:go(Alias.xunjianzhandian, true)
+end
+
+function tabOnSelect(sprite)
+    local tabNode = Sprite:getParent(sprite)
+    local dataInfo = Sprite:getData(sprite)
+    local tab1 = Sprite:findChild(tabNode, 'btnTab1')
+    local tab2 = Sprite:findChild(tabNode, 'btnTab2')
+    local tab3 = Sprite:findChild(tabNode, 'btnTab3')
+    Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_n.png')
+    Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_n.png')
+    Sprite:setProperty(Sprite:findChild(tab3, 'tabBg'), 'src', 'file://image/tab_n.png')
+    Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_s.png')
+    if dataInfo=='01' then
+        flag='1'
+        loadRequest()
+    elseif dataInfo=='03' then
+        flag='3'
+        loadDoneRequest()
+    end
+end
+
+function doBack(sprite)
+    Scene:freeByHandle(rootSprite)
+    Scene:back()
+end
+
+function showOrHideNullNode(showOrHide)
+    if showOrHide == 0 then
+        Sprite:setEnable(nullNode, 0)
+        Sprite:setActive(nullNode, 0)
+        Sprite:setVisible(nullNode, 0)
+        Sprite:setEnable(list, 1)
+        Sprite:setActive(list, 1)
+        Sprite:setVisible(list, 1)
+    else
+        Sprite:setEnable(nullNode, 1)
+        Sprite:setActive(nullNode, 1)
+        Sprite:setVisible(nullNode, 1)
+        Sprite:setEnable(list, 0)
+        Sprite:setActive(list, 0)
+        Sprite:setVisible(list, 0)
+    end
+end
+
+---------------------------------------GPS相关函数---------------------------
+-- 取得当前的经纬度，设置全局变量
+function getCurrentLoc()
+    local result = System:getGPSStatus()
+    if result == -1 then
+       Log:write('gps不可用')
+    elseif result == 0 then
+        local gpsStatus = System:setGPSStatus(1)
+        if gpsStatus then
+            --Timer:set(111, 1000, '__getGpsData')
+        else
+           Log:write('gps开启失败')
+        end
+    elseif result == 1 then
+        Log:write('gps已经开启')
+        --Timer:set(111, 1000, '__getGpsData')
+    end
+end
+
+-- gps已经打开的情况下，获取gps数据
+function __getGpsData()
+    longitude, latitude = System:getGPSData()
+    -- 重设定时器
+    Timer:set(111, 1000, '__getGpsData')
+end
+
+]]>
+</root>
