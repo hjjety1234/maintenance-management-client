@@ -23,7 +23,7 @@ Regs = {
 Alias = {
     index = 'MODULE:\\com_wondertek_dw\\index.wdml', -- 入口页
     home = 'MODULE:\\com_wondertek_dw\\home.wdml', -- 首页
-    login = 'MODULE:\\com_wondertek_dw\\login.wdml', -- 首页
+    login = 'MODULE:\\com_wondertek_dw\\login.wdml', -- 登录
     xunjianEdit = 'MODULE:\\com_wondertek_dw\\xunjianEdit.wdml', -- 首页
     xunjianDetail = 'MODULE:\\com_wondertek_dw\\xunjianDetail.wdml', -- 已巡检任务详情
     radioSample = 'MODULE:\\com_wondertek_dw\\radioSample.wdml', -- 首页 none
@@ -61,4 +61,18 @@ Alias = {
     xunjianzhandianDetail = 'MODULE:\\com_wondertek_dw\\xunjianzhandianDetail.wdml', -- 巡检站点详情页面
     xunjiantijiao = 'MODULE:\\com_wondertek_dw\\xunjiantijiao.wdml', -- 巡检项提交页面
     chart = 'MODULE:\\com_wondertek_dw\\chart.wdml', -- 统计报表demo
+    
+    ------------------------------Metro Style ------------------------------------------
+    home_new = 'MODULE:\\com_wondertek_dw\\home_new.wdml',  -- 首页
+    m_login = 'MODULE:\\com_wondertek_dw\\m_login.wdml',    -- 登录
+    m_daibangongdan = 'MODULE:\\com_wondertek_dw\\m_daibangongdan.wdml', -- 待办列表
+    m_xunjianjihua = 'MODULE:\\com_wondertek_dw\\m_xunjianjihua.wdml', -- 巡检计划
+    m_yinhuanList = 'MODULE:\\com_wondertek_dw\\m_yinhuanList.wdml', -- 隐患列表
+    m_cardispatch = 'MODULE:\\com_wondertek_dw\\m_carDispatch.wdml', -- 车辆申请
+    m_cheliangguanli = 'MODULE:\\com_wondertek_dw\\m_cheliangguanli.wdml', -- 车辆管理
+    m_daibangongdan = 'MODULE:\\com_wondertek_dw\\m_daibangongdan.wdml', -- 待办列表
+    m_xunjianzhandian = 'MODULE:\\com_wondertek_dw\\m_xunjianzhandian.wdml', -- 巡检站点
+    m_xunjianEditEx = 'MODULE:\\com_wondertek_dw\\m_xunjianEditEx.wdml', -- 巡检子项列表
+    m_xunjiantijiao = 'MODULE:\\com_wondertek_dw\\m_xunjiantijiao.wdml', -- 巡检项提交页面
 }
+
