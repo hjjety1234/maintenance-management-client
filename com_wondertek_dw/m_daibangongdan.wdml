@@ -69,33 +69,34 @@
                 <listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
             </node>
             
-
             <node name="listitem" visible="false" enable="false" active="false"
-                extendstyle="1011" rect="0,200,480,120">
-                <shadow name="listItemBg" rect="0,0,480,150" color="#e8e8e8"
+                extendstyle="1011" rect="0,200,480,115">
+                <shadow name="listItemBg" rect="0,0,480,115" color="#e8e8e8"
                     alpha="255" extendstyle="1111" />
                 <button name="btnname" rect="0,0,480,100" OnSelect="itemOnSelect"
                     extendstyle="1111">
-                    <label rect="10,5,150,30" text="工单编号：" color="#3C57C4"
+                    <image name="timeSign" rect="420,36,27,27" border="false" src=""
+                     style="autosize" extendstyle="1111"/>
+                    <label rect="10,5,150,30" text="工单标题：" color="#3C57C4"
                         font-size="24" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label name="textNum" rect="120,5,300,30" text="" color="#3C57C4"
+                    <label name="textTitle" rect="120,5,300,30" text="" color="#3C57C4"
                         font-size="24" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label rect="10,30,150,30" text="工单标题：" color="#0" font-size="18"
+                    <label rect="10,30,150,30" text="工单编号：" color="#0" font-size="24"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="textTitle" rect="120,30,360,30" text="" color="#0"
-                        font-size="18" h-align="left" v-align="center" extendstyle="1111"
+                    <label name="textNum" rect="120,30,360,30" text="" color="#0"
+                        font-size="24" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label rect="10,55,150,30" text="派发时间：" color="#0" font-size="18"
+                    <label rect="10,55,150,30" text="派发时间：" color="#0" font-size="24"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
                     <label name="textTime" rect="120,55,460,30" text="" color="#0"
-                        font-size="18" h-align="left" v-align="center" extendstyle="1111"
+                        font-size="24" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label name="timeLabel" rect="10,80,150,30" text="完成时限：" color="#FF0000" font-size="18"
+                    <label name="timeLabel" rect="10,80,150,30" text="完成时限：" color="#FF0000" font-size="24"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
                     <label name="finishTime" rect="120,80,460,30" text="" color="#FF0000"
-                        font-size="18" h-align="left" v-align="center" extendstyle="1111"
+                        font-size="24" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
                 </button>
             </node>
@@ -271,10 +272,12 @@ function loadZanCunItem(list, item, index)
 end
 
 function loadListItem(list, item, index)
-    Sprite:setRect(item, 0, 0, 480, 115)
+     Sprite:setRect(item, 0, 0, 480, 115)
+
     Sprite:setProperty(item, 'extendstyle', '1111')
-    local listItemBg = Sprite:findChild(item, 'listItemBg')
+    local listItemBg = Sprite:findChild(item, 'listItemBg') 
     Sprite:setRect(listItemBg, 0, 0, 480, 115)
+ 
     local num = index+1
     Log:write('index=============================',num%2)
     if num % 2 > 0 then
@@ -308,17 +311,25 @@ function loadListItem(list, item, index)
     Sprite:setProperty(textNum, 'text', data.value[index].taskCode)
     Sprite:setProperty(textTitle, 'text', data.value[index].taskName)
     Sprite:setProperty(textTime, 'text', data.value[index].createDateDis)
+    
+    if data.value[index].taskState=='4' then
+    
+    Sprite:setProperty(finishTime, 'text','已完成')
+    else
     if hours<0 then
     if -remaindays>=5 then
     Sprite:setProperty(finishTime, 'text', data.value[index].overtimeSetDis)
    Sprite:setProperty(timeLabel, 'color','#0')
     Sprite:setProperty(finishTime, 'color','#0')
     else
+    Sprite:setProperty(Sprite:findChild(item, 'timeSign'), 'src', 'file://image/willover.png')  
     Sprite:setProperty(finishTime, 'text', '还剩'..-remaindays..'天'..remainhours..'小时'..remainmins..'分钟'..remainsecs..'秒')
     end
     else
+    Sprite:setProperty(Sprite:findChild(item, 'timeSign'), 'src', 'file://image/overtime.png')
     Sprite:setProperty(finishTime, 'text', '已过期'..remaindays..'天'..remainhours..'小时'..remainmins..'分钟'..remainsecs..'秒')
     end 
+    end
 end
 
 function itemOnSelect(sprite)
