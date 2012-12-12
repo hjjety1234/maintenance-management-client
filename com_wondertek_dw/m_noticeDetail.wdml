@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: hewu <hewu2008@gmail.com> ==
+============================================================================
+== | Desc: 页面描述 ==
+============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+
+            <!-- 设置背景 -->
+            <shadow rect="0,0,480,800" color="#ffffff" alpha="255"
+                extendstyle="1111" />
+            <image name="background" rect="0,0,480,800" src="file://image/background.png"
+                extendstyle="1111" style="autosize" />
+            <!-- 公告头部 -->
+            <node rect="0,0,480,66" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,66" src="file://image/title_bg_new.png"
+                    extendstyle="1111" style="autosize" />
+
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="10,10,40,40" normal="normal" sel="sel"
+                    OnSelect="doBack" extendstyle="1111">
+                    <image name="normal" rect="0,0,40,40" src="file://image/ico_back.png"
+                        style="autosize" extendstyle="1111" />
+                    <image name="sel" rect="0,0,40,40" src="file://image/ico_back.png"
+                        style="autosize" extendstyle="1111" />
+                </button>
+
+                <!-- 收藏按钮 -->
+                <button name="favBtn" rect="430,10,40,40" normal="normal"
+                    sel="sel" OnSelect="OnFavBtnClicked" extendstyle="1111" border="false">
+                    <image name="favBtnImage" rect="0,0,40,40" src="file://image/bookmark0.png"
+                        style="autosize" extendstyle="1111" />
+                </button>
+
+                <!-- 公告标题 -->
+                <scrolltext name="title" rect="0,0,480,50" text="公告详情" font-family='微软雅黑'
+                    extendstyle="1111" font-size="32" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2" />
+            </node>
+
+            <!-- 公告详情 -->
+            <node name="detailNode" rect="0,66,480,734" border="false"
+                extendstyle="1111">
+                <textarea name="titleName" scroll="false" rect="10,20,460,100"
+                    border="false" text="标题" line-height = '30' h-align="center" v-align="center" color="#000000"
+                    font-size="32" extendstyle="1111" font-family='微软雅黑'></textarea>
+                <label name="issuePerson" rect="100,75,230,40" border="false" font-family='微软雅黑'
+                    text="发布人：" h-align="left" v-align="center" color="#666666"
+                    font-size="24" extendstyle="1111" />
+                <label name="date" rect="130,75,230,40" border="false" text="时间" font-family='微软雅黑'
+                    h-align="right" v-align="center" color="#666666" font-size="24" extendstyle="1111" />
+            <image name="background" rect="20,130,433,2" src="file://image/seg_new.png"
+                extendstyle="1111" style="autosize" />
+                <listview rect= "10,110,460,556" extendstyle="1111">
+                    <list-item rect="10,10,440,1112" extendstyle="1111">
+                       <textarea name ="detail" rect="0,0,440,556" border="false" font-family='微软雅黑'
+                       extendstyle="1111" h-align ='left'line-height="28" autoextend="true" font-size="24">
+                        </textarea>
+                    </list-item>
+                </listview>
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+local rootSprite
+local noticeId
+
+---------------------------------------回调函数列表--------------------------------
+--  root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    
+    -- 获取公告详情各字段的Sprite
+    local title = Sprite:findChild(rootSprite,"titleName")
+    local date = Sprite:findChild(rootSprite,"date")
+    local issuePerson = Sprite:findChild(rootSprite,"issuePerson")
+    
+    -- 从数据仓库中读取各字段的值(id, 标题，日期)
+    local noticeDetailHandler = Reg:create("noticeDetail")
+    noticeId = Reg:getString(noticeDetailHandler, "noticeId")
+    if (noticeId == nil or noticeId == '') then
+        Dialog:show("公告详情", "公告id为空!", "ok")
+        return
+    end
+    local noticeTitle = Reg:getString(noticeDetailHandler, "noticeTitle")
+    local iscollect = Reg:getString(noticeDetailHandler, "iscollect")
+    local noticeDate = Reg:getString(noticeDetailHandler, "noticeDate")
+    local noticeIssuePerson = Reg:getString(noticeDetailHandler, "issuePerson")
+    
+    -- 确定是否显示收藏图表
+    if (iscollect == '0') then
+        local favBtnImageSprite = Sprite:findChild(rootSprite,"favBtnImage")
+        Sprite:setProperty(favBtnImageSprite, "src", 'file://image/bookmark1_new.png')
+    end
+    
+    -- 设置公告标题，日期和发布人
+    Sprite:setProperty(title, "text", noticeTitle)
+    Sprite:setProperty(date, "text", noticeDate)
+    Sprite:setProperty(issuePerson, "text", '发布人：'..noticeIssuePerson)
+end
+
+--  root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        requstNoticeDetail()
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+--  插件消息方法
+function bodyOnPluginEvent(msg)
+    if Loading:isShow() then Loading:close() end
+    if msg == 101 then
+        Log:write('jsondecode', Http:jsonDecode("noticeDetail"))
+        jsonDecodedMsg = Http:jsonDecode("noticeDetail")
+        Log:write(jsonDecodedMsg)
+        local detailSprite = Sprite:findChild(rootSprite, 'detail')
+        if (detailSprite~= nil and jsonDecodedMsg["contentString"] ~= nil) then
+            -- 正则表达式，去除html标签
+            local contentString = string.gsub(jsonDecodedMsg["contentString"], '<.->', '')
+            contentString = string.gsub(contentString, '&%w+;', '')
+            -- 正则表达式，去除页首的多余空行
+            contentString = string.gsub(contentString, '\r\n\r\n\t', '\r\n')
+            contentString = string.gsub(contentString, '$\r\n\t', ' ')
+            Sprite:setProperty(detailSprite, 'text', contentString)
+            local newscontX, newscontY, newscontW, newscontH = Sprite:getRect(detailSprite)
+            Sprite:setRect(detailSprite, newscontX, 0, newscontW, newscontH)
+            resetListViewItemHeight()
+        end
+    elseif msg == 102 then
+        local jsonResp = Http:jsonDecode("fav")
+        local favBtnImageSprite = Sprite:findChild(rootSprite, "favBtnImage")
+        if jsonResp.code ~= nil and jsonResp.code == '0' then
+            Sprite:setProperty(favBtnImageSprite, "src", 'file://image/bookmark1_new.png')
+        else
+            Dialog:show("", "添加收藏失败,错误码："+jsonResp.code, 'ok')
+            return
+        end
+    elseif msg == 103 then
+        local jsonResp = Http:jsonDecode("fav")
+        local favBtnImageSprite = Sprite:findChild(rootSprite, "favBtnImage")
+        if jsonResp.code ~= nil and jsonResp.code == '0' then
+            Sprite:setProperty(favBtnImageSprite, "src", 'file://image/bookmark0.png')
+        else
+            Dialog:show("", "取消收藏失败,错误码："+jsonResp.code, 'ok')
+            return
+        end
+        jsonResp = Http:jsonDecode("fav")
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+--  按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        if Loading:isShow() then Loading:close() end
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------Http请求函数列表---------------------------
+--  返回按钮处理
+function doBack()
+    if Loading:isShow() then Loading:close() end 
+    Scene:back()
+end
+
+-- 请求公告详情
+function requstNoticeDetail() 
+    -- 构造请求地址
+    local param = string.format('cmd=wlbnewsdetail&id=%s', noticeId)
+    local reqURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', param)
+    Http:request("noticeDetail", reqURL, 101, {useCache=false})
+    Loading:show()
+end
+
+-- 调整公告详情页的内容，使其能够上下滑动
+function resetListViewItemHeight()
+    local detailSprite = Sprite:findChild(rootSprite, 'detail')
+    local item = Sprite:getParent(detailSprite)
+    local x,y,w = Sprite:getRect(item)
+    local _,_,_,th = Sprite:getRect(detailSprite)
+    local height = th
+    Sprite:setRect(item, x,y,w,height)
+    ListView:setItemToTop(Sprite:getParent(item), 0)
+    ListView:adjust(Sprite:getParent(item))
+end
+
+--  收藏按钮消息处理函数
+function OnFavBtnClicked(sprite)
+    local favBtnImageSprite = Sprite:findChild(rootSprite, "favBtnImage")
+    if (Sprite:getProperty(favBtnImageSprite, "src") == 'file://image/bookmark0.png') then
+        local param = string.format('cmd=wlbaddcollectnews&id=%s', noticeId)
+        Log:write('添加收藏')
+        local reqURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', param)
+        Http:request('fav', reqURL, 102)
+    else
+        local param = string.format('cmd=wlbdeletecollectnews&id=%s', noticeId)
+        Log:write('取消收藏')
+        local reqURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', param)
+        Http:request('fav', reqURL, 103)
+    end
+end
+
+]]>
+</root>
