@@ -1,4 +1,4 @@
--- -----------------------------------------------------------------------------
+﻿-- -----------------------------------------------------------------------------
 -- | WonderTek [ 网络无处不在，沟通及时到达 ]
 -- -----------------------------------------------------------------------------
 -- | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
@@ -68,13 +68,16 @@ Alias = {
     m_daibangongdan = 'MODULE:\\com_wondertek_dw\\m_daibangongdan.wdml', -- 待办列表
     m_xunjianjihua = 'MODULE:\\com_wondertek_dw\\m_xunjianjihua.wdml', -- 巡检计划
     m_yinhuanList = 'MODULE:\\com_wondertek_dw\\m_yinhuanList.wdml', -- 隐患列表
+    m_yinhuanshangchuan = 'MODULE:\\com_wondertek_dw\\m_yinhuanshangchuan.wdml', -- 隐患上报
+    m_yinhuanDetail = 'MODULE:\\com_wondertek_dw\\m_yinhuanDetail.wdml', -- 隐患详情
     m_cardispatch = 'MODULE:\\com_wondertek_dw\\m_carDispatch.wdml', -- 车辆申请
     m_cheliangguanli = 'MODULE:\\com_wondertek_dw\\m_cheliangguanli.wdml', -- 车辆管理
     m_daibangongdan = 'MODULE:\\com_wondertek_dw\\m_daibangongdan.wdml', -- 待办列表
     m_xunjianzhandian = 'MODULE:\\com_wondertek_dw\\m_xunjianzhandian.wdml', -- 巡检站点
     m_xunjianEditEx = 'MODULE:\\com_wondertek_dw\\m_xunjianEditEx.wdml', -- 巡检子项列表
     m_xunjiantijiao = 'MODULE:\\com_wondertek_dw\\m_xunjiantijiao.wdml', -- 巡检项提交页面
-	m_notice = 'MODULE:\\com_wondertek_dw\\notice.wdml', -- 公告列表(江峰)
+    m_notice = 'MODULE:\\com_wondertek_dw\\notice.wdml', -- 公告列表(江峰)
     m_noticeDetail = 'MODULE:\\com_wondertek_dw\\noticeDetail.wdml', -- 公告详情（江峰）
+    
 }
 
