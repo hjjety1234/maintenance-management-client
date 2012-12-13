@@ -34,8 +34,8 @@
 	            </button>
 	            <button name="btnForget" rect="423,13,40,40" OnSelect="addOnSelect"
 	                text="" color="#ffffff" font-size="24" border="false" extendstyle="1111"
-	                normal="src:file://image/ic_title_submit_new.png;style:autosize;color:#ffffff"
-	                sel="src:file://image/ic_title_submit_new.png;style:autosize;color:#000000"/>
+	                normal="src:file://image/ico_add.png;style:autosize;color:#ffffff"
+	                sel="src:file://image/ico_add.png;style:autosize;color:#000000"/>
            </node>
           <listview name="listview" rect="0,66,480,734" col="1" extendstyle="1111" limit="true" border="false">  
 	    <!-- 搜索栏 -->
@@ -55,7 +55,6 @@
                     extendstyle="1111">
 		</button>		
             </node>	    
-	    
 	    <!--隐患tab页-->
             <node name="tabNode" rect="0,56,480,60" extendstyle="1111"> 
                 <button name="btnTab2" rect="240,0,240,60" text="" color="#ffffff"
@@ -77,11 +76,12 @@
                 <listview name="sampleList" rect="0,0,480,618" extendstyle="1111" />
             </node>
 	 </listview>
+	
             <node name="listitem" visible="false" enable="false" active="false"
                 extendstyle="1011" rect="0,200,480,70">
                 <button name="btnname" rect="0,0,480,70" OnSelect="itemOnSelect"
                     style="autosize" border="false" extendstyle="1111" data="">
-		    <shadow name="listItemBg" rect="0,0,480,70" color="" alpha="0" extendstyle="1111" />
+		            <shadow name="listItemBg" rect="0,0,480,70" color="" alpha="0" extendstyle="1111" />
                     <label rect="10,5,120,30" text="工单主题：" color="#0" font-size="24"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
                     <scrolltext rect="130,5,340,30" name="textTitle" color="#0" font-size="24"
@@ -167,7 +167,7 @@ end
 
 function addOnSelect(sprite)
     Scene:setReturn(Alias.yinhuanList, Alias.yinhuanshangchuan)
-    Scene:go(Alias.yinhuanshangchuan)
+    Scene:go(Alias.yinhuanshangchuan,true)
 end
 
 function tabOnSelect(sprite)
@@ -179,11 +179,11 @@ function tabOnSelect(sprite)
     Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_n_new.png')
     Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_s_new.png')
     if tab1 == sprite then
-	loadUploadDatas()
+	    loadUploadDatas()
         Config:set('curYinHuanListTab', '1')
     else
         loadSavedDatas()
-        Config:set('curYinHuanListTab', '2')
+        Config:set('curYinHuanListTab', '1')
     end
 end
 
@@ -247,6 +247,7 @@ function loadListItem(list, item, index)
     local btnname = Sprite:findChild(item, 'btnname')
     if data.value[index].id ~= nil then
         Sprite:setProperty(btnname, 'data', data.value[index].id)
+        Log:write('index: '..index..'  btnname中data = ', data.value[index].id)
     end
     if data.value[index].name ~= nil then
         Sprite:setProperty(textTitle, 'text', data.value[index].name)
@@ -258,7 +259,7 @@ end
 
 function itemOnSelect(sprite)
     local curId= Sprite:getData(sprite)
-    Log:write('2222222222222333', curId)
+    Log:write('当前隐患ID  ', curId)
     local stringData = Config:get('yinhuanID' .. curId)
     if stringData == nil or stringData == '' then
         Scene:setReturn(Alias.yinhuanList, Alias.yinhuanDetail .. '?pYinhuanID=' .. curId)
@@ -272,6 +273,7 @@ end
 function loadSavedDatas()
     -- body
     savedDatas = Split(Config:get('yinhuanIDList'), ';')
+    Log:write('savedDatas = ', Split(Config:get('yinhuanIDList'), ';'))
     local list = Sprite:findChild(rootSprite, 'sampleList')
     ListView:removeAllItems(list)
     ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), #savedDatas, 'loadSavedListItem')
@@ -279,7 +281,7 @@ function loadSavedDatas()
 end
 
 function loadUploadDatas()
-    local param = 'cmd=wlbdangerlist&page=2'
+    local param = 'cmd=wlbdangerlist&page=1'
     local url = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
     Http:request('daiban_data', url, 101, {useCache = false})
     Loading:show(rootSprite)
