@@ -36,16 +36,16 @@
 			    <image name="progressImg" rect="0,0,0,10" 
 			        src="file://image/login_progress.png" extendstyle="1111" />
 			    <label name="proLab" rect="164,-8,160,26" text="0KB/0KB" 
-			        font-size="16" color="#000000" v-align="center" h-align="left" 
+			        font-size="16" color="#ffffff" v-align="center" h-align="left" 
 			        extendstyle="1111" />
 			    <label name="speedLab" rect="-170,-8,160,26" text="0KB/S" 
-			        font-size="16" color="#000000" v-align="center"
+			        font-size="16" color="#ffffff" v-align="center"
 			        h-align="right" extendstyle="1111" />
 			</node>
             
 			<!-- 文本通知信息  -->
 			<label name="noticeLbl" rect="0,525,480,30" font-size="16" 
-			    text="" v-align="center" h-align="center" color="#000000" 
+			    text="" v-align="center" h-align="center" color="#ffffff" 
 			    extendstyle="1111" />
        	</node>
     </body>
@@ -263,7 +263,8 @@ function onGetDownloadStatus()
     -- 迭代下载队列
     for i = 1, count do
         local task = Download:getStatus(i, true)
-        if task.title == 'intallPackageName' then
+        if task.title == 'intallPackageName' then   
+            if task.status == 3 then Download:start(i, true) end
             -- 计算当前的下载百分比
             local percent = 0
             if task.size and task.maxsize and task.maxsize ~= 0 then
