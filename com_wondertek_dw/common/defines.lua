@@ -76,8 +76,8 @@ Alias = {
     m_xunjianzhandian = 'MODULE:\\com_wondertek_dw\\m_xunjianzhandian.wdml', -- 巡检站点
     m_xunjianEditEx = 'MODULE:\\com_wondertek_dw\\m_xunjianEditEx.wdml', -- 巡检子项列表
     m_xunjiantijiao = 'MODULE:\\com_wondertek_dw\\m_xunjiantijiao.wdml', -- 巡检项提交页面
-    m_notice = 'MODULE:\\com_wondertek_dw\\notice.wdml', -- 公告列表(江峰)
-    m_noticeDetail = 'MODULE:\\com_wondertek_dw\\noticeDetail.wdml', -- 公告详情（江峰）
+    m_notice = 'MODULE:\\com_wondertek_dw\\m_notice.wdml', -- 公告列表(江峰)
+    m_noticeDetail = 'MODULE:\\com_wondertek_dw\\m_noticeDetail.wdml', -- 公告详情（江峰）
     
 }
 
