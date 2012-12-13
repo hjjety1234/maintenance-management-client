@@ -30,7 +30,7 @@
                 <image name="titleBg" rect="0,0,480,66" src="file://image/nav_bar.png"
                     extendstyle="1111" style="autosize" />
                 <button name="backBtn" rect="20,10,40,40" normal="normal" sel="sel"
-                    OnSelect="doBack" extendstyle="1111">
+                    OnSelect="doBackDialog" extendstyle="1111">
                     <image name="normal" rect="0,0,40,40" src="file://image/ico_back.png"
                         style="autosize" extendstyle="1111" />
                     <image name="sel" rect="0,0,40,40" src="file://image/ico_back.png"
@@ -335,6 +335,7 @@ function bodyBuildChildrenFinished(sprite)
 
     -- 设置页面标题
     Sprite:setProperty(Sprite:findChild(rootSprite, 'titleNode'), 'text', g_stationName)
+    -- requestSubItems()
 end
 
 --  root节点消息方法
@@ -547,6 +548,11 @@ end
 function doBack()
     if Loading:isShow() then Loading:close() end
     Scene:back()
+end
+
+-- 确认是否返回
+function doBackDialog()
+    Dialog:show('提示','您即将离开巡检页面,是否继续？','ok_cancel','doBack')
 end
 
 ---------------------------------------界面初始化函数列表--------------------------
@@ -1305,7 +1311,7 @@ function doBarcodeRespProc(code)
 	if ewm == code then
         Sprite:setProperty(barcodeResult, 'text', code)
 		setAllShoworHide(Sprite:findChild(g_curSubItem,'SaveFlag'), 1)
-		local param = 'cmd=wlbxunjianEwmSave'..'&code='..g_resultId..'&resourceId='..resourceId..'&deviceid='..ewm
+		local param = 'cmd=wlbxunjianEwmSave'..'&code='..g_resultId..'&resourceId='..resourceId..'&ewm='..ewm
 		local requestURL = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', param)
 		Http:request('Submitdata', requestURL, 103, {useCache = false})
 	else
