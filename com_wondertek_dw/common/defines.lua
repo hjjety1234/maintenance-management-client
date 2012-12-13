@@ -81,5 +81,7 @@ Alias = {
     m_daibandetail='MODULE:\\com_wondertek_dw\\m_daibandetail.wdml', -- 待办详情
     m_yibandetail = 'MODULE:\\com_wondertek_dw\\m_yibandetail.wdml', -- 待办详情
     
+    home_sheng = 'MODULE:\\com_wondertek_dw\\home_sheng.wdml', -- 
+    m_staff_statistical = 'MODULE:\\com_wondertek_dw\\m_staff_statistical.wdml', -- 人员资质统计
 }
 
