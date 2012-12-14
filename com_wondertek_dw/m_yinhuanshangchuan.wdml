@@ -884,10 +884,11 @@ function loadListItem(list, item, index)
         if imageArray[tonumber(index) * 4 + i] == nil then
             break
         end
+		Sprite:setProperty(picArray[i], "enable", "true");
         local bg = Sprite:findChild(picArray[i], 'bg')
         if Sprite:getProperty(bg, 'src') ~= nil and Sprite:getProperty(bg, 'src') == '' then
            Sprite:setProperty(bg, 'src', imageArray[tonumber(index) * 4 + i])
-           Sprite:setProperty(bg, 'data', imgdata[tonumber(index) * 4 + i])
+           Sprite:setProperty(bg, 'data', imageArray[tonumber(index) * 4 + i])
            --Sprite:setProperty(picArray[i], 'data', imageArray[tonumber(index) * 4 + i])
         end
     end
@@ -1142,21 +1143,21 @@ end
 function topic(sprite)
     --创建数据仓库
     local igsrc=Sprite:getProperty(curitm, "src")
-    local reg=Reg:create("imageDetail")
-    Reg:setString(reg, "imageSrc", igsrc)
+    local reg=Reg:create("PicReg")
+    Reg:setString(reg, "pic", igsrc)
     --跳转
-    Scene:setReturn(Alias.m_yinhuanshangchuan, Alias.imageDetail)
-    Scene:go(Alias.imageDetail,true)
+    Scene:setReturn(Alias.m_yinhuanshangchuan, Alias.orignImg)
+    Scene:go(Alias.orignImg,true)
 end
 --删除图片
 function rmpic(sprite)
     Sprite:setProperty(curitm, "enable", "false");
     Sprite:removeChild(Sprite:getParent(curitm), curitm)
     local dt=Sprite:getData(curitm)
-    local count=getJsonArrayCount(imgdata)
+    local count=getJsonArrayCount(imageArray)
     for i=1,count-1 do
-        if imgdata[i]==dt then
-            table.remove(imgdata,i)
+        if imageArray[i]==dt then
+            table.remove(imageArray,i)
         break
         end
     end
