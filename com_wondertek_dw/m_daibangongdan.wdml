@@ -38,11 +38,11 @@
                     style="autosize" extendstyle="1111" />
             </button>
             
-            <button name="btnForget" rect="423,13,40,40" text="" color="#ffffff"
-                    extendstyle="1111" OnSelect="submitOnSelect"
+            <button name="btnShowSearchBar" rect="423,13,40,40" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="OnShowSearchBarButtonClicked"
                     normal="src:file://image/ico_search_new.png;style:autosize;color:#ffffff"
                     sel="src:file://image/ico_search_new.png;style:autosize;color:#000000"
-                    font-size="24" />
+                    font-size="24"/>
         </node>
             
             <node name="tabNode" rect="0,66,480,47" extendstyle="1111">
@@ -70,8 +70,28 @@
                         h-align="center" font-size="22" extendstyle="1111" />
                 </button>
             </node>
+            
+            <!-- 隐藏的搜索栏 -->
+             <node name="searchBar" rect="0,115,480,56" extendstyle="1111"
+                visible="false">
+                <image name="search_bg_new" rect="0,0,480,52" src="file://image/search_bg.png"
+                    style="autosize" extendstyle="1111" />
+                <image name="searchBarImage" rect="15,5,450,42"
+                    src="file://image/search_input_new.png" style="autosize" extendstyle="1111" />
+                <edit name="keywordEdit" rect="37,10,340,42" extendstyle='1111' OnTextChanged="editOnTextChanged"
+                    v-align="center" text="">
+                    <label name="hideLabel" rect="10,0,278,42" text="搜索工单标题" color="#c0c0c0"
+                        extendstyle="1111" style="autosize" h-align="left" v-align="center"
+                        font-size="24" />
+                </edit>
+                <button name="searchButton" rect="415,5,40,40" OnSelect="OnSearchButtonClicked"
+                    extendstyle="1111">
+                    
+                </button>
+            </node>
+            
             <!--列表信息-->
-            <node name="listNode" rect="0,126,480,645" extendstyle="1111">
+            <node name="listNode" rect="0,115,480,645" extendstyle="1111">
                 <listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
             </node>
             
@@ -99,9 +119,9 @@
                     <label name="textTime" rect="120,55,460,30" text="" color="#0"
                         font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label name="timeLabel" rect="10,80,150,30" text="完成时限：" color="#0" font-size="20"
+                    <label name="timeLabel" rect="10,80,150,30" text="完成时限：" color="#ff0000" font-size="20"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="finishTime" rect="120,80,460,30" text="" color="#0"
+                    <label name="finishTime" rect="120,80,460,30" text="" color="#ff0000"
                         font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
                 </button>
@@ -112,6 +132,9 @@
 
 require 'com_wondertek_dw.common.framework'
 local rootSprite
+local isSearchBarVisible = false        -- 搜索条是否显示标志
+local nSearchBarWidth = 55
+local page = 1
 local data = {}
 local flag 
 local savedDatas
@@ -272,12 +295,42 @@ function loadZanCunItem(list, item, index)
     local textTitle = Sprite:findChild(item, 'textTitle')
     local textTime = Sprite:findChild(item, 'textTime')
     local finishTime=Sprite:findChild(item, 'finishTime')
+
+local timeString=Split(dataString[8]," ") 
+    local timeDate=Split(timeString[1],"-")
+    local timeHour=Split(timeString[2],":")
+
+    local from={year=timeDate[1], month=timeDate[2], day=timeDate[3], hour=timeHour[1],min=timeHour[2],sec=timeHour[3],isdst=false}
+    local dd = os.date("*t",os.time())
+    local to={year=dd.year,month=dd.month,day=dd.day,hour=dd.hour,min=dd.min,sec=dd.sec,isdst=false}  
+    local hours=math.floor((os.time(to)-os.time(from))/3600)
+    local remaindays=math.floor(hours/24)
+    local remainhours=math.floor((os.time(to)-os.time(from))/3600)%24
+    local secs=(os.time(to)-os.time(from))%3600  
+    local remainmins=math.floor(secs/60)
+    local remainsecs=secs%60
     
+    Log:write('index=============================',index)
     Sprite:setProperty(item, 'data',dataString[2])
+    
     Sprite:setProperty(textNum, 'text', dataString[4])
     Sprite:setProperty(textTitle, 'text',dataString[6])
     Sprite:setProperty(textTime, 'text',dataString[7])
-    Sprite:setProperty(finishTime, 'text',dataString[8])
+    --Sprite:setProperty(finishTime, 'text',dataString[8])
+    
+    if hours<0 then
+    if -remaindays>=5 then
+    Sprite:setProperty(finishTime, 'text', data.value[index].overtimeSetDis)
+   Sprite:setProperty(timeLabel, 'color','#0')
+    Sprite:setProperty(finishTime, 'color','#0')
+    else
+    Sprite:setProperty(Sprite:findChild(item, 'timeSign'), 'src', 'file://image/willover.png')  
+    Sprite:setProperty(finishTime, 'text', '还剩'..-remaindays..'天'..remainhours..'小时'..remainmins..'分钟'..remainsecs..'秒')
+    end
+    else
+    Sprite:setProperty(Sprite:findChild(item, 'timeSign'), 'src', 'file://image/overtime.png')
+    Sprite:setProperty(finishTime, 'text', '已过期'..remaindays..'天'..remainhours..'小时'..remainmins..'分钟'..remainsecs..'秒')
+    end 
 end
 
 function loadListItem(list, item, index)
@@ -300,7 +353,6 @@ function loadListItem(list, item, index)
     local timeLabel=Sprite:findChild(item, 'timeLabel')
     local finishTime=Sprite:findChild(item, 'finishTime')
     
-    --[[
     local timeString=Split(data.value[index].overtimeSetDis," ") 
     local timeDate=Split(timeString[1],"-")
     local timeHour=Split(timeString[2],":")
@@ -314,18 +366,15 @@ function loadListItem(list, item, index)
     local secs=(os.time(to)-os.time(from))%3600  
     local remainmins=math.floor(secs/60)
     local remainsecs=secs%60 
-     --]]
-     
-    Log:write('index=============================',index)
-   
+       
+    Log:write('index=============================',index)  
     Sprite:setProperty(item, 'data', index)   
     
     Sprite:setProperty(textNum, 'text', data.value[index].taskCode)
     Sprite:setProperty(textTitle, 'text', data.value[index].taskName)
     Sprite:setProperty(textTime, 'text', data.value[index].createDateDis)
-     Sprite:setProperty(finishTime, 'text', data.value[index].taskdate)
+     --Sprite:setProperty(finishTime, 'text', data.value[index].taskdate)
     
-    --[[
     if data.value[index].taskState=='4' then
     
     Sprite:setProperty(finishTime, 'text','已完成')
@@ -343,7 +392,7 @@ function loadListItem(list, item, index)
     Sprite:setProperty(Sprite:findChild(item, 'timeSign'), 'src', 'file://image/overtime.png')
     Sprite:setProperty(finishTime, 'text', '已过期'..remaindays..'天'..remainhours..'小时'..remainmins..'分钟'..remainsecs..'秒')
     end 
-    end--]]
+    end
 end
 
 function itemOnSelect(sprite)
@@ -416,6 +465,29 @@ function itemOnSelect(sprite)
             Scene:setReturn(Alias.m_daibangongdan, Alias.m_yibandetail)
             Scene:go(Alias.m_yibandetail)
         end
+    end
+end
+
+-- @brief 显示或者隐藏搜索条
+function OnShowSearchBarButtonClicked(sprite)
+    local headerNodeSprite = Sprite:getParent(sprite)
+    local mainNodeSprite = Sprite:getParent(headerNodeSprite)
+    local listViewSprite = Sprite:findChild(mainNodeSprite, "sampleList")
+    local searchBarSprite = Sprite:findChild(mainNodeSprite, "searchBar")
+    local x, y, width, height = Sprite:getRect(listViewSprite)
+    if (isSearchBarVisible == false) then
+        Sprite:setRect(listViewSprite, x, y + nSearchBarWidth, width, height)
+        Sprite:setVisible(searchBarSprite, 1)
+        isSearchBarVisible = true
+    else
+        Sprite:setRect(listViewSprite, x, y - nSearchBarWidth, width, height)
+        Sprite:setVisible(searchBarSprite, 0)
+        isSearchBarVisible = false
+        -- 重设列表
+        --local param = string.format('cmd=wlbnewslist&title=&collectflag=0&page=%s', page)
+       -- Log:write("重设请求公告列表:"..param)
+       -- local requestURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', param)
+      --  Http:request('notice_list', requestURL, 101)
     end
 end
 
