@@ -104,6 +104,7 @@
 require 'com_wondertek_dw.common.framework'
 
 local rootSprite
+local user_name
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -134,7 +135,11 @@ function bodyOnPluginEvent(msg)
         if result=='0' then
             Config:set('tasknum', loginData.taskNum)
             writeuserInfo()
+            if user_name == 'qianshan' then 
             Scene:go(Alias.home_new)
+             elseif user_name == 'zyhefei' then
+           Scene:go(Alias.home_sheng)   
+           end
         else
             Dialog:show('登陆提醒','账户密码错误！','ok')
         end
@@ -173,6 +178,7 @@ end
 function loginOnSelect(sprite)
     local username=Sprite:getText(Sprite:findChild(rootSprite, 'username'))
     local password=Sprite:getText(Sprite:findChild(rootSprite, 'password'))
+    user_name=username
     if(username=='') then
         Dialog:show('提醒','用户名不能为空!','ok')
     elseif(password=='') then
