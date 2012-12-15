@@ -231,8 +231,23 @@ function _requestNearbyStationByRadius()
         local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
         Sprite:setProperty(statusBarText, 'text', '定位成功，经纬度为:'.. posValue)
         
-        -- 请求站点列表
-        request('1', posValue, '1000', page, 1001)
+        -- 发送短信
+        local smshead = 'XGXV30'
+        local deviceId = '44010001'
+        local cmd = '00' --手动巡检
+        local date = '121216143406 '
+        local endstr = '00000000AAA10'
+        local smscontent=smshead..deviceId..cmd..date..latitudeValue..longitudeValue
+	    Log:write('111111111111111111111111111111111111111111111111111111111111111', smscontent)
+	    local phone = '10658452'
+	    
+	        if Util:sendSMS(phone, smscontent) then
+	            Sprite:setProperty(statusBarText, 'text', '巡检信息上报成功')
+	        else
+	           Sprite:setProperty(statusBarText, 'text', '巡检信息上报失败:短信上报失败')
+	        end
+    
+    
         Loading:show()
     elseif timerNum > 0 then
         timerNum = timerNum - 1
