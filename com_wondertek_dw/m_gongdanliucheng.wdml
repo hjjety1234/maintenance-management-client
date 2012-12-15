@@ -62,8 +62,8 @@
                   <node name="baseSprite" rect="20,4,420,100" extendstyle="1111"> 
                    <image rect="0,0,342,110" border="false" src="file://image/finished_bg.png" 
                          style="autosize" extendstyle="1111" />    
-                     <label rect="25,5,150,30" text="工单派发：" color="#ffffff"
-                        font-size="20" h-align="left" v-align="center" extendstyle="1111"
+                     <label rect="25,5,100,30" text="工单派发：" color="#ffffff"
+                        font-size="20" h-align="right" v-align="center" extendstyle="1111"
                         border="false" />
                     <label name="textTitle" rect="120,5,300,30" text="周礼" color="#ffffff"
                         font-size="20" h-align="left" v-align="center" extendstyle="1111"
@@ -217,14 +217,14 @@
             <node name="listitem" visible="false" enable="false" active="false"
                 extendstyle="1011" rect="74,122,410,126">
            
-                  <image rect="0,50,16,16" border="false" src="file://image/unfinished_circle.png" 
+                  <image name="finished_circle" rect="0,50,16,16" border="false" src="file://image/finished_circle.png" 
                          style="autosize" extendstyle="1111" />
                          
                   <node name="baseSprite" rect="20,4,420,100" extendstyle="1111"> 
-                   <image rect="0,0,342,110" border="false" src="file://image/unfinished_bg.png" 
+                   <image name="finished_bg" rect="0,0,342,110" border="false" src="file://image/finished_bg.png" 
                          style="autosize" extendstyle="1111" />    
-                     <label name="nameTitle" rect="25,5,150,30" text="派发任务：" color="#ffffff"
-                        font-size="20" h-align="left" v-align="center" extendstyle="1111"
+                     <label name="nameTitle" rect="25,5,100,30" text="派发任务：" color="#ffffff"
+                        font-size="20" h-align="right" v-align="center" extendstyle="1111"
                         border="false" />
                     <label name="textName" rect="120,5,300,30" text="刘兵" color="#ffffff"
                         font-size="20" h-align="left" v-align="center" extendstyle="1111"
@@ -241,7 +241,7 @@
                         border="false" />
                     <label name="processTitle" rect="25,80,150,30" text="步骤状态：" color="#ffffff" font-size="20"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="textProcess" rect="120,80,300,30" text="未完成" color="#ffffff"
+                    <label name="textProcess" rect="120,80,300,30" text="已完成" color="#ffffff"
                         font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />              
                    </node>  
@@ -254,7 +254,12 @@
 require 'com_wondertek_dw.common.framework'
 local rootSprite
 local respValue = nil
+regHandle=Reg:create('dataflow')
+local id
+local taskcode
+local pid
 local page = 1
+local data = {}
 
 ---------------------------------------回调函数--------------------------------
 -- root子节点创建完事件
@@ -265,10 +270,14 @@ end
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        if bIsFirst == true then 
-            --getDataList()--############*********#####
-            bIsFirst = false
-        end
+
+        id= Reg:getString(regHandle,'id')
+        Log:write('11111111111111111111111111111111111',id)
+        pid= Reg:getString(regHandle,'pid')
+        Log:write('2222222222222222222222222222222222',pid)
+        taskcode= Reg:getString(regHandle,'taskcode')
+        Log:write('33333333333333333333333333333333333',taskcode)    
+        getDataFlow()
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -277,13 +286,13 @@ end
 function bodyOnPluginEvent(msg)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
-        local resp = Http:jsonDecode('car_list')
-        Log:write(resp.value)
-        if (resp.code == nil or resp.code ~= '0') then
-            --Dialog:show('', getErrorCode(resp.code), 'ok')
+        data = Http:jsonDecode('flow_data')
+        Log:write(data.value)
+        if (data.code == nil or data.code ~= '0') then
+            --Dialog:show('', getErrorCode(data.code), 'ok')
             Loading:close()
             return
-        elseif (getJsonArrayCount(resp.value) == 0 or resp.value=='') then
+        elseif (getJsonArrayCount(data.value) == 0 or data.value=='') then
            -- Dialog:show('', '返回数据为空!', 'ok')
             Loading:close()
             return
@@ -291,8 +300,8 @@ function bodyOnPluginEvent(msg)
         -- 删除原来的列表
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         ListView:removeAllItems(listView)
-        total = resp['total']
-        respValue = resp.value
+        total = data['total']
+        respValue = data.value
         Log:write('remote server responsed with value:',respValue)
         local len = getJsonArrayCount(respValue)
         -- 加载列表项
@@ -311,57 +320,30 @@ function mainNodeOnKeyUp(sprite, kc)
     end
 end
 
+---------------------------------------util functions---------------------------
+function getDataFlow()  
+   local param = 'cmd=wlbtaskflowlist&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&page=1'
+    local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
+    Http:request('flow_data', reqURL, 101, {useCache = false})
+   -- Loading:show(rootSprite)
+end
+
+--加载车辆列表项
+function loadListItem(list, item, index)
+   Sprite:setRect(item, 74, 0, 410, 126) 
+   local nameTitle = Sprite:findChild(item, 'nameTitle')
+    local textTime = Sprite:findChild(item, 'textTime')
+    local textProcess = Sprite:findChild(item, 'textProcess')
+    
+    Sprite:setProperty(nameTitle, 'text', data.value[index].dealname..'：')
+    Sprite:setProperty(textTime, 'text', data.value[index].dealdate)
+    Sprite:setProperty(textProcess, 'text', data.value[index].status)
+end
+
 --返回按钮消息处理函数
 function doBack(sprite)
     if Loading:isShow() == true then Loading:close() end
     Scene:back()
-end
-
---点击搜索按钮消息处理函数
-function OnSearchButtonClicked(sprite)
-    -- 获取用户的输入结果
-    local searchBar = Sprite:getParent(sprite)
-    local keywordEdit = Sprite:findChild(searchBar, 'keywordEdit')
-    local keyword = Sprite:getProperty(keywordEdit, "text")
-    if keyword == nil or keyword == '' then
-        Dialog:show('车辆搜索', '输入关键字不能为空!', 'ok')
-        return
-    end
-    -- 提交http请求
-    local requestParam = string.format('cmd=wlbcarlist&keyword=%s&page=%s', keyword, page)
-    local requestURL = getWholeUrl('nbspweb/webservice/car!doWebservice.action', requestParam)
-    Loading:show()
-    Http:request('car_list', requestURL, 101)
-end
-
----------------------------------------util functions---------------------------
---加载车辆列表项
-function loadListItem(list, item, index)
-    Sprite:setRect(item, 0, 0, 480, 100)
-    Sprite:setProperty(item, 'extendstyle', '1111')
-    local listItemBg = Sprite:findChild(item, 'listItemBg')
-    Sprite:setRect(listItemBg, 0, 0, 480, 100)
-    if index % 2 > 0 then
-        Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
-    else
-        Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
-    end
-    -- 读取返回的数据
-    local value = respValue[index]
-    local id = value.id
-    local orgName = value.orgname
-    local carNumber = value.carno
-    local carTypeValue = value.cartype
-    -- 显示到界面
-    local idSprite = Sprite:findChild(item, 'id')
-    local carNo = Sprite:findChild(item, 'carNo')
-    local companyName = Sprite:findChild(item, 'companyName')
-    local carType = Sprite:findChild(item, 'carType')
-    local carStatus = Sprite:findChild(item, 'carStatus')
-    Sprite:setProperty(idSprite, 'text', id)
-    Sprite:setProperty(carNo, 'text', carNumber)
-    Sprite:setProperty(companyName, 'text', orgName)
-    Sprite:setProperty(carType, 'text', carTypeValue)
 end
 
     ]]>
