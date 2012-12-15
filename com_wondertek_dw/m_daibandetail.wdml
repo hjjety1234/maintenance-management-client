@@ -143,7 +143,7 @@
                         </image>
                         <label name="xunjianName" rect="7,0,212,52" font-size="24"
                             text="请选择巡检组" color="#000000" extendstyle="1111" style="autosize"
-                            h-align="center" v-align="center" />
+                            h-align="left" v-align="center" />
                     </button>
 
                 </node>
@@ -250,44 +250,53 @@
                 </node>
 
             </node>
-            <!--巡检组列表-->
-            <node name="xunjianSelectNode" rect="0,0,480,800" visible="false"
-                enable="false">
-                <button name="button" rect="0,0,480,800" border="false" text=""
-                    color="#ffffff" OnSelect="hideXunjianSelected"></button>
-                <image rect="70,170,340,250" name="listBg" src="file://image/input.png"
-                    style="sudoku-auto" extendstyle="1111" sudoku="15,15,15,15" />
-                <listview name="xunjianList" rect="0,0,480,645"
-                    extendstyle="1111" />
-
+            <!-- 巡检组动态下拉框  -->
+            <node name="xunjianSelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
+                <button name="button" rect="0,0,480,800" OnSelect="hideXunjianSelected">
+                    <shadow rect="0,0,480,800"  alpha="150" color="#0"  extendstyle="1111">
+                    </shadow>
+                </button>
+                <node rect="66,200,368,68" extendstyle="1111"  border="false">
+                    <image rect="0,0,368,68" src="file://image/top.png"  style="autosize" extendstyle="0010" />
+                    <image rect="20,30,31,32" src="file://image/icon_arrow.png"  style="autosize" extendstyle="0010" />
+                    <label rect="40,10,150,68" border="false" color="#FFFFFF" style="autosize"
+                     text="选择巡检组" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                </node>
+                <image rect="66,268,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" />
+                <listview name="xunjianList" rect="66,268,368,216" auto-scroll="true" style="autosize"
+                    auto-adjust="true" extendstyle="1111" />
+                <image rect="66,483,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
+            </node>   
+            <!-- 巡检下拉框listItem -->
+            <node name="listitem" rect="0,0,368,72" visible="false" enable="false" active="false">                   
+                <button name="btnName" rect="12,0,342,61" text="" color="#FFFFFF" h-align="left" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
+                    extendstyle="0010" OnSelect="xunjianGroupOnSelect"
+                    normal="src:file://image/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                    sel="src:file://image/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+                    data="01"  >           
+                     <image rect="12,70,342,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
+                </button>
             </node>
-            <node name="listitem" visible="false" enable="false" active="false"
-                extendstyle="1011">
-                <!--
-                    <shadow name="listItemBg" rect="0,0,280,56" color="#e8e8e8"
-                    alpha="255" extendstyle="1111" />
-                -->
-                <button name="btnName" rect="0,7,280,56" text="" 
-                    extendstyle="1111" OnSelect="xunjianGroupOnSelect"
-                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-                    font-size="24" data="01" />
-            </node>
-            <!--转审人item-->
+            <!--转审人item--><!--
             <node name="zhuanshenitem" visible="false" enable="false"
                 active="false" extendstyle="1011" rect="100,200,280,70">
-                <!--
-                    <shadow name="listItemBg" rect="0,0,280,56" color="#e8e8e8"
-                    alpha="255" extendstyle="1111" />
-                -->
                 <button name="btnName" rect="100,200,280,56" text="" color="#ffffff"
                     extendstyle="1111" OnSelect="zhuanshenGroupOnSelect"
                     normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
                     sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
                     font-size="24" data="01" />
+            </node>-->
+            <node name="zhuanshenitem" rect="0,0,368,72" visible="false" enable="false" active="false">                   
+                <button name="btnName" rect="12,0,342,61" text="" color="#FFFFFF" h-align="left" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
+                    extendstyle="0010" OnSelect="zhuanshenGroupOnSelect"
+                    normal="src:file://image/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                    sel="src:file://image/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+                    data="01"  >           
+                     <image rect="12,70,342,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
+                </button>
             </node>
-            <!--转审人-->
-            <node name="zhuanshenSelectNode" rect="0,0,480,800" visible="false"
+            <!-- 转审人动态列表 -->
+            <!--<node name="zhuanshenSelectNode" rect="0,0,480,800" visible="false"
                 enable="false">
                 <button name="button" rect="0,0,480,800" border="false" text=""
                     color="#ffffff" OnSelect="hidezhuanshenSelected"></button>
@@ -296,9 +305,35 @@
                 <listview name="xunjianList" rect="0,0,480,645"
                     extendstyle="1111" />
 
+            </node>-->
+            <node name="zhuanshenSelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
+                <button name="button" rect="0,0,480,800" OnSelect="hidezhuanshenSelected">
+                    <shadow rect="0,0,480,800"  alpha="150" color="#0"  extendstyle="1111">
+                    </shadow>
+                </button>
+                <node rect="66,200,368,68" extendstyle="1111"  border="false">
+                    <image rect="0,0,368,68" src="file://image/top.png"  style="autosize" extendstyle="0010" />
+                    <image rect="20,30,31,32" src="file://image/icon_arrow.png"  style="autosize" extendstyle="0010" />
+                    <label rect="40,10,150,68" border="false" color="#FFFFFF" style="autosize"
+                     text="选择转审" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                </node>
+                <image rect="66,268,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" />
+                <listview name="xunjianList" rect="66,268,368,216" auto-scroll="true" style="autosize"
+                    auto-adjust="true" extendstyle="1111" />
+                <image rect="66,483,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
+            </node>   
+            <!-- 下拉框listItem -->
+            <node name="listitem" rect="0,0,368,72" visible="false" enable="false" active="false">                   
+                <button name="btnName" rect="12,0,342,61" text="" color="#FFFFFF" h-align="left" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
+                    extendstyle="0010" OnSelect="xunjianGroupOnSelect"
+                    normal="src:file://image/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                    sel="src:file://image/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+                    data="01"  >           
+                     <image rect="12,70,342,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
+                </button>
             </node>
             <!--拒签处理列表-->
-            <node name="resultSelectNode" rect="0,0,480,800" visible="false"
+            <!--<node name="resultSelectNode" rect="0,0,480,800" visible="false"
                 enable="false">
                 <button name="button" rect="0,0,480,800" border="false" text=""
                     color="#ffffff" OnSelect="hideResultSelected"></button>
@@ -319,25 +354,72 @@
                     normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
                     sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
                     font-size="24" data="03" />
-            </node>
-            <node name="errorTypeSelectNode" rect="0,0,480,800" visible="false"
-                enable="false">
-                <button name="button" rect="0,0,480,800" border="false" text=""
-                    color="#ffffff" OnSelect="hideErrorSelected"></button>
-                <image rect="70,270,340,180" src="file://image/input.png"
-                    style="sudoku-auto" extendstyle="1111" sudoku="15,15,15,15" />
-                <button name="" rect="100,300,280,56" text="签收" color="#ffffff"
-                    extendstyle="1111" OnSelect="errorTypeOnSelect"
-                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-                    font-size="24" data="01" />
-                <button name="" rect="100,370,280,56" text="拒签" color="#ffffff"
-                    extendstyle="1111" OnSelect="errorTypeOnSelect"
-                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-                    font-size="24" data="02" />
-            </node>
-            <node name="huifuSelectNode" rect="0,0,480,800" visible="false"
+            </node>  
+          --><!-- 新的拒签处理列表 -->
+          <node name="resultSelectNode" rect="0,0,480,800" visible="false" enable="false">
+             <button name="button" rect="0,0,480,800" border="false" text=""
+                 color="#ffffff" OnSelect="hideResultSelected">
+                 <shadow rect="0,0,480,800"  alpha="150" color="#0"  extendstyle="1111">
+                 </shadow>
+             </button>
+             <node rect="66,160,368,68" extendstyle="1111"  border="false">
+                  <image rect="0,0,368,68" src="file://image/top.png"  style="autosize" extendstyle="1111" />
+                  <image rect="20,30,31,32" src="file://image/icon_arrow.png"  style="autosize" extendstyle="1111" />
+                  <label rect="40,10,170,68" border="false" color="#FFFFFF"
+                         text="选择签收结果" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+             </node>   
+             <node rect="66,228,368,216" extendstyle="1111" border="false">
+                  <image rect="0,0,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" />
+                  <button name="" rect="12,0,342,61" text="    通过" h-align="left" font-family="微软雅黑"
+                          color="#ffffff" extendstyle="1111" OnSelect="resultGroupOnSelect"
+                          normal="src:file://image/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                          sel="src:file://image/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+                          font-size="24" data="01" />
+                 <image rect="0,70,368,2" src="file://image/line.png"  style="autosize" extendstyle="1111" />
+                 <button name="" rect="12,73,342,61" text="    不通过" h-align="left" font-family="微软雅黑"
+                         color="#ffffff" extendstyle="1111" OnSelect="resultGroupOnSelect"
+                         normal="src:file://image/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                         sel="src:file://image/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+                         font-size="24" data="02" />
+                 <image rect="0,143,368,2" src="file://image/line.png"  style="autosize" extendstyle="1111" />
+                 <button name="" rect="12,146,342,61" text="    转审" h-align="left" font-family="微软雅黑"
+                         color="#ffffff" extendstyle="1111" OnSelect="resultGroupOnSelect"
+                         normal="src:file://image/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                         sel="src:file://image/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+                         font-size="24" data="03" />
+             </node>
+             <image rect="66,443,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
+         </node>
+          <!-- 签收结果处理列表  -->
+          <node name="errorTypeSelectNode" rect="0,0,480,800" visible="false" enable="false">
+             <button name="button" rect="0,0,480,800" border="false" text=""
+                 color="#ffffff" OnSelect="hideErrorSelected">
+                 <shadow rect="0,0,480,800"  alpha="150" color="#0"  extendstyle="1111">
+                 </shadow>
+             </button>
+             <node rect="66,160,368,68" extendstyle="1111"  border="false">
+                  <image rect="0,0,368,68" src="file://image/top.png"  style="autosize" extendstyle="1111" />
+                  <image rect="20,30,31,32" src="file://image/icon_arrow.png"  style="autosize" extendstyle="1111" />
+                  <label rect="40,10,170,68" border="false" color="#FFFFFF"
+                         text="选择签收结果" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+             </node>   
+             <node rect="66,228,368,145" extendstyle="1111" border="false">
+                  <image rect="0,0,368,146" src="file://image/center.png"  style="autosize" extendstyle="1111" />
+                  <button name="" rect="12,0,342,61" text="    签收" h-align="left" font-family="微软雅黑"
+                          color="#ffffff" extendstyle="1111" OnSelect="errorTypeOnSelect"
+                          normal="src:file://image/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                          sel="src:file://image/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+                          font-size="24" data="01" />
+                 <image rect="0,70,368,2" src="file://image/line.png"  style="autosize" extendstyle="1111" />
+                 <button name="" rect="12,73,342,61" text="    拒签" h-align="left" font-family="微软雅黑"
+                         color="#ffffff" extendstyle="1111" OnSelect="errorTypeOnSelect"
+                         normal="src:file://image/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                         sel="src:file://image/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+                         font-size="24" data="02" />
+             </node>
+             <image rect="66,373,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
+         </node>
+            <!--<node name="huifuSelectNode" rect="0,0,480,800" visible="false"
                 enable="false">
                 <button name="button" rect="0,0,480,800" border="false" text=""
                     color="#ffffff" OnSelect="hidehuifuSelected"></button>
@@ -353,7 +435,36 @@
                     normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
                     sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
                     font-size="24" data="02" />
-            </node>
+            </node>-->
+            <!-- 是否列表  -->
+          <node name="huifuSelectNode" rect="0,0,480,800" visible="false" enable="false">
+             <button name="button" rect="0,0,480,800" border="false" text=""
+                 color="#ffffff" OnSelect="hidehuifuSelected">
+                 <shadow rect="0,0,480,800"  alpha="150" color="#0"  extendstyle="1111">
+                 </shadow>
+             </button>
+             <node rect="66,160,368,68" extendstyle="1111"  border="false">
+                  <image rect="0,0,368,68" src="file://image/top.png"  style="autosize" extendstyle="1111" />
+                  <image rect="20,30,31,32" src="file://image/icon_arrow.png"  style="autosize" extendstyle="1111" />
+                  <label rect="40,10,170,68" border="false" color="#FFFFFF"
+                         text="选择结果" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+             </node>   
+             <node rect="66,228,368,145" extendstyle="1111" border="false">
+                  <image rect="0,0,368,146" src="file://image/center.png"  style="autosize" extendstyle="1111" />
+                  <button name="" rect="12,0,342,61" text="    是" h-align="left" font-family="微软雅黑"
+                          color="#ffffff" extendstyle="1111" OnSelect="huifuTypeOnSelect"
+                          normal="src:file://image/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                          sel="src:file://image/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+                          font-size="24" data="01" />
+                 <image rect="0,70,368,2" src="file://image/line.png"  style="autosize" extendstyle="1111" />
+                 <button name="" rect="12,73,342,61" text="    否" h-align="left" font-family="微软雅黑"
+                         color="#ffffff" extendstyle="1111" OnSelect="huifuTypeOnSelect"
+                         normal="src:file://image/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                         sel="src:file://image/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+                         font-size="24" data="02" />
+             </node>
+             <image rect="66,373,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
+         </node>
         </node>
     </body>
     <![CDATA[
@@ -597,9 +708,6 @@ function renyuancontent(count)
     local xunjianSelectNode = Sprite:findChild(rootSprite, 'zhuanshenSelectNode')
     local list = Sprite:findChild(xunjianSelectNode, 'xunjianList')
     local listBg = Sprite:findChild(xunjianSelectNode, 'listBg')
-    Log:write('rect=====================',40+count*70)
-    Sprite:setRect(listBg,70,170,340,count*70)
-    Sprite:setRect(list,70,170,340,count*70)
     ListView:removeAllItems(list,true)
     ListView:loadItem(list, Sprite:findChild(rootSprite, 'zhuanshenitem'), count, 'loadListItem')
     ListView:adjust(list)
@@ -609,9 +717,6 @@ function xunjiancontent(count)
     local xunjianSelectNode = Sprite:findChild(rootSprite, 'xunjianSelectNode')
     local list = Sprite:findChild(xunjianSelectNode, 'xunjianList')
     local listBg = Sprite:findChild(xunjianSelectNode, 'listBg')
-    Log:write('rect=====================',40+count*70)
-    Sprite:setRect(listBg,70,170,340,count*70)
-    Sprite:setRect(list,70,170,340,count*70)
     ListView:removeAllItems(list,true)
     ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadxunjianListItem')
     ListView:adjust(list)
@@ -993,19 +1098,19 @@ end
 
 --巡检组下拉数据源0,0,280,56
 function loadListItem(list, item, index)
-    Sprite:setRect(item, 0, 0, 280, 70)
-    Sprite:setProperty(item, 'extendstyle', '1111')
+    Sprite:setRect(item, 0, 0, 480, 76)
+    Sprite:setProperty(item, 'extendstyle', '0010')
     local textNum = Sprite:findChild(item, 'btnName')
-    Sprite:setProperty(textNum, 'data', xjData.value[index].sid)
-    Sprite:setProperty(textNum, 'text', xjData.value[index].username)
+    Sprite:setProperty(textNum, 'data', "        "..xjData.value[index].sid)
+    Sprite:setProperty(textNum, 'text', "        "..xjData.value[index].username)
 end
 
 function loadxunjianListItem(list, item, index)
-    Sprite:setRect(item, 30, 0, 280, 70)
-    Sprite:setProperty(item, 'extendstyle', '1111')
+    Sprite:setRect(item, 0, 0, 480, 76)
+    Sprite:setProperty(item, 'extendstyle', '0010')
     local textNum = Sprite:findChild(item, 'btnName')
-    Sprite:setProperty(textNum, 'data', xjData.value[index].id)
-    Sprite:setProperty(textNum, 'text', xjData.value[index].name)
+    Sprite:setProperty(textNum, 'data', "        "..xjData.value[index].id)
+    Sprite:setProperty(textNum, 'text', "        "..xjData.value[index].name)
 end
 
 function cancelZancun()
