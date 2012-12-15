@@ -337,13 +337,12 @@ local g_errorItemNode     -- 检查用户输入失败的巡检项
 local g_curItemIndex, g_curSubItemIndex 	-- 当前正在处理的巡检子项索引
 local g_curSubItem 							-- 当前正在处理的巡检子项Sprite
 
-
 local g_inFlag = '0'  	-- 是否进站标志位
 local g_resultId = nil  -- 巡检结果ID号, 标识本次巡检
 
 --------------------------图片上传队列相关----------------------------------
-local g_imageArray = {}
-local g_subitemidArray = {}
+local g_imageArray = {}         -- 图片上传列表
+local g_subitemidArray = {}     -- 
 local g_piccurrbtn
 local g_imgnum = 0              -- 上传图片的个数
 
@@ -358,18 +357,13 @@ function bodyBuildChildrenFinished(sprite)
     g_templateId = Reg:getString(regHandle, 'templateId')
     g_stationId = Reg:getString(regHandle, 'stationId')
     g_stationName = Reg:getString(regHandle, 'stationName')
-
     -- 设置页面标题
     Sprite:setProperty(Sprite:findChild(rootSprite, 'titleNode'), 'text', g_stationName)
-    -- requestSubItems()
 end
 
 --  root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        -- 请求巡检子项详情
-        Dialog:show(rootSprite, '请扫描站点入口的二维码！', 
-            'ok_cancel', 'checkSiteEwm', 'doBack')
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -444,6 +438,11 @@ function bodyOnPluginEvent(msg, param)
         ListView:removeAllItems(mainListView, 1, 1)
         ListView:loadItem(mainListView, mainItemNode, #g_items, 'loadListItem')
         ListView:adjust(mainListView)
+        -- 在界面上加载二维码
+        if #g_ewms > 0 then 
+            ListView:loadItem(mainListView, mainItemNode, 1, 'loadBarcodeListItem')
+            ListView:adjust(mainListView)
+        end
         -- 隐藏所有的巡检子项
         setAllSubItemsVisible(false)
     elseif msg == 103 then -- 阶段保存提交
@@ -462,7 +461,7 @@ function bodyOnPluginEvent(msg, param)
         else
             --Dialog:show(rootSprite, '未知错误！', 'ok')
         end
-    elseif msg == 104 then
+    elseif msg == 104 then -- 获取附件url
         local uploadData = Http:xmlDecode('upload_url', 'RESULT')
         Log:write("upload url:", updateData)
         local url = uploadData.URL
@@ -474,22 +473,19 @@ function bodyOnPluginEvent(msg, param)
             param = ''
         end
         doRealUpload(url, param,g_imgnum+1)
-        g_imgnum=g_imgnum + 1
-        
+        g_imgnum=g_imgnum + 1  
     elseif msg == 105 then -- 进站请求
         Loading:close()
         local data = Http:jsonDecode('Indata')
-        Log:write("data105 ================= ", data)
+        Log:write("Indata ================= ", data)
         if not data or type(data) ~= 'table' then
-            --Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            Dialog:show(rootSprite, '进站失败，返回数据格式错误', 'ok')
             return
         end
         if data ~= nil then
             if data.code == '0' then
-                g_resultId = data.data
+                g_resultId = data.data -- 获取巡检结果ID号
                 InHandle(data.inTime)
-                -- 综合覆盖巡检请求二维码资源
-                requestBarcodeResource()
             else
                 Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
             end
@@ -513,7 +509,7 @@ function bodyOnPluginEvent(msg, param)
         else
             --Dialog:show(rootSprite, '未知错误！', 'ok')
         end
-	elseif msg == 107 then -- 获取二维码资源响应
+	elseif msg == 107 then -- 获取二维码资源列表响应
 		local data = Http:jsonDecode('ewm_code')
 		Log:write('g_ewms:', data)
         -- 服务端返回数据合法性检查
@@ -521,34 +517,49 @@ function bodyOnPluginEvent(msg, param)
             Dialog:show(rootSprite, '获取二维码资源列表失败，服务端返回数据格式错误', 'ok')
             return
         end
+        if data.code == '50' then
+            Dialog:show(rootSprite, '该站点无待扫描的二维码！', 'ok')
+            requestSubItems()
+            return 
+        end
         if data.code ~= '0' then
-            Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+            Dialog:show(rootSprite, getErrorCode(data.code), 'ok', 'doBack')
             return 
         end
         -- 解析返回的二维码列表
         for i=0, getJsonArrayCount(data.value) - 1 do
             table.insert(g_ewms, data.value[i])
         end
-        Log:write('g_ewms', g_ewms)
-        
-        -- 添加二维码扫描巡检项
-		local mainListView = Sprite:findChild(rootSprite,'mainListView')
-        local mainItemNode = Sprite:findChild(rootSprite,'mainItemNode')
-        ListView:loadItem(mainListView, mainItemNode, 1, 'loadBarcodeListItem')
-        ListView:adjust(mainListView)
-		
-		-- 隐藏所有的巡检子项
-		setAllSubItemsVisible(false)
-	elseif msg == 108 then 
+        -- 开始进行入站扫描
+        Dialog:show(rootSprite, '请扫描站点入口处的二维码！', 'ok', 'checkSiteEwm')
+	elseif msg == 108 then -- 二维码响应函数
 		Log:write('进入二维码响应函数...')
         -- 获取扫描的二维码
         local path = Param:getString(param, 0)  -- 条码图片路径
         local code = Param:getString(param, 1)  -- 解码后的文本
 		doBarcodeRespProc(code)
-	elseif msg == 109 then -- 站点入口处二维码扫描
+	elseif msg == 109 then -- 站点入口处二维码扫描响应
+	    Loading:close()
         local path = Param:getString(param, 0)  -- 条码图片路径
         local code = Param:getString(param, 1)  -- 解码后的文本
-        Dialog:show(rootSprite, '二维码扫描成功，结果为:'..code, 'ok', 'requestSubItems')
+        local isFound = false
+        for i=1, #g_ewms do 
+            if g_ewms[i].ewm == code then 
+                isFound =  true
+                break
+            end
+        end
+        -- 检查扫描是否成功
+        if isFound == true then 
+            table.remove(g_ewms, i)
+            local strMsg = string.format('二维码扫描成功，结果为:%s,还有%d个资源待扫描！',
+                code, #g_ewms)
+            Dialog:show(rootSprite, strMsg, 'ok', 'requestSubItems')
+        else 
+            Dialog:show(rootSprite, '二维码扫描失败，结果'..code..'与目标站点不匹配,请重新扫描！',
+                'ok_cancel', 'checkSiteEwm', 'doBack')   
+            return
+        end 
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Loading:close()
         Log:write('拨号失败')
@@ -776,7 +787,7 @@ end
 
 -- 进站响应处理
 function InHandle(time)
-    local tabNode=Sprite:findChild(rootSprite,"tabNode")
+    local tabNode = Sprite:findChild(rootSprite,"tabNode")
     local btnTab1 = Sprite:findChild(tabNode,"btnTab1")
     Sprite:setProperty(Sprite:findChild(btnTab1, 'tabBg'), 'src', 'file://image/tab_s_l.png')
     local labeltab = Sprite:findChild(btnTab1,"labeltab")
@@ -784,6 +795,8 @@ function InHandle(time)
     Sprite:setProperty(labeltab,"text",time.."进站")
     Sprite:setProperty(btnTab1,"enable","false")
     g_inFlag = '1'
+    -- 请求二维码列表
+    requestBarcodeResource()
 end
 
 -- 出站请求
@@ -887,9 +900,9 @@ function checkUserInput()
             if barcodeResult == nil or barcodeResult ==  '' then 
                 g_errorItemNode =  mainItemNode
                 Dialog:show(rootSprite, 
-                '二维码扫描：巡检项中第'..tostring(i)..'项还没有扫描！', 
+                '警告，二维码扫描：巡检项中第'..tostring(i)..'项还没有扫描！', 
                 'ok', 'showErrorInfo')
-                return 1
+                return 0
             end
         end
     end
@@ -1148,9 +1161,18 @@ function errorTypeOnSelect(sprite)
 	local errorName = Sprite:getProperty(sprite, 'text')  -- 当前用户输入
 	local errorTypeName = Sprite:findChild(g_curSubItem, 'errorTypeName')
 	Sprite:setProperty(errorTypeName, 'text', errorName)
+    errorName =  string.gsub(errorName, ' ', '')
 
     -- 服务端确少异常类型字段，现在也只能这样了
-    if errorName == '是' or errorName == '符合' 
+    local exceptionValue = g_items[g_curItemIndex].subitems[g_curSubItemIndex].exceptionValue
+    --服务端有异常类型字段
+    if exceptionValue ~= nil then
+        if  errorName == exceptionValue then 
+            showErrorNode(true)
+        else
+            showErrorNode(false)
+        end
+    elseif errorName == '是' or errorName == '符合' 
         or errorName == '正常' or errorName == '有' then
         -- 状态切换，隐藏异常对话框
         showErrorNode(false)
@@ -1294,9 +1316,11 @@ end
 ---------------------------------二维码相关函数---------------------------------
 -- 检查站点入口处的二维码
 function checkSiteEwm()
+    Loading:show()
     local observer = Plugin:getObserver()
     local ret = BarCode:startScanner(observer, 109)
     if ret == 0 then
+        Loading:close()
         Dialog:show("", '开启二维码扫描失败!', 'ok')
         return
     else
