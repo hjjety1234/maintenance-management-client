@@ -60,11 +60,11 @@
                     <!-- 完成总数  -->
                     <label rect="20,50,80,50" text="完成总数：" color="#0" v-align="center"
                         h-align="left" font-size="18" font-family="黑体" extendstyle="1111" />
-                    <label rect="105,50,20,50" text="40" color="#0062ab" v-align="center"
+                    <label name="finished" rect="105,50,20,50" text="" color="#0062ab" v-align="center"
                         h-align="left" font-size="18" font-family="黑体" extendstyle="1111" />
                     <label rect="125,50,10,50" text="/" color="#0" v-align="center"
                         h-align="left" font-size="18" font-family="黑体" extendstyle="1111" />
-                    <label rect="135,50,40,50" text="100" color="#dd512e" v-align="center"
+                    <label name="total" rect="135,50,40,50" text="" color="#dd512e" v-align="center"
                         h-align="left" font-size="18" font-family="黑体" extendstyle="1111" />
                     <!-- 发布时间  -->
                     <label name="publishDate" rect="240,50,220,50" text="发布时间：2012-12-11" 
@@ -215,13 +215,25 @@ function loadListItem(list, item, index)
     else
         Sprite:setProperty(listItemBg, 'src', 'file://image/item_bg_m.png')
     end
+    
+    -- 获取服务端的返回的字段
+    local strFinished = data.value[index].finished
+    local strTotal = data.value[index].total
+    local startDate = string.sub(data.value[index].startTime, 1, 11)
+    
+    -- 获取列表项的Sprite
     Sprite:setProperty(item, 'extendstyle', '1111')
     local texttitle = Sprite:findChild(item, 'texttitle')
     local publishDate = Sprite:findChild(item, 'publishDate')
-    Sprite:setProperty(texttitle, 'text', data.value[index].planName)
-    local startDate = string.sub(data.value[index].startTime, 1, 11)
-    Sprite:setProperty(publishDate, 'text', '发布时间：'..startDate)
     local btnname = Sprite:findChild(item, 'btnname')
+    local finished = Sprite:findChild(item, 'finished')
+    local total = Sprite:findChild(item, 'total')
+   
+    -- 显示到界面
+    Sprite:setProperty(texttitle, 'text', data.value[index].planName)   -- 计划名称
+    Sprite:setProperty(publishDate, 'text', '发布时间：'..startDate)     -- 发布时间
+    Sprite:setProperty(finished, 'text', strFinished)                   -- 完成站点数
+    Sprite:setProperty(total, 'text', strTotal)                         -- 总数
     Sprite:setProperty(btnname, "data", index)
 end
 
