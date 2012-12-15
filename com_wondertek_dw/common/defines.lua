@@ -92,5 +92,7 @@ Alias = {
     home_sheng = 'MODULE:\\com_wondertek_dw\\home_sheng.wdml', -- 省公司首页
 
     m_staff_statistical = 'MODULE:\\com_wondertek_dw\\m_staff_statistical.wdml', -- 人员资质统计
+    
+    m_search = 'MODULE:\\com_wondertek_dw\\m_search.wdml',
 }
 
