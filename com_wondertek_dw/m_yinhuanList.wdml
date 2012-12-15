@@ -79,10 +79,23 @@
 	
             <node name="listitem" visible="false" enable="false" active="false"
                 extendstyle="1011" rect="0,200,480,70">
-                <button name="btnname" rect="0,0,480,70" OnSelect="itemOnSelect"
-                    style="autosize" border="false" extendstyle="1111" data="">
+                <button name="btnname" rect="0,0,480,70" OnSelect="itemOnSelect" normal="normal"
+                    focus="focus" style="autosize" border="false" extendstyle="1111" data="">
 		            <shadow name="listItemBg" rect="0,0,480,70" color="" alpha="0" extendstyle="1111" />
-                    <label rect="10,5,120,30" text="工单主题：" color="#0" font-size="24"
+		           
+                    <!-- 正常情况时列表项背景图片 -->
+                    <node name="normal" rect="0,0,480,70" extendstyle="1111"
+                        v-align="center" h-align="center">
+                        <image name="normalImage" rect="450,25,14,20"
+                            src="file://image/jiantou_new.png" style="autosize" extendstyle="1111" />
+                    </node>
+                    <!-- 聚焦时的列表项背景图片 -->
+                    <node name="focus" rect="0,0,480,70" extendstyle="1111">
+                        <image name="focusImage" rect="450,25,14,20" src="file://image/jiantou_new.png"
+                            style="autosize" extendstyle="1111" />
+                    </node>
+                     
+                    <label rect="10,5,120,30" text="隐患名称：" color="#0" font-size="24"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
                     <scrolltext rect="130,5,340,30" name="textTitle" color="#0" font-size="24"
                      h-align="left" v-align="center" extendstyle="1111" border="false" scroll="true"></scrolltext>
@@ -189,14 +202,16 @@ end
 
 function loadSavedListItem(list, item, index)
     local idString = savedDatas[index+1]
-    Log:write('loadSavedListItemloadSavedListItem', idString , Config:get('yinhuanID' .. idString))
+    Log:write("idString = ", idString)
+    Log:write('测试返回数据', Config:get('yinhuanID' .. idString))
+    
     local dataString = SplitWithBlank(Config:get('yinhuanID' .. idString), ';')
-
+    Log:write("dataString = ", dataString)
     Sprite:setRect(item, 0, 0, 480, 70)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local listItemBg = Sprite:findChild(item, 'listItemBg')
-    local selectImage = Sprite:findChild(btnname1,'selectImage')
     local btnname1 = Sprite:findChild(item, 'btnname')
+    --local selectImage = Sprite:findChild(btnname1,'selectImage')
     Sprite:setRect(listItemBg, 0, 0, 480, 70)
     if index % 2 > 0 then
        Sprite:setProperty(listItemBg, 'alpha', '0')
