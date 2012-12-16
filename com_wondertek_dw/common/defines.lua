@@ -90,6 +90,8 @@ Alias = {
     home_sheng = 'MODULE:\\com_wondertek_dw\\home_sheng.wdml',   -- 省公司首页
     m_kaohetongji = 'MODULE:\\com_wondertek_dw\\m_kaohetongji.wdml',  -- 考核统计
     m_staff_statistical = 'MODULE:\\com_wondertek_dw\\m_staff_statistical.wdml', -- 人员资质统计
-    m_search = 'MODULE:\\com_wondertek_dw\\m_search.wdml',
+    m_search = 'MODULE:\\com_wondertek_dw\\m_search.wdml',--资源查询
+    
+    m_xianluxunjian = 'MODULE:\\com_wondertek_dw\\m_xianluxunjian.wdml',--线路巡检
 }
 
