@@ -93,5 +93,7 @@ Alias = {
     m_search = 'MODULE:\\com_wondertek_dw\\m_search.wdml',--资源查询
     
     m_xianluxunjian = 'MODULE:\\com_wondertek_dw\\m_xianluxunjian.wdml',--线路巡检
+    
+    m_setting = 'MODULE:\\com_wondertek_dw\\m_setting.wdml', -- 系统设置页面(江峰)
 }
 
