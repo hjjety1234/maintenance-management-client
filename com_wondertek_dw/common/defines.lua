@@ -83,16 +83,13 @@ Alias = {
     m_noticeFav = 'MODULE:\\com_wondertek_dw\\m_noticeFav.wdml', -- 收藏列表（江峰）
     m_daibandetail='MODULE:\\com_wondertek_dw\\m_daibandetail.wdml', -- 待办详情
     m_yibandetail = 'MODULE:\\com_wondertek_dw\\m_yibandetail.wdml', -- 待办详情
-
     m_gongdanliucheng = 'MODULE:\\com_wondertek_dw\\m_gongdanliucheng.wdml', -- 工单流程
-
     m_tongxunlu = 'MODULE:\\com_wondertek_dw\\m_tongxunlu.wdml', -- 通讯录（江峰）
     m_tongxunluDetail = 'MODULE:\\com_wondertek_dw\\m_tongxunluDetail.wdml', -- 通讯录（江峰）
     
-    home_sheng = 'MODULE:\\com_wondertek_dw\\home_sheng.wdml', -- 省公司首页
-
+    home_sheng = 'MODULE:\\com_wondertek_dw\\home_sheng.wdml',   -- 省公司首页
+    m_kaohetongji = 'MODULE:\\com_wondertek_dw\\m_kaohetongji.wdml',  -- 考核统计
     m_staff_statistical = 'MODULE:\\com_wondertek_dw\\m_staff_statistical.wdml', -- 人员资质统计
-    
     m_search = 'MODULE:\\com_wondertek_dw\\m_search.wdml',
 }
 

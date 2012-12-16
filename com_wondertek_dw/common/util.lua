@@ -192,3 +192,60 @@ function editOnTextChanged(sprite,ncount)
         setAllShoworHide(hideLabel, 1)
     end
 end
+
+--------------------------------统计报表相关函数----------------------------
+require 'framework.webbrowser'
+-- 在webview中显示统计报表
+-- @param dataUrl - string 数据源地址UTF-8编码
+-- @param charType -- string 
+--                    柱状图Column
+--                    条形图Bar
+--                    折线图line
+--                    饼状图pie
+--                    仪表盘 AngularGauge
+-- @param x,y,w,h - int 坐标位置和长宽度
+function showChartInWebView(dataUrl, chartType, x, y, w, h)
+    -- 取得云平台服务器地址
+    local webcloud = Config:get('webcloud')
+    if webcloud == nil or webcloud == '' then 
+        Log:write('webcloud server url is missing!')
+        return
+    end
+    Log:write('webcloud:'..webcloud)
+    
+    -- 解析报表类型
+    local swf = ''
+    if chartType == 'Column' then
+        swf = 'MSColumn3D.swf '
+    elseif chartType == 'Bar' then
+        swf = 'MSBar3D.swf'
+    elseif chartType == 'Pie' then 
+        swf = 'Pie3D.swf'
+    elseif chartType == 'Line'  then
+        swf = 'MSLine.swf'
+    elseif chartType == 'AngularGauge'  then
+        swf = 'WidgetsCharts/AngularGauge.swf'
+    else
+        Log:write('unknown chart type:'..chartType)
+        return
+    end
+    
+    -- 构造请求地址
+    local requestUrl = string.format('http://%s/webcloud/client/chart/chart_show.action?'..
+        'dataUrl=%s&swf=%s&renderer=javascript&dataFormat=jsonurl',
+        webcloud, dataUrl, swf)
+    Log:write('info: showChart() requestUrl', requestUrl)
+    
+    -- 
+    local xscal = SCREEN_WIDTH / 480
+    local yscal = SCREEN_HEIGHT / 800
+    WebBrowser:create(x, y*yscal, w*xscal, h*yscal)
+    WebBrowser:showWebBrowser(1)
+    WebBrowser:openUrl(requestUrl)
+end
+
+-- 关闭报表显示
+function closeWebView()
+       WebBrowser:showWebBrowser(0)
+       WebBrowser:release()
+end
