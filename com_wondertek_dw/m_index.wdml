@@ -67,13 +67,15 @@ function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     System:setFontSize()
     
+	--[[
     umsagentPlugin = pluginCreate("UmsAgent")
     local reg = Reg:create(Alias.index)
     Reg:setInteger(reg, 'UmsAgent', umsagentPlugin)
     pluginInvoke(umsagentPlugin, 'SetDefaultReportPolicy', 1)
     Reg:setInteger(reg, 'umsagentHasAppkey', 1)
     umsagentHasAppkey = Reg:getInteger(reg, 'umsagentHasAppkey')
-    
+    --]]
+	
     connectToWAP()
     checkClientVersion()
 end
@@ -81,13 +83,17 @@ end
 --  root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then
+		--[[
         if umsagentHasAppkey == 1 then
             pluginInvoke(umsagentPlugin, "OnActivate", string.match(Alias.index, 'MODULE:\\(.*)'))
         end
+		--]]
     elseif msg == MSG_DEACTIVATE then
+		--[[
         if umsagentHasAppkey == 1 then
             pluginInvoke(umsagentPlugin, "OnDeactivate")
         end
+		--]]
         Scene:freeByHandle(rootSprite)
     elseif msg == MSG_NETWORK then
         Log:write('param', param)
