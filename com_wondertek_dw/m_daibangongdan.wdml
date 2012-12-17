@@ -97,8 +97,7 @@
             
             <node name="listitem" visible="false" enable="false" active="false"
                 extendstyle="1011" rect="0,200,480,115">
-                <shadow name="listItemBg" rect="0,0,480,115" color="#e8e8e8"
-                    alpha="255" extendstyle="1111" />
+                <shadow name="listItemBg" rect="0,0,480,115" color="" alpha="0" extendstyle="1111" />
                 <button name="btnname" rect="0,0,480,100" OnSelect="itemOnSelect"
                     extendstyle="1111">
                     <image name="timeSign" rect="440,36,27,27" border="false" src=""
@@ -149,6 +148,9 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
+        if flag=='3' then 
+        tabOnSelect(Sprite:findChild(rootSprite, 'btnTab3'))
+        end
         --loadRequest()
     elseif msg == MSG_DEACTIVATE then
     end
@@ -287,9 +289,9 @@ function loadZanCunItem(list, item, index)
     local num = index+1
     Log:write('index=============================',num%2)
     if num % 2 > 0 then
-      Sprite:setVisible(listItemBg, 0)
+      Sprite:setProperty(listItemBg, 'alpha', '0')
     else
-        Sprite:setVisible(listItemBg, 1)
+        Sprite:setProperty(listItemBg, 'alpha', '20')
     end
     local textNum = Sprite:findChild(item, 'textNum')
     local textTitle = Sprite:findChild(item, 'textTitle')
@@ -343,9 +345,9 @@ function loadListItem(list, item, index)
     local num = index+1
     Log:write('index=============================',num%2)
     if num % 2 > 0 then
-        Sprite:setVisible(listItemBg, 0)
+       Sprite:setProperty(listItemBg, 'alpha', '0')
     else
-        Sprite:setVisible(listItemBg, 1)
+       Sprite:setProperty(listItemBg, 'alpha', '20')
     end
     local textNum = Sprite:findChild(item, 'textNum')
     local textTitle = Sprite:findChild(item, 'textTitle')
@@ -375,7 +377,7 @@ function loadListItem(list, item, index)
     Sprite:setProperty(textTime, 'text', data.value[index].createDateDis)
      --Sprite:setProperty(finishTime, 'text', data.value[index].taskdate)
     
-    if data.value[index].taskState=='4' then
+    if tonumber(data.value[index].taskState)>3 then
     
     Sprite:setProperty(finishTime, 'text','已完成')
     else
