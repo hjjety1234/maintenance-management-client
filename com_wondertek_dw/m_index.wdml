@@ -118,10 +118,12 @@ function bodyOnPluginEvent(msg)
         Loading:close()
         if checkversionData and checkversionData['version'] then
             g_packageUrl = checkversionData['version']['url']
-            if tonumber(checkversionData['version']['isNeedUpdate']) == 1 then -- 提示升级
+            if tonumber(checkversionData['version']['isNeedUpdate']) == 0 then  -- 不需要升级
+                 goLogin()
+            elseif tonumber(checkversionData['version']['isNeedUpdate']) == 1 then -- 提示升级
                 Dialog:show('', '检测到新的客户端版本，是否升级？', 'ok_cancel', 'downloadPackage', 'goLogin')
                 return
-            elseif tonumber(checkversionData['body']['component']['flags']) == 2 then -- 强制升级
+            elseif tonumber(checkversionData['version']['isNeedUpdate']) == 2 then -- 强制升级
                 downloadPackage()
                 return
             else
