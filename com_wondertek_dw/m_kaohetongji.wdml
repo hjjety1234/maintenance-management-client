@@ -56,25 +56,29 @@ local umsagentHasAppkey = 0
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    
+    --[[
     local reg = Reg:create(Alias.index)
     umsagentPlugin = Reg:getInteger(reg, 'UmsAgent')
     umsagentHasAppkey = Reg:getInteger(reg, 'umsagentHasAppkey')
-    
-    local dataUrl = '/webcloud/resources/js/Charts/daiwei/jizhan-10-11.json'
-    showChartInWebView(dataUrl, 'Bar', 0, 70, 480, 730)
+    --]]
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        --[[
 	    if umsagentHasAppkey == 1 then
 	        pluginInvoke(umsagentPlugin, "OnActivate", string.match(Alias.chart, 'MODULE:\\(.*)'))
 	    end
+        --]]
+	    local dataUrl = '/webcloud/resources/js/Charts/daiwei/jizhan-10-11.json'
+	    showChartInWebView(dataUrl, 'Bar', 0, 70, 480, 730)
     elseif msg == MSG_DEACTIVATE then
+        --[[
         if umsagentHasAppkey == 1 then
             pluginInvoke(umsagentPlugin, "OnDeactivate")
         end
+        --]]
     end
 end
 
@@ -107,6 +111,7 @@ end
 
 ---------------------------------------util functions---------------------------
 function showAssesDetail()
+    closeWebView()
     Scene:setReturn(Alias.m_kaohetongji, Alias.m_kaohebaobiao)
     Scene:go(Alias.m_kaohebaobiao)
 end
