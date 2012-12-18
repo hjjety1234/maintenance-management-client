@@ -121,6 +121,8 @@ function bodyOnSpriteEvent(msg, param)
             loginOnSelect(Sprite:findChild(rootSprite, 'btnLogin'))
         end
     elseif msg == MSG_DEACTIVATE then
+    elseif msg == MSG_NETWORK then 
+        doExit()
     end
 end
 
@@ -158,9 +160,7 @@ function mainNodeOnKeyUp(sprite, kc)
         if Loading:isShow() then
             Loading:close()
         else
-            Dialog:show('', '是否确定退出？', 'ok_cancel', 'doExit')
-            --Scene:freeByHandle(rootSprite)
-            --Scene:back()
+            Dialog:show('', '是否确定退出？', 'ok_cancel', 'doExitApp')
         end
         return 1
     elseif kc == Key.F1 then
@@ -264,6 +264,18 @@ function clearOnSelect(sprite)
     local pwdnode=Sprite:findChild(rootSprite, 'password')
     Sprite:setProperty(namenode, 'text', '')
     Sprite:setProperty(pwdnode, 'text', '')
+end
+
+-- 退出前如果在在内网，需要进行APN切换
+function doExitApp()
+    if Config:get('server_url') == '10.225.222.5' then 
+        Loading:show()
+        showSysSetting()
+        -- 网络连接发生切换后，需要在相应的MSG_NETWORK中
+        -- 调用doExit()函数
+    else
+        Scene:exit()
+    end
 end
 
 ]]>

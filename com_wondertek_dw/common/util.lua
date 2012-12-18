@@ -249,3 +249,8 @@ function closeWebView()
        WebBrowser:showWebBrowser(0)
        WebBrowser:release()
 end
+
+-- 显示系统网络设置
+function showSysSetting()
+    ShowNetSetting()
+end
