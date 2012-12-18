@@ -44,7 +44,7 @@
 				-->
             </node>
             <!--开始、结束巡检两个标签页 -->
-            <node name="tabNode" rect="0,66,480,60" extendstyle="1111">
+            <!--<node name="tabNode" rect="0,66,480,60" extendstyle="1111">
                 <image name="title" rect="0,0,480,60" border="false"
                     src="file://image/tab_bg.png" style="autosize" extendstyle="1111" />
                 <button name="btnTab1" rect="0,0,239,60" text="" color="#ffffff"
@@ -67,9 +67,9 @@
                         v-align="center" h-align="center" font-size="28" font-family="黑体" 
                         extendstyle="1111" />
                 </button>
-            </node>
-            <node name="baseShangbaoqu" rect="0,160,480,180" extendstyle="1111" border="false">
-                <label name="lbllonandlat" rect="0,0,480,50" extendstyle="1111" border="false" font-size="20"></label>
+            </node>-->
+            <node name="baseShangbaoqu" rect="0,130,480,180" extendstyle="1111" border="false">
+                <label name="lbllonandlat" text="请点击下方按钮上报你的巡检点" rect="5,0,480,50" extendstyle="1111" border="false" font-size="25"></label>
                 <button name="btnUP" rect="125,60,480,60"  OnSelect="btnUP_OnSelected" extendstyle="1111" border="false">
                     <image src="file://image/button_up.png" rect="0,0,229,51" extendstyle="1111"
                      style="sudoku-auto" sudoku="15,15,15,15"></image>
@@ -103,6 +103,7 @@ local templateId
 local Inflag = '1'
 local tab = {}
 local list
+local timerNum = 50
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -231,10 +232,10 @@ end
 function _requestNearbyStationByRadius()
     -- 需要对gps的数据请求多次
     local statusBarText = Sprite:findChild(rootSprite, 'lbllonandlat')
-    local longitude,latitude = System:getGPSData()
+    local longitude,latitude,gpsdate = System:getGPSData()
     if longitude and longitude ~= 0 and latitude and latitude ~= 0 and
          isLocationChanaged(longitude, latitude) == true then
-    
+		Log:write('gps date is ------------------->'..gpsdate)
         timerNum = 50
         Timer:cancel(111)
         System:setGPSStatus(0)
