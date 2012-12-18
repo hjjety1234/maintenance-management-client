@@ -57,7 +57,7 @@
                     <image name="tabBg" rect="0,0,239,60" border="false"
                         src="" style="sudoku-auto" sudoku="15,15,15,15"
                         extendstyle="1111" />
-                    <image name="clockImg" rect="10,20,19,19" border="false"
+                    <image name="clockImg" rect="10,20,20,20" border="false"
                         src="file://image/clock.png" style="center" 
                         extendstyle="1111" visible="false"/>
                     <label name="labeltab" rect="35,0,200,60" text="到达巡检点" color="#ffffff"
@@ -71,7 +71,7 @@
                     <image name="tabBg" rect="0,0,239,60" border="false"
                         src="" style="sudoku-auto" sudoku="15,15,15,15"
                         extendstyle="1111" />
-                    <image name="clockImg" rect="10,20,19,19" border="false"
+                    <image name="clockImg" rect="10,20,20,20" border="false"
                         src="file://image/clock.png" style="center" 
                         extendstyle="1111" visible="false"/>
                     <label name="labeltab" rect="35,0,200,60" text="离开巡检点" color="#ffffff"
@@ -807,7 +807,7 @@ function InHandle(time)
     Sprite:setProperty(Sprite:findChild(btnTab1, 'tabBg'), 'src', 'file://image/tab_s_l.png')
     Sprite:setProperty(Sprite:findChild(btnTab1, 'clockImg'), 'visible', 'true')
     local labeltab = Sprite:findChild(btnTab1,"labeltab")
-    Sprite:setProperty(labeltab,"font-size","16")
+    Sprite:setProperty(labeltab,"font-size","18")
     Sprite:setProperty(labeltab,"text",time.."进站")
     Sprite:setProperty(btnTab1,"enable","false")
     g_inFlag = '1'
@@ -840,7 +840,7 @@ function OutHandle(time)
     Sprite:setProperty(Sprite:findChild(btnTab2, 'tabBg'), 'src', 'file://image/tab_s_l.png')
     Sprite:setProperty(Sprite:findChild(btnTab2, 'clockImg'), 'visible', 'true')
     local labeltab = Sprite:findChild(btnTab2,"labeltab")
-    Sprite:setProperty(labeltab,"font-size","16")
+    Sprite:setProperty(labeltab,"font-size","18")
     Sprite:setProperty(labeltab,"text",time.."离站")
     Sprite:setProperty(btnTab2,"enable","false")
 end
@@ -1247,7 +1247,6 @@ end
 function showErrorNode(bVisible)
     -- 获取巡检项和巡检子项的sprite
     local errorHideNode = Sprite:findChild(g_curSubItem, 'errorHideNode')
-    local listitembg =  Sprite:findChild(g_curSubItem, 'listitembg')
     local subListView = Sprite:getParent(g_curSubItem)
     local subListViewNode = Sprite:getParent(subListView)
     local mainItem = Sprite:getParent(subListViewNode)
@@ -1259,9 +1258,6 @@ function showErrorNode(bVisible)
         setAllShoworHide(errorHideNode, 1)
         local x, y, w, h = Sprite:getRect(g_curSubItem)
         Sprite:setRect(g_curSubItem, x, y, w, h + 150)
-		if g_curSubItemIndex % 2 == 0 then 
-        	Sprite:setRect(listitembg, x, y, w, h + 150)
-		end
         x, y, w, h = Sprite:getRect(subListView)
         Sprite:setRect(subListView, x, y, w, h + 150)
         x, y, w, h = Sprite:getRect(subListViewNode)
@@ -1271,9 +1267,6 @@ function showErrorNode(bVisible)
 	elseif bVisible ==  false and Sprite:isVisible(errorHideNode) == 1 then
         setAllShoworHide(errorHideNode, 0)
         local x, y, w, h = Sprite:getRect(g_curSubItem)
-		if g_curSubItemIndex % 2 == 0 then 
-        	Sprite:setRect(listitembg, x, y, w, h - 150)
-		end
         Sprite:setRect(g_curSubItem, x, y, w, h - 150)
         x, y, w, h = Sprite:getRect(subListView)
         Sprite:setRect(subListView, x, y, w, h - 150)
