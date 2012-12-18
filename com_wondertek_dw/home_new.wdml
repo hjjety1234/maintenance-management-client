@@ -6,7 +6,7 @@
 ============================================================================
 == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
 ============================================================================
-== | Author: xxxx <xxxx@xxxx.com> ==
+== | Author: hewu <hewu2008@gmail.com> ==
 ============================================================================
 == | Desc: home ==
 ============================================================================
@@ -148,6 +148,7 @@ require 'com_wondertek_dw.common.framework'
 local rootSprite
 local observer
 local mapViewPlugin
+local g_exitFlag =  false
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -170,6 +171,10 @@ function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         updateDaibanNum()
     elseif msg == MSG_DEACTIVATE then
+    elseif msg == MSG_NETWORK then 
+        if g_exitFlag == true 
+            doExit()
+        end
     end
 end
 
@@ -231,15 +236,9 @@ function mainNodeOnKeyUp(sprite, kc)
     end
 end
 
-
--- 退出程序
-function doExit()
-    Scene:exit()
-end
-
 -- 显示推出对话框
 function showExitDialog()
-    Dialog:show('', '是否确定退出？', 'ok_cancel', 'doExit')
+    Dialog:show('', '是否确定退出？', 'ok_cancel', 'doExitApp')
 end
 
 
@@ -306,6 +305,18 @@ function menuSettingOnSelect(sprite)
     --Scene:go(Alias.setting)
     Scene:setReturn(Alias.home, Alias.xunjianupload)
     Scene:go(Alias.xunjianupload)
+end
+
+function  doExitApp()
+   if Config:get('server_url') == '10.225.222.5' then 
+        Loading:show()
+        showSysSetting()
+        -- 网络连接发生切换后，需要在相应的MSG_NETWORK中
+        -- 调用doExit()函数
+        g_exitFlag = true
+    else
+        Scene:exit()
+    end
 end
 
     ]]>
