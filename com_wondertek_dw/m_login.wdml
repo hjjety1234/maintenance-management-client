@@ -106,6 +106,7 @@ require 'com_wondertek_dw.common.framework'
 local rootSprite
 local user_name
 
+local g_exitFlag = false
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -122,7 +123,9 @@ function bodyOnSpriteEvent(msg, param)
         end
     elseif msg == MSG_DEACTIVATE then
     elseif msg == MSG_NETWORK then 
-        doExit()
+        if g_exitFlag ==  true 
+            doExit()
+        end
     end
 end
 
@@ -273,6 +276,7 @@ function doExitApp()
         showSysSetting()
         -- 网络连接发生切换后，需要在相应的MSG_NETWORK中
         -- 调用doExit()函数
+        g_exitFlag = true
     else
         Scene:exit()
     end
