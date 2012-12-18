@@ -22,17 +22,15 @@
 		<node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
 			<image name="title" rect="0,0,480,66" border="false"
 				src="file://image/title_bg_new.png" style="autosize" extendstyle="1111">
-
-				<label rect="0,-8,480,66" text="通讯录" font-family='微软雅黑' color="#ffffff" v-align="center"
+				<label rect="0,8,480,34" text="通讯录" font-family='微软雅黑' color="#ffffff" v-align="center"
 					h-align="center" font-size="32" extendstyle="1111" />
 			</image>
-
 			<button name="backBtn" rect="10,10,40,40" normal="normal" sel="sel"
 				OnSelect="doBack" extendstyle="1111">
 				<image name="normal" rect="0,0,40,40" src="file://image/ic_home_new.png"
-					style="autosize" extendstyle="1111" />
+					 extendstyle="1111" />
 				<image name="sel" rect="0,0,40,40" src="file://image/ic_home_new.png"
-					style="autosize" extendstyle="1111" />
+					 extendstyle="1111" />
 			</button>
 		</node>
 		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
@@ -44,7 +42,7 @@
 					src="file://image/search_input_new.png" style="autosize" extendstyle="1111" />
 				<edit name="keywordEdit" rect="37,15,340,26" extendstyle='1111' font-family='微软雅黑'
 					OnTextChanged="editOnTextChanged" v-align="center" text=""  font-size="24">
-					<label name="hideLabel" rect="0,0,442,26" font-family='微软雅黑' text="搜索标题" color="#c0c0c0"
+					<label name="hideLabel" rect="0,0,442,24" font-family='微软雅黑' text="请输入关键字" color="#c0c0c0"
 						extendstyle="1111" style="autosize" h-align="left" v-align="center"
 						font-size="24" />
 				</edit>
@@ -61,21 +59,21 @@
 			</node>
 			<node name="listitem" visible="false" enable="false" active="false"
 				extendstyle="1011" rect="0,200,480,80">
-				<shadow name="listItemBg" rect="0,0,480,80" color=""
-					alpha='0' extendstyle='1111' />
+                <image name="listButtonImage" rect="0,0,480,80" src=""
+                    extendstyle="1111" style='autosize' />
 				<button name="btnname" rect="0,0,480,80" OnSelect="itemOnSelect"
 					extendstyle="1111">
-					<label rect="10,0,150,45" text="姓   名:" font-family='微软雅黑' color="#0" font-size="28"
-						h-align="left" v-align="center" extendstyle="1111" border="false" />
-					<label name="textNum" rect="105,0,300,45" font-family='微软雅黑' text="" color="#0"
-						font-size="28" h-align="left" v-align="center" extendstyle="1111"
+					<label rect="10,0,80,45" text="姓   名：" font-family='微软雅黑' color="#0" font-size="24"
+						h-align="center" v-align="center" extendstyle="1111" border="false" />
+					<label name="textNum" rect="90,0,100,45" font-family='微软雅黑' text="" color="#0"
+						font-size="24" h-align="left" v-align="center" extendstyle="1111"
 						border="false" />
-					<label rect="10,35,100,45" text="手机号:" font-family='微软雅黑' color="#666666" font-size="22"
-						h-align="left" v-align="center" extendstyle="1111" border="false" />
+					<label rect="5,35,80,45" text="手机号：" font-family='微软雅黑' color="#666666" font-size="20"
+						h-align="center" v-align="center" extendstyle="1111" border="false" />
 					<label name="textTitle" rect="80,35,360,45" font-family='微软雅黑' text="" color="#666666"
-						font-size="22" h-align="left" v-align="center" extendstyle="1111"
+						font-size="20" h-align="left" v-align="center" extendstyle="1111"
 						border="false" />
-					<image name="normalImage" rect="420,30,14,20" src="file://image/jiantou_new.png"
+					<image name="normalImage" rect="440,30,14,20" src="file://image/jiantou_new.png"
 						style="autosize" extendstyle="1111" />
 				</button>
 			</node>
@@ -163,14 +161,12 @@
     function loadListItem(list, item, index)
         Sprite:setRect(item, 0, 0, 480, 80)
         Sprite:setProperty(item, 'extendstyle', '1111')
-        local listItemBg = Sprite:findChild(item, 'listItemBg')
+        local listItemBg = Sprite:findChild(item, 'listButtonImage')
         Sprite:setRect(listItemBg, 0, 0, 480, 80)
         local num = index+1
         Log:write('index=============================',num%2)
         if num % 2 > 0 then
-            Sprite:setProperty(listItemBg, 'alpha', '0')
-            else
-            Sprite:setProperty(listItemBg, 'alpha', '20')
+  Sprite:setProperty(listItemBg, 'src', 'file://image/item_bg.png')
         end
         local textNum = Sprite:findChild(item, 'textNum')
         local textTitle = Sprite:findChild(item, 'textTitle')
