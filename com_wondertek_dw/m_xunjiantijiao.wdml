@@ -120,18 +120,18 @@
                     <button name="errorTitleBtn" rect="280,0,180,50" border="false"
                         text="" color="#ffffff" OnSelect="errorOnSelect"
                         extendstyle="1111">
-					<image rect="0,0,180,50" src="file://image/select.png"  style="sudoku-auto" sudoku="15,15,15,15"
-                            extendstyle="1111">
-                        </image>
-                        <label name="errorTypeName" rect="2,0,112,50" text=""
-                            color="#0" extendstyle="1111" style="autosize" h-align="left"
-                            v-align="center" font-size="22" font-family="黑体"/>
-                        <label name="errorTypeNameList" rect="0,0,0,0" text=""
-                            color="#0" extendstyle="1111" style="autosize" h-align="center"
-                            v-align="center" font-size="22" />
-                        <label name="errorTypeCodeList" rect="0,0,0,0" text=""
-                            color="#0" extendstyle="1111" style="autosize" h-align="center"
-                            v-align="center" font-size="22" />
+						<image rect="0,5,180,40" src="file://image/select.png"  style="sudoku-auto" sudoku="15,15,15,15"
+	                        extendstyle="1111">
+	                    </image>
+	                    <label name="errorTypeName" rect="2,0,112,50" text=""
+	                        color="#0" extendstyle="1111" style="autosize" h-align="left"
+	                        v-align="center" font-size="22" font-family="黑体"/>
+	                    <label name="errorTypeNameList" rect="0,0,0,0" text=""
+	                        color="#0" extendstyle="1111" style="autosize" h-align="center"
+	                        v-align="center" font-size="22" />
+	                    <label name="errorTypeCodeList" rect="0,0,0,0" text=""
+	                        color="#0" extendstyle="1111" style="autosize" h-align="center"
+	                        v-align="center" font-size="22" />
                     </button>
                 </node>
                 
@@ -572,6 +572,12 @@ end
 --  按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
+        local selectNode = Sprite:findChild(rootSprite, 'selectNode')
+        if Sprite:getData(selectNode) == '1' then
+            hideSelectNode()
+            return
+        end
+
         Dialog:show('', '您即将离开巡检页面,是否继续？','ok_cancel','doBack')
         return 1
     elseif kc==Key.F1 then--按下菜单键
@@ -1126,6 +1132,7 @@ end
 function errorOnSelect(sprite)
     -- 显示选择对话框
 	local selectNode = Sprite:findChild(rootSprite, 'selectNode')
+    Sprite:setProperty(selectNode, 'data', '1')
     setAllShoworHide(selectNode, 1)
 	
 	-- 获取当前的巡检子项下标
@@ -1190,6 +1197,7 @@ end
 function hideSelectNode(sprite)
     local selectNode = Sprite:findChild(rootSprite, 'selectNode')
     setAllShoworHide(selectNode, 0)
+    Sprite:setProperty(selectNode, 'data', '0')
 end
 
 -- 提交用户输入的正常结果
