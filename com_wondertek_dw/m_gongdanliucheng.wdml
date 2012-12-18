@@ -227,7 +227,7 @@
                      <label name="nameTitle" rect="25,5,100,30" text="派发任务：" color="#ffffff"
                         font-size="20" h-align="right" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label name="textName" rect="120,5,300,30" text="刘兵" color="#ffffff"
+                    <label name="dealman" rect="120,5,300,30" text="刘兵" color="#ffffff"
                         font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
                     <label name="timeTitle" rect="25,30,150,30" text="处理时间：" color="#ffffff" font-size="20"
@@ -235,14 +235,14 @@
                     <label name="textTime" rect="120,30,300,30" text="2012-06-14 17:35:09" color="#ffffff"
                         font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label name="dealTitle" rect="25,55,150,30" text="处理意见：" color="#ffffff" font-size="20"
+                    <label rect="25,55,150,30" text="处理意见：" color="#ffffff" font-size="20"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="textDeal" rect="120,55,300,30" text="" color="#ffffff"
+                    <label name="dealopinion" rect="120,55,300,30" text="" color="#ffffff"
                         font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
                     <label name="processTitle" rect="25,80,150,30" text="步骤状态：" color="#ffffff" font-size="20"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="textProcess" rect="120,80,300,30" text="已完成" color="#ffffff"
+                    <label name="textProcess" rect="120,80,300,30" text="" color="#ffffff"
                         font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />              
                    </node>  
@@ -335,11 +335,21 @@ function loadListItem(list, item, index)
    local nameTitle = Sprite:findChild(item, 'nameTitle')
     local textTime = Sprite:findChild(item, 'textTime')
     local textProcess = Sprite:findChild(item, 'textProcess')
+    local dealopinion = Sprite:findChild(item, 'dealopinion')
+    local dealman= Sprite:findChild(item, 'dealman')
     local  billtitle = Sprite:findChild(rootSprite, 'billtitle')
     local titlename = Reg:getString(regHandle,'titlename')
+ 
+ if data.value[index].status=='未完成'  then 
+  Sprite:setProperty(Sprite:findChild(item, 'finished_circle'), 'src', 'file://image/unfinished_circle.png')
+   Sprite:setProperty(Sprite:findChild(item, 'finished_bg'), 'src', 'file://image/unfinished_bg.png')
+   end  
     Sprite:setProperty(billtitle, 'text',titlename )
     Sprite:setProperty(nameTitle, 'text', data.value[index].dealname..'：')
     Sprite:setProperty(textTime, 'text', data.value[index].dealdate)
+    Sprite:setProperty(dealopinion, 'text', data.value[index].dealopinion)
+    Sprite:setProperty(dealman, 'text', data.value[index].dealman)
+    
     Sprite:setProperty(textProcess, 'text', data.value[index].status)
 end
 
