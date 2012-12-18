@@ -77,7 +77,6 @@ function bodyBuildChildrenFinished(sprite)
     --]]
 	
     connectToWAP()
-    checkClientVersion()
 end
 
 --  root节点消息方法
@@ -100,7 +99,7 @@ function bodyOnSpriteEvent(msg, param)
         local paramFlag = param.flag
         local paramStatus = param.networkstatus
         if paramStatus == NETWORK_CONNECTED then
-             --Timer:set(1, 2000, 'goLogin')
+              checkClientVersion()
         elseif paramStatus == NETWORK_ERROR then
             if paramFlag == 5  then
                  Dialog:show('提示', '网络连接失败，要打开APN设置界面进行设置吗？', 'ok_cancel', 'showSysSetting', 'doExit')
@@ -184,6 +183,8 @@ function connectToWAP()
         Http:setProxy('')
     end
     Http:startNetwork()
+    local noticeLbl = Sprite:findChild(rootSprite, 'noticeLbl')
+    Sprite:setProperty(noticeLbl, 'text', '正在检测网络...')
 end
 
 function checkAPNSetting()
