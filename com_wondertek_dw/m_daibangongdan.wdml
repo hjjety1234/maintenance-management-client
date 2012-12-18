@@ -142,16 +142,19 @@ local savedDatas
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+     Config:set('curDaiBanListTab', '1')
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
-        if flag=='3' then 
+   if Config:get('curDaiBanListTab') == '1' then
+        tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))       
+    elseif  Config:get('curDaiBanListTab') == '2' then
+        tabOnSelect(Sprite:findChild(rootSprite, 'btnTab2'))     
+    else
         tabOnSelect(Sprite:findChild(rootSprite, 'btnTab3'))
-        end
-        --loadRequest()
+       end
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -268,18 +271,21 @@ function tabOnSelect(sprite)
          
          ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), #savedDatas, 'loadZanCunItem')
          ListView:adjust(list)
+         Config:set('curDaiBanListTab', '2')
     elseif dataInfo=='03' then
          flag='3'
          ListView:removeAllItems(list,true) 
          loadDoneRequest()
+         Config:set('curDaiBanListTab', '3')
     elseif dataInfo=='01' then
         flag='1'
-        loadRequest()
+         loadRequest()
+         Config:set('curDaiBanListTab', '1')
     end
 end
 
 function loadZanCunItem(list, item, index)
-    local idString = savedDatas[index+1]
+    local idString= savedDatas[index+1]
     Log:write('loadSavedListItemloadSavedListItem', idString , Config:get('daibanID' .. idString))
     local dataString = Split(Config:get('daibanID' .. idString), ';')
     Sprite:setRect(item, 0, 0, 480, 115)
@@ -399,12 +405,11 @@ end
 
 function itemOnSelect(sprite)
     local createDate = Sprite:getText(Sprite:findChild(sprite, 'textTime'));
-    local taskDate =Sprite:getText(Sprite:findChild(sprite, 'finishTime'));
     local tabNode = Sprite:getParent(sprite)
     local dataString = Split(Config:get('daibanID' .. Sprite:getData(tabNode)), ';')
     regHandle=Reg:create('daiban')
     Reg:setString(regHandle, "createDate",createDate)
-    Reg:setString(regHandle, "taskDate",taskDate)
+    
     local textnum=Sprite:findChild(tabNode, 'textNum')
     local text=Sprite:getText(textnum)
     local  index 
@@ -422,6 +427,7 @@ function itemOnSelect(sprite)
         Scene:go(Alias.m_daibandetail)
     else
         index = tonumber(Sprite:getData(tabNode))
+        Reg:setString(regHandle, "taskDate",data.value[index].taskdate)
         Reg:setString(regHandle,'id',data.value[index].id)
         Reg:setString(regHandle,'pid',data.value[index].pid)
         Reg:setString(regHandle,'taskcode',tostring(data.value[index].taskCode))
