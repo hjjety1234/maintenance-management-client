@@ -80,7 +80,7 @@
                     src="file://image/search_input_new.png" style="autosize" extendstyle="1111" />
                 <edit name="keywordEdit" rect="37,10,340,42" extendstyle='1111' OnTextChanged="editOnTextChanged"
                     v-align="center" text="">
-                    <label name="hideLabel" rect="10,0,278,42" text="搜索工单标题" color="#c0c0c0"
+                    <label name="hideLabel" rect="10,0,278,42" text="搜索工单" color="#c0c0c0"
                         extendstyle="1111" style="autosize" h-align="left" v-align="center"
                         font-size="24" />
                 </edit>
@@ -92,6 +92,7 @@
             
             <!--列表信息-->
             <node name="listNode" rect="0,125,480,645" extendstyle="1111">
+            <label name="noDataLbl" rect="0,100,480,40" text="对不起，暂无工单！" visible="false" enable="false" active="false"  color="#0" h-align="center" v-align="center" font-size="25" extendstyle="1171" />
                 <listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
             </node>
             
@@ -269,16 +270,23 @@ function tabOnSelect(sprite)
          Log:write('config===================================',Config:get('daiban'))
          savedDatas =Split(Config:get('daibanIDList'), ';')
          
+          if table.getn(savedDatas)==0 and flag=='2' then
+    Sprite:setVisible(Sprite:findChild(rootSprite, 'noDataLbl'), 1)
+    else
+    Sprite:setVisible(Sprite:findChild(rootSprite, 'noDataLbl'), 0)
+    end
          ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), #savedDatas, 'loadZanCunItem')
          ListView:adjust(list)
          Config:set('curDaiBanListTab', '2')
     elseif dataInfo=='03' then
          flag='3'
+         Sprite:setVisible(Sprite:findChild(rootSprite, 'noDataLbl'), 0)
          ListView:removeAllItems(list,true) 
          loadDoneRequest()
          Config:set('curDaiBanListTab', '3')
     elseif dataInfo=='01' then
         flag='1'
+        Sprite:setVisible(Sprite:findChild(rootSprite, 'noDataLbl'), 0)
          loadRequest()
          Config:set('curDaiBanListTab', '1')
     end
@@ -289,6 +297,7 @@ function loadZanCunItem(list, item, index)
      idString= savedDatas[index+1]
     Log:write('loadSavedListItemloadSavedListItem', idString , Config:get('daibanID' .. idString))
     local dataString = Split(Config:get('daibanID' .. idString), ';')
+  
     Sprite:setRect(item, 0, 0, 480, 115)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local listItemBg = Sprite:findChild(item, 'listItemBg')
@@ -408,6 +417,36 @@ function loadListItem(list, item, index)
     end
 end
 
+--@brief 请求服务器公告列表
+    function requestGongDanList(title)
+        local type
+        if flag=='1' then
+        type='0'
+        elseif flag=='3' then
+        type ='1'
+        end
+        
+        local param = string.format('key=%s&type=%s&page=%s&cmd=wlbsearchtasklist', title, type, page)
+        Log:write("请求工单列表:"..param)
+        local requestURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
+        Http:request('daiban_data', requestURL, 101, {useCache=false})
+        -- issue#56 开始是空白，进去后速度慢
+        --Loading:show()
+    end
+
+--@brief 点击搜索按钮消息处理函数
+    function OnSearchButtonClicked(sprite)
+        -- 获取用户输入
+        local keywordEditSprite = Sprite:findChild(rootSprite, "keywordEdit")
+        local title = Sprite:getText(keywordEditSprite)
+        if title == '' then
+            Dialog:show('提示', '搜索内容不能为空!', 'ok')
+            return
+        end
+        -- 请求搜索
+        requestGongDanList(title)
+    end
+
 function itemOnSelect(sprite)
     local createDate = Sprite:getText(Sprite:findChild(sprite, 'textTime'));
     local tabNode = Sprite:getParent(sprite)
@@ -498,10 +537,20 @@ function OnShowSearchBarButtonClicked(sprite)
         isSearchBarVisible = false
        
         -- 重设列表
-        --local param = string.format('cmd=wlbnewslist&title=&collectflag=0&page=%s', page)
-       -- Log:write("重设请求公告列表:"..param)
-       -- local requestURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', param)
-      --  Http:request('notice_list', requestURL, 101)
+      if flag=='1'   then
+          local param = '&page=1'
+          local url= getWholeUrl('nbspweb/webservice/workorder!doWebservice.action' , '')
+          Log:write("param = ", param)
+          Http:request('daiban_data', url, 101, {useCache = false, method = 'post', postData='cmd=wlbtasklist'..param})
+      elseif flag=='3'  then
+          local url= getWholeUrl('nbspweb/webservice/workorder!doWebservice.action' , '')
+          local username = Config:get('username')
+          local param = '&page=1'
+          Log:write("param = ", param)
+          Http:request('handled_data', url, 102, {useCache = false, method = 'post', postData='cmd=wlbhandledtasklist'..param})
+    else
+    
+    end
     end
 end
 
