@@ -10,19 +10,19 @@
 
 -- @brief dialog属性
 Dialog.propTable = {
-    shadow = {rect='0,0,480,800',alpha='128',color='#000000', extendstyle='1111'},
-    extendable = {visible='0',rect='', extendstyle='1111'},
-    bgImg = {rect='18,200,444,291', src='file://image/bg_dialog.png', style='sudoku-auto', sudoku='10,0,10,0', extendstyle='1111'},
-    iconImg = {rect='58,230,48,48', src='', extendstyle='1111'},
-    noticeLabel = {rect='128,235,148,48', color='#ffffff', text='', extendstyle='1111'}, -- 对话框标题
-    messageText = {rect='34,300,410,55', ['h-align']='center', color='#000000', -- 对话框内容
-        text='textarea 文本描述', frame='true', ['line-height']='28',['font-size']='24', loop='true', step='1', top='0', extendstyle='1111'},
-    okBtn = {rect='32,407,203,65', OnSelect='_dialogClose', text='确定', color='#FFFFFF',
-            normal = 'src:file://image/button1_normal.png;style:sudoku-auto;sudoku:10,10,10,10',
-            sel = 'src:file://image/button1_focus.png;style:sudoku-auto;sudoku:10,10,10,10', extendstyle='1111'},
-    cancelBtn = {rect='245,407,203,65', OnSelect='_dialogClose', text='取消', color='#FFFFFF',
-            normal = 'src:file://image/button1_normal.png;style:sudoku-auto;sudoku:10,10,10,10',
-            sel = 'src:file://image/button1_focus.png;style:sudoku-auto;sudoku:10,10,10,10', extendstyle='1111'},
+    shadow = {rect='0,0,480,800',alpha='128',color='#000000', extendstyle='1111',style ='autosize'},
+    extendable = {visible='0',rect='', extendstyle='1111',style ='autosize'},
+    bgImg = {rect='99,325,283,150', src='file://image/dialog.png', extendstyle='1111',style ='autosize'},
+    iconImg = {rect='58,230,48,48', src='', extendstyle='1111',style ='autosize'},
+    noticeLabel = {rect='128,335,148,48', color='#ffffff', text='', extendstyle='1111',style ='autosize'}, -- 对话框标题
+    messageText = {rect='40,360,410,55', ['h-align']='center', color='#000000', -- 对话框内容
+        text='textarea 文本描述', frame='true', ['line-height']='28',['font-size']='22', ['font-family']='微软雅黑', loop='true', step='1', top='0', extendstyle='1111',style ='autosize'},
+    okBtn = {rect='', OnSelect='_dialogClose', text='确定',['h-align']='center',['v-align']='center', ['font-size']='24',['font-family']='微软雅黑', color='#FFFFFF',
+            normal = 'src:file://image/btn_yes.png' ,
+            sel = 'src:file://image/btn_yes.png',style ='autosize',extendstyle='1111'},
+    cancelBtn = {rect='', OnSelect='_dialogClose', text='取消',['h-align']='center', ['v-align']='center',['font-size']='24', ['font-family']='微软雅黑',color='#FFFFFF',
+            normal = 'src:file://image/btn_no.png',
+            sel = 'src:file://image/btn_no.png',style ='autosize',extendstyle='1111'},
 }
 
 --[[
@@ -57,11 +57,11 @@ function Dialog:show(title, message, typeStr, okCallback, cancelCallback)
         Dialog.propTable.cancelBtn.OnSelect = "_dialogClose"
     end
     if typeStr == "cancel" or typeStr == "ok" then
-        Dialog.propTable.okBtn.rect = "138,407,203,65"
+        Dialog.propTable.okBtn.rect = "192,417,94,38"
         --Dialog.propTable.iconImg.src = "WONDER:\\framework\\image\\dialog_information.png"
     else
-        Dialog.propTable.okBtn.rect = "32,407,203,65"
-        Dialog.propTable.cancelBtn.rect = "245,407,203,65"
+        Dialog.propTable.okBtn.rect = "132,417,94,38"
+        Dialog.propTable.cancelBtn.rect = "255,417,94,38"
         --Dialog.propTable.iconImg.src = "WONDER:\\framework\\image\\dialog_question.png"
     end
     Dialog:_show(typeStr)
