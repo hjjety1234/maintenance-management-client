@@ -29,12 +29,12 @@
                     extendstyle="1111" style="autosize" />
 
                 <!-- 返回按钮 -->
-                <button name="backBtn" rect="10,10,40,40" normal="normal" sel="sel"
+                <button name="backBtn" rect="10,13,40,40" normal="normal" sel="sel"
                     OnSelect="doBack" extendstyle="1111">
                     <image name="normal" rect="0,0,40,40" src="file://image/ico_back.png"
-                        style="autosize" extendstyle="1111" />
+                        extendstyle="1111" />
                     <image name="sel" rect="0,0,40,40" src="file://image/ico_back.png"
-                        style="autosize" extendstyle="1111" />
+                        extendstyle="1111" />
                 </button>
                 <!-- 二级菜单标题 -->
                 <scrolltext name="title" rect="105,0,280,46" text="我的收藏" font-family='微软雅黑'
@@ -42,10 +42,10 @@
                     color="#ffffff" scroll="true" step="2" />
 
                 <!-- 显示或隐藏搜索条 -->
-                <button name="btnShowSearchBar" rect="430,10,40,40"
+                <button name="btnShowSearchBar" rect="430,13,40,40"
                     font-size="24" extendstyle="1111" text="" color="#ffffff"
-                    normal="src:file://image/ico_search_new.png;style:autosize;color:#ffffff"
-                    sel="src:file://image/ico_search_new.png.png;style:autosize;color:#000000"
+                    normal="src:file://image/ico_search_new.png;color:#ffffff"
+                    sel="src:file://image/ico_search_new.png.png;color:#000000"
                     OnSelect="OnShowSearchBarButtonClicked"></button>
             </node>
 
@@ -78,21 +78,20 @@
             </node>
 
             <!-- 公告列表项  -->
-            <node name="listItem1" rect="0,0,480,80" border="false"
+            <node name="listItem1" rect="0,0,480,100" border="false"
                 visible="false" enable="false" active="false" extendstyle="1111">
-                <shadow name="listItemBg" rect="0,0,480,80" color="#e8e8e8"
-                    alpha="140" extendstyle="1111" />
-                <button name="btnname" rect="0,0,480,80" normal="normal"
+                <button name="btnname" rect="0,0,480,100" normal="normal"
                     focus="focus" OnSelect="itemOnSelect" extendstyle="1111">
-
+				<image name="listButtonImage" rect="0,0,480,100" src=""
+					extendstyle="1111" style='autosize' />
                     <!-- 聚焦时的列表项背景图片 -->
-                    <node name="focus" rect="0,0,480,80" extendstyle="1111">
+                    <node name="focus" rect="0,0,480,100" extendstyle="1111">
                         <image name="focusImage" rect="460,30,14,20" src="file://image/jiantou_new.png"
                             style="autosize" extendstyle="1111" />
                     </node>
 
                     <!-- 正常情况时列表项背景图片 -->
-                    <node name="normal" rect="0,0,480,80" extendstyle="1111"
+                    <node name="normal" rect="0,0,480,100" extendstyle="1111"
                         v-align="center" h-align="center">
                         <image name="normalImage" rect="460,30,14,20" src="file://image/jiantou_new.png"
                             style="autosize" extendstyle="1111" />
@@ -208,7 +207,7 @@ end
 
 ---------------------------------------util functions---------------------------
 function loadListItem(list, item, index)
-    Sprite:setRect(item, 0, 0, 480, 80)
+    Sprite:setRect(item, 0, 0, 480, 100)
     Sprite:setProperty(item, 'extendstyle', '1111')
     -- 获取要创建的列表项Sprite
     local noticeIdSprite = Sprite:findChild(item, 'noticeId')
@@ -217,14 +216,12 @@ function loadListItem(list, item, index)
     local noticeDateSprite = Sprite:findChild(item, 'noticeDate')
     local issuePersonSprite = Sprite:findChild(item, 'issuePerson')
     -- 设置列表项的内容
-    local listItemBg = Sprite:findChild(item, 'listItemBg')
-    Sprite:setRect(listItemBg, 0, 0, 480, 80)
+    local listItemBg = Sprite:findChild(item, 'listButtonImage')
+    Sprite:setRect(listItemBg, 0, 0, 480, 100)
     local num = index+1
     Log:write('index=============================',num%2)
     if num % 2 > 0 then
-        Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
-    else
-        Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
+            Sprite:setProperty(listItemBg, 'src', 'file://image/item_bg.png')
     end
     if (jsonDecodedNotice ~= nil and jsonDecodedNotice['value'] ~= nil) then
         local value = jsonDecodedNotice['value'][index]

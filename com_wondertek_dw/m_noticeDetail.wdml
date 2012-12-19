@@ -60,8 +60,8 @@
 					font-size="24" extendstyle="1111" />
 				<image name="background" rect="20,120,433,3" src="file://image/seg_new.png"
 					extendstyle="1111" style="autosize" />
-				<listview rect="10,110,460,670" extendstyle="1111">
-					<list-item rect="10,0,460,1112" extendstyle="1111">
+				<listview rect="10,125,460,670" extendstyle="1111" border="false" >
+					<list-item rect="0,0,460,1112" extendstyle="1111">
 						<textarea name="detail" rect="0,0,460,1112" border="false"
 							font-family='微软雅黑' extendstyle="1111" h-align='left' line-height="24"
 							autoextend="true" font-size="20" style = 'autosize' >
@@ -122,7 +122,12 @@
             local detailSprite = Sprite:findChild(rootSprite, 'detail')
             if (detailSprite~= nil and jsonDecodedMsg["contentString"] ~= nil) then
                 -- 正则表达式，去除html标签
-                local contentString = string.gsub(jsonDecodedMsg["contentString"], '<.->', '')
+                --local contentString = string.gsub(jsonDecodedMsg["contentString"], '<.->', '')
+				local contentString = jsonDecodedMsg["contentString"]
+				--local iFirst,iEnd = string.find(contentString, '<p>\r\')
+				contentString = string.sub(contentString, 10)
+                contentString = string.gsub(contentString, '<.->', '')
+
                 contentString = string.gsub(contentString, '&%w+;', '')
                 -- 正则表达式，去除页首的多余空行
                 contentString = string.gsub(contentString, '\r\n\r\n\t', '\r\n')
