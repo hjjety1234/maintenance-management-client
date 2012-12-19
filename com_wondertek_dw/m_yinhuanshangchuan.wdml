@@ -818,7 +818,7 @@ function doSave()
     end
 
 
-    local stringData = string.format('%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;', yinhuanID, Sprite:getProperty(Sprite:findChild(zhuanyeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(typeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(levelBtn, 'name'), 'text'), Sprite:getProperty(detail, 'text'), getCurDate(), name,zhuanyeValue,typeValue,levelValue,recordName,location,yinhuanLocName,pics)
+    local stringData = string.format('%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;', yinhuanID, Sprite:getProperty(Sprite:findChild(zhuanyeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(typeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(levelBtn, 'name'), 'text'), Sprite:getProperty(detail, 'text'), getCurDateAndTime(), name,zhuanyeValue,typeValue,levelValue,recordName,location,yinhuanLocName,pics)
 
     for i=1, #imageArray do
         stringData = stringData .. imageArray[i]
@@ -897,6 +897,9 @@ function loadListItem(list, item, index)
     }
     for i=1,#picArray do
         if imageArray[tonumber(index) * 4 + i] == nil then
+            for j=i,#picArray do
+                Sprite:setProperty(picArray[j], "enable", "false");
+            end
             break
         end
 		Sprite:setProperty(picArray[i], "enable", "true");
