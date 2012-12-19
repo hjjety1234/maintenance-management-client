@@ -29,14 +29,16 @@
 					extendstyle="1111" style="autosize" />
 
 				<!-- 返回按钮 -->
-				<button name="backBtn" rect="10,13,40,40" OnSelect="doBack"
-					extendstyle="1111" src="file://image/ico_back.png">
+				<button name="backBtn" rect="0,0,66,66" OnSelect="doBack"
+					extendstyle="1111"> 				
+					<image name="titleBg1" rect="10,13,40,40" src="file://image/ico_back.png"
+					extendstyle="1111"  />
 				</button>
 
 				<!-- 收藏按钮 -->
-				<button name="favBtn" rect="430,13,40,40" 
+				<button name="favBtn" rect="414,0,66,66" 
 					 OnSelect="OnFavBtnClicked" extendstyle="1111" border="false">
-					<image name="favBtnImage" rect="0,0,40,40" src="file://image/bookmark_2.png"
+					<image name="favBtnImage" rect="16,13,40,40" src="file://image/bookmark_2.png"
 						 extendstyle="1111" />
 				</button>
 
@@ -118,16 +120,16 @@
         if msg == 101 then
             Log:write('jsondecode', Http:jsonDecode("noticeDetail"))
             jsonDecodedMsg = Http:jsonDecode("noticeDetail")
-            Log:write(jsonDecodedMsg)
+            --Log:write(jsonDecodedMsg)
             local detailSprite = Sprite:findChild(rootSprite, 'detail')
             if (detailSprite~= nil and jsonDecodedMsg["contentString"] ~= nil) then
                 -- 正则表达式，去除html标签
                 --local contentString = string.gsub(jsonDecodedMsg["contentString"], '<.->', '')
 				local contentString = jsonDecodedMsg["contentString"]
 				--local iFirst,iEnd = string.find(contentString, '<p>\r\')
-				contentString = string.sub(contentString, 10)
+				contentString = string.sub(contentString, 6)
                 contentString = string.gsub(contentString, '<.->', '')
-
+                --contentString = string.gsub(contentString, "<p>", "", 1)
                 contentString = string.gsub(contentString, '&%w+;', '')
                 -- 正则表达式，去除页首的多余空行
                 contentString = string.gsub(contentString, '\r\n\r\n\t', '\r\n')
@@ -136,6 +138,7 @@
                 local newscontX, newscontY, newscontW, newscontH = Sprite:getRect(detailSprite)
                 Sprite:setRect(detailSprite, newscontX, 0, newscontW, newscontH)
                 resetListViewItemHeight()
+				Log:write('contentString',1111)
             end
             elseif msg == 102 then
             local jsonResp = Http:jsonDecode("fav")
