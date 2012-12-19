@@ -134,14 +134,15 @@ function bodyOnPluginEvent(msg)
         end
         if data ~= nil then
             if data.code == '0' then
-                if #data.value > 0 then
-                    loadList(#data.value + 1)
-                elseif data.value[0] then
-                    loadList(1)
-                else
+                -- 对巡检计划按发布时间进行排序
+                sortFunc = function(a, b) return a.startTime < b.startTime end
+                table.insert(data.value, data.value[0])
+                table.sort(data.value, sortFunc)
+                Log:write('sorted datavalue:', data.value)
+                loadList(#data.value)
+            elseif data.code == '50' then 
                     showOrHideNullNode(1)
                     Dialog:show(rootSprite, '暂无待巡检任务！', 'ok')
-                end
             else
                 showOrHideNullNode(1)
                 Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
@@ -222,6 +223,7 @@ function loadListItem(list, item, index)
     end
     
     -- 获取服务端的返回的字段
+    index = index + 1
     local strFinished = data.value[index].finished
     if strFinished == nil then strFinished = '' end
     local strTotal = data.value[index].total
