@@ -515,7 +515,6 @@ function bodyOnPluginEvent(msg, param)
         end
 	elseif msg == 107 then -- 获取二维码资源列表响应
 		local data = Http:jsonDecode('ewm_code')
-		Log:write('g_ewms:', data)
         -- 服务端返回数据合法性检查
         if not data or type(data) ~= 'table' then
             Dialog:show(rootSprite, '获取二维码资源列表失败，服务端返回数据格式错误', 'ok')
@@ -534,6 +533,7 @@ function bodyOnPluginEvent(msg, param)
         for i=0, getJsonArrayCount(data.value) - 1 do
             table.insert(g_ewms, data.value[i])
         end
+        Log:write('g_ewms:', g_ewms)
         -- 开始进行入站扫描
         Dialog:show(rootSprite, '请扫描站点入口处的二维码！', 'ok', 'checkSiteEwm')
 	elseif msg == 108 then -- 二维码响应函数
@@ -547,15 +547,17 @@ function bodyOnPluginEvent(msg, param)
         local path = Param:getString(param, 0)  -- 条码图片路径
         local code = Param:getString(param, 1)  -- 解码后的文本
         local isFound = false
+        local found = nil
         for i=1, #g_ewms do 
             if g_ewms[i].ewm == code then 
                 isFound =  true
+                found = i
                 break
             end
         end
         -- 检查扫描是否成功
         if isFound == true then 
-            table.remove(g_ewms, i)
+            table.remove(g_ewms, found)
             local strMsg = string.format('二维码扫描成功，结果为:%s,还有%d个资源待扫描！',
                 code, #g_ewms)
             Dialog:show(rootSprite, strMsg, 'ok', 'requestSubItems')
