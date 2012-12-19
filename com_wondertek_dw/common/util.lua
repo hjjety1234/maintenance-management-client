@@ -88,7 +88,7 @@ function getCurDateAndTime()
     local hour = os.date("*t")["hour"]
     local minute = os.date("*t")["min"]
     local sec = os.date("*t")["sec"]
-    return string.format('%04s%02s%02s%02s%02s%02s', year, month, day, hour, minute, sec)
+    return string.format('%04s-%02s-%02s-%02s-%02s-%02s', year, month, day, hour, minute, sec)
 end
 function getCurDate()
     local year = os.date("*t")["year"]
