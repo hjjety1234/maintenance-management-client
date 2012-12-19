@@ -454,7 +454,7 @@ function bodyOnPluginEvent(msg, param)
         local data = Http:jsonDecode('Submitdata')
         Log:write("Submitdata ================= ", data)
         if not data or type(data) ~= 'table' then
-            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            -- Dialog:show(rootSprite, '返回数据格式错误', 'ok')
             return
         end
         if data ~= nil then
@@ -557,9 +557,10 @@ function bodyOnPluginEvent(msg, param)
         end
         -- 检查扫描是否成功
         if isFound == true then 
+            local devicename = g_ewms[found].devicename
             table.remove(g_ewms, found)
-            local strMsg = string.format('二维码扫描成功，结果为:%s,还有%d个资源待扫描！',
-                code, #g_ewms)
+            local strMsg = string.format('扫描成功:%s %s,还有%d个资源待扫描！', 
+                devicename, code, #g_ewms)
             Dialog:show(rootSprite, strMsg, 'ok', 'requestSubItems')
         else 
             Dialog:show(rootSprite, '二维码扫描失败，结果'..code..'与目标站点不匹配,请重新扫描！',
