@@ -15,12 +15,12 @@ Dialog.propTable = {
     bgImg = {rect='50,285,380,200', src='file://image/dialog.png', extendstyle='1111',style ='autosize'},
     iconImg = {rect='58,230,48,48', src='', extendstyle='1111',style ='autosize'},
     noticeLabel = {rect='128,335,148,48', color='#ffffff', text='', extendstyle='1111',style ='autosize'}, -- 对话框标题
-    messageText = {rect='70,320,350,70', ['h-align']='center', color='#000000', -- 对话框内容
-        text='textarea 文本描述', frame='true', ['line-height']='28',['font-size']='28', ['font-family']='微软雅黑', loop='true', step='1', top='0', extendstyle='1111',style ='autosize'},
-    okBtn = {rect='', OnSelect='_dialogClose', text='确定',['h-align']='center',['v-align']='center', ['font-size']='28',['font-family']='微软雅黑', color='#FFFFFF',
+    messageText = {rect='70,320,350,70', ['h-align']='center', color='#303030', -- 对话框内容
+        text='textarea 文本描述', frame='true', ['line-height']='28',['font-size']='24', ['font-family']='微软雅黑', loop='true', step='1', top='0', extendstyle='1111',style ='autosize'},
+    okBtn = {rect='', OnSelect='_dialogClose', text='确定',['h-align']='center',['v-align']='center', ['font-size']='24',['font-family']='微软雅黑', color='#FFFFFF',
             normal = 'src:file://image/btn_yes.png' ,
             sel = 'src:file://image/btn_yes.png',style ='autosize',extendstyle='1111'},
-    cancelBtn = {rect='', OnSelect='_dialogClose', text='取消',['h-align']='center', ['v-align']='center',['font-size']='28', ['font-family']='微软雅黑',color='#FFFFFF',
+    cancelBtn = {rect='', OnSelect='_dialogClose', text='取消',['h-align']='center', ['v-align']='center',['font-size']='24', ['font-family']='微软雅黑',color='#FFFFFF',
             normal = 'src:file://image/btn_no.png',
             sel = 'src:file://image/btn_no.png',style ='autosize',extendstyle='1111'},
 }
