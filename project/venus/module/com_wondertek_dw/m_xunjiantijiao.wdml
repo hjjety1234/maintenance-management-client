@@ -146,14 +146,14 @@
                     <scrolltext name="errorTitleName" rect="40,0,240,50"
                         extendstyle="1111" font-size="22" font-family="黑体" h-align="left" v-align="center"
                         color="#0" scroll="true" step="2" />
-
-                    <image rect="280,0,180,50" src="file://image/input_text.png"
+                    <image rect="280,5,180,40" src="file://image/input_text.png"
                          style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                     <label name="errorCodeMaxMin" rect="0,0,0,0" text=""
                         color="#0" extendstyle="1111" style="autosize" h-align="center"
                         v-align="center" font-size="22" />
                     <edit name="editInput" rect="310,13,130,45" option="numeric"
-                        style="autosize" extendstyle="1111" font-size="18" font-family="黑体" OnLostFocus="onTextLostFocus" />
+                        style="autosize" extendstyle="1111" font-size="18" font-family="黑体" 
+                        OnLostFocus="onTextLostFocus" />
                 </node>
                 
                 <!-- 文本输入框  -->
@@ -163,8 +163,7 @@
                     <scrolltext name="errorTitleName" rect="40,0,240,50"
                         extendstyle="1111" font-size="22" font-family="黑体" h-align="left" v-align="center"
                         color="#0" scroll="true" step="2" />
-
-                    <image rect="280,0,180,50" src="file://image/input.png"
+                    <image rect="280,5,180,40" src="file://image/input_text.png"
                          style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                     <label name="errorCodeMaxMin" rect="0,0,0,0" text=""
                         color="#0" extendstyle="1111" style="autosize" h-align="center"
@@ -265,19 +264,6 @@
         </node>
 
         <!-- 选择对话框  -->
-        <!--<node name="selectNode" rect="0,0,480,800" enable="false" active="false"
-                visible="false" extendstyle="1111">
-            <shadow rect="0,0,480,800" color="#000000" alpha="128"
-                extendstyle="1111" />
-            <button name="hideSelectNode" rect="0,0,480,800" border="false"
-                text="" color="#ffffff" OnSelect="hideSelectNode"
-                extendstyle="1111">
-            </button>
-            <image name="imgNode" rect="70,170,340,180" src="file://image/input.png" style="sudoku-auto"
-                extendstyle="1111" sudoku="15,15,15,15" />-->
-            <!-- 选择对话框列表  -->
-            <!--<listview name="listSelect" rect="100,200,280,320" auto-adjust="true" extendstyle="1111"/>
-        </node>-->
 		<node name="selectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
                 <button name="hideSelectNode" rect="0,0,480,800" OnSelect="hideSelectNode">
                     <shadow rect="0,0,480,800"  alpha="150" color="#0"  extendstyle="1111">
@@ -296,13 +282,6 @@
             </node>
 
         <!-- 选择对话框列表项模板  -->
-        <!--<node name="selectItem" rect="0,0,280,76" visible="false" enable="false" active="false">
-            <button rect="0,0,280,56" color="#ffffff" 
-				extendstyle="1111" OnSelect="errorTypeOnSelect" 
-				normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
-				sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
-				font-size="24" data="C30" />
-        </node>-->
 		<node name="selectItem" rect="0,0,368,72" visible="false" enable="false" active="false">                   
                 <button rect="38,0,292,61" text="" color="#FFFFFF" h-align="left" v-align="center" 
                     font-family="微软雅黑" font-size="24" style="autosize" 
@@ -1241,8 +1220,15 @@ function doSave(sprite)
             local param = '&usercode='..username..'&resultId='..g_resultId..'&subitemId='..subitemId..'&patrolResult='..patrolResult..'&exception='..'&dealDetail='
             Log:write("param = ", param)
             Http:request('Submitdata', url, 103, {useCache = false, method = 'post', postData='cmd=wlbxunjianDeal'..param})
-            setAllShoworHide(Sprite:findChild(g_curSubItem, 'SaveFlag'), 1)
-			Sprite:setProperty(Sprite:findChild(g_curSubItem,'SaveFlag'), 'data', '1')
+            
+            if g_items[g_curItemIndex].subitems[g_curSubItemIndex].inputType == 'CHOOSE' then
+                setAllShoworHide(Sprite:findChild(g_curSubItem, 'SaveFlag'), 1)
+    			Sprite:setProperty(Sprite:findChild(g_curSubItem,'SaveFlag'), 'data', '1')
+            else
+                local titleNode = Sprite:getParent(sprite)
+                setAllShoworHide(Sprite:findChild(titleNode, 'SaveFlag'), 1)
+                Sprite:setProperty(Sprite:findChild(titleNode,'SaveFlag'), 'data', '1')   
+            end
         end
     end
 end
@@ -1318,6 +1304,7 @@ function onTextLostFocus(sprite)
         showErrorNode(true)
     else
         --正常保存提交
+        showErrorNode(false)
         doSave(sprite)
     end
 end

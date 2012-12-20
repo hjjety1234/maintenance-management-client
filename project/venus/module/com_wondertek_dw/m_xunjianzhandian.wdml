@@ -143,6 +143,7 @@ local rootSprite = nil
 local respValue = nil -- 站点列表值
 local planId = nil
 local g_planName = nil -- 计划名称
+local g_businessType = nil -- 专业类别代码
 local templateId = nil
 local code = nil
 local total = 0
@@ -169,6 +170,7 @@ function bodyBuildChildrenFinished(sprite)
     templateId = Reg:getString(regHandle, 'templateId')
     statusBarText =  Sprite:findChild(sprite, 'statusBarText')
     g_planName = Reg:getString(regHandle, 'planName')
+    g_businessType = Reg:getString(regHandle, 'businessType')
     
     -- 默认选择tab1
     local tab1 = Sprite:findChild(rootSprite,'btnTab1')
@@ -267,6 +269,8 @@ function mainNodeOnKeyUp(sprite, kc)
 end
 
 -- 点击站点列表项处理函数
+-- 根据不同的bussinessType跳转到不同的页面
+-- 基站C31,综合覆盖C32, 集客C34，家客C37
 function itemOnSelect(sprite)
     -- 获取当前选中站点的ID号
     local stationId = Sprite:findChild(sprite, "stationId")
@@ -279,13 +283,23 @@ function itemOnSelect(sprite)
     Reg:setString(regHandle, 'stationId', Sprite:getText(stationId))
     Reg:setString(regHandle, 'stationName', string.sub(Sprite:getText(stationName), 15))
     -- 跳转到巡检子项
-    if string.find(g_planName, '直放站') ~= nil or string.find(g_planName, '综合覆盖') ~= nil then
-	    Scene:setReturn(Alias.m_xunjianzhandian, Alias.m_xunjiantijiao)
-	    Scene:go(Alias.m_xunjiantijiao)
+    if g_businessType == 'C31' then     -- 基站
+        Scene:setReturn(Alias.m_xunjianzhandian, Alias.m_xunjianEditEx)
+        Scene:go(Alias.m_xunjianEditEx) 
+    elseif g_businessType == 'C32' then -- 综合覆盖
+        Scene:setReturn(Alias.m_xunjianzhandian, Alias.m_xunjiantijiao)
+        Scene:go(Alias.m_xunjiantijiao)
+    elseif g_businessType == 'C34' then  -- 集客
+        Scene:setReturn(Alias.m_xunjianzhandian, Alias.m_xunjiantijiao)
+        Scene:go(Alias.m_xunjiantijiao)
+    elseif g_businessType == 'C37' then  -- 家客
+        Scene:setReturn(Alias.m_xunjianzhandian, Alias.m_xunjiantijiao)
+        Scene:go(Alias.m_xunjiantijiao)
     else
+        Log:write('警告，未知的专业类别'..g_businessType)
         Scene:setReturn(Alias.m_xunjianzhandian, Alias.m_xunjianEditEx)
         Scene:go(Alias.m_xunjianEditEx)
-	end
+    end
 end
 
 function nameOnMouseDown(sprite, x, y)
