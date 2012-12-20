@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: xxxx <xxxx@xxxx.com> ==
+============================================================================
+== | Desc: 页面描述 ==
+============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <shadow rect="0,0,480,800" color="#e8e8e8" alpha="255"
+            extendstyle="1111" />
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <node name="NodeTitle" rect="0,0,480,66" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,66" src="file://image/title_bg.png"
+                    extendstyle="1111" style="autosize" />
+                <button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
+                    OnSelect="isSave" extendstyle="1111">
+                    <image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
+                        style="autosize" extendstyle="1111" />
+                    <image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
+                        style="autosize" extendstyle="1111" />
+                    <label rect="15,0,60,45" text="返回" color="#ffffff"
+                        extendstyle="1111" style="autosize" h-align="center" v-align="center"
+                        font-size="24" />
+                </button>
+
+                <scrolltext name="title" rect="105,0,280,66" text="已巡检任务详情"
+                    extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2" />
+            </node>
+
+            <button rect="0,66,240,60" normal="normal" extendstyle="1111"
+                OnSelect="time1OnSelect">
+                <image name="normal" rect="0,0,240,60" src="file://image//tab_n.png"
+                    style="autosize" extendstyle="1111" />
+                <label name="time1" rect="0,0,240,60" text="到达时间" color="#ffffff"
+                    extendstyle="1111" style="autosize" h-align="center" v-align="center"
+                    font-size="22" />
+            </button>
+            <button rect="240,66,240,60" normal="normal" extendstyle="1111"
+                OnSelect="time2OnSelect">
+                <image name="normal" rect="0,0,240,60" src="file://image//tab_s.png"
+                    style="autosize" extendstyle="1111" />
+                <label name="time2" rect="0,0,240,60" text="离开时间" color="#ffffff"
+                    extendstyle="1111" style="autosize" h-align="center" v-align="center"
+                    font-size="22" />
+            </button>
+
+            <node rect="0,126,480,670" extendstyle="1111">
+                <listview name="sampleList" rect="0,10,480,650" col="1"
+                    extendstyle="1111">
+                    <list-item rect="0,0,480,170" extendstyle="1111">
+                        <node name="baseSprite" rect="10,0,230,50" extendstyle="1111">
+                            <label name="label1" rect="0,0,80,50" border="false" text="标  题："
+                                h-align="left" v-align="center" color="#000000" font-size="22"
+                                extendstyle="1111" />
+                            <scrolltext name="location" rect="80,0,140,50"
+                                extendstyle="1010" font-size="22" h-align="left" v-align="center"
+                                color="#0" scroll="true" step="2" />
+                        </node>
+                        <node name="baseSprite" rect="240,0,230,50" extendstyle="1111">
+                            <label name="label1" rect="0,0,80,50" border="false" text="类  别："
+                                h-align="left" v-align="center" color="#000000" font-size="22"
+                                extendstyle="1111" />
+                            <scrolltext name="type" rect="80,0,140,50"
+                                extendstyle="1010" font-size="22" h-align="left" v-align="center"
+                                color="#0" scroll="true" step="2" />
+                        </node>
+                        <node name="baseSprite" rect="10,60,230,50" extendstyle="1111">
+                            <label name="label1" rect="0,0,80,50" border="false" text="巡检组："
+                                h-align="left" v-align="center" color="#000000" font-size="22"
+                                extendstyle="1111" />
+                            <scrolltext name="group" rect="80,0,140,50"
+                                extendstyle="1010" font-size="22" h-align="left" v-align="center"
+                                color="#0" scroll="true" step="2" />
+                        </node>
+                        <node name="baseSprite" rect="240,60,230,50" extendstyle="1111">
+                            <label name="label1" rect="0,0,80,50" border="false" text="时  间："
+                                h-align="lefts" v-align="center" color="#000000" font-size="22"
+                                extendstyle="1111" />
+                            <scrolltext name="time" rect="80,0,140,50"
+                                extendstyle="1010" font-size="22" h-align="left" v-align="center"
+                                color="#0" scroll="true" step="2" />
+                        </node>
+                        <node name="baseSprite" rect="0,120,480,50" extendstyle="1111"
+                            border="false">
+                            <image rect="0,0,480,50" src="file://image/title_bar.png"
+                                style="autosize" extendstyle="1111" />
+                            <label name="label1" rect="10,0,460,50" border="false"
+                                text="巡检任务明细:" h-align="left" v-align="center" color="#ffffff"
+                                font-size="22" extendstyle="1111" />
+                        </node>
+                    </list-item>
+                    <list-item rect="0,0,480,140" extendstyle="1111" border="false">
+                        <listview name="editList" rect="5,0,460,140" col="1"
+                            extendstyle="1111" limit="true">
+                        </listview>
+                    </list-item>
+                </listview>
+            </node>
+            <node name="itemNode" rect="0,0,460,60" enable="false" active="false"
+                visible="false">
+                <node name="errorTitleNode" rect="0,5,460,50" extendstyle="1111">
+                    <label name="errorTitle" rect="0,0,460,50" border="false"
+                        text="模拟警告是否正常：" h-align="left" v-align="center" color="#000000"
+                        font-size="22" extendstyle="1111" />
+                </node>
+            </node>
+
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+local rootSprite
+local errorListTotalHeight = 0
+local curErrorBtn
+local id = ''
+local taskid = ''
+local data = {}
+local stations = {}
+local picPathAry = {}
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    --loadPicList()
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        local regHandle = Reg:create('xunjian')
+        id = Reg:getString(regHandle, 'id')
+        taskid = Reg:getString(regHandle, 'taskid')
+        flag = Reg:getString(regHandle,'flag')
+        local tijiaonode = Sprite:findChild(rootSprite,'NodeTitle')
+        if flag=='3' then
+            setAllShoworHide(Sprite:findChild(tijiaonode, 'btnForget'),0)
+        else
+            setAllShoworHide(Sprite:findChild(tijiaonode, 'btnForget'),1)
+        end
+        loadRequest()
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if Loading:isShow() then Loading:close() end
+    if msg == 101 then
+        data = Http:jsonDecode('pay_data')
+        Log:write("data101 = ", data)
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        end
+        if data ~= nil then
+            if data.code == '0' then
+                setTopSpriteValue()
+                stations = data.stations
+                if #stations > 0 then
+                    fillContent(#stations + 1)
+                elseif stations[0] then
+                    fillContent(1)
+                else
+                    Dialog:show(rootSprite, '巡检任务明细暂无数据！', 'ok')
+                end
+            else
+                Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+            end
+        else
+            Dialog:show(rootSprite, '未知错误！', 'ok')
+        end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:freeByHandle(rootSprite)
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function loadRequest()
+    local wholeUrl = getWholeUrl('nbspweb/webservice/wplan!doWebservice.action', nil)
+    Log:write("wholeUrl = ", wholeUrl)
+    local param = '&code='..id..'&taskid='..taskid
+    Log:write("param = ", param)
+    Http:request('pay_data', wholeUrl, 101, {useCache = false, method = 'post', postData='&cmd=wlbxunjianDetail'..param})
+    Loading:show(rootSprite)
+end
+
+function setTopSpriteValue()
+    Sprite:setProperty(Sprite:findChild(rootSprite, "location"), 'text', data.planName)
+    Sprite:setProperty(Sprite:findChild(rootSprite, 'group'), 'text', data.patrolgroupname)
+    Sprite:setProperty(Sprite:findChild(rootSprite, 'type'), 'text', data.businessTypename)
+    Sprite:setProperty(Sprite:findChild(rootSprite, 'time'), 'text', data.startTime)
+end
+
+function fillContent(count)
+    --local regHandle = Reg:create('xunjian')
+    local sampleList = Sprite:findChild(rootSprite, "sampleList")
+    local editList = Sprite:findChild(sampleList, "editList")
+    ListView:removeAllItems(editList, 1, 1)
+    ListView:loadItem(editList, Sprite:findChild(rootSprite, 'itemNode'), count, 'loadListItem')
+    local x,y,w,h = Sprite:getRect(editList)
+    Sprite:setRect(editList, x,y,w, errorListTotalHeight)
+    Sprite:setRect(Sprite:getParent(editList), x,y,w, errorListTotalHeight)
+    ListView:adjust(editList)
+    ListView:adjust(sampleList)
+    Log:write('11111', Sprite:getRect(sampleList))
+end
+
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0,0,460,60)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local errorTitle = Sprite:findChild(item, 'errorTitle')
+    local errorBtn = Sprite:findChild(item, 'errorBtn')
+    local errorNode = Sprite:findChild(item, 'errorNode')
+    Sprite:setProperty(errorTitle, 'border', 1)
+    Log:write(stations[index])
+    Sprite:setProperty(errorTitle, 'text', (index + 1)..'、'..stations[index].resourceTypename )
+    if Sprite:getData(errorBtn) == '01' then
+        Log:write(12)
+        setAllShoworHide(errorNode, 0)
+    else
+        Log:write(13)
+        setAllShoworHide(errorNode, 1)
+        Sprite:setRect(item, 0,0,460,60)
+    end
+    Log:write(14)
+    local x,y,w,h = Sprite:getRect(item)
+    Log:write(15, h)
+    Sprite:setProperty(item, 'data', h)
+    errorListTotalHeight = errorListTotalHeight + h
+    Log:write(16, errorListTotalHeight)
+end
+
+function errorOnSelect(sprite)
+    local btnData = Sprite:getData(sprite)
+    curErrorBtn = sprite
+    setAllShoworHide(Sprite:findChild(rootSprite, 'errorTypeSelectNode'), 1)
+end
+
+function errorTypeOnSelect(sprite)
+    local btnData = Sprite:getData(sprite)
+    local errorText = Sprite:findChild(curErrorBtn, 'errorTypeName')
+    Sprite:setProperty(curErrorBtn, 'data', btnData)
+    if btnData == '01' then
+        --正常
+        Sprite:setProperty(errorText, 'text', '正常')
+    elseif btnData == '02' then
+        --异常
+        Sprite:setProperty(errorText, 'text', '异常')
+    end
+    doChangeListHeight(curErrorBtn)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'errorTypeSelectNode'), 0)
+end
+
+function hideErrorSelected(sprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'errorTypeSelectNode'), 0)
+end
+
+function doChangeListHeight(sprite)
+    local sampleList = Sprite:findChild(rootSprite, 'sampleList')
+    local errorList = Sprite:findChild(sampleList, 'editList')
+    local item = Sprite:getParent(Sprite:getParent(sprite))
+    local btnData = Sprite:getData(sprite)
+    local x,y,w,h = Sprite:getRect(item)
+    local errorNode = Sprite:findChild(item, 'errorNode')
+    Log:write(1, h)
+    if btnData == '01' then
+        Log:write(2)
+        --收缩
+        if h > 100 then
+            errorListTotalHeight = errorListTotalHeight - tonumber(Sprite:getData(errorNode))
+            setAllShoworHide(errorNode, 0)
+            Sprite:setRect(item, x, y, w, h-tonumber(Sprite:getData(errorNode)))
+        end
+    elseif btnData == '02' then
+        Log:write(3)
+        --扩展
+        if h < 100 then
+            Log:write(4)
+            errorListTotalHeight = errorListTotalHeight + tonumber(Sprite:getData(errorNode))
+            setAllShoworHide(errorNode, 1)
+            Sprite:setRect(item, x, y, w, h+tonumber(Sprite:getData(errorNode)))
+        end
+    end
+    Log:write(5)
+    ListView:adjust(errorList)
+    local x,y,w,h = Sprite:getRect(errorList)
+    Log:write(6, x, y, w, h, errorListTotalHeight)
+    Sprite:setRect(errorList, x, y, w, errorListTotalHeight)
+    Sprite:setRect(Sprite:getParent(errorList), x, y, w, errorListTotalHeight)
+    ListView:adjust(Sprite:getParent(Sprite:getParent(errorList)))
+    Log:write(7, Sprite:getRect(errorList))
+    Log:write('2222', Sprite:getRect(Sprite:getParent(Sprite:getParent(errorList))))
+end
+
+function isSave(sprite)
+    Scene:freeByHandle(rootSprite)
+    Scene:back()
+end
+
+function time1OnSelect()
+    local time = os.date("*t")["year"].."-"..os.date("*t")["month"].."-"..os.date("*t")["day"].." "..os.date("*t")["hour"]..":"..os.date("*t")["min"].." 到达"
+    local time1 = Sprite:findChild(rootSprite, 'time1')
+    Sprite:setProperty(time1, "text", time)
+end
+
+function time2OnSelect()
+    local time = os.date("*t")["year"].."-"..os.date("*t")["month"].."-"..os.date("*t")["day"].." "..os.date("*t")["hour"]..":"..os.date("*t")["min"].." 离开"
+    local time2 = Sprite:findChild(rootSprite, 'time2')
+    Sprite:setProperty(time2, "text", time)
+end
+
+    ]]>
+</root>

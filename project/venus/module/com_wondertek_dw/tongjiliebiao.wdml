@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: hewu <hewu2008@gmail.com> ==
+============================================================================
+== | Desc: 页面描述 ==
+============================================================================
+-->
+<root>
+    <header /> 
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+
+        <!-- 设置背景 -->
+        <shadow rect="0,0,480,800" color="#e8e9ed" alpha="255"
+            extendstyle="1111" />
+
+        <!-- 设置头部 -->
+        <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+            <image name="title" rect="0,0,480,66" border="false"
+                src="file://image/title_bg.png" style="autosize" extendstyle="1111">
+                <label rect="0,0,480,66" text="统计列表" color="#ffffff" v-align="center"
+                    h-align="center" font-size="28" extendstyle="1111" />
+            </image>
+            <button name="backBtn" rect="0,4,75,58" normal="normal" sel="sel"
+                OnSelect="doBack" extendstyle="1111">
+                <image name="normal" rect="0,0,75,58" src="file://image/ic_home.png"
+                    style="autosize" extendstyle="1111" />
+                <image name="sel" rect="0,0,75,58" src="file://image/ic_home.png"
+                    style="autosize" extendstyle="1111" />
+            </button>
+        </node>
+
+        <!-- 筛选节点  -->
+        <node name="filterNode" rect="0, 66, 480, 50" enable="true"
+            active="true" extendstyle="1111">
+            <!-- 选择城市 -->
+            <node name="cityFilterNode" rect="10,0,200,50" enable="true"
+                extendstyle="1111">
+                <label name="label2" rect="5,5,100,50" border="false" text="城  市："
+                    h-align="center" v-align="center" color="#000000" font-family="微软雅黑"
+                    font-size="24" />
+                <image rect="110,0,330,50" src="file://image/combobox1.png"
+                    style="autosize" extendstyle="1111" />
+                <!-- 筛选城市  -->
+                <label name="selectCityLabel" rect="110,0,330,50" border="false"
+                    text="所有" h-align="center" v-align="center" color="#000000"
+                    font-family="微软雅黑" font-size="24" />
+                <!-- 筛选按钮 -->
+                <button name="selectCityButton" rect="110,0,330,50" border="false"
+                    text="" color="#ffffff" OnSelect="OnSelectCityButtonClicked"></button>
+            </node>
+
+            <!-- 选择月份 -->
+            <node name="monthFilterNode" rect="10,60,460,50" enable="true"
+                extendstyle="1111">
+                <!-- 月份标签和背景图 -->
+                <label name="label2" rect="5,5,100,50" border="false" text="开始时间："
+                    v-align="center" color="#000000" font-family="微软雅黑" font-size="24" />
+                <image rect="110,0,330,50" src="file://image/combobox2.png"
+                    style="autosize" extendstyle="1111" />
+                <button name="startTime" rect="170,0,300,50" border="false"
+                    text="" color="#0" OnSelect="timeOnSelect">
+                <label name="timeContent" rect="0,0,300,50" border="false" text=""
+                    v-align="center" color="#000000" font-family="微软雅黑" font-size="24" />
+                    </button>
+            </node>
+
+            <!-- 选择月份 -->
+            <node name="monthFilterNode" rect="10,115,460,50" enable="true"
+                extendstyle="1111">
+                <!-- 月份标签和背景图 -->
+                <label name="label2" rect="5,5,100,50" border="false" text="结束时间："
+                    v-align="center" color="#000000" font-family="微软雅黑" font-size="24" />
+                <image rect="110,0,330,50" src="file://image/combobox2.png"
+                    style="autosize" extendstyle="1111" />
+                <button name="endTime" rect="170,0,300,50" border="false"
+                    text="" color="#0" OnSelect="timeOnSelect">
+                <label name="timeContent" rect="0,0,300,50" border="false" text=""
+                    v-align="center" color="#000000" font-family="微软雅黑" font-size="24" />
+                    </button>
+            </node>
+
+            <!-- 确定筛选按钮 -->
+            <node name="OkFilterNode" rect="10,170,80,66" enable="true"
+                extendstyle="1111">
+                <button name="okSelectButton" rect="100,0,300,50" border="false"
+                    text="" color="#ffffff" OnSelect="okSelectButtonClicked"
+                    extendstyle="1111">
+                    <image rect="0,0,300,50" sudoku="15,15,15,15" src="file://image/btn_bg_n.png"
+                        style="sudoku-auto" extendstyle="1111">
+                        <label rect="0,0,300,50" border="false" text="确定"
+                            font-family="微软雅黑" h-align="center" v-align="center" font-size="24" extendstyle="1111" />
+                    </image>
+                </button>
+            </node>
+        </node>
+
+        <!-- 主体节点 -->
+        <node name="mainNode" rect="0,292,480,508" visible="true" enable="true"
+            active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111" border="true">
+            <!-- 统计列表 -->
+            <node name="listNode" rect="0,0,480,568" extendstyle="1111">
+                <listview name="sampleList" rect="0,0,480,734" extendstyle="1111" />
+            </node>
+            <!-- 统计列表项模板  -->
+            <node name="listitem" visible="false" enable="false" active="false"
+                extendstyle="1111" rect="0,0,480,80">
+                <label name='label1' rect="10,10,460,30" text="" color="#000000"
+                    extendstyle="1111" h-align="left" v-align="center" font-size="28"
+                    font-style="" font-family="微软雅黑" />
+                <shadow name="histogramImage" rect="10,40,400,30" auto-size="true"
+                    style="center" color="#95caca" alpha="128" />
+            </node>
+        </node>
+
+        <!-- 城市选择节点-->
+        <node name="citySelectNode" rect="0,0,480,800" visible="false"
+            enable="false" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 城市列表 -->
+            <node name="cityListViewNode" rect="120,200,240,450"
+                extendstyle="1111">
+                <image rect="0,0,240,450" src="file://image/input.png" style="sudoku-auto"
+                    extendstyle="1111" sudoku="15,15,15,15" />
+                <listview name="cityListView" rect="0,20,240,450"
+                    extendstyle="1111" border="false">
+                    <list-item rect="0,0,240,80" extendstyle="1111" border="false">
+                        <button rect="20,10,200,60" OnSelect="OnCityListItemSelect"
+                            normal="normal" extendstyle="1111" color="#2d547b">
+                            <node name="normal">
+                                <image rect="0,0,200,60" sudoku="15,15,15,15"
+                                    src="file://image/btn_bg_n.png" style="sudoku-auto" extendstyle="1111" />
+                            </node>
+                        </button>
+                        <!-- 显示的标签将上面的按钮完全覆盖 -->
+                        <label name="cityNameLabel" rect="20,10,200,60" text="$(cityName)"
+                            color="#000000" v-align="center" h-align="center" font-size="24"
+                            extendstyle="1111" />
+                    </list-item>
+                    <dataset>
+                        <set cityName="所有" />
+                        <set cityName="合肥市" />
+                        <set cityName="芜湖市" />
+                        <set cityName="六安市" />
+                        <set cityName="黄山市" />
+                    </dataset>
+                </listview>
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+require 'os'
+local rootSprite
+local values
+local searchMonthIndex = 1
+local month = {'一月','二月', '三月', '四月', '五月', '六月', '七月',
+'八月', '九月', '十月', '十一月', '十二月'}
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    -- 设置当前月份
+    local now = os.date("*t")
+    local curMonth = now['month']
+    local selectMonthEditSprite = Sprite:findChild(rootSprite, "selectMonthEdit")
+    Sprite:setProperty(selectMonthEditSprite, "text", month[curMonth])
+    --构造请求地址
+    local currentMonthString = string.format('%s-%s-%s', now['year'], now['month'], '1')
+    local nextMonth, year
+    if (now['month'] >= 12) then
+        nextMonth = 1
+        year = now['year'] + 1
+    else
+        nextMonth = now['month'] + 1
+        year = now['year']
+    end
+    local nextMonthString = string.format('%s-%s-%s', year,
+    nextMonth, '1') -- 下月
+    local server = Config:get('server')
+    local requestURL = string.format('&cmd=wlbtongjilist&area=&page=%s&startmonth=%s&endmonth=%s', '1', currentMonthString, nextMonthString)
+    -- 进行http请求
+    searchMonthIndex = curMonth
+    local reqURL = getWholeUrl('nbspweb/webservice/patrolstatistic!doWebservice.action', requestURL)
+    Http:request("StatList", reqURL, 101)
+    local startTime = Sprite:findChild(rootSprite, 'startTime')
+    local endTime = Sprite:findChild(rootSprite, 'endTime')
+    local startContent = Sprite:findChild(startTime, 'timeContent')
+    local endContent = Sprite:findChild(endTime, 'timeContent')
+    Sprite:setProperty(startContent, 'text', currentMonthString)
+    Sprite:setProperty(endContent, 'text', nextMonthString)
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        local startTime = Sprite:findChild(rootSprite, 'startTime')
+        local endTime = Sprite:findChild(rootSprite, 'endTime')
+        local startContent = Sprite:findChild(startTime, 'timeContent')
+        local endContent = Sprite:findChild(endTime, 'timeContent')
+        local regHandle = Reg:create("dateTime")
+        retuenTime = Reg:getString(regHandle, "time")
+        retuenType = Reg:getString(regHandle, "type")
+        if retuenTime ~= '' and retuenTime ~= nil then
+            if retuenType == 'start' then
+                Sprite:setProperty(startContent, 'text', retuenTime)
+            elseif retuenType == 'end' then
+                Sprite:setProperty(endContent, 'text', retuenTime)
+            end
+        end
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+        -- 请求获得相应
+        local jsonResp = Http:jsonDecode("StatList")
+        values = jsonResp["value"]
+        -- 取得列表长度
+        if (values == '') then
+            Dialog:show("统计列表", "返回数据为空", "ok")
+            return
+        end
+        local len = 0
+        for i,v in pairs(values) do
+            len = len + 1
+        end
+        Log:write('22222222222222',len, Sprite:findChild(rootSprite, 'sampleList'), Sprite:findChild(rootSprite, 'listitem'))
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list)
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), len, 'loadListItem')
+        ListView:adjust(list)
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+--@brief 加载城市巡检列表项
+function loadListItem(list, item, index)
+    Log:write('111111111111')
+    Sprite:setRect(item, 0, 0, 480, 80)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    Log:write('222222')
+    -- 取得列表项的sprite
+    local itemLabel = Sprite:findChild(item, 'label1')
+    Log:write('333')
+    local histogramImageSprite = Sprite:findChild(item, 'histogramImage')
+    Log:write('444')
+    -- 解析返回的结果
+    if (values[index] == nil) then
+        return
+    end
+    Log:write('555')
+    local regionname = values[index]['regionname']
+    Log:write('666')
+    local rate = string.gsub(values[index]['rate'], '[%% ]', '')
+    Log:write('777')
+    -- 设置列表项的标签
+    local startTime = Sprite:findChild(rootSprite, 'startTime')
+    local endTime = Sprite:findChild(rootSprite, 'endTime')
+    local startContent = Sprite:findChild(startTime, 'timeContent')
+    local endContent = Sprite:findChild(endTime, 'timeContent')
+    local text = string.format('%s %s至%s 巡检率 :%s%%', regionname, Sprite:getText(startContent), Sprite:getText(endContent), rate)
+    Log:write('888')
+    Sprite:setProperty(itemLabel, "text", text)
+    Log:write('999')
+    -- 设置列表项直方图长度
+    local rateValue = tonumber(rate)
+    Log:write('3333333333333333', rateValue)
+    x,y,width,height = Sprite:getRect(histogramImageSprite)
+    Sprite:setRect(histogramImageSprite, x, y, width * rateValue / 100, height)
+    Log:write('222222222222')
+end
+
+--@brief 返回按钮消息处理函数
+function doBack(sprite)
+    Scene:back()
+end
+
+--@brief 点击选择城市按钮消息处理函数
+function OnSelectCityButtonClicked(sprite)
+    local citySelectNodeSprite = Sprite:findChild(rootSprite, "citySelectNode")
+    Sprite:setProperty(citySelectNodeSprite, "visible", "true")
+    Sprite:setProperty(citySelectNodeSprite, "enable", "true")
+end
+
+--@brief 城市选择列表项消息处理函数
+function OnCityListItemSelect(sprite)
+    -- 按钮的父节点才是列表项
+    local cityListItemSprite = Sprite:getParent(sprite)
+    local cityNameLabelSprite = Sprite:findChild(cityListItemSprite, "cityNameLabel")
+    local cityNameLabelText = Sprite:getText(cityNameLabelSprite)
+    -- 设置新的城市名称
+    local selectCityLabelSprite = Sprite:findChild(rootSprite, "selectCityLabel")
+    Sprite:setProperty(selectCityLabelSprite, "text", cityNameLabelText)
+    -- 隐藏城市选择列表
+    local citySelectNodeSprite = Sprite:findChild(rootSprite, "citySelectNode")
+    Sprite:setProperty(citySelectNodeSprite, "visible", "false")
+    Sprite:setProperty(citySelectNodeSprite, "enable", "false")
+end
+
+--@brief 递增月份消息处理函数
+function OnIncMonthButtonClicked(sprite)
+    local selectMonthEditSprite = Sprite:findChild(rootSprite, "selectMonthEdit")
+    local currentSelectMonthText = Sprite:getText(selectMonthEditSprite)
+    local j = 1
+    for i, value in ipairs(month) do
+        if (value == currentSelectMonthText) then
+            j = i
+            break
+        end
+    end
+    -- 边界处理
+    if j == table.getn(month) then
+        j = 1
+    else
+        j = j + 1
+    end
+    Sprite:setProperty(selectMonthEditSprite, "text", month[j])
+end
+
+--@brief 递减月份处理函数
+function OnDecMonthButtonClicked(sprite)
+    local selectMonthEditSprite = Sprite:findChild(rootSprite, "selectMonthEdit")
+    local currentSelectMonthText = Sprite:getText(selectMonthEditSprite)
+    local j = 1
+    for i, value in ipairs(month) do
+        if (value == currentSelectMonthText) then
+            j = i
+            break
+        end
+    end
+    -- 边界处理
+    if j == 1 then
+        j = table.getn(month)
+        else
+        j = j - 1
+    end
+    Sprite:setProperty(selectMonthEditSprite, "text", month[j])
+end
+
+--@brief 确认筛选按钮消息处理函数
+function okSelectButtonClicked(sprite)
+    -- 对用户输入进行检查
+
+    local startTime = Sprite:findChild(rootSprite, 'startTime')
+    local endTime = Sprite:findChild(rootSprite, 'endTime')
+    local startContent = Sprite:findChild(startTime, 'timeContent')
+    local endContent = Sprite:findChild(endTime, 'timeContent')
+    if Sprite:getText(startContent) == '' or Sprite:getText(endContent) == '' then
+        Dialog:show("","用户输入不合法", "ok")
+        return
+    end
+    local selectCityLabelSprite = Sprite:findChild(rootSprite, "selectCityLabel")
+    local selectCityLabelText = Sprite:getText(selectCityLabelSprite)
+    if (selectCityLabelText == nil or selectCityLabelText == '' ) then
+        Dialog:show("","用户输入不合法", "ok")
+        return
+    end
+    -- 构造http请求地址
+    -- 读取配置的服务器字段
+    local server = Config:get('server')
+    -- 对用户输入的城市进行处理
+    if (selectCityLabelText == '所有') then
+        selectCityLabelText = ''
+    end
+    local requestURL = string.format('&cmd=wlbtongjilist&area=%s&page=%s&startmonth=%s&endmonth=%s',selectCityLabelText, '1', Sprite:getText(startContent), Sprite:getText(endContent))
+    -- 进行http请求
+    searchMonthIndex = j
+    local reqURL = getWholeUrl('nbspweb/webservice/patrolstatistic!doWebservice.action', requestURL)
+    Http:request("StatList", reqURL, 101)
+end
+
+function timeOnSelect(sprite)
+    -- body
+        Log:write('11111111111111111111111111')
+    local startTime = Sprite:findChild(rootSprite, 'startTime')
+        Log:write('2')
+    local endTime = Sprite:findChild(rootSprite, 'endTime')
+        Log:write('3')
+    local regHandle = Reg:create("tongji")
+        Log:write('4', startTime, endTime, sprite)
+    if tonumber(startTime) == tonumber(sprite) then
+        Reg:setString(regHandle, 'type', 'start')
+    elseif tonumber(endTime) == tonumber(sprite) then
+        Reg:setString(regHandle, 'type', 'end')
+    else
+        return
+    end
+
+    local content = Sprite:findChild(Sprite:getParent(sprite), 'timeContent')
+    local date = Sprite:getText(content)
+
+    local stringDate = Split(date, '-')
+
+    local regHandle = Reg:create('dateDialog')
+    Reg:setString(regHandle, 'year', stringDate[1])
+    Reg:setString(regHandle, 'month', stringDate[2])
+    Reg:setString(regHandle, 'day', stringDate[3])
+    Scene:setReturn(Alias.tongjiliebiao, Alias.dateDialog)
+    Scene:go(Alias.dateDialog)
+end
+
+    ]]>
+</root>
