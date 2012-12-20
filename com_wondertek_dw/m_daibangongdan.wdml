@@ -93,8 +93,8 @@
             
             <!--列表信息-->
             <node name="listNode" rect="0,125,480,645" extendstyle="1111">
-            <label name="noDataLbl" rect="0,100,480,40" text="对不起，暂无工单！" visible="false" enable="false" active="false"  color="#0" h-align="center" v-align="center" font-size="25" extendstyle="1171" />
-                <listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
+            <label name="noDataLbl" rect="0,100,480,40" text="对不起，暂无工单！" visible="false" enable="false" active="false"  color="#5a5a5a" h-align="center" v-align="center" font-size="25" extendstyle="1171" />
+                <listview name="sampleList" rect="0,0,480,734" extendstyle="1111" />
             </node>
             
             <node name="listitem" visible="false" enable="false" active="false"
@@ -104,25 +104,25 @@
                     extendstyle="1111">
                     <image name="timeSign" rect="440,44,27,27" border="false" src=""
                         style="autosize" extendstyle="1111"/>                     
-                    <label rect="10,5,150,30" text="工单编号：" color="#3C57C4" font-size="26"
-                        font-family="黑体" h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="textNum" rect="140,5,360,30" text="" color="#3C57C4"
-                        font-family="黑体" font-size="26" h-align="left" v-align="center" extendstyle="1111"
+                    <label rect="10,5,150,30" text="工单编号：" color="#0058a5" font-size="26"
+                        font-family="微软雅黑" h-align="left" v-align="center" extendstyle="1111" border="false" />
+                    <label name="textNum" rect="140,5,360,30" text="" color="#0058a5"
+                        font-family="微软雅黑" font-size="26" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label rect="10,40,150,20" text="工单标题：" color="#0"
+                    <label rect="10,40,150,20" text="工单标题：" color="#5a5a5a"
                         font-family="黑体" font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label name="textTitle" rect="120,40,300,20" text="" color="#0"
+                    <label name="textTitle" rect="120,40,300,20" text="" color="#5a5a5a"
                         font-family="黑体" font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />                    
-                    <label rect="10,65,150,20" text="派发时间：" color="#0" font-size="20"
+                    <label rect="10,65,150,20" text="派发时间：" color="#5a5a5a" font-size="20"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="textTime" rect="120,65,460,20" text="" color="#0"
+                    <label name="textTime" rect="120,65,460,20" text="" color="#5a5a5a"
                         font-family="黑体" font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label name="timeLabel" rect="10,90,150,20" text="完成时限：" color="#ff0000" font-size="20"
+                    <label name="timeLabel" rect="10,90,150,20" text="完成时限：" color="#dd512e" font-size="20"
                         font-family="黑体" h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="finishTime" rect="120,90,460,20" text="" color="#ff0000"
+                    <label name="finishTime" rect="120,90,460,20" text="" color="#dd512e"
                         font-family="黑体" font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
                 </button>
@@ -315,6 +315,7 @@ function loadZanCunItem(list, item, index)
     local textNum = Sprite:findChild(item, 'textNum')
     local textTitle = Sprite:findChild(item, 'textTitle')
     local textTime = Sprite:findChild(item, 'textTime')
+    local timeLabel=Sprite:findChild(item, 'timeLabel')
     local finishTime=Sprite:findChild(item, 'finishTime')
 
 local timeString=Split(dataString[8]," ") 
@@ -343,9 +344,11 @@ local timeString=Split(dataString[8]," ")
     if hours<0 then
     if -remaindays>=5 then
     Sprite:setProperty(finishTime, 'text', data.value[index].overtimeSetDis)
-   Sprite:setProperty(timeLabel, 'color','#0')
-    Sprite:setProperty(finishTime, 'color','#0')
+    Sprite:setProperty(timeLabel, 'color','#5a5a5a')
+    Sprite:setProperty(finishTime, 'color','#5a5a5a')
     else
+    Sprite:setProperty(timeLabel, 'color','#dd512e')
+    Sprite:setProperty(finishTime, 'color','#dd512e')
     Sprite:setProperty(Sprite:findChild(item, 'timeSign'), 'src', 'file://image/willover.png')  
     Sprite:setProperty(finishTime, 'text', '还剩'..-remaindays..'天')
     --Sprite:setProperty(finishTime, 'text', '还剩'..-remaindays..'天'..remainhours..'小时'..remainmins..'分钟'..remainsecs..'秒')
@@ -400,15 +403,18 @@ function loadListItem(list, item, index)
      --Sprite:setProperty(finishTime, 'text', data.value[index].taskdate)
     
     if tonumber(data.value[index].taskState)>3 then
-    
+    Sprite:setProperty(timeLabel, 'color','#ff0000')
+    Sprite:setProperty(finishTime, 'color','#ff0000')
     Sprite:setProperty(finishTime, 'text','已完成')
     else
     if hours<0 then
     if -remaindays>=5 then
     Sprite:setProperty(finishTime, 'text', data.value[index].overtimeSetDis)
-   Sprite:setProperty(timeLabel, 'color','#0')
-    Sprite:setProperty(finishTime, 'color','#0')
+   Sprite:setProperty(timeLabel, 'color','#5a5a5a')
+    Sprite:setProperty(finishTime, 'color','#5a5a5a')
     else
+    Sprite:setProperty(timeLabel, 'color','#dd512e')
+    Sprite:setProperty(finishTime, 'color','#dd512e')
     Sprite:setProperty(Sprite:findChild(item, 'timeSign'), 'src', 'file://image/willover.png')  
     Sprite:setProperty(finishTime, 'text', '还剩'..-remaindays..'天')
    -- Sprite:setProperty(finishTime, 'text', '还剩'..-remaindays..'天'..remainhours..'小时'..remainmins..'分钟'..remainsecs..'秒')
