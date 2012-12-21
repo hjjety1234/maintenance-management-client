@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: xxxx <xxxx@xxxx.com> ==
+============================================================================
+== | Desc: home ==
+============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+
+        <image name="title" rect="0,0,480,800" border="false"
+            src="file://image/index_bg.jpg" style="autosize" extendstyle="1111" />
+        <image name="title" rect="0,0,480,75" border="false"
+            src="file://image/index-top.png" style="autosize" extendstyle="1111" />
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <node name="listNode" rect="0,75,480,725">
+                <list name="listview1" rect="0,0,480,725" extendstyle="1111"
+                    line="3" col="3" auto-adjust="true" offset="2,6">
+                    <list-item rect="0,0,160,220" extendstyle="1111">
+                        <button rect="18,10,124,165" OnSelect="listItemOnSelect"
+                            normal="normal" color="#2d547b" data="$(dataInfo)" extendstyle="1111">
+                            <node name="normal" extendstyle="1111">
+                                <image rect="0,0,124,165" src="$(iconSrc)" style="autosize"
+                                    extendstyle="1111" />
+                            </node>
+                        </button>
+                        <label rect="0,175,160,30" text="$(titleName)" color="#ffffff"
+                            v-align="center" h-align="center" font-size="24" extendstyle="1111" />
+                    </list-item>
+                    <dataset>
+                        <set iconSrc="file://image/icon_1.png" titleName="我的待办"
+                            dataInfo="01" />
+                        <set iconSrc="file://image/icon_2.png" titleName="公告管理"
+                            dataInfo="02" />
+                        <set iconSrc="file://image/icon_3.png" titleName="巡检任务"
+                            dataInfo="03" />
+                        <set iconSrc="file://image/icon_4.png" titleName="隐患上报"
+                            dataInfo="04" />
+                        <set iconSrc="file://image/icon_6.png" titleName="站点查询"
+                            dataInfo="06" />
+                        <set iconSrc="file://image/icon_7.png" titleName="通讯录"
+                            dataInfo="07" />
+                        <set iconSrc="file://image/icon_8.png" titleName="车辆申请"
+                            dataInfo="08" />
+                        <set iconSrc="file://image/ic_setting.png" titleName="系统设置"
+                            dataInfo="09" />
+                        <set iconSrc="file://image/ic_setting.png" titleName="统计报表"
+                            dataInfo="10" />
+                    </dataset>
+                </list>
+            </node>
+            <node name="daibanNode" visible="0" rect="120,75,43,45" extendstyle="1111">
+                <image name="daibanimg" rect="0,0,43,45" style="autosize"
+                    extendstyle="1111" border="false" src="file://image/hongquan.png" />
+                <label name="daibanNum" rect="5,5,35,35" color="#FF0000"
+                    font-style="bold" v-align="center" h-align="center" font-size="24"
+                    extendstyle="1111" />
+            </node>
+        </node>
+        <node name="menuNode" rect="0,0,480,800" extendstyle="1111"
+            visible="false" enable="false" active="false">
+            <button name="" rect="0,0,480,800" extendstyle="1111" color="#ffffff"
+                font-size="20" v-align="center" h-align="left" OnSelect="hideMenuNode" />
+            <image name="daibanimg" rect="0,700,480,100" style="autosize"
+                extendstyle="1111" border="false" src="file://image/bottom_bg.png" />
+            <button name="recordStatus" rect="0,700,480,100" extendstyle="1111"
+                color="#ffffff" font-size="20" v-align="center" h-align="left"
+                OnSelect="menuSettingOnSelect" />
+            <label name="daibanNum" rect="0,700,480,100" color="#ffffff"
+                font-style="bold" text="我的上传" v-align="center" h-align="center"
+                font-size="24" extendstyle="1111" />
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+
+local rootSprite
+local observer
+local mapViewPlugin
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    loadRequest()
+    --observer = Plugin:getObserver()
+    --local regHandle = Reg:create(Regs.regName)
+    --mapViewPlugin = Reg:getInteger(regHandle, "map_handle")
+    --if mapViewPlugin == 0 then
+    -- mapViewPlugin = pluginCreate("MapView", "MapView")
+    -- Reg:setInteger(regHandle, "map_handle", mapViewPlugin)
+    --end
+    --pluginInvoke(mapViewPlugin, "getCurrentPosition", observer, 1000)
+    --Map:getCurPosition(observer, 1000)
+end
+
+function updateDaibanNum()
+    local username=Config:get('username')
+    local password=Config:get('password')
+    local dataString=string.format('usercode=%s&password=%s&cmd=%s',username, password,'wlblogin')
+    local reqURL = getUrl()..'nbspweb/webservice/user!doWebservice.action?'..dataString
+    Http:request('login_istrue', reqURL, 102, {useCache=false})
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        updateDaibanNum()
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if Loading:isShow() then Loading:close() end
+    if msg == 101 then
+        data = Http:jsonDecode('daiban_data')
+        Log:write("data 101 = ", data)
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        end
+        if data.code == '0' or data.code=='20' then
+            setDaibanNum(data.total)
+        else
+            --Dialog:show(rootSprite, '请求超时！请检查服务器地址和端口是否设置正确！', 'ok')
+        end
+    elseif msg == 102 then
+    	local loginData = Http:jsonDecode('login_istrue')
+        local result=loginData['code']
+        if result=='0' then
+            Config:set('tasknum', loginData.taskNum)
+            local daibanNode = Sprite:findChild(rootSprite,'daibanNode')
+            local daibanNum = Sprite:findChild(daibanNode,'daibanNum')
+            if loginData.taskNum == '0' then
+                Sprite:setVisible(daibanNode, 0)
+            else
+                Sprite:setVisible(daibanNode, 1)
+                Sprite:setProperty(daibanNum, 'text', loginData.taskNum)
+            end
+        end
+    elseif msg == 1000 then
+        local postData = Param:getString(param, 0)
+        if postData.latitude ~= nil then
+            Config:set("latitude", postData.latitude)
+        end
+        if postData.longitude ~= nil then
+            Config:set("longitude", postData.longitude)
+        end
+        -- postData为Json数据({"latitude":"31250614","longitude":"121600975"})
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Dialog:show('', '是否确定退出？', 'ok_cancel', 'doExit')
+        return 1
+    elseif kc == Key.F1 then
+        local menuNode = Sprite:findChild(rootSprite, 'menuNode')
+        setAllShoworHide(menuNode, 1)
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function loadRequest()
+    local username = Config:get('username')
+    local param = '&page=1'
+    local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
+    Http:request('daiban_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbtasklist'})
+end
+
+function setDaibanNum(num)
+    local daibannode = Sprite:findChild(rootSprite, 'daibanNode')
+    Log:write('num================',num)
+    if tonumber(num)==0 or num=='' or num==nil then
+        setAllShoworHide(Sprite:findChild(daibannode, 'daibanimg'), 0)
+        setAllShoworHide(Sprite:findChild(daibannode, 'daibanNum'), 0)
+        else
+        setAllShoworHide(Sprite:findChild(daibannode, 'daibanimg'), 1)
+        setAllShoworHide(Sprite:findChild(daibannode, 'daibanNum'), 1)
+        Sprite:setProperty(Sprite:findChild(daibannode, 'daibanNum'),'text',num)
+    end
+end
+
+function listItemOnSelect(sprite)
+    local dataInfo = Sprite:getData(sprite)
+    if dataInfo == '01' then
+        Scene:setReturn(Alias.home, Alias.daibangongdan)
+        Scene:go(Alias.daibangongdan)
+    elseif dataInfo == '02' then
+        Scene:setReturn(Alias.home, Alias.notice)
+        Scene:go(Alias.notice)
+    elseif dataInfo == '03' then
+        Scene:setReturn(Alias.home, Alias.xunjianjihua)
+        Scene:go(Alias.xunjianjihua)
+    elseif dataInfo == '04' then
+        Scene:setReturn(Alias.home, Alias.yinhuanList)
+        Scene:go(Alias.yinhuanList)
+    elseif dataInfo == '05' then
+    elseif dataInfo == '06' then
+        Scene:setReturn(Alias.home, Alias.search)
+        Scene:go(Alias.search)
+    elseif dataInfo == '07' then
+        Scene:setReturn(Alias.home, Alias.tongxunlu)
+        Scene:go(Alias.tongxunlu)
+    elseif dataInfo == '08' then
+        Scene:setReturn(Alias.home, Alias.cheliangguanli)
+        Scene:go(Alias.cheliangguanli)
+    elseif dataInfo == '09' then
+        Scene:setReturn(Alias.home, Alias.setting)
+        Scene:go(Alias.setting)
+    elseif dataInfo == '10' then
+        Scene:setReturn(Alias.home, Alias.chart)
+        Scene:go(Alias.chart)
+    end
+end
+
+function hideMenuNode(sprite)
+    local menuNode = Sprite:findChild(rootSprite, 'menuNode')
+    setAllShoworHide(menuNode, 0)
+end
+
+function menuSettingOnSelect(sprite)
+    local menuNode = Sprite:findChild(rootSprite, 'menuNode')
+    setAllShoworHide(menuNode, 0)
+    Scene:setReturn(Alias.home, Alias.xunjianupload)
+    Scene:go(Alias.xunjianupload)
+end
+
+    ]]>
+</root>

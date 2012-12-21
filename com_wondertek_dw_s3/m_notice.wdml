@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: hewu <hewu2008@gmail.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+
+			<!-- 设置背景 -->
+			<shadow rect="0,0,480,800" color="#ffffff" alpha="255"
+				extendstyle="1111" />
+			<image name="background" rect="0,0,480,800" src="file://image/background.png"
+				extendstyle="1111" style='autosize' />
+
+			<!-- 公告头部 -->
+			<node rect="0,0,480,66" extendstyle="1111">
+				<image name="titleBg" rect="0,0,480,66" src="file://image/title_bg_new.png"
+					extendstyle="1111" style='autosize' />
+
+				<!-- 返回按钮 -->
+				<button name="backBtn" rect="0,0,66,66" OnSelect="doBack"
+					extendstyle="1111"> 				
+					<image name="titleBg1" rect="10,13,40,40" src="file://image/ic_home_new.png"
+					extendstyle="1111"  />
+				</button>
+
+				<!-- 二级菜单标题 -->
+				<scrolltext name="title" rect="105,7,280,40" text="公告管理"
+					font-family="微软雅黑" extendstyle="1111" font-size="34" h-align="center"
+					v-align="center" color="#ffffff" scroll="true" step="2" />
+
+				<!-- 显示或隐藏搜索条 -->
+				<button name="btnShowSearchBar" rect="414,0,66,66"
+					font-size="24" extendstyle="1111" text="" color="#ffffff"
+					OnSelect="OnShowSearchBarButtonClicked">
+				<image name="titleBg1" rect="16,13,40,40" src="file://image/ico_search_new.png"
+					extendstyle="1111"  />
+				</button>
+			</node>
+
+			<!-- 隐藏的搜索栏 -->
+			<node name="searchBar" rect="0,66,480,56" extendstyle="1111"
+				visible="false">
+				<image name="search_bg" rect="0,0,480,56" src="file://image/title_bg.png"
+					extendstyle="1111" style='autosize' />
+				<image name="searchBarImage" rect="15,5,452,42"
+					src="file://image/search_input_new.png" style='autosize'
+					extendstyle="1111" />
+				<edit name="keywordEdit" rect="37,15,340,26" extendstyle='1111'
+					font-family='微软雅黑' v-align="center" font-size="22" text=""
+					OnTextChanged="editOnTextChanged" style='autosize'>
+					<label name="hideLabel" rect="0,0,442,22" text="请输入搜索标题"
+						font-family='微软雅黑' color="#c0c0c0" extendstyle="1111" h-align="left"
+						v-align="center" font-size="22" style='autosize' />
+				</edit>
+				<button name="searchButton" rect="426,6,40,40" OnSelect="OnSearchButtonClicked"
+					extendstyle="1111">
+					<image name="searchButtonImage" rect="0,0,40,40" src=""
+						extendstyle="1111" style='autosize' />
+				</button>
+			</node>
+
+			<!-- 公告列表视图  -->
+			<node name="listViewNode" rect="0,66,480,654" extendstyle="1111">
+				<listview name="listView1" rect="0,0,477,654" extendstyle="1111"
+					border="false" visible="true" auto-scroll="true" />
+			</node>
+
+			<!-- 公告列表项  -->
+			<node name="listItem1" rect="0,0,480,100" border="false"
+				visible="false" enable="false" active="false" extendstyle="1111">
+				<image name="listButtonImage" rect="0,0,480,100" src=""
+					extendstyle="1111" style='autosize' />
+				<button name="btnname" rect="0,0,480,100" normal="normal"
+					focus="focus" OnSelect="itemOnSelect" extendstyle="1111">
+
+					<!-- 聚焦时的列表项背景图片 -->
+					<node name="focus" rect="0,0,480,100" extendstyle="1111">
+						<image name="focusImage" rect="460,45,14,20" src="file://image/jiantou_new.png"
+							extendstyle="1111" />
+					</node>
+
+					<!-- 正常情况时列表项背景图片 -->
+					<node name="normal" rect="0,0,480,100" extendstyle="1111"
+						v-align="center" h-align="center">
+						<image name="normalImage" rect="460,45,14,20"
+							src="file://image/jiantou_new.png" extendstyle="1111" />
+					</node>
+
+					<!-- 通告内容详情 -->
+					<label name="noticeId" rect="0,0,20,65" border="false" text=""
+						h-align="left" v-align="center" color="#000000" font-size="15"
+						extendstyle="1111" visible="false" />
+					<label name="isCollect" rect="0,0,20,65" border="false" text=""
+						h-align="right" v-align="center" color="#000000" font-size="15"
+						extendstyle="1111" visible="false" />
+					<label name="noticeTitle" rect="15,0,360,60" postfix="……"
+						border="false" h-align="left" v-align="center" color="#303030"
+						text="" font-size="24" scroll="true" step="4" extendstyle="1111"
+						font-family='微软雅黑' />
+					<!-- 发布时间 -->
+					<label name="noticeDate" rect="305,55,110,30" border="false"
+						text="" h-align="center" v-align="center" color="#5a5a5a"
+						font-size="20" extendstyle="1111" font-family='微软雅黑' />
+					<!-- 发布人  -->
+					<node rect="15,55,160,20" extendstyle="1111">
+						<label name="label1" rect="0,0,70,30" border="false" text="发布人:"
+							h-align="left" v-align="center" color="#5a5a5a" font-size="20"
+							extendstyle="1111" font-family='微软雅黑' />
+						<label name="issuePerson" rect="70,0,90,30" border="false"
+							text="" h-align="left" v-align="center" color="#5a5a5a"
+							font-size="20" extendstyle="1111" font-family='微软雅黑' />
+					</node>
+					<!-- 新的公告提示图标 -->
+					<node name="newNoticeImageNode" rect="410,0,43,44"
+						extendstyle="1111" visible="false">
+						<image name="newNoticeImage" rect="0,0,43,44"
+							src="file://image/lable_new.png" extendstyle="1111" />
+					</node>
+					<!-- 收藏按钮 -->
+					<node name="MyFavNoticeNode" rect="410,0,43,41" extendstyle="1111"
+						visible="false">
+						<image name="newFavImage" rect="0,0,43,41"
+							src="file://image/bookmark_new.png" extendstyle="1111" v-align="center" />
+					</node>
+				</button>
+			</node>
+
+			<!-- 收藏菜单  -->
+			<node name="ContextMenuNode" rect="0,720,480,80" border="false" style = 'autosize'
+				visible="false" enable="true" active="false" extendstyle="1111">
+				<image name="ContextMenuNodeBgImage" rect="0,0,480,80"
+					src="file://image/tab_n_new.png" extendstyle="1111" style = 'autosize'/>
+				<node name="FavListImg" rect="0,0,480,80" extendstyle="1111"
+					visible="true" style ='autosize'>
+					<button name="favListButton" rect="0,0,480,80"
+						OnSelect="ContextMenuListItemOnSelect" extendstyle="1111">
+						<image rect="182,18,40,40" src="file://image/bookmark1_new.png"
+							border="false" extendstyle="1111" />
+						<label name="noticeDate" rect="325,75,90,20" border="false"
+							text="" h-align="right" v-align="center" color="#000000"
+							font-size="15" extendstyle="1111" />
+						<label name="label2" rect="228,18,120,40" border="false"
+							text="我的收藏" h-align="left" v-align="center" color="#000000"
+							font-family="微软雅黑" font-size="24" extendstyle="1111" />
+					</button>
+				</node>
+			</node>
+		</node>
+	</body>
+    <![CDATA[
+
+    require 'com_wondertek_dw.common.framework'
+    local rootSprite
+    local isSearchBarVisible = false -- 搜索条是否显示标志
+    local isFavContextMenuVisible = false -- 收藏上下文菜单是否显示标志
+    local nSearchBarWidth = 55
+    local page = 1
+    local respValue = nil
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            requestNoticeList('')
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if Loading:isShow() then Loading:close() end
+        if msg == 101 then
+            local resp = Http:jsonDecode('notice_list')
+            -- 检查是否有返回结果
+            if (resp.code ~= '0') then
+                -- issue45 修改提示数据不存在
+                if (resp.code == '50') then
+                    Dialog:show("提示", '没有找到公告!', "ok")
+                    return
+                end
+                Dialog:show("", getErrorCode(resp.code), "ok")
+                return
+            end
+            -- 迭代取得列表的长度
+            respValue = resp.value
+            local len = getJsonArrayCount(resp.value)
+            if (len == 0) then
+                Dialog:show("", "公告列表长度为零", "ok")
+                return
+            end
+            -- 删除原有列表项
+            local list = Sprite:findChild(rootSprite, 'listView1')
+            ListView:removeAllItems(list)
+            -- 加载新的列表项
+            ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+            ListView:adjust(list)
+            -- 刷新图标
+            refresh()
+            elseif msg == 102 then
+            local resp = Http:jsonDecode('m_notice_flag')
+            if resp.code == '0' then
+                Log:write('标记公告标记为已读。')
+                else
+                Log:write('设置已读标志位失败：'..getErrorCode(resp.code))
+            end
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            if Loading:isShow() then Loading:close() end
+            Scene:back()
+            return 1
+            elseif kc == Key.F1 then -- 按下菜单键
+            local FavListNodeSprite = Sprite:findChild(rootSprite, "ContextMenuNode")
+            if (isFavContextMenuVisible == false) then
+                Sprite:setProperty(FavListNodeSprite, 'visible', 'true')
+                isFavContextMenuVisible = true
+                else
+                Sprite:setProperty(FavListNodeSprite, 'visible', 'false')
+                isFavContextMenuVisible = false
+            end
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    function loadListItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 100)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        -- 获取要创建的列表项Sprite
+        local noticeIdSprite = Sprite:findChild(item, 'noticeId')
+        local isCollectSprite = Sprite:findChild(item, 'isCollect')
+        local noticeTitleSprite = Sprite:findChild(item, 'noticeTitle')
+        local noticeDateSprite = Sprite:findChild(item, 'noticeDate')
+        local issuePersonSprite = Sprite:findChild(item, 'issuePerson')
+        -- 设置列表项的内容
+        local listItemBg = Sprite:findChild(item, 'listButtonImage')
+        Sprite:setRect(listItemBg, 0, 0, 480, 100)
+        local num = index+1
+        if num % 2 > 0 then
+            Sprite:setProperty(listItemBg, 'src', 'file://image/item_bg.png')
+        end
+        if (respValue ~= nil) then
+            local itemValue = respValue[index]
+            if itemValue ~= nil then
+                Sprite:setProperty(noticeIdSprite, 'text', itemValue.id)
+                if itemValue.iscollect == nil then
+                    Sprite:setProperty(isCollectSprite, 'text', '1')
+                    else
+                    Sprite:setProperty(isCollectSprite, 'text', itemValue.iscollect)
+                end
+                Sprite:setProperty(noticeTitleSprite, 'text', itemValue.title)
+                Sprite:setProperty(noticeDateSprite, 'text', string.sub(itemValue.issuedate, 1, 10))
+                Sprite:setProperty(issuePersonSprite, 'text', itemValue.issueperson)
+            end
+        end
+    end
+    -- @brief 返回按钮处理
+    function doBack()
+        if Loading:isShow() then Loading:close() end
+        Scene:back()
+    end
+    --@brief 请求服务器公告列表
+    function requestNoticeList(title)
+        local param = string.format('title=%s&collectflag=0&page=%s&cmd=wlbnewslist', title, page)
+        Log:write("请求公告列表:"..param)
+        local requestURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', param)
+        Http:request('notice_list', requestURL, 101, {useCache=false})
+        -- issue#56 开始是空白，进去后速度慢
+        Loading:show()
+    end
+    -- @brief 列表项选择处理
+    function itemOnSelect(sprite)
+        -- 获取所选列表项数据
+        local noticeId = Sprite:findChild(sprite, 'noticeId')
+        local isCollect = Sprite:findChild(sprite, 'isCollect')
+        local noticeTitle = Sprite:findChild(sprite, 'noticeTitle')
+        local noticeDate = Sprite:findChild(sprite, 'noticeDate')
+        local issuePerson = Sprite:findChild(sprite, 'issuePerson')
+        -- 将数据库中该条记录标记为已读
+        markAsRead(noticeId)
+        -- 设置要发送到公告详情的数据
+        local noticeDetailHandler = Reg:create("noticeDetail")
+        Reg:clear(noticeDetailHandler)
+        Reg:setString(noticeDetailHandler, 'noticeId', Sprite:getText(noticeId))
+        Reg:setString(noticeDetailHandler, 'iscollect', Sprite:getText(isCollect))
+        Reg:setString(noticeDetailHandler, 'noticeTitle', Sprite:getText(noticeTitle))
+        Reg:setString(noticeDetailHandler, 'noticeDate', Sprite:getText(noticeDate))
+        Reg:setString(noticeDetailHandler, 'issuePerson', Sprite:getText(issuePerson))
+        -- 进行页面跳转
+        Scene:setReturn(Alias.m_notice, Alias.m_noticeDetail)
+        Scene:go(Alias.m_noticeDetail)
+    end
+    -- @brief将数据库中该条记录标记为已读
+    function markAsRead(noticeId)
+        local param = 'cmd=wlbupdatenews&id='..noticeId
+        local requestURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', param)
+        Log:write("标记:"..noticeId.."为已阅读:"..requestURL)
+        Http:request('m_notice_flag', requestURL, 102, {useCache=false})
+    end
+    -- @brief 显示或者隐藏搜索条
+    function OnShowSearchBarButtonClicked(sprite)
+        local headerNodeSprite = Sprite:getParent(sprite)
+        local mainNodeSprite = Sprite:getParent(headerNodeSprite)
+        local listViewSprite = Sprite:findChild(mainNodeSprite, "listView1")
+        local searchBarSprite = Sprite:findChild(mainNodeSprite, "searchBar")
+        local x, y, width, height = Sprite:getRect(listViewSprite)
+        if (isSearchBarVisible == false) then
+            Sprite:setRect(listViewSprite, x, y + nSearchBarWidth, width, height)
+            Sprite:setVisible(searchBarSprite, 1)
+            isSearchBarVisible = true
+            else
+            Sprite:setRect(listViewSprite, x, y - nSearchBarWidth, width, height)
+            Sprite:setVisible(searchBarSprite, 0)
+            isSearchBarVisible = false
+            -- 重设列表
+            local server = Config:get("server")
+            local param = string.format('cmd=wlbnewslist&title=&collectflag=0&page=%s', page)
+            Log:write("重设请求公告列表:"..param)
+            local requestURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', param)
+            Http:request('notice_list', requestURL, 101)
+        end
+    end
+    --@brief 点击搜索按钮消息处理函数
+    function OnSearchButtonClicked(sprite)
+        -- 获取用户输入
+        local keywordEditSprite = Sprite:findChild(rootSprite, "keywordEdit")
+        local title = Sprite:getText(keywordEditSprite)
+        if title == '' then
+            Dialog:show('提示', '搜索内容不能为空!', 'ok')
+            return
+        end
+        -- 请求搜索
+        requestNoticeList(title)
+    end
+    -- @brief 刷新页面收藏和新公告图标
+    function refresh()
+        local listViewSprite = Sprite:findChild(rootSprite, 'listView1')
+        local listItemCount = ListView:getItemCount(listViewSprite)
+        Log:write("目前列表项数目："..listItemCount)
+        local i = 0
+        while (i < listItemCount) do
+            local listItemSprite = ListView:getItem(listViewSprite, i)
+            local noticeIdSprite = Sprite:findChild(listItemSprite, 'noticeId')
+            local newNoticeImageNodeSprite = Sprite:findChild(listItemSprite, 'newNoticeImageNode')
+            local myFavNoticeNodeSprite = Sprite:findChild(listItemSprite, 'MyFavNoticeNode')
+            -- 0 为已收藏
+            if (respValue[i].iscollect ~= nil and respValue[i]["iscollect"] == '0') then
+                Sprite:setVisible(myFavNoticeNodeSprite, 1)
+                else
+                Sprite:setVisible(myFavNoticeNodeSprite, 0)
+            end
+            -- 1 为未读
+            if (respValue[i]["newflag"] == '1') then
+                Sprite:setVisible(newNoticeImageNodeSprite, 1)
+                else
+                Sprite:setVisible(newNoticeImageNodeSprite, 0)
+            end
+            i = i + 1
+        end
+    end
+    --@brief 上下文菜单按钮消息处理函数
+    function ContextMenuListItemOnSelect(sprite)
+        local buttonData = Sprite:getData(sprite)
+        Scene:setReturn(Alias.m_notice, Alias.m_noticeFav)
+        Scene:go(Alias.m_noticeFav)
+    end
+]]>
+</root>
