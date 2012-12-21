@@ -86,17 +86,6 @@
                     extendstyle="1111" />
             </node>
             
-          <!--  
-           <node name="content" rect="0,270,460,170" extendstyle="1111">
-                <image rect="150,0,310,170" src="file://image/input.png"
-                    style="sudoku-auto" extendstyle="1111" sudoku="15,15,15,15" />
-
-                <textarea name="hideLabel" rect="160,15,280,170" font-size="20"
-                    text="" color="#000000" extendstyle="1111" style="autosize"
-                    h-align="left" v-align="top" />
-            </node>
-            --> 
-            
             <node name="annexnode" rect="0,320,480,50" extendstyle="1111"
                 visible="false" enable="false" active="false">
                 <label name="label1" rect="0,0,150,60" border="false" text="附    件："
@@ -147,18 +136,18 @@
                     </button>
 
                 </node>
-                <node name="chulicontent" rect="0,105,460,120" extendstyle="1111"
+                <node name="chulicontent" rect="0,105,460,200" extendstyle="1111"
                     visible="true" enable="true">
-                    <image rect="150,0,310,120" src="file://image/title_edit_bg.png"
+                    <image rect="150,0,310,200" src="file://image/title_edit_bg.png"
                         style="sudoku-auto" extendstyle="1111" sudoku="15,15,15,15" />
                     <label name="label1" rect="0,0,150,60" border="false" text="说    明："
                         h-align="center" v-align="top" color="#0062ab" font-size="24"
                         extendstyle="1111" />
 
-                    <edit name="edit" rect="160,10,300,120" border="false" multiline="true" 
+                    <edit name="edit" rect="160,10,300,200" border="false" multiline="true" 
                          font-family="微软雅黑" font-size="24" max-size="60" OnTextChanged="editOnTextChanged"
                         extendstyle="1111">
-                        <label name="hideLabel" rect="0,0,300,120" text="请输入信息" color="#c0c0c0"
+                        <label name="hideLabel" rect="0,0,300,200" text="请输入信息" color="#c0c0c0"
                             extendstyle="1111" font-size="24" style="autosize" h-align="left"
                             v-align="top" />
                     </edit>
@@ -235,18 +224,18 @@
                     </button>
                 </node>
 
-                <node name="chulicontent" rect="0,60,460,120" extendstyle="1111">
-                    <image rect="150,0,310,120" src="file://image/title_edit_bg.png"
+                <node name="chulicontent" rect="0,60,460,200" extendstyle="1111">
+                    <image rect="150,0,310,200" src="file://image/title_edit_bg.png"
                         style="sudoku-auto" extendstyle="1111" sudoku="15,15,15,15" />
                     <label name="label1" rect="0,0,150,60" border="false" text="任务回复："
                         h-align="center" v-align="top" color="#0062ab" font-size="24"
                         extendstyle="1111" />
 
-                    <edit name="edit" rect="160,10,300,120" border="false" multiline="true" 
+                    <edit name="edit" rect="160,10,300,200" border="false" multiline="true" 
                          font-family="微软雅黑" font-size="24" max-size="60" OnTextChanged="editOnTextChanged"
                         extendstyle="1111">
-                        <label name="hideLabel" font-size="24" rect="0,0,300,120"
-                            text="请输入信息" color="#c0c0c0" extendstyle="1111" style="autosize"
+                        <label name="hideLabel" font-size="24" rect="0,0,300,200"
+                            text="请输入回复内容" color="#c0c0c0" extendstyle="1111" style="autosize"
                             h-align="left" v-align="top" />
                     </edit>
 
@@ -533,7 +522,7 @@ function bodyOnSpriteEvent(msg, param)
         loadRequest()
         -- local daibanid=Config:get('daiban')
         local daibanIDList = Config:get('daibanIDList')
-        if string.find(daibanIDList .. ';', id .. ';') ~=nil then
+         if string.find(daibanIDList .. ';', id .. ';') ~=nil then
             setZancunDetail()
         end
         local tijiaonode = Sprite:findChild(rootSprite,'NodeTitle')
@@ -708,7 +697,7 @@ function loadRequest()
     local param = 'cmd=wlbtaskdetail&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&step='..step
     local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
     Http:request('daibandetail_data', reqURL, 101, {useCache = false})
-    Loading:show(rootSprite)
+    --Loading:show(rootSprite)
 end
 
 function editOnTextChanged(sprite,ncount)
@@ -731,7 +720,7 @@ function loadZhuanshenRequest()
     local param = 'cmd=wlbuserinfo&page='..'1'..'&username='
     local reqURL = getWholeUrl('nbspweb/webservice/user!doWebservice.action', param)
     Http:request('renyuan_data', reqURL, 106, {useCache = false})
-    Loading:show(rootSprite)
+     Loading:show(rootSprite)
 end
 
 function renyuancontent(count)
@@ -993,7 +982,7 @@ function okCallback()
         Log:write('++++++++++++++patrolgroupcode+++++++++++++', patrolgroupcode)
         local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
         Http:request('daibanqianshou', reqURL, 102, {useCache = false, method = 'post', postData='cmd=wlbtaskdealsign'..param})
-        Loading:show(rootSprite)
+         Loading:show(rootSprite)
     elseif stepdata=='2' or stepdata=='4' then
         local juqianNode = Sprite:findChild(rootSprite, 'juqian')
         local itemNode = Sprite:findChild(juqianNode, 'resultNode')
@@ -1027,7 +1016,7 @@ function okCallback()
             local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
             Http:request('daibanjuqian', reqURL, 104, {useCache = false})
         end
-        Loading:show(rootSprite)
+         Loading:show(rootSprite)
         --stringData = string.format('%s;%s;%s;%s;%s;', stepdata, stringData, itemtext, xunjiantext,contenttext)
    elseif stepdata=='3' then
         local huidanNode= Sprite:findChild(rootSprite, 'huidan')
