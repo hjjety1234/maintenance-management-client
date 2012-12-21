@@ -54,27 +54,39 @@
 				</button>
 			</node>
 			<!--列表信息-->
-			<node name="listNode" rect="0,110,480,645" extendstyle="1111">
+			<node name="listNode" rect="0,120,480,1045" extendstyle="1111">
 				<listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
 			</node>
 			<node name="listitem" visible="false" enable="false" active="false"
-				extendstyle="1011" rect="0,200,480,80">
-                <image name="listButtonImage" rect="0,0,480,80" src=""
+				extendstyle="1011" rect="0,200,480,106">
+                <image name="listButtonImage" rect="3,0,468,86" src="file://image/tongxunlu_bg.png"
                     extendstyle="1111" style='autosize' />
-				<button name="btnname" rect="0,0,480,80" OnSelect="itemOnSelect"
+				<button name="btnname" rect="3,0,480,86" OnSelect="itemOnSelect"
 					extendstyle="1111">
-					<label rect="10,0,100,45" text="姓   名：" font-family='微软雅黑' color="#0" font-size="24"
+					<label rect="80,7,100,45"  text="姓   名：" font-family='微软雅黑' color="#000000" font-size="24"
 						h-align="center" v-align="center" extendstyle="1111" border="false" />
-					<label name="textNum" rect="105,0,100,45" font-family='微软雅黑' text="" color="#0"
+					<label name="textNum" rect="185,7,100,45" font-family='微软雅黑' text="" color="#000000"
 						font-size="24" h-align="left" v-align="center" extendstyle="1111"
 						border="false" />
-					<label rect="10,35,80,45" text="手机号：" font-family='微软雅黑' color="#666666" font-size="20"
-						h-align="center" v-align="center" extendstyle="1111" border="false" />
-					<label name="textTitle" rect="85,35,360,45" font-family='微软雅黑' text="" color="#666666"
+					<label rect="95,35,80,45" text="手机号：" font-family='微软雅黑' color="#303030" font-size="20"
+						h-align="left" v-align="center" extendstyle="1111" border="false" />
+					<label name="textTitle" rect="170,35,360,45" font-family='微软雅黑' text="" color="#303030"
 						font-size="20" h-align="left" v-align="center" extendstyle="1111"
 						border="false" />
-					<image name="normalImage" rect="440,30,14,20" src="file://image/jiantou_new.png"
-						style="autosize" extendstyle="1111" />
+					<image name="normalImage" rect="420,25,32,32" src="file://image/jiantou_new_1.png"
+						 extendstyle="1111" />
+					<image name="normalImage1" rect="" src="" extendstyle="1111"
+						  />
+				</button>
+				<button name="takePicBtn" rect="280,20,66,66" border="false"
+						text="" color="#ffffff" OnSelect="makeCallOnSelect" extendstyle="1111">
+						<image rect="0,0,44,44" src="file://image/phone_2.png"
+							 extendstyle="1111" />
+				</button>
+				<button name="takePicBtn" rect="340,20,66,66" border="false"
+						text="" color="#ffffff" OnSelect="sendSMSOnSelect" extendstyle="1111">
+						<image rect="0,0,44,44" src="file://image/msg_2.png"
+							extendstyle="1111" />
 				</button>
 			</node>
 		</node>
@@ -159,14 +171,17 @@
         ListView:adjust(list)
     end
     function loadListItem(list, item, index)
-        Sprite:setRect(item, 0, 0, 480, 80)
+        Sprite:setRect(item, 3, 0, 468, 106)
         Sprite:setProperty(item, 'extendstyle', '1111')
-        local listItemBg = Sprite:findChild(item, 'listButtonImage')
-        Sprite:setRect(listItemBg, 0, 0, 480, 80)
+        local listItemBg = Sprite:findChild(item, 'normalImage1')
+        Sprite:setRect(listItemBg, 3, 0, 468, 86)
         local num = index+1
-        Log:write('index=============================',num%2)
         if num % 2 > 0 then
-  Sprite:setProperty(listItemBg, 'src', 'file://image/item_bg.png')
+        Sprite:setProperty(listItemBg, 'src', 'file://image/female.png')
+		Sprite:setProperty(listItemBg, 'rect', '10,9,72,72')
+		else
+		Sprite:setProperty(listItemBg, 'src', 'file://image/male.png')
+		Sprite:setProperty(listItemBg, 'rect', '10,9,72,72')
         end
         local textNum = Sprite:findChild(item, 'textNum')
         local textTitle = Sprite:findChild(item, 'textTitle')
@@ -214,6 +229,35 @@
     end
     function doBack(sprite)
         Scene:back()
+    end
+	function makeCallOnSelect(sprite)
+        Sprite:releaseCapture(sprite)
+        Sprite:killFocus(sprite)
+        local listitem = Sprite:getParent(sprite)
+		local phone = Sprite:getText(Sprite:findChild(listitem, "textTitle"))
+		Log:write('33333',phone)
+        if phone ~= nil and phone ~= '' then
+            if Util:openCallDialog('callFinished',phone, 0) then
+                else
+                Dialog:show(rootSprite, '调用接口失败，请检查手机设置！', 'ok')
+            end
+            else
+            Dialog:show(rootSprite, '电话号码为空！', 'ok')
+        end
+    end
+	function sendSMSOnSelect(sprite)
+        Sprite:releaseCapture(sprite)
+        Sprite:killFocus(sprite)
+		local listitem = Sprite:getParent(sprite)
+		local phone = Sprite:getText(Sprite:findChild(listitem, "textTitle"))  
+        Log:write('2222', phone)
+            if phone ~= nil and phone ~= '' 
+			then
+            Util:sendSMS(phone,'') 
+            else
+            Dialog:show(rootSprite, '电话号码为空！', 'ok')
+            end
+        
     end
 ]]>
 </root>
