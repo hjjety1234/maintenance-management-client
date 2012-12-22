@@ -68,9 +68,9 @@
 					<label name="textNum" rect="185,7,100,45" font-family='微软雅黑' text="" color="#000000"
 						font-size="24" h-align="left" v-align="center" extendstyle="1111"
 						border="false" />
-					<label rect="95,35,80,45" text="手机号：" font-family='微软雅黑' color="#303030" font-size="20"
+					<label rect="85,35,80,45" text="手机号：" font-family='微软雅黑' color="#303030" font-size="20"
 						h-align="left" v-align="center" extendstyle="1111" border="false" />
-					<label name="textTitle" rect="170,35,360,45" font-family='微软雅黑' text="" color="#303030"
+					<label name="textTitle" rect="160,35,360,45" font-family='微软雅黑' text="" color="#303030"
 						font-size="20" h-align="left" v-align="center" extendstyle="1111"
 						border="false" />
 					<image name="normalImage" rect="420,25,32,32" src="file://image/jiantou_new_1.png"
@@ -78,14 +78,14 @@
 					<image name="normalImage1" rect="" src="" extendstyle="1111"
 						  />
 				</button>
-				<button name="takePicBtn" rect="280,20,66,66" border="false"
+				<button name="takePicBtn" rect="285,20,66,66" border="false"
 						text="" color="#ffffff" OnSelect="makeCallOnSelect" extendstyle="1111">
-						<image rect="0,0,44,44" src="file://image/phone_2.png"
+						<image rect="0,0,60,60" src="file://image/jf_phone_2.png"
 							 extendstyle="1111" />
 				</button>
-				<button name="takePicBtn" rect="340,20,66,66" border="false"
+				<button name="takePicBtn" rect="350,20,66,66" border="false"
 						text="" color="#ffffff" OnSelect="sendSMSOnSelect" extendstyle="1111">
-						<image rect="0,0,44,44" src="file://image/msg_2.png"
+						<image rect="0,0,61,61" src="file://image/jf_msg_2.png"
 							extendstyle="1111" />
 				</button>
 			</node>
@@ -251,12 +251,15 @@
 		local listitem = Sprite:getParent(sprite)
 		local phone = Sprite:getText(Sprite:findChild(listitem, "textTitle"))  
         Log:write('2222', phone)
-            if phone ~= nil and phone ~= '' 
+        if phone ~= nil and phone ~= '' 
 			then
-            Util:sendSMS(phone,'') 
+            if Util:openSMS('smsFinished',phone,0)  then 
             else
             Dialog:show(rootSprite, '电话号码为空！', 'ok')
             end
+			else
+            Dialog:show(rootSprite, '电话号码为空！', 'ok')
+        end
         
     end
 ]]>
