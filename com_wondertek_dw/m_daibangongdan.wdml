@@ -102,12 +102,14 @@
                 <shadow name="listItemBg" rect="0,0,480,115" color="" alpha="0" extendstyle="1111" />
                 <button name="btnname" rect="0,0,480,115" OnSelect="itemOnSelect"
                     extendstyle="1111">
-                    <image name="timeSign" rect="440,44,27,27" border="false" src=""
+                    <image name="lineSign" rect="0,5,6,105" border="false" src=""
+                      style="autosize"   extendstyle="1111"></image>
+                   <image name="timeSign" rect="440,44,27,27" border="false" src=""
                         style="autosize" extendstyle="1111"/>                     
-                    <label rect="10,5,150,30" text="工单编号：" color="#0058a5" font-size="26"
+                    <label rect="10,5,150,30" text="工单编号：" color="#0058a5" font-size="24"
                         font-family="微软雅黑" h-align="left" v-align="center" extendstyle="1111" border="false" />
                     <label name="textNum" rect="140,5,360,30" text="" color="#0058a5"
-                        font-family="微软雅黑" font-size="26" h-align="left" v-align="center" extendstyle="1111"
+                        font-family="微软雅黑" font-size="24" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
                     <label rect="10,40,150,20" text="工单标题：" color="#5a5a5a"
                         font-family="黑体" font-size="20" h-align="left" v-align="center" extendstyle="1111"
@@ -173,6 +175,7 @@ function bodyOnPluginEvent(msg)
             Dialog:show(rootSprite, '返回数据格式错误', 'ok')
             return
         end
+
         if data ~= nil then
             if data.code == '0' then
                 if #data.value > 0 then
@@ -180,6 +183,8 @@ function bodyOnPluginEvent(msg)
                 elseif data.value[0] then
                     loadList(1)
                 end
+            elseif data.code == '20' then
+                 Dialog:show(rootSprite, '暂无待办事项', 'ok')
             else
                 --Dialog:show(rootSprite, '未知错误！', 'ok')
             end
@@ -410,17 +415,20 @@ function loadListItem(list, item, index)
     if hours<0 then
     if -remaindays>=5 then
     Sprite:setProperty(finishTime, 'text', data.value[index].overtimeSetDis)
+    Sprite:setProperty(Sprite:findChild(item, 'lineSign'), 'src', 'file://image/dengdai_line.png')
    Sprite:setProperty(timeLabel, 'color','#5a5a5a')
     Sprite:setProperty(finishTime, 'color','#5a5a5a')
     else
     Sprite:setProperty(timeLabel, 'color','#dd512e')
     Sprite:setProperty(finishTime, 'color','#dd512e')
     Sprite:setProperty(Sprite:findChild(item, 'timeSign'), 'src', 'file://image/willover.png')  
+    Sprite:setProperty(Sprite:findChild(item, 'lineSign'), 'src', 'file://image/shengyu_line.png')
     Sprite:setProperty(finishTime, 'text', '还剩'..-remaindays..'天')
    -- Sprite:setProperty(finishTime, 'text', '还剩'..-remaindays..'天'..remainhours..'小时'..remainmins..'分钟'..remainsecs..'秒')
     end
     else
     Sprite:setProperty(Sprite:findChild(item, 'timeSign'), 'src', 'file://image/overtime.png')
+    Sprite:setProperty(Sprite:findChild(item, 'lineSign'), 'src', 'file://image/guoqi_line.png')
     Sprite:setProperty(finishTime, 'text', '已过期'..remaindays..'天')
     --Sprite:setProperty(finishTime, 'text', '已过期'..remaindays..'天'..remainhours..'小时'..remainmins..'分钟'..remainsecs..'秒')
     end 
