@@ -8,4 +8,4 @@
 -- | Desc: 配置操作
 -- -----------------------------------------------------------------------------
 
-Config:load('com_wondertek_dw')
+Config:load('com_wondertek_dw_s3')
