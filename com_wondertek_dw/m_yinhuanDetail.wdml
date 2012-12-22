@@ -43,7 +43,7 @@
                         extendstyle="1111" />
                     <node rect="140,0,292,60" border="false" text="" color="#ffffff"
                         extendstyle="1111">
-                        <label name="yinhuanName" rect="5,18,252,60" text="" color="#303030"
+                        <label name="yinhuanName" rect="3,18,252,60" text="" color="#303030"
                             extendstyle="1111" style="autosize" h-align="left" v-align="top"
                             font-size="24" />
                     </node>
@@ -95,7 +95,7 @@
 							   h-align="right" v-align="center" color="#0062ab" font-family="微软雅黑" font-size="24" extendstyle="1111" />
 							<node rect="140,0,292,60" border="false" text="" color="#ffffff" extendstyle="1111" >
 							     <!-- <image rect="0,0,292,60" src="file://image/input.png" style="autosize" extendstyle="1111" /> -->
-							     <label name="yinhuanLocName" rect="5,18,252,60" text="" color="#303030" extendstyle="1111"
+							     <label name="yinhuanLocName" rect="3,18,252,60" text="" color="#303030" extendstyle="1111"
 								style="autosize" h-align="left" v-align="top" font-size="24" />
 							</node>
 						</list-item>
@@ -293,6 +293,9 @@ function onGetDownloadStatus()
     end
     if task[1].status == Download.status.Downloading then
     elseif task[1].status == Download.status.Finished then
+        local param = 'cmd=wlbdangerdetail&id='..pYinhuanID
+        local reqURL = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
+        Http:request('daiban_data', reqURL, 101, {useCache = false})
         Loading:close()
 --        showPlay()
 --        hideDown()
