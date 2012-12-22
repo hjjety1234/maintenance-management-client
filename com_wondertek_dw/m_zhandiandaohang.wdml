@@ -62,6 +62,8 @@ function bodyBuildChildrenFinished(sprite)
     g_desLon = '117270630'
     g_desLat = '31876840'
     Log:write('g_desLon, g_desLon:', g_desLon, g_desLat)
+    openMap(0, 70, 480, 730)
+    getCurPosition()
 end
 
 -- @brief root节点消息方法
@@ -85,10 +87,10 @@ end
 function bodyOnPluginEvent(msg, param)
     if msg == 1000 then
         -- postData为Json数据({"latitude":"31250614","longitude":"121600975"})
-		local postData = Param:getString(param, 0)
-        if showCurPosition(longitude, postData.longitude, postData.latitude,
-            g_desLon, g_desLat) ==  false then
-            Log:write('显示当前位置失败', postData)
+        local postDataString = Param:getString(param, 0)
+		local postData = Json:loadString2Table(postDataString)
+        if showCurPosition(postData.longitude, postData.latitude) ==  false then
+            Log:write('移动到当前位置失败', postData)
             return
         end
         searchRoute(1, postData.longitude,  postData.latitude, g_desLon, g_desLat)
@@ -120,7 +122,7 @@ end
 function openMap(x, y, w, h)
     local xscal = SCREEN_WIDTH / 480
     local yscal = SCREEN_HEIGHT / 800
-    Map:open(0, 70*yscal, 480*xscal, 730*yscal)
+    Map:open(x*xscal, y*yscal, w*xscal, h*yscal)
 end
 
 -- 获取当前经纬度
@@ -128,6 +130,7 @@ function getCurPosition()
     local observer = Plugin:getObserver()
     Map:getCurPosition(observer, 1000)
 end
+
 
 -- 显示当前位置到地图
 -- @paramlongitude string 如 "121600975"

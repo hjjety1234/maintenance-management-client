@@ -55,7 +55,7 @@
                 <button name="btnTab1" rect="0,0,239,60" text="" color="#ffffff"
                     extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
                     <image name="tabBg" rect="0,0,239,60" border="false"
-                        src="" style="sudoku-auto" sudoku="15,15,15,15"
+                        src="file://image/tab_s_new.png" style="sudoku-auto" sudoku="15,15,15,15"
                         extendstyle="1111" />
                     <image name="clockImg" rect="10,20,20,20" border="false"
                         src="file://image/clock.png" style="center" 
@@ -82,8 +82,39 @@
            
             <!-- 主页面内容：巡检项列表   -->
             <node name="mainNodeContent" rect="0,126,480,674" extendstyle="1111">
+                
+                <!-- 提示页面1：提示用户选择进站按钮 -->
+                <node name="tipNode1" rect="0,54,480,660" extendstyle="1111"
+                    visible="true" enable="true">
+					<image rect="184,0,111,111" border="false" src="file://image/ico_in.png"
+					   sudoku="15,15,15,15" extendstyle="1111" />
+					<button rect="137,158,205,50" color="#ffffff" extendstyle="1111" 
+					   OnSelect="inRequest" font-size="24" data="01">
+						<image rect="0,0,205,50" border="false" src="file://image/tip_btn.png"
+                            sudoku="15,15,15,15" extendstyle="1111" />
+                        <label rect="5,0,195,40" text="请选择到达站点" color="#5a5a5a"
+                            v-align="center" h-align="center" font-size="28" font-family="微软雅黑" 
+                            extendstyle="1111" />
+					</button>
+                </node>
+                
+                <!-- 提示页面2：提示用户扫描二维码 -->
+                <node name="tipNode2" rect="0,74,480,640" extendstyle="1111" 
+                    visible="false" enable="false">
+                    <image rect="125,0,230,230" border="false" src="file://image/ico_barcode.png"
+                       sudoku="15,15,15,15" extendstyle="1111" />
+                    <button rect="137,270,205,50" color="#ffffff" extendstyle="1111" 
+                       OnSelect="requestBarcodeResource" font-size="24" data="01">
+                        <image rect="0,0,205,50" border="false" src="file://image/tip_btn.png"
+                            sudoku="15,15,15,15" extendstyle="1111" />
+                        <label rect="5,0,195,40" text="请选择二维码" color="#5a5a5a"
+                            v-align="center" h-align="center" font-size="28" font-family="微软雅黑" 
+                            extendstyle="1111" />
+                    </button>
+                </node>
+                
                 <listview name="mainListView" rect="0,10,480,660" col="1" limit="true"
-                    extendstyle="1111">
+                    visible="false" enable="false" extendstyle="1111">
                 </listview>
             </node>
             
@@ -501,8 +532,18 @@ function bodyOnPluginEvent(msg, param)
             Dialog:show(rootSprite, '获取二维码资源列表失败，服务端返回数据格式错误', 'ok')
             return
         end
+      
         if data.code == '50' then
+            -- 隐藏二维码提示
+            local tipNode2 = Sprite:findChild(rootSprite, 'tipNode2')
+            Sprite:setProperty(tipNode2, 'visible', 'false')
+            Sprite:setProperty(tipNode2, 'enable', 'false')
+            -- 显示巡检项列表
+            local mainListView = Sprite:findChild(rootSprite, 'mainListView')
+            Sprite:setProperty(mainListView, 'visible', 'true')
+            Sprite:setProperty(mainListView, 'enable', 'true')
             Dialog:show(rootSprite, '该站点无待扫描的二维码！', 'ok')
+            -- 加载巡检项
             requestSubItems()
             return 
         end
@@ -516,7 +557,7 @@ function bodyOnPluginEvent(msg, param)
         end
         Log:write('g_ewms:', g_ewms)
         -- 开始进行入站扫描
-        Dialog:show(rootSprite, '请扫描站点入口处的二维码！', 'ok', 'checkSiteEwm')
+        checkSiteEwm()
 	elseif msg == 108 then -- 二维码响应函数
 		Log:write('进入二维码响应函数...')
         -- 获取扫描的二维码
@@ -542,6 +583,15 @@ function bodyOnPluginEvent(msg, param)
             table.remove(g_ewms, found)
             local strMsg = string.format('扫描成功:%s %s,还有%d个资源待扫描！', 
                 devicename, code, #g_ewms)
+             -- 隐藏二维码提示
+            local tipNode2 = Sprite:findChild(rootSprite, 'tipNode2')
+            Sprite:setProperty(tipNode2, 'visible', 'false')
+            Sprite:setProperty(tipNode2, 'enable', 'false')
+            -- 显示巡检项列表
+            local mainListView = Sprite:findChild(rootSprite, 'mainListView')
+            Sprite:setProperty(mainListView, 'visible', 'true')
+            Sprite:setProperty(mainListView, 'enable', 'true')
+            -- 加载巡检项
             Dialog:show(rootSprite, strMsg, 'ok', 'requestSubItems')
         else 
             Dialog:show(rootSprite, '二维码扫描失败，结果'..code..'与目标站点不匹配,请重新扫描！',
@@ -795,8 +845,16 @@ function InHandle(time)
     Sprite:setProperty(labeltab,"text",time.."进站")
     Sprite:setProperty(btnTab1,"enable","false")
     g_inFlag = '1'
-    -- 请求二维码列表
-    requestBarcodeResource()
+        
+    -- 隐藏提示1
+    local tipNode1 = Sprite:findChild(rootSprite, 'tipNode1')
+    Sprite:setProperty(tipNode1, 'visible', 'false')
+    Sprite:setProperty(tipNode1, 'enable', 'false')
+
+    -- 显示提示框2
+    local tipNode2 = Sprite:findChild(rootSprite, 'tipNode2')
+    Sprite:setProperty(tipNode2, 'visible', 'true')
+    Sprite:setProperty(tipNode2, 'enable', 'true')
 end
 
 -- 出站请求
