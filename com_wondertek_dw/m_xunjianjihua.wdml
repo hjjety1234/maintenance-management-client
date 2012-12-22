@@ -55,26 +55,26 @@
                     <image rect="0,0,470,130" border="false" src="file://image/tongxunlu_bg.png" 
                          style="autosize" sudoku="15,15,15,15" extendstyle="1111" />
                     <!-- 计划标题 -->
-                    <image rect="10,10,30,30" border="false" src="file://image/ico_tieta.png" 
-                         style="autosize" extendstyle="1111" />
+                    <image rect="10,15,30,30" border="false" src="file://image/ico_tieta.png" 
+                          extendstyle="1111" />
                     <scrolltext name="texttitle" rect="50,10,370,30" text="萧县代维组2012年第四季度巡检" color="#303030" font-family="微软雅黑"
                         font-size="24" h-align="left" v-align="center" extendstyle="1111"
                         border="false" scroll="true" step="2" />
                     <label name="textTitle" rect="50,40,270,25" text="巡检完成数/总数 :" color="#5a5a5a" font-family="微软雅黑"
                         font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label name="finished" rect="166,40,20,25" text="40" color="#0062ab" v-align="center"
+                    <label name="finished" rect="186,40,20,25" text="40" color="#0062ab" v-align="center"
                         h-align="center" font-size="20" font-family="微软雅黑" extendstyle="1111" />
-                    <label rect="186,40,10,25" text="/" color="#303030" v-align="center"
+                    <label rect="206,40,10,25" text="/" color="#303030" v-align="center"
                         h-align="left" font-size="20" font-family="微软雅黑" extendstyle="1111" />
-                    <label name="total" rect="196,40,40,25" text="100" color="#dd512e" v-align="center"
+                    <label name="total" rect="216,40,40,25" text="100" color="#dd512e" v-align="center"
                         h-align="left" font-size="20" font-family="微软雅黑" extendstyle="1111" />
                     
-                    <label name="pollingRate" rect="253,40,100,25" text="巡检率 :" color="#5a5a5a" font-family="微软雅黑"
+                    <label name="pollingRate" rect="283,40,100,25" text="巡检率 :" color="#5a5a5a" font-family="微软雅黑"
                     font-size="20" h-align="left" v-align="center" extendstyle="1111"
                     border="false" />
                     
-                    <label name="textNum" rect="306,40,50,25" text="40%" color="#5a5a5a"  font-family="微软雅黑"
+                    <label name="textNum" rect="336,40,50,25" text="" color="#5a5a5a"  font-family="微软雅黑"
                     font-size="20" h-align="left" v-align="center" extendstyle="1111"
                     border="false" />
                     
@@ -82,21 +82,18 @@
                     color="#5a5a5a" v-align="center" font-family="微软雅黑" 
                     h-align="left" font-size="20" extendstyle="1111" />
                     
-                     <label name="publishDate" rect="150,65,130,25" text="2012-06-13" 
+                     <label name="publishDate" rect="155,65,130,25" text="" 
                     color="#5a5a5a" v-align="center" font-family="微软雅黑" 
                     h-align="left" font-size="20" extendstyle="1111" />
                     
-                    <label name="endDate" rect="253,65,130,25" text="巡检截止日期 :" 
+                    <label name="endDateTitle" rect="50,90,130,25" text="巡检截止日期 :" 
                     color="#5a5a5a" v-align="center" font-family="微软雅黑" 
                     h-align="left" font-size="20" extendstyle="1111" />
                     
-                    <label name="publishDate" rect="350,65,130,25" text="2012-06-13" 
+                    <label name="endDate" rect="155,90,130,25" text="" 
                     color="#5a5a5a" v-align="center" font-family="微软雅黑" 
                     h-align="left" font-size="20" extendstyle="1111" />
                     
-                     <label name="problem" rect="50,90,130,25" text="某某基站发生的问题" 
-                    color="#0062ab" v-align="center" font-family="微软雅黑" 
-                    h-align="left" font-size="20" extendstyle="1111" />
                 </button>
                
             </node>
@@ -243,7 +240,10 @@ function loadListItem(list, item, index)
     local strTotal = data.value[index].total
     if strTotal == nil then strTotal = '' end
     local startDate = string.sub(data.value[index].startTime, 1, 11)
+    Log:write('+++++++++startDate++++++', startDate)
     local endDate = string.sub(data.value[index].endTime, 1, 11)
+     Log:write('+++++++++endDate++++++', endDate)
+     local polling = math.floor(strFinished*100/strTotal)..'%'
     
     -- 获取列表项的Sprite
     Sprite:setProperty(item, 'extendstyle', '1111')
@@ -252,13 +252,17 @@ function loadListItem(list, item, index)
     local btnname = Sprite:findChild(item, 'btnname')
     local finished = Sprite:findChild(item, 'finished')
     local total = Sprite:findChild(item, 'total')
+    local endDatenode=Sprite:findChild(item, 'endDate')
+     local textNum =Sprite:findChild(item, 'textNum')
    
     -- 显示到界面
     Sprite:setProperty(texttitle, 'text', data.value[index].planName)   -- 计划名称
     Sprite:setProperty(publishDate, 'text', startDate)     -- 发布时间
     Sprite:setProperty(finished, 'text', strFinished)                   -- 完成站点数
-    Sprite:setProperty(total, 'text', strTotal)                         -- 总数
-    Sprite:setProperty(btnname, "data", index)
+    Sprite:setProperty(total, 'text', strTotal)         -- 总数
+    Sprite:setProperty(endDatenode, 'text', endDate)                          
+   Sprite:setProperty(textNum, "text", polling)
+    Sprite:setProperty(btnname, "data", index)   
 end
 
 function itemOnSelect(sprite)
