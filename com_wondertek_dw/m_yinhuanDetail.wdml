@@ -117,10 +117,10 @@
 		                            color="#0" extendstyle="0010" style="autosize" h-align="left"
 		                            v-align="top" font-size="15" OnSelect="playRecord" visible="false"
 		                            enable="false" active="false"></button>-->
-		                    <button name="doDown" rect="400,150,44,44" src="file://image/download_run.png"
+		                    <!--<button name="doDown" rect="400,100,61,55" src="file://image/download.png"
 		                            color="#0" extendstyle="0010" style="autosize" h-align="left"
 		                            v-align="top" font-size="15" OnSelect="doDown" visible="false"
-		                            enable="false" active="false"></button>
+		                            enable="false" active="false"></button>-->
 		           </node>
            </list-item>
                
@@ -261,7 +261,7 @@ function doFillData()
         doChangeImageList()
     end
     if type(data.voices) == 'table' then
-        showDown()
+        showPlay()
     end
 end
 
@@ -285,6 +285,7 @@ function getDownloadPath()
 end
 
 function onGetDownloadStatus()
+    
     local task = Download:getStatus(0)
     local percent = 0
     if task[1].size and task[1].maxsize and task[1].maxsize ~= 0 then
@@ -293,8 +294,8 @@ function onGetDownloadStatus()
     if task[1].status == Download.status.Downloading then
     elseif task[1].status == Download.status.Finished then
         Loading:close()
-        showPlay()
-        hideDown()
+--        showPlay()
+--        hideDown()
         return
     elseif task[1].status == Download.status.Idle then
     else
@@ -311,7 +312,7 @@ function showPlay()
 end
 
 function showDown()
-    local down = Sprite:findChild(rootSprite, 'doDown')
+    local down = Sprite:findChild(rootSprite, 'down')
     Sprite:setVisible(down, 1)
     Sprite:setEnable(down, 1)
     Sprite:setActive(down, 1)
@@ -325,12 +326,16 @@ function hideDown()
 end
 
 function playRecord()
-    local path = getDownloadPath() .. 'daiwei'
+    local path = getDownloadPath() .. 'daiwei' .. '/' .. pYinhuanID .. 'temp.amr'
+    --downloadFilePath = downloadFilePath .. '\\' .. pYinhuanID .. '.amr'
+    Download:append(path, pYinhuanID .. 'temp.amr', data.voices[0].annexUrl)
+    Loading:show()
+    onGetDownloadStatus()
     local playRecord = Sprite:findChild(rootSprite, 'playRecord')
     if playStatus == 0 then
         playStatus = 1
         Sprite:setProperty(playRecord, 'src', "file://image/icon_record_play.png")
-        NativePlayer:open(path .. '/' .. pYinhuanID .. 'temp.amr')
+        NativePlayer:open(path)
     elseif playStatus == 1 then
         playStatus = 2
         Sprite:setProperty(playRecord, 'src', "file://image/danger_sound.png")
