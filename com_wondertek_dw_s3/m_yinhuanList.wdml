@@ -27,17 +27,17 @@
 	                    h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />	
 	            <button name="backBtn" rect="0,0,74,58" normal="normal" sel="sel"
 	                OnSelect="doBack" extendstyle="1111">
-	                <image name="normal" rect="17,10,46,46" src="file://image/icon_home_djls3.png"
+	                <image name="normal" rect="17,13,40,40" src="file://image/ic_home_new.png"
 	                    style="autosize" extendstyle="1111" />
-	                <image name="sel" rect="17,10,46,46" src="file://image/icon_home_djls3.png"
+	                <image name="sel" rect="17,13,40,40" src="file://image/ic_home_new.png"
 	                    style="autosize" extendstyle="1111" />
 	            </button>
 	            <button name="btnForget" rect="406,0,74,62" OnSelect="addOnSelect"
 	                text="" color="#ffffff" font-size="24" border="false" 
 	                normal="normal" sel="sel" extendstyle="1111">
-	                <image name="normal" rect="17,13,40,40" src="file://image/icon_add_djls3.png"
+	                <image name="normal" rect="17,13,40,40" src="file://image/ico_add.png"
                         style="autosize" extendstyle="1111" />
-                    <image name="sel" rect="17,13,40,40" src="file://image/icon_add_djls3.png"
+                    <image name="sel" rect="17,13,40,40" src="file://image/ico_add.png"
                         style="autosize" extendstyle="1111" />
                 </button>
            </node>
@@ -145,10 +145,10 @@ function bodyOnPluginEvent(msg)
     if msg == 101 then
         data = Http:jsonDecode('daiban_data')
         Log:write("data101 = ", data)
-        if not data or type(data) ~= 'table' then
-            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
-            return
-        end
+        if data == nil or data["total"] == '' or data["total"] == 0 then
+               Dialog:show("", "已传隐患内容为空！", "ok")
+               return
+        end 
         if data ~= nil then
             if data.code == '0' then
                 if #data.value > 0 then
@@ -159,8 +159,6 @@ function bodyOnPluginEvent(msg)
             else
                 Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
             end
-        else
-            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
         end
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -278,8 +276,8 @@ function itemOnSelect(sprite)
         Scene:go(Alias.m_yinhuanDetail .. '?pYinhuanID=' .. curId)
         return
     end
-    Scene:setReturn(Alias.m_yinhuanList, Alias.m_yinhuanshangchuan .. '?pYinhuanID=' .. curId)
-    Scene:go(Alias.m_yinhuanshangchuan .. '?pYinhuanID=' .. curId)
+    Scene:setReturn(Alias.m_yinhuanList, Alias.yinhuanshangchuan .. '?pYinhuanID=' .. curId)
+    Scene:go(Alias.yinhuanshangchuan .. '?pYinhuanID=' .. curId)
 end
 
 function loadSavedDatas()
