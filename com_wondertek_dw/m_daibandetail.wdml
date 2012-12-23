@@ -400,15 +400,21 @@
                   <image rect="0,0,368,146" src="file://image/center.png"  style="autosize" extendstyle="1111" />
                   <button name="" rect="12,0,342,61" text="    签收" h-align="left" font-family="微软雅黑"
                           color="#ffffff" extendstyle="1111" OnSelect="errorTypeOnSelect"
-                          normal="src:file://image/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
-                          sel="src:file://image/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
-                          font-size="24" data="01" />
+                          font-size="24" data="01">
+                           <label rect="0,0,342,61" border="false"  font-family="微软雅黑"
+                                text="    签收" h-align="left" v-align="center" color="#303030"
+                                font-size="24" extendstyle="1111" />
+                          <image rect="285,15,32,32" src="file://image/list_arrow.png"  style="autosize" extendstyle="1111" />
+                          </button>
                  <image rect="0,70,368,2" src="file://image/line.png"  style="autosize" extendstyle="1111" />
                  <button name="" rect="12,73,342,61" text="    拒签" h-align="left" font-family="微软雅黑"
                          color="#ffffff" extendstyle="1111" OnSelect="errorTypeOnSelect"
-                         normal="src:file://image/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
-                         sel="src:file://image/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
-                         font-size="24" data="02" />
+                         font-size="24" data="02">
+                          <label rect="0,0,342,61" border="false"  font-family="微软雅黑"
+                                text="    拒签" h-align="left" v-align="center" color="#303030"
+                                font-size="24" extendstyle="1111" />
+                          <image rect="285,15,32,32" src="file://image/list_arrow.png"  style="autosize" extendstyle="1111" />
+                         </button>
              </node>
              <image rect="66,373,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
          </node>
@@ -698,7 +704,7 @@ function loadRequest()
     local param = 'cmd=wlbtaskdetail&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&step='..step
     local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
     Http:request('daibandetail_data', reqURL, 101, {useCache = false})
-     Loading:show(rootSprite)
+     --Loading:show(rootSprite)
 end
 
 function editOnTextChanged(sprite,ncount)
@@ -968,15 +974,16 @@ function okCallback()
         local signflag=Sprite:getData(Sprite:findChild(itemNode,'errorBtn'))
         local patrolgroupcode =Sprite:getData(Sprite:findChild(xunjianNode,'xunjianBtn'))
         patrolgroupcode=string.gsub(patrolgroupcode, ' ', '')
-     
-        if signflag=='02' then
+     Log:write('拒签', signflag)
+        if signflag=='01' then
             signflag='pass'
-        elseif signflag=='01' then
-            signflag='untread'
-            if patrolgroupcode=='-1' then
+             if patrolgroupcode=='-1' then
                 Dialog:show('','请选择巡检组！','ok')
                 return
             end
+        elseif signflag=='02' then
+            signflag='untread'
+           
         end
         local param = 'cmd=wlbtaskdealsign&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&step='..step..'&signflag='..signflag..'&signdetail='..content..'&patrolgroupcode='..patrolgroupcode
          Log:write('++++++++++++++param+++++++++++++', param)

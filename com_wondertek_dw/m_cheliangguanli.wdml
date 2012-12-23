@@ -163,13 +163,19 @@ function bodyOnPluginEvent(msg)
         local resp = Http:jsonDecode('car_list')
         Log:write(resp.value)
         if (resp.code == nil or resp.code ~= '0') then
+         Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
             Dialog:show('', getErrorCode(resp.code), 'ok')
             Loading:close()
             return
         elseif (getJsonArrayCount(resp.value) == 0 or resp.value=='') then
+            Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
             Dialog:show('', '返回数据为空!', 'ok')
             Loading:close()
             return
+            elseif  getJsonArrayCount(resp.value)<=5 then
+              Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
+            Loading:close()
+            return 
         end
         -- 删除原来的列表
         local listView = Sprite:findChild(rootSprite, 'sampleList')
