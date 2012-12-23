@@ -98,5 +98,6 @@ Alias = {
     
     m_setting = 'MODULE:\\com_wondertek_dw\\m_setting.wdml', -- 系统设置页面(江峰)
     m_zhandiandaohang = 'MODULE:\\com_wondertek_dw\\m_zhandiandaohang.wdml', -- 站点导航
+    m_renyuantongji = 'MODULE:\\com_wondertek_dw\\m_renyuantongji.wdml', -- 人员统计
 }
 
