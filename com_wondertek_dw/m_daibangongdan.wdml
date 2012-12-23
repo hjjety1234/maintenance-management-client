@@ -240,7 +240,7 @@ function loadRequest()
     Log:write('++++++++url+++++++++++++', url)
     Http:request('daiban_data', url, 101, {useCache = false, method = 'post', postData='cmd=wlbtasklist'..param})
     
-    Loading:show(rootSprite)
+    Loading:show()
 end
 
 function loadDoneRequest()
@@ -250,7 +250,7 @@ function loadDoneRequest()
     local param = '&page=1'
     Log:write("param = ", param)
     Http:request('handled_data', url, 102, {useCache = false, method = 'post', postData='cmd=wlbhandledtasklist'..param})
-    Loading:show(rootSprite)
+    Loading:show()
 end
 
 function loadList(count)
@@ -405,6 +405,12 @@ function loadListItem(list, item, index)
     Sprite:setProperty(textNum, 'text', data.value[index].taskCode)
     Sprite:setProperty(textTitle, 'text', data.value[index].taskName)
     Sprite:setProperty(textTime, 'text', data.value[index].createDateDis)
+ 
+    if data.value[index].emergencyLevel=='一般' then
+        Sprite:setProperty(Sprite:findChild(item, 'lineSign'), 'src', 'file://image/yiban_line.png')
+     elseif data.value[index].emergencyLevel=='紧急' then
+        Sprite:setProperty(Sprite:findChild(item, 'lineSign'), 'src', 'file://image/jinji_line.png')
+     end
      --Sprite:setProperty(finishTime, 'text', data.value[index].taskdate)
     
     if tonumber(data.value[index].taskState)>3 then
@@ -415,20 +421,17 @@ function loadListItem(list, item, index)
     if hours<0 then
     if -remaindays>=5 then
     Sprite:setProperty(finishTime, 'text', data.value[index].overtimeSetDis)
-    Sprite:setProperty(Sprite:findChild(item, 'lineSign'), 'src', 'file://image/dengdai_line.png')
    Sprite:setProperty(timeLabel, 'color','#5a5a5a')
     Sprite:setProperty(finishTime, 'color','#5a5a5a')
     else
     Sprite:setProperty(timeLabel, 'color','#dd512e')
     Sprite:setProperty(finishTime, 'color','#dd512e')
     Sprite:setProperty(Sprite:findChild(item, 'timeSign'), 'src', 'file://image/willover.png')  
-    Sprite:setProperty(Sprite:findChild(item, 'lineSign'), 'src', 'file://image/shengyu_line.png')
     Sprite:setProperty(finishTime, 'text', '还剩'..-remaindays..'天')
    -- Sprite:setProperty(finishTime, 'text', '还剩'..-remaindays..'天'..remainhours..'小时'..remainmins..'分钟'..remainsecs..'秒')
     end
     else
     Sprite:setProperty(Sprite:findChild(item, 'timeSign'), 'src', 'file://image/overtime.png')
-    Sprite:setProperty(Sprite:findChild(item, 'lineSign'), 'src', 'file://image/guoqi_line.png')
     Sprite:setProperty(finishTime, 'text', '已过期'..remaindays..'天')
     --Sprite:setProperty(finishTime, 'text', '已过期'..remaindays..'天'..remainhours..'小时'..remainmins..'分钟'..remainsecs..'秒')
     end 
