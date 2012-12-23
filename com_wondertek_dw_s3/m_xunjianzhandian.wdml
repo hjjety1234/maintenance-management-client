@@ -50,7 +50,7 @@
                     extendstyle="1111" style="autosize" />
                 <button name="btnTab1" rect="0,0,240,60" text="" color="#ffffff"
                     extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
-                    <image name="tabBg" rect="0,0,240,60" border="false" src="file://image/tab_s_l.png"
+                    <image name="tabBg" rect="0,0,240,60" border="false" src="file://image/tab_s_new.png"
                         style="autosize" extendstyle="1111" />
                     <label rect="0,0,240,60" text="查询站点" color="#ffffff" v-align="center"
                         h-align="center" font-size="22" font-family="黑体" extendstyle="1111" />
@@ -110,18 +110,18 @@
                     style="autosize" extendstyle="1111" />
                 <button name="btnname" rect="0,0,480,70" OnSelect="itemOnSelect" 
                     extendstyle="1111" data="">
-                    <image name="stationStatusImage" rect="10,20,30,30" src=""
-                        style="autosize" sudoku="15,15,15,15" extendstyle="1111" />
-                    <label name="stationId" rect="40,20,10,30" text="" color="#0"
+                    <image name="stationStatusImage" rect="20,20,26,26" src=""
+                        extendstyle="1111" />
+                    <label name="stationId" rect="40,20,0,0" text="" color="#0"
                         font-size="16" h-align="left" v-align="center" extendstyle="1111"
                         border="false" visible="false" />
-                    <scrolltext name="stationName" rect="50,10,270,50" text=""
+                    <scrolltext name="stationName" rect="60,10,270,50" text=""
                         color="#0" font-size="24" font-family="黑体" h-align="left" v-align="center"
                         scroll="true" extendstyle="1111" border="false" />
-                    <label name="stationDistance" rect="330,10,130,50" text=""
+                    <label name="stationDistance" rect="340,10,110,50" text=""
                         color="#0" font-size="24" h-align="left" v-align="center"
                         extendstyle="1111" border="false" />
-                    <image rect="460,0,20,70" src="file://image/ico_r.png" style="center"
+                    <image rect="450,0,20,70" src="file://image/ico_r.png" style="center"
                         extendstyle="1111" />
                 </button>
             </node>
@@ -136,7 +136,7 @@
     </body>
 
 <![CDATA[
-require 'com_wondertek_dw.common.framework'
+require 'com_wondertek_dw_s3.common.framework'
 require 'framework.map'
 require 'framework.barcode'
 local rootSprite = nil
@@ -174,7 +174,7 @@ function bodyBuildChildrenFinished(sprite)
     
     -- 默认选择tab1
     local tab1 = Sprite:findChild(rootSprite,'btnTab1')
-    Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_s_l.png')
+    Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_s_new.png')
 
     -- 默认加载5个站点
     local posValue = '117.251339,31.849438'
@@ -265,6 +265,9 @@ function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
         doBack()
         return 1
+    elseif kc == Key.F1 then 
+        Scene:setReturn(Alias.m_xunjianzhandian, Alias.m_zhandiandaohang)
+        Scene:go(Alias.m_zhandiandaohang) 
     end
 end
 
@@ -281,7 +284,7 @@ function itemOnSelect(sprite)
     Reg:setString(regHandle, 'planId', planId)
     Reg:setString(regHandle, 'templateId', templateId)
     Reg:setString(regHandle, 'stationId', Sprite:getText(stationId))
-    Reg:setString(regHandle, 'stationName', string.sub(Sprite:getText(stationName), 15))
+    Reg:setString(regHandle, 'stationName', Sprite:getText(stationName))
     -- 跳转到巡检子项
     if g_businessType == 'C31' then     -- 基站
         Scene:setReturn(Alias.m_xunjianzhandian, Alias.m_xunjianEditEx)
@@ -371,7 +374,7 @@ function tabOnSelect(sprite)
 	    local x,y,width,height = Sprite:getRect(searchStationNameNodeSprite)
 	    Sprite:setProperty(searchStationNameNodeSprite, "visible", "false")
 	    Sprite:setProperty(searchStationNameNodeSprite, "enable", "false")
-	    Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_s_l.png')
+	    Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_s_new.png')
 	    
 	    -- 删除以前的列表
 	    local listviewSprite = Sprite:findChild(rootSprite, 'listview1')
@@ -432,7 +435,7 @@ function loadListItem(list, item, index)
     
     -- 显示站点名称
     Sprite:setProperty(stationIdSprite, "text", stationId)
-    Sprite:setProperty(stationName, "text", '站点名称：'..stationNameText)
+    Sprite:setProperty(stationName, "text", stationNameText)
     
     -- 是否显示站点距离
     if stationDistanceVisible == true then
