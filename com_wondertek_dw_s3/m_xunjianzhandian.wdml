@@ -252,6 +252,18 @@ function bodyOnPluginEvent(msg, param)
 	    local msgInfo = string.format('设备：%s,巡检状态：%s,是否巡检？', 
 	       itemValue.stationName, itemValue.isPatroled)
 	    Dialog:show('', msgInfo, 'ok_cancel', 'okSelect', 'cancelSelect')
+	elseif msg == 1010 then
+	   local postDataString = Param:getString(param, 0)
+	   Log:write('postData is ----------->'..postDataString)
+	   local postData = Json:loadString2Table(postDataString)
+	   local latitudeValue = tonumber(postData.latitude) / 1000000.0
+       local longitudeValue = tonumber(postData.longitude) / 1000000.0
+       local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
+       Sprite:setProperty(statusBarText, 'text', '定位成功，经纬度为:'.. posValue)
+       System:setGPSStatus(0)
+       -- 请求站点列表
+        request('1', posValue, '1000', page, 1001)
+        Loading:show()
     elseif msg > MSG_NETWORK_ERROR then
         if Loading:isShow() then Loading:close() end
         Dialog:show('','网络错误', 'ok')
@@ -381,7 +393,9 @@ function tabOnSelect(sprite)
 	    local listviewSprite = Sprite:findChild(rootSprite, 'listview1')
 	    ListView:removeAllItems(listviewSprite)
         -- 周边站点标签页
-        getNearbyStationByRadius()
+        --getNearbyStationByRadius()
+        --改为传统定位模式
+        getGPSDataByMap();
     end
 end
 
@@ -392,6 +406,32 @@ function doBack()
         Loading:close()
     end
     Scene:back()
+end
+
+--传统方式获取经纬度
+function getGPSDataByMap()
+    --  显示状态栏
+    local statusBar = Sprite:findChild(rootSprite, 'statusBar')
+    Sprite:setProperty(statusBar, 'visible', 'true')
+    Sprite:setProperty(statusBar, 'enable', 'true')
+    local result = System:getGPSStatus()
+    Log:write("result is ---------->"..result)
+    if result == -1 then
+        Sprite:setProperty(statusBarText, 'text', '对不起，当前GPS不可用')
+    elseif result == 0 then
+        local gpsStatus = System:setGPSStatus(1)
+        if gpsStatus then
+            Sprite:setProperty(statusBarText, 'text', 'GPS开启成功，正在定位...')
+		    local observer = Plugin:getObserver()
+		    Map:getCurPosition(observer, 1010)
+        else
+            Sprite:setProperty(statusBarText, 'text', 'GPS开启失败')
+        end
+    elseif result == 1 then
+        Sprite:setProperty(statusBarText, 'text', 'GPS已经开启，正在定位...')
+	    local observer = Plugin:getObserver()
+	    Map:getCurPosition(observer, 1010)
+    end
 end
 
 -- 加载列表项
@@ -450,7 +490,9 @@ end
 ---------------------------------------与服务端交互函数列表---------------------------
 -- issue #18 提供重新定位按钮
 function doGetLocAgain(sprite)
-    getNearbyStationByRadius()
+    --getNearbyStationByRadius()
+    --修改定位为传统定位方式
+    getGPSDataByMap();
 end
 
 -- 请求指定范围内的基站
