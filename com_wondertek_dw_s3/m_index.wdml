@@ -51,7 +51,7 @@
     </body>
     <![CDATA[
 
-require 'com_wondertek_dw.common.framework'
+require 'com_wondertek_dw_s3.common.framework'
 local rootSprite
 
 local g_packageUrl                  -- 客户端升级包url地址
@@ -246,7 +246,7 @@ function downloadPackage()
     local noticeLblSprite = Sprite:findChild(rootSprite, "noticeLbl")
     Sprite:setProperty(noticeLblSprite, "text", "升级中...")
     -- 删除缓存
-    IO:dirRemove('CACHE:\\com_wondertek_dw', 1)
+    IO:dirRemove('CACHE:\\com_wondertek_dw_s3', 1)
     -- 隐藏登录和版本检查进度条
     local scrollBarNode = Sprite:findChild(rootSprite, 'scrollBarNode')
     Sprite:setVisible(scrollBarNode, 0)
@@ -302,9 +302,9 @@ function onGetDownloadStatus()
                 Util:installApp('WONDER:\\temp\\' .. 'intallPackageName' .. '.apk')
                 -- 安装成功，重启时引擎将干掉module
                 -- 清除cache
-                IO:dirRemove('CACHE:\\com_wondertek_dw', 1)
-                IO:dirCreate('CACHE:\\com_wondertek_dw')
-                IO:dirCreate('CACHE:\\com_wondertek_dw\\image')
+                IO:dirRemove('CACHE:\\com_wondertek_dw_s3', 1)
+                IO:dirCreate('CACHE:\\com_wondertek_dw_s3')
+                IO:dirCreate('CACHE:\\com_wondertek_dw_s3\\image')
             end
             break
         end
