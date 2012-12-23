@@ -30,9 +30,9 @@
             <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
                 <image name="title" rect="0,0,480,66" border="false"
                     src="file://image/title_new.png" style="autosize" extendstyle="1111" />
-                <label rect="0,0,480,66" text="工单流程" color="#ffffff" v-align="center"
-                    h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />
-                 <button name="backBtn" rect="0,0,75,75" OnSelect="doBack"
+                <label rect="0,0,480,66" text="工单流程" font-family="微软雅黑" color="#ffffff" v-align="center"
+                    h-align="center" font-size="30" extendstyle="1111" />
+                <button name="backBtn" rect="0,0,75,75" OnSelect="doBack"
                     extendstyle="1111">                 
                     <image name="titleBg1" rect="10,7,75,75" src="file://image/jf_back.png"
                     extendstyle="1111"  />
@@ -45,7 +45,7 @@
                 visible="true">
                 <image name="search_bg_new" rect="0,0,480,52" src="file://image/search_bg.png"
                     style="autosize" extendstyle="1111" />
-                <label name="billtitle" rect="0,0,480,52" text="" color="#3C57C4" v-align="center"
+                <label name="billtitle" rect="0,0,480,52" text="" color="#0062ab" font-family="微软雅黑" v-align="center"
                     h-align="center" font-size="24" extendstyle="1111" />    
             </node>
 
@@ -235,9 +235,9 @@
                         border="false" />
                     <label rect="25,55,150,30" text="处理意见：" color="#ffffff" font-size="20"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="dealopinion" rect="120,55,300,30" text="" color="#ffffff"
+                    <scrolltext name="dealopinion" rect="120,55,200,30" text="" color="#ffffff"
                         font-size="20" h-align="left" v-align="center" extendstyle="1111"
-                        border="false" />
+                        border="false" scroll="true" step="2" />
                     <label name="processTitle" rect="25,80,150,30" text="步骤状态：" color="#ffffff" font-size="20"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
                     <label name="textProcess" rect="120,80,300,30" text="" color="#ffffff"
@@ -250,7 +250,7 @@
     </body>
     <![CDATA[
 
-require 'com_wondertek_dw_s3.common.framework' 
+require 'com_wondertek_dw.common.framework'
 local rootSprite
 local respValue = nil
 regHandle=Reg:create('dataflow')
@@ -324,7 +324,7 @@ function getDataFlow()
    local param = 'cmd=wlbtaskflowlist&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&page=1'
     local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
     Http:request('flow_data', reqURL, 101, {useCache = false})
-    Loading:show(rootSprite)
+    Loading:show()
 end
 
 --加载车辆列表项

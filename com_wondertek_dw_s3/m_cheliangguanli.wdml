@@ -28,21 +28,21 @@
                 <image name="title" rect="0,0,480,66" border="false"
                     src="file://image/title_bg_new.png" style="autosize" extendstyle="1111" />
                 <label rect="0,0,480,66" text="车辆申请" color="#ffffff" v-align="center"
-                    h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />
+                    h-align="center" font-size="30" extendstyle="1111" />
                 <button name="backBtn" rect="0,0,75,75" OnSelect="doBack" extendstyle="1111">
                    <image name="titleBg1" rect="10,7,75,75" src="file://image/jf_home.png"
                     extendstyle="1111"  />             
                 </button>
-               
-                <!-- 车辆申请按钮 -->                
+                
+               <!-- 车辆申请按钮 -->                
                  <button name="btnForget" rect="410,0,75,75" 
-                    extendstyle="1111" OnSelect="submitOnSelect">
+                    extendstyle="1111" OnSelect="DispatchSelect">
                     <image name="titleBg1" rect="10,7,75,75" src="file://image/ic_title_submit_new.png"
                     extendstyle="1111"  />                   
                     </button>
             </node>
 
-            <!-- 隐藏的搜索栏 -->
+            <!-- 搜索栏 -->
             <node name="searchBar" rect="0,66,480,56" extendstyle="1111"
                 visible="true">
                 <image name="search_bg_new" rect="0,0,480,52" src="file://image/search_bg.png"
@@ -51,7 +51,7 @@
                     src="file://image/search_input_new.png" style="autosize" extendstyle="1111" />
                 <edit name="keywordEdit" rect="37,10,340,42" extendstyle='1111' OnTextChanged="editOnTextChanged"
                     v-align="center" text="">
-                    <label name="hideLabel" rect="10,0,278,42" text="搜索车牌号" color="#c0c0c0"
+                    <label name="hideLabel" rect="10,0,278,42" text="请输入车牌号" color="#c0c0c0"
                         extendstyle="1111" style="autosize" h-align="left" v-align="center"
                         font-size="24" />
                 </edit>
@@ -62,33 +62,45 @@
             </node>
 
             <!-- 列表 -->
-            <node name="listNode" rect="0,122,480,700" extendstyle="1111">
-                <listview name="sampleList" rect="0,0,480,700" extendstyle="1111" />
+            <node name="listNode" rect="0,122,480,500" extendstyle="1111">
+                <listview name="sampleList" rect="0,0,480,500" extendstyle="1111" />
             </node>
-
+            
+            <node name="btnmorebar" rect="40,660,400,51" visible="false" extendstyle="1111">
+             <button name="btnmore" rect="0,0,400,50" OnSelect="OnMoreButtonClicked"
+                    extendstyle="1111">
+                    <image name="cheliang_im" rect="0,0,400,50" style="autosize"
+                    src="file://image/button_more.png"  extendstyle="1111" /> 
+                    <label name="hideLabel" rect="0,0,400,50" text="点击查看更多......" color="#303030"
+                        extendstyle="1111" style="autosize" h-align="center" v-align="center" 
+                        font-family="微软雅黑" font-size="24" />
+                </button>
+            </node>
+            
             <!-- 列表项模板  -->
             <node name="listitem" visible="false" enable="false" active="false"
                 extendstyle="1011" rect="0,66,480,100">
-                <shadow name="listItemBg" rect="0,0,480,100" color="#e8e8e8"
-                    alpha="255" extendstyle="1111" />
+                <shadow name="listItemBg" rect="0,0,480,100" color=""
+                    alpha="0" extendstyle="1111" />
                 <button name="btnname" rect="0,0,480,100" OnSelect="itemOnSelect"
                     extendstyle="1111">
                     <label name="id" rect="0,0,1,1" text="" color="#0" font-size="24"
                         h-align="left" v-align="center" extendstyle="1111" border="false"
                         visible="false" />
-                    <label rect="10,5,150,30" text="车牌号码：" color="#3C57C4" font-size="24"
+                    <label rect="20,5,150,30" text="车牌号码：" color="#0062ab" font-family="微软雅黑" font-size="24"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="carNo" rect="140,5,300,30" text="" color="#0"
+                    <label name="carNo" rect="130,5,300,30" text="" color="#303030" font-family="微软雅黑"
                         font-size="24" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label rect="10,35,150,30" text="代维公司：" color="#3C57C4" font-size="24"
+                    
+                    <label rect="20,35,150,30" text="代维公司：" color="#0062ab" font-family="微软雅黑" font-size="24" 
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="companyName" rect="140,35,360,30" text="" color="#0"
-                        font-size="24" h-align="left" v-align="center" extendstyle="1111"
+                    <scrolltext name="companyName" rect="130,35,320,30" text="" color="#303030" font-family="微软雅黑"
+                        font-size="24" h-align="left" v-align="center" extendstyle="1111" scroll="true" step="2"
                         border="false" />
-                    <label rect="10,65,150,30" text="车辆类型：" color="#3C57C4" font-size="24"
+                    <label rect="20,65,150,30" text="车辆类型：" color="#0062ab" font-family="微软雅黑" font-size="24" 
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="carType" rect="140,65,131,30" text="" color="#0"
+                    <label name="carType" rect="130,65,131,30" text="" color="#303030" font-family="微软雅黑"
                         font-size="24" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
                     <label rect="240,65,150,30" text="车辆状态：" color="#3C57C4" font-size="24"
@@ -97,7 +109,9 @@
                     <label name="carStatus" rect="341,65,129,30" text="" color="#0"
                         font-size="24" h-align="left" v-align="center" extendstyle="1111"
                         border="false" visible="false" />
-                    <image name="arrowImage" rect="420,30,24,40" src="file://image/jiantou.png"
+                     <image name="cheliang_im" rect="371,15,70,70"
+                        src="file://image/xiaojiaoche.png"  extendstyle="1111" /> 
+                    <image name="arrowImage" rect="446,40,14,20" src="file://image/jiantou_new.png"
                         style="autosize" extendstyle="1111" />
                 </button>
             </node>
@@ -105,7 +119,7 @@
     </body>
     <![CDATA[
 
-require 'com_wondertek_dw_s3.common.framework' 
+require 'com_wondertek_dw.common.framework'
 local rootSprite
 local respValue = nil
 local page = 1
@@ -136,13 +150,19 @@ function bodyOnPluginEvent(msg)
         local resp = Http:jsonDecode('car_list')
         Log:write(resp.value)
         if (resp.code == nil or resp.code ~= '0') then
+         Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
             Dialog:show('', getErrorCode(resp.code), 'ok')
             Loading:close()
             return
         elseif (getJsonArrayCount(resp.value) == 0 or resp.value=='') then
+            Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
             Dialog:show('', '返回数据为空!', 'ok')
             Loading:close()
             return
+            elseif  getJsonArrayCount(resp.value)>5 then
+              Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
+            Loading:close()
+            return 
         end
         -- 删除原来的列表
         local listView = Sprite:findChild(rootSprite, 'sampleList')
@@ -155,6 +175,7 @@ function bodyOnPluginEvent(msg)
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listitem'), len, 'loadListItem')
         ListView:adjust(listView)
         Loading:close()
+         Config:set('lines','10')       
     end
 end
 
@@ -222,8 +243,17 @@ function OnSearchButtonClicked(sprite)
     -- 提交http请求
     local requestParam = string.format('cmd=wlbcarlist&keyword=%s&page=%s', keyword, page)
     local requestURL = getWholeUrl('nbspweb/webservice/car!doWebservice.action', requestParam)
-    Loading:show()
+     Loading:show()
     Http:request('car_list', requestURL, 101)
+end
+
+function OnMoreButtonClicked(sprite)
+    Config:set('lines','100')
+    local requestParam = string.format('cmd=wlbcarlist&usercode=%s&keyword=&page=%s', Config:get('username'), page)
+    local requestURL = getWholeUrl('nbspweb/webservice/car!doWebservice.action', requestParam)
+    Http:request('car_list', requestURL, 101)
+     Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
+    Sprite:setRect(Sprite:findChild(rootSprite, 'sampleList'), 0, 0, 480, 735)
 end
 
 ---------------------------------------util functions---------------------------
@@ -234,9 +264,9 @@ function loadListItem(list, item, index)
     local listItemBg = Sprite:findChild(item, 'listItemBg')
     Sprite:setRect(listItemBg, 0, 0, 480, 100)
     if index % 2 > 0 then
-        Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
+       Sprite:setProperty(listItemBg, 'alpha', '0')
     else
-        Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
+        Sprite:setProperty(listItemBg, 'alpha', '20')
     end
     -- 读取返回的数据
     local value = respValue[index]
@@ -254,14 +284,21 @@ function loadListItem(list, item, index)
     Sprite:setProperty(carNo, 'text', carNumber)
     Sprite:setProperty(companyName, 'text', orgName)
     Sprite:setProperty(carType, 'text', carTypeValue)
+    if carTypeValue=='货车' then
+    Sprite:setProperty(Sprite:findChild(item, 'cheliang_im'), 'src', 'file://image/huoche.png')
+    elseif carTypeValue=='工程车' then
+    Sprite:setProperty(Sprite:findChild(item, 'cheliang_im'), 'src', 'file://image/gongchengche.png')
+    else
+    end
 end
 
 --请求服务器公告列表
 function getCarList()
+    Config:set('lines','5')
     local requestParam = string.format('cmd=wlbcarlist&usercode=%s&keyword=&page=%s', Config:get('username'), page)
     local requestURL = getWholeUrl('nbspweb/webservice/car!doWebservice.action', requestParam)
     Http:request('car_list', requestURL, 101)
-    Loading:show()
+     Loading:show()
 end
 
 function DispatchSelect(sprite)
