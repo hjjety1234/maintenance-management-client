@@ -31,15 +31,29 @@
 				 <button name="backBtn" rect="10,10,40,40"  style="autosize"  normal="" sel="" 
 				    OnSelect="doBack" extendstyle="1111">
 					<image name="normal" rect="0,0,40,40" src="file://image/ic_home_new.png"
-								style="autosize"  extendstyle="1111" />
+					   style="autosize"  extendstyle="1111" />
 					<image name="sel" rect="0,0,40,40" src="file://image/ic_home_new.png" 
-					            style="autosize"  extendstyle="1111" />
+					   style="autosize"  extendstyle="1111" />
                 </button>
                 <!-- 详情按钮  -->
                 <button name="btnDetail" rect="423,13,40,40" OnSelect="showAssesDetail"
                     text="" color="#ffffff" font-size="24" border="false" extendstyle="1111"
                     normal="src:file://image/icon_detail.png;style:autosize;color:#ffffff"
                     sel="src:file://image/icon_detail.png;style:autosize;color:#000000"/>
+            </node>
+            
+            <!-- 工具栏  -->
+            <node rect="0,66,480,52" extendstyle="1111">
+                <image name="search_bg_new" rect="0,0,480,52" src="file://image/search_bg.png"
+                    style="autosize" extendstyle="1111" />
+                <label rect="150,0,140,52" text="选择月份：" color="#0" v-align="center"  
+                    h-align="right" font-family="微软雅黑" font-size="22" 
+                    extendstyle="1111" />
+                <!-- 选择月份 -->
+                <button name="selectMonthBtn" rect="290,5,170,40" OnSelect="selectMonth"
+                    text="2012-11" color="#0" font-size="20" border="false" extendstyle="1111"
+                    normal="src:file://image/new_select_w.png;style:autosize;color:#ffffff"
+                    sel="src:file://image/new_select_w.png;style:autosize;color:#000000"/>
             </node>
         </node>
     </body>
@@ -56,29 +70,29 @@ local umsagentHasAppkey = 0
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    --[[
     local reg = Reg:create(Alias.index)
     umsagentPlugin = Reg:getInteger(reg, 'UmsAgent')
     umsagentHasAppkey = Reg:getInteger(reg, 'umsagentHasAppkey')
-    --]]
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        --[[
 	    if umsagentHasAppkey == 1 then
 	        pluginInvoke(umsagentPlugin, "OnActivate", string.match(Alias.chart, 'MODULE:\\(.*)'))
 	    end
-        --]]
+	    local regHandle = Reg:create('year_month')
+	    local year = Reg:getString(regHandle, 'year')
+	    local month = Reg:getString(regHandle, 'month')
+	    if year == '' or month == '' then 
+	       return 
+	    end
 	    local dataUrl = '/webcloud/resources/js/Charts/daiwei/jizhan-10-11.json'
-	    showChartInWebView(dataUrl, 'Bar', 0, 70, 480, 730)
+	    showChartInWebView(dataUrl, 'Bar', 0, 118, 480, 680)
     elseif msg == MSG_DEACTIVATE then
-        --[[
         if umsagentHasAppkey == 1 then
             pluginInvoke(umsagentPlugin, "OnDeactivate")
         end
-        --]]
     end
 end
 
@@ -110,10 +124,17 @@ function doBack()
 end
 
 ---------------------------------------util functions---------------------------
+-- 显示详情
 function showAssesDetail()
     closeWebView()
     Scene:setReturn(Alias.m_kaohetongji, Alias.m_kaohebaobiao)
     Scene:go(Alias.m_kaohebaobiao)
+end
+
+-- 月份选择对话框
+function selectMonth(sprite)
+    Scene:setReturn(Alias.m_kaohetongji, Alias.monthDialog)
+    Scene:go(Alias.monthDialog)
 end
     ]]>
 </root>
