@@ -394,13 +394,13 @@ function bodyOnPluginEvent(msg, param)
             Log:write("-------------location got3--------------")
             Map:getLocation(observer, 1001, tonumber(postData.latitude), tonumber(postData.longitude))
         end
-        -- postData为Json数据({"latitude":"31250614","longitude":"121600975"})
+        -- postData为Json数据({"latitude":"31250614","longitude":"121
+        Log:write("-------------location got4--------------600975")
     elseif msg == 1001 then
-        Log:write("-------------location got4--------------")
         local postDataString = Param:getString(param, 0)
         Log:write("-------------location got5--------------", postDataString)
         local postData = Json:loadString2Table(postDataString)
-        local locInfo = Sprite:findChild(rootSprite, 'locInfo')
+        local locInfo = Sprite:findChild(rootSprite, 'yinhuanLocName')
         if postData.address ~= nil then
             location = postData.address
             Sprite:setProperty(locInfo, 'text', postData.address)
@@ -628,10 +628,37 @@ end
 function hideXunjianSelected(sprite)
     setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 0)
 end
+--传统方式定位
+
+--传统方式获取经纬度
+function getGPSDataByMap()
+    --  显示状态栏
+    local statusBarText = Sprite:findChild(rootSprite, 'locInfo')
+    Sprite:setProperty(statusBarText, 'text', '正在定位，请稍候......')
+    local result = System:getGPSStatus()
+    Log:write("result is ---------->"..result)
+    if result == -1 then
+        Sprite:setProperty(statusBarText, 'text', '对不起，当前GPS不可用')
+    elseif result == 0 then
+        local gpsStatus = System:setGPSStatus(1)
+        if gpsStatus then
+            Sprite:setProperty(statusBarText, 'text', 'GPS开启成功，正在综合定位...')
+            local observer = Plugin:getObserver()
+            Map:getCurPosition(observer, 1000)
+        else
+            Sprite:setProperty(statusBarText, 'text', 'GPS开启失败')
+        end
+    elseif result == 1 then
+        Sprite:setProperty(statusBarText, 'text', 'GPS已经开启，正在综合定位...')
+        local observer = Plugin:getObserver()
+        Map:getCurPosition(observer, 1000)
+    end
+end
+--纯卫星定位
 function doLocation()
     Sprite:setProperty(Sprite:findChild(rootSprite,'locInfoImg'),'visible','true')
     local locInfo = Sprite:findChild(rootSprite, 'locInfo')
-    Sprite:setProperty(locInfo, 'text', '正在定位......')
+    Sprite:setProperty(locInfo, 'text', '正在定位中......')
     --Map:getCurPosition(observer, 1000)
     -- 当前无经纬度信息，检查当前gps状态
     local result = System:getGPSStatus()
@@ -995,7 +1022,7 @@ function bottomMenuSelect(sprite)
     if dataInfo == '1' then
         doBack()
     elseif dataInfo == '2' then
-        doLocation()
+        getGPSDataByMap()
     elseif dataInfo == '3' then
         doTakePic()
     elseif dataInfo == '4' then
