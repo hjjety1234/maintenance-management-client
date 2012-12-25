@@ -25,7 +25,7 @@
             <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
 				 <image name="title" rect="0,0,480,66" border="false" src="file://image/title_bg_new.png" 
 				    style="autosize" extendstyle="1111">
-					 <label rect="0,0,480,66" text="考核报表" color="#ffffff" v-align="center"  
+					 <label rect="0,0,480,66" text="九月份考核报表" color="#ffffff" v-align="center"  
 					   h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />
 				 </image>
 				 <!-- 返回按钮  -->
@@ -39,8 +39,9 @@
             </node>
             
             <!-- 主体可滑动部分  -->
-            <panorama name="panorama" rect="0,66,480,654" foreground="" alpha="255">
-                <panoramaitem name="item1" rect="0,0,480,654" OnSelect="PanoramaItemOnSelect" data="01">
+            <panorama name="panorama" rect="0,66,480,750" foreground="" alpha="255">
+                <panoramaitem name="item1" rect="0,0,480,750" OnSelect="PanoramaItemOnSelect" 
+                    extendstyle="1111" data="01">
 			        <!-- 报表标题  -->
 		            <node rect="0,0,480,56" extendstyle="1111">
 		                <image name="search_bg" rect="0,0,480,56" src="file://image/search_bg_new.png"
@@ -55,12 +56,13 @@
 		                    h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
 		            </node>
 		            <!--列表信息-->
-		            <node name="listNode1" rect="0,56,480,598" extendstyle="1111">
-		                <listview name="sampleList1" rect="0,0,480,598" extendstyle="1111" />
+		            <node name="listNode1" rect="0,56,480,700" extendstyle="1111">
+		                <listview name="sampleList1" rect="0,0,480,700" extendstyle="1111" />
 		            </node>
 			    </panoramaitem>
 			    
-			    <panoramaitem name="item2" rect="0,0,480,654" OnSelect="PanoramaItemOnSelect" data="02">
+			    <panoramaitem name="item2" rect="0,0,480,750" OnSelect="PanoramaItemOnSelect" 
+			         extendstyle="1111" data="02">
                     <!-- 报表标题  -->
                     <node rect="0,0,480,56" extendstyle="1111">
                         <image name="search_bg" rect="0,0,480,56" src="file://image/search_bg_new.png"
@@ -75,16 +77,17 @@
                             h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
                     </node>
                     <!--列表信息-->
-                    <node name="listNode2" rect="0,56,480,598" extendstyle="1111">
-                        <listview name="sampleList2" rect="0,0,480,598" extendstyle="1111" />
+                    <node name="listNode2" rect="0,56,480,700" extendstyle="1111">
+                        <listview name="sampleList2" rect="0,0,480,700" extendstyle="1111" />
                     </node>
                 </panoramaitem>
             </panorama>
             
             <!-- 更多按钮  -->
-             <node rect="0,720,480,80" extendstyle="1111">
+             <node name="moreNode" rect="0,720,480,80" extendstyle="1111" 
+                visible="false" enable="false">
                 <button name="more" rect="40,15,400,50" style="autosize"  
-                    normal="" sel="" OnSelect="" extendstyle="1111">
+                    normal="" sel="" OnSelect="showMore" extendstyle="1111">
                     <image name="normal" rect="0,0,400,50" src="file://image/button_more.png"
                         style="autosize"  extendstyle="1111" />
                     <image name="sel" rect="0,0,400,50" src="file://image/button_more.png" 
@@ -195,19 +198,18 @@ function bodyBuildChildrenFinished(sprite)
      -- 准备数据
     g_data = sepData 
     sortData(g_data)
-    local len = #g_data
     
     -- 加载列表项1
     local sampleList1 = Sprite:findChild(rootSprite, 'sampleList1')
     local listitem1 = Sprite:findChild(rootSprite, 'listitem1')
     ListView:removeAllItems(sampleList1)
-    ListView:loadItem(sampleList1, listitem1, len, 'loadListItem1')
+    ListView:loadItem(sampleList1, listitem1, #g_data, 'loadListItem1')
     ListView:adjust(sampleList1)
     
     local sampleList2 = Sprite:findChild(rootSprite, 'sampleList2')
     local listitem2 = Sprite:findChild(rootSprite, 'listitem2')
     ListView:removeAllItems(sampleList2)
-    ListView:loadItem(sampleList2, listitem2, len, 'loadListItem2')
+    ListView:loadItem(sampleList2, listitem2, #g_data, 'loadListItem2')
     ListView:adjust(sampleList2)
 end
 
@@ -257,6 +259,44 @@ end
 
 -----------------------------------------------------------------
 function  PanoramaItemOnSelect( sprite )
+end
+
+function showMore(sprite)
+    local len = #g_data
+    
+    -- 加载列表项1
+    local sampleList1 = Sprite:findChild(rootSprite, 'sampleList1')
+    local listitem1 = Sprite:findChild(rootSprite, 'listitem1')
+    ListView:removeAllItems(sampleList1)
+    ListView:loadItem(sampleList1, listitem1, len, 'loadListItem1')
+    
+    local sampleList2 = Sprite:findChild(rootSprite, 'sampleList2')
+    local listitem2 = Sprite:findChild(rootSprite, 'listitem2')
+    ListView:removeAllItems(sampleList2)
+    ListView:loadItem(sampleList2, listitem2, len, 'loadListItem2')
+    
+    -- 隐藏显示更多按钮
+    local moreNode = Sprite:findChild(rootSprite, 'moreNode')
+    Sprite:setProperty(moreNode, "visible", "false")
+    local mx,my,mw,mh = Sprite:getRect(moreNode)
+    Sprite:setRect(moreNode, mx, my, 0, 0)
+    
+    local listNode1 = Sprite:findChild(rootSprite, 'listNode1')
+    local x,y,w,h = Sprite:getRect(listNode1)
+    Sprite:setRect(listNode1, x, y, w, h + mh)
+    Sprite:setRect(sampleList1, 0, 0, w, h + mh)
+    
+    local listNode2 = Sprite:findChild(rootSprite, 'listNode2')
+    local x,y,w,h = Sprite:getRect(listNode2)
+    Sprite:setRect(listNode2, x, y, w, h + mh)
+    Sprite:setRect(sampleList2, 0, 0, w, h + mh)
+    
+    local panItem = Sprite:getParent(sampleList1)
+    x,y,w,h = Sprite:getRect(panItem)
+    Sprite:setRect(panItem, x, y, w, h + mh)
+    
+    ListView:adjust(sampleList1)
+    ListView:adjust(sampleList2)
 end
 
 ------------------------------ 加载列表项1，基站，铁塔，综合覆盖---------------------------
