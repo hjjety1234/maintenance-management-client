@@ -84,32 +84,32 @@
                     alpha="0" extendstyle="1111" />
                 <button name="btnname" rect="0,0,480,100" OnSelect="itemOnSelect"
                     extendstyle="1111">
-                    <label name="id" rect="0,0,1,1" text="" color="#0" font-size="22"
+                    <label name="id" rect="0,0,1,1" text="" color="#0" font-size="24"
                         h-align="left" v-align="center" extendstyle="1111" border="false"
                         visible="false" />
-                    <label rect="20,5,150,30" text="车牌号码：" color="#0062ab" font-family="微软雅黑" font-size="22"
+                    <label rect="20,5,150,30" text="车牌号码：" color="#0062ab" font-family="微软雅黑" font-size="24"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
                     <label name="carNo" rect="130,5,300,30" text="" color="#303030" font-family="微软雅黑"
-                        font-size="22" h-align="left" v-align="center" extendstyle="1111"
+                        font-size="24" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
                     
-                    <label rect="20,35,150,30" text="代维公司：" color="#0062ab" font-family="微软雅黑" font-size="22" 
+                    <label rect="20,35,150,30" text="代维公司：" color="#0062ab" font-family="微软雅黑" font-size="24" 
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
                     <scrolltext name="companyName" rect="130,35,320,30" text="" color="#303030" font-family="微软雅黑"
-                        font-size="22" h-align="left" v-align="center" extendstyle="1111" scroll="true" step="2"
+                        font-size="24" h-align="left" v-align="center" extendstyle="1111" scroll="true" step="2"
                         border="false" />
-                    <label rect="20,65,150,30" text="车辆类型：" color="#0062ab" font-family="微软雅黑" font-size="22" 
+                    <label rect="20,65,150,30" text="车辆类型：" color="#0062ab" font-family="微软雅黑" font-size="24" 
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
                     <label name="carType" rect="130,65,131,30" text="" color="#303030" font-family="微软雅黑"
-                        font-size="22" h-align="left" v-align="center" extendstyle="1111"
+                        font-size="24" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label rect="240,65,150,30" text="车辆状态：" color="#3C57C4" font-size="22"
+                    <label rect="240,65,150,30" text="车辆状态：" color="#3C57C4" font-size="24"
                         h-align="left" v-align="center" extendstyle="1111" border="false"
                         visible="false" />
                     <label name="carStatus" rect="341,65,129,30" text="" color="#0"
-                        font-size="22" h-align="left" v-align="center" extendstyle="1111"
+                        font-size="24" h-align="left" v-align="center" extendstyle="1111"
                         border="false" visible="false" />
-                     <image name="cheliang_im" rect="371,20,70,70"
+                     <image name="cheliang_im" rect="371,15,70,70"
                         src="file://image/xiaojiaoche.png"  extendstyle="1111" /> 
                     <image name="arrowImage" rect="446,40,14,20" src="file://image/jiantou_new.png"
                         style="autosize" extendstyle="1111" />
@@ -148,21 +148,22 @@ function bodyOnPluginEvent(msg)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
         local resp = Http:jsonDecode('car_list')
+        Config:set('lines','10')
         Log:write(resp.value)
         if (resp.code == nil or resp.code ~= '0') then
-         Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
             Dialog:show('', getErrorCode(resp.code), 'ok')
-            Loading:close()
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+             ListView:removeAllItems(listView)
+             Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
+             Loading:close()
             return
         elseif (getJsonArrayCount(resp.value) == 0 or resp.value=='') then
-            Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
             Dialog:show('', '返回数据为空!', 'ok')
             Loading:close()
             return
-            elseif  getJsonArrayCount(resp.value)>5 then
+          elseif  getJsonArrayCount(resp.value)>4 then
               Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 1)
-            Loading:close()
-            return 
+            Loading:close() 
         end
         -- 删除原来的列表
         local listView = Sprite:findChild(rootSprite, 'sampleList')
@@ -174,8 +175,42 @@ function bodyOnPluginEvent(msg)
         -- 加载列表项
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listitem'), len, 'loadListItem')
         ListView:adjust(listView)
-        Loading:close()
-         Config:set('lines','10')       
+        Loading:close()                  
+    elseif msg == 102 then
+     local resp = Http:jsonDecode('car_list')
+        Config:set('lines','10')
+        Log:write(resp.value)
+        if (resp.code == nil or resp.code ~= '0') then
+         Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
+            Dialog:show('', getErrorCode(resp.code), 'ok')
+            Loading:close()
+            return
+        elseif (getJsonArrayCount(resp.value) == 0 or resp.value=='') then
+            Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
+            Dialog:show('', '返回数据为空!', 'ok')
+            Loading:close()
+            return
+            elseif  getJsonArrayCount(resp.value)>=5 then
+              Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
+            Loading:close()
+        end
+        -- 删除原来的列表
+        local listView = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(listView)
+        total = resp['total']
+        respValue = resp.value
+        Log:write('remote server responsed with value:',respValue)
+        local len = getJsonArrayCount(respValue)
+        -- 加载列表项
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listitem'), len, 'loadListItem')
+        ListView:adjust(listView)
+        Loading:close() 
+         elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Dialog:show('', '请求超时!', 'ok')
+        Log:write('请求超时')                 
     end
 end
 
@@ -251,7 +286,7 @@ function OnMoreButtonClicked(sprite)
     Config:set('lines','100')
     local requestParam = string.format('cmd=wlbcarlist&usercode=%s&keyword=&page=%s', Config:get('username'), page)
     local requestURL = getWholeUrl('nbspweb/webservice/car!doWebservice.action', requestParam)
-    Http:request('car_list', requestURL, 101)
+    Http:request('car_list', requestURL, 102)
      Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
     Sprite:setRect(Sprite:findChild(rootSprite, 'sampleList'), 0, 0, 480, 735)
 end
