@@ -112,7 +112,23 @@
                             extendstyle="1111" />
                     </button>
                 </node>
-                
+
+                <!-- 提示页面3：提示用户必须从周边站点进入-->
+                 <node name="tipNode3" rect="0,70,480,640" extendstyle="1111" 
+                    visible="false" enable="false">
+                    <image rect="0,0,480,230" border="false" src="file://image/ico_barcode.png"
+                       style="center" sudoku="15,15,15,15" extendstyle="1111" />
+                    <button rect="125,250,230,50" color="#ffffff" extendstyle="1111" 
+                       OnSelect="backToLocal" font-size="24" data="01">
+                        <image rect="10,0,210,50" border="false" src="file://image/tip_btn.png"
+                            style="autosize" sudoku="15,15,15,15" extendstyle="1111" />
+                        <label rect="10,0,210,50" text="请通过周边站点进入" color="#5a5a5a"
+                            v-align="center" h-align="center" font-size="26" font-family="微软雅黑" 
+                            extendstyle="1111" />
+                    </button>
+                </node>
+
+
                 <listview name="mainListView" rect="0,10,480,660" col="1" limit="true"
                     visible="false" enable="false" extendstyle="1111">
                 </listview>
@@ -339,6 +355,8 @@ local g_planId            -- 巡检计划ID
 local g_templateId        -- 巡检模板ID
 local g_stationId         -- 站点ID
 local g_stationName       -- 站点名称
+local g_location          --定位到的经纬度信息
+local g_stationGps        --站点经纬度信息
 
 ----------------------------界面初始化相关变量----------------------------------
 local g_items = {}        	-- 巡检项（DS）
@@ -373,8 +391,15 @@ function bodyBuildChildrenFinished(sprite)
     g_templateId = Reg:getString(regHandle, 'templateId')
     g_stationId = Reg:getString(regHandle, 'stationId')
     g_stationName = Reg:getString(regHandle, 'stationName')
+    g_location = Reg:getString(regHandle,'gpsinfo')
+    g_stationGps = Reg:getString(regHandle,'stationGPS')
+    Log:write('gps is -->'..g_stationGps)
     -- 设置页面标题
     Sprite:setProperty(Sprite:findChild(rootSprite, 'titleNode'), 'text', g_stationName)
+
+    --如果没有经纬度信息，提示用户通过周边站点进入站点（下午要现场测试，暂不实现）。请何总实现@zhouyu
+
+
 end
 
 --  root节点消息方法
@@ -797,10 +822,14 @@ end
 
 -- 请求待扫描的二维码资源
 function requestBarcodeResource()
-	local param = 'cmd=wlbxunjianEwm&code='..g_resultId..'&resourceId='..g_stationId..'&page='..g_page
-    local requestURL = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', param)
-    Http:request('ewm_code', requestURL, 107, {useCache = false})
-    Loading:show()
+    --if(g_location~=nil) then
+    	local param = 'cmd=wlbxunjianEwm&code='..g_resultId..'&resourceId='..g_stationId..'&page='..g_page
+        local requestURL = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', param)
+        Http:request('ewm_code', requestURL, 107, {useCache = false})
+        Loading:show()
+    --else
+    --    Scene.back()
+    --end
 end
 
 -- 进站出站标签页操作
@@ -1437,6 +1466,11 @@ function doBarcodeRespProc(code)
 		Dialog:show("", '二维码扫描结果与设备不匹配!', 'ok')
 		return
 	end
+end
+
+--如果没有经纬度信息，则提示需要进入周边站点进行扫描
+function backToLocal(sprite)
+    Scene.back()
 end
 
 ------------------------- 异常输入框处理函数 ------------------------------------

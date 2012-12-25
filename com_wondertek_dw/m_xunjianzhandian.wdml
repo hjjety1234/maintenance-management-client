@@ -96,6 +96,7 @@
                     extendstyle="1111" style="autosize" h-align="left" v-align="center"
                     font-size="22" font-family="黑体" scroll="true">
                 </scrolltext>
+                <label name="lblLocation" rect="0,0,430,50" text="" visible="fals"></label>
                  <button name="getLocButton" rect="430,0,50,50" OnSelect="doGetLocAgain"
                     extendstyle="1111" border="false">
                     <image name="getLocImage" rect="0,0,50,50" src="file://image/refresh.png"
@@ -108,8 +109,10 @@
                 extendstyle="1011" rect="0,256,480,70">
                 <image name="listItemBg" rect="0,0,480,70" src="file://image/item_bg_m.png" 
                     style="autosize" extendstyle="1111" />
+                input
                 <button name="btnname" rect="0,0,480,70" OnSelect="itemOnSelect" 
                     extendstyle="1111" data="">
+                    <label name="stationGPS" rect="0,0,0,0" text='' visible="false"></label>
                     <image name="stationStatusImage" rect="20,20,26,26" src=""
                         extendstyle="1111" />
                     <label name="stationId" rect="40,20,0,0" text="" color="#0"
@@ -151,6 +154,7 @@ local page = 1
 
 local stationDistanceVisible = false
 local statusBarText
+local lblLocation
 
 -- gps重试次数和经纬度信息
 local timerNum = 50
@@ -159,6 +163,7 @@ local lastLatitude = 0
 local clickTime -- 长按巡检名称时的时间
 local longClickItemIndex -- 当前长按按钮列表索引
 local firtClick_y -- 第一次点击时的纵坐标
+
 
 ---------------------------------------回调函数列表--------------------------------
 -- root子节点创建完事件
@@ -175,6 +180,9 @@ function bodyBuildChildrenFinished(sprite)
     -- 默认选择tab1
     local tab1 = Sprite:findChild(rootSprite,'btnTab1')
     Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_s_new.png')
+
+    --经纬度信息
+    lblLocation = Sprite:findChild(rootSprite,'lblLocation')
 
     -- 默认加载5个站点
     local posValue = '117.251339,31.849438'
@@ -231,6 +239,7 @@ function bodyOnPluginEvent(msg, param)
         Log:write('进入二维码服务器请求响应处理函数...')
         local resp = Http:jsonDecode('stationList')
         Log:write(resp.value)
+
         if (resp.code == nil or resp.code ~= '0') then
             Dialog:show('', getErrorCode(resp.code), 'ok')
             Loading:close()
@@ -253,11 +262,13 @@ function bodyOnPluginEvent(msg, param)
 	    Dialog:show('', msgInfo, 'ok_cancel', 'okSelect', 'cancelSelect')
 	elseif msg == 1010 then
 	   local postDataString = Param:getString(param, 0)
+       --local  lblLocation = Sprite:findChild(rootSprite,'lblLocation')
 	   Log:write('postData is ----------->'..postDataString)
 	   local postData = Json:loadString2Table(postDataString)
 	   local latitudeValue = tonumber(postData.latitude) / 1000000.0
        local longitudeValue = tonumber(postData.longitude) / 1000000.0
        local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
+       Sprite:setProperty(lblLocation,'text',posValue)
        Sprite:setProperty(statusBarText, 'text', '定位成功，经纬度为:'.. posValue)
        System:setGPSStatus(0)
        -- 请求站点列表
@@ -290,6 +301,8 @@ function itemOnSelect(sprite)
     -- 获取当前选中站点的ID号
     local stationId = Sprite:findChild(sprite, "stationId")
     local stationName = Sprite:findChild(sprite, "stationName")
+    local stationGPS = Sprite:findChild(sprite,'stationGPS')
+    --local lblLocation = Sprite:findChild(rootSprite,"lblLocation")
     -- 设置要传递给巡检子项的参数
     local regHandle = Reg:create('xunjianzhixiang')
     Reg:clear(regHandle)
@@ -297,6 +310,9 @@ function itemOnSelect(sprite)
     Reg:setString(regHandle, 'templateId', templateId)
     Reg:setString(regHandle, 'stationId', Sprite:getText(stationId))
     Reg:setString(regHandle, 'stationName', Sprite:getText(stationName))
+    Reg:setString(regHandle,'gpsInfo',Sprite:getText(lblLocation)..'')
+    Reg:setString(regHandle,'stationGPS',Sprite:getText(stationGPS)..'')
+    --Reg:setString(regHandle,'stationGPS')
     -- 跳转到巡检子项
     if g_businessType == 'C31' then     -- 基站
         Scene:setReturn(Alias.m_xunjianzhandian, Alias.m_xunjianEditEx)
@@ -454,6 +470,7 @@ function loadListItem(list, item, index)
     local stationId = itemValue.stationId
     local stationNameText = itemValue.stationName
     local isPatroled = itemValue.isPatroled
+    local stationGPS = ''--如果经纬度为空会报.lon为nil的异常，请何总修改下。@zhouyu  itemValue.lat..','..itemValue.lon..' '
     local distance = string.format('%d', itemValue.distance)
     
     -- 设置列表项的值
@@ -461,6 +478,7 @@ function loadListItem(list, item, index)
     local stationIdSprite = Sprite:findChild(item, 'stationId')
     local stationName = Sprite:findChild(item, 'stationName')
     local stationDistance = Sprite:findChild(item, 'stationDistance')
+    local stationGPSLabel = Sprite:findChild(item,'stationGPS')
     
     -- 显示巡检状态
     if isPatroled == 'Y' then
@@ -473,6 +491,9 @@ function loadListItem(list, item, index)
         Sprite:setProperty(stationDistance, 'color', '#ff0000')
     end
     
+    --绑定站点GPS位置信息
+    Sprite:setProperty(stationGPSLabel,'text',stationGPS)
+
     -- 显示站点名称
     Sprite:setProperty(stationIdSprite, "text", stationId)
     Sprite:setProperty(stationName, "text", stationNameText)
