@@ -83,9 +83,24 @@
             <!-- 主页面内容：巡检项列表   -->
             <node name="mainNodeContent" rect="0,126,480,674" extendstyle="1111" visible="true">
                 
-                <!-- 提示页面1：提示用户选择进站按钮 -->
-                <node name="tipNode1" rect="0,80,480,594" extendstyle="1111"
-                    visible="true" enable="true">
+                <!-- 提示页面1：如果该站点的经纬度信息不存在，需要进行经纬度上报 -->
+                <node name="tipNode1" rect="0,70,480,640" extendstyle="1111" 
+                    visible="false" enable="false">
+                    <image rect="0,0,480,230" border="false" src="file://image/report_loc.png"
+                       style="center" extendstyle="1111" />
+                    <button rect="125,250,230,50" color="#ffffff" extendstyle="1111" 
+                       OnSelect="reportCurrentLoc" font-size="24" data="01">
+                        <image rect="10,0,210,50" border="false" src="file://image/tip_btn.png"
+                            style="autosize" sudoku="15,15,15,15" extendstyle="1111" />
+                        <label rect="10,0,210,50" text="请上报当前位置" color="#5a5a5a"
+                            v-align="center" h-align="center" font-size="26" font-family="微软雅黑" 
+                            extendstyle="1111" />
+                    </button>
+                </node>
+
+                <!-- 提示页面2：提示用户选择进站按钮 -->
+                <node name="tipNode2" rect="0,80,480,594" extendstyle="1111"
+                    visible="false" enable="false">
 					<image rect="170,0,140,140" border="false" src="file://image/ico_in.png"
 					   style="autosize" sudoku="15,15,15,15" extendstyle="1111" />
 					<button rect="125,180,230,50" color="#ffffff" extendstyle="1111" 
@@ -98,8 +113,8 @@
 					</button>
                 </node>
                 
-                <!-- 提示页面2：提示用户扫描二维码 -->
-                <node name="tipNode2" rect="0,70,480,640" extendstyle="1111" 
+                <!-- 提示页面3：提示用户扫描二维码 -->
+                <node name="tipNode3" rect="0,70,480,640" extendstyle="1111" 
                     visible="false" enable="false">
                     <image rect="0,0,480,230" border="false" src="file://image/ico_barcode.png"
                        style="center" sudoku="15,15,15,15" extendstyle="1111" />
@@ -112,22 +127,6 @@
                             extendstyle="1111" />
                     </button>
                 </node>
-
-                <!-- 提示页面3：提示用户必须从周边站点进入-->
-                 <node name="tipNode3" rect="0,70,480,640" extendstyle="1111" 
-                    visible="false" enable="false">
-                    <image rect="0,0,480,230" border="false" src="file://image/ico_barcode.png"
-                       style="center" sudoku="15,15,15,15" extendstyle="1111" />
-                    <button rect="125,250,230,50" color="#ffffff" extendstyle="1111" 
-                       OnSelect="backToLocal" font-size="24" data="01">
-                        <image rect="10,0,210,50" border="false" src="file://image/tip_btn.png"
-                            style="autosize" sudoku="15,15,15,15" extendstyle="1111" />
-                        <label rect="10,0,210,50" text="请通过周边站点进入" color="#5a5a5a"
-                            v-align="center" h-align="center" font-size="26" font-family="微软雅黑" 
-                            extendstyle="1111" />
-                    </button>
-                </node>
-
 
                 <listview name="mainListView" rect="0,10,480,660" col="1" limit="true"
                     visible="false" enable="false" extendstyle="1111">
@@ -347,6 +346,7 @@
 require 'com_wondertek_dw.common.framework'
 require 'framework.upload'
 require 'framework.barcode'
+require 'framework.map'
 
 local rootSprite
 
@@ -355,8 +355,8 @@ local g_planId            -- 巡检计划ID
 local g_templateId        -- 巡检模板ID
 local g_stationId         -- 站点ID
 local g_stationName       -- 站点名称
-local g_location          --定位到的经纬度信息
-local g_stationGps        --站点经纬度信息
+local g_stationLon        -- 站点的经度
+local g_stationLat        -- 站点的纬度
 
 ----------------------------界面初始化相关变量----------------------------------
 local g_items = {}        	-- 巡检项（DS）
@@ -391,15 +391,12 @@ function bodyBuildChildrenFinished(sprite)
     g_templateId = Reg:getString(regHandle, 'templateId')
     g_stationId = Reg:getString(regHandle, 'stationId')
     g_stationName = Reg:getString(regHandle, 'stationName')
-    g_location = Reg:getString(regHandle,'gpsinfo')
-    g_stationGps = Reg:getString(regHandle,'stationGPS')
-    Log:write('gps is -->'..g_stationGps)
+    g_stationLat = Reg:getString(regHandle, 'stationLat')
+    g_stationLon = Reg:getString(regHandle, 'stationLon')
     -- 设置页面标题
     Sprite:setProperty(Sprite:findChild(rootSprite, 'titleNode'), 'text', g_stationName)
-
-    --如果没有经纬度信息，提示用户通过周边站点进入站点（下午要现场测试，暂不实现）。请何总实现@zhouyu
-
-
+    -- 检查站点的位置
+    checkSiteLoc()
 end
 
 --  root节点消息方法
@@ -560,9 +557,9 @@ function bodyOnPluginEvent(msg, param)
       
         if data.code == '50' then
             -- 隐藏二维码提示
-            local tipNode2 = Sprite:findChild(rootSprite, 'tipNode2')
-            Sprite:setProperty(tipNode2, 'visible', 'false')
-            Sprite:setProperty(tipNode2, 'enable', 'false')
+            local tipNode3 = Sprite:findChild(rootSprite, 'tipNode3')
+            Sprite:setProperty(tipNode3, 'visible', 'false')
+            Sprite:setProperty(tipNode3, 'enable', 'false')
             -- 显示巡检项列表
             local mainListView = Sprite:findChild(rootSprite, 'mainListView')
             Sprite:setProperty(mainListView, 'visible', 'true')
@@ -609,9 +606,9 @@ function bodyOnPluginEvent(msg, param)
             local strMsg = string.format('扫描成功:%s %s,还有%d个资源待扫描！', 
                 devicename, code, #g_ewms)
              -- 隐藏二维码提示
-            local tipNode2 = Sprite:findChild(rootSprite, 'tipNode2')
-            Sprite:setProperty(tipNode2, 'visible', 'false')
-            Sprite:setProperty(tipNode2, 'enable', 'false')
+            local tipNode3 = Sprite:findChild(rootSprite, 'tipNode3')
+            Sprite:setProperty(tipNode3, 'visible', 'false')
+            Sprite:setProperty(tipNode3, 'enable', 'false')
             -- 显示巡检项列表
             local mainListView = Sprite:findChild(rootSprite, 'mainListView')
             Sprite:setProperty(mainListView, 'visible', 'true')
@@ -623,6 +620,30 @@ function bodyOnPluginEvent(msg, param)
                 'ok_cancel', 'checkSiteEwm', 'doBack')   
             return
         end 
+    elseif msg == 1000 then  -- 定位插件消息
+        Loading:close()
+        local postDataString = Param:getString(param, 0)
+        local postData = Json:loadString2Table(postDataString)
+        Log:write('postData', postData)
+        -- 如果返回的GPS数据有效
+        if postData ~= nil and postData.longitude ~= nil and 
+            postData.longitude ~= '' and postData.latitude ~= nil and 
+            postData.latitude ~= '' then 
+            Dialog:show(rootSprite, '上报位置成功！', 'ok')
+            -- 隐藏位置上报按钮
+            local tipNode1 = Sprite:findChild(rootSprite, 'tipNode1')
+            Sprite:setProperty(tipNode1, 'visible', 'false')
+            Sprite:setProperty(tipNode1, 'visible', 'false')
+            -- 显示进站提示按钮
+            local tipNode2 = Sprite:findChild(rootSprite, 'tipNode2')
+            Sprite:setProperty(tipNode2, 'visible', 'true')
+            Sprite:setProperty(tipNode2, 'enable', 'true')
+            -- 上报当前的位置
+        else
+            Dialog:show(rootSprite, '上报位置失败，请重新上报！', 'ok')
+            return
+        end
+
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Loading:close()
         Log:write('拨号失败')
@@ -662,6 +683,18 @@ function doBackDialog()
 end
 
 ---------------------------------------界面初始化函数列表--------------------------
+-- 检查站点的经纬度信息
+function checkSiteLoc()
+    if g_stationLon == '' or g_stationLat == '' then 
+        local tipNode1 = Sprite:findChild(rootSprite, 'tipNode1')
+        Sprite:setProperty(tipNode1, 'visible', 'true')
+        Sprite:setProperty(tipNode1, 'enable', 'true')
+    else
+        local tipNode2 = Sprite:findChild(rootSprite, 'tipNode2')
+        Sprite:setProperty(tipNode2, 'visible', 'true')
+        Sprite:setProperty(tipNode2, 'enable', 'true')
+    end
+end
 
 -- 加载巡检项
 function loadListItem(list, item, index)
@@ -803,6 +836,13 @@ function loadSubBarcodeListItem(list, item, index)
 end
 
 -----------------------服务端交互函数列表---------------------------------------
+-- 获取当前的经纬度，并上报
+function reportCurrentLoc(sprite)
+    Log:write('reportCurrentLoc()')
+    local observer = Plugin:getObserver()
+    Map:getCurPosition(observer, 1000)
+    Loading:show()
+end
 
 -- 请求巡检项
 function requestItems()
@@ -822,14 +862,10 @@ end
 
 -- 请求待扫描的二维码资源
 function requestBarcodeResource()
-    --if(g_location~=nil) then
-    	local param = 'cmd=wlbxunjianEwm&code='..g_resultId..'&resourceId='..g_stationId..'&page='..g_page
-        local requestURL = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', param)
-        Http:request('ewm_code', requestURL, 107, {useCache = false})
-        Loading:show()
-    --else
-    --    Scene.back()
-    --end
+	local param = 'cmd=wlbxunjianEwm&code='..g_resultId..'&resourceId='..g_stationId..'&page='..g_page
+    local requestURL = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', param)
+    Http:request('ewm_code', requestURL, 107, {useCache = false})
+    Loading:show()
 end
 
 -- 进站出站标签页操作
@@ -875,15 +911,15 @@ function InHandle(time)
     Sprite:setProperty(btnTab1,"enable","false")
     g_inFlag = '1'
         
-    -- 隐藏提示1
-    local tipNode1 = Sprite:findChild(rootSprite, 'tipNode1')
-    Sprite:setProperty(tipNode1, 'visible', 'false')
-    Sprite:setProperty(tipNode1, 'enable', 'false')
-
-    -- 显示提示框2
+    -- 隐藏提示2
     local tipNode2 = Sprite:findChild(rootSprite, 'tipNode2')
-    Sprite:setProperty(tipNode2, 'visible', 'true')
-    Sprite:setProperty(tipNode2, 'enable', 'true')
+    Sprite:setProperty(tipNode2, 'visible', 'false')
+    Sprite:setProperty(tipNode2, 'enable', 'false')
+
+    -- 显示提示框3
+    local tipNode3 = Sprite:findChild(rootSprite, 'tipNode3')
+    Sprite:setProperty(tipNode3, 'visible', 'true')
+    Sprite:setProperty(tipNode3, 'enable', 'true')
 end
 
 -- 出站请求
@@ -1466,11 +1502,6 @@ function doBarcodeRespProc(code)
 		Dialog:show("", '二维码扫描结果与设备不匹配!', 'ok')
 		return
 	end
-end
-
---如果没有经纬度信息，则提示需要进入周边站点进行扫描
-function backToLocal(sprite)
-    Scene.back()
 end
 
 ------------------------- 异常输入框处理函数 ------------------------------------
