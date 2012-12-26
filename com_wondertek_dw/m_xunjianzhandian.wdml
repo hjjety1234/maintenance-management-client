@@ -109,8 +109,7 @@
                 extendstyle="1011" rect="0,256,480,70">
                 <image name="listItemBg" rect="0,0,480,70" src="file://image/item_bg_m.png" 
                     style="autosize" extendstyle="1111" />
-                input
-                <button name="btnname" rect="0,0,480,70" OnSelect="itemOnSelect" 
+                <button name="btnname" rect="0,0,400,70" OnSelect="itemOnSelect" 
                     extendstyle="1111" data="">
                     <label name="stationGPS" rect="0,0,0,0" text='' visible="false"></label>
                     <image name="stationStatusImage" rect="20,20,26,26" src=""
@@ -118,15 +117,25 @@
                     <label name="stationId" rect="40,20,0,0" text="" color="#0"
                         font-size="16" h-align="left" v-align="center" extendstyle="1111"
                         border="false" visible="false" />
-                    <scrolltext name="stationName" rect="60,10,270,50" text=""
+                    <scrolltext name="stationName" rect="67,11,200,50" text=""
                         color="#0" font-size="24" font-family="黑体" h-align="left" v-align="center"
                         scroll="true" extendstyle="1111" border="false" />
-                    <label name="stationDistance" rect="340,10,110,50" text=""
+                    <label name="stationDistance" rect="270,10,110,50" text=""
                         color="#0" font-size="24" h-align="left" v-align="center"
                         extendstyle="1111" border="false" />
-                    <image rect="450,0,20,70" src="file://image/ico_r.png" style="center"
-                        extendstyle="1111" />
                 </button>
+                
+                <!-- 导航按钮  -->
+                <button name="navigationBtn" rect="400,0,40,70" OnSelect="doNavigation" 
+                    extendstyle="1111" data="">
+                    <image rect="0,0,40,70" src="file://image/nav.png" style="center" 
+                        extendstyle="1111">
+                    </image>
+                </button>
+                
+                <!-- 向右图标  -->
+                <image rect="450,0,20,70" src="file://image/ico_r.png" style="center"
+                    extendstyle="1111" />
             </node>
 
             <button name="cancelDetailBtn" rect="0,0,0,0" OnSelect="hideDetialNodeSel" visible="false" enable="false" extendstyle="1177" />
@@ -505,6 +514,9 @@ function loadListItem(list, item, index)
     else
         Sprite:setProperty(stationDistance, 'visible', 'false')
     end
+
+    -- 将当前的index写入到item的data数据中
+    Sprite:setProperty(item, 'data', index)
 end
 
 ---------------------------------------与服务端交互函数列表---------------------------
@@ -671,6 +683,30 @@ end
 
 -- 取消二维码扫描结果
 function cancelSelect()
+end
+
+-- 获取目标站点的经纬度，进行站点导航
+function  doNavigation( sprite )
+    Log:write('doNavigation(): ')
+    local item = Sprite:getParent(sprite)
+    local index = Sprite:getText(item)
+    local itemValue = respValue[index]
+
+    local stationName = itemValue.stationName
+    local longitude = itemValue.lon
+    local latitude = itemValue.lat
+
+    Log:write('doNavigation(): itemValue', itemValue)
+
+    local regHandle = Reg:create(Alias.m_xunjianzhandian)
+    Reg:clear(regHandle)
+    Reg:setString(regHandle, 'stationName', stationName)
+    Reg:setString(regHandle, 'destLongitude', longitude)
+    Reg:setString(regHandle, 'destLatitude', latitude)
+
+    -- 跳转到站点导航
+    Scene:setReturn(Alias.m_xunjianzhandian, Alias.m_zhandiandaohang)
+    Scene:go(Alias.m_zhandiandaohang)
 end
 
 ]]>

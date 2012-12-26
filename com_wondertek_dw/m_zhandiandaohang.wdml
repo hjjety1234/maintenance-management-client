@@ -59,8 +59,20 @@ function bodyBuildChildrenFinished(sprite)
     umsagentPlugin = Reg:getInteger(reg, 'UmsAgent')
     umsagentHasAppkey = Reg:getInteger(reg, 'umsagentHasAppkey')
     --]] 
-    g_desLon = '117270630'
-    g_desLat = '31876840'
+
+    local regHandle = Reg:create(Alias.m_xunjianzhandian)
+    local longitude = Reg:getString(regHandle, 'destLongitude')
+    local latitude = Reg:getString(regHandle, 'destLatitude')
+
+    if longitude == nil or longitude == '' or
+        latitude == nil or latitude == '' then 
+        Dialog:show(rootSprite, '目前站点的经纬度非法！', 'ok')
+        return
+    end 
+
+    g_desLon = tonumber(longitude) * 1000000
+    g_desLat = tonumber(latitude) * 1000000
+
     Log:write('g_desLon, g_desLon:', g_desLon, g_desLat)
     openMap(0, 70, 480, 730)
     getCurPosition()
