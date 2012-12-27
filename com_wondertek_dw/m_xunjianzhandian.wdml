@@ -45,7 +45,7 @@
             </node>
             
            <!-- 标签页  -->
-           <node border="0" name="tabNode" rect="0,66,480,60" extendstyle="1111">
+           <node border="0" name="tabNode" rect="0,66,480,60" extendstyle="1111" data="01">
                 <image rect="0,0,480,60" src="file://image/tab_bg.png"
                     extendstyle="1111" style="autosize" />
                 <button name="btnTab1" rect="0,0,240,60" text="" color="#ffffff"
@@ -311,6 +311,15 @@ function itemOnSelect(sprite)
     if stationLon == nil then stationLon = '' end
     Log:write('itemOnSelect(): stationLat, stationLon', 
         stationLat, stationLon)
+        
+    -- 获取tab标签页的编号，按名称搜索01，周边站点02
+    local tabNode = Sprite:findChild(rootSprite, 'tabNode')
+    local curTab = Sprite:getData(tabNode)
+    Log:write('itemOnSelect(): tabNode', curTab)
+    if curTab == '01' and stationLat ~= ''  and stationLon ~= '' then 
+        Dialog:show(rootSprite, '请从周边站点开始巡检!', 'ok')
+        return
+    end
 
     -- 设置要传递给巡检子项的参数
     local regHandle = Reg:create('xunjianzhixiang')
@@ -395,6 +404,7 @@ function tabOnSelect(sprite)
     local tab1 = Sprite:findChild(tabNode, 'btnTab1')
     local tab2 = Sprite:findChild(tabNode, 'btnTab2')
     local list = Sprite:findChild(rootSprite, 'listview1')
+    Sprite:setProperty(tabNode, 'data', dataInfo)
     Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_bg.png')
     Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_bg.png')
   
