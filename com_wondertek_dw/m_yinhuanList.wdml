@@ -77,7 +77,11 @@
                 </button>
             </node>
             <node name="listNode" rect="0,60,480,670" extendstyle="1111">
-                <listview name="sampleList" rect="0,0,480,670" extendstyle="1111" />
+                <listview name="sampleList" rect="0,0,480,623" extendstyle="1111" />
+                <button name="morebtn" rect="0,623,480,47" border="false"
+                    text="点击查看更多" color="#666666" OnSelect="addmore" visible="false"
+                    v-align="center" h-align="center" font-family="微软雅黑" font-size="24"
+                    extendstyle="1511" />
             </node>
 	 </listview>
 	
@@ -109,6 +113,7 @@
                         border="false" />
                 </button>
             </node>
+            <button visible="false" data="1" name="curpage"></button>
         </node>
     </body>
     <![CDATA[
@@ -116,20 +121,25 @@
 require 'com_wondertek_dw.common.framework'
 local rootSprite
 local savedDatas
+local curpage=nil
 local data={}
 local istabVisible = true        -- 搜索条是否显示标志
 local tabHeight = 60
+local pagesizenumber
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    curpage=Sprite:findChild(rootSprite, 'curpage')
+    morebtn=Sprite:findChild(rootSprite, 'morebtn')
     Config:set('curYinHuanListTab', '1')
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        initList()
         if Config:get('curYinHuanListTab') == '1' then
             tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
         else
@@ -149,6 +159,17 @@ function bodyOnPluginEvent(msg)
                Dialog:show("", "已传隐患内容为空！", "ok")
                return
         end 
+        --实现分页
+        local len = tonumber(data["total"])
+        Log:write('len ============ ', len)
+        local p=Sprite:getData(curpage)
+        pagesizenumber = Config:get('lines')
+        if not pagesizenumber and pagesizenumber ~= '' then
+             pagesizenumber = '10'
+        end
+        if p*pagesizenumber < len then
+             setAllShoworHide(morebtn, 1)
+        end
         if data ~= nil then
             if data.code == '0' then
                 if #data.value > 0 then
@@ -198,6 +219,7 @@ function tabOnSelect(sprite)
 	    loadUploadDatas()
         Config:set('curYinHuanListTab', '1')
     else
+        setAllShoworHide(morebtn, 0)
         loadSavedDatas()
         Config:set('curYinHuanListTab', '1')
     end
@@ -238,7 +260,7 @@ end
 
 function loadList(count)
     local list = Sprite:findChild(rootSprite, 'sampleList')
-    ListView:removeAllItems(list,true)
+--    ListView:removeAllItems(list,true)
     ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
     ListView:adjust(list)
 end
@@ -334,6 +356,24 @@ function OnSearchButtonClicked(sprite)
         --Loading:show()
         --Http:request('daiban_data', requestURL, 101)
     end 
+end
+ --list界面初始化
+function initList()               
+    local list = Sprite:findChild(rootSprite, 'sampleList')
+    ListView:removeAllItems(list) --初始化时去除已经显示的list
+    setAllShoworHide(morebtn, 0)--初始化时隐藏按钮
+    Sprite:setProperty(curpage, 'data',1)--初始化时重置curpage值为1
+end 
+function addmore()
+        setAllShoworHide(morebtn, 0)
+        local p=Sprite:getData(curpage)
+        p = p+1
+        Sprite:setProperty(curpage, 'data',p)
+        Log:write('列表记录页数',Sprite:getData(curpage))
+        local param = 'cmd=wlbdangerlist&page='..Sprite:getData(curpage)
+        local url = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
+        Http:request('daiban_data', url, 101, {useCache = false})
+        Loading:show(rootSprite)
 end
 
     ]]>
