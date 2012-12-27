@@ -161,7 +161,7 @@ function bodyOnPluginEvent(msg)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
         local resp = Http:jsonDecode('car_list')
-        Config:set('lines','10')
+        --Config:set('lines','10')
         Log:write(resp.value)
         if (resp.code == nil or resp.code ~= '0') then
             Dialog:show('', getErrorCode(resp.code), 'ok')
@@ -175,6 +175,7 @@ function bodyOnPluginEvent(msg)
             Loading:close()
             return
           elseif  getJsonArrayCount(resp.value)>4 then
+          Log:write('++++++数据条数+++++', resp.value)
               Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 1)
             Loading:close() 
         end
@@ -191,7 +192,7 @@ function bodyOnPluginEvent(msg)
         Loading:close()                  
     elseif msg == 102 then
      local resp = Http:jsonDecode('car_list')
-        Config:set('lines','10')
+        --Config:set('lines','10')
         Log:write(resp.value)
         if (resp.code == nil or resp.code ~= '0') then
          Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
@@ -289,17 +290,29 @@ function OnSearchButtonClicked(sprite)
         return
     end
     -- 提交http请求
+    Config:set('lines','5')
     local requestParam = string.format('cmd=wlbcarlist&keyword=%s&page=%s', keyword, page)
     local requestURL = getWholeUrl('nbspweb/webservice/car!doWebservice.action', requestParam)
      Loading:show()
+     Config:set('lines','10')
     Http:request('car_list', requestURL, 101)
 end
 
 function OnMoreButtonClicked(sprite)
     Config:set('lines','100')
-    local requestParam = string.format('cmd=wlbcarlist&usercode=%s&keyword=&page=%s', Config:get('username'), page)
+    local requestParam
+    local searchBar = Sprite:getParent(sprite)
+    local keywordEdit = Sprite:findChild(searchBar, 'keywordEdit')
+    local keyword = Sprite:getProperty(keywordEdit, "text")
+    if keyword == nil or keyword == '' then
+    requestParam = string.format('cmd=wlbcarlist&usercode=%s&keyword=&page=%s', Config:get('username'), page)
+    else
+    requestParam = string.format('cmd=wlbcarlist&keyword=%s&page=%s', keyword, page)
+     end 
     local requestURL = getWholeUrl('nbspweb/webservice/car!doWebservice.action', requestParam)
     Http:request('car_list', requestURL, 102)
+    Loading:show()
+    Config:set('lines','10')
      Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
     Sprite:setRect(Sprite:findChild(rootSprite, 'sampleList'), 0, 0, 480, 735)
 end
@@ -346,6 +359,7 @@ function getCarList()
     local requestParam = string.format('cmd=wlbcarlist&usercode=%s&keyword=&page=%s', Config:get('username'), page)
     local requestURL = getWholeUrl('nbspweb/webservice/car!doWebservice.action', requestParam)
     Http:request('car_list', requestURL, 101)
+     Config:set('lines','10')
      Loading:show()
 end
 

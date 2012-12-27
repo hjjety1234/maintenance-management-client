@@ -240,7 +240,7 @@ function loadRequest()
     Log:write('++++++++url+++++++++++++', url)
     Http:request('daiban_data', url, 101, {useCache = false, method = 'post', postData='cmd=wlbtasklist'..param})
     
-    Loading:show()
+    Loading:show() 
 end
 
 function loadDoneRequest()
@@ -302,6 +302,7 @@ end
 
 function loadZanCunItem(list, item, index)
     local idString
+    Log:write('loadZanCunItem================savedDatas', savedDatas)
      idString= savedDatas[index+1]
     Log:write('loadSavedListItemloadSavedListItem', idString , Config:get('daibanID' .. idString))
     local dataString = Split(Config:get('daibanID' .. idString), ';')
@@ -342,13 +343,18 @@ local timeString=Split(dataString[8]," ")
     
     Sprite:setProperty(textNum, 'text', dataString[4])
     Sprite:setProperty(textTitle, 'text',dataString[6])
-       Log:write('+++++++++++++派发时间++++++++++++', dataString[8]) 
-    Sprite:setProperty(textTime, 'text',dataString[8])
+       Log:write('+++++++++++++派发时间++++++++++++', dataString[7]) 
+    Sprite:setProperty(textTime, 'text',dataString[7])
+    if  dataString[11]=='一般' then
+        Sprite:setProperty(Sprite:findChild(item, 'lineSign'), 'src', 'file://image/yiban_line.png')
+     elseif dataString[11]=='紧急' then
+        Sprite:setProperty(Sprite:findChild(item, 'lineSign'), 'src', 'file://image/jinji_line.png')
+     end
     --Sprite:setProperty(finishTime, 'text',dataString[8])
     
     if hours<0 then
     if -remaindays>=5 then
-    Sprite:setProperty(finishTime, 'text', data.value[index].overtimeSetDis)
+    Sprite:setProperty(finishTime, 'text', dataString[8])
     Sprite:setProperty(timeLabel, 'color','#5a5a5a')
     Sprite:setProperty(finishTime, 'color','#5a5a5a')
     else
@@ -483,8 +489,7 @@ function itemOnSelect(sprite)
         stepdata=dataString[1]
         Reg:setString(regHandle,'id',dataString[2])
         Reg:setString(regHandle,'pid',dataString[3])
-        Reg:setString(regHandle,'taskcode',dataString[4])
-        
+        Reg:setString(regHandle,'taskcode',dataString[4])       
         Reg:setString(regHandle,'step',dataString[5])
         Reg:setString(regHandle,'stepdata',stepdata)
         Reg:setString(regHandle,'flag',flag)
@@ -498,7 +503,8 @@ function itemOnSelect(sprite)
         Reg:setString(regHandle,'taskcode',tostring(data.value[index].taskCode))
         Reg:setString(regHandle,'taskName',data.value[index].taskName)
         Reg:setString(regHandle,'taskTypeDis',data.value[index].taskTypeDis)
-        
+        Reg:setString(regHandle,'taskDetail',data.value[index].taskDetail)
+        Reg:setString(regHandle,'emergencyLevel',data.value[index].emergencyLevel)
         Reg:setString(regHandle,'flag',flag)
 
         if flag=='1' then     -------待办工单
