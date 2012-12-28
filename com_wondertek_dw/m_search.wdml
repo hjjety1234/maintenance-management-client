@@ -1,132 +1,176 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-==
-============================================================================
-== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
-============================================================================
-== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
-============================================================================
-== | Author: xxxx <xxxx@xxxx.com> ==
-============================================================================
-== | Desc: 页面描述 ==
-============================================================================
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: hewu <hewu2008@gmail.com>
+ == ============================================================================
+ == | Desc: 2012/12/22 调用高德的地图接口，实现基站导航
+ == ============================================================================
 -->
 <root>
-    <header />
+    <header/>
     <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
         OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
-        
-          <!-- 主体节点 -->
-     <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
-            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
-        <!-- 设置背景 -->
-          <image rect="0,0,0,0" src="file://image/backgroundImg.png" style="autosize" extendstyle="1177" />
-        
-        <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
-            <image name="title" rect="0,0,480,66" border="false"
-                src="file://image/title_bg_new.png" style="autosize" extendstyle="1111">
-
-                <label rect="0,0,480,66" text="资源查询" color="#ffffff" v-align="center"
-                    h-align="center" font-size="28" extendstyle="1111" />
-            </image>
-
-            <button name="backBtn" rect="17,13,40,40" normal="normal" sel="sel"
+        <!-- 主节点  -->
+        <node name="mainNode" rect="0,0,480,800" enable="true" 
+            active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置背景 -->
+            <image rect="0,0,0,0" src="file://image/backgroundImg.png" style="autosize"
+               extendstyle="1177" />
+            <!-- 设置头部 -->
+            <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+                 <image name="title" rect="0,0,480,66" border="false" src="file://image/title_new.png" 
+                    style="autosize" extendstyle="1111">
+                     <label name="titleText" rect="0,0,480,66" text="资源管理" color="#ffffff" v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />
+                 </image>
+                 <!-- 返回按钮  -->
+                 <button name="backBtn" rect="10,10,40,40"  style="autosize"  normal="" sel="" 
                     OnSelect="doBack" extendstyle="1111">
                     <image name="normal" rect="0,0,40,40" src="file://image/ic_home_new.png"
-                        style="autosize" extendstyle="1111"/>
-                    <image name="sel" rect="0,0,40,40" extendstyle="1111" 
-                      src="file://image/ic_home_new.png" style="autosize"/>               
+                       extendstyle="1111" />
+                    <image name="sel" rect="0,0,40,40" src="file://image/ic_home_new.png" 
+                       extendstyle="1111" />
                 </button>
-        </node>
-        
-             <!-- 搜索栏 -->
-            <node name="searchBar" rect="0,66,480,56" extendstyle="1111"
-                visible="true">
-                <image name="search_bg_new" rect="0,0,480,52" src="file://image/search_bg.png"
-                    style="autosize" extendstyle="1111" />
-                <image name="searchBarImage" rect="15,5,450,42"
-                    src="file://image/search_input_new.png" style="autosize" extendstyle="1111" />
-                <edit name="etSearch" rect="37,10,340,42" extendstyle='1111' OnTextChanged="editOnTextChanged"
-                    v-align="center" text="">
-                    <label name="hideLabel" rect="10,0,278,42" text="搜索站点名称" color="#c0c0c0"
-                        extendstyle="1111" style="autosize" h-align="left" v-align="center"
-                        font-size="24" />
-                </edit>
-                <button name="searchButton" rect="415,5,40,40" OnSelect="searchOnSelect"
-                    extendstyle="1111">
+            </node>
+            <!--
+            visible="false"
+            -->
+            <node name="nearstationnode" rect="0,642,480,72" visible="false" enable="false" extendstyle="1111">
+                     <image rect="0,0,480,86" src="file://image/dt_bar.png"
+                            style="autosize" extendstyle="1111" />
+                    <button name="jizhanbtn" rect="0,0,88,70" border="false"
+                            text="" color="#ffffff" OnSelect="itemOnSelect" extendstyle="1111"
+                            data="01">
+                             <image name="img" rect="29,5,30,30" src="file://image/ico_jizhans.png"
+                   extendstyle="1111" />
+                        <label name="jizhanText" rect="0,40,88,30" text="基站" color="#303030" v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    </button>
+                    <button name="tietabtn" rect="98,0,88,70" border="false"
+                            text="" color="#ffffff" OnSelect="itemOnSelect" extendstyle="1111"
+                            data="02">
+                            <image name="img" rect="29,5,30,30" src="file://image/ico_tieta.png"
+                   extendstyle="1111" />
+                        <label name="tietaText" rect="0,40,88,30" text="铁塔" color="#303030" v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    </button>
+                    <button name="zonghebtn" rect="196,0,88,70" border="false"
+                            text="" color="#ffffff" OnSelect="itemOnSelect" extendstyle="1111"
+                            data="03">
+                             <image name="img" rect="29,5,30,30" src="file://image/dt_fugai.png"
+                   extendstyle="1111" />
+                       <label name="zongheText" rect="0,40,88,30" text="综合覆盖" color="#303030" v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    </button>
                     
-                </button>
-            </node>
-            
-            <node rect="0,132,480,650" extendstyle="1111">
-                <listview name="sampleList" rect="0,0,480,650" border="false"
-                    limit="false">
-                </listview>
-                <label name="nullTips" rect="0,0,480,650" extendstyle="1111" font-size='28' text="对不起，没有搜到你要的结果！" v-align="center" h-align="center" visible="0" />
-            </node>
-
-            <node name="listitem" visible="false" enable="false" active="false"
-                extendstyle="1011" rect="0,0,480,70">
-                <shadow name="listItemBg" rect="0,0,480,70" color="#e8e8e8"
-                    alpha="255" extendstyle="1111" />
-                <button name="btnname" rect="0,0,480,70" OnSelect="itemOnSelect"
-                    extendstyle="1111">
-                    <label rect="10,5,100,30" text="资源名称：" color="#0" font-size="24"
-                        h-align="left" v-align="center" extendstyle="1111" />
-                    <label name="textTitle" rect="125,5,370,30" text="" color="#0"
-                        font-size="24" h-align="left" v-align="center" extendstyle="1111" />
-                    <label rect="10,35,100,30" text="位置描述：" color="#0" font-size="24"
-                        h-align="left" v-align="center" extendstyle="1111" />
-                    <label name="textLoc" rect="125,35,370,30" text="" color="#0"
-                        font-size="24" h-align="left" v-align="center" extendstyle="1111" />
-                </button>
-            </node>
+                     <button name="jijiabtn" rect="294,0,88,70" border="false"
+                            text="" color="#ffffff" OnSelect="itemOnSelect" extendstyle="1111"
+                            data="04">
+                             <image name="img" rect="29,5,30,30" src="file://image/dt_jike.png"
+                   extendstyle="1111" />
+                       <label name="jijiaText" rect="0,40,88,30" text="集客家客" color="#303030" v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    </button>
+                    
+                      <button name="jijiabtn" rect="392,0,88,70" border="false"
+                            text="" color="#ffffff" OnSelect="itemOnSelect" extendstyle="1111"
+                            data="05">
+                             <image name="img" rect="29,5,30,30" src="file://image/dt_route.png"
+                   extendstyle="1111" />
+                       <label name="jijiaText" rect="0,40,88,30" text="线路" color="#303030" v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    </button>
+                </node>
+                
+             <node name="bottombar" rect="0,714,480,86" extendstyle="1511">
+                    <image rect="0,0,480,86" src="file://image/bottom_new.png"
+                            style="autosize" extendstyle="1511" />
+                    <button name="button1" rect="0,0,120,86" border="false" sel="sel"
+                            text="" color="#ffffff" OnSelect="NearOnSelect" extendstyle="1111"
+                            data="1">                            
+                    <image name="sel" rect="0,0,120,86" src="file://image/dt_btn_s.png"
+                        style="autosize" extendstyle="1111" />
+                    <image name="img" rect="26,16,68,54" src="file://image/dt_near_station.png"
+                   extendstyle="1111" />
+                    </button>
+                    <button name="button1" rect="120,0,120,86" border="false" sel="sel"
+                            text="" color="#ffffff" OnSelect="SearchOnSelect" extendstyle="1111"
+                            data="2">
+                        <image name="sel" rect="0,0,120,86" src="file://image/dt_btn_s.png"
+                        style="autosize" extendstyle="1111" />
+                    <image name="img" rect="26,16,68,54" src="file://image/dt_search.png"
+                   extendstyle="1111" />
+                    </button>
+                    <button name="button1" rect="240,0,120,86" border="false" sel="sel"
+                            text="" color="#ffffff" OnSelect="" extendstyle="1111"
+                            data="3">
+                      <image name="sel" rect="0,0,120,86" src="file://image/dt_btn_s.png"
+                        style="autosize" extendstyle="1111" />
+                    <image name="img" rect="26,16,68,54" src="file://image/dt_correct.png"
+                   extendstyle="1111" />
+                    </button>
+                    
+                     <button name="button1" rect="360,0,120,86" border="false" sel="sel"
+                            text="" color="#ffffff" OnSelect="" extendstyle="1111"
+                            data="4">
+                       <image name="sel" rect="0,0,120,86" src="file://image/dt_btn_s.png"
+                        style="autosize" extendstyle="1111" />
+                    <image name="img" rect="26,16,68,54" src="file://image/dt_submit.png"
+                   extendstyle="1111" />
+                    </button>
+                </node>
         </node>
     </body>
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.map'
 local rootSprite
-local data
+
+local umsagentPlugin = nil
+local umsagentHasAppkey = 0
+local selectflag=0
+local g_desLon = nil  -- 目标位置的经度
+local g_desLat = nil  -- 目标位置的纬度
+local g_stationName = nil -- 目标站点名称
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-
+  
+    openMap(0, 70, 480, 644)
+    getCurPosition()
+    
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        doSearch('')
+    
     elseif msg == MSG_DEACTIVATE then
+    
     end
 end
 
 -- @brief 插件消息方法
-function bodyOnPluginEvent(msg)
-    if Loading:isShow() then Loading:close() end
-    if msg == 101 then
-        data = Http:jsonDecode('search_data')
-        Log:write("data:", data)
-        local nullTips = Sprite:findChild(rootSprite,'nullTips')
-        local list = Sprite:findChild(rootSprite, 'sampleList')
-        if (data.code == nil or data.code ~= '0') then
-            Dialog:show('提示', getErrorCode(data.code), 'ok')
+function bodyOnPluginEvent(msg, param)
+    if msg == 1000 then
+        -- postData为Json数据({"latitude":"31250614","longitude":"121600975"})
+        local postDataString = Param:getString(param, 0)
+        local postData = Json:loadString2Table(postDataString)
+        if showCurPosition(postData.longitude, postData.latitude) ==  false then
+            Log:write('移动到当前位置失败', postData)
             return
-        elseif data.code == "0" and data.total ~= "0" then
-            Sprite:setVisible(nullTips,0)
-            Sprite:setVisible(list,1)
-            Sprite:setEnable(list,1)
-            fillSelect()
-        else
-            ListView:removeAllItems(list, 1,1)
-            Sprite:setVisible(list,0)
-            Sprite:setEnable(list,0)
-            Sprite:setVisible(nullTips,1)
         end
+        --Map:searchMapByName('合肥', '国购广场')
+        --searchRoute(1, postData.longitude,  postData.latitude, g_desLon, g_desLat)
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
     elseif msg > MSG_NETWORK_ERROR then -- 请求超时
@@ -137,64 +181,109 @@ end
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-        Scene:back()
+        doBack()
         return 1
     end
 end
 
----------------------------------------util functions---------------------------
+-- 返回上一个页面
 function doBack()
+    Map:close()
     Scene:back()
 end
 
-function searchOnSelect(sprite)
-    local searchKey = Sprite:getText(Sprite:findChild(Sprite:getParent(sprite), 'etSearch'))
-    if searchKey == nil or searchKey == '' then
-        Dialog:show('提示', '搜索内容不能为空!', 'ok')
+---------------------------------------地图相关函数---------------------------
+-- 打开地图
+function openMap(x, y, w, h)
+    local xscal = SCREEN_WIDTH / 480
+    local yscal = SCREEN_HEIGHT / 800
+    Map:open(x*xscal, y*yscal, w*xscal, h*yscal)
+end
+
+-- 获取当前经纬度
+function getCurPosition()
+    local observer = Plugin:getObserver()
+    Map:getCurPosition(observer, 1000)
+end
+
+
+-- 显示当前位置到地图
+-- @paramlongitude string 如 "121600975"
+-- @param latitude string 如 "31250614"
+function  showCurPosition(longitude, latitude)
+    if longitude == nil or longitude == '' or 
+        latitude == nil or latitude == '' then
+        Log:write('经纬度参数不合法:', longitude, latitude)
+        return false
+    end
+    Map:moveTo(tonumber(latitude), tonumber(longitude), '') 
+    return true
+end
+
+-- 在地图上搜索导航路径
+-- @param routeType: number, 路线方式: 1.自驾,2.公车,3.步行1,2,3
+-- @param curLongitude:string, 当前经度: 如 "121600975"
+-- @param curlatitude:string, 当前纬度: 如 "31250614"
+-- @param desLonitude:string, 目标位置经度:如 "121600975"
+-- @param desLatitude:string, 目标位置纬度:如 "31250614"
+function searchRoute(routeType, curLongitude, curlatitude, desLonitude, desLatitude)
+
+   -- 源位置经纬度合法性检查
+   if curLongitude == nil or curLongitude == '' or 
+        curlatitude == nil or curlatitude == '' then
+        Log:write('源经纬度参数不合法:', longitude, latitude)
         return
     end
-    doSearch(searchKey)
+
+    -- 目标位置经纬度合法性检查
+    if desLonitude == nil or desLonitude == '' or 
+        desLatitude == nil or desLatitude == '' then
+        Log:write('目标经纬度参数不合法:', longitude, latitude)
+        return
+    end
+
+    -- 搜索路径
+    Map:searchRoute(routeType, "", "",
+        tonumber(curlatitude), tonumber(curLongitude), "", "",
+        tonumber(desLatitude), tonumber(desLonitude))
 end
 
-function doSearch(content)
-    local nullTips = Sprite:findChild(rootSprite,'nullTips')
-    Sprite:setVisible(nullTips,0)
-    local dataString=string.format('cmd=%s&resourceName=%s&resourceType=%s&page=1','wlbresourceSearch', content, '')
-    Log:write(dataString)
-    local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
-    Loading:show(rootSprite)
-    Http:request('search_data', reqURL, 101, {useCache = false, method = 'post', postData=dataString})
+function NearOnSelect(sprite)
+    local btnData = Sprite:getData(sprite)
+    --curErrorBtn = sprite
+   
+    if selectflag==0 then
+    selectflag=1
+    openMap(0, 70, 480, 572)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'nearstationnode'), 1)
+    elseif selectflag==1 then
+    selectflag=0
+    openMap(0, 70, 480, 644)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'nearstationnode'), 0)
+    end
 end
 
-function loadListItem(list, item, index)
-    Sprite:setRect(item, 0, 0, 480, 70)
-    local listItemBg = Sprite:findChild(item, 'listItemBg')
-    Sprite:setRect(listItemBg, 0, 0, 480, 70)
-    if index % 2 > 0 then
-        Sprite:setProperty(listItemBg, 'color', '#e8e8e8')
-    else
-        Sprite:setProperty(listItemBg, 'color', '#f2f2f2')
-    end
-    Sprite:setProperty(item, 'extendstyle', '1111')
-    local textTitle = Sprite:findChild(item, 'textTitle')
-    local textLoc = Sprite:findChild(item, 'textLoc')
-    if data.value[index].resourcename then
-        Sprite:setProperty(textTitle, 'text', data.value[index].resourcename)
-    end
-    if data.value[index].position then
-        Sprite:setProperty(textLoc, 'text', data.value[index].position)
+function SearchOnSelect(sprite)
+ if  selectflag==1 then
+ selectflag=0
+    openMap(0, 70, 480, 644)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'nearstationnode'), 0)
     end
 end
 
 function itemOnSelect(sprite)
+local dataInfo = Sprite:getData(sprite)
+    Log:write('dataInfo===', dataInfo)
+--if dataInfo=='01' then 
+--Scene:setReturn(Alias.m_daibangongdan, Alias.m_daibandetail)
+--        Scene:go(Alias.m_daibandetail)
+--    elseif   dataInfo=='02'  then
+--    
+--    elseif dataInfo=='03'  then
+--Scene:setReturn(Alias.m_daibangongdan, Alias.m_daibandetail)
+--        Scene:go(Alias.m_daibandetail)    
+
 end
 
-function fillSelect()
-    local list = Sprite:findChild(rootSprite, 'sampleList')
-    ListView:removeAllItems(list, 1,1)
-    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), #data.value+1, 'loadListItem')
-    ListView:adjust(list)
-end
-
-    ]]>
+]]>
 </root>
