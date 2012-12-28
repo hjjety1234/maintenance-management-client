@@ -70,7 +70,7 @@
             </node>-->
             <node name="baseShangbaoqu" rect="0,130,480,180" extendstyle="1111" border="false">
                 <label name="lbllonandlat" text="请点击下方按钮上报你的巡检点" rect="5,0,480,50" extendstyle="1111" border="false" font-size="25"></label>
-                <button name="btnUP" rect="125,60,480,60"  OnSelect="btnUP_OnSelected" extendstyle="1111" border="false">
+                <button name="btnUP" rect="125,60,480,60"  OnSelect="btnUP_OnSelected2" extendstyle="1111" border="false">
                     <image src="file://image/button_up.png" rect="0,0,229,51" extendstyle="1111"
                      style="sudoku-auto" sudoku="15,15,15,15"></image>
                      <label rect="0,0,229,51" extendstyle="1111" h-align="center" v-align="center" text="上报巡检点"></label>
@@ -96,6 +96,7 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.map'
 local rootSprite
 local planId
 local stationId
@@ -124,9 +125,45 @@ function bodyOnSpriteEvent(msg, param)
 end
 
 -- @brief 插件消息方法
-function bodyOnPluginEvent(msg)
+function bodyOnPluginEvent(msg,param)
     if msg == 101 then
-
+    elseif msg == 1000 then
+        Log:write('param is ----->'..param)
+        local statusBarText = Sprite:findChild(rootSprite, 'lbllonandlat')
+        Log:write("-------------location got1--------------")
+        local postDataString = Param:getString(param, 0)
+        Log:write("-------------location got2--------------", postDataString)
+        local postData = Json:loadString2Table(postDataString)
+        if postData.latitude ~= nil then
+            Config:set("latitude", postData.latitude)
+        end
+        if postData.longitude ~= nil then
+            Config:set("longitude", postData.longitude)
+        end
+        if postData.longitude ~= nil and postData.latitude ~= nil then
+            Log:write("-------------location got3--------------")
+            Sprite:setProperty(statusBarText,'text','定位成功:'..postData.longitude..','..postData.latitude)
+            local latitudeValue = postData.latitude
+            local longitudeValue = postData.longitude
+            -- 发送短信
+            local smshead = Config:get('xlSmsHead')--'XGXV30'
+            local deviceId = Config:get('deviceId')--'44010001'
+            local cmd = Config:get('cmd')--'00' --手动巡检
+            local date = '121227143406 '
+            local endstr = Config:get('xlSmsEndStr')--'00000000AAA10'
+            local smscontent=smshead..deviceId..cmd..date..latitudeValue..longitudeValue..endstr
+            Log:write('111111111111111111111111111111111111111111111111111111111111111', smscontent)
+            local phone = Config:get('xlSmsNo')--'10658452'
+               
+            if Util:sendSMS(phone, smscontent) then
+                Sprite:setProperty(statusBarText, 'text', '巡检信息上报成功')
+                local tabhis = {os.date()..'上报成功'}
+                table.insert(tabhis,tabhis)
+            else
+               Sprite:setProperty(statusBarText, 'text', '巡检信息上报失败:短信上报失败')
+            end
+        end
+        -- postData为Json数据({"latitude":"31250614","longitude":"121
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -202,8 +239,62 @@ function outRequest()
     Http:request('Outdata', url, 106, {useCache = false, method = 'post', postData='cmd=wlbxunjianEnd'..param})
     Loading:show(rootSprite)
 end
+
+--传统方式获取经纬度
+function getGPSDataByMap()
+    --  显示状态栏
+    local statusBarText = Sprite:findChild(rootSprite, 'lbllonandlat')
+    Sprite:setProperty(statusBarText, 'text', '正在定位，请稍候......')
+    local result = System:getGPSStatus()
+    Log:write("result is ---------->"..result)
+    if result == -1 then
+        Sprite:setProperty(statusBarText, 'text', '对不起，当前GPS不可用')
+    elseif result == 0 then
+        local gpsStatus = System:setGPSStatus(1)
+        if gpsStatus then
+            Sprite:setProperty(statusBarText, 'text', 'GPS开启成功，正在综合定位...')
+            local observer = Plugin:getObserver()
+            Map:getCurPosition(observer, 1000)
+        else
+            Sprite:setProperty(statusBarText, 'text', 'GPS开启失败')
+        end
+    elseif result == 1 then
+        Sprite:setProperty(statusBarText, 'text', 'GPS已经开启，正在综合定位...')
+        local observer = Plugin:getObserver()
+        Map:getCurPosition(observer, 1000)
+    end
+end
+
 --上报位置按钮单击
 function btnUP_OnSelected(sprite)
+    getGPSDataByMap()
+  -- Loading:show()
+  -- local lbltips = Sprite:findChild(rootSprite, 'lbllonandlat')
+  --  -- 当前无经纬度信息，检查当前gps状态
+  --   local result = System:getGPSStatus()
+  --   if result == -1 then
+  --       Sprite:setProperty(lbltips, 'text', '对不起，当前GPS不可用')
+  --   elseif result == 0 then
+  --       local gpsStatus = System:setGPSStatus(1)
+  --       if gpsStatus then
+  --           Sprite:setProperty(lbltips, 'text', 'GPS开启成功，正在定位...')
+  --           Timer:cancel(111)
+  --           Timer:set(111, 1000, '_requestNearbyStationByRadius')
+  --       else
+  --           Sprite:setProperty(lbltips, 'text', 'GPS开启失败')
+  --       end
+  --   elseif result == 1 then
+  --       Sprite:setProperty(lbltips, 'text', 'GPS已经开启，正在定位...')
+  --       Timer:cancel(111)
+  --       Timer:set(111, 1000, '_requestNearbyStationByRadius')
+  --   end
+  --   if(Loading:isShow()) then
+  --       Loading:close()
+  --   end
+end
+--上报位置按钮单击
+function btnUP_OnSelected2(sprite)
+    --getGPSDataByMap()
   Loading:show()
   local lbltips = Sprite:findChild(rootSprite, 'lbllonandlat')
    -- 当前无经纬度信息，检查当前gps状态
@@ -235,28 +326,30 @@ function _requestNearbyStationByRadius()
     local longitude,latitude,gpsdate = System:getGPSData()
     if longitude and longitude ~= 0 and latitude and latitude ~= 0 and
          isLocationChanaged(longitude, latitude) == true then
-		Log:write('gps date is ------------------->'..gpsdate)
+		Log:write('gps data is ------------------->'..gpsdate)
         timerNum = 50
         Timer:cancel(111)
         System:setGPSStatus(0)
         
         -- 判断定位是否成功
-        local latitudeValue = tonumber(latitude) / 10000000.0
-        local longitudeValue = tonumber(longitude) / 10000000.0
+        local latitudeValue = latitude
+        local longitudeValue = longitude
         local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
         Sprite:setProperty(statusBarText, 'text', '定位成功，经纬度为:'.. posValue)
         
-        local date = os.date('%y%m%d%H%M%S')
+        --经纬度进行转换
+        
         
         -- 发送短信
-        local smshead = 'XGXV30'
-        local deviceId = '44010001'
-        local cmd = '00' --手动巡检
-        local date = '121216143406 '
-        local endstr = '00000000AAA10'
-        local smscontent=smshead..deviceId..cmd..date..latitudeValue..longitudeValue
+        local smshead = Config:get('xlSmsHead')--'XGXV30'
+        local deviceId = Config:get('deviceId')--'44010001'
+        local cmd = Config:get('cmd')--'00' --手动巡检
+        local date = '000000000000'
+        local hx = Config:get('xlHx')
+        local endstr = Config:get('xlSmsEndStr')--'00000000AAA10'
+        local smscontent=smshead..deviceId..cmd..date..latitudeValue..longitudeValue..hx..endstr
 	    Log:write('111111111111111111111111111111111111111111111111111111111111111', smscontent)
-	    local phone = '10658452'
+	    local phone = Config:get('xlSmsNo')--'10658452'
 	       
         if Util:sendSMS(phone, smscontent) then
             Sprite:setProperty(statusBarText, 'text', '巡检信息上报成功')
