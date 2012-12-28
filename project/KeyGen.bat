@@ -1,1 +1,0 @@
-keytool -genkey -v -keystore %cd%\wd.keystore -alias wd -keyalg RSA -validity 36000
