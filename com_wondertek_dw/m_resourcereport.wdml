@@ -32,18 +32,31 @@
                     <image name="sel" rect="0,0,40,40" src="file://image/ic_home_new.png" 
                        style="autosize"  extendstyle="1111" />
                 </button>
-                <button name="btnShowSearchBar" rect="414,0,66,66"
+                <!--<button name="btnShowSearchBar" rect="414,0,66,66"
                     font-size="24" extendstyle="1111" text="" color="#ffffff"
                     OnSelect="OnShowSearchBarButtonClicked">
                 <image name="titleBg1" rect="16,8,40,40" src="file://image/ico_search_new.png"
                     extendstyle="1111"  />
-                </button>
+                </button>-->
             </node>
             <!-- 工具栏  -->
             <node name="nodetools" rect="0,66,480,52" extendstyle="1111" visible="false" enable="false">
-                <image name="search_bg_new" rect="0,0,480,52" src="file://image/search_bg.png"
                     style="autosize" extendstyle="1111" />
-                <button name="" rect="12,0,80,61" text="    按专业" h-align="left" font-family="微软雅黑"
+                    <button name="btnTab1" rect="0,0,240,50" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
+                    <image name="tabBg" rect="140,5,100,30" border="false" src="file://image/tab.png"
+                        style="autosize" extendstyle="1111" />
+                    <label rect="140,5,100,30" text="专业统计" color="#ffffff" v-align="center"
+                        h-align="center" font-size="18" font-family="黑体" extendstyle="1111" />
+                </button>
+                <button name="btnTab2" rect="241,0,240,40" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
+                    <image name="tabBg" rect="0,5,100,30" border="false" src="file://image/tab.png"
+                        style="autosize" extendstyle="1111" />
+                    <label rect="0,5,100,30" text="区域统计" color="#ffffff" v-align="center"
+                        h-align="center" font-size="18" font-family="黑体" extendstyle="1111" />
+                </button>
+                <!--<button name="" rect="12,0,80,61" text="    按专业" h-align="left" font-family="微软雅黑"
                           color="#303030" extendstyle="1111" OnSelect="searchTypeOnSelect"
                           font-size="24" data="01">
                     <image rect="100,15,32,32" src="file://image/list_arrow.png"  extendstyle="1111" />
@@ -54,7 +67,7 @@
                           font-size="24" data="02">
                     <image rect="100,15,32,32" src="file://image/list_arrow.png"  extendstyle="1111" />
                     
-                 </button>
+                 </button>-->
             </node>
         </node>
     </body>
@@ -65,10 +78,28 @@ require 'framework.webbrowser'
 local rootSprite
 local isVisible = false
 
+local g_x1, g_y1, g_w1, g_h1
+local g_x2, g_y2, g_w2, g_h2
+
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    local nodetools = Sprite:findChild(rootSprite,'nodetools')
+    setAllShoworHide(nodetools,1)
+    -- 获取tab1的大小
+    local btnTab1 = Sprite:findChild(rootSprite, 'btnTab1')
+    local tabBg = Sprite:findChild(btnTab1, 'tabBg')
+    g_x1, g_y1, g_w1, g_h1 = Sprite:getRect(tabBg)
+    
+    -- 设置选中标记，放大该tab
+    Sprite:setProperty(tabBg, 'src', 'file://image/tab_on.png')
+    Sprite:setRect(tabBg, g_x1, g_y1, g_w1, g_h1 + 6)
+    
+    -- 获取tab2的大小
+    local btnTab2 = Sprite:findChild(rootSprite, 'btnTab2')
+    tabBg = Sprite:findChild(btnTab2, 'tabBg')
+    g_x2, g_y2, g_w2, g_h2 = Sprite:getRect(tabBg)
 end
 
 -- @brief root节点消息方法
@@ -117,13 +148,28 @@ function OnShowSearchBarButtonClicked(sprite)
     end
 end
 --
-function searchTypeOnSelect(sprite)
+function tabOnSelect(sprite)
+    local tabNode = Sprite:getParent(sprite)
     local dataInfo = Sprite:getData(sprite)
+    Sprite:setProperty(tabNode, 'data', dataInfo)
+    
+    -- 标记当前被选中的标签页，去标记原来的标签页
+    local btnTab1 = Sprite:findChild(rootSprite, 'btnTab1')
+    local btnTab2 = Sprite:findChild(rootSprite, 'btnTab2')
+
     if(dataInfo == '01') then
         --按专业
+        Sprite:setProperty(Sprite:findChild(btnTab1, 'tabBg'), 'src', 'file://image/tab_on.png')
+        Sprite:setProperty(Sprite:findChild(btnTab2, 'tabBg'), 'src', 'file://image/tab.png')
+        Sprite:setRect(Sprite:findChild(btnTab1, 'tabBg'), g_x1, g_y1, g_w1, g_h1 + 6)
+        Sprite:setRect(Sprite:findChild(btnTab2, 'tabBg'), g_x2, g_y2, g_w2, g_h2)
         proReport()
     else
         --按区域
+        Sprite:setProperty(Sprite:findChild(btnTab1, 'tabBg'), 'src', 'file://image/tab.png')
+        Sprite:setProperty(Sprite:findChild(btnTab2, 'tabBg'), 'src', 'file://image/tab_on.png')
+        Sprite:setRect(Sprite:findChild(btnTab1, 'tabBg'), g_x1, g_y1, g_w1, g_h1)
+        Sprite:setRect(Sprite:findChild(btnTab2, 'tabBg'), g_x2, g_y2, g_w2, g_h2  + 6)
         areaReport()
     end
 end
