@@ -140,6 +140,14 @@ end
 ---------------------------------------地图相关函数---------------------------
 -- 打开地图
 function openMap(x, y, w, h)
+    local reg = registerCreate(Reg.g_Map)
+    local handle = registerGetInteger(reg, 'MapPlugin')
+    if handle == 0 then
+        handle = pluginCreate('MapView', 'MapView')
+        registerSetInteger(reg, 'MapPlugin', handle)
+    end
+    pluginInvoke(handle, 'ShowLocationButton', 1)
+    
     local xscal = SCREEN_WIDTH / 480
     local yscal = SCREEN_HEIGHT / 800
     Map:open(x*xscal, y*yscal, w*xscal, h*yscal)
