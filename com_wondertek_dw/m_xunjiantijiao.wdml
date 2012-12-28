@@ -548,6 +548,7 @@ function bodyOnPluginEvent(msg, param)
             --Dialog:show(rootSprite, '未知错误！', 'ok')
         end
 	elseif msg == 107 then -- 获取二维码资源列表响应
+        Loading:close()
 		local data = Http:jsonDecode('ewm_code')
         -- 服务端返回数据合法性检查
         if not data or type(data) ~= 'table' then
@@ -621,7 +622,6 @@ function bodyOnPluginEvent(msg, param)
             return
         end 
     elseif msg == 1000 then  -- 定位插件消息
-        Loading:close()
         local postDataString = Param:getString(param, 0)
         local postData = Json:loadString2Table(postDataString)
         Log:write('postData', postData)
@@ -629,6 +629,22 @@ function bodyOnPluginEvent(msg, param)
         if postData ~= nil and postData.longitude ~= nil and 
             postData.longitude ~= '' and postData.latitude ~= nil and 
             postData.latitude ~= '' then 
+            -- 上报当前的位置
+            local lon = tonumber(postData.longitude) / 1000000.0
+            local lat = tonumber(postData.latitude) / 1000000.0
+            local requestParam = string.format('cmd=wlbreportstationloc&usercode=%s&stationId=%s&lon=%s&lat=%s', 
+                           Config:get('username'), g_stationId, lon, lat)
+            local requestURL = getUrl()..'nbspweb/webservice/wplanpatrol!doWebservice.action?'..requestParam
+            Http:request('report_station', requestURL, 1001)
+        else
+            Loading:close()
+            Dialog:show(rootSprite, '上报位置失败，请重新上报！', 'ok')
+            return
+        end
+    elseif msg == 1001 then -- 位置上报响应处理
+        Loading:close()
+        local data = Http:jsonDecode('report_station')
+        if data.code == '0' then
             Dialog:show(rootSprite, '上报位置成功！', 'ok')
             -- 隐藏位置上报按钮
             local tipNode1 = Sprite:findChild(rootSprite, 'tipNode1')
@@ -638,10 +654,9 @@ function bodyOnPluginEvent(msg, param)
             local tipNode2 = Sprite:findChild(rootSprite, 'tipNode2')
             Sprite:setProperty(tipNode2, 'visible', 'true')
             Sprite:setProperty(tipNode2, 'enable', 'true')
-            -- 上报当前的位置
         else
             Dialog:show(rootSprite, '上报位置失败，请重新上报！', 'ok')
-            return
+            return 
         end
 
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
