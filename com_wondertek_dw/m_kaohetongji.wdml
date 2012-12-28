@@ -172,6 +172,15 @@
     
     -- 显示月份选择对话框
     function selectMonth(sprite)
+        closeWebView()
+        
+        local monthNode = Sprite:findChild(rootSprite, 'monthNode')
+        local month = Sprite:getText(monthNode)
+
+        local regHandle = Reg:create(Alias.m_kaohetongji)
+        Reg:clear(regHandle)
+        Reg:setString(regHandle, 'month', month)
+        
         Scene:setReturn(Alias.m_kaohetongji, Alias.monthDialog)
         Scene:go(Alias.monthDialog)
     end
@@ -197,7 +206,6 @@
             Sprite:setRect(Sprite:findChild(btnTab1, 'tabBg'), g_x1, g_y1, g_w1, g_h1)
             Sprite:setRect(Sprite:findChild(btnTab2, 'tabBg'), g_x2, g_y2, g_w2, g_h2  + 6)
         end
-        
         refresh()
     end
 
