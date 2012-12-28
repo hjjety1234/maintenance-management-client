@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: hewu <hewu2008@gmail.com>
+ == ============================================================================
+ == | Desc: 2012/12/22 调用高德的地图接口，实现基站导航
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <!-- 主节点  -->
+        <node name="mainNode" rect="0,0,480,800" enable="true" 
+            active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+	        <!-- 设置背景 -->
+	        <image rect="0,0,0,0" src="file://image/backgroundImg.png" style="autosize"
+	           extendstyle="1177" />
+            <!-- 设置头部 -->
+            <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+				 <image name="title" rect="0,0,480,66" border="false" src="file://image/title_new.png" 
+				    style="autosize" extendstyle="1111">
+					 <label name="titleText" rect="0,0,480,66" text="基站导航" color="#ffffff" v-align="center"  
+					   h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />
+				 </image>
+				 <!-- 返回按钮  -->
+				 <button name="backBtn" rect="10,10,40,40"  style="autosize"  normal="" sel="" 
+				    OnSelect="doBack" extendstyle="1111">
+					<image name="normal" rect="0,0,40,40" src="file://image/ico_back.png"
+				       extendstyle="1111" />
+					<image name="sel" rect="0,0,40,40" src="file://image/ico_back.png" 
+					   extendstyle="1111" />
+                </button>
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+require 'framework.map'
+local rootSprite
+
+local umsagentPlugin = nil
+local umsagentHasAppkey = 0
+
+local g_desLon = nil  -- 目标位置的经度
+local g_desLat = nil  -- 目标位置的纬度
+local g_stationName = nil -- 目标站点名称
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    --[[
+    local reg = Reg:create(Alias.index)
+    umsagentPlugin = Reg:getInteger(reg, 'UmsAgent')
+    umsagentHasAppkey = Reg:getInteger(reg, 'umsagentHasAppkey')
+    --]] 
+
+    local regHandle = Reg:create(Alias.m_xunjianzhandian)
+    g_stationName = Reg:getString(regHandle, 'stationName')
+    local longitude = Reg:getString(regHandle, 'destLongitude')
+    local latitude = Reg:getString(regHandle, 'destLatitude')
+
+    if g_stationName ~= nil and g_stationName  ~= '' then
+        local titleText = Sprite:findChild(rootSprite, 'titleText')
+        Log:write('bodyBuildChildrenFinished(): title', g_stationName)
+        Sprite:setProperty(titleText, 'text', g_stationName)
+    end
+
+    if longitude == nil or longitude == '' or
+        latitude == nil or latitude == '' then 
+        Dialog:show(rootSprite, '目前站点的经纬度非法！', 'ok')
+        return
+    end 
+
+    g_desLon = tonumber(longitude) * 1000000
+    g_desLat = tonumber(latitude) * 1000000
+
+    Log:write('g_desLon, g_desLon:', g_desLon, g_desLat)
+    openMap(0, 70, 480, 730)
+    getCurPosition()
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        --[[
+	    if umsagentHasAppkey == 1 then
+	        pluginInvoke(umsagentPlugin, "OnActivate", string.match(Alias.chart, 'MODULE:\\(.*)'))
+	    end
+        --]]
+    elseif msg == MSG_DEACTIVATE then
+        --[[
+        if umsagentHasAppkey == 1 then
+            pluginInvoke(umsagentPlugin, "OnDeactivate")
+        end
+        --]]
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 1000 then
+        -- postData为Json数据({"latitude":"31250614","longitude":"121600975"})
+        local postDataString = Param:getString(param, 0)
+		local postData = Json:loadString2Table(postDataString)
+        if showCurPosition(postData.longitude, postData.latitude) ==  false then
+            Log:write('移动到当前位置失败', postData)
+            return
+        end
+        searchRoute(1, postData.longitude,  postData.latitude, g_desLon, g_desLat)
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        doBack()
+        return 1
+    end
+end
+
+-- 返回上一个页面
+function doBack()
+    Map:close()
+    Scene:back()
+end
+
+---------------------------------------地图相关函数---------------------------
+-- 打开地图
+function openMap(x, y, w, h)
+    local xscal = SCREEN_WIDTH / 480
+    local yscal = SCREEN_HEIGHT / 800
+    Map:open(x*xscal, y*yscal, w*xscal, h*yscal)
+end
+
+-- 获取当前经纬度
+function getCurPosition()
+    local observer = Plugin:getObserver()
+    Map:getCurPosition(observer, 1000)
+end
+
+
+-- 显示当前位置到地图
+-- @paramlongitude string 如 "121600975"
+-- @param latitude string 如 "31250614"
+function  showCurPosition(longitude, latitude)
+    if longitude == nil or longitude == '' or 
+        latitude == nil or latitude == '' then
+        Log:write('经纬度参数不合法:', longitude, latitude)
+        return false
+    end
+    Map:moveTo(tonumber(latitude), tonumber(longitude), '') 
+    return true
+end
+
+-- 在地图上搜索导航路径
+-- @param routeType: number, 路线方式: 1.自驾,2.公车,3.步行1,2,3
+-- @param curLongitude:string, 当前经度: 如 "121600975"
+-- @param curlatitude:string, 当前纬度: 如 "31250614"
+-- @param desLonitude:string, 目标位置经度:如 "121600975"
+-- @param desLatitude:string, 目标位置纬度:如 "31250614"
+function searchRoute(routeType, curLongitude, curlatitude, desLonitude, desLatitude)
+
+   -- 源位置经纬度合法性检查
+   if curLongitude == nil or curLongitude == '' or 
+        curlatitude == nil or curlatitude == '' then
+        Log:write('源经纬度参数不合法:', longitude, latitude)
+        return
+    end
+
+    -- 目标位置经纬度合法性检查
+    if desLonitude == nil or desLonitude == '' or 
+        desLatitude == nil or desLatitude == '' then
+        Log:write('目标经纬度参数不合法:', longitude, latitude)
+        return
+    end
+
+    -- 搜索路径
+    Map:searchRoute(routeType, "", "",
+        tonumber(curlatitude), tonumber(curLongitude), "", "",
+        tonumber(desLatitude), tonumber(desLonitude))
+end
+
+]]>
+</root>

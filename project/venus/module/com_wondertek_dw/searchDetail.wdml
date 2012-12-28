@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: xxxx <xxxx@xxxx.com> ==
+============================================================================
+== | Desc: 页面描述 ==
+============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <shadow rect="0,0,480,800" color="#ffffff" alpha="255"
+            extendstyle="1111" />
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+                <image name="title" rect="0,0,480,66" border="false"
+                    src="file://image/title_bg.png" style="autosize" extendstyle="1111">
+
+                    <label rect="0,0,480,66" text="基础信息查询" color="#ffffff"
+                        v-align="center" h-align="center" font-size="28" extendstyle="1111" />
+                </image>
+
+                <button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
+                    OnSelect="doBack" extendstyle="1111">
+                    <image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
+                        style="autosize" extendstyle="1111" />
+                    <image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
+                        style="autosize" extendstyle="1111" />
+                    <label rect="15,0,60,45" text="返回" color="#ffffff"
+                        extendstyle="1111" style="autosize" h-align="center" v-align="center"
+                        font-size="24" />
+                </button>
+            </node>
+            <scrolltext name="titleName" rect="91,76,303,30" text="111111"
+                extendstyle="1111" font-size="24" h-align="center" v-align="center"
+                color="#0" scroll="true" step="2" />
+            <scrolltext name="time" rect="20,114,460,30" text=""
+                h-align="center" v-align="center" color="#0" scroll="true"
+                font-size="18" step="2" extendstyle="1111" />
+            <shadow rect="0,145,480,5" color="#e8e8e8" alpha="255"
+                extendstyle="1111" />
+            <node name="content" rect="0,84,480,650" extendstyle="1111">
+                <listview rect="10,74,460,580" extendstyle="1111" limit="true">
+                    <list-item rect="0,0,460,535" extendstyle="1111">
+                        <textarea name="contentText" rect="5,210,450,380"
+                            extendstyle="1111" line-height="45" autoextend="true" font-size="25" />
+                    </list-item>
+                </listview>
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require('framework.common')
+local rootSprite
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    local regHandle = Reg:create('search')
+    Reg:setString(regHandle, 'titleName', '火车站')
+    fillTitle()
+    fillContent()
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function doBack()
+    Scene:back()
+end
+
+function fillTitle()
+    local titleName = Sprite:findChild(rootSprite, 'titleName')
+    local time = Sprite:findChild(rootSprite, 'time')
+    Sprite:setProperty(titleName, 'text', '紧急抢修电缆')
+    local timeString = ''
+    --if data.content.date ~= '' and data.content.date ~= nil then
+    timeString = '时间:' .. '2012-09-30'
+    --end
+    Sprite:setProperty(time, 'text', timeString)
+end
+
+-- @brief 正文
+function fillContent()
+    local detail = ' 由于台风导致电缆。。。。。'
+    local content = Sprite:findChild(rootSprite, 'content')
+    local newscont = Sprite:findChildByClass(content, 'textarea')
+    local newscontX, newscontY, newscontW, newscontH = Sprite:getRect(newscont)
+    Sprite:setRect(newscont, newscontX, 0, newscontW, newscontH)
+    Sprite:setProperty(newscont, 'text', detail)
+    local text = Sprite:getText(newscont)
+    local width, height = System:getTextSize(text, newscont)
+    resetListViewItemHeight()
+end
+
+-- @brief 重设listview高度
+function resetListViewItemHeight()
+    local content = Sprite:findChild(rootSprite, 'content')
+    local newscont = Sprite:findChildByClass(content, 'textarea')
+    local item = Sprite:getParent(newscont)
+    local x,y,w = Sprite:getRect(item)
+    local _,_,_,th = Sprite:getRect(newscont)
+    local height = th
+    Sprite:setRect(item, x,y,w,height)
+    ListView:setItemToTop(Sprite:getParent(item), 0)
+    ListView:adjust(Sprite:getParent(item))
+end
+
+    ]]>
+</root>

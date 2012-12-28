@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: chart
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <shadow rect="0,0,480,800" color="#000000" alpha="255" extendstyle="1111" />
+            <!-- 顶部状态栏 -->
+            <node rect="0,0,480,44" extendstyle="1111">
+               <shadow rect="0,0,480,44" color="#666666" alpha="255" extendstyle="1111" />
+               
+               <button rect="16,5,100,34" text="柱状图" color="#ffffff" OnSelect="ChartOnSelect" 
+                    normal="style:sudoku-auto;sudoku:4,4,4,4;src:WONDER:\\framework\\image\\button.png" 
+                    focus="style:sudoku-auto;sudoku:4,4,4,4;src:WONDER:\\framework\\image\\button_f.png"
+                    extendstyle="1111" data='1' />
+               
+               <button rect="132,5,100,34" text="饼状图" color="#ffffff" OnSelect="ChartOnSelect" 
+                    normal="style:sudoku-auto;sudoku:4,4,4,4;src:WONDER:\\framework\\image\\button.png" 
+                    focus="style:sudoku-auto;sudoku:4,4,4,4;src:WONDER:\\framework\\image\\button_f.png" 
+                    extendstyle="1111" data='2'/>
+	               
+               <button rect="246,5,100,34" text="折线图" color="#ffffff" OnSelect="ChartOnSelect" 
+                    normal="style:sudoku-auto;sudoku:4,4,4,4;src:WONDER:\\framework\\image\\button.png" 
+                    focus="style:sudoku-auto;sudoku:4,4,4,4;src:WONDER:\\framework\\image\\button_f.png" 
+                    extendstyle="1111" data='3'/>
+               
+               <button rect="362,5,100,34" text="仪表盘" color="#ffffff" OnSelect="ChartOnSelect" 
+                    normal="style:sudoku-auto;sudoku:4,4,4,4;src:WONDER:\\framework\\image\\button.png" 
+                    focus="style:sudoku-auto;sudoku:4,4,4,4;src:WONDER:\\framework\\image\\button_f.png"
+                    extendstyle="1111" data='4'/>
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+require 'framework.webbrowser'
+local rootSprite
+
+local umsagentPlugin = nil
+local umsagentHasAppkey = 0
+
+-- 图表数据接口地址，请使用URIEncoder UTF-8编码
+local g_dataUrl = nil 
+
+-- 图表展现文件地址 
+-- 柱状图MSColumn3D.swf 
+-- 折线图MSLine.swf 
+-- 饼状图Pie3D.swf 
+-- 仪表盘 WidgetsCharts/AngularGauge.swf
+local g_swf = nil
+
+-- 图表渲览形式:flash,javascript
+local g_render = nil
+
+-- 图标数据格式, xml/json
+local g_dataFormat = nil
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    
+    local reg = Reg:create(Alias.index)
+    umsagentPlugin = Reg:getInteger(reg, 'UmsAgent')
+    umsagentHasAppkey = Reg:getInteger(reg, 'umsagentHasAppkey')
+    
+    g_dataUrl = 'http://120.209.131.146/webcloud/client/chart/chart_show.action?dataUrl=/webcloud/resources/js/Charts/demo/InteractiveLegend.xml&swf=MSColumn3D.swf&renderer=javascript&dataFormat=xml'
+    local xscal = SCREEN_WIDTH / 480
+    local yscal = SCREEN_HEIGHT / 800
+    WebBrowser:create(0, 50*yscal, 480*xscal, 700*yscal)
+    WebBrowser:showWebBrowser(1)
+    WebBrowser:openUrl(g_dataUrl)
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+	    if umsagentHasAppkey == 1 then
+	        pluginInvoke(umsagentPlugin, "OnActivate", string.match(Alias.chart, 'MODULE:\\(.*)'))
+	    end
+    elseif msg == MSG_DEACTIVATE then
+        if umsagentHasAppkey == 1 then
+            pluginInvoke(umsagentPlugin, "OnDeactivate")
+        end
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 返回
+function ChartOnSelect(sprite)
+    --[[
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    Log:write('returnOnSelect====================')
+    WebBrowser:release()
+    WebBrowser:showWebBrowser(0)
+    Scene:back()
+    --]]
+    
+    local data =  Sprite:getData(sprite)
+    if data == '1' then -- 柱状图
+        g_dataUrl = 'http://120.209.131.146/webcloud/client/chart/chart_show.action?dataUrl=/webcloud/resources/js/Charts/demo/InteractiveLegend.xml&swf=MSColumn3D.swf&renderer=javascript&dataFormat=xml'
+    elseif data == '2' then --  饼状图
+        g_dataUrl = 'http://120.209.131.146/webcloud/client/chart/chart_show.action?dataUrl=/webcloud/resources/js/Charts/demo/InteractiveLegend-Pie.xml&swf=Pie3D.swf&renderer=flash&dataFormat=xml'
+    elseif data == '3' then -- 折线图
+        g_dataUrl = 'http://120.209.131.146/webcloud/client/chart/chart_show.action?dataUrl=/webcloud/resources/js/Charts/demo/multiLine.xml&swf=MSLine.swf&renderer=javascript&dataFormat=xml'
+    elseif data == '4' then -- 仪表盘
+        g_dataUrl = 'http://120.209.131.146/webcloud/client/chart/chart_show.action?dataUrl=/webcloud/resources/js/Charts/demo/speed2.xml&swf=WidgetsCharts/AngularGauge.swf&renderer=flash&dataFormat=xml'
+    else
+        return
+    end
+    
+    local xscal = SCREEN_WIDTH / 480
+    local yscal = SCREEN_HEIGHT / 800
+    WebBrowser:create(0, 50*yscal, 480*xscal, 700*yscal)
+    WebBrowser:showWebBrowser(1)
+    WebBrowser:openUrl(g_dataUrl)
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        WebBrowser:showWebBrowser(0)
+        WebBrowser:release()
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+
+    ]]>
+</root>

@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<shadow rect="0,0,480,800" color="#ffffff" alpha="255"
+			extendstyle="1111" />
+		<image name="background" rect="0,0,480,800" src="file://image/background.png"
+			extendstyle="1111" style="autosize" />
+		<node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+			<image name="title" rect="0,0,480,66" border="false"
+				src="file://image/title_bg_new.png" style="autosize" extendstyle="1111">
+				<label rect="0,8,480,34" text="通讯录" font-family='微软雅黑' color="#ffffff" v-align="center"
+					h-align="center" font-size="32" extendstyle="1111" />
+			</image>
+			<button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
+				OnSelect="doBack" extendstyle="1111">
+				<image name="normal" rect="10,13,40,40" src="file://image/ic_home_new.png"
+					 extendstyle="1111" />
+				<image name="sel" rect="10,13,40,40" src="file://image/ic_home_new.png"
+					 extendstyle="1111" />
+			</button>
+		</node>
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+			<node name="searchBar" rect="0,66,480,56" extendstyle="1111">
+				<image name="search_bg" rect="0,0,480,56" src="file://image/search_bg_new.png"
+					style="autosize" extendstyle="1111" />
+				<image name="searchBarImage" rect="15,5,452,42"
+					src="file://image/search_input_new.png" style="autosize" extendstyle="1111" />
+				<edit name="keywordEdit" rect="37,15,340,26" extendstyle='1111' font-family='微软雅黑'
+					OnTextChanged="editOnTextChanged" v-align="center" text=""  font-size="24">
+					<label name="hideLabel" rect="0,0,442,24" font-family='微软雅黑' text="请输入关键字" color="#c0c0c0"
+						extendstyle="1111" style="autosize" h-align="left" v-align="center"
+						font-size="24" />
+				</edit>
+				<button name="searchButton" rect="415,5,50,50" OnSelect="OnSearchButtonClicked"
+					extendstyle="1111">
+					<image name="searchButtonImage" rect="0,0,50,50"
+						src="" style="autosize"
+						extendstyle="1111" />
+				</button>
+			</node>
+			<!--列表信息-->
+			<node name="listNode" rect="0,130,480,1045" extendstyle="1111">
+				<listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
+			</node>
+			<node name="listitem" visible="false" enable="false" active="false"
+				extendstyle="1011" rect="0,200,480,106">
+                <image name="listButtonImage" rect="3,0,468,86" src="file://image/tongxunlu_bg.png"
+                    extendstyle="1111" style='autosize' />
+				<button name="btnname" rect="3,0,480,86" OnSelect="itemOnSelect"
+					extendstyle="1111">
+					<label rect="80,7,100,45"  text="姓   名：" font-family='微软雅黑' color="#000000" font-size="24"
+						h-align="center" v-align="center" extendstyle="1111" border="false" />
+					<label name="textNum" rect="185,7,100,45" font-family='微软雅黑' text="" color="#000000"
+						font-size="24" h-align="left" v-align="center" extendstyle="1111"
+						border="false" />
+					<label rect="85,35,80,45" text="手机号：" font-family='微软雅黑' color="#303030" font-size="20"
+						h-align="left" v-align="center" extendstyle="1111" border="false" />
+					<label name="textTitle" rect="160,35,360,45" font-family='微软雅黑' text="" color="#303030"
+						font-size="20" h-align="left" v-align="center" extendstyle="1111"
+						border="false" />
+					<image name="normalImage" rect="420,30,32,32" src="file://image/jiantou_new_1.png"
+						 extendstyle="1111" />
+					<image name="normalImage1" rect="" src="" extendstyle="1111"
+						  />
+				</button>
+				<button name="takePicBtn" rect="320,20,66,66" border="false"
+						text="" color="#ffffff" OnSelect="makeCallOnSelect" extendstyle="1111">
+						<image rect="0,0,60,60" src="file://image/jf_phone_2.png"
+							 extendstyle="1111" />
+				</button>
+				<button name="takePicBtn" rect="355,20,66,66" border="false"
+						text="" color="#ffffff" OnSelect="" extendstyle="1111">
+						<image rect="0,0,61,61" src=""
+							extendstyle="1111" />
+				</button>
+			</node>
+		</node>
+	</body>
+    <![CDATA[
+
+    require 'com_wondertek_dw.common.framework'
+    local rootSprite
+    local data = {}
+    --local name = {'余奇','程川','何武','周瑜'}
+    --local phone = {'18756948812','15956909697','13956906950','15156892727'}
+    ---local dept = {'ICT中心','ICT中心','ICT中心','ICT中心'}
+    local flag
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            --tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
+            loadRequest('')
+            --loadList(4)
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if Loading:isShow() then Loading:close() end
+        if msg == 101 then
+            data = Http:jsonDecode('txl_data')
+            Log:write("data101 = ", data)
+            if not data or type(data) ~= 'table' then
+                Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+                return
+            end
+            if data ~= nil then
+                if data.code == '0' then
+                    if #data.value > 0 then
+                        loadList(#data.value + 1)
+                        elseif data.value[0] then
+                        loadList(1)
+                    end
+                    else
+                    local list = Sprite:findChild(rootSprite, 'sampleList')
+                    ListView:removeAllItems(list,1)
+                    Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+                end
+                else
+                Dialog:show(rootSprite, '未知错误！', 'ok')
+            end
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    function loadRequest(name)
+        if name==nil then
+            name=''
+        end
+        local param = '&page=1&username='..name
+        Log:write("&param = ", param)
+        local reqURL = getWholeUrl('nbspweb/webservice/addressList!doWebservice.action', '')
+        Http:request('txl_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbtxllist'..param})
+        Loading:show(rootSprite)
+    end
+    function loadList(count)
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list,1)
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
+        ListView:adjust(list)
+    end
+    function loadListItem(list, item, index)
+        Sprite:setRect(item, 3, 0, 468, 106)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        local listItemBg = Sprite:findChild(item, 'normalImage1')
+        Sprite:setRect(listItemBg, 3, 0, 468, 86)
+        local num = index+1
+        if num % 2 > 0 then
+        Sprite:setProperty(listItemBg, 'src', 'file://image/female.png')
+		Sprite:setProperty(listItemBg, 'rect', '10,9,72,72')
+		else
+		Sprite:setProperty(listItemBg, 'src', 'file://image/male.png')
+		Sprite:setProperty(listItemBg, 'rect', '10,9,72,72')
+        end
+        local textNum = Sprite:findChild(item, 'textNum')
+        local textTitle = Sprite:findChild(item, 'textTitle')
+        Sprite:setProperty(item, 'data', index)
+        Sprite:setProperty(textNum, 'text', data.value[index].username)
+        if data.value[index].mobile==nil or data.value[index].mobile=='' then
+            Sprite:setProperty(textTitle, 'text', '暂无手机号!')
+            else
+            Sprite:setProperty(textTitle, 'text', data.value[index].mobile)
+        end
+    end
+    function itemOnSelect(sprite)
+        local tabNode = Sprite:getParent(sprite)
+        regHandle=Reg:create('useInfo')
+        local index = tonumber(Sprite:getData(tabNode))
+        --local dataInfo = Sprite:getData(Sprite:findChild(rootSprite,''))
+        --local stepdata=data.value[index].proinstState
+        if data.value[index].userid=='' or data.value[index].userid==nil then
+            Reg:setString(regHandle,'username',data.value[index].username)
+            Reg:setString(regHandle,'flag','1')
+            Reg:setString(regHandle,'phone',data.value[index].mobile)
+            Scene:setReturn(Alias.m_tongxunlu, Alias.m_tongxunluDetail)
+            Scene:go(Alias.m_tongxunluDetail)
+            --Dialog:show(rootSprite, '暂无该用户的详细信息', 'ok')
+            else
+            Reg:setString(regHandle,'userid',data.value[index].userid)
+            Reg:setString(regHandle,'flag','2')
+            Scene:setReturn(Alias.m_tongxunlu, Alias.m_tongxunluDetail)
+            Scene:go(Alias.m_tongxunluDetail)
+        end
+        --Reg:setString(regHandle,'step',tostring(data.value[index].step))
+        --Reg:setString(regHandle,'stepdata',index )
+        --Reg:setString(regHandle,'flag',flag)
+        --Scene:setReturn(Alias.tongxunlu, Alias.tongxunluDetail)
+        --Scene:go(Alias.tongxunluDetail)
+    end
+    function OnSearchButtonClicked(sprite)
+        local ParentNode=Sprite:getParent(sprite)
+        local keywordEdit=Sprite:getText(Sprite:findChild(ParentNode,'keywordEdit'))
+        if keywordEdit == '' then
+            Dialog:show('提示', '搜索内容不能为空!', 'ok')
+            return
+        end
+        loadRequest(keywordEdit)
+    end
+    function doBack(sprite)
+        Scene:back()
+    end
+	function makeCallOnSelect(sprite)
+        Sprite:releaseCapture(sprite)
+        Sprite:killFocus(sprite)
+        local listitem = Sprite:getParent(sprite)
+		local phone = Sprite:getText(Sprite:findChild(listitem, "textTitle"))
+		Log:write('33333',phone)
+        if phone ~= nil and phone ~= '' then
+            if Util:openCallDialog('callFinished',phone, 0) then
+                else
+                Dialog:show(rootSprite, '调用接口失败，请检查手机设置！', 'ok')
+            end
+            else
+            Dialog:show(rootSprite, '电话号码为空！', 'ok')
+        end
+    end
+	function sendSMSOnSelect(sprite)
+        Sprite:releaseCapture(sprite)
+        Sprite:killFocus(sprite)
+		local listitem = Sprite:getParent(sprite)
+		local phone = Sprite:getText(Sprite:findChild(listitem, "textTitle"))  
+
+        if phone ~= nil and phone ~= '' 
+			then
+            if Util:sendSMS('smsFinished',phone,0)  then 
+            else
+            Dialog:show(rootSprite, '电话号码为空！', 'ok')
+            end
+			else
+            Dialog:show(rootSprite, '电话号码为空！', 'ok')
+        end
+        
+    end
+]]>
+</root>

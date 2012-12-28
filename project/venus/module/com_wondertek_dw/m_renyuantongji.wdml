@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: hewu <hewu2008@gmail.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <!-- 主节点  -->
+        <node name="mainNode" rect="0,0,480,800" enable="true" 
+            active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+	        <!-- 设置背景 -->
+	        <image rect="0,0,0,0" src="file://image/backgroundImg.png" style="autosize"
+	           extendstyle="1177" />
+            <!-- 设置头部 -->
+            <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+				 <image name="title" rect="0,0,480,66" border="false" src="file://image/title_bg_new.png" 
+				    style="autosize" extendstyle="1111">
+					<label rect="0,0,480,66" text="人员统计" color="#ffffff" v-align="center"  
+					   h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />
+				 </image>
+				 <!-- 返回按钮  -->
+				 <button name="backBtn" rect="10,10,75,75"  style="center"  normal="" sel="" 
+				    OnSelect="doBack" extendstyle="1111">
+					<image name="normal" rect="0,0,75,75" src="file://image/ico_home.png"
+						extendstyle="1111" />
+					<image name="sel" rect="0,0,75,75" src="file://image/ico_home.png" 
+					    extendstyle="1111" />
+                </button>
+            </node>
+            
+            <!-- 地图部分   -->
+            <node rect="0,66,480,534" extendstyle="0011">
+                 <image rect="20,0,440,534" border="false" src="file://image/map.png" 
+                   style="autosize" extendstyle="0011"/>
+                 <button rect="213,255,64,103" data="hefei" extendstyle="1111" 
+                    normal="" sel="" OnSelect="doRegionClick">
+                   <button rect="3,24,86,49" data="hefei" extendstyle="1111" 
+                        normal="" sel="" OnSelect="doRegionClick"></button>
+                 </button>
+                 <button rect="198,124,91,60" data="bengbu" extendstyle="1111" 
+                    normal="" sel="" OnSelect="doRegionClick"></button>
+                 <button rect="323,336,39,54" data="wuhu" extendstyle="1111" 
+                    normal="" sel="" OnSelect="doRegionClick"></button>
+                 <button rect="313,273,75,57" data="maanshan" extendstyle="1111" 
+                    normal="" sel="" OnSelect="doRegionClick"></button>
+                 <button rect="112,85,55,93" data="bozhou" extendstyle="1111" 
+                    normal="" sel="" OnSelect="doRegionClick"></button>
+                 <button rect="172,75,33,58" data="huaibei" extendstyle="1111" 
+                    normal="" sel="" OnSelect="doRegionClick"></button>
+                 <button rect="211,43,109,98" data="suzhou" extendstyle="1111" 
+                    normal="" sel="" OnSelect="doRegionClick"></button>
+                 <button rect="14,142,95,78" data="fuyang" extendstyle="1111" 
+                    normal="" sel="" OnSelect="doRegionClick"></button>
+                 <button rect="157,174,62,39" data="huainan" extendstyle="1111" 
+                    normal="" sel="" OnSelect="doRegionClick"></button>
+                 <button rect="255,170,142,93" data="chuzhou" extendstyle="1111" 
+                    normal="" sel="" OnSelect="doRegionClick"></button>
+                 <button rect="59,230,121,129" data="liuan" extendstyle="1111" 
+                    normal="" sel="" OnSelect="doRegionClick"></button>
+                 <button rect="83,365,121,110" data="anqing" extendstyle="1111" 
+                    normal="" sel="" OnSelect="doRegionClick"></button> 
+                 <button rect="223,404,64,56" data="chizhou" extendstyle="1111" 
+                    normal="" sel="" OnSelect="doRegionClick"></button>
+                 <button rect="357,362,108,96" data="xuancheng" extendstyle="1111" 
+                    normal="" sel="" OnSelect="doRegionClick"></button>
+                 <button rect="264,448,124,77" data="huangshang" extendstyle="1111" 
+                    normal="" sel="" OnSelect="doRegionClick"></button>
+                 <button rect="277,357,43,37" data="tongling" extendstyle="1111" 
+                    normal="" sel="" OnSelect="doRegionClick"></button>
+            </node>
+            
+            <!-- 弹出提示部分  -->
+            <node name="cityNode" rect="0,66,480,534" extendstyle="0011" 
+                enable="false" visible="true">
+                <button rect="20,0,440,534" data="0,0,20,20" extendstyle="1111" 
+                    OnSelect="hideCityNode">
+                    <image rect="0,0,440,534" src="file://image/map_bg.png" 
+                        style="autosize" alpha="150" extendstyle="1111" >
+                    </image>
+                </button>
+                <!-- 合肥  -->
+                <image name="hefei" rect="164,178,167,227" border="false" extendstyle="1111" 
+	                src="file://image/hefei_on.png" visible="false" 
+	                style="autosize">
+                    <label rect="0,0,167,227" text="合肥" h-align="center"
+	                    v-align="center" color="#ffffff" font-family="微软雅黑" 
+	                    font-size="22">
+                    </label>
+                </image>
+                <!-- 蚌埠  -->
+                <image name="bengbu" rect="170,100,170,110" visible="false" 
+                    border="false" extendstyle="1111" 
+                    src="file://image/bengbu_on.png" style="autosize">
+                    <label rect="0,0,170,110" text="蚌埠" h-align="center"
+	                    v-align="center" color="#ffffff" font-family="微软雅黑" 
+	                    font-size="22">
+                    </label>
+                </image>
+                <!-- 芜湖  -->
+                <image name="wuhu" rect="220,310,190,120" visible="false" 
+                    border="false" extendstyle="1111" src="file://image/wuhu_on.png" 
+                    style="autosize">
+                    <label rect="100,0,50,80" text="芜湖" h-align="center"
+                        v-align="center" color="#ffffff" font-family="微软雅黑" 
+                        font-size="22">
+                    </label>
+                </image>
+                <!-- 马鞍山  -->
+                <image name="maanshan" rect="293,255,100,100" 
+                    visible="false" border="false" extendstyle="1111" 
+                    src="file://image/maanshan_on.png" style="autosize">
+                    <label rect="0,0,100,100" text="马鞍山" h-align="center"
+                        v-align="center" color="#ffffff" font-family="微软雅黑" 
+                        font-size="22">
+                    </label>
+                </image>
+                <!-- 亳州  -->
+                <image name="bozhou" rect="67,40,145,155" visible="false" 
+                    border="false" extendstyle="1111" 
+                    src="file://image/bozhou_on.png" style="autosize">
+                    <label rect="0,0,145,155" text="亳州" h-align="center"
+                        v-align="center" color="#ffffff" font-family="微软雅黑" 
+                        font-size="22">
+                    </label>
+                </image>
+                <!-- 淮北  -->
+                <image name="huaibei" rect="150,35,65,120" visible="false" 
+                    border="false" extendstyle="1111" src="file://image/huaibei_on.png" 
+                    style="autosize">
+                    <label rect="0,0,65,120" text="淮北" h-align="center"
+                        v-align="center" color="#ffffff" font-family="微软雅黑" 
+                        font-size="22">
+                    </label>
+                </image>
+                <!-- 宿州  -->
+                <image name="suzhou" rect="120,-10,220,165" visible="false" 
+                    border="false" extendstyle="1111" src="file://image/suzhou_on.png"
+                    style="autosize">
+                    <label rect="30,20,180,145" text="宿州" h-align="center"
+                        v-align="center" color="#ffffff" font-family="微软雅黑" 
+                        font-size="22">
+                    </label>
+                </image>
+                <!-- 阜阳  -->
+                <image name="fuyang" rect="5,90,185,150" visible="false" 
+                    border="false" extendstyle="1111" src="file://image/fuyang_on.png" 
+                    style="autosize">
+                    <label rect="0,10,180,150" text="阜阳 " h-align="center"
+                        v-align="center" color="#ffffff" font-family="微软雅黑" 
+                        font-size="22">
+                    </label>
+                </image>
+                <!-- 淮南  -->
+                <image name="huainan" rect="148,165,90,55" visible="false" 
+                    border="false" extendstyle="1111" src="file://image/huainan_on.png" 
+                    style="autosize">
+                    <label rect="0,0,90,55" text="淮南 " h-align="center"
+                        v-align="center" color="#ffffff" font-family="微软雅黑" 
+                        font-size="20">
+                    </label>
+                </image>
+                <!-- 滁州  -->
+                <image name="chuzhou" rect="210,135,220,160" visible="false" 
+                    border="false" extendstyle="1111" src="file://image/chuzhou_on.png"
+                    style="autosize">
+                    <label rect="0,0,220,160" text="滁州  " h-align="center"
+                        v-align="center" color="#ffffff" font-family="微软雅黑" 
+                        font-size="22">
+                    </label>
+                </image>
+                <!-- 六安  -->
+                <image name="liuan" rect="48,185,200,195"
+                    visible="false" border="false" extendstyle="1111" 
+                    src="file://image/liuan_on.png" style="autosize">
+                    <label rect="0,0,200,195" text="六安  " h-align="center"
+                        v-align="center" color="#ffffff" font-family="微软雅黑" 
+                        font-size="22">
+                    </label>
+                </image>
+                <!-- 安庆  -->
+                <image name="anqing" rect="83,325,210,180" visible="false" 
+                    border="false" extendstyle="1111" src="file://image/anqing_on.png" 
+                    style="autosize">
+                    <label rect="0,0,210,150" text="安庆  " h-align="center"
+                        v-align="center" color="#ffffff" font-family="微软雅黑" 
+                        font-size="22">
+                    </label>
+                </image>
+                <!-- 池州  -->
+                <image name="chizhou" rect="165,370,160,160" visible="false" 
+                    border="false" extendstyle="1111" src="file://image/chizhou_on.png" 
+                    style="autosize">
+                    <label rect="0,0,210,120" text="池州  " h-align="center"
+                        v-align="center" color="#ffffff" font-family="微软雅黑" 
+                        font-size="22">
+                    </label>
+                </image>
+                <!-- 宣城  -->
+                <image name="xuancheng" rect="280,325,195,160" visible="false" 
+                    border="false" extendstyle="1111" src="file://image/xuancheng_on.png" 
+                    style="autosize">
+                    <label rect="0,0,195,160" text="宣城  " h-align="center"
+                        v-align="center" color="#ffffff" font-family="微软雅黑" 
+                        font-size="22">
+                    </label>
+                </image>
+                <!-- 黄山  -->
+                <image name="huangshang" rect="215,405,190,133" visible="false" 
+                    border="false" extendstyle="1111" src="file://image/huangshang_on.png"
+                    style="autosize">
+                    <label rect="0,0,200,130" text="黄山  " h-align="center"
+                        v-align="center" color="#ffffff" font-family="微软雅黑" 
+                        font-size="22">
+                    </label>
+                </image>
+                <!-- 铜陵  -->
+                <image name="tongling" rect="270,350,60,55" visible="false" 
+                    border="false" extendstyle="1111" src="file://image/tongling_on.png" 
+                    style="autosize">
+                    <label rect="0,0,55,50" text="铜陵" h-align="center"
+                        v-align="center" color="#ffffff" font-family="微软雅黑" 
+                        font-size="20">
+                    </label>
+                </image>   
+            </node>
+            
+            <!-- 巡检详情 -->
+            <node rect="0,650,480,150" extendstyle="1111">
+                <image rect="10,0,460,150" border="false" src="file://image/detail_bg.png" 
+                   style="autosize" extendstyle="1111">
+                </image>
+                <!-- 车辆配比  -->
+                <node rect="10,0,230,45" extendstyle="1111">
+                    <label rect="10,0,110,45" text="车辆配比：" color="#00549f" v-align="center"  
+                       h-align="right" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    <label name="carNum" rect="120,0,110,45" text="" color="#999999" v-align="center"  
+                       h-align="left" font-family="微软雅黑" font-size="22" extendstyle="1111" >
+                    </label>
+                    <image rect="3,48,455,2" border="false" extendstyle="1111" 
+                        src="file://image/underline.png" style="autosize"></image>
+                </node>
+                <!-- 流失率  -->
+                <node rect="250,0,230,45" extendstyle="1111">
+                    <label rect="10,0,80,45" text="流失率：" color="#00549f" v-align="center"  
+                       h-align="left" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    <label name="turnOverRate" rect="90,0,110,45" text="" color="#999999" v-align="center"  
+                       h-align="left" font-family="微软雅黑" font-size="22" extendstyle="1111" >
+                    </label>
+                </node>
+                <!-- 代维单位  -->
+                <node rect="10,50,460,45" extendstyle="1111">
+                    <label rect="10,0,110,45" text="代维单位：" color="#00549f" v-align="center"  
+                       h-align="right" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    <image name="flag1" rect="120,5,40,40" border="false" extendstyle="1111" 
+                       src="file://image/flag.png" style="center" visible="false"></image>
+                    <image name="flag2" rect="160,5,40,40" border="false" extendstyle="1111" 
+                       src="file://image/flag.png" style="center" visible="false"></image>
+                    <image name="flag3" rect="200,5,40,40" border="false" extendstyle="1111" 
+                       src="file://image/flag.png" style="center" visible="false"></image>
+                    <image name="flag4" rect="240,5,40,40" border="false" extendstyle="1111" 
+                       src="file://image/flag.png" style="center" visible="false"></image>
+                    <label name="cmpNum" rect="280,0,170,40" text="" color="#999999" v-align="center"  
+                       h-align="left" font-family="微软雅黑" font-size="22" extendstyle="1111" >
+                    </label>
+                    <image rect="3,48,455,2" border="false" extendstyle="1111" 
+                        src="file://image/underline.png" style="autosize"></image>
+                </node>
+                <!-- 代维人数  -->
+                <node rect="10,100,460,45" extendstyle="1111">
+                    <label rect="10,0,110,45" text="代维人数：" color="#00549f" v-align="center"  
+                       h-align="right" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    <image name="staff1" rect="120,5,40,40" border="false" extendstyle="1111" 
+                       src="file://image/staff.png" style="center" visible="false"></image>
+                    <image name="staff2" rect="160,5,40,40" border="false" extendstyle="1111" 
+                       src="file://image/staff.png" style="center" visible="false"></image>
+                    <image name="staff3" rect="200,5,40,40" border="false" extendstyle="1111" 
+                       src="file://image/staff.png" style="center" visible="false"></image>
+                     <image name="staff4" rect="240,5,40,40" border="false" extendstyle="1111" 
+                       src="file://image/staff.png" style="center" visible="false"></image>
+                    <label name="staffNum" rect="280,0,170,40" text="" color="#999999" v-align="center"  
+                       h-align="left" font-family="微软雅黑" font-size="22" extendstyle="1111" >
+                    </label>
+                    <image rect="3,48,455,2" border="false" extendstyle="1111" 
+                        src="file://image/underline.png" style="autosize"></image>
+                </node>
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+require 'framework.webbrowser'
+local rootSprite
+
+data = {{key="hefei",      name="合肥",   cmpNum="14",  staffNum="468",  carNum="45", turnOverRate="0"}, 
+		{key="bengbu",     name="蚌埠",   cmpNum="6",   staffNum="109",  carNum="37", turnOverRate="0"},
+		{key="wuhu",       name="芜湖",   cmpNum="8",   staffNum="130",  carNum="30", turnOverRate="0"},
+		{key="maanshan",   name="马鞍山", cmpNum="3",   staffNum="113",  carNum="10", turnOverRate="0"},
+		{key="bozhou",     name="亳州",   cmpNum="8",   staffNum="198",  carNum="33", turnOverRate="0"},
+		{key="huaibei",    name="淮北",   cmpNum="5",   staffNum="114",  carNum="21", turnOverRate="0"},
+		{key="suzhou",     name="宿州",   cmpNum="3",   staffNum="160",  carNum="7" , turnOverRate="0"},
+		{key="fuyang",     name="阜阳",   cmpNum="5",   staffNum="237",  carNum="61", turnOverRate="0"},
+		{key="huainan",    name="淮南",   cmpNum="6",   staffNum="135",  carNum="27", turnOverRate="0"},
+		{key="chuzhou",    name="滁州",   cmpNum="4",   staffNum="155",  carNum="57", turnOverRate="0"},
+		{key="liuan",      name="六安",   cmpNum="10",  staffNum="202",  carNum="69", turnOverRate="0"},
+		{key="anqing",     name="安庆",   cmpNum="14",  staffNum="225",  carNum="82", turnOverRate="0"},
+		{key="chizhou",    name="池州",   cmpNum="6",   staffNum="124",  carNum="39", turnOverRate="0"},
+		{key="xuancheng",  name="宣城",   cmpNum="4",   staffNum="146",  carNum="60", turnOverRate="0"},
+		{key="huangshang", name="黄山",   cmpNum="4",   staffNum="252",  carNum="42", turnOverRate="0"},
+		{key="tongling",   name="铜陵",   cmpNum="5",   staffNum="98",   carNum="12", turnOverRate="0"},
+        }
+
+---------------------------------------回调函数--------------------------------
+-- root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+end
+
+-- root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+-- 返回上一个页面
+function doBack()
+    Scene:back()
+end
+
+----------------------------------服务端交互函数列表---------------------------------
+function doRegionClick(sprite)
+    -- 获取当前被选地市的数据
+    local name = Sprite:getData(sprite)
+    local city = nil
+    for i=1,#data do
+       if name == data[i].key then
+            Log:write('name', name)
+            city = data[i]
+            break
+       end 
+    end
+    if city == nil or city == '' then 
+        Log:write('doRegionClick(): invalid city name '..city.name)
+        return
+    end
+   
+    -- 显示当前地市的数据到界面下方的详情
+    -- 车辆配比
+    local carNum = Sprite:findChild(rootSprite, 'carNum')
+    Sprite:setProperty(carNum, 'text', city.carNum)
+    
+    -- 人员流失率
+    local turnOverRate = Sprite:findChild(rootSprite, 'turnOverRate')
+    Sprite:setProperty(turnOverRate, 'text', '%'..city.turnOverRate)
+    
+    -- 根据代维单位数量，显示一定数量的旗帜
+    local nCmpNum = tonumber(city.cmpNum)
+    local flagCount = math.floor(nCmpNum / 20)
+    if flagCount > 4 then 
+        flagCount = 4 
+    elseif flagCount < 1 then 
+        flagCount = 1 
+    end
+    for i=1,4 do 
+        local flag = Sprite:findChild(rootSprite, 'flag'..i)
+        if i <= flagCount then 
+            Sprite:setProperty(flag, 'visible', 'true')
+        else
+            Sprite:setProperty(flag, 'visible', 'false')
+        end
+    end
+    -- 显示代维单位数量
+    local cmpNum = Sprite:findChild(rootSprite, 'cmpNum')
+    Sprite:setProperty(cmpNum, 'text', city.cmpNum)
+    -- 根据当前的旗帜数，调整代维单位数量位置
+    local fx, fy, fw, fh = Sprite:getRect(Sprite:findChild(rootSprite, 'flag'..flagCount))
+    Log:write('fx,fy,fw,fh', fx, fy, fw, fh)
+    local x, y, w, h = Sprite:getRect(cmpNum)
+    Log:write('x,y,w,h', x, y, w, h)
+    Sprite:setRect(cmpNum, fx + fw, y, w, h)
+    
+    -- 根据人数，显示一定的数量的人型图标
+    local nStaff = tonumber(city.staffNum)
+    local staffCount = math.floor(nStaff / 100)
+    if staffCount > 4 then
+        staffCount = 4
+    elseif staffCount < 1 then 
+        staffCount = 1
+    end 
+    for i=1,4 do 
+        local staff = Sprite:findChild(rootSprite, 'staff'..i)
+        if i <= staffCount then 
+            Sprite:setProperty(staff, 'visible', 'true')
+        else
+            Sprite:setProperty(staff, 'visible', 'false')
+        end
+    end
+    -- 显示代维人员数
+    local staffNum = Sprite:findChild(rootSprite, 'staffNum')
+    Sprite:setProperty(staffNum, 'text', city.staffNum)
+    -- 根据当前的人型图标数，调整代维单位数量位置
+    local sx, sy, sw, sh = Sprite:getRect(Sprite:findChild(rootSprite, 'staff'..staffCount))
+    local x, y, w, h = Sprite:getRect(staffNum)
+    Sprite:setRect(staffNum, sx + sw, y, w, h)
+
+    -- 显示弹出提示
+    local cityNode = Sprite:findChild(rootSprite, 'cityNode')
+    Sprite:setProperty(cityNode, 'visible', 'true')
+    Sprite:setProperty(cityNode, 'enable', 'true')
+    
+    -- 隐藏所有的城市图片
+    for i=1,#data do
+        local cityImage = Sprite:findChild(rootSprite, data[i].key)
+        Sprite:setProperty(cityImage, 'visible', 'false')
+    end
+    
+    -- 突出显示当前选择的地市
+    local cityImage = Sprite:findChild(rootSprite, city.key)
+    Sprite:setProperty(cityImage, 'visible', 'true')
+end
+
+-- 隐藏地市
+function hideCityNode(sprite)
+    local cityNode = Sprite:findChild(rootSprite, 'cityNode')
+    Sprite:setProperty(cityNode, 'visible', 'false')
+    Sprite:setProperty(cityNode, 'enable', 'false')
+end
+
+    ]]>
+</root>

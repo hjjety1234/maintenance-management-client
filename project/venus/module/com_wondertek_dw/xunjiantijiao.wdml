@@ -1,0 +1,1344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: hewu <hewu@gmail.com> ==
+============================================================================
+== | Desc: 页面描述 ==
+============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <shadow rect="0,0,480,800" color="#e8e8e8" alpha="255"
+            extendstyle="1111" />
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            
+            <!-- 页面标题  -->
+            <node name="NodeTitle" rect="0,0,480,66" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,66" src="file://image/title_bg.png"
+                    extendstyle="1111" style="autosize" />
+                <button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
+                    OnSelect="doBack" extendstyle="1111">
+                    <image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
+                        style="autosize" extendstyle="1111" />
+                    <image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
+                        style="autosize" extendstyle="1111" />
+                    <label rect="15,0,60,45" text="返回" color="#ffffff"
+                        extendstyle="1111" style="autosize" h-align="center" v-align="center"
+                        font-size="24" />
+                </button>
+
+                <scrolltext name="titleNode" rect="105,0,280,66" text="巡检情况"
+                    extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2" />
+
+                <button name="btnForget" rect="387,4,79,56" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="submitOnSelect"
+					normal="src:file://image/ic_title_upload.png;style:autosize;color:#ffffff"
+                    sel="src:file://image/ic_title_upload.png;style:autosize;color:#000000"
+                    font-size="24"/>
+            </node>
+            
+            <!--进站出站两个标签页 -->
+            <node name="tabNode" rect="0,66,480,60" extendstyle="1111">
+                <image name="title" rect="0,0,480,60" border="false"
+                    src="file://image/tab_n.png" style="autosize" extendstyle="1111" />
+                <button name="btnTab1" rect="0,0,240,60" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
+                    <image name="tabBg" rect="0,0,240,60" border="false"
+                        src="file://image/tab_n.png" style="sudoku-auto" sudoku="15,15,15,15"
+                        extendstyle="1111" />
+                    <label name="labeltab" rect="0,0,240,60" text="到达巡检点" color="#ffffff"
+                        v-align="center" h-align="center" font-size="28" extendstyle="1111" />
+                </button>
+                <button name="btnTab2" rect="240,0,240,60" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
+                    <image name="tabBg" rect="0,0,240,60" border="false"
+                        src="file://image/tab_n.png" style="sudoku-auto" sudoku="15,15,15,15"
+                        extendstyle="1111" />
+                    <label name="labeltab" rect="0,0,240,60" text="离开巡检点" color="#ffffff"
+                        v-align="center" h-align="center" font-size="28" extendstyle="1111" />
+                </button>
+            </node>
+           
+            <!-- 主页面内容：巡检项列表   -->
+            <node name="mainNodeContent" rect="0,126,480,674" extendstyle="1111">
+                <listview name="mainListView" rect="0,10,480,660" col="1" limit="true"
+                    extendstyle="1111">
+                </listview>
+            </node>
+            
+            <!--  巡检项模板  -->
+            <node name="mainItemNode" rect="0,0,480,50" enable="false" active="false"
+                visible="false" extendstyle="1111" data="">   <!-- data标记巡检项下标 -->
+                <node name="mainTitleNode" rect="0,0,480,50" extendstyle="1111">
+                    <image rect="0,0,480,50" src="file://image/title_bar.png"  style="autosize" extendstyle="1111" />
+                    <scrolltext name="mainTitleName" rect="10,0,440,50"
+                        extendstyle="1111" font-size="22" font-style="bold" h-align="left" v-align="center"
+                        color="#ffffff" scroll="true" step="2" />
+                    <button name="btnImg" rect="0,0,480,50" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="ImgOnSelect" font-size="24" data="1">
+                        <image name="NodeImg" rect="453,20,7,10" src="file://image/up.png" style="autosize" extendstyle="1111" />
+                    </button>
+                </node>
+                <!-- 巡检子项列表  -->
+                <node name="subListviewNode" rect="0,50,480,50" extendstyle="1111" >
+                    <listview name="subListView" rect="0,0,480,710" col="1" limit="true"
+                        extendstyle="1111" border="true" >
+                    </listview>
+                </node>
+            </node>
+
+            <!-- 巡检子项模板  -->
+            <node name="subItemNode" rect="0,0,480,50" enable="false" active="false"
+                visible="false" extendstyle="1111" data=""> <!-- data标记巡检子项下标 -->
+                
+                <!-- 下拉选择输入框  -->
+                <node name="errorTitleNode1" rect="0,0,480,50" extendstyle="1111">
+                    <image name="SaveFlag" rect="5,7,30,30" src="file://image/s3.png"
+                        style="autosize" extendstyle="1111"  visible="false" data="0"/> <!-- 标记是否已经保存 -->
+                    <scrolltext name="errorTitleName" rect="40,0,260,50"
+                        extendstyle="1010" font-size="24" h-align="left" v-align="center"
+                        color="#0" scroll="true" step="2" />
+                    <button name="errorTitleBtn" rect="300,0,160,50" border="false"
+                        text="" color="#ffffff" OnSelect="errorOnSelect"
+                        extendstyle="1111">
+					<image rect="0,0,160,50" src="file://image/input.png"  style="sudoku-auto" sudoku="15,15,15,15"
+						extendstyle="1111">
+						<image rect="112,0,43,48" src="file://image/dropdown_arrow.png"
+							 style="autosize" extendstyle="1111" />
+					</image>
+					<label name="errorTypeName" rect="7,0,112,50" text=""
+						color="#0" extendstyle="1111" style="autosize" h-align="center"
+						v-align="center" font-size="24" />
+					<label name="errorTypeNameList" rect="0,0,0,0" text=""
+						color="#0" extendstyle="1111" style="autosize" h-align="center"
+						v-align="center" font-size="24" />
+					<label name="errorTypeCodeList" rect="0,0,0,0" text=""
+						color="#0" extendstyle="1111" style="autosize" h-align="center"
+						v-align="center" font-size="24" />
+                    </button>
+                </node>
+                
+                <!-- 数字输入框  -->
+                <node name="errorTitleNode2" rect="0,0,480,50" extendstyle="1111">
+					<image name="SaveFlag" rect="5,7,30,30" src="file://image/s3.png"
+                        style="autosize" extendstyle="1111"  visible="false" data="0"/>
+                    <scrolltext name="errorTitleName" rect="40,0,260,50"
+                        extendstyle="1111" font-size="24" h-align="left" v-align="center"
+                        color="#0" scroll="true" step="2" />
+
+                    <image rect="300,0,160,50" src="file://image/input.png"
+                         style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+                    <label name="errorCodeMaxMin" rect="0,0,0,0" text=""
+                        color="#0" extendstyle="1111" style="autosize" h-align="center"
+                        v-align="center" font-size="24" />
+                    <edit name="editInput" rect="310,13,130,45" option="numeric"
+                        style="autosize" extendstyle="1111" font-size="18" OnLostFocus="onTextLostFocus"/>
+                </node>
+                
+                <!-- 文本输入框  -->
+                <node name="errorTitleNode3" rect="0,0,480,50" extendstyle="1111">
+					<image name="SaveFlag" rect="5,7,30,30" src="file://image/s3.png"
+                         style="autosize" extendstyle="1111"  visible="false" data="0"/>
+                    <scrolltext name="errorTitleName" rect="40,0,260,50"
+                        extendstyle="1111" font-size="24" h-align="left" v-align="center"
+                        color="#0" scroll="true" step="2" />
+
+                    <image rect="300,0,160,50" src="file://image/input.png"
+                         style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+                    <label name="errorCodeMaxMin" rect="0,0,0,0" text=""
+                        color="#0" extendstyle="1111" style="autosize" h-align="center"
+                        v-align="center" font-size="24" />
+                    <edit name="editInput" rect="310,13,130,45" option="numeric"
+                        style="autosize" extendstyle="1111" font-size="18" OnLostFocus="doTextSave"
+                    />
+                </node>
+                
+                <!-- 异常状态输入框  -->
+                <node name="errorHideNode" rect="0,50,480,0" extendstyle="1111"
+                    enable="false" active="false" visible="false">
+                    <label name="label1" rect="0,0,150,50" border="false" text="异常描述："
+                        h-align="right" v-align="center" color="#000000" font-size="22"
+                        extendstyle="1111" />
+                    <image rect="150,0,310,50" src="file://image/input.png"
+                        style="autosize" extendstyle="1111" />
+                    <edit name="exEdit" rect="155,0,300,50" border="false"
+                        v-center="true" extendstyle="1111" />
+                    <label name="label1" rect="0,50,150,50" border="false" text="处理描述："
+                        h-align="right" v-align="center" color="#000000" font-size="22"
+                        extendstyle="1111" />
+                    <image rect="150,50,310,50" src="file://image/input.png"
+                        style="autosize" extendstyle="1111" />
+                    <edit name="doEdit" rect="155,50,300,50" border="false"
+                        v-center="true" extendstyle="1111" OnLostFocus="ErrorSave" />
+                    <button name="takePicBtn" rect="10,100,130,50" border="false"
+                        text="" color="#ffffff" OnSelect="doTakePic"
+                        extendstyle="1111" data="0">
+                        <image rect="0,0,130,50" src="file://image/take_pic.png"
+                            style="autosize" extendstyle="1111" />
+                    </button>
+                    <button name="pic1" rect="150,100,100,50" border="false"
+                        text="" color="#ffffff" OnSelect="picOnSelect"
+                        extendstyle="1111">
+                        <image name="bg" rect="0,0,100,50" src="" style="autosize"
+                            extendstyle="1111" />
+                    </button>
+                    <button name="pic2" rect="260,100,100,50" border="false"
+                        text="" color="#ffffff" OnSelect="picOnSelect"
+                        extendstyle="1111">
+                        <image name="bg" rect="0,0,100,50" src="" style="autosize"
+                            extendstyle="1111" />
+                    </button>
+                    <button name="pic3" rect="370,100,100,50" border="false"
+                        text="" color="#ffffff" OnSelect="picOnSelect"
+                        extendstyle="1111">
+                        <image name="bg" rect="0,0,100,50" src="" style="autosize"
+                            extendstyle="1111" />
+                    </button>
+                </node>
+                
+                <!-- 二维码扫描框   -->
+                <node name="barcodeScannerNode3" rect="0,0,480,50" extendstyle="1111"
+                    enable="false" active="false" visible="false">
+                    <image name="SaveFlag" rect="5,7,30,30" src="file://image/s3.png"
+                        style="autosize" extendstyle="1111"  visible="false" data="0"/>
+                    <scrolltext name="barcodeTitleName" rect="40,0,160,50"
+                        extendstyle="1111" font-size="24" h-align="left" v-align="center"
+                        color="#0" scroll="true" step="2" />
+                    <image rect="210,0,200,50" src="file://image/input.png"
+                         style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+                    <scrolltext name="barcodeResult" rect="225,13,185,45" style="autosize" 
+                        extendstyle="1111" font-size="18" text="" data='1' />
+                    <button name="barcodeScanBtn" rect="420,2,55,45" normal="normal"
+                        OnSelect="doBarcodeSanner" extendstyle="1111">
+	                    <image name="normal" rect="0,0,55,45" src="file://image/button1_normal.png"
+	                        style="autosize" extendstyle="1111" />
+	                    <label rect="0,0,55,45" text="扫描" color="#ffffff"
+	                        extendstyle="1111" style="autosize" h-align="center" v-align="center"
+	                        font-size="15" />
+                   </button>
+                </node>
+            </node>
+
+            <!-- 上下文菜单，显示图片上传队列   -->
+            <node name="ContextMenuNode" rect="0,720,480,80" border="false"
+                visible="false" enable="false" active="false" extendstyle="1111">
+                <image name="ContextMenuNodeBgImage" style="autosize" rect="0,0,480,80"
+                    src="file://image/tab_n.png" extendstyle="1111" />
+                <node name="FavListImg" rect="0,0,480,80" extendstyle="1111"
+                    visible="true">
+                    <button name="favListButton" rect="0,0,480,80"
+                        OnSelect="ContextMenuListItemOnSelect" extendstyle="1111">
+                        <image rect="182,18,40,40" src="file://image/bookmark1.png"
+                            style="autosize" border="false" extendstyle="1111" />
+                        <label name="noticeDate" rect="325,75,90,20" border="false"
+                            text="" h-align="right" v-align="center" color="#000000"
+                            font-size="15" extendstyle="1111" />
+                        <label name="label2" rect="228,18,120,40" border="false"
+                            text="我的上传" h-align="left" v-align="center" color="#000000"
+                            font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                    </button>
+                </node>
+            </node>
+        </node>
+
+        <!-- 选择对话框  -->
+        <node name="selectNode" rect="0,0,480,800" enable="false" active="false"
+			visible="false" extendstyle="1111">
+            <shadow rect="0,0,480,800" color="#000000" alpha="128"
+                extendstyle="1111" />
+            <button name="hideSelectNode" rect="0,0,480,800" border="false"
+                text="" color="#ffffff" OnSelect="hideSelectNode"
+                extendstyle="1111">
+            </button>
+            <image name="imgNode" rect="70,170,340,180" src="file://image/input.png" style="sudoku-auto"
+                extendstyle="1111" sudoku="15,15,15,15" />
+            <!-- 选择对话框列表  -->
+            <listview name="listSelect" rect="100,200,280,320" auto-adjust="true" extendstyle="1111"/>
+        </node>
+
+        <!-- 选择对话框列表项模板  -->
+        <node name="selectItem" rect="0,0,280,76" visible="false" enable="false" active="false">
+            <button rect="0,0,280,56" color="#ffffff" 
+				extendstyle="1111" OnSelect="errorTypeOnSelect" 
+				normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+				sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+				font-size="24" data="C30" />
+        </node>
+    </body>
+
+<![CDATA[
+require 'com_wondertek_dw.common.framework'
+require 'framework.upload'
+require 'framework.barcode'
+
+local rootSprite
+
+--------------------------------页面传值----------------------------------------
+local g_planId            -- 巡检计划ID
+local g_templateId        -- 巡检模板ID
+local g_stationId         -- 站点ID
+local g_stationName       -- 站点名称
+
+----------------------------界面初始化相关变量----------------------------------
+local g_items = {}        	-- 巡检项（DS）
+local g_ewms = {} 			-- 二维码资源列表 （DS）
+local g_curItemIndex = 0  	-- 当前加载的巡检项索引
+local g_page = 1 			-- 当前页号
+
+---------------------------用户输入合法性检查相关-------------------------------
+local g_errorItemNode     -- 检查用户输入失败的巡检项
+
+--------------------------巡检子项处理相关变量----------------------------------
+local g_curItemIndex, g_curSubItemIndex 	-- 当前正在处理的巡检子项索引
+local g_curSubItem 							-- 当前正在处理的巡检子项Sprite
+
+
+local g_inFlag = '0'  	-- 是否进站标志位
+local g_resultId = nil  -- 巡检结果ID号, 标识本次巡检
+
+--------------------------图片上传队列相关----------------------------------
+local g_imageArray = {}
+local g_subitemidArray = {}
+local g_piccurrbtn
+local g_imgnum = 0              -- 上传图片的个数
+
+---------------------------------------回调函数列表-----------------------------
+
+--  root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    -- 页面传值
+    local regHandle = Reg:create('xunjianzhixiang')
+    g_planId = Reg:getString(regHandle, 'planId')
+    g_templateId = Reg:getString(regHandle, 'templateId')
+    g_stationId = Reg:getString(regHandle, 'stationId')
+    g_stationName = Reg:getString(regHandle, 'stationName')
+
+    -- 设置页面标题
+    Sprite:setProperty(Sprite:findChild(rootSprite, 'titleNode'), 'text', g_stationName)
+end
+
+--  root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        -- 请求巡检子项详情
+        requestSubItems()
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+--  插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then  -- 获取巡检项
+        --[[
+        local data = Http:jsonDecode('items_detail')
+        Log:write('101', data)
+        -- 服务端返回数据合法性检查
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '获取巡检项失败，服务端返回数据格式错误', 'ok')
+            return
+        end
+        if data.code ~= '0' then
+            Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+            return 
+        end
+        -- 解析返回的巡检项，添加巡检子项字段
+        local values = Http:jsonDecode(data.value)
+        Log:write('values:', values)
+        for i=0,getJsonArrayCount(values)-1 do
+           local value = {id = value.id, name = value.name, subitems={}}
+           g_items[i] = value
+        end
+        requestSubItems()
+        --]]
+    elseif msg == 102 then -- 获取巡检子项
+		Loading:close()
+        local data = Http:jsonDecode('sub_items_detail')
+        -- 服务端返回数据合法性检查
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '获取巡检子项失败，服务端返回数据格式错误', 'ok')
+            return
+        end
+        if data.code ~= '0' then
+            Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+            return 
+        end
+        -- 解析返回的巡检子项
+        local subitems = data.value
+        Log:write('subitems',subitems)
+        
+        -- 创建巡检项
+        for i = 0, getJsonArrayCount(subitems) - 1  do 
+		    local item = {id=subitems[i].itemId , name=subitems[i].itemName, subitems={}}
+            -- 检查巡检项是否已经添加到table中
+            local bFound = false
+		    for j=1,#g_items do 
+		        if g_items[j].name == item.name then
+		          bFound = true 
+		          break
+		        end
+		    end
+		    -- 新的巡检项
+		    if bFound == false then 
+                table.insert(g_items, item)
+            end
+        end
+        -- 将巡检子项添加到对应的巡检项中
+        for i=0, getJsonArrayCount(subitems) - 1 do
+            for j=1, #g_items do
+                if subitems[i].itemId == g_items[j].id then 
+                    table.insert(g_items[j].subitems, subitems[i])
+                end
+            end
+        end
+        -- 在界面上加载巡检项
+        local mainListView = Sprite:findChild(rootSprite,'mainListView')
+        local mainItemNode = Sprite:findChild(rootSprite,'mainItemNode')
+        ListView:removeAllItems(mainListView, 1, 1)
+        ListView:loadItem(mainListView, mainItemNode, #g_items, 'loadListItem')
+        ListView:adjust(mainListView)
+        -- 隐藏所有的巡检子项
+        setAllSubItemsVisible(false)
+    elseif msg == 103 then -- 阶段保存提交
+        Loading:close()
+        local data = Http:jsonDecode('Submitdata')
+        Log:write("Submitdata ================= ", data)
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        end
+        if data ~= nil then
+            if data.code == '0' then
+            else
+                --Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+            end
+        else
+            --Dialog:show(rootSprite, '未知错误！', 'ok')
+        end
+    elseif msg == 104 then
+        local uploadData = Http:xmlDecode('upload_url', 'RESULT')
+        Log:write("upload url:", updateData)
+        local url = uploadData.URL
+        Log:write('url', url)
+        local param = uploadData.PARAM
+        if param then
+            param = param .. '&'
+        else
+            param = ''
+        end
+        doRealUpload(url, param,g_imgnum+1)
+        g_imgnum=g_imgnum + 1
+        
+    elseif msg == 105 then -- 进站请求
+        Loading:close()
+        local data = Http:jsonDecode('Indata')
+        Log:write("data105 ================= ", data)
+        if not data or type(data) ~= 'table' then
+            --Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        end
+        if data ~= nil then
+            if data.code == '0' then
+                g_resultId = data.data
+                InHandle(data.inTime)
+                -- 综合覆盖巡检请求二维码资源
+                requestBarcodeResource()
+            else
+                Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+            end
+        else
+            --Dialog:show(rootSprite, '未知错误！', 'ok')
+        end
+    elseif msg == 106 then -- 出站请求
+        Loading:close()
+        local data = Http:jsonDecode('Outdata')
+        Log:write("data106 ================= ", data)
+        if not data or type(data) ~= 'table' then
+            --Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        end
+        if data ~= nil then
+            if data.code == '0' then
+                OutHandle(data.outTime)
+            else
+                Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+            end
+        else
+            --Dialog:show(rootSprite, '未知错误！', 'ok')
+        end
+	elseif msg == 107 then -- 获取二维码资源响应
+		local data = Http:jsonDecode('ewm_code')
+		Log:write('g_ewms:', data)
+        -- 服务端返回数据合法性检查
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '获取二维码资源列表失败，服务端返回数据格式错误', 'ok')
+            return
+        end
+        if data.code ~= '0' then
+            Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+            return 
+        end
+        -- 解析返回的二维码列表
+        for i=0, getJsonArrayCount(data.value) - 1 do
+            table.insert(g_ewms, data.value[i])
+        end
+        Log:write('g_ewms', g_ewms)
+        
+        -- 添加二维码扫描巡检项
+		local mainListView = Sprite:findChild(rootSprite,'mainListView')
+        local mainItemNode = Sprite:findChild(rootSprite,'mainItemNode')
+        ListView:loadItem(mainListView, mainItemNode, 1, 'loadBarcodeListItem')
+        ListView:adjust(mainListView)
+		
+		-- 隐藏所有的巡检子项
+		setAllSubItemsVisible(false)
+	elseif msg == 108 then 
+		Log:write('进入二维码响应函数...')
+        -- 获取扫描的二维码
+        local path = Param:getString(param, 0)  -- 条码图片路径
+        local code = Param:getString(param, 1)  -- 解码后的文本
+		doBarcodeRespProc(code)
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Loading:close()
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Loading:close()
+        Log:write('请求超时')
+    end
+end
+
+--  按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Dialog:show('', '您即将离开巡检页面,是否继续？','ok_cancel','doBack')
+        return 1
+    elseif kc==Key.F1 then--按下菜单键
+        local FavListNodeSprite = Sprite:findChild(rootSprite, "ContextMenuNode")
+        setAllShoworHide(FavListNodeSprite,1)
+        return 1
+    end
+end
+
+-- 返回上一个页面
+function doBack(sprite)
+    if Loading:isShow() then Loading:close() end
+    Scene:back()
+end
+
+---------------------------------------界面初始化函数列表--------------------------
+
+-- 加载巡检项
+function loadListItem(list, item, index)
+    -- 设置巡检项样式
+    Sprite:setRect(item, 0, 0, 480, 50)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    g_curItemIndex = index + 1
+    
+    -- 显示巡检项名称
+    local mainTitleNode = Sprite:findChild(item, 'mainTitleNode')
+    local mainTitleName = Sprite:findChild(mainTitleNode, 'mainTitleName')
+    Sprite:setProperty(mainTitleName, 'text', g_items[g_curItemIndex].name)
+    
+    -- 获取巡检子项Sprite 
+    local subListviewNode = Sprite:findChild(item, 'subListviewNode')
+    local subListView = Sprite:findChild(subListviewNode, 'subListView')
+    local subItemNode = Sprite:findChild(rootSprite, 'subItemNode')
+    
+    -- 加载巡检子项内容 
+    ListView:removeAllItems(subListView, 1, 1)
+    ListView:loadItem(subListView, subItemNode, #g_items[g_curItemIndex].subitems, 'loadSubListItem')
+    
+    -- 调整巡检子项列表大小
+    local x,y,w,h = Sprite:getRect(subListView)
+    Sprite:setRect(subListView, x, y, w,  #g_items[g_curItemIndex].subitems * 50)
+    
+    x,y,w,h = Sprite:getRect(subListviewNode)
+    Sprite:setRect(subListviewNode, x, y, w, #g_items[g_curItemIndex].subitems * 50)
+   
+    -- 调整巡检项大小
+    Sprite:setRect(item, 0, 0, 480, #g_items[g_curItemIndex].subitems * 50 + 50)
+    
+    ListView:adjust(subListView)
+	
+	-- 设置当前的索引值
+	Sprite:setProperty(item, 'data', g_curItemIndex)
+end
+
+-- 加载巡检子项
+function loadSubListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 50)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    
+    local curSubItemIndex = index + 1
+    local subitem = g_items[g_curItemIndex].subitems[curSubItemIndex]
+
+    -- 隐藏所有的输入框
+    local errorTitleNode1 = Sprite:findChild(item, 'errorTitleNode1')
+    local errorTitleNode2 = Sprite:findChild(item, 'errorTitleNode2')
+    local errorTitleNode3 = Sprite:findChild(item, 'errorTitleNode3')
+    setAllShoworHide(errorTitleNode1, 0)
+    setAllShoworHide(errorTitleNode2, 0)
+    setAllShoworHide(errorTitleNode3, 0)
+    
+    -- 根据输入框类型，显示对应输入框
+    if subitem.inputType == 'CHOOSE' then
+        setAllShoworHide(errorTitleNode1, 1)
+        -- 设置选择框的显示名称
+        local errorTitleName = Sprite:findChild(errorTitleNode1, 'errorTitleName')
+        Sprite:setProperty(errorTitleName, 'text', tostring(index+1)..'、'..subitem.subitemName)
+    elseif subitem.inputType == 'NUM' then
+        setAllShoworHide(errorTitleNode2, 1)
+        local errorTitleName = Sprite:findChild(errorTitleNode2, 'errorTitleName')
+        Sprite:setProperty(errorTitleName, 'text', tostring(index+1)..'、'..subitem.subitemName)
+    elseif subitem.inputType == 'TEXT' then
+        setAllShoworHide(errorTitleNode3, 1)
+        local errorTitleName = Sprite:findChild(errorTitleNode3, 'errorTitleName')
+        Sprite:setProperty(errorTitleName, 'text', tostring(index+1)..'、'..subitem.subitemName)
+    else
+        return
+    end
+	
+	-- 设置当前的索引值
+	Sprite:setProperty(item, 'data', curSubItemIndex)
+end
+
+-- 加载二维码巡检项
+function loadBarcodeListItem(list, item, index)
+	-- 设置巡检项样式
+    Sprite:setRect(item, 0, 0, 480, 50)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    
+    -- 显示二维码巡检项名称
+    local mainTitleNode = Sprite:findChild(item, 'mainTitleNode')
+    local mainTitleName = Sprite:findChild(mainTitleNode, 'mainTitleName')
+    Sprite:setProperty(mainTitleName, 'text', '二维码扫描')
+    
+    -- 获取二维码巡检子项Sprite 
+    local subListviewNode = Sprite:findChild(item, 'subListviewNode')
+    local subListView = Sprite:findChild(subListviewNode, 'subListView')
+    local subItemNode = Sprite:findChild(rootSprite, 'subItemNode')
+	
+    -- 加载二维码巡检子项内容 
+    ListView:loadItem(subListView, subItemNode, #g_ewms, 'loadSubBarcodeListItem')
+    
+    -- 调整二维码巡检子项列表大小
+    local x,y,w,h = Sprite:getRect(subListView)
+    Sprite:setRect(subListView, x, y, w,  #g_ewms * 50)
+    
+    x,y,w,h = Sprite:getRect(subListviewNode)
+    Sprite:setRect(subListviewNode, x, y, w, #g_ewms * 50)
+   
+    -- 调整二维码巡检项大小
+    Sprite:setRect(item, 0, 0, 480, #g_ewms * 50 + 50)
+    
+    ListView:adjust(subListView)
+	
+	Sprite:setProperty(item, 'data', index + 1)
+end
+
+-- 加载二维码巡检子项
+function loadSubBarcodeListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 50)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    
+    local curbarcodeSubItemIndex = index + 1
+    local ewm = g_ewms[curbarcodeSubItemIndex]
+
+    -- 隐藏所有的输入框
+    local errorTitleNode1 = Sprite:findChild(item, 'errorTitleNode1')
+    local errorTitleNode2 = Sprite:findChild(item, 'errorTitleNode2')
+    local errorTitleNode3 = Sprite:findChild(item, 'errorTitleNode3')
+    setAllShoworHide(errorTitleNode1, 0)
+    setAllShoworHide(errorTitleNode2, 0)
+    setAllShoworHide(errorTitleNode3, 0)
+    
+    -- 显示二维码输入框
+	local barcodeScannerNode3 = Sprite:findChild(item, 'barcodeScannerNode3')
+	setAllShoworHide(barcodeScannerNode3, 1)
+	local barcodeTitleName = Sprite:findChild(item, 'barcodeTitleName')
+	Sprite:setProperty(barcodeTitleName, 'text', ewm.devicename)
+	-- 保存二维码资源索引号
+	Sprite:setProperty(item, 'data', curbarcodeSubItemIndex)
+end
+
+-----------------------服务端交互函数列表---------------------------------------
+
+-- 请求巡检项
+function requestItems()
+    local param = 'cmd=wlbxunjianTplItemDetail&code='..g_templateId
+    local requestURL = getWholeUrl('nbspweb/webservice/wplan!doWebservice.action', param)
+    Http:request('items_detail', requestURL, 101, {useCache = false})
+    Loading:show()
+end
+
+-- 请求巡检子项
+function requestSubItems()
+    local param = 'cmd=wlbxunjianTplSubItemDetail&code='..g_templateId
+    local requestURL = getWholeUrl('nbspweb/webservice/wplan!doWebservice.action', param)
+    Http:request('sub_items_detail', requestURL, 102, {useCache = false})
+    Loading:show()
+end
+
+-- 请求待扫描的二维码资源
+function requestBarcodeResource()
+	local param = 'cmd=wlbxunjianEwm&code='..g_resultId..'&resourceId='..g_stationId..'&page='..g_page
+    local requestURL = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', param)
+    Http:request('ewm_code', requestURL, 107, {useCache = false})
+    Loading:show()
+end
+
+-- 进站出站标签页操作
+function tabOnSelect(sprite)
+    local dataInfo = Sprite:getData(sprite)
+    Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_s.png')
+    if dataInfo == '01' then
+        --进站请求
+        inRequest()
+    elseif dataInfo == '02' then
+        -- 确认是否已经进站
+        if g_inFlag ~= '1' then
+            Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_n.png')
+            Dialog:show('提示','请先执行进站操作！','ok')
+            return
+        else
+            --出站请求
+            outRequest()
+        end
+    end
+end
+
+-- 进站请求
+function inRequest()
+    local url=getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
+    local username = Config:get('username')
+    local param = '&usercode='..username..'&code='..g_planId..'&resourceId='..g_stationId
+    Log:write("param = ", param)
+    Http:request('Indata', url, 105, {useCache = false, method = 'post', postData='cmd=wlbxunjianStart'..param})
+    Loading:show()
+end
+
+-- 进站响应处理
+function InHandle(time)
+    local tabNode=Sprite:findChild(rootSprite,"tabNode")
+    local btnTab1 = Sprite:findChild(tabNode,"btnTab1")
+    local labeltab = Sprite:findChild(btnTab1,"labeltab")
+    Sprite:setProperty(labeltab,"font-size","18")
+    Sprite:setProperty(labeltab,"text",time.."进站")
+    Sprite:setProperty(btnTab1,"enable","false")
+    g_inFlag = '1'
+end
+
+-- 出站请求
+function outRequest()
+    -- 对用户输入合法性进行判断
+    -- 返回非0时，检查失败，无法出站
+    if checkUserInput() ~= 0 then
+        return
+    end
+    -- 请求出站
+    local tabNode = Sprite:findChild(rootSprite,"tabNode")
+    local btnTab2 = Sprite:findChild(tabNode,"btnTab2")
+    local url = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
+    local username = Config:get('username')
+    local param = '&usercode='..username..'&code='..g_planId..'&resourceId='..g_stationId
+    Http:request('Outdata', url, 106, {useCache = false, method = 'post', postData='cmd=wlbxunjianEnd'..param})
+    Loading:show(rootSprite)
+end
+
+-- 出站响应处理
+function OutHandle(time)
+    -- body tabNode  btnTab2 labeltab
+    local tabNode=Sprite:findChild(rootSprite,"tabNode")
+    local btnTab2 = Sprite:findChild(tabNode,"btnTab2")
+    local labeltab = Sprite:findChild(btnTab2,"labeltab")
+    Sprite:setProperty(labeltab,"font-size","18")
+    Sprite:setProperty(labeltab,"text",time.."离站")
+    Sprite:setProperty(btnTab2,"enable","false")
+end
+
+-- 检查用户输入，成功返回0，否则返回 1
+function checkUserInput()
+    -- 获取巡检项的Sprite
+    local mainListView = Sprite:findChild(rootSprite,'mainListView')
+    local mainListViewCount = ListView:getItemCount(mainListView)
+    
+    -- 迭代主listview
+    for i=1,#g_items do
+        local mainItemNode = ListView:getItem(mainListView, i-1)
+        local subListviewNode = Sprite:findChild(mainItemNode,'subListviewNode')
+        local subListView = Sprite:findChild(subListviewNode,'subListView')
+        local subListViewCount = ListView:getItemCount(subListView)
+        -- 迭代子listview
+        for j=1, subListViewCount do
+			local inputType = g_items[i].subitems[j].inputType
+			local subItemNode = ListView:getItem(subListView, j-1) 
+            --下拉选择输入框
+            if inputType == 'CHOOSE' then
+                local errorTitleNode1 = Sprite:findChild(subItemNode,'errorTitleNode1')
+				local errorTypeName = Sprite:findChild(errorTitleNode1,'errorTypeName')
+				Log:write()
+				if Sprite:getText(errorTypeName) == '' then 
+                    g_errorItemNode = mainItemNode
+					Dialog:show(rootSprite, 
+					g_items[i].name ..'：巡检项中第'..tostring(j)..'项还没巡检！', 
+					'ok', 'showErrorInfo')
+					return 1
+				else
+					Log:write('CHOOSE:', Sprite:getText(errorTypeName))
+                end
+            -- 数值输入
+            elseif inputType == 'NUM' then
+                local errorTitleNode2 = Sprite:findChild(subItemNode,'errorTitleNode2')
+                local editInput = Sprite:getText(Sprite:findChild(errorTitleNode2,'editInput'))
+				if editInput == nil or editInput ==  '' then 
+					g_errorItemNode =  mainItemNode
+					Dialog:show(rootSprite, 
+					g_items[i].name..'：巡检项中第'..tostring(j)..'项还没巡检！', 
+					'ok', 'showErrorInfo')
+					return 1
+                end
+            -- 文本输入
+            elseif inputType =='TEXT' then
+                local errorTitleNode3 = Sprite:findChild(subItemNode,'errorTitleNode3')
+                local editInput = Sprite:getText(Sprite:findChild(errorTitleNode2,'editInput'))
+				if editInput == nil or editInput ==  '' then 
+					g_errorItemNode =  mainItemNode
+					Dialog:show(rootSprite, 
+					g_items[i].name ..'：巡检项中第'..tostring(j)..'项还没巡检！', 
+					'ok', 'showErrorInfo')
+					return 1
+                end
+            end
+        end
+    end
+
+    -- 还有剩余未检查项（二维码）
+    if mainListViewCount > #g_items then 
+        Log:write('info：进入checkUserInput()二维码检查')
+        -- 取最后一个巡检项
+        local mainItemNode = ListView:getItem(mainListView, mainListViewCount-1) 
+        local subListviewNode = Sprite:findChild(mainItemNode,'subListviewNode')
+        local subListView = Sprite:findChild(subListviewNode,'subListView')
+
+        for i = 1, #g_ewms do 
+            local subItemNode = ListView:getItem(subListView, i-1) 
+            local barcodeScannerNode3 = Sprite:findChild(subItemNode,'barcodeScannerNode3')
+            local barcodeResult = Sprite:getText(Sprite:findChild(barcodeScannerNode3,'barcodeResult'))
+            Log:write('info: checkUserInput() barcodeResult:', barcodeResult)
+            if barcodeResult == nil or barcodeResult ==  '' then 
+                g_errorItemNode =  mainItemNode
+                Dialog:show(rootSprite, 
+                '二维码扫描：巡检项中第'..tostring(i)..'项还没有扫描！', 
+                'ok', 'showErrorInfo')
+                return 1
+            end
+        end
+    end
+
+    -- 检查完毕，无错误返回0
+    return 0 
+end
+
+-- 用户输入检查失败后的处理
+-- 展开检查失败的巡检大项
+function showErrorInfo()
+	-- 隐藏所有的巡检子项
+	setAllSubItemsVisible(false)
+	-- 显示当前的巡检项
+	local btnImg = Sprite:findChild(g_errorItemNode, 'btnImg')
+	ImgOnSelect(btnImg)
+end
+
+-- 巡检项的伸缩
+function ImgOnSelect(sprite)
+    local NodeImg = Sprite:findChild(sprite,"NodeImg")
+    local mainTitleNode=Sprite:getParent(sprite)
+    local mainItemNode = Sprite:getParent(mainTitleNode)
+    local mainListView = Sprite:getParent(mainItemNode)
+    local subListviewNode = Sprite:findChild(mainItemNode,"subListviewNode")
+    local subListView = Sprite:findChild(subListviewNode,"subListView")
+
+    local dataflag = Sprite:getData(sprite)
+    if  dataflag=='1' then -- show->hide
+        setAllShoworHide(subListviewNode,0)
+        setAllShoworHide(subListView,0)
+        Sprite:setProperty(sprite,"data","2")
+        Sprite:setProperty(NodeImg,"src","file://image/down.png")
+        Sprite:setRect(mainItemNode,0, 0, 480, 50)
+        ListView:adjust(mainListView)
+    elseif dataflag=='2' then -- hide->show
+        x,y,width,heigh=Sprite:getRect(subListviewNode)
+        Sprite:setRect(mainItemNode,0, 0, 480, 50+heigh)
+        setAllShoworHide(subListviewNode,1)
+        setAllShoworHide(subListView,1)
+        Sprite:setProperty(sprite,"data","1")
+        Sprite:setProperty(NodeImg,"src","file://image/up.png")
+        ListView:adjust(mainListView)
+    end
+end
+
+-- 展开或收起所有的巡检子项
+-- @param bVisible - true 显示所有巡检项，false 隐藏之
+function setAllSubItemsVisible(bVisible)
+	local mainNodeContent = Sprite:findChild(rootSprite,'mainNodeContent')
+	local mainListView =Sprite:findChild(mainNodeContent,'mainListView')
+	local MLVcount = ListView:getItemCount(mainListView)
+	
+	if bVisible == true then 
+		-- 显示所有的巡检子项
+		for i=1,MLVcount do
+			local mainItemNode = ListView:getItem(mainListView, i-1)
+			local mainTitleNode=Sprite:findChild(mainItemNode,'mainTitleNode')
+			local btnImg = Sprite:getData(Sprite:findChild(mainTitleNode,'btnImg'))
+			if Sprite:getData(btnImg) == '2' then
+				-- this item is hide, set to visible
+				ImgOnSelect(btnImg)
+			end
+		end
+	else
+		-- 隐藏所有的巡检子项
+		for i=1,MLVcount do
+			local mainItemNode = ListView:getItem(mainListView, i-1)
+			local mainTitleNode=Sprite:findChild(mainItemNode,'mainTitleNode')
+			local btnImg = Sprite:findChild(mainTitleNode,'btnImg')
+			if Sprite:getData(btnImg) == '1' then
+				-- this item is visible, hide it.
+				ImgOnSelect(btnImg)
+			end
+		end
+	end
+end
+
+-- 提交用户输入的巡检内容
+function HttpRequest(subitemId, patrolResult, exception, dealdetail)
+    if subitemId == '' or subitemId == nil  then
+        Dialog:show(rootSprite, '巡检子项编号为空，请联系系统管理员！', 'ok')
+    else
+        local url = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
+        local username = Config:get('username')
+        local param = '&usercode='..username..'&resultId='..g_resultId.. '&subitemId='..subitemId..'&patrolResult='..patrolResult.. '&exception='..exception..'&dealDetail='..dealdetail 
+        Log:write("param = ", param)
+        Http:request('Submitdata', url, 103, {useCache = false, method = 'post',
+            postData='cmd=wlbxunjianDeal'..param})
+    end
+end
+
+-- 提交巡检结果
+function submitOnSelect(sprite)
+    Dialog:show('提示','是否确定提交本次巡检任务？','ok_cancel','doUpload')
+end
+
+-----------------------相机和图片上传队列相关函数----------------------------------
+
+-- 拍照按钮消息处理
+function doTakePic(sprite)
+    local errorHideNode = Sprite:getParent(sprite)
+    local fileName = 'ict' .. getCurDate()
+    local num = tonumber(Sprite:getData(sprite)) --  当前照片数
+    if num < 3 then
+        local result = System:openCamera('onCameraDialog', 'file://image/' .. fileName .. '.jpg', 'jpg')
+        if result == 0 then
+            Dialog:show('提示', '相机打开失败!', 'ok')
+            return 1
+        else
+            g_piccurrbtn = sprite
+            Log:write('num==============',num)
+            Sprite:setProperty(sprite,'data',tostring(num+1))
+        end
+    else
+        Dialog:show('提示', '最多拍3张照片!', 'ok')
+    end
+end
+
+-- 相机回调函数
+function onCameraDialog(photoPath, photoType)
+    --预留存储巡检计划号、基站号、巡检子项号
+    --table.insert(g_imageArray, photoPath)000001000599
+
+    --[[
+    local tmpSplitArray = Split(photoPath, '%.')
+    local dest = tmpSplitArray[1] .. 'temp' .. System:getTickTime() .. '.jpg'
+    Log:write('目标文件路径为:'..dest)
+
+    local ret = ScaleImageAsJpg(photoPath, dest, 480, 800, 0)
+    if ret == 1 then
+        table.insert(g_imageArray, dest)
+        Log:write('图片压缩成功，压缩后的图片位置为:'..dest)
+    else
+        table.insert(g_imageArray, photoPath)
+        Log:write('警告：图片压缩失败，使用未压缩的图片:'..photoPath)
+    end
+    --]]
+
+    table.insert(g_imageArray, photoPath)
+    Log:write("g_imageArray", g_imageArray)
+    
+    local errorHideNode = Sprite:getParent(g_piccurrbtn)
+    local subItemNode = Sprite:getParent(errorHideNode)
+    
+    -- 获取当前的巡检子项下标
+    local curItem = Sprite:getParent(Sprite:getParent(Sprite:getParent(subItemNode)))
+    
+    local subItemIndex = tonumber(Sprite:getData(subItemNode))
+    local itemIndex = tonumber(Sprite:getData(curItem))
+
+    --存储子巡检项的ID号
+    table.insert(g_subitemidArray, g_items[itemIndex].subitems[subItemIndex].id)
+    local dataflag = Sprite:getData(g_piccurrbtn)
+    local imgNode = Sprite:findChild(errorHideNode, 'pic'..dataflag)
+    local bg = Sprite:findChild(imgNode, 'bg')
+    Sprite:setProperty(bg,'src', photoPath)
+end
+
+-- 上传图片
+function doUpload(sprite)
+    -- 执行用户输入检查
+    if checkUserInput() ~= 0 then
+        return
+    end
+    Loading:show(rootSprite)
+    if #g_imageArray >= 1 then
+        getUploadUrl(g_imageArray[#g_imageArray]) 
+    else
+        Timer:set(2, 3000, 'submitOkProc')
+    end
+end
+
+-- 提交成功定时器处理函数
+function submitOkProc()
+    Loading:close()
+    Dialog:show('巡检提交', '提交成功','ok','doBack')
+end
+
+
+-- 获取图片的url地址
+function getUploadUrl(photoPath)
+    local _,_,fileName = string.find(photoPath, '([^/\\%.]+)%.?[^/\\]*$')
+    local url = getUrl() .. 'nbspweb/upload/UGC_GetUploadUrl.html'
+    local param = 'FILE_NAME=' .. fileName .. '&C_TYPE=' .. 'jpg' .. '&C_LEN=' .. IO:fileSize(photoPath)
+    Log:write("-------------url upload------------", url .. param)
+    Http:request('upload_url', url, 104, {useCache = false, method = 'post', postData= param})
+end
+
+-- 将图片添加到上传队列中
+function doRealUpload(url, param, g_imgnum)
+    local _,_,fileName = string.find(g_imageArray[#g_imageArray], '([^/\\%.]+)%.?[^/\\]*$')
+    local poststr = 'id=' .. g_planId .. '&markid='..g_subitemidArray[#g_imageArray]..'&interfaceMainType=3&usercode=' .. Config:get('username') .. '&uploadFileName=' .. fileName .. '.jpg'
+    Upload:append(url, param .. poststr, g_imageArray[#g_imageArray], fileName .. '.jpg', fileName, 'jpg')
+    table.remove(g_imageArray, #g_imageArray)
+    if g_imageArray[#g_imageArray] and g_imageArray[#g_imageArray] ~= '' then
+        getUploadUrl(g_imageArray[#g_imageArray])
+    else
+        if Loading:isShow() then Loading:close() end
+        Dialog:show('', '已加入上传队列中！', 'ok', 'doBack')
+    end
+end
+
+-- 隐藏Loading
+function hideLoading()
+    Loading:close()
+end
+
+-- 图片上传队列
+function ContextMenuListItemOnSelect(sprite)
+    local FavListNodeSprite = Sprite:findChild(rootSprite, "ContextMenuNode")
+    setAllShoworHide(FavListNodeSprite,0)
+    Scene:setReturn(Alias.xunjianSubmit, Alias.xunjianupload)
+    Scene:go(Alias.xunjianupload)
+end
+
+------------------------- CHOOSE类型输入框处理函数--------------------------------
+
+-- 选择类型输入框按钮消息处理函数
+-- @param sprite - 选择类型按钮
+function errorOnSelect(sprite)
+    -- 显示选择对话框
+	local selectNode = Sprite:findChild(rootSprite, 'selectNode')
+    setAllShoworHide(selectNode, 1)
+	
+	-- 获取当前的巡检子项下标
+	g_curSubItem = Sprite:getParent(Sprite:getParent(sprite))
+	local curItem = Sprite:getParent(Sprite:getParent(Sprite:getParent(g_curSubItem)))
+	g_curItemIndex = tonumber(Sprite:getData(curItem))
+	g_curSubItemIndex = tonumber(Sprite:getData(g_curSubItem))
+		
+	-- 取得值域范围
+	local valueScope = Split(g_items[g_curItemIndex].subitems[g_curSubItemIndex].valueScope, ',')
+	local list = Sprite:findChild(rootSprite, 'listSelect')
+	local item = Sprite:findChild(rootSprite, 'selectItem')
+	
+	-- 加载选择框内容
+    ListView:removeAllItems(list, 1, 1)
+    ListView:loadItem(list, item, #valueScope, 'loadSelectItem')
+    ListView:adjust(list)
+end
+
+-- 加载选择对话框的内容
+function loadSelectItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 76)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+	local valueScope = Split(g_items[g_curItemIndex].subitems[g_curSubItemIndex].valueScope, ',')
+    local button = Sprite:findChildByClass(item, 'button')
+    Sprite:setProperty(button, 'text', valueScope[index + 1])
+end
+
+-- 下拉选择按钮消息处理
+-- @param sprite - 下拉按钮
+function errorTypeOnSelect(sprite)
+    -- 显示选择的结果
+	local errorName = Sprite:getProperty(sprite, 'text')  -- 当前用户输入
+	local errorTypeName = Sprite:findChild(g_curSubItem, 'errorTypeName')
+	Sprite:setProperty(errorTypeName, 'text', errorName)
+
+    -- 服务端确少异常类型字段，现在也只能这样了
+    if errorName == '是' or errorName == '符合' 
+        or errorName == '正常' or errorName == '有' then
+        -- 状态切换，隐藏异常对话框
+        showErrorNode(false)
+        -- 提交用户输入
+        doSave(errorTypeName)
+    else
+        showErrorNode(true)
+    end
+    -- 隐藏对话框
+	hideSelectNode(sprite)
+end
+
+-- 隐藏选择对话框
+function hideSelectNode(sprite)
+    local selectNode = Sprite:findChild(rootSprite, 'selectNode')
+    setAllShoworHide(selectNode, 0)
+end
+
+-- 提交用户输入的正常结果
+-- @param sprite - 输入的edit或label
+function doSave(sprite)
+	-- 对用户的输入进行合法性检查
+	local patrolResult = Sprite:getText(sprite)
+    if patrolResult == nil or patrolResult=='' then
+        patrolResult = Sprite:getText(Sprite:findChild(sprite,'errorTypeName'))
+        if patrolResult == nil or patrolResult == '' then
+            Dialog:show(rootSprite, '巡检结果不可为空！', 'ok')
+            return
+        end
+    end
+    if g_inFlag ~= '1' or g_resultId == nil then
+        Dialog:show(rootSprite, '请先执行进站操作，否则无法记录巡检结果！', 'ok')
+    else
+        -- 取巡检子项ID
+        local subitemId = g_items[g_curItemIndex].subitems[g_curSubItemIndex].id
+        if subitemId == '' or subitemId == nil  then
+            Dialog:show(rootSprite, '巡检子项编号为空，请联系系统管理员！', 'ok')
+        else
+            local url = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
+            local username = Config:get('username')
+            local param = '&usercode='..username..'&resultId='..g_resultId..'&subitemId='..subitemId..'&patrolResult='..patrolResult..'&exception='..'&dealDetail='
+            Log:write("param = ", param)
+            Http:request('Submitdata', url, 103, {useCache = false, method = 'post', postData='cmd=wlbxunjianDeal'..param})
+            setAllShoworHide(Sprite:findChild(g_curSubItem,'SaveFlag'), 1)
+			Sprite:setProperty(Sprite:findChild(g_curSubItem,'SaveFlag'), 'data', '1')
+        end
+    end
+end
+
+-- 显示或隐藏异常输入框
+-- @param bVisible:boolean - true:显示，false:隐藏
+function showErrorNode(bVisible)
+    -- 获取巡检项和巡检子项的sprite
+    local errorHideNode = Sprite:findChild(g_curSubItem, 'errorHideNode')
+    local subListView = Sprite:getParent(g_curSubItem)
+    local subListViewNode = Sprite:getParent(subListView)
+    local mainItem = Sprite:getParent(subListViewNode)
+    local mainListView = Sprite:getParent(mainItem)
+	
+    -- 显示或隐藏异常输入框
+    Log:write('errorHideNode visible attribute:', Sprite:isVisible(errorHideNode))
+    if bVisible == true and Sprite:isVisible(errorHideNode) == 0 then
+        setAllShoworHide(errorHideNode, 1)
+        local x, y, w, h = Sprite:getRect(g_curSubItem)
+        Sprite:setRect(g_curSubItem, x, y, w, h + 150)
+        x, y, w, h = Sprite:getRect(subListView)
+        Sprite:setRect(subListView, x, y, w, h + 150)
+        x, y, w, h = Sprite:getRect(subListViewNode)
+        Sprite:setRect(subListViewNode, x, y, w, h + 150)
+        x, y, w, h = Sprite:getRect(mainItem)
+        Sprite:setRect(mainItem, x, y, w, h + 150)
+	elseif bVisible ==  false and Sprite:isVisible(errorHideNode) == 1 then
+        setAllShoworHide(errorHideNode, 0)
+        local x, y, w, h = Sprite:getRect(g_curSubItem)
+        Sprite:setRect(g_curSubItem, x, y, w, h - 150)
+        x, y, w, h = Sprite:getRect(subListView)
+        Sprite:setRect(subListView, x, y, w, h - 150)
+        x, y, w, h = Sprite:getRect(subListViewNode)
+        Sprite:setRect(subListViewNode, x, y, w, h - 150)
+        x, y, w, h = Sprite:getRect(mainItem)
+        Sprite:setRect(mainItem, x, y, w, h - 150)  
+	end
+    ListView:adjust(subListView)
+    ListView:adjust(mainListView)
+end
+
+------------------------- NUM类型输入框处理函数--------------------------------
+
+-- 数字类型输入框焦点消失响应处理
+-- @param sprite - editInput's sprite
+function onTextLostFocus(sprite)
+    -- 获取当前的巡检子项和下标
+    g_curSubItem = Sprite:getParent(Sprite:getParent(sprite))
+    local curItem = Sprite:getParent(Sprite:getParent(Sprite:getParent(g_curSubItem)))
+    g_curItemIndex = tonumber(Sprite:getData(curItem))
+    g_curSubItemIndex = tonumber(Sprite:getData(g_curSubItem))
+    Log:write('info: onTextLostFocus() i, j', g_curItemIndex, g_curSubItemIndex)
+
+    -- 用户未输入，直接返回
+    if Sprite:getText(sprite) == '' then
+        return
+    end
+
+    -- 获取当前输入
+    local content = tonumber(Sprite:getText(sprite))
+
+    -- 获取值域
+    local min = 0
+    local max = 100
+
+    -- 检查用户输入
+    if not content then
+        -- 用户输入非数字,清空输入
+        Dialog:show('提示','输入必须是数字！','ok')
+        Sprite:setProperty(sprite, 'text', '')
+    elseif content < min or content > max then
+        -- 用户输入不在正常范围内
+        showErrorNode(true)
+    else
+        --正常保存提交
+        doSave(sprite)
+    end
+end
+
+------------------------- TEXT类型输入框处理函数-------------------------------
+
+-- 文本类型输入框焦点消失响应处理
+--  @param sprite - editInput's sprite
+function doTextSave(sprite)
+    -- 获取当前的巡检子项和下标
+    g_curSubItem = Sprite:getParent(Sprite:getParent(sprite))
+    local curItem = Sprite:getParent(Sprite:getParent(Sprite:getParent(g_curSubItem)))
+    g_curItemIndex = tonumber(Sprite:getData(curItem))
+    g_curSubItemIndex = tonumber(Sprite:getData(g_curSubItem))
+    Log:write('info: onTextLostFocus() i, j', g_curItemIndex, g_curSubItemIndex)  
+
+    -- 保存文本输入结果即可
+    doSave(sprite)
+end
+
+---------------------------------二维码相关函数---------------------------------
+
+-- 进行二维码扫描
+function doBarcodeSanner(sprite)
+	-- 获取当前的巡检子项下标
+	g_curSubItem = Sprite:getParent(Sprite:getParent(sprite))
+	local curItem = Sprite:getParent(Sprite:getParent(Sprite:getParent(g_curSubItem)))
+	
+	g_curItemIndex = tonumber(Sprite:getData(curItem))
+	g_curSubItemIndex = tonumber(Sprite:getData(g_curSubItem))
+	
+	Log:write('g_curItemIndex,g_curSubItemIndex', g_curItemIndex)
+	
+	local observer = Plugin:getObserver()
+	local ret = BarCode:startScanner(observer, 108)
+	if ret == 0 then
+		Dialog:show("", '开启二维码扫描失败!', 'ok')
+		return
+	else
+		Log:write('开启二维码成功')
+	end
+end
+
+-- 获取二维码后的处理
+-- @param code - 二维码扫描结果
+function doBarcodeRespProc(code)
+	-- 显示二维码扫描结果
+	local ewm = g_ewms[g_curSubItemIndex].ewm
+	local resourceId = g_ewms[g_curSubItemIndex].id
+	local barcodeResult = Sprite:findChild(g_curSubItem, 'barcodeResult')
+	
+	-- 提交结果
+	if ewm == code then
+        Sprite:setProperty(barcodeResult, 'text', code)
+		setAllShoworHide(Sprite:findChild(g_curSubItem,'SaveFlag'), 1)
+		local param = 'cmd=wlbxunjianEwmSave'..'&code='..g_resultId..'&resourceId='..resourceId..'&deviceid='..ewm
+		local requestURL = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', param)
+		Http:request('Submitdata', requestURL, 103, {useCache = false})
+	else
+		Dialog:show("", '二维码扫描结果与设备不匹配!', 'ok')
+		return
+	end
+end
+
+------------------------- 异常输入框处理函数 ------------------------------------
+
+-- 保存用户输入的异常信息, 当doEdit失去焦点时调用
+-- @param sprite - doEdit sprite  
+function ErrorSave(sprite)
+    -- 检查是否已经进站
+    if g_resultId == nil or g_resultId == '' then
+        Dialog:show(rootSprite, '请先执行进站操作，否则无法记录巡检结果！', 'ok')
+        return
+    end
+
+    -- 获取异常名称和异常详述
+    local dealdetail = Sprite:getText(sprite) --  异常详述
+    local errorHideNode = Sprite:getParent(sprite)
+    local exception = Sprite:getText(Sprite:findChild(errorHideNode,'exEdit')) -- 异常名称
+
+    -- 获取巡检子项id
+    local subItemId = g_items[g_curItemIndex].subitems[g_curSubItemIndex].id
+    local inputType = g_items[g_curItemIndex].subitems[g_curSubItemIndex].inputType
+
+    -- 获取巡检的内容
+    local patrolResult = nil
+    local errorTitleNode = nil -- 根据输入框类型选择不同的节点
+    if inputType == 'CHOOSE' then
+        errorTitleNode = Sprite:findChild(g_curSubItem, 'errorTitleNode1')
+        local errorTypeName = Sprite:findChild(errorTitleNode,'errorTypeName')
+        patrolResult = Sprite:getText(errorTypeName)
+    elseif inputType == 'NUM' then
+        errorTitleNode = Sprite:findChild(g_curSubItem, 'errorTitleNode2')   
+        local editInput = Sprite:findChild(errorTitleNode, 'editInput')
+        patrolResult=Sprite:getText(editInput)
+    else
+        Log:write('warning: ErrorSave() invalid inputType:', inputType)
+        return
+    end
+
+    if subItemId =='' or subItemId == nil  then
+        Dialog:show(rootSprite, '巡检子项编号为空，请联系系统管理员！', 'ok')
+    elseif dealdetail == '' or exception == '' then 
+        Dialog:show(rootSprite, '异常描述和处理描述不能为空！', 'ok')  
+    else
+        local url = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
+        
+        local username = Config:get('username')
+        local param = '&usercode='..username..'&resultId='..g_resultId.. '&subitemId='..subItemId..'&patrolResult='..patrolResult ..'&exception='..exception..'&dealDetail='..dealdetail 
+        Log:write("info: ErrorSave() param = ", param)
+        
+        -- 请求服务器
+        Http:request('Submitdata', url, 103, {useCache = false, method = 'post', postData='cmd=wlbxunjianDeal'..param})
+
+        --显示提交成功标记
+        setAllShoworHide(Sprite:findChild(errorTitleNode,'SaveFlag'), 1)
+    end
+end
+
+]]>
+</root>

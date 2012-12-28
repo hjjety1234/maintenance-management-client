@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2011, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: wangweipeng <wangweipeng@mantis.com>
+ == ============================================================================
+ == | Desc: download示例
+ == ============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" OnSpriteEvent="bodyOnSpriteEvent" BuildChildrenFinished="bodyBuildChildrenFinished" PreBuildChildren="bodyPreBuildChildren">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <shadow rect="0,0,480,800" color="#e8e8e8" alpha="255" extendstyle="1111" />
+            <node name="NodeTitle" rect="0,0,480,66" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,66" src="file://image/title_bg.png"
+                    extendstyle="1111" style="autosize" />
+                <button name="backBtn" rect="0,10,75,45" normal="normal" sel="sel"
+                    OnSelect="doBack" extendstyle="1111">
+                    <image name="normal" rect="0,0,75,45" src="file://image/title_back_n.png"
+                        style="autosize" extendstyle="1111" />
+                    <image name="sel" rect="0,0,75,45" src="file://image/title_back_s.png"
+                        style="autosize" extendstyle="1111" />
+                    <label rect="15,0,60,45" text="返回" color="#ffffff"
+                        extendstyle="1111" style="autosize" h-align="center" v-align="center"
+                        font-size="24" />
+                </button>
+
+                <scrolltext name="title" rect="105,0,280,66" text="上传列表"
+                    extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2" />
+
+                <button rect="20,620,203,65" sudoku="4,4,4,4" visible="false" OnSelect="addBtnOnSelect" text="添加一个" color="#FFFFFF"
+                normal="style:sudoku-tile;src:WONDER:\\framework\\image\\button.png" 
+                focus="style:sudoku-tile;src:WONDER:\\framework\\image\\button_f.png" extendstyle="1111" />
+            </node>
+            <listview border="false" name="downloadListview" rect="0,70,480,530" extendstyle="1111"/>
+           
+        </node>
+        <!-- load sprite -->
+        <!-- com_wondertek_samples 列表 -->
+        <node name="downloadlistviewItem" visible="false" enable="false" active="false">
+            <image rect="0,0,480,80" src="file://image/normal.png" style="autosize" extendstyle="1111" />
+            <image name="downloadStatusImg" rect="0,20,40,40" style="autosize" src="file://image/download_run.png" extendstyle="1111" />
+            <label name="fileNameLbl" rect="50,10,160,40" text="111111111" color="#000000" postfix="..." extendstyle="1111" />
+            <label name="speedLbl" h-align="right" rect="220,10,85,40" text="0KB/s" color="#000000" extendstyle="1111" />
+            <label name="percentLbl" h-align="right" rect="245,40,60,40" text="0%" color="#000000" extendstyle="1111" />
+            <image name="progressBgImg" rect="45,40,200,24" style="autosize" src="file://image/download_bg.png" extendstyle="1111" />
+            <image name="progressImg" rect="50,42,10,20" style="autosize" src="file://image/download_bar.png" extendstyle="1111" />
+            <button name="pauseBtn" rect="310,12,80,55" sudoku="4,4,4,4" normal="style:sudoku-auto;src:WONDER:\\framework\\image\\button.png;text:暂停;color:#FFFFFF"
+                focus="style:sudoku-tile;src:WONDER:\\framework\\image\\button_f.png;text:暂停;color:#FFFFFF" OnSelect="pauseBtnOnSelect" extendstyle="1111" />
+            <button name="continueBtn" rect="310,12,80,55" sudoku="4,4,4,4" normal="style:sudoku-tile;src:WONDER:\\framework\\image\\button.png;text:继续;color:#FFFFFF"
+                focus="style:sudoku-tile;src:WONDER:\\framework\\image\\button_f.png;text:继续;color:#FFFFFF" OnSelect="continueBtnOnSelect" extendstyle="1111" />
+            <button name="deleteBtn" rect="395,12,80,55" sudoku="4,4,4,4" normal="style:sudoku-auto;src:WONDER:\\framework\\image\\button.png;text:删除;color:#FFFFFF"
+                focus="style:sudoku-tile;src:WONDER:\\framework\\image\\button_f.png;text:删除;color:#FFFFFF" OnSelect="deleteBtnOnSelect" extendstyle="1111" />
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+require 'framework.upload'
+
+local rootSprite -- 场景根节点
+local progressWidth = 200 -- 进度条长度
+local speadTable = {}
+
+
+---------------------------------------callbacks--------------------------------
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    downloadListview = Sprite:findChild(sprite, 'downloadListview')
+    downloadlistviewItem = Sprite:findChild(sprite, 'downloadlistviewItem')
+    downloadInit()
+    Timer:set(1, 1, 'onGetDownloadStatus')
+end
+
+-- @brief root节点消息方法
+function bodyPreBuildChildren()
+    System:setFontSize()
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+function addBtnOnSelect(sprite)
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    if #downloadSamples > 0 then
+        Upload:append(downloadSamples[#downloadSamples].url, '', downloadSamples[#downloadSamples].path, downloadSamples[#downloadSamples].name, 'test', 'zip') 
+        table.remove(downloadSamples)
+    else
+        Dialog:show('11', '11', 'ok')
+    end
+    downloadInit()
+end
+
+-- @brief 暂停按钮
+function pauseBtnOnSelect(sprite)
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    Log:write('暂停前的状态。。。。。。。。。。。。', Upload:getStatus())
+    local item = Sprite:getParent(sprite)
+    local index = ListView:getItemIndex(item)
+    Upload:pause(index + 1)
+    local continueBtn = Sprite:findChild(Sprite:getParent(sprite), 'continueBtn')
+    Log:write('暂停后的状态。。。。。。。。。。。。', Upload:getStatus())
+    Sprite:setEnable(continueBtn, 1)
+    Sprite:setVisible(continueBtn, 1)
+    Sprite:setEnable(sprite, 0)
+    Sprite:setVisible(sprite, 0)
+end
+
+-- @brief 继续按钮
+function continueBtnOnSelect(sprite)
+    Log:write('继续前的状态。。。。。。。。。。。。', Upload:getStatus())
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    
+    local item = Sprite:getParent(sprite)
+    local index = ListView:getItemIndex(item)
+    Upload:start(index + 1)
+    local pauseBtn = Sprite:findChild(Sprite:getParent(sprite), 'pauseBtn')
+    Log:write('继续后的状态。。。。。。。。。。。。', Upload:getStatus())
+    Sprite:setEnable(pauseBtn, 1)
+    Sprite:setVisible(pauseBtn, 1)
+    Sprite:setEnable(sprite, 0)
+    Sprite:setVisible(sprite, 0)
+end
+
+-- @brief 删除按钮
+function deleteBtnOnSelect(sprite)
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    Log:write('删除前的状态。。。。。。。。。。。。', Upload:getStatus())
+    local item = Sprite:getParent(sprite)
+    local index = ListView:getItemIndex(item)
+    Log:write('删除后的状态。。。。。。。。。。。。', Upload:getStatus())
+    Upload:delete(index + 1, 1)
+    ListView:removeItem(Sprite:getParent(item), item, 1, 1)
+end
+
+-- 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            doBack()
+            return 1
+        end
+    end
+
+---------------------------------------util functions---------------------------
+function downloadInit()
+    local count = Upload:getCount() 
+    Log:write('任务数：',count)
+    ListView:removeAllItems(downloadListview, 1, 1)
+    ListView:loadItem(downloadListview, downloadlistviewItem, count, 'onDownloadlistviewItem')
+end
+
+function onDownloadlistviewItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 80)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local fileNameLbl = Sprite:findChild(item, 'fileNameLbl')
+    local status = Upload:getStatus(index + 1)
+    Sprite:setProperty(fileNameLbl, 'text', status.title)
+end
+
+function onGetDownloadStatus()
+    local count = Upload:getCount()
+    --Log:write('downloadCount', count)
+    local finishedTask
+    for i = 1, count do
+        local task = Upload:getStatus(i)
+        Log:write('上传状态：==============', task)
+        local spead = string.format('%.2f', (task.size - (speadTable[i] or 0))/1000)
+        speadTable[i] = task.size
+        local item = ListView:getItem(downloadListview, i - 1)
+        local percent = 0
+        if task.size and task.maxsize and task.maxsize ~= 0 then
+            percent = 100-math.floor(task.size / task.maxsize * 100)
+        end
+        local pauseBtn = Sprite:findChild(item, 'pauseBtn')
+        local continueBtn = Sprite:findChild(item, 'continueBtn')
+        local downloadStatusImg = Sprite:findChild(item, 'downloadStatusImg')
+        local percentLbl = Sprite:findChild(item, 'percentLbl')
+        local speedLbl = Sprite:findChild(item, 'speedLbl')
+        if task.status == Upload.status.Uploading  then
+            setDownloadingProgress(item, percent)
+            Sprite:setProperty(percentLbl, 'text', percent .. '%')
+            Sprite:setProperty(speedLbl, 'text', spead .. 'KB/s')
+        elseif task.status == Upload.status.Finished then -- 如果下载结束则记录此条记录信息，以便后面将其安装并删除
+            finishedTask = task
+            finishedTask.item = item
+        end
+        Log:write('任务状态===============',task.status)
+        if task.status ~=5 then
+            if task.status == 0 then
+                Sprite:setProperty(downloadStatusImg, 'src', 'file://image/download_wait.png')
+                Sprite:setEnable(pauseBtn, 1)
+                Sprite:setVisible(pauseBtn, 1)
+                Sprite:setEnable(continueBtn, 0)
+                Sprite:setVisible(continueBtn, 0)
+            elseif task.status == 3 then -- 如果为等待和下载状态则显示暂停按钮
+                Sprite:setProperty(downloadStatusImg, 'src', 'file://image/download_run.png')
+                Sprite:setEnable(pauseBtn, 1)
+                Sprite:setVisible(pauseBtn, 1)
+                Sprite:setEnable(continueBtn, 0)
+                Sprite:setVisible(continueBtn, 0)
+            elseif task.status ==4 then -- 如果为暂停状态则显示继续按钮
+                Sprite:setProperty(downloadStatusImg, 'src', 'file://image/download_pause.png')
+                Sprite:setEnable(pauseBtn, 0)
+                Sprite:setVisible(pauseBtn, 0)
+                Sprite:setEnable(continueBtn, 1)
+                Sprite:setVisible(continueBtn, 1)
+            elseif task.status == 6 then -- 如果为失败状态则只显示删除按钮
+                Sprite:setProperty(downloadStatusImg, 'src', 'file://image/download_fail.png')
+                Sprite:setEnable(pauseBtn, 0)
+                Sprite:setVisible(pauseBtn, 0)
+                Sprite:setEnable(continueBtn, 0)
+                Sprite:setVisible(continueBtn, 0)
+          
+            end
+        end
+        end
+        if finishedTask then -- 如果finishedTask存在，则执行词条记录的安装
+           -- Log:write('finishedTask')
+            local index = ListView:getItemIndex(finishedTask.item)
+           -- Log:write('Download:delete() index', index + 1)
+            Upload:delete(index + 1) -- 上传结束，删除上传任务
+            ListView:removeItem(downloadListview, finishedTask.item, 1, 1) -- 将界面上的item删除
+        end
+        Timer:set(1, 1000, 'onGetDownloadStatus')
+    end
+
+    -- @brief 设置进度条及进度百分比
+    function setDownloadingProgress(item, percent)
+        local progressImg = Sprite:findChild(item, 'progressImg')
+        local x, y, _, h = Sprite:getRect(progressImg)
+        Sprite:setRect(progressImg, x, y, progressWidth * percent / 100, h)
+    end
+    function doBack(sprite)
+        --Scene:freeByHandle(rootSprite)
+        Scene:back()
+    end
+    ]]>
+</root>
