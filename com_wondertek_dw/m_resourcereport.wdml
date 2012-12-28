@@ -32,13 +32,29 @@
                     <image name="sel" rect="0,0,40,40" src="file://image/ic_home_new.png" 
                        style="autosize"  extendstyle="1111" />
                 </button>
-                
+                <button name="btnShowSearchBar" rect="414,0,66,66"
+                    font-size="24" extendstyle="1111" text="" color="#ffffff"
+                    OnSelect="OnShowSearchBarButtonClicked">
+                <image name="titleBg1" rect="16,8,40,40" src="file://image/ico_search_new.png"
+                    extendstyle="1111"  />
+                </button>
             </node>
             <!-- 工具栏  -->
-            <node rect="0,66,480,52" extendstyle="1111" visible="false" enable="false">
+            <node name="nodetools" rect="0,66,480,52" extendstyle="1111" visible="false" enable="false">
                 <image name="search_bg_new" rect="0,0,480,52" src="file://image/search_bg.png"
                     style="autosize" extendstyle="1111" />
-                
+                <button name="" rect="12,0,80,61" text="    按专业" h-align="left" font-family="微软雅黑"
+                          color="#303030" extendstyle="1111" OnSelect="searchTypeOnSelect"
+                          font-size="24" data="01">
+                    <image rect="100,15,32,32" src="file://image/list_arrow.png"  extendstyle="1111" />
+                    
+                 </button>
+                 <button name="" rect="150,0,80,61" text="    按区域" h-align="left" font-family="微软雅黑"
+                          color="#303030" extendstyle="1111" OnSelect="searchTypeOnSelect"
+                          font-size="24" data="02">
+                    <image rect="100,15,32,32" src="file://image/list_arrow.png"  extendstyle="1111" />
+                    
+                 </button>
             </node>
         </node>
     </body>
@@ -47,6 +63,7 @@
 require 'com_wondertek_dw.common.framework'
 require 'framework.webbrowser'
 local rootSprite
+local isVisible = false
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -57,9 +74,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        --WebView
-        local dataUrl = '/webcloud/resources/js/Charts/daiwei/resource_count_dawei.json'
-        showChartInWebView(dataUrl, 'Bar', 0, 66, 480, 724)
+       proReport()
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -89,6 +104,38 @@ end
 function doBack()
     closeWebView()
     Scene:back()
+end
+
+function OnShowSearchBarButtonClicked(sprite)
+    local nodetools = Sprite:findChild(rootSprite,'nodetools')
+    if(isVisible == false) then
+        setAllShoworHide(nodetools,1)
+        isVisible = true
+    else
+        setAllShoworHide(nodetools,0)
+        isVisible = false
+    end
+end
+--
+function searchTypeOnSelect(sprite)
+    local dataInfo = Sprite:getData(sprite)
+    if(dataInfo == '01') then
+        --按专业
+        proReport()
+    else
+        --按区域
+        areaReport()
+    end
+end
+function proReport()
+    --WebView
+    local dataUrl = '/webcloud/resources/js/Charts/daiwei/resource_count_pie.json'
+    showChartInWebView(dataUrl, 'Pie', 0, 66, 480, 724)
+end
+function areaReport()
+    --WebView
+    local dataUrl = '/webcloud/resources/js/Charts/daiwei/resource_count_byarea.json'
+    showChartInWebView(dataUrl, 'Bar', 0, 66, 480, 724)
 end
 
     ]]>
