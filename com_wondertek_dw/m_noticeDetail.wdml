@@ -31,14 +31,14 @@
 				<!-- 返回按钮 -->
 				<button name="backBtn" rect="0,0,66,66" OnSelect="doBack"
 					extendstyle="1111"> 				
-					<image name="titleBg1" rect="10,8,46,46" src="file://image/ico_back.png"
+					<image name="titleBg1" rect="15,8,75,75" src="file://image/skin/ico_back.png"
 					extendstyle="1111"  />
 				</button>
 
 				<!-- 收藏按钮 -->
-				<button name="favBtn" rect="414,0,66,66" 
+				<button name="favBtn" rect="400,0,75,75" 
 					 OnSelect="OnFavBtnClicked" extendstyle="1111" border="false">
-					<image name="favBtnImage" rect="16,8,40,40" src="file://image/bookmark_2.png"
+					<image name="favBtnImage" rect="21,8,75,75" src="file://image/skin/bookmark_2.png"
 						 extendstyle="1111" />
 				</button>
 
@@ -100,7 +100,7 @@
         -- 确定是否显示收藏图表
         if (iscollect == '0') then
             local favBtnImageSprite = Sprite:findChild(rootSprite,"favBtnImage")
-            Sprite:setProperty(favBtnImageSprite, "src", 'file://image/bookmark1_new.png')
+            Sprite:setProperty(favBtnImageSprite, "src", 'file://image/skin/bookmark1_new.png')
         end
         -- 设置公告标题，日期和发布人
         Sprite:setProperty(title, "text", noticeTitle)
@@ -127,9 +127,9 @@
                 --local contentString = string.gsub(jsonDecodedMsg["contentString"], '<.->', '')
 				local contentString = jsonDecodedMsg["contentString"]
 				--local iFirst,iEnd = string.find(contentString, '<p>\r\')
-				contentString = string.sub(contentString, 6)
+				contentString = string.sub(contentString, 6.5)
                 contentString = string.gsub(contentString, '<.->', '')
-                --contentString = string.gsub(contentString, "<p>", "", 1)
+                contentString = string.gsub(contentString, "<p>", "", 1)
                 contentString = string.gsub(contentString, '&%w+;', '')
                 -- 正则表达式，去除页首的多余空行
                 contentString = string.gsub(contentString, '\r\n\r\n\t', '\r\n')
@@ -144,7 +144,7 @@
             local jsonResp = Http:jsonDecode("fav")
             local favBtnImageSprite = Sprite:findChild(rootSprite, "favBtnImage")
             if jsonResp.code ~= nil and jsonResp.code == '0' then
-                Sprite:setProperty(favBtnImageSprite, "src", 'file://image/bookmark1_new.png')
+                Sprite:setProperty(favBtnImageSprite, "src", 'file://image/skin/bookmark1_new.png')
                 else
                 Dialog:show("", "添加收藏失败,错误码："+jsonResp.code, 'ok')
                 return
@@ -153,7 +153,7 @@
             local jsonResp = Http:jsonDecode("fav")
             local favBtnImageSprite = Sprite:findChild(rootSprite, "favBtnImage")
             if jsonResp.code ~= nil and jsonResp.code == '0' then
-                Sprite:setProperty(favBtnImageSprite, "src", 'file://image/bookmark_2.png')
+                Sprite:setProperty(favBtnImageSprite, "src", 'file://image/skin/bookmark_2.png')
                 else
                 Dialog:show("", "取消收藏失败,错误码："+jsonResp.code, 'ok')
                 return
@@ -202,7 +202,7 @@
     -- 收藏按钮消息处理函数
     function OnFavBtnClicked(sprite)
         local favBtnImageSprite = Sprite:findChild(rootSprite, "favBtnImage")
-        if (Sprite:getProperty(favBtnImageSprite, "src") == 'file://image/bookmark_2.png') then
+        if (Sprite:getProperty(favBtnImageSprite, "src") == 'file://image/skin/bookmark_2.png') then
             local param = string.format('cmd=wlbaddcollectnews&id=%s', noticeId)
             Log:write('添加收藏')
             local reqURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', param)
