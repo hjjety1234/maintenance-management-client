@@ -92,16 +92,16 @@
                 <image rect="113,5,220,40" src="file://image/select_bg.png"  style="sudoku-auto" sudoku="15,15,15,15"
                     extendstyle="1111">
                 </image>
-                <button name="endTime" rect="113,5,220,40" border="false"
-                    text="" color="#0" OnSelect="timeOnSelect">
-                    <label name="content" rect="5,0,220,40" border="false" text=""
+                <button name="CompanyBtn" rect="113,5,220,40" border="false"
+                    text="" color="#0" OnSelect="CompanyOnSelect">
+                    <label name="CompanyName" rect="5,0,220,40" border="false" text=""
                         v-align="center" color="#303030" font-size="26" font-family='微软雅黑' />
                 </button>
                 </node>
                 
                  <!-- 代维公司动态下拉框  -->
-            <node name="xunjianSelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
-                <button name="button" rect="0,0,480,800" OnSelect="hideXunjianSelected">
+            <node name="CompanySelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
+                <button name="button" rect="0,0,480,800" OnSelect="hideCompanySelected">
 
                 </button>
                 <node rect="66,200,368,68" extendstyle="1111"  border="false">
@@ -111,14 +111,14 @@
                      text="选择代维公司" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
                 </node>
                 <image rect="66,264,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" />
-                <listview name="xunjianList" rect="66,268,368,216" auto-scroll="true" style="autosize"
+                <listview name="CompanyList" rect="66,268,368,216" auto-scroll="true" style="autosize"
                     auto-adjust="true" extendstyle="1111" />
                 <image rect="66,480,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
             </node>   
             <!-- 代维公司下拉框listItem -->
             <node name="listitem" rect="0,0,368,72" visible="false" enable="false" active="false">                   
                 <button name="btnName" rect="12,0,342,61" text="" color="#303030" h-align="left" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
-                    extendstyle="0010" OnSelect="xunjianGroupOnSelect"
+                    extendstyle="0010" OnSelect="CompanyGroupOnSelect"
                     normal=""
                     sel=""
                     data="01"  >           
@@ -135,6 +135,7 @@ require 'com_wondertek_dw.common.framework'
 require 'os'
 local rootSprite
 local values
+local curCompanyBtn
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -175,41 +176,31 @@ function doBack(sprite)
    Scene:go( Alias.m_search)
 end
 
-function submitOnSelect(sprite)
-    local monthFilterNode = Sprite:findChild(rootSprite, "monthFilterNode")
-    local timeContent=Sprite:findChild(monthFilterNode,"timeContent")
+function hideCompanySelected(sprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 0)
+end
 
-    local monthEndNode = Sprite:findChild(rootSprite, "monthEndNode")
-    local timeContentEnd=Sprite:findChild(monthEndNode,"timeContent")
+function CompanyOnSelect(sprite)
+    local xunjianData = Sprite:getData(sprite)
+    curCompanyBtn = sprite
+    loadCompanyRequest()
+    setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 1)
+end
 
-    local UserNode = Sprite:findChild(rootSprite,"UserNode")
-    local userInfo = Sprite:findChild(UserNode,"timeContent")
+function CompanyGroupOnSelect(sprite)
+    local xunjianData = Sprite:getData(sprite)
+    local xunjianText = Sprite:findChild(curXunjianBtn, 'xunjianName')
+    Sprite:setProperty(curXunjianBtn, 'data', xunjianData)
+    local index = ListView:getItemIndex(Sprite:getParent(sprite))
+    Sprite:setProperty(xunjianText, 'text', xjData.value[index].name)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 0)
+end
 
-    local reasonNode=Sprite:findChild(rootSprite,"reasonNode")
-    local Content = Sprite:findChild(reasonNode,"Content")
-
-    local time = Sprite:getText(timeContent)
-    local user = Sprite:getText(userInfo)
-    local reason=Sprite:getText(Content)
-    local timeEnd = Sprite:getText(timeContentEnd)
-
-    local smsstring=user..'申请在'..time..'至'..timeEnd..'调用车辆。原因：'..reason
-    Log:write('smsstring===================',smsstring)
-    --local phone = '18756948812'
-    local phone = '10658476002'
-    if user==nil or user==''or reason==nil or reason=='' then
-        Dialog:show(rootSprite, '用车人员和用车原因不允许为空！', 'ok')
-        return
-    elseif phone ~= nil and phone ~= '' then
-        if Util:sendSMS(phone, smsstring) then
-            Dialog:show(rootSprite, '申请成功！', 'ok', 'doBack')
-        else
-            Dialog:show(rootSprite, '请求发送失败，请稍后再试！', 'ok')
-        end
-        --Util:sendSMS(phone, smscontent)
-    else
-        Dialog:show(rootSprite, '调度接口异常！', 'ok')
-    end
+function loadCompanyRequest()
+    local param = 'cmd=wlbCmpList&page='..'1'..'&patrolgroupname='
+    local reqURL = getWholeUrl('nbspweb/webservice/user!doWebservice.action', param)
+    Http:request('group_data', reqURL, 105, {useCache = false})
+     Loading:show()
 end
 
     ]]>
