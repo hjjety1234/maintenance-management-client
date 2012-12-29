@@ -40,10 +40,10 @@ public class UmsAgentInterface {
 		}
 	}
 
-	public static void javaOnResume(String scene) {
+	public static void javaOnResume(String scene, String tag) {
 		if (canPause == false) {
 			Log.d(TAG, "javaOnPause: " + scene);
-			UmsAgent.onResume(VenusActivity.appActivity, scene);
+			UmsAgent.onResume(VenusActivity.appActivity, scene, tag);
 			canPause = true;
 		}
 	}

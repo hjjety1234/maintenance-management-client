@@ -64,6 +64,7 @@ public class UmsAgent {
 	public static String time = null; // 错误发生时间
 	public static String os_version = null;// android 版本
 	public static String deviceID = null;// 设备型号
+	public static String page_tag = null;
 	
 	public static String curVersion = null;// 程序版本
 	public static String packagename = null;// 应用程序的包名
@@ -345,6 +346,10 @@ public class UmsAgent {
 			info.put("version", CommonUtil.getVersion(context));
 			info.put("activities", activities);
 			info.put("appkey", appkey);
+			if (page_tag != null) {
+				info.put("tag", page_tag);
+				page_tag = null;
+			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -379,10 +384,10 @@ Log.d("xdz", info+"");
 	 * @param context
 	 */
 	public static void onResume(Context context) {
-		onResume(context, null);
+		onResume(context, null, null);
 	}
 	
-	public static void onResume(Context context, String scene) {
+	public static void onResume(Context context, String scene, String tag) {
 //		boolean isfirstonResume = true;
 		if(!CommonUtil.isNetworkAvailable(context)){
 			setDefaultReportPolicy(context, 0);
@@ -424,7 +429,7 @@ Log.d("xdz", info+"");
 		start_millis = CommonUtil.getTime();// 开始的时间点
 		start = Long.valueOf(System.currentTimeMillis());// 开始时间点毫秒表示
 		
-
+		page_tag = tag;
 	}
 
 	

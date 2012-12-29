@@ -280,6 +280,8 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 	public void poiSearch(String key, int latitude, int longitude, int radius) {
 		Log.d(TAG, "poiSearch  key: " + key + " latitude: " + latitude + " longitude: " + longitude + " radius: " + radius);
 		if (!key.trim().equals("")) {
+            removeAllPopViews();
+            removeAllPopViews();
 			GDPoiSearch poiSearch = GDPoiSearch.getInstance(mContext, mMapView);
 			GeoPoint point = new GeoPoint(latitude, longitude);
 			poiSearch.search(key, "", point, radius);
@@ -290,6 +292,8 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 	public void poiSearch(String key, String city) {
 		Log.d(TAG, "poiSearch cityName: " + city + " key: " + key);
         if (!key.trim().equals("")) {
+        	removeAllPopViews();
+            removeAllPopViews();
         	GDPoiSearch poiSearch = GDPoiSearch.getInstance(mContext, mMapView);
         	poiSearch.search(key, PoiTypeDef.All, city);
         }
