@@ -116,8 +116,23 @@ function bodyBuildChildrenFinished(sprite)
     Sprite:setProperty(nodeDay, 'data', DAY_NODE)
     Sprite:setProperty(nodeHour, 'data', HOUR_NODE)
     Sprite:setProperty(nodeMinute, 'data', MINUTE_NODE)
-    Sprite:setProperty(Sprite:findChild(nodeYear, 'content'), 'text', os.date("*t")["year"])
-    Sprite:setProperty(Sprite:findChild(nodeMonth, 'content'), 'text', os.date("*t")["month"])
+    
+    local regHandle = Reg:create(Alias.m_kaohetongji)
+    local monthText = Reg:getString(regHandle, 'month')
+    local yearMonth = Split(monthText, '-')
+    
+    if yearMonth ~= nil and yearMonth[1] ~= nil then 
+        Sprite:setProperty(Sprite:findChild(nodeYear, 'content'), 'text', yearMonth[1])
+    else
+        Sprite:setProperty(Sprite:findChild(nodeYear, 'content'), 'text', os.date("*t")["year"])
+    end
+    
+    if yearMonth ~= nil and yearMonth[2] ~= nil then 
+        Sprite:setProperty(Sprite:findChild(nodeMonth, 'content'), 'text', yearMonth[2])
+    else
+        Sprite:setProperty(Sprite:findChild(nodeMonth, 'content'), 'text', os.date("*t")["month"])
+    end
+   
     Sprite:setProperty(Sprite:findChild(nodeDay, 'content'), 'text', os.date("*t")["day"])
     Sprite:setProperty(Sprite:findChild(nodeHour, 'content'), 'text', os.date("*t")["hour"])
     Sprite:setProperty(Sprite:findChild(nodeMinute, 'content'), 'text', os.date("*t")["min"])
@@ -191,16 +206,18 @@ function yearChange(sprite, type)
             Sprite:setProperty(sprite, 'text', year + 1)
         end
     else
-        if year > 2012 then
+        if year > 2000 then
             Sprite:setProperty(sprite, 'text', year - 1)
         end
     end
+    --[[
     local nodeMonth = Sprite:findChild(rootSprite, 'nodeMonth')
     local monthContent = Sprite:findChild(nodeMonth, 'content')
     local month = Sprite:getText(monthContent)
     if month == 2 then
         changeDay()
     end
+    --]]
 end
 
 function monthChange(sprite, type)

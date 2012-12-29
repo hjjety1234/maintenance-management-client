@@ -99,6 +99,28 @@
                 <label rect="0,25,480,35" extendstyle="1010" text="暂无巡检任务"
                     h-align="center" v-align="center" color="#686868" font-size="24" />
             </node>
+
+            <!--线路巡检-->
+            <node name="ContextMenuNode" rect="0,720,480,80" border="false"
+                visible="false" enable="false" active="false" extendstyle="1111">
+                <image name="ContextMenuNodeBgImage" style="autosize" rect="0,0,480,80"
+                    src="file://image/tab_n.png" extendstyle="1111" />
+                <node name="FavListImg" rect="0,0,480,80" extendstyle="1111"
+                    visible="true">
+                    <button name="favListButton" rect="0,0,480,80"
+                        OnSelect="ContextMenuListItemOnSelect" extendstyle="1111">
+                        <image rect="182,18,40,40" src="file://image/bookmark1.png"
+                            style="autosize" border="false" extendstyle="1111" />
+                        <label name="noticeDate" rect="325,75,90,20" border="false"
+                            text="" h-align="right" v-align="center" color="#303030"
+                            font-size="15" extendstyle="1111" />
+                        <label name="label2" rect="228,18,120,40" border="false"
+                            text="线路巡检" h-align="left" v-align="center" color="#303030"
+                            font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                    </button>
+                </node>
+            </node>
+
         </node>
     </body>
     <![CDATA[
@@ -124,6 +146,12 @@ function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     nullNode = Sprite:findChild(rootSprite, 'nullNode')
     list = Sprite:findChild(rootSprite, 'sampleList')
+    local username = Config:get('username')
+    if username == 'zyhefei' then
+        local ContextMenuNode = Sprite:findChild(rootSprite,'ContextMenuNode')
+        --Sprite:setProperty(ContextMenuNode,'visible','true')
+        --setAllShoworHide(ContextMenuNode,1)
+    end
     getCurrentLoc()
 end
 
@@ -329,6 +357,10 @@ end
 
 function xianlu_onselected(sprite)
 	Scene:go(Alias.m_xianluxunjian)
+end
+function ContextMenuListItemOnSelect(sprite)
+    Log:write('xl onclicked....')
+    Scene:go(Alias.m_xianluxunjian)
 end
 ---------------------------------------GPS相关函数---------------------------
 -- 取得当前的经纬度，设置全局变量

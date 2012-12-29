@@ -93,12 +93,14 @@ Alias = {
     m_kaohebaobiao = 'MODULE:\\com_wondertek_dw\\m_kaohebaobiao.wdml', -- 考核报表
     m_staff_statistical = 'MODULE:\\com_wondertek_dw\\m_staff_statistical.wdml', -- 人员资质统计
     m_search = 'MODULE:\\com_wondertek_dw\\m_search.wdml',--资源查询
+    m_resourcereport = 'MODULE:\\com_wondertek_dw\\m_resourcereport.wdml',
     
     m_xianluxunjian = 'MODULE:\\com_wondertek_dw\\m_xianluxunjian.wdml',--线路巡检
     
     m_setting = 'MODULE:\\com_wondertek_dw\\m_setting.wdml', -- 系统设置页面(江峰)
     m_zhandiandaohang = 'MODULE:\\com_wondertek_dw\\m_zhandiandaohang.wdml', -- 站点导航
     m_renyuantongji = 'MODULE:\\com_wondertek_dw\\m_renyuantongji.wdml', -- 人员统计
+    m_xunjiantongji = 'MODULE:\\com_wondertek_dw\\m_xunjiantongji.wdml', -- 巡检统计
     monthDialog = 'MODULE:\\com_wondertek_dw\\monthDialog.wdml', -- 人员统计
 }
 

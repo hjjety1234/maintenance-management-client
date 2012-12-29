@@ -43,100 +43,190 @@
             </node>
             
             <!-- 工具栏  -->
-            <node rect="0,66,480,52" extendstyle="1111" visible="false" enable="false">
-                <image name="search_bg_new" rect="0,0,480,52" src="file://image/search_bg.png"
+            <node rect="0,66,480,52" extendstyle="1111" visible="true" enable="true">
+                <image name="search_bg_new" rect="0,0,480,52" src="file://image/search_bg_new.png"
                     style="autosize" extendstyle="1111" />
-                <label rect="150,0,140,52" text="选择月份：" color="#0" v-align="center"  
-                    h-align="right" font-family="微软雅黑" font-size="22" 
-                    extendstyle="1111" />
                 <!-- 选择月份 -->
-                <button name="selectMonthBtn" rect="290,5,170,40" OnSelect="selectMonth"
-                    text="2012-11" color="#0" font-size="20" border="false" extendstyle="1111"
-                    normal="src:file://image/new_select_w.png;style:autosize;color:#ffffff"
-                    sel="src:file://image/new_select_w.png;style:autosize;color:#000000"/>
+				<button name="selectMonthBtn" rect="290,5,170,40" OnSelect="selectMonth"
+					color="#0" font-size="20" border="false" extendstyle="1111"
+					normal="src:file://image/new_select_w.png;style:autosize;color:#ffffff"
+					sel="src:file://image/new_select_w.png;style:autosize;color:#000000">
+					<label name="monthNode" rect="0,0,170,40" text="2012-11" color="#0" v-align="center"
+						h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+				</button>
+            </node>
+            
+            <!-- 地市和代维公司两个维度进行选择   -->
+            <node name="tabNode" rect="0,120,480,40" extendstyle="1111" 
+                visible="true" enable="true" data="01">
+                <button name="btnTab1" rect="0,0,240,50" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
+                    <image name="tabBg" rect="140,5,100,30" border="false" src="file://image/tab.png"
+                        style="autosize" extendstyle="1111" />
+                    <label rect="140,5,100,30" text="地市" color="#ffffff" v-align="center"
+                        h-align="center" font-size="18" font-family="黑体" extendstyle="1111" />
+                </button>
+                <button name="btnTab2" rect="241,0,240,40" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
+                    <image name="tabBg" rect="0,5,100,30" border="false" src="file://image/tab.png"
+                        style="autosize" extendstyle="1111" />
+                    <label rect="0,5,100,30" text="代维公司" color="#ffffff" v-align="center"
+                        h-align="center" font-size="18" font-family="黑体" extendstyle="1111" />
+                </button>
             </node>
         </node>
     </body>
     <![CDATA[
 
-require 'com_wondertek_dw.common.framework'
-require 'framework.webbrowser'
-local rootSprite
-
-local umsagentPlugin = nil
-local umsagentHasAppkey = 0
-
----------------------------------------callbacks--------------------------------
--- @brief root子节点创建完事件
-function bodyBuildChildrenFinished(sprite)
-    rootSprite = sprite
-    local reg = Reg:create(Alias.index)
-    umsagentPlugin = Reg:getInteger(reg, 'UmsAgent')
-    umsagentHasAppkey = Reg:getInteger(reg, 'umsagentHasAppkey')
-end
-
--- @brief root节点消息方法
-function bodyOnSpriteEvent(msg, param)
-    if msg == MSG_ACTIVATE then -- 页面激活
-	    if umsagentHasAppkey == 1 then
-	        pluginInvoke(umsagentPlugin, "OnActivate", string.match(Alias.chart, 'MODULE:\\(.*)'))
-	    end
-	    --[[
-	    local regHandle = Reg:create('year_month')
-	    local year = Reg:getString(regHandle, 'year')
-	    local month = Reg:getString(regHandle, 'month')
-	    if year == '' or month == '' then 
-	       return 
-	    end
-	    --]]
-	    local dataUrl = '/webcloud/resources/js/Charts/daiwei/jizhan-10-11.json'
-	    showChartInWebView(dataUrl, 'Bar', 0, 66, 480, 724)
-    elseif msg == MSG_DEACTIVATE then
-        if umsagentHasAppkey == 1 then
-            pluginInvoke(umsagentPlugin, "OnDeactivate")
+    require 'com_wondertek_dw.common.framework'
+    require 'framework.webbrowser'
+    local rootSprite
+    
+    local g_x1, g_y1, g_w1, g_h1
+    local g_x2, g_y2, g_w2, g_h2
+    
+    local umsagentPlugin = nil
+    local umsagentHasAppkey = 0
+    ---------------------------------------回调函数列表--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        local reg = Reg:create(Alias.index)
+        umsagentPlugin = Reg:getInteger(reg, 'UmsAgent')
+        umsagentHasAppkey = Reg:getInteger(reg, 'umsagentHasAppkey')
+        
+        -- 获取tab1的大小
+        local btnTab1 = Sprite:findChild(rootSprite, 'btnTab1')
+        local tabBg = Sprite:findChild(btnTab1, 'tabBg')
+        g_x1, g_y1, g_w1, g_h1 = Sprite:getRect(tabBg)
+        
+        -- 设置选中标记，放大该tab
+        Sprite:setProperty(tabBg, 'src', 'file://image/tab_on.png')
+        Sprite:setRect(tabBg, g_x1, g_y1, g_w1, g_h1 + 6)
+        
+        -- 获取tab2的大小
+        local btnTab2 = Sprite:findChild(rootSprite, 'btnTab2')
+        tabBg = Sprite:findChild(btnTab2, 'tabBg')
+        g_x2, g_y2, g_w2, g_h2 = Sprite:getRect(tabBg)
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            if umsagentHasAppkey == 1 then
+                pluginInvoke(umsagentPlugin, "OnActivate", string.match(Alias.chart, 'MODULE:\\(.*)'))
+            end
+            -- 检查是否有月份数据
+            local regHandle = Reg:create('year_month')
+            local year = Reg:getString(regHandle, 'year')
+            local month = Reg:getString(regHandle, 'month')
+            local monthNode = Sprite:findChild(rootSprite, 'monthNode')
+            if year ~= nil and year ~= '' and month ~= nil and month ~= '' then
+                Sprite:setProperty(monthNode, 'text', year..'-'..month)
+            end
+            refresh()
+        elseif msg == MSG_DEACTIVATE then
+            if umsagentHasAppkey == 1 then
+                pluginInvoke(umsagentPlugin, "OnDeactivate")
+            end
         end
     end
-end
-
--- @brief 插件消息方法
-function bodyOnPluginEvent(msg, param)
-    if msg == 101 then
-    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
-    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
-    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
-        Log:write('拨号失败')
-    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
-        Log:write('请求超时')
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg, param)
+        if msg == 101 then
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+        elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
     end
-end
-
--- @brief 按键响应处理
-function mainNodeOnKeyUp(sprite, kc)
-    if kc == Key.F2 then -- 按下返回键
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            closeWebView()
+            Scene:back()
+            return 1
+        end
+    end
+    -- 返回上一个页面
+    function doBack()
         closeWebView()
         Scene:back()
-        return 1
     end
-end
+    ---------------------------------------消息处理函数---------------------------
+    -- 显示详情，跳转到下一个页面
+    function showAssesDetail()
+        closeWebView()
 
--- 返回上一个页面
-function doBack()
-    closeWebView()
-    Scene:back()
-end
+        local monthNode = Sprite:findChild(rootSprite, 'monthNode')
+        local month = Sprite:getText(monthNode)
 
----------------------------------------util functions---------------------------
--- 显示详情
-function showAssesDetail()
-    closeWebView()
-    Scene:setReturn(Alias.m_kaohetongji, Alias.m_kaohebaobiao)
-    Scene:go(Alias.m_kaohebaobiao)
-end
+        local regHandle = Reg:create(Alias.m_kaohetongji)
+        Reg:clear(regHandle)
+        Reg:setString(regHandle, 'month', month)
 
--- 月份选择对话框
-function selectMonth(sprite)
-    Scene:setReturn(Alias.m_kaohetongji, Alias.monthDialog)
-    Scene:go(Alias.monthDialog)
-end
-    ]]>
+        Scene:setReturn(Alias.m_kaohetongji, Alias.m_kaohebaobiao)
+        Scene:go(Alias.m_kaohebaobiao)
+    end
+    
+    -- 显示月份选择对话框
+    function selectMonth(sprite)
+        closeWebView()
+        
+        local monthNode = Sprite:findChild(rootSprite, 'monthNode')
+        local month = Sprite:getText(monthNode)
+
+        local regHandle = Reg:create(Alias.m_kaohetongji)
+        Reg:clear(regHandle)
+        Reg:setString(regHandle, 'month', month)
+        
+        Scene:setReturn(Alias.m_kaohetongji, Alias.monthDialog)
+        Scene:go(Alias.monthDialog)
+    end
+    
+    -- 标签页选择消息处理
+    function tabOnSelect(sprite)
+        -- 获取当前被选中的标签页
+        local tabNode = Sprite:getParent(sprite)
+        local dataInfo = Sprite:getData(sprite)
+        Sprite:setProperty(tabNode, 'data', dataInfo)
+        
+        -- 标记当前被选中的标签页，去标记原来的标签页
+        local btnTab1 = Sprite:findChild(rootSprite, 'btnTab1')
+        local btnTab2 = Sprite:findChild(rootSprite, 'btnTab2')
+        if dataInfo == '01' then
+            Sprite:setProperty(Sprite:findChild(btnTab1, 'tabBg'), 'src', 'file://image/tab_on.png')
+            Sprite:setProperty(Sprite:findChild(btnTab2, 'tabBg'), 'src', 'file://image/tab.png')
+            Sprite:setRect(Sprite:findChild(btnTab1, 'tabBg'), g_x1, g_y1, g_w1, g_h1 + 6)
+            Sprite:setRect(Sprite:findChild(btnTab2, 'tabBg'), g_x2, g_y2, g_w2, g_h2)
+        else
+            Sprite:setProperty(Sprite:findChild(btnTab1, 'tabBg'), 'src', 'file://image/tab.png')
+            Sprite:setProperty(Sprite:findChild(btnTab2, 'tabBg'), 'src', 'file://image/tab_on.png')
+            Sprite:setRect(Sprite:findChild(btnTab1, 'tabBg'), g_x1, g_y1, g_w1, g_h1)
+            Sprite:setRect(Sprite:findChild(btnTab2, 'tabBg'), g_x2, g_y2, g_w2, g_h2  + 6)
+        end
+        refresh()
+    end
+
+    -- 刷新整个页面
+    function  refresh()
+        -- 获取当前的标签页
+        local tabNodeData = Sprite:getData(Sprite:findChild(rootSprite, 'tabNode'))
+        if tabNodeData == '01' then 
+            tabNodeData = 'dishi'
+        else
+            tabNodeData = 'dwgs'
+        end
+        -- 获取当前的月份
+        local monthNode = Sprite:findChild(rootSprite, 'monthNode')
+        if Sprite:getText(monthNode) ~= '' then 
+            local dataUrl = string.format('/webcloud/resources/js/Charts/daiwei/%s-%s.json', 
+                tabNodeData, Sprite:getText(monthNode))
+            Log:write('dataUrl', dataUrl)
+            -- 显示webview内容
+            showChartInWebView(dataUrl, 'Bar', 0, 160, 480, 640)
+        end
+    end
+]]>
 </root>
