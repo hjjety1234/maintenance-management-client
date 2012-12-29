@@ -127,10 +127,10 @@
                 </button>
             </node>
 
-        <node name="listNode" rect="0,325,480,650" extendstyle="1111">
+        <node name="listNode" rect="0,325,480,1045" extendstyle="1111">
                 <listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
             </node>
-            <node name="listitem" visible="false" enable="false" active="false"
+            <node name="listitemstation" visible="false" enable="false" active="false"
                 extendstyle="1011" rect="0,200,480,106">
                 <image name="listButtonImage" rect="3,0,468,86" src="file://image/tongxunlu_bg.png"
                     extendstyle="1111" style='autosize' />
@@ -155,7 +155,6 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
-require 'os'
 local rootSprite
 local values
 local curCompanyBtn
@@ -177,7 +176,7 @@ end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
-    if Loading:isShow() then Loading:close() end
+   Loading:close()
     if msg == 101 then
     cmpData = Http:jsonDecode('group_data')
         Log:write("data101 = ", cmpData)
@@ -200,7 +199,7 @@ function bodyOnPluginEvent(msg)
         end
    
     elseif msg == 102 then
-    data = Http:jsonDecode('tieta_data')
+    data = Http:jsonDecode('jizhan_data')
     Log:write("data101 = ", data)
     if not data or type(data) ~= 'table' then
         Dialog:show(rootSprite, '返回数据格式错误', 'ok')
@@ -262,14 +261,14 @@ function loadRequest()
         local param = string.format('&pagesize=10&page=1&stationtype=%s&stationname=%s&stationcode=%s&companycode=%s&areacode=340100',typecontent,stationname,codetext,companycode)
         Log:write("&param = ", param)
         local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
-        Http:request('tieta_data', reqURL, 102, {useCache = false, method = 'post', postData='cmd=wlbstationsearch'..param})
-        Loading:show()  
+        Http:request('jizhan_data', reqURL, 102, {useCache = false, method = 'post', postData='cmd=wlbstationsearch'..param})
+        Loading:show(rootSprite)  
 end
 
 function loadList(count)
         local list = Sprite:findChild(rootSprite, 'sampleList')
         ListView:removeAllItems(list,1)
-        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitemstation'), count, 'loadListItem')
         ListView:adjust(list)
 end
 function loadListItem(list, item, index)
@@ -285,7 +284,7 @@ function loadListItem(list, item, index)
     if data.value[index].addr == nil or data.value[index].addr == '' then
         Sprite:setProperty(textTitle, 'text', '暂无地址!')
     else
-        Sprite:setProperty(textTitle, 'text', data.value[index].address)
+        Sprite:setProperty(textTitle, 'text', data.value[index].addr)
     end
 end
 
@@ -294,7 +293,7 @@ function doBack(sprite)
    Scene:back()
 end
 
-function submitOnSelect(sprite)
+--[[function submitOnSelect(sprite)
     local TypeNode= Sprite:findChild(rootSprite, 'TypeNode')
     local NameNode = Sprite:findChild(rootSprite, 'NameNode')
     local CodeNode = Sprite:findChild(rootSprite, 'CodeNode')
@@ -313,6 +312,7 @@ function submitOnSelect(sprite)
     Reg:setString(regHandle, "companycode",companycode)
     Scene:go(Alias.m_station)
 end
+--]]
 
 function hideCompanySelected(sprite)
     setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 0)
