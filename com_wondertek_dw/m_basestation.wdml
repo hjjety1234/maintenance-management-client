@@ -36,30 +36,16 @@
                 <scrolltext name="title" rect="100,0,280,66" text="基站查询"
                     extendstyle="1111" font-family="微软雅黑" font-size="30" h-align="center" v-align="center"
                     color="#ffffff" scroll="true" step="2" />
-                    
+              </node>  
+                  
                 <button name="btnForget" rect="423,13,40,40" color="#ffffff"
                     extendstyle="1111" OnSelect="OnSearchButtonClicked"
                    normal="src:file://image/ico_search_new.png;color:#ffffff"
                     sel="src:file://image/ico_search_new.png;color:#000000"
                      font-size="24" />                   
-            </node>
-
-            <node name="TypeNode" rect="10,80,460,50" enable="true" extendstyle="1111">
-                
-                <label name="label2" rect="5,0,100,50" border="false" text="站点类型："
-                    v-align="center" color="#303030"  font-size="26" font-family='微软雅黑'/>
-
-                 <image rect="113,5,220,40" src="file://image/input_text.png"  style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
-                <button name="userContent" rect="113,5,220,40" border="false"
-                    text="" color="#0" >
-                <edit name="content" rect="5,0,220,40" border="false" text="" autoup ="true"
-                    v-align="center" color="#303030" font-size="26" font-family='微软雅黑' />
-                    </button>
-            </node>
-
-        <shadow rect="0,137,480,56" color="#ffffff" alpha="100" extendstyle="1111" /> 
-  
-            <node name="NameNode" rect="10,140,460,50" enable="true"
+            
+        <listview rect="0,66,480,730" col="1" extendstyle="1111" limit="true" border="false">
+            <node name="NameNode" rect="10,0,460,50" enable="true"
                 extendstyle="1111">              
                 <label name="label2" rect="5,0,100,50" border="false" text="站点名称："
                     v-align="center" color="#303030"  font-size="26" font-family='微软雅黑' />
@@ -72,7 +58,9 @@
                     </button>
             </node>
 
-            <node name="CodeNode" rect="10,200,460,50" enable="true" extendstyle="1111">
+        <shadow rect="0,50,480,50" color="#ffffff" alpha="100" extendstyle="1111" /> 
+  
+            <node name="CodeNode" rect="10,50,460,50" enable="true" extendstyle="1111">
                 <label name="label2" rect="5,0,100,50" border="false" text="站点编号："
                     v-align="center" color="#303030" font-size="26" font-family='微软雅黑' />
                 <image rect="113,5,220,40" src="file://image/input_text.png"  style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
@@ -83,8 +71,7 @@
                     </button>
             </node>
             
-             <shadow rect="0,257,480,56" color="#ffffff" alpha="100" extendstyle="1111" />
-             <node name="CompanyNode" rect="10,260,460,50" enable="true"
+             <node name="CompanyNode" rect="10,100,460,50" enable="true"
                 extendstyle="1111">
                  <label name="label2" rect="5,0,100,50" border="false" text="代维公司："
                     v-align="center" color="#303030"  font-size="26" font-family='微软雅黑' />
@@ -94,10 +81,15 @@
                 </image>
                 <button name="CompanyBtn" rect="113,5,220,40" border="false"
                     text="" color="#0" OnSelect="CompanyOnSelect">
-                    <label name="CompanyName" rect="5,0,220,40" border="false" text="请选择代维公司"
+                    <scrolltext name="CompanyName" rect="5,0,180,40" border="false" text="请选择代维公司" scroll="true" h-align="left"
                         v-align="center" color="#303030" font-size="26" font-family='微软雅黑' />
                 </button>
                 </node>
+                
+                 <node name="listNode" rect="0,150,480,584" extendstyle="1111">
+                <listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
+            </node>
+           </listview>
                              
                  <!-- 代维公司动态下拉框  -->
             <node name="CompanySelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
@@ -122,14 +114,11 @@
                     normal=""
                     sel=""
                     data="01"  >           
-                     <image rect="285,15,32,32" src="file://image/list_arrow.png"  style="autosize" extendstyle="1111" />           
+                     <image rect="285,15,32,32" src="file://image/list_arrow.png" extendstyle="1111" />           
                     <image rect="12,70,320,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
                 </button>
             </node>
-
-        <node name="listNode" rect="0,325,480,1045" extendstyle="1111">
-                <listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
-            </node>
+       
             <node name="listitemstation" visible="false" enable="false" active="false"
                 extendstyle="1011" rect="0,200,480,106">
                 <image name="listButtonImage" rect="3,0,468,86" src="file://image/tongxunlu_bg.png"
@@ -204,7 +193,12 @@ function bodyOnPluginEvent(msg)
     if not data or type(data) ~= 'table' then
         Dialog:show(rootSprite, '返回数据格式错误', 'ok')
         return
-    end
+    end   
+     if data.total=='0' then
+        Dialog:show(rootSpsrite, '数据不存在！', 'ok')
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(list,1)
+        end
     if data ~= nil then
         if data.code == '0' then
             if #data.value > 0 then
@@ -216,7 +210,7 @@ function bodyOnPluginEvent(msg)
             local list = Sprite:findChild(rootSprite, 'sampleList')
             ListView:removeAllItems(list,1)
             Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
-        end
+        end      
     else
         Dialog:show(rootSpsrite, '未知错误！', 'ok')
     end
@@ -247,18 +241,16 @@ function OnSearchButtonClicked(sprite)
 end
 ---------------------------------------util functions---------------------------
 function loadRequest()
-    local TypeNode= Sprite:findChild(rootSprite, 'TypeNode')
     local NameNode = Sprite:findChild(rootSprite, 'NameNode')
     local CodeNode = Sprite:findChild(rootSprite, 'CodeNode')
     local CompanyNode = Sprite:findChild(rootSprite, 'CompanyNode')
     
-    local typecontent=Sprite:getText(Sprite:findChild(TypeNode, 'content'))
     local stationname=Sprite:getText(Sprite:findChild(NameNode, 'content'))
     local codetext = Sprite:getText(Sprite:findChild(CodeNode, 'content'))
     local companycode=Sprite:getData(Sprite:findChild(CompanyNode, 'CompanyBtn'))
     companycode=string.gsub(companycode,' ','')
     
-        local param = string.format('&pagesize=10&page=1&stationtype=%s&stationname=%s&stationcode=%s&companycode=%s&areacode=340100',typecontent,stationname,codetext,companycode)
+        local param = string.format('&pagesize=10&page=1&stationtype=&stationname=%s&stationcode=%s&companycode=%s&areacode=340100',stationname,codetext,companycode)
         Log:write("&param = ", param)
         local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
         Http:request('jizhan_data', reqURL, 102, {useCache = false, method = 'post', postData='cmd=wlbstationsearch'..param})
@@ -293,26 +285,27 @@ function doBack(sprite)
    Scene:back()
 end
 
---[[function submitOnSelect(sprite)
-    local TypeNode= Sprite:findChild(rootSprite, 'TypeNode')
-    local NameNode = Sprite:findChild(rootSprite, 'NameNode')
-    local CodeNode = Sprite:findChild(rootSprite, 'CodeNode')
-    local CompanyNode = Sprite:findChild(rootSprite, 'CompanyNode')
-    
-    local typecontent=Sprite:getText(Sprite:findChild(TypeNode, 'content'))
-    local stationname=Sprite:getText(Sprite:findChild(NameNode, 'content'))
-    local codetext = Sprite:getText(Sprite:findChild(CodeNode, 'content'))
-    local companycode=Sprite:getData(Sprite:findChild(CompanyNode, 'CompanyBtn'))
-    companycode=string.gsub(companycode,' ','')
-    Log:write('submitstring=======', typecontent..'====='..stationname..'====='..codetext..'======='..companycode)
-    regHandle=Reg:create('baseData')
-    Reg:setString(regHandle, "typecontent",typecontent)
-    Reg:setString(regHandle, "stationname",stationname)
-    Reg:setString(regHandle, "codetext",codetext)
-    Reg:setString(regHandle, "companycode",companycode)
-    Scene:go(Alias.m_station)
+--@brief 点击列表站点
+function itemOnSelect(sprite)
+local  index
+local tabNode = Sprite:getParent(sprite)
+index = tonumber(Sprite:getData(tabNode))
+
+regHandle=Reg:create('station_data')
+Reg:setString(regHandle, "stationname",data.value[index].stationname)
+Reg:setString(regHandle, "owner",data.value[index].owner)
+Reg:setString(regHandle, "area",data.value[index].area)
+Reg:setString(regHandle, "lon",data.value[index].lon)
+Reg:setString(regHandle, "lat",data.value[index].lat)
+Reg:setString(regHandle, "createdate",data.value[index].createdate)
+Reg:setString(regHandle, "company",data.value[index].company)
+Reg:setString(regHandle, "addr",data.value[index].addr)
+Reg:setString(regHandle, "road",data.value[index].road)
+Reg:setString(regHandle, "levelname",data.value[index].levelname)
+
+Scene:setReturn(Alias.m_basestation, Alias.m_stationdetail)
+Scene:go(Alias.m_stationdetail)
 end
---]]
 
 function hideCompanySelected(sprite)
     setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 0)
