@@ -422,6 +422,7 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 			autoLocationOverlay = MyLocationOverlayProxy.getInstance(mContext, mMapView);
 			mMapView.getOverlays().add(autoLocationOverlay);
 			autoLocationOverlay.enableMyLocation();
+            autoLocationOverlay.enableCompass();
 		} 
 		if (currentPoint != null) {
 			mMapController.animateTo(currentPoint);
@@ -507,6 +508,7 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 	private void disableAutoLocation() {
 		if (autoLocationOverlay != null) {
 			autoLocationOverlay.disableMyLocation();
+            autoLocationOverlay.disableCompass();
 			autoLocationOverlay = null;
 		}
 	}
