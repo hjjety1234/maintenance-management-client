@@ -1,4 +1,4 @@
-﻿-- -----------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
 -- | WonderTek [ 网络无处不在，沟通及时到达 ]
 -- -----------------------------------------------------------------------------
 -- | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
@@ -107,5 +107,9 @@ Alias = {
     m_renyuantongji = 'MODULE:\\com_wondertek_dw\\m_renyuantongji.wdml', -- 人员统计
     m_xunjiantongji = 'MODULE:\\com_wondertek_dw\\m_xunjiantongji.wdml', -- 巡检统计
     monthDialog = 'MODULE:\\com_wondertek_dw\\monthDialog.wdml', -- 人员统计
+    m_basestation='MODULE:\\com_wondertek_dw\\m_basestation.wdml',
+    m_zonghefugai='MODULE:\\com_wondertek_dw\\m_zonghefugai.wdml',
+    m_tieta='MODULE:\\com_wondertek_dw\\m_tieta.wdml',
+    m_stationdetail='MODULE:\\com_wondertek_dw\\m_stationdetail.wdml',
 }
 
