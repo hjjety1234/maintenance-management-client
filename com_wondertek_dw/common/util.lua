@@ -145,7 +145,7 @@ function getErrorCode(code)
     if code == '0' then
         return '成功'
         elseif code == '-1' then
-        return '接口内部发生异常'
+        return '参数错误，请与管理员联系'
         elseif code == '10' then
         return '用户不存在'
         elseif code == '11' then
