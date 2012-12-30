@@ -151,8 +151,14 @@ function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         openMap(0, 70, 480, 658)
         getCurPosition()
+        local regHandle = Reg:create(Alias.m_basestation)
+        local pois = Reg:getString(regHandle, 'pois')
+        if pois ~= nil and pois ~= '' then
+            Log:write('pois---->', pois)
+            local observer = Plugin:getObserver()
+            Map:showPOIs(observer, 1008, pois, 1)
+        end
     elseif msg == MSG_DEACTIVATE then
-    
     end
 end
 

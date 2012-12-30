@@ -791,6 +791,12 @@ function doRealUploadPic(url, param)
     local _,_,fileName = string.find(imageArray[#imageArray], '([^/\\%.]+)%.?[^/\\]*$')
     local poststr = 'id=' .. orderId .. '&markid=&interfaceMainType=2&usercode=' .. Config:get('username') .. '&uploadFileName=' .. fileName .. '.jpg'
     Upload:append(url, param .. poststr, imageArray[#imageArray], fileName .. '.jpg', 'test', 'jpg')
+    for i=1,Upload:getCount() do
+        if (Upload:getStatus(i)).status == 0 then 
+            Upload:start(i)
+        end
+    end
+	Log:write('Upload:getStatus() ---->', Upload:getStatus())
     table.remove(imageArray, #imageArray)
     if imageArray[#imageArray] and imageArray[#imageArray] ~= '' then
         requestPicUrl(imageArray[#imageArray])
