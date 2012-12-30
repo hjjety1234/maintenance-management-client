@@ -583,14 +583,16 @@ function loadRequest(contentName,areaName,companyValue,typeValue,quyuid,startTim
             contentName=''
         end
         if typeValue == "WLAN" then
-	        local param = string.format('&page=1&name=%s&companycode=&areacode=%s', contentName,quyuid)
+	        -- local param = string.format('&page=1&name=%s&companycode=%s&areacode=%s', contentName,companyValue,quyuid)
+            local param = '&page=1&name='..contentName..'&companycode='..companyValue..'&areacode='..quyuid
 	        Log:write("&param = ", param)
 	        local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
+            Log:write("WLAN URL = "..reqURL..param)
 	        Http:request('zonghefugai_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbwlansearch'..param})
 	        Loading:show(rootSprite)
 	     else
 	        Log:write('***************************')
-            local param = string.format('&page=1&name=%s&companycode=&areacode=%s&startdate=%s&enddate=%s&cmd=wlbrepeatersearch', contentName,quyuid,startTimeValue,endTimeValue)
+            local param = string.format('&page=1&name=%s&companycode=%s&areacode=%s&startdate=%s&enddate=%s&cmd=wlbrepeatersearch', contentName,companyValue,quyuid,startTimeValue,endTimeValue)
             Log:write("&param = ", param)
             local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
             Log:write("reqURL = "..reqURL..param)
@@ -673,7 +675,7 @@ function CompanyGroupOnSelect(sprite)
 end
 --点击代维公司下拉框
 function loadCompanyRequest()
-    local param = 'cmd=wlbCmpList&page='..'1'..'&code=340100'
+    local param = 'cmd=wlbCmpList&page='..'1'
     local reqURL = getWholeUrl('nbspweb/webservice/chart!doWebservice.action', param)
     Http:request('group_data', reqURL, 102, {useCache = false})
     Loading:show()
@@ -691,7 +693,7 @@ function loadCompanyListItem(list, item, index)
     Sprite:setRect(item, 0, 0, 480, 76)
     Sprite:setProperty(item, 'extendstyle', '0010')
     local textNum = Sprite:findChild(item, 'btnName_company')
-    Sprite:setProperty(textNum, 'data', "  "..cmpData.value[index].id)
+    Sprite:setProperty(textNum, 'data', cmpData.value[index].id)
     Sprite:setProperty(textNum, 'text', "  "..cmpData.value[index].cmpname)
 end
 -- 点击区域下拉框
