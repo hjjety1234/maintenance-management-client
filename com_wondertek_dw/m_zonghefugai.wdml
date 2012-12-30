@@ -96,22 +96,31 @@
                             v-align="center" color="#303030"  font-size="24" font-family='微软雅黑' />
 	                </button>
 	           </node>
-               <!--
-               <node name="TimeNode" rect="10,150,460,50" enable="true" extendstyle="1111">
-                    <label name="label2" rect="5,0,110,50" border="false" text="开始时间："
-                        v-align="center" color="#303030"  font-size="24" font-family='微软雅黑' />
-                    <image rect="118,5,220,40" src="file://image/select_bg.png"  style="sudoku-auto" sudoku="15,15,15,15"
-                        extendstyle="1111">
-                    </image>
-                    <button name="CompanyBtn" rect="118,5,220,40" border="false" text="" color="#0" OnSelect="CompanyOnSelect">
-                        <scrolltext name="CompanyName" rect="5,0,185,40" text="" color="#303030" scroll="true" h-align="left" 
-                            v-align="center" font-family='微软雅黑' font-size="24" style="autosize" extendstyle="1111">
-                        </scrolltext>
-                        <label name="companyNameCode" rect="5,0,185,40" border="false" text="" visible='false'
+               <node name="TimeNode" rect="0,200,460,100"  visible="false" extendstyle="1111">
+                   <node name="startTimeNode" rect="10,0,460,50" enable="true" extendstyle="1111">
+                        <label name="label2" rect="5,0,110,50" border="false" text="开始时间："
                             v-align="center" color="#303030"  font-size="24" font-family='微软雅黑' />
-                    </button>
-               </node>
-               -->
+                        <image rect="118,5,220,40" src="file://image/select_bg.png"  style="sudoku-auto" sudoku="15,15,15,15"
+                            extendstyle="1111">
+                        </image>
+                        <button name="startTimeBtn" rect="118,5,220,40" border="false" text="" color="#0" OnSelect="timeOnSelect">
+                            <label name="timeContent" rect="5,0,185,40" border="false" text="" 
+                                v-align="center" color="#303030"  font-size="24" font-family='微软雅黑' />
+                        </button>
+                   </node>
+                   <shadow rect="0,50,480,50" color="#ffffff" alpha="100" extendstyle="1111" />
+                   <node name="endTimeNode" rect="10,50,460,50" enable="true" extendstyle="1111">
+                        <label name="label2" rect="5,0,110,50" border="false" text="结束时间："
+                            v-align="center" color="#303030"  font-size="24" font-family='微软雅黑' />
+                        <image rect="118,5,220,40" src="file://image/select_bg.png"  style="sudoku-auto" sudoku="15,15,15,15"
+                            extendstyle="1111">
+                        </image>
+                        <button name="endTimeBtn" rect="118,5,220,40" border="false" text="" color="#0" OnSelect="timeOnSelect">
+                            <label name="timeContent" rect="5,0,185,40" border="false" text="" 
+                                v-align="center" color="#303030"  font-size="24" font-family='微软雅黑' />
+                        </button>
+                   </node>
+              </node>
 	           <node name="listNode" rect="0,210,480,584" extendstyle="1111">
 	                <listview name="sampleList" rect="0,0,480,584" extendstyle="1111" />
 	           </node>
@@ -245,12 +254,30 @@ local nameValue
 local areaValue
 local companyValue
 local typeStatus 
+local searchMonthIndex = 1
+local TimeNodeWidth = 110
+local month = {'一月','二月', '三月', '四月', '五月', '六月', '七月',
+'八月', '九月', '十月', '十一月', '十二月'}
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     local typeText = Sprite:findChild(rootSprite, 'typeName')
     Sprite:setProperty(typeText, 'text', 'WLAN')
+    -- 设置当前月份
+    local now = os.date("*t")
+    local curMonth = now['month']
+    local startTimeNode = Sprite:findChild(rootSprite, "startTimeNode")
+    local timeContentStart=Sprite:findChild(startTimeNode,"timeContent")
+
+    local endTimeNode = Sprite:findChild(rootSprite, "endTimeNode")
+    local timeContentEnd=Sprite:findChild(endTimeNode,"timeContent")
+
+    local currentMonthString = string.format('%s-%s-%s', now['year'], now['month'], now["day"])
+
+    Sprite:setProperty(timeContentStart, "text",currentMonthString)
+
+    Sprite:setProperty(timeContentEnd, "text",currentMonthString)
 end
 
 -- @brief root节点消息方法
@@ -258,6 +285,21 @@ function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活 
 	    local list = Sprite:findChild(rootSprite, 'sampleList')
 	    ListView:removeAllItems(list,1)
+         local regHandle = Reg:create("dateTime")
+        retuenTime = Reg:getString(regHandle, "time")
+        local type = Reg:getString(regHandle, "type")
+
+        if retuenTime ~= '' and retuenTime ~= nil then
+            if type=='start' then
+                local startTimeNode = Sprite:findChild(rootSprite, "startTimeNode")
+                local timeContentStart=Sprite:findChild(startTimeNode,"timeContent")
+                Sprite:setProperty(timeContentStart, "text", retuenTime)
+            else
+                local endTimeNode = Sprite:findChild(rootSprite, "endTimeNode")
+                local timeContentEnd=Sprite:findChild(endTimeNode,"timeContent")
+                Sprite:setProperty(timeContentEnd, "text", retuenTime)
+            end
+        end
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -346,6 +388,50 @@ function mainNodeOnKeyUp(sprite, kc)
 end
 
 ---------------------------------------util functions---------------------------
+---显示或隐藏时间框
+function OnShowtypeBtnClicked(type)
+    local TimeNode = Sprite:findChild(rootSprite, 'TimeNode')
+    local listNode = Sprite:findChild(rootSprite, 'listNode')
+    local nodeVisible=Sprite:isVisible(TimeNode)
+    local x, y, width, height = Sprite:getRect(listNode)
+    if type=='1' and nodeVisible==1 then
+        Sprite:setRect(listNode, x, y-TimeNodeWidth, width, height)
+        Sprite:setVisible(TimeNode, 0)
+    elseif  type=='2' and nodeVisible==0 then
+        Sprite:setRect(listNode, x, y+TimeNodeWidth, width, height)
+        Sprite:setVisible(TimeNode, 1)
+    end
+end
+
+--时间选择
+function timeOnSelect(sprite)
+    Log:write("str========54654654")
+    local content = Sprite:findChild(Sprite:getParent(sprite), 'timeContent')
+    local date = Sprite:getText(content)
+    local stringDate = Split(date, '-')
+    Log:write("str========",stringDate)
+    local startTimeBtn = Sprite:findChild(rootSprite, 'startTimeBtn')
+
+    local endTimeBtn = Sprite:findChild(rootSprite, 'endTimeBtn')
+        Log:write('4', startTime, endTime, sprite)
+    local regHandle = Reg:create("startEnd")
+
+     if tonumber(startTimeBtn) == tonumber(sprite) then
+        Reg:setString(regHandle, 'type', 'start')
+    elseif tonumber(endTimeBtn) == tonumber(sprite) then
+        Reg:setString(regHandle, 'type', 'end')
+    else
+        return
+    end
+
+    local regHandle = Reg:create('dateDialog')
+    Reg:setString(regHandle, 'year', stringDate[1])
+    Reg:setString(regHandle, 'month', stringDate[2])
+    Reg:setString(regHandle, 'day', stringDate[3])
+    Scene:setReturn(Alias.m_zonghefugai, Alias.m_dateDialog)
+    Scene:go(Alias.m_dateDialog)
+end
+
 --搜索按钮
 function OnSearchButtonClicked(sprite)
         local typeValue = Sprite:getText(Sprite:findChild(rootSprite,'typeName'))
@@ -367,8 +453,15 @@ function OnSearchButtonClicked(sprite)
         else
             local companyCode = Sprite:getData(curCompanyBtn)
         end
-        
-        loadRequest(contentName,areaName,companyCode,typeValue)
+        if typeValue == "直放站" then
+            local startTimeNode = Sprite:findChild(rootSprite,'startTimeNode')
+            local startTimeValue = Sprite:getText(Sprite:findChild(startTimeNode,'timeContent'))
+            local endTimeNode = Sprite:findChild(rootSprite,'endTimeNode')
+            local endTimeValue = Sprite:getText(Sprite:findChild(endTimeNode,'timeContent'))
+            loadRequest(contentName,areaName,companyCode,typeValue,startTimeValue,endTimeValue)
+        else
+            loadRequest(contentName,areaName,companyCode,typeValue)      
+        end      
 end
 
 --@brief 返回按钮消息处理函数
@@ -390,17 +483,21 @@ function typeItemSelect(sprite)
         if xdData == '1' then
 	         Sprite:setProperty(typeText, 'text', 'WLAN')
 	         typeStatus='1'
+             OnShowtypeBtnClicked(typeStatus)
         elseif xdData == '2' then
 	         Sprite:setProperty(typeText, 'text', '直放站')
 	         typeStatus='2'
+             OnShowtypeBtnClicked(typeStatus)
         end
         setAllShoworHide(Sprite:findChild(rootSprite, 'filterTypeNode'), 0)
 end
-function loadRequest(contentName,areaName,companyCode,typeValue)
+function loadRequest(contentName,areaName,companyCode,typeValue,startTimeValue,endTimeValue)
         Log:write('名称  = ',contentName)
         Log:write('区域 =',areaName)
         Log:write('代维公司Code',companyCode)
         Log:write('类型',typeValue)
+        -- Log:write("startTimeValue = "..startTimeValue)
+        -- Log:write("endTimeValue = "..endTimeValue)
         if contentName==nil then
             contentName=''
         end
@@ -412,7 +509,7 @@ function loadRequest(contentName,areaName,companyCode,typeValue)
 	        Loading:show(rootSprite)
 	     else
 	        Log:write('***************************')
-            local param = string.format('&page=1&name=%s&companycode=%s&areacode=%s&startdate=2012-09-10&enddate=2012-12-29&cmd=wlbrepeatersearch', contentName,companyCode,areaName)
+            local param = string.format('&page=1&name=%s&companycode=%s&areacode=%s&startdate=%s&enddate=%s&cmd=wlbrepeatersearch', contentName,companyCode,areaName,startTimeValue,endTimeValue)
             Log:write("&param = ", param)
             local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
             Log:write("reqURL = "..reqURL..param)
