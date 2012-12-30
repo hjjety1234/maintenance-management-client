@@ -93,7 +93,7 @@
             <node name="listNode" rect="0,0,480,1045" extendstyle="1111">
 			<listview name="sampleList" rect="0,260,480,645" extendstyle="1111" />
 			</node>   
-            <!-- 搜索条件动态下拉框  -->
+            <!-- 搜索公司动态下拉框  -->
             <node name="CompanySelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
 			     <button name="button" rect="0,0,480,800" OnSelect="hideCompanySelected">
                  </button>
@@ -109,7 +109,7 @@
 				</listview>
 				<image rect="66,480,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
             </node>  		
-            <!-- 搜索条件动态listItem -->
+            <!-- 搜索公司动态listItem -->
             <node name="listitem1" rect="0,0,368,72" visible="false" enable="false" active="false">                   
                 <button name="btnName" rect="5,0,275,61" text="" color="#303030" h-align="center" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
                     extendstyle="0010" OnSelect="CompanyGroupOnSelect"  normal=""
@@ -121,7 +121,36 @@
                     <image rect="12,70,320,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
 
                 </button>
-            </node>			
+            </node>	
+           <!-- 搜索区域动态下拉框  -->
+            <node name="quyuSelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
+			     <button name="button" rect="0,0,480,800" OnSelect="hideCompanySelected1">
+                 </button>
+                 <node rect="66,200,368,68" extendstyle="1111"  border="false">
+                    <image rect="0,0,368,68" src="file://image/top.png"  style="autosize" extendstyle="0010" />
+                    <image rect="20,30,22,22" src="file://image/icon_arrow.png"  style="autosize" extendstyle="0010" />
+                    <label rect="50,6,140,68" border="false" color="#FFFFFF" style="autosize"
+                     text="选择区域" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                 </node>
+				 <image rect="66,264,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" />
+				<listview name="quyuList" rect="66,268,368,216" extendstyle="1111" auto-scroll="true" style="autosize"
+                    auto-adjust="true" >
+				</listview>
+				<image rect="66,480,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
+            </node>  		
+            <!-- 搜索区域动态listItem -->
+            <node name="listitem2" rect="0,0,368,72" visible="false" enable="false" active="false">                   
+                <button name="btnName" rect="5,0,275,61" text="" color="#303030" h-align="center" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
+                    extendstyle="0010" OnSelect="quyuGroupOnSelect"  normal=""
+                    sel=""
+                    data="01"  > 
+                    <label name="dwquyu" rect="10,0,202,61" border="false" color="#0" style="autosize"
+                     text="" h-align="left" v-align="center" font-family="微软雅黑" font-size="24"></label>		
+                    <image rect="285,15,32,32" src="file://image/list_arrow.png"  style="autosize" extendstyle="1111" />           
+                    <image rect="12,70,320,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
+
+                </button>
+            </node>	
 			 <!-- 加载站点数据 -->
 
 			<node name="listitem" visible="false" enable="false" active="false"
@@ -162,7 +191,9 @@ local rootSprite
 local values
 local data
 local cmpData
+local quyuData
 local curCompanyBtn 
+local curquyuBtn
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -234,9 +265,9 @@ function bodyOnPluginEvent(msg)
         if quyuData ~= nil then
             if quyuData.code == '0' then
                 if #quyuData.value > 0 then
-                    loadList1(#quyuData.value + 1)
+                    loadList2(#quyuData.value + 1)
                 elseif quyuData.value[0] then
-                    loadList1(1)
+                    loadList2(1)
                 end
             else
                	local list = Sprite:findChild(rootSprite, 'CompanyList')
@@ -281,9 +312,9 @@ function CompanyOnSelect(sprite)
 end
 -- 点击区域下拉框
 function quyuOnSelect(sprite)
-    curCompanyBtn = sprite
+    curquyuBtn = sprite
     loadquyuRequest()
-    setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 1)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'quyuSelectNode'), 1)
 	Log:write('quyu12345')
 end
 ---------------------------------------util functions---------------------------
@@ -351,23 +382,27 @@ end
 function hideCompanySelected(sprite)
     setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 0)
 end
-
+function hideCompanySelected1(sprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'quyuSelectNode'), 0)
+end
+--代维公司item点击事件
 function CompanyGroupOnSelect(sprite)
-    local companyData = Sprite:getData(sprite)
+    --local companyData = Sprite:getData(sprite)
     local companyText = Sprite:findChild(curCompanyBtn, 'CompanyName')
     local companyNameCode = Sprite:findChild(curCompanyBtn, 'companyNameCode')
-    Sprite:setProperty(curCompanyBtn, 'data', companyData)
+    --Sprite:setProperty(curCompanyBtn, 'data', companyData)
     local index = ListView:getItemIndex(Sprite:getParent(sprite))
     Sprite:setProperty(companyText, 'text', cmpData.value[index].cmpname)
-	
-	--[[local quyuText = Sprite:findChild(curCompanyBtn, 'quyuName')
-    local quyuCode = Sprite:findChild(curCompanyBtn, 'quyuCode')
-    Sprite:setProperty(quyuBtn, 'data', companyData)
-    local index = ListView:getItemIndex(Sprite:getParent(sprite))
-    Sprite:setProperty(quyuText, 'text', quyuData.value[index].cmpname)--]]
     setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 0)
 end
-
+--区域item点击事件
+function quyuGroupOnSelect(sprite)
+    local quyuText = Sprite:findChild(curquyuBtn, 'quyuName')
+    local quyuNameCode = Sprite:findChild(curquyuBtn, 'quyuNameCode')
+    local index = ListView:getItemIndex(Sprite:getParent(sprite))
+    Sprite:setProperty(quyuText, 'text', quyuData.value[index].cmpname)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'quyuSelectNode'), 0)
+end
 --加载代维公司数据
 function loadList1(count)
 	Log:write('1111111111111111111111111')
@@ -385,10 +420,29 @@ function loadListItem1(list, item, index)
 	local num = index + 1
 	Log:write('4444444444444444444')
 	local cmpname = Sprite:findChild(item, 'dwcompany')
-	Sprite:setProperty(cmpname, 'text', "  "..quyuData.value[index].cmpname)
 	Sprite:setProperty(cmpname, 'text', "  "..cmpData.value[index].cmpname)
 	Log:write('55555555555555555555', quyupData.value[index].cmpname)
 end
-
+--加载区域数据
+function loadList2(count)
+	Log:write('1111111111111111111111111')
+	local list = Sprite:findChild(rootSprite, 'quyuList')
+	ListView:removeAllItems(list,true)
+	Log:write('2222222222222222222222222---------->', count)
+	ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem2'), count, 'loadListItem2')
+	ListView:adjust(list)
+end
+--为区域下拉框区域赋数据库取值
+function loadListItem2(list, item, index)
+	Log:write('333333333333333')
+	Sprite:setRect(item, 0, 0, 480, 76)
+	Sprite:setProperty(item, 'extendstyle', '0010')
+	local num = index + 1
+	Log:write('4444444444444444444')
+	local dwquyu = Sprite:findChild(item, 'dwquyu')
+	Log:write('55555555555555555555', quyuData.value[index].cmpname)
+	Sprite:setProperty(dwquyu, 'text', "  "..quyuData.value[index].cmpname)
+	Log:write('55555555555555555555', quyuData.value[index].cmpname)
+end
     ]]>
 </root>
