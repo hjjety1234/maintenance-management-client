@@ -200,7 +200,7 @@ local companyid
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-	--loadRequest()
+	loadRequest('','','')
 end
 
 -- @brief root节点消息方法
@@ -303,9 +303,10 @@ function OnSearchButtonClicked(sprite)
         ListView:removeAllItems(list,1)
         local ParentNode=Sprite:getParent(sprite)
         local content=Sprite:getText(Sprite:findChild(ParentNode,'content'))
-		local CompanyName = Sprite:getText(Sprite:findChild(rootSprite,'CompanyName'))
-		local quyuName = Sprite:getText(Sprite:findChild(rootSprite,'quyuName'))
-        loadRequest(content,quyuid)
+		--local CompanyName = Sprite:getText(Sprite:findChild(rootSprite,'CompanyName'))
+		--local quyuName = Sprite:getText(Sprite:findChild(rootSprite,'quyuName'))
+		Log:write('22222222222',companyid)
+        loadRequest(content,companyid,quyuid)
 end
 -- 点击公司下拉框
 function CompanyOnSelect(sprite)
@@ -328,12 +329,21 @@ function doBack(sprite)
    Scene:go( Alias.m_search)
 end
 --- 发送搜索请求
-function loadRequest(content,quyuid)
+function loadRequest(content,companyid,quyuid)
         if content==nil then
             content=''
+        
+		elseif companyid==nil then
+            companyidt=''
+        
+		elseif quyuid==nil then
+            quyuid=''
         end
-		Log:write('fj',quyuid)
-        local param = string.format('&pagesize=10&page=1&name=%s&companycode=&areacode=%s&page=1',content,quyuid)
+		Log:write('1111111111111111111111111111111111',content)
+		Log:write('222222222222222222222222222222222222',companyid)
+		Log:write('333333333333333333333333333333333333',quyuid)
+        --local param = string.format('&pagesize=10&page=1&name=%s&companycode=%s&areacode=%s&page=1',content,companyid,quyuid)
+		local param ='&pagesize=10&page=1&name='..content..'&companycode='..companyid..'&areacode='..quyuid..'&page=1'
         Log:write("&param = ", param)
         local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
 		Log:write('111',reqURL)
@@ -396,10 +406,10 @@ function CompanyGroupOnSelect(sprite)
     --local companyData = Sprite:getData(sprite)
     local companyText = Sprite:findChild(curCompanyBtn, 'CompanyName')
     local companyNameCode = Sprite:findChild(curCompanyBtn, 'companyNameCode')
-    local index = ListView:getItemIndex(Sprite:getParent(sprite))
+    local index = ListView:getItemIndex(Sprite:getParent(sprite))		
+    Sprite:setProperty(companyText, 'text', cmpData.value[index].cmpname)
 	companyid=cmpData.value[index].id
 	Log:write('12345',companyid)
-    Sprite:setProperty(companyText, 'text', cmpData.value[index].cmpname)
     setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 0)
 end
 --区域item点击事件
@@ -430,7 +440,7 @@ function loadListItem1(list, item, index)
 	Log:write('4444444444444444444')
 	local cmpname = Sprite:findChild(item, 'dwcompany')
 	Sprite:setProperty(cmpname, 'text', "  "..cmpData.value[index].cmpname)
-	Log:write('55555555555555555555', quyupData.value[index].cmpname)
+	Log:write('55555555555555555555', cmpData.value[index].cmpname)
 end
 --加载区域数据
 function loadList2(count)
