@@ -55,20 +55,22 @@
                     v-align="center" color="#303030" font-size="26" font-family='微软雅黑' />
                     </button>
             </node>
-
-        <shadow rect="0,137,480,56" color="#ffffff" alpha="100" extendstyle="1111" /> 
-  
+            <!-- 选择铁塔区域 -->
             <node name="NameNode" rect="10,140,460,50" enable="true"
                 extendstyle="1111">              
                 <label name="label2" rect="43,0,100,50" border="false" text="区域："
                     v-align="center" color="#303030"  font-size="26" font-family='微软雅黑' />
-
-                <image rect="113,5,220,40" src="file://image/input_text.png"  style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
-                <button name="userContent" rect="113,5,220,40" border="false"
-                    text="" color="#0" >
-                <edit name="content" rect="5,0,220,40" border="false" text="" autoup ="true"
-                    v-align="center" color="#303030" font-size="26" font-family='微软雅黑' />
-                    </button>
+                <image rect="113,5,220,40" src="file://image/select_bg.png"  style="sudoku-auto" sudoku="15,15,15,15"
+                    extendstyle="1111">
+                </image>
+				<button name="quyuBtn" rect="113,5,220,40" border="false"
+                    text="" color="#0" OnSelect="quyuOnSelect">
+					<scrolltext name="quyuName" rect="5,0,220,40" text="" color="#303030" scroll="true" h-align="left" 
+                            v-align="center" font-family='微软雅黑' font-size="24" style="autosize" extendstyle="1111">
+                    </scrolltext>
+                    <label name="quyuCode" rect="5,0,220,40" border="false" text=""
+                        v-align="center" color="#303030" font-size="26" font-family='微软雅黑' />
+				</button>
             </node>   
             <!-- 选择代维公司  -->			
              <node name="CompanyNode" rect="10,200,460,50" enable="true"
@@ -82,13 +84,16 @@
                     text="" color="#0" OnSelect="CompanyOnSelect">
 					<scrolltext name="CompanyName" rect="5,0,185,40" text="" color="#303030" scroll="true" h-align="left" 
                             v-align="center" font-family='微软雅黑' font-size="24" style="autosize" extendstyle="1111">
-                        </scrolltext>
+                    </scrolltext>
                     <label name="companyNameCode" rect="5,0,220,40" border="false" text=""
                         v-align="center" color="#303030" font-size="26" font-family='微软雅黑' />
                 </button>
              </node>
-                
-            <!-- 代维公司动态下拉框  -->
+			<!-- 加载搜索结果  -->
+            <node name="listNode" rect="0,0,480,1045" extendstyle="1111">
+			<listview name="sampleList" rect="0,260,480,645" extendstyle="1111" />
+			</node>   
+            <!-- 搜索条件动态下拉框  -->
             <node name="CompanySelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
 			     <button name="button" rect="0,0,480,800" OnSelect="hideCompanySelected">
                  </button>
@@ -104,7 +109,7 @@
 				</listview>
 				<image rect="66,480,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
             </node>  		
-            <!-- 代维公司下拉框listItem -->
+            <!-- 搜索条件动态listItem -->
             <node name="listitem1" rect="0,0,368,72" visible="false" enable="false" active="false">                   
                 <button name="btnName" rect="5,0,275,61" text="" color="#303030" h-align="center" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
                     extendstyle="0010" OnSelect="CompanyGroupOnSelect"  normal=""
@@ -118,9 +123,7 @@
                 </button>
             </node>			
 			 <!-- 加载站点数据 -->
-			<node name="listNode" rect="0,260,480,1045" extendstyle="1111">
-				<listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
-			</node>
+
 			<node name="listitem" visible="false" enable="false" active="false"
 				extendstyle="1011" rect="0,200,480,110">
                 <image name="listButtonImage" rect="3,0,468,100" src="file://image/tongxunlu_bg.png"
@@ -221,6 +224,28 @@ function bodyOnPluginEvent(msg)
         else
             Dialog:show(rootSprite, '未知错误！', 'ok')
         end
+	elseif msg == 103 then
+		quyuData = Http:jsonDecode('quyu_data')
+        Log:write("quyuData = ",quyuData)
+        if not quyuData or type(quyuData) ~= 'table' then
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        end
+        if quyuData ~= nil then
+            if quyuData.code == '0' then
+                if #quyuData.value > 0 then
+                    loadList1(#quyuData.value + 1)
+                elseif quyuData.value[0] then
+                    loadList1(1)
+                end
+            else
+               	local list = Sprite:findChild(rootSprite, 'CompanyList')
+				ListView:removeAllItems(list,1)
+				Dialog:show(rootSprite, getErrorCode(quyuData.code), 'ok')
+            end
+        else
+            Dialog:show(rootSprite, '未知错误！', 'ok')
+        end
 	elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
 	elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
 			Log:write('拨号失败')
@@ -239,18 +264,27 @@ end
 function OnSearchButtonClicked(sprite)
         local ParentNode=Sprite:getParent(sprite)
         local content=Sprite:getText(Sprite:findChild(ParentNode,'content'))
+		local CompanyName = Sprite:getText(Sprite:findChild(rootSprite,'CompanyName'))
+		
         if content == '' then
             Dialog:show('提示', '搜索内容不能为空!', 'ok')
             return
         end
-        loadRequest(content)
+        loadRequest(content,CompanyName)
 end
-
+-- 点击公司下拉框
 function CompanyOnSelect(sprite)
     curCompanyBtn = sprite
     loadCompanyRequest()
     setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 1)
 	Log:write('12345')
+end
+-- 点击区域下拉框
+function quyuOnSelect(sprite)
+    curCompanyBtn = sprite
+    loadquyuRequest()
+    setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 1)
+	Log:write('quyu12345')
 end
 ---------------------------------------util functions---------------------------
 
@@ -258,21 +292,32 @@ end
 function doBack(sprite)
    Scene:go( Alias.m_search)
 end
-function loadRequest(name)
-        if name==nil then
-            name=''
+--- 发送搜索请求
+function loadRequest(content,CompanyName)
+        if content==nil then
+            content=''
         end
-        local param = string.format('&pagesize=10&page=1&name=%s&companycode=&areacode=&page=1', name)
+        local param = string.format('&pagesize=10&page=1&name=%s&companycode=&areacode=&page=1',content,companyCode)
         Log:write("&param = ", param)
         local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
         Http:request('tieta_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbtowersearch'..param})
         Loading:show(rootSprite)
 end
+--- 调用搜索条件接口
 function loadCompanyRequest()
     local param = 'cmd=wlbCmpList&page='..'1'..'&code=340100'
     local reqURL = getWholeUrl('nbspweb/webservice/chart!doWebservice.action', param)
 	Log:write('2345',reqURL)
     Http:request('group_data', reqURL, 102, {useCache = false})
+    Loading:show()
+end
+--- 调用搜索条件接口
+function loadquyuRequest()
+    Log:write('hhhh')
+    local param = 'cmd=wlbCityList&page=1'
+    local reqURL = getWholeUrl('nbspweb/webservice/chart!doWebservice.action', param)
+	Log:write('2345',reqURL)
+    Http:request('quyu_data', reqURL, 103, {useCache = false})
     Loading:show()
 end
 
@@ -314,6 +359,12 @@ function CompanyGroupOnSelect(sprite)
     Sprite:setProperty(curCompanyBtn, 'data', companyData)
     local index = ListView:getItemIndex(Sprite:getParent(sprite))
     Sprite:setProperty(companyText, 'text', cmpData.value[index].cmpname)
+	
+	--[[local quyuText = Sprite:findChild(curCompanyBtn, 'quyuName')
+    local quyuCode = Sprite:findChild(curCompanyBtn, 'quyuCode')
+    Sprite:setProperty(quyuBtn, 'data', companyData)
+    local index = ListView:getItemIndex(Sprite:getParent(sprite))
+    Sprite:setProperty(quyuText, 'text', quyuData.value[index].cmpname)--]]
     setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 0)
 end
 
@@ -334,8 +385,9 @@ function loadListItem1(list, item, index)
 	local num = index + 1
 	Log:write('4444444444444444444')
 	local cmpname = Sprite:findChild(item, 'dwcompany')
+	Sprite:setProperty(cmpname, 'text', "  "..quyuData.value[index].cmpname)
 	Sprite:setProperty(cmpname, 'text', "  "..cmpData.value[index].cmpname)
-	Log:write('55555555555555555555', cmpData.value[index].cmpname)
+	Log:write('55555555555555555555', quyupData.value[index].cmpname)
 end
 
     ]]>
