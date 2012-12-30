@@ -340,6 +340,56 @@ function doBack(sprite)
    Sprite:setProperty(content, 'text', '')
    Sprite:setProperty(quyuName, 'text', '')
    Sprite:setProperty(CompanyName, 'text', '')
+    
+    -- 获取站点查询页面返回的站点数据
+    local regHandle = Reg:create(Alias.m_basestation)
+    Reg:clear(regHandle)
+    
+    -- 如果没有查询数据，直接返回
+    if data == nil or data.value == nil then
+        Reg:setString(regHandle, 'pois', '')
+        Scene:back()
+        return
+    end
+    
+    -- 获取查询结果数目
+    local respValue = data.value
+    local len = #respValue
+    if len == 0 and respValue[0] ~= nil and respValue[0] ~= '' then 
+        len = 1
+    elseif len > 0 then
+        len = len + 1 
+    else
+        Reg:setString(regHandle, 'pois', '')
+        Log:write('无站点数据')
+        Scene:back()
+        return
+    end
+    Log:write('stations-->', respValue)
+        
+    -- 格式化基站数据
+    local poisString = '{pois:['
+    for i=1,len do 
+        -- 取感兴趣的站点数据
+        local tower = respValue[i-1]
+        local name = tower.station
+        local longitude = tower.lon
+        local latitude = tower.lat
+        -- 创建poi点
+        local poiString = string.format('{"id":"%d", "longitude":%d, "latitude":%d, "desc":"%s"}',
+               i, tower.lon * 1000000, tower.lat * 1000000, tower.station)
+        Log:write('poiString', poiString)
+        
+        if i < len then
+            poisString = poisString..poiString..',' 
+        else
+            poisString = poisString..poiString
+        end
+    end
+    poisString = poisString..']}'
+    
+    Reg:setString(regHandle, 'pois', poisString)
+
    Scene:go( Alias.m_search)
 end
 --- 发送搜索请求
