@@ -95,7 +95,8 @@ Alias = {
     m_search = 'MODULE:\\com_wondertek_dw\\m_search.wdml',--资源查询
 	m_tieta = 'MODULE:\\com_wondertek_dw\\m_tieta.wdml',--资源查询
     m_zonghefugai = 'MODULE:\\com_wondertek_dw\\m_zonghefugai.wdml',--综合覆盖
-    m_jikejiake_search = 'MODULE:\\com_wondertek_dw\\m_jikejiake_search.wdml',
+    m_jikejiake_search = 'MODULE:\\com_wondertek_dw\\m_jikejiake_search.wdml',--集客家客搜索
+    m_jikejiake_detail = 'MODULE:\\com_wondertek_dw\\m_jikejiakedetail.wdml',--集客家客详情
     m_resourcereport = 'MODULE:\\com_wondertek_dw\\m_resourcereport.wdml',--资源统计
     
     m_xianluxunjian = 'MODULE:\\com_wondertek_dw\\m_xianluxunjian.wdml',--线路巡检
