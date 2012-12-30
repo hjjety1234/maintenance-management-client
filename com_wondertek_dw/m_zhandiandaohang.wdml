@@ -85,6 +85,8 @@ local rootSprite
 local umsagentPlugin = nil
 local umsagentHasAppkey = 0
 
+local g_locationButtonVisible = false
+
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -92,8 +94,6 @@ function bodyBuildChildrenFinished(sprite)
     local reg = Reg:create(Alias.index)
     umsagentPlugin = Reg:getInteger(reg, 'UmsAgent')
     umsagentHasAppkey = Reg:getInteger(reg, 'umsagentHasAppkey')
-    -- 显示底图
-    openMap(0, 120, 480, 680)
 end
 
 -- @brief root节点消息方法
@@ -102,6 +102,8 @@ function bodyOnSpriteEvent(msg, param)
 	    if umsagentHasAppkey == 1 then
 	        pluginInvoke(umsagentPlugin, "OnActivate", string.match(Alias.chart, 'MODULE:\\(.*)'), '站点导航')
 	    end
+		-- 显示底图
+    	openMap(0, 120, 480, 680)
     elseif msg == MSG_DEACTIVATE then
         if umsagentHasAppkey == 1 then
             pluginInvoke(umsagentPlugin, "OnDeactivate")
@@ -146,20 +148,35 @@ function openMap(x, y, w, h)
     Map:open(x*xscal, y*yscal, w*xscal, h*yscal)
 end
 
-function doMapNavigate(  )
+function doMapNavigate(sprite)
+    Map:close()
     Scene:setReturn(Alias.m_zhandiandaohang, Alias.m_daohangsousuo)
     Scene:go(Alias.m_daohangsousuo)
 end
 
-function doMapSearch(  )
+function doMapSearch(sprite)
+    Map:close()
     Scene:setReturn(Alias.m_zhandiandaohang, Alias.m_zhandiansousuo)
     Scene:go(Alias.m_zhandiansousuo)
 end
 
 -- 获取当前的位置，并将当前位置移动到屏幕中央
 function doMapLocate(sprite)
+    --[[
    local observer = Plugin:getObserver()
    Map:getCurPosition(observer, 1000)
+   if g_locationButtonVisible == false then
+       Map:showLocationButton(1)
+       g_locationButtonVisible =  true
+   else
+       Map:showLocationButton(0)
+       g_locationButtonVisible =  false
+   end
+   --]]
+   
+   local observer = Plugin:getObserver()
+   local json = '{pois:[{"id":"0", "latitude":31848836, "longitude":117255553, "desc":"龙河路"},{"id":"1", "latitude":31834472, "longitude":117251574, "desc":"合作化南路"}]}'
+   Map:showPOIs(observer, 1008, json, 1)
 end
 
 ]]>
