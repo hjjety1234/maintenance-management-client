@@ -194,12 +194,13 @@ local cmpData
 local quyuData
 local curCompanyBtn 
 local curquyuBtn
-
+local quyuid
+local companyid
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-	loadRequest()
+	--loadRequest()
 end
 
 -- @brief root节点消息方法
@@ -215,12 +216,16 @@ function bodyOnPluginEvent(msg)
     if msg == 101 then
 		data = Http:jsonDecode('tieta_data')
 		Log:write("data101 = ", data)
+		if data.total=='0'then
+		Dialog:show(rootSprite, '服务端无数据', 'ok')
+		return
+		end
 	    if not data or type(data) ~= 'table' then
 			Dialog:show(rootSprite, '返回数据格式错误', 'ok')
 			return
 	    end
 		if data ~= nil then
-			if data.code == '0' then
+			if data.code == '0' then			
 				if #data.value > 0 then
 				loadList(#data.value + 1)
 				elseif data.value[0] then
@@ -294,15 +299,13 @@ function mainNodeOnKeyUp(sprite, kc)
     end
 end
 function OnSearchButtonClicked(sprite)
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list,1)
         local ParentNode=Sprite:getParent(sprite)
         local content=Sprite:getText(Sprite:findChild(ParentNode,'content'))
 		local CompanyName = Sprite:getText(Sprite:findChild(rootSprite,'CompanyName'))
-		
-        --[[if content == '' then
-            Dialog:show('提示', '搜索内容不能为空!', 'ok')
-            return
-        end--]]
-        loadRequest(content,CompanyName)
+		local quyuName = Sprite:getText(Sprite:findChild(rootSprite,'quyuName'))
+        loadRequest(content,quyuid)
 end
 -- 点击公司下拉框
 function CompanyOnSelect(sprite)
@@ -325,14 +328,15 @@ function doBack(sprite)
    Scene:go( Alias.m_search)
 end
 --- 发送搜索请求
-function loadRequest(content,CompanyName)
+function loadRequest(content,quyuid)
         if content==nil then
             content=''
         end
-		Log:write('cxb',CompanyName)
-        local param = string.format('&pagesize=10&page=1&name=%s&companycode=&areacode=&page=1',content,companyCode)
+		Log:write('fj',quyuid)
+        local param = string.format('&pagesize=10&page=1&name=%s&companycode=&areacode=%s&page=1',content,quyuid)
         Log:write("&param = ", param)
         local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
+		Log:write('111',reqURL)
         Http:request('tieta_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbtowersearch'..param})
         Loading:show(rootSprite)
 end
@@ -344,10 +348,10 @@ function loadCompanyRequest()
     Http:request('group_data', reqURL, 102, {useCache = false})
     Loading:show()
 end
---- 调用搜索条件接口
+--- 调用区域接口
 function loadquyuRequest()
     Log:write('hhhh')
-    local param = 'cmd=wlbCityList&page=1'
+    local param = 'cmd=wlbUserRegionList&page=1'
     local reqURL = getWholeUrl('nbspweb/webservice/chart!doWebservice.action', param)
 	Log:write('2345',reqURL)
     Http:request('quyu_data', reqURL, 103, {useCache = false})
@@ -392,8 +396,9 @@ function CompanyGroupOnSelect(sprite)
     --local companyData = Sprite:getData(sprite)
     local companyText = Sprite:findChild(curCompanyBtn, 'CompanyName')
     local companyNameCode = Sprite:findChild(curCompanyBtn, 'companyNameCode')
-    --Sprite:setProperty(curCompanyBtn, 'data', companyData)
     local index = ListView:getItemIndex(Sprite:getParent(sprite))
+	companyid=cmpData.value[index].id
+	Log:write('12345',companyid)
     Sprite:setProperty(companyText, 'text', cmpData.value[index].cmpname)
     setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 0)
 end
@@ -402,7 +407,9 @@ function quyuGroupOnSelect(sprite)
     local quyuText = Sprite:findChild(curquyuBtn, 'quyuName')
     local quyuNameCode = Sprite:findChild(curquyuBtn, 'quyuNameCode')
     local index = ListView:getItemIndex(Sprite:getParent(sprite))
-    Sprite:setProperty(quyuText, 'text', quyuData.value[index].cmpname)
+    Sprite:setProperty(quyuText, 'text', quyuData.value[index].regionname)
+	quyuid=quyuData.value[index].regionid
+	Log:write('22',quyuid)
     setAllShoworHide(Sprite:findChild(rootSprite, 'quyuSelectNode'), 0)
 end
 --加载代维公司数据
@@ -442,9 +449,9 @@ function loadListItem2(list, item, index)
 	local num = index + 1
 	Log:write('4444444444444444444')
 	local dwquyu = Sprite:findChild(item, 'dwquyu')
-	Log:write('55555555555555555555', quyuData.value[index].cmpname)
-	Sprite:setProperty(dwquyu, 'text', "  "..quyuData.value[index].cmpname)
-	Log:write('55555555555555555555', quyuData.value[index].cmpname)
+	Log:write('55555555555555555555', quyuData.value[index].regionname)
+	Sprite:setProperty(dwquyu, 'text', "  "..quyuData.value[index].regionname)
+	Log:write('55555555555555555555', quyuData.value[index].regionname)
 end
 
 function itemOnSelect(sprite)
