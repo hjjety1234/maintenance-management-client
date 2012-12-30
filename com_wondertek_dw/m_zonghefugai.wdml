@@ -314,6 +314,10 @@ function bodyOnPluginEvent(msg)
 	        Dialog:show(rootSprite, '返回数据格式错误', 'ok')
 	        return
 	    end
+        if data.total == '0' then
+            Dialog:show(rootSprite, '数据记录为空！', 'ok')
+            return
+        end
 	    if data ~= nil then
 	        if data.code == '0' then
 	            if #data.value > 0 then
@@ -324,7 +328,7 @@ function bodyOnPluginEvent(msg)
 	        else
 	            local list = Sprite:findChild(rootSprite, 'sampleList')
 	            ListView:removeAllItems(list,1)
-	            Dialog:show(rootSprite, '数据记录为空！', 'ok')
+	            Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
 	        end
 	    else
 	        Dialog:show(rootSpsrite, '未知错误！', 'ok')
@@ -356,6 +360,10 @@ function bodyOnPluginEvent(msg)
             Dialog:show(rootSprite, '返回数据格式错误', 'ok')
             return
         end
+         if zhifangData.total == '0' then
+            Dialog:show(rootSprite, '数据记录为空！', 'ok')
+            return
+        end
         if zhifangData ~= nil then
             if zhifangData.code == '0' then
                 if #zhifangData.value > 0 then
@@ -366,7 +374,7 @@ function bodyOnPluginEvent(msg)
             else
                 local list = Sprite:findChild(rootSprite, 'sampleList')
                 ListView:removeAllItems(list,1)
-                Dialog:show(rootSprite, '数据记录为空！', 'ok')
+                Dialog:show(rootSprite, getErrorCode(zhifangData.code), 'ok')
             end
         else
             Dialog:show(rootSpsrite, '未知错误！', 'ok')
