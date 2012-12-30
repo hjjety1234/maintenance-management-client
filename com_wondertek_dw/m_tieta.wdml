@@ -25,11 +25,11 @@
             <!-- 设置头部 -->
             <node name="NodeTitle" rect="0,0,480,66" extendstyle="1111">
                 <image name="titleBg" rect="0,0,480,66" src="file://image/title_new.png" extendstyle="1111" style="autosize" />
-                <button name="backBtn" rect="17,13,40,40" normal="normal" sel="sel"
+                <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
                     OnSelect="doBack" extendstyle="1111">
-                    <image name="normal" rect="0,0,40,40" src="file://image/title_back_new.png"
+                    <image name="normal" rect="15,8,75,75" src="file://image/skin/title_back_new.png"
                          extendstyle="1111" />
-                    <image name="sel" rect="0,0,40,40" src="file://image/title_back_new.png"
+                    <image name="sel" rect="15,8,75,75" src="file://image/skin/title_back_new.png"
                        extendstyle="1111" />
                 </button>
 
@@ -38,10 +38,10 @@
                     color="#ffffff" scroll="true" step="2" />
             </node>
 			<!-- 搜索按钮 -->
-			<button name="searchButton" rect="423,13,40,40" OnSelect="OnSearchButtonClicked"
+			<button name="searchButton" rect="400,0,75,75" OnSelect="OnSearchButtonClicked"
 					extendstyle="1111" color="#ffffff">
-					<image name="searchButtonImage" rect="0,0,40,40"
-						src="file://image/ico_search_new.png" style="autosize"
+					<image name="searchButtonImage" rect="21,8,75,75"
+						src="file://image/skin/ico_search_new.png" 
 						extendstyle="1111" />
 			</button>
             <node name="TypeNode" rect="10,80,460,50" enable="true" extendstyle="1111">
@@ -199,6 +199,7 @@ local curquyuBtn
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+	loadRequest()
 end
 
 -- @brief root节点消息方法
@@ -297,10 +298,10 @@ function OnSearchButtonClicked(sprite)
         local content=Sprite:getText(Sprite:findChild(ParentNode,'content'))
 		local CompanyName = Sprite:getText(Sprite:findChild(rootSprite,'CompanyName'))
 		
-        if content == '' then
+        --[[if content == '' then
             Dialog:show('提示', '搜索内容不能为空!', 'ok')
             return
-        end
+        end--]]
         loadRequest(content,CompanyName)
 end
 -- 点击公司下拉框
@@ -328,6 +329,7 @@ function loadRequest(content,CompanyName)
         if content==nil then
             content=''
         end
+		Log:write('cxb',CompanyName)
         local param = string.format('&pagesize=10&page=1&name=%s&companycode=&areacode=&page=1',content,companyCode)
         Log:write("&param = ", param)
         local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
@@ -336,7 +338,7 @@ function loadRequest(content,CompanyName)
 end
 --- 调用搜索条件接口
 function loadCompanyRequest()
-    local param = 'cmd=wlbCmpList&page='..'1'..'&code=340100'
+    local param = 'cmd=wlbCmpList&page='..'1'
     local reqURL = getWholeUrl('nbspweb/webservice/chart!doWebservice.action', param)
 	Log:write('2345',reqURL)
     Http:request('group_data', reqURL, 102, {useCache = false})
@@ -443,6 +445,33 @@ function loadListItem2(list, item, index)
 	Log:write('55555555555555555555', quyuData.value[index].cmpname)
 	Sprite:setProperty(dwquyu, 'text', "  "..quyuData.value[index].cmpname)
 	Log:write('55555555555555555555', quyuData.value[index].cmpname)
+end
+
+function itemOnSelect(sprite)
+    local  index
+    local tabNode = Sprite:getParent(sprite)
+    index = tonumber(Sprite:getData(tabNode))
+    Log:write("index = "..index)
+    Log:write("铁塔名称 ： "..data.value[index].stationname)
+    Log:write("站点编号 ："..data.value[index].stationid)
+    Log:write("纬度 ："..data.value[index].lat)
+    Log:write("铁塔编号  ："..data.value[index].towerId)
+    Log:write("地址 ："..data.value[index].address)
+    Log:write("经度 ："..data.value[index].lon)
+    Log:write("设备厂家 ："..data.value[index].devcompay)
+	Log:write("所属站点 ："..data.value[index].station)
+    regHandle=Reg:create('tieta_data')
+    Reg:setString(regHandle, "stationname",data.value[index].stationname)
+    Reg:setString(regHandle, "stationid",data.value[index].stationid)
+    Reg:setString(regHandle, "lat",data.value[index].lat)
+    Reg:setString(regHandle, "towerId",data.value[index].towerId)
+    Reg:setString(regHandle, "address",data.value[index].address)
+    Reg:setString(regHandle, "lon",data.value[index].lon)
+    Reg:setString(regHandle, "devcompay",data.value[index].devcompay)
+    Reg:setString(regHandle, "station",data.value[index].station)
+    Log:write('121121')
+    Scene:setReturn(Alias.m_tieta, Alias.m_tietadetail)
+    Scene:go(Alias.m_tietadetail)
 end
     ]]>
 </root>
