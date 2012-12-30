@@ -74,12 +74,20 @@
 	            <node name="areaNode" rect="10,100,460,50" enable="true" extendstyle="1111">  
 	                <label name="label2" rect="5,0,120,50" border="false" text="区域：" h-align="right"
 	                    v-align="center" color="#303030"  font-size="24" font-family='微软雅黑' />
-	                <image rect="118,5,220,40" src="file://image/input_text.png"  style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
-	                <button name="userArea" rect="118,5,220,40" border="false"
+	                <image rect="118,5,220,40" src="file://image/select_bg.png"  style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+	                <!--<button name="userArea" rect="118,5,220,40" border="false"
 	                    text="" color="#0" >
 		                <edit name="areaName" rect="5,0,210,40" border="false" text="" autoup ="true"
 		                    v-align="center" color="#303030" font-size="24" font-family='微软雅黑' />
-	                </button>
+	                </button>-->
+                    <button name="quyuBtn" rect="118,5,220,40" border="false"
+                        text="" color="#0" OnSelect="quyuOnSelect">
+                        <scrolltext name="quyuName" rect="5,0,210,40" text="合肥市" color="#303030" scroll="true" h-align="left" 
+                                v-align="center" font-family='微软雅黑' font-size="24" style="autosize" extendstyle="1111">
+                        </scrolltext>
+                        <label name="quyuCode" rect="5,0,210,40" border="false" text=""
+                            v-align="center" color="#303030" font-size="26" font-family='微软雅黑' />
+                   </button>
 	            </node> 
 	            <shadow rect="0,150,480,50" color="#ffffff" alpha="100" extendstyle="1111" />       
 	            <node name="CompanyNode" rect="10,150,460,50" enable="true" extendstyle="1111">
@@ -124,8 +132,37 @@
 	           <node name="listNode" rect="0,210,480,584" extendstyle="1111">
 	                <listview name="sampleList" rect="0,0,480,584" extendstyle="1111" />
 	           </node>
-            </listview>        
-                 <!-- 代维公司动态下拉框  -->
+            </listview> 
+            <!-- 搜索区域动态下拉框  -->
+            <node name="quyuSelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
+                 <button name="button" rect="0,0,480,800" OnSelect="hideCompanySelected1">
+                 </button>
+                 <node rect="66,200,368,68" extendstyle="1111"  border="false">
+                    <image rect="0,0,368,68" src="file://image/top.png"  style="autosize" extendstyle="0010" />
+                    <image rect="20,30,22,22" src="file://image/icon_arrow.png"  style="autosize" extendstyle="0010" />
+                    <label rect="50,6,140,68" border="false" color="#FFFFFF" style="autosize"
+                     text="选择区域" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                 </node>
+                 <image rect="66,264,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" />
+                <listview name="quyuList" rect="66,268,368,216" extendstyle="1111" auto-scroll="true" style="autosize"
+                    auto-adjust="true" >
+                </listview>
+                <image rect="66,480,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
+            </node>  
+            <!-- 搜索区域动态listItem -->
+            <node name="listitem2" rect="0,0,368,72" visible="false" enable="false" active="false">                   
+                <button name="btnName" rect="5,0,275,61" text="" color="#303030" h-align="center" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
+                    extendstyle="0010" OnSelect="quyuGroupOnSelect"  normal=""
+                    sel=""
+                    data="01"  > 
+                    <label name="dwquyu" rect="10,0,202,61" border="false" color="#0" style="autosize"
+                     text="" h-align="left" v-align="center" font-family="微软雅黑" font-size="24"></label>     
+                    <image rect="285,15,32,32" src="file://image/list_arrow.png"  style="autosize" extendstyle="1111" />           
+                    <image rect="12,70,320,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
+
+                </button>
+            </node>      
+            <!-- 代维公司动态下拉框  -->
             <node name="CompanySelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
                 <button name="button" rect="0,0,480,800" OnSelect="hideCompanySelected">
 
@@ -249,7 +286,10 @@ local values
 local data
 local zhifangData
 local curCompanyBtn
+local curquyuBtn
 local cmpData
+local quyuData
+local quyuid
 local nameValue
 local areaValue
 local companyValue
@@ -379,6 +419,28 @@ function bodyOnPluginEvent(msg)
         else
             Dialog:show(rootSpsrite, '未知错误！', 'ok')
         end	
+    elseif msg == 104 then
+        quyuData = Http:jsonDecode('quyu_data')
+        Log:write("quyuData = ",quyuData)
+        if not quyuData or type(quyuData) ~= 'table' then
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        end
+        if quyuData ~= nil then
+            if quyuData.code == '0' then
+                if #quyuData.value > 0 then
+                    loadList2(#quyuData.value + 1)
+                elseif quyuData.value[0] then
+                    loadList2(1)
+                end
+            else
+                local list = Sprite:findChild(rootSprite, 'quyuList')
+                ListView:removeAllItems(list,1)
+                Dialog:show(rootSprite, getErrorCode(quyuData.code), 'ok')
+            end
+        else
+            Dialog:show(rootSprite, '未知错误！', 'ok')
+        end
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -468,9 +530,15 @@ function OnSearchButtonClicked(sprite)
             local startTimeValue = Sprite:getText(Sprite:findChild(startTimeNode,'timeContent'))
             local endTimeNode = Sprite:findChild(rootSprite,'endTimeNode')
             local endTimeValue = Sprite:getText(Sprite:findChild(endTimeNode,'timeContent'))
-            loadRequest(contentName,areaName,companyCode,typeValue,startTimeValue,endTimeValue)
+            if quyuid == nil or quyuid == '' then
+                quyuid = '340100'
+            end  
+            loadRequest(contentName,areaName,companyCode,typeValue,quyuid,startTimeValue,endTimeValue)
         else
-            loadRequest(contentName,areaName,companyCode,typeValue)      
+            if quyuid == nil or quyuid == '' then
+                quyuid = '340100'
+            end  
+            loadRequest(contentName,areaName,companyCode,typeValue,quyuid)      
         end      
 end
 
@@ -501,25 +569,26 @@ function typeItemSelect(sprite)
         end
         setAllShoworHide(Sprite:findChild(rootSprite, 'filterTypeNode'), 0)
 end
-function loadRequest(contentName,areaName,companyCode,typeValue,startTimeValue,endTimeValue)
+function loadRequest(contentName,areaName,companyCode,typeValue,quyuid,startTimeValue,endTimeValue)
         Log:write('名称  = ',contentName)
         Log:write('区域 =',areaName)
         Log:write('代维公司Code',companyCode)
         Log:write('类型',typeValue)
+        Log:write("区域Code = ",quyuid)
         -- Log:write("startTimeValue = "..startTimeValue)
         -- Log:write("endTimeValue = "..endTimeValue)
         if contentName==nil then
             contentName=''
         end
         if typeValue == "WLAN" then
-	        local param = string.format('&page=1&name=%s&companycode=%s&areacode=%s', contentName,companyCode,areaName)
+	        local param = string.format('&page=1&name=%s&companycode=%s&areacode=%s', contentName,companyCode,quyuid)
 	        Log:write("&param = ", param)
 	        local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
 	        Http:request('zonghefugai_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbwlansearch'..param})
 	        Loading:show(rootSprite)
 	     else
 	        Log:write('***************************')
-            local param = string.format('&page=1&name=%s&companycode=%s&areacode=%s&startdate=%s&enddate=%s&cmd=wlbrepeatersearch', contentName,companyCode,areaName,startTimeValue,endTimeValue)
+            local param = string.format('&page=1&name=%s&companycode=%s&areacode=%s&startdate=%s&enddate=%s&cmd=wlbrepeatersearch', contentName,companyCode,quyuid,startTimeValue,endTimeValue)
             Log:write("&param = ", param)
             local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
             Log:write("reqURL = "..reqURL..param)
@@ -622,6 +691,51 @@ function loadCompanyListItem(list, item, index)
     local textNum = Sprite:findChild(item, 'btnName_company')
     Sprite:setProperty(textNum, 'data', "  "..cmpData.value[index].id)
     Sprite:setProperty(textNum, 'text', "  "..cmpData.value[index].cmpname)
+end
+-- 点击区域下拉框
+function quyuOnSelect(sprite)
+    curquyuBtn = sprite
+    loadquyuRequest()
+    setAllShoworHide(Sprite:findChild(rootSprite, 'quyuSelectNode'), 1)
+    Log:write('quyu12345')
+end
+--区域item点击事件
+function quyuGroupOnSelect(sprite)
+    local quyuText = Sprite:findChild(curquyuBtn, 'quyuName')
+    local quyuNameCode = Sprite:findChild(curquyuBtn, 'quyuNameCode')
+    local index = ListView:getItemIndex(Sprite:getParent(sprite))
+    Sprite:setProperty(quyuText, 'text', quyuData.value[index].regionname)
+    quyuid=quyuData.value[index].regionid
+    Log:write('区域ID ========',quyuid)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'quyuSelectNode'), 0)
+end
+--调用区域接口
+function loadquyuRequest()
+    Log:write('hhhh')
+    local param = 'cmd=wlbUserRegionList&page=1'
+    local reqURL = getWholeUrl('nbspweb/webservice/chart!doWebservice.action', param)
+    Log:write('2345',reqURL)
+    Http:request('quyu_data', reqURL, 104, {useCache = false})
+    Loading:show()
+end
+--隐藏区域
+function hideCompanySelected1(sprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'quyuSelectNode'), 0)
+end
+--加载区域数据
+function loadList2(count)
+    local list = Sprite:findChild(rootSprite, 'quyuList')
+    ListView:removeAllItems(list,true)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem2'), count, 'loadListItem2')
+    ListView:adjust(list)
+end
+--为区域下拉框区域赋数据库取值
+function loadListItem2(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 76)
+    Sprite:setProperty(item, 'extendstyle', '0010')
+    local num = index + 1
+    local dwquyu = Sprite:findChild(item, 'dwquyu')
+    Sprite:setProperty(dwquyu, 'text', "  "..quyuData.value[index].regionname)
 end
 --@brief WLAN点击列表项
 function itemOnSelect(sprite)
