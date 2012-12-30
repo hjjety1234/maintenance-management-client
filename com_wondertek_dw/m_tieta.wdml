@@ -306,6 +306,14 @@ function OnSearchButtonClicked(sprite)
 		--local CompanyName = Sprite:getText(Sprite:findChild(rootSprite,'CompanyName'))
 		--local quyuName = Sprite:getText(Sprite:findChild(rootSprite,'quyuName'))
 		Log:write('22222222222',companyid)
+		if content==nil or content=='' then
+            content=''
+Log:write('777777777777777',content)			
+		elseif companyid==nil or companyid=='' then
+            companyidt=''        
+		elseif quyuid==nil then
+            quyuid=''
+        end
         loadRequest(content,companyid,quyuid)
 end
 -- 点击公司下拉框
@@ -330,20 +338,20 @@ function doBack(sprite)
 end
 --- 发送搜索请求
 function loadRequest(content,companyid,quyuid)
-        if content==nil then
+        if content==nil or content=='' then
             content=''
-        
-		elseif companyid==nil then
-            companyidt=''
-        
-		elseif quyuid==nil then
+		end
+		if companyid==nil or companyid=='' then
+            companyid=''   
+ 		end	
+		if quyuid==nil then
             quyuid=''
         end
 		Log:write('1111111111111111111111111111111111',content)
 		Log:write('222222222222222222222222222222222222',companyid)
 		Log:write('333333333333333333333333333333333333',quyuid)
         --local param = string.format('&pagesize=10&page=1&name=%s&companycode=%s&areacode=%s&page=1',content,companyid,quyuid)
-		local param ='&pagesize=10&page=1&name='..content..'&companycode='..companyid..'&areacode='..quyuid..'&page=1'
+		local param ='&pagesize=10&page=1&name='..content..'&companycode='..companyid..'&areacode='..quyuid
         Log:write("&param = ", param)
         local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
 		Log:write('111',reqURL)
