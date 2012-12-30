@@ -205,7 +205,7 @@
                 <image name="listButtonImage" rect="3,0,468,100" src="file://image/tongxunlu_bg.png"
                     extendstyle="1111" style='autosize' />
                 <button name="btnname" rect="3,0,480,110"  extendstyle="1111" OnSelect="btnname_OnSelected">
-                    <label rect="10,2,120,45"  text="所属站点：" font-family='微软雅黑' color="#0062ab" font-size="24"
+                    <label rect="10,2,120,45"  text="站点名称：" font-family='微软雅黑' color="#0062ab" font-size="24"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
                     <scrolltext name="textNum" rect="130,2,280,45" text="" color="#303030" scroll="true" h-align="left" 
                             v-align="center" font-family='微软雅黑' font-size="24" style="autosize" extendstyle="1111">
@@ -351,18 +351,17 @@ function OnSearchButtonClicked(sprite)
         local contentName = Sprite:getText(Sprite:findChild(rootSprite,'contentName'))
         local areaName = Sprite:getData(Sprite:findChild(rootSprite,'quyuName'))
         local CompanyName = Sprite:getText(Sprite:findChild(rootSprite,'CompanyName'))
-        if contentName == '' then
-            Dialog:show('提示', '搜索名称不能为空!', 'ok')
-            return
-        end
+        -- if contentName == '' then
+        --     Dialog:show('提示', '搜索名称不能为空!', 'ok')
+        --     return
+        -- end
         if areaName == '' then
-            Dialog:show('提示', '搜索区域不能为空!', 'ok')
-            return
+            areaName = ''
+            -- Dialog:show('提示', '搜索区域不能为空!', 'ok')
+            -- return
         end
         if CompanyName =='' then
               companyCode = ''
-            Dialog:show('提示', '请选择代维公司!', 'ok')
-            return
         else
             local companyCode = Sprite:getData(curCompanyBtn)
         end
@@ -403,6 +402,12 @@ function loadRequest(contentName,areaName,companyCode,typeValue)
         if contentName==nil then
             contentName=''
         end
+        if areaName==nil then
+            areaName=''
+        end
+        if companyCode==nil then
+            companyCode=''
+        end
         if typeValue == "集客" then
             local param = string.format('&page=1&name=%s&companycode=%s&areacode=%s', contentName,companyCode,areaName)
             Log:write("&param = ", param)
@@ -434,7 +439,7 @@ function loadListItem(list, item, index)
     local lon = Sprite:findChild(item, 'lon')
     local lat = Sprite:findChild(item, 'lat')
     Sprite:setProperty(item, 'data', index)
-    Sprite:setProperty(textNum, 'text', data.value[index].stationname)
+    Sprite:setProperty(textNum, 'text', data.value[index].station)
     Sprite:setProperty(lon, 'text', data.value[index].lon)
     Sprite:setProperty(lat, 'text', data.value[index].lat)
     if data.value[index].address == nil or data.value[index].address == '' then
@@ -497,7 +502,7 @@ end
 --- 调用搜索条件接口
 function loadquyuRequest()
     Log:write('hhhh')
-    local param = 'cmd=wlbCityList&page=1'
+    local param = 'cmd=wlbUserRegionList&page=1'
     local reqURL = getWholeUrl('nbspweb/webservice/chart!doWebservice.action', param)
     Log:write('2345',reqURL)
     Http:request('quyu_data', reqURL, 103, {useCache = false})
@@ -520,17 +525,17 @@ function loadListItem2(list, item, index)
     local num = index + 1
     Log:write('4444444444444444444')
     local dwquyu = Sprite:findChild(item, 'dwquyu')
-    Log:write('55555555555555555555', quyuData.value[index].cmpname)
-    Sprite:setProperty(dwquyu, 'text', "  "..quyuData.value[index].cmpname)
-    Log:write('55555555555555555555', quyuData.value[index].cmpname)
+    Log:write('55555555555555555555', quyuData.value[index].regionname)
+    Sprite:setProperty(dwquyu, 'text', "  "..quyuData.value[index].regionname)
+    Log:write('55555555555555555555', quyuData.value[index].regionname)
 end
 --区域item点击事件
 function quyuGroupOnSelect(sprite)
     local quyuText = Sprite:findChild(curquyuBtn, 'quyuName')
     local quyuNameCode = Sprite:findChild(curquyuBtn, 'quyuNameCode')
     local index = ListView:getItemIndex(Sprite:getParent(sprite))
-    Sprite:setProperty(quyuText, 'text', quyuData.value[index].cmpname)
-    Sprite:setProperty(quyuText,'data',quyuData.value[index].id)
+    Sprite:setProperty(quyuText, 'text', quyuData.value[index].regionname)
+    Sprite:setProperty(quyuText,'data',quyuData.value[index].regionid)
     setAllShoworHide(Sprite:findChild(rootSprite, 'quyuSelectNode'), 0)
 end
 --站点列表单击事件，跳转到站点详情
