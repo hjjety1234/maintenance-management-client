@@ -25,11 +25,11 @@
             <!-- 设置头部 -->
             <node name="NodeTitle" rect="0,0,480,66" extendstyle="1111">
                 <image name="titleBg" rect="0,0,480,66" src="file://image/title_new.png" extendstyle="1111" style="autosize" />
-                <button name="backBtn" rect="17,13,40,40" normal="normal" sel="sel"
+                <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
                     OnSelect="doBack" extendstyle="1111">
-                    <image name="normal" rect="0,0,40,40" src="file://image/title_back_new.png"
+                    <image name="normal" rect="15,8,75,75" src="file://image/skin/title_back_new.png"
                          extendstyle="1111" />
-                    <image name="sel" rect="0,0,40,40" src="file://image/title_back_new.png"
+                    <image name="sel" rect="15,8,75,75" src="file://image/title_back_new.png"
                        extendstyle="1111" />
                 </button>
 
@@ -40,14 +40,17 @@
 
             </node>
             <!-- 搜索按钮 -->
-            <button name="btnForget" rect="423,13,40,40" color="#ffffff"
+            <button name="btnForget" rect="400,0,75,75" color="#ffffff"
                     extendstyle="1111" OnSelect="OnSearchButtonClicked"
-                   normal="src:file://image/ico_search_new.png;color:#ffffff"
-                    sel="src:file://image/ico_search_new.png;color:#000000" font-size="24" />
+                   font-size="24">
+                <image name="searchButtonImage" rect="21,8,75,75"
+                        src="file://image/skin/ico_search_new.png" 
+                        extendstyle="1111" />
+            </button>
             <!-- 主体部分 -->
             <listview name="listview" rect="0,66,480,734" col="1" extendstyle="1111" limit="true" border="false">
                 <node name="typeNode" rect="10,0,460,50" enable="true" extendstyle="1111">
-                    <label name="labelType" rect="5,0,120,50" border="false" text="类型：" h-align="right"
+                    <label name="labelType" rect="5,0,120,50" border="false" text="站点类型：" h-align="right"
                         v-align="center" color="#303030"  font-size="24" font-family='微软雅黑'/>
                     <image rect="118,5,220,40" src="file://image/select_bg.png"  style="sudoku-auto" sudoku="15,15,15,15"
                         extendstyle="1111">
@@ -62,7 +65,7 @@
                 </node>
                 <shadow rect="0,50,480,50" color="#ffffff" alpha="100" extendstyle="1111" />
                 <node name="nameNode" rect="10,50,460,50" enable="true" extendstyle="1111">
-                    <label name="label2" rect="5,0,120,50" border="false" text="名称：" h-align="right"
+                    <label name="label2" rect="5,0,120,50" border="false" text="站点名称：" h-align="right"
                         v-align="center" color="#303030"  font-size="24" font-family='微软雅黑'/>
                     <image rect="118,5,220,40" src="file://image/input_text.png"  style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                     <button name="userContent" rect="118,5,220,40" border="false"
@@ -72,7 +75,7 @@
                     </button>
                 </node>
                 <node name="areaNode" rect="10,100,460,50" enable="true" extendstyle="1111">  
-                    <label name="label2" rect="5,0,120,50" border="false" text="区域：" h-align="right"
+                    <label name="label2" rect="5,0,120,50" border="false" text="所属区域：" h-align="right"
                         v-align="center" color="#303030"  font-size="24" font-family='微软雅黑' />
                     <!--<image rect="118,5,220,40" src="file://image/input_text.png"  style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                     <button name="userArea" rect="118,5,220,40" border="false"
@@ -94,7 +97,7 @@
                 </node> 
                 <shadow rect="0,150,480,50" color="#ffffff" alpha="100" extendstyle="1111" />       
                 <node name="CompanyNode" rect="10,150,460,50" enable="true" extendstyle="1111">
-                    <label name="label2" rect="5,0,110,50" border="false" text="代维公司："
+                    <label name="label2" rect="5,0,120,50" border="false" text="代维公司："
                         v-align="center" color="#303030"  font-size="24" font-family='微软雅黑' />
                     <image rect="118,5,220,40" src="file://image/select_bg.png"  style="sudoku-auto" sudoku="15,15,15,15"
                         extendstyle="1111">
@@ -250,6 +253,7 @@ function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     local typeText = Sprite:findChild(rootSprite, 'typeName')
     Sprite:setProperty(typeText, 'text', '集客')
+    OnSearchButtonClicked(Sprite:findChild(rootSprite,'btnForget'))
 end
 
 -- @brief root节点消息方法
@@ -408,6 +412,7 @@ function loadRequest(contentName,areaName,companyCode,typeValue)
         if companyCode==nil then
             companyCode=''
         end
+        Log:write('type value is '..typeValue)
         if typeValue == "集客" then
             local param = string.format('&page=1&name=%s&companycode=%s&areacode=%s', contentName,companyCode,areaName)
             Log:write("&param = ", param)
@@ -443,7 +448,7 @@ function loadListItem(list, item, index)
     Sprite:setProperty(lon, 'text', data.value[index].lon)
     Sprite:setProperty(lat, 'text', data.value[index].lat)
     if data.value[index].address == nil or data.value[index].address == '' then
-        Sprite:setProperty(textTitle, 'text', '暂无地址!')
+        Sprite:setProperty(textTitle, 'text', '')
     else
         Sprite:setProperty(textTitle, 'text', data.value[index].address)
     end
