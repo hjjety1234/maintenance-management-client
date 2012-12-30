@@ -519,12 +519,12 @@ function OnSearchButtonClicked(sprite)
 --            return
         end
         if CompanyName =='' then
-              companyCode = ''
+              companyValue = ''
 --            Dialog:show('提示', '请选择代维公司!', 'ok')
 --            return
         else
-            local companyCode = Sprite:getData(curCompanyBtn)
-            Log:write("companyCode = "..companyCode)
+            companyValue = Sprite:getData(curCompanyBtn)
+            Log:write("companyCode = "..companyValue)
         end
         if typeValue == "直放站" then
             local startTimeNode = Sprite:findChild(rootSprite,'startTimeNode')
@@ -534,12 +534,12 @@ function OnSearchButtonClicked(sprite)
             if quyuid == nil or quyuid == '' then
                 quyuid = '340100'
             end  
-            loadRequest(contentName,areaName,companyCode,typeValue,quyuid,startTimeValue,endTimeValue)
+            loadRequest(contentName,areaName,companyValue,typeValue,quyuid,startTimeValue,endTimeValue)
         else
             if quyuid == nil or quyuid == '' then
                 quyuid = '340100'
             end  
-            loadRequest(contentName,areaName,companyCode,typeValue,quyuid)      
+            loadRequest(contentName,areaName,companyValue,typeValue,quyuid)      
         end      
 end
 
@@ -571,10 +571,10 @@ function typeItemSelect(sprite)
         end
         setAllShoworHide(Sprite:findChild(rootSprite, 'filterTypeNode'), 0)
 end
-function loadRequest(contentName,areaName,companyCode,typeValue,quyuid,startTimeValue,endTimeValue)
+function loadRequest(contentName,areaName,companyValue,typeValue,quyuid,startTimeValue,endTimeValue)
         Log:write('名称  = ',contentName)
         Log:write('区域 =',areaName)
-        Log:write('代维公司Code',companyCode)
+        Log:write('代维公司Code',companyValue)
         Log:write('类型',typeValue)
         Log:write("区域Code = ",quyuid)
         -- Log:write("startTimeValue = "..startTimeValue)
@@ -583,14 +583,14 @@ function loadRequest(contentName,areaName,companyCode,typeValue,quyuid,startTime
             contentName=''
         end
         if typeValue == "WLAN" then
-	        local param = string.format('&page=1&name=%s&companycode=%s&areacode=%s', contentName,companyCode,quyuid)
+	        local param = string.format('&page=1&name=%s&companycode=&areacode=%s', contentName,quyuid)
 	        Log:write("&param = ", param)
 	        local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
 	        Http:request('zonghefugai_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbwlansearch'..param})
 	        Loading:show(rootSprite)
 	     else
 	        Log:write('***************************')
-            local param = string.format('&page=1&name=%s&companycode=%s&areacode=%s&startdate=%s&enddate=%s&cmd=wlbrepeatersearch', contentName,companyCode,quyuid,startTimeValue,endTimeValue)
+            local param = string.format('&page=1&name=%s&companycode=&areacode=%s&startdate=%s&enddate=%s&cmd=wlbrepeatersearch', contentName,quyuid,startTimeValue,endTimeValue)
             Log:write("&param = ", param)
             local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
             Log:write("reqURL = "..reqURL..param)
