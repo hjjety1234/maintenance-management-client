@@ -1,0 +1,19 @@
+--安徽省各地市编码
+local city = {
+	{cityname="合肥市",citid="340100"},
+	{cityname="芜湖市",citid="340200"},
+	{cityname="蚌埠市",citid="340300"},
+	{cityname="淮南市",citid="340400"},
+	{cityname="马鞍山市",citid="340500"},
+	{cityname="淮北市",citid="340600"},
+	{cityname="铜陵市",citid="340700"},
+	{cityname="安庆市",citid="340800"},
+	{cityname="黄山市",citid="341000"},
+	{cityname="滁州市",citid="341100"},
+	{cityname="阜阳市",citid="341200"},
+	{cityname="宿州市",citid="341300"},
+	{cityname="六安市",citid="341500"},
+	{cityname="亳州市",citid="341600"},
+	{cityname="池州市",citid="341700"},
+	{cityname="宣城市",citid="341800"},
+}
