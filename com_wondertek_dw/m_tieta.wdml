@@ -37,6 +37,7 @@
                     extendstyle="1111" font-family="微软雅黑" font-size="30" h-align="center" v-align="center"
                     color="#ffffff" scroll="true" step="2" />
             </node>
+			<!-- 搜索按钮 -->
 			<button name="searchButton" rect="423,13,40,40" OnSelect="OnSearchButtonClicked"
 					extendstyle="1111" color="#ffffff">
 					<image name="searchButtonImage" rect="0,0,40,40"
@@ -77,33 +78,45 @@
                 <image rect="113,5,220,40" src="file://image/select_bg.png"  style="sudoku-auto" sudoku="15,15,15,15"
                     extendstyle="1111">
                 </image>
-                <button name="CompanyBtn" rect="113,5,220,40" border="false"
+                <button name="CompanyBtn" rect="118,5,220,40" border="false"
                     text="" color="#0" OnSelect="CompanyOnSelect">
-                    <label name="CompanyName" rect="5,0,220,40" border="false" text="请选择代维公司"
+					<scrolltext name="CompanyName" rect="5,0,185,40" text="" color="#303030" scroll="true" h-align="left" 
+                            v-align="center" font-family='微软雅黑' font-size="24" style="autosize" extendstyle="1111">
+                        </scrolltext>
+                    <label name="companyNameCode" rect="5,0,220,40" border="false" text=""
                         v-align="center" color="#303030" font-size="26" font-family='微软雅黑' />
                 </button>
              </node>
                 
             <!-- 代维公司动态下拉框  -->
-            <node name="CompanySelectNode" rect="0,0,480,1045" mushroom="false" visible="false" enable="false">
-			     <image rect="108,75,275,48" src="file://image/top.png"  style="autosize" extendstyle="1111"/> 
-				<listview name="CompanyList" rect="100,120,281,216" extendstyle="1111" >
- 
+            <node name="CompanySelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
+			     <button name="button" rect="0,0,480,800" OnSelect="hideCompanySelected">
+                 </button>
+                 <node rect="66,200,368,68" extendstyle="1111"  border="false">
+                    <image rect="0,0,368,68" src="file://image/top.png"  style="autosize" extendstyle="0010" />
+                    <image rect="20,30,22,22" src="file://image/icon_arrow.png"  style="autosize" extendstyle="0010" />
+                    <label rect="50,6,140,68" border="false" color="#FFFFFF" style="autosize"
+                     text="选择代维公司" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                 </node>
+				 <image rect="66,264,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" />
+				<listview name="CompanyList" rect="66,268,368,216" extendstyle="1111" auto-scroll="true" style="autosize"
+                    auto-adjust="true" >
 				</listview>
+				<image rect="66,480,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
             </node>  		
             <!-- 代维公司下拉框listItem -->
-            <node name="listitem1" rect="0,0,281,72" visible="false" enable="false" active="false">                   
-                <button name="btnName" rect="12,0,281,72" text="" color="#303030" h-align="left" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
-                    extendstyle="0010" OnSelect="CompanyGroupOnSelect"  > 
-					<image rect="0,0,281,72" src="file://image/center.png"  style="autosize" extendstyle="1111" />
-                    <label name="dwcompany" rect="10,0,272,61" border="false" color="#0" style="autosize"
+            <node name="listitem1" rect="0,0,368,72" visible="false" enable="false" active="false">                   
+                <button name="btnName" rect="5,0,275,61" text="" color="#303030" h-align="center" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
+                    extendstyle="0010" OnSelect="CompanyGroupOnSelect"  normal=""
+                    sel=""
+                    data="01"  > 
+                    <label name="dwcompany" rect="10,0,202,61" border="false" color="#0" style="autosize"
                      text="" h-align="left" v-align="center" font-family="微软雅黑" font-size="24"></label>		
-					<image rect="220,15,32,32" src="file://image/list_arrow.png"  style="autosize" extendstyle="1111" />           
-                    <image rect="12,60,281,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
+                    <image rect="285,15,32,32" src="file://image/list_arrow.png"  style="autosize" extendstyle="1111" />           
+                    <image rect="12,70,320,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
 
                 </button>
-            </node>
-			
+            </node>			
 			 <!-- 加载站点数据 -->
 			<node name="listNode" rect="0,260,480,1045" extendstyle="1111">
 				<listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
@@ -146,6 +159,7 @@ local rootSprite
 local values
 local data
 local cmpData
+local curCompanyBtn 
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -233,6 +247,7 @@ function OnSearchButtonClicked(sprite)
 end
 
 function CompanyOnSelect(sprite)
+    curCompanyBtn = sprite
     loadCompanyRequest()
     setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 1)
 	Log:write('12345')
@@ -293,29 +308,33 @@ function hideCompanySelected(sprite)
 end
 
 function CompanyGroupOnSelect(sprite)
-    local Parent=Sprite:getParent(sprite)
-	local content=Sprite:getText(Sprite:findChild(Parent,'content'))
-    Sprite:setProperty(CompanyName, 'text', 'content')
+    local companyData = Sprite:getData(sprite)
+    local companyText = Sprite:findChild(curCompanyBtn, 'CompanyName')
+    local companyNameCode = Sprite:findChild(curCompanyBtn, 'companyNameCode')
+    Sprite:setProperty(curCompanyBtn, 'data', companyData)
+    local index = ListView:getItemIndex(Sprite:getParent(sprite))
+    Sprite:setProperty(companyText, 'text', cmpData.value[index].cmpname)
     setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 0)
 end
 
+--加载代维公司数据
 function loadList1(count)
 	Log:write('1111111111111111111111111')
 	local list = Sprite:findChild(rootSprite, 'CompanyList')
-	ListView:removeAllItems(list,1)
+	ListView:removeAllItems(list,true)
 	Log:write('2222222222222222222222222---------->', count)
 	ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem1'), count, 'loadListItem1')
 	ListView:adjust(list)
 end
-
+--为代维公司下拉框区域赋数据库取值
 function loadListItem1(list, item, index)
 	Log:write('333333333333333')
-	Sprite:setRect(item, 3, 0, 281, 72)
-	Sprite:setProperty(item, 'extendstyle', '1111')
+	Sprite:setRect(item, 0, 0, 480, 76)
+	Sprite:setProperty(item, 'extendstyle', '0010')
 	local num = index + 1
 	Log:write('4444444444444444444')
 	local cmpname = Sprite:findChild(item, 'dwcompany')
-	Sprite:setProperty(cmpname, 'text', cmpData.value[index].cmpname)
+	Sprite:setProperty(cmpname, 'text', "  "..cmpData.value[index].cmpname)
 	Log:write('55555555555555555555', cmpData.value[index].cmpname)
 end
 
