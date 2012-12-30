@@ -1,20 +1,16 @@
 package com.wondertek.plugins.mapview.gdmap;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.graphics.Canvas.VertexMode;
 import android.location.Address;
 import android.location.Criteria;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.telephony.NeighboringCellInfo;
@@ -23,19 +19,16 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsoluteLayout;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mapabc.mapapi.core.GeoPoint;
 import com.mapabc.mapapi.core.MapAbcException;
-import com.mapabc.mapapi.core.PoiItem;
 import com.mapabc.mapapi.core.ServerUrlSetting;
 import com.mapabc.mapapi.location.LocationManagerProxy;
 import com.mapabc.mapapi.location.LocationProviderProxy;
 import com.mapabc.mapapi.map.MapController;
 import com.mapabc.mapapi.map.MapView;
-import com.mapabc.mapapi.poisearch.PoiSearch;
 
 public class GDMap implements LocationListener {
 	private static String TAG_GD = "Gaode";

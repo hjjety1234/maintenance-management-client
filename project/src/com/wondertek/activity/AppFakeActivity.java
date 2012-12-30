@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.os.Message;
 import android.view.KeyEvent;
 
-import com.wbtech.ums.UmsAgent;
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusApplication;
 

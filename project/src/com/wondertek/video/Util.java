@@ -29,9 +29,9 @@ import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
 
-//import com.android.internal.telephony.ITelephony;
 import com.wondertek.video.connection.SystemConnectionManager;
 import com.wondertek.video.g3wlan.client.G3WLANHttp;
+//import com.android.internal.telephony.ITelephony;
 
 public class Util {
 	private static String TAG = "WriteLogs";

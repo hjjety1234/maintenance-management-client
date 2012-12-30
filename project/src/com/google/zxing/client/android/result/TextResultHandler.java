@@ -16,11 +16,11 @@
 
 package com.google.zxing.client.android.result;
 
-import com.google.zxing.Result;
-import com.wondertek.activity.R;
-import com.google.zxing.client.result.ParsedResult;
-
 import android.app.Activity;
+
+import com.google.zxing.Result;
+import com.google.zxing.client.result.ParsedResult;
+import com.wondertek.activity.R;
 
 /**
  * This class handles TextParsedResult as well as unknown formats. It's the fallback handler.

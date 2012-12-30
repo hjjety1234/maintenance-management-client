@@ -16,13 +16,13 @@
 
 package com.google.zxing.client.android.result;
 
-import com.wondertek.activity.R;
-import com.google.zxing.client.result.ParsedResult;
-import com.google.zxing.client.result.URIParsedResult;
+import java.util.Locale;
 
 import android.app.Activity;
 
-import java.util.Locale;
+import com.google.zxing.client.result.ParsedResult;
+import com.google.zxing.client.result.URIParsedResult;
+import com.wondertek.activity.R;
 
 /**
  * Offers appropriate actions for URLS.

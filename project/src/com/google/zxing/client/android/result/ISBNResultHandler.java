@@ -16,13 +16,13 @@
 
 package com.google.zxing.client.android.result;
 
-import com.google.zxing.Result;
-import com.wondertek.activity.R;
-import com.google.zxing.client.result.ISBNParsedResult;
-import com.google.zxing.client.result.ParsedResult;
-
 import android.app.Activity;
 import android.view.View;
+
+import com.google.zxing.Result;
+import com.google.zxing.client.result.ISBNParsedResult;
+import com.google.zxing.client.result.ParsedResult;
+import com.wondertek.activity.R;
 
 /**
  * Handles books encoded by their ISBN values.

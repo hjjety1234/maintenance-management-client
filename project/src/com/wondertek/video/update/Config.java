@@ -1,10 +1,10 @@
 package com.wondertek.video.update;
 
-import com.wondertek.video.Util;
-import com.wondertek.video.VenusApplication;
-
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
+
+import com.wondertek.video.Util;
+import com.wondertek.video.VenusApplication;
 
 public class Config {
 	

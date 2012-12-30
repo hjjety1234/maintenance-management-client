@@ -1,10 +1,10 @@
 package com.wondertek.video.map;
 
-import com.wondertek.video.VenusApplication;
-import com.wondertek.video.map.gdmap.GDMapManager;
-
 import android.content.Context;
 import android.view.View;
+
+import com.wondertek.video.VenusApplication;
+import com.wondertek.video.map.gdmap.GDMapManager;
 
 /**
  * 

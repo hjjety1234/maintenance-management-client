@@ -5,8 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.Paint.Style;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
@@ -14,11 +14,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.mapabc.mapapi.core.GeoPoint;
 import com.mapabc.mapapi.location.LocationProviderProxy;
 import com.mapabc.mapapi.map.MapView;
-import com.mapabc.mapapi.map.Projection;
 import com.mapabc.mapapi.map.MyLocationOverlay;
+import com.mapabc.mapapi.map.Projection;
 
 /**
  * 

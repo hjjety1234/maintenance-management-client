@@ -16,9 +16,9 @@ package com.wbtech.ums;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import com.wbtech.common.UmsConstants;
-
 import android.util.Log;
+
+import com.wbtech.common.UmsConstants;
 
 public class MD5Utility {
 	

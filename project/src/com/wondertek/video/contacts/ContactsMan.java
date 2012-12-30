@@ -2,13 +2,8 @@ package com.wondertek.video.contacts;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.wondertek.video.Util;
-import com.wondertek.video.VenusActivity;
-import com.wondertek.video.VenusApplication;
 
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
@@ -25,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AbsoluteLayout;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -34,7 +30,10 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.AbsListView.OnScrollListener;
+
+import com.wondertek.video.Util;
+import com.wondertek.video.VenusActivity;
+import com.wondertek.video.VenusApplication;
 
 /**
  * Sample:

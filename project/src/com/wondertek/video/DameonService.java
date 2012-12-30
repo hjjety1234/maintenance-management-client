@@ -1,27 +1,20 @@
 package com.wondertek.video;
 
-import java.io.File;
-
-//import com.wondertek.video.sms.SMS;
-//import com.wondertek.video.sms.SMSHandler;
-//import com.wondertek.video.sms.SMSObserver;
-import com.wondertek.activity.R;
-
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.BroadcastReceiver;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 
-
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
+import com.wondertek.activity.R;
+//import com.wondertek.video.sms.SMS;
+//import com.wondertek.video.sms.SMSHandler;
+//import com.wondertek.video.sms.SMSObserver;
 
 
 

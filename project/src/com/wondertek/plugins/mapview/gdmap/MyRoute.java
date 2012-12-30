@@ -7,20 +7,17 @@ import android.app.ProgressDialog;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
 
 import com.mapabc.mapapi.core.GeoPoint;
 import com.mapabc.mapapi.core.PoiItem;
 import com.mapabc.mapapi.map.MapActivity;
 import com.mapabc.mapapi.map.MapController;
 import com.mapabc.mapapi.map.MapView;
-import com.mapabc.mapapi.map.PoiOverlay;
 import com.mapabc.mapapi.map.RouteOverlay;
 import com.mapabc.mapapi.poisearch.PoiPagedResult;
 import com.mapabc.mapapi.poisearch.PoiSearch;
-import com.mapabc.mapapi.poisearch.PoiTypeDef;
 import com.mapabc.mapapi.poisearch.PoiSearch.Query;
+import com.mapabc.mapapi.poisearch.PoiTypeDef;
 import com.mapabc.mapapi.route.Route;
 
 public class MyRoute {

@@ -16,11 +16,11 @@
 
 package com.google.zxing.client.android.result;
 
-import com.wondertek.activity.R;
+import android.app.Activity;
+
 import com.google.zxing.client.result.EmailAddressParsedResult;
 import com.google.zxing.client.result.ParsedResult;
-
-import android.app.Activity;
+import com.wondertek.activity.R;
 
 /**
  * Handles email addresses.

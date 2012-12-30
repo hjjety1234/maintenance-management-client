@@ -1,15 +1,15 @@
 package com.wondertek.plugins.mapview;
 
-import com.mapabc.mapapi.core.GeoPoint;
-import com.wondertek.plugins.mapview.gdmap.Constants;
-import com.wondertek.plugins.mapview.gdmap.GDMap;
-import com.wondertek.video.VenusApplication;
-
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+
+import com.mapabc.mapapi.core.GeoPoint;
+import com.wondertek.plugins.mapview.gdmap.Constants;
+import com.wondertek.plugins.mapview.gdmap.GDMap;
+import com.wondertek.video.VenusApplication;
 
 public class MapViewDLL{
     /** Called when the activity is first created. */

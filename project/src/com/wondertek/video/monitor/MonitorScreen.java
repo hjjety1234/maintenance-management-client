@@ -1,11 +1,11 @@
 package com.wondertek.video.monitor;
 
-import com.wondertek.video.Util;
-import com.wondertek.video.VenusActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+
+import com.wondertek.video.Util;
+import com.wondertek.video.VenusActivity;
 
 public class MonitorScreen extends MonitorBase{
 	

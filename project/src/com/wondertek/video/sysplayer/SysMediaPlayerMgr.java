@@ -1,13 +1,13 @@
 package com.wondertek.video.sysplayer;
 
-import com.wondertek.video.Util;
-import com.wondertek.video.VenusApplication;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+
+import com.wondertek.video.Util;
+import com.wondertek.video.VenusApplication;
 
 public class SysMediaPlayerMgr {
 	public static final String libpath = VenusApplication.appAbsPath	+ "lib2/sysplayer/libsysplayer.so";

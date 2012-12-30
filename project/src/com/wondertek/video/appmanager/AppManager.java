@@ -14,9 +14,9 @@ import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.Intent.ShortcutIconResource;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.Intent.ShortcutIconResource;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -30,7 +30,6 @@ import android.os.Bundle;
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;
-import com.wondertek.video.appmanager.AES;
 
 public class AppManager {
 

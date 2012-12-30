@@ -3,6 +3,10 @@ package com.wondertek.video.map.gdmap;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -20,10 +24,14 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.View.OnClickListener;
 import android.widget.AbsoluteLayout;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mapabc.mapapi.core.GeoPoint;
+import com.mapabc.mapapi.core.PoiItem;
 import com.mapabc.mapapi.geocoder.Geocoder;
 import com.mapabc.mapapi.location.LocationManagerProxy;
 import com.mapabc.mapapi.location.LocationProviderProxy;
@@ -31,11 +39,13 @@ import com.mapabc.mapapi.map.MapController;
 import com.mapabc.mapapi.map.MapView;
 import com.mapabc.mapapi.map.MapView.LayoutParams;
 import com.mapabc.mapapi.map.MyLocationOverlay;
+import com.mapabc.mapapi.map.PoiOverlay;
 import com.mapabc.mapapi.map.RouteMessageHandler;
 import com.mapabc.mapapi.map.RouteOverlay;
 import com.mapabc.mapapi.poisearch.PoiTypeDef;
 import com.wondertek.video.map.IMapPlugin;
 import com.wondertek.video.map.MapPluginMgr;
+import com.wondertek.video.map.gdmap.GDPoiSearch.GDPoiOverlay;
 
 /**
  * 
@@ -272,8 +282,37 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 
 	@Override
 	public void showPoisPopView(String pois, boolean bRemoveCover) {
-		// TODO Auto-generated method stub
-
+		Log.d(TAG, "showPoisPopView  pois: " + pois + " RemoveCover: " + bRemoveCover);
+		try {
+			JSONObject jsObject = new JSONObject(pois);
+			JSONArray poisArray = jsObject.getJSONArray("pois");
+			if (bRemoveCover ==  true) {
+				removeAllPopViews();
+				removeAllOverlays();
+			}
+			
+			mMapView.getController().setZoom(13);
+			Drawable marker = mContext.getResources().getDrawable(mContext.getResources().getIdentifier("dingwei", "drawable", mContext.getPackageName()));
+			List<PoiItem> items = new ArrayList<PoiItem>();
+			for (int i = 0; i < poisArray.length(); ++i) {
+				JSONObject poi = poisArray.getJSONObject(i);
+				int longitude = poi.getInt("longitude");
+				int latitude = poi.getInt("latitude");
+				String desc = poi.getString("desc");
+				
+				PoiItem poiItem = new PoiItem("", new GeoPoint(latitude, longitude), desc, "");
+				items.add(poiItem);
+				//showPoiPopView(latitude, longitude, desc, false);
+				
+				
+			}
+			GDPoiOverlayEx poiOverlay = new GDPoiOverlayEx(marker, items);
+			poiOverlay.addToMap(mMapView);
+			mMapView.invalidate();
+		} catch (JSONException e) {
+			Log.d(TAG, "showPoisPopView " + e.getMessage());
+		}
+		
 	}
 
 	@Override
@@ -524,6 +563,73 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 			View popview = mPopViewList.remove(mPopViewList.size() - 1);
 			popview.setVisibility(View.GONE);
 			mMapView.removeView(popview);
+		}
+	}
+	
+	class GDPoiOverlayEx extends PoiOverlay {
+		private Drawable marker;
+		public GDPoiOverlayEx(Drawable marker, List<PoiItem> items) {
+			super(marker, items);
+			this.marker = marker;
+			this.populate();
+		}
+
+		@Override
+		protected LayoutParams getLayoutParam(int index) {
+			PoiItem poi = getItem(index);
+			int mHeight = marker.getIntrinsicHeight();
+			LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
+					poi.getPoint(), 0, -mHeight, LayoutParams.BOTTOM_CENTER);
+			return params;
+		}
+
+		@Override
+		protected Drawable getPopupBackground() {
+			return mContext.getResources().getDrawable(mContext.getResources().
+					getIdentifier("gdmap_qp_bg", "drawable", mContext.getPackageName()));
+		}
+
+		@Override
+		protected Drawable getPopupMarker(PoiItem item) {
+			// TODO Auto-generated method stub
+			return super.getPopupMarker(item);
+		}
+
+		@Override
+		protected View getPopupView(final PoiItem item) {
+			View view = ((Activity) mContext).getLayoutInflater().inflate(mContext.getResources().
+					getIdentifier("gdmap_popview_item_ex", "layout", mContext.getPackageName()), null);
+			final TextView title = (TextView) view.findViewById(mContext.getResources().
+					getIdentifier("item_name_ex", "id", mContext.getPackageName()));
+			title.setText(item.getTitle());
+//			final Button detail = (Button) view.findViewById(mContext.getResources().
+//					getIdentifier("item_detail_btn", "id", mContext.getPackageName()));
+//			detail.setOnClickListener(new OnClickListener() {
+//				@Override
+//				public void onClick(View v) {
+//					getPopupView(item);
+//					detail.setText("");
+//					Log.d(TAG, ">>>onClick<<<");
+//					StringBuilder sb = new StringBuilder();
+//					sb.append("{\"latitude\":\"" +item.getPoint().getLatitudeE6()+"\",");
+//					sb.append("\"longitude\":\"" +item.getPoint().getLongitudeE6()+"\",");
+//					sb.append("\"name\":\"" +item.getTitle()+"\",");
+//					sb.append("\"address\":\"" +item.getSnippet()+"\",");
+//					sb.append("\"tel\":\"" +item.getTel()+"\"}");
+//					Log.d(TAG, sb.toString());
+//					title.setText(item.getTitle()+"\n"+item.getSnippet()+"\n"+item.getTel());
+//					Handler handler = GDMapManager.getInstance(mContext).getHandler();
+//					handler.sendMessage(Message.obtain(handler, GDMapConstants.GDMAP_POIDETAIL, sb.toString()));
+//				}
+//			});
+			return view;
+		}
+
+		@Override
+		protected boolean onTap(int index) {
+			Log.d(TAG, ">>>onTap<<<" + " index: " + index);
+			// TODO Auto-generated method stub
+			return super.onTap(index);
 		}
 	}
 }

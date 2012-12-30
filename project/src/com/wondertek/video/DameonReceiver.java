@@ -3,15 +3,9 @@ package com.wondertek.video;
 import java.io.File;
 import java.io.FileWriter;
 
-
-import com.wondertek.video.DameonService;
-import com.wondertek.video.Util;
-import com.wondertek.video.VenusApplication;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Message;
 
 

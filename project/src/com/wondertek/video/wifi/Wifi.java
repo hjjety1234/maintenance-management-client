@@ -28,18 +28,18 @@ package com.wondertek.video.wifi;
 import java.util.Comparator;
 import java.util.List;
 
-import com.wondertek.video.Util;
-
 import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiManager;
 import android.net.wifi.WifiConfiguration.AuthAlgorithm;
 import android.net.wifi.WifiConfiguration.GroupCipher;
 import android.net.wifi.WifiConfiguration.KeyMgmt;
 import android.net.wifi.WifiConfiguration.PairwiseCipher;
 import android.net.wifi.WifiConfiguration.Protocol;
+import android.net.wifi.WifiManager;
 import android.text.TextUtils;
+
+import com.wondertek.video.Util;
 
 public class Wifi {
 	

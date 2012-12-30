@@ -16,6 +16,8 @@
 
 package com.google.zxing.client.android.camera;
 
+import java.util.Collection;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Point;
@@ -25,11 +27,8 @@ import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
-//import com.google.zxing.client.android.PreferencesActivity;
-
-import java.util.Collection;
-
 import com.google.zxing.client.android.CaptureActivity;
+//import com.google.zxing.client.android.PreferencesActivity;
 
 /**
  * A class which deals with reading, parsing, and setting the camera parameters which are used to

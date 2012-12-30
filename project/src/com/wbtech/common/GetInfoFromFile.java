@@ -16,8 +16,6 @@ package com.wbtech.common;
 import java.io.File;
 import java.io.FileInputStream;
 
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.os.Environment;
 import android.util.Log;

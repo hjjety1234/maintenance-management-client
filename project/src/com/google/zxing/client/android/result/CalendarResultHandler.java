@@ -16,12 +16,6 @@
 
 package com.google.zxing.client.android.result;
 
-import com.wondertek.activity.R;
-import com.google.zxing.client.result.CalendarParsedResult;
-import com.google.zxing.client.result.ParsedResult;
-
-import android.app.Activity;
-
 import java.text.DateFormat;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
@@ -29,6 +23,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+
+import android.app.Activity;
+
+import com.google.zxing.client.result.CalendarParsedResult;
+import com.google.zxing.client.result.ParsedResult;
+import com.wondertek.activity.R;
 
 /**
  * Handles calendar entries encoded in QR Codes.

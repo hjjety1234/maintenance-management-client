@@ -1,10 +1,9 @@
 package com.wbtech.ums;
 
-import com.wbtech.common.CommonUtil;
-import com.wondertek.activity.AppActivity;
-import com.wondertek.video.VenusActivity;
-
 import android.util.Log;
+
+import com.wbtech.common.CommonUtil;
+import com.wondertek.video.VenusActivity;
 
 public class UmsAgentInterface {
 

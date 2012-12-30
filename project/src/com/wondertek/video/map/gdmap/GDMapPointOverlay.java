@@ -2,6 +2,7 @@ package com.wondertek.video.map.gdmap;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
+
 import com.mapabc.mapapi.core.GeoPoint;
 import com.mapabc.mapapi.core.MapAbcException;
 import com.mapabc.mapapi.geocoder.Geocoder;
@@ -73,7 +75,7 @@ public class GDMapPointOverlay extends Overlay {
 					point.getLongitudeE6() * (1E-6), 1);
 			if (addressList.size()>0) {
 				address = addressList.get(0);
-				textView.setText(address.getAdminArea()+address.getFeatureName()+'\n'+"µã´ËÈ·¶¨");
+				textView.setText(address.getAdminArea()+address.getFeatureName()+'\n'+"ï¿½ï¿½ï¿½È·ï¿½ï¿½");
 				mapView.addView(pointPopView, new LayoutParams(
 						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
 						point, 0, 0, LayoutParams.CENTER));

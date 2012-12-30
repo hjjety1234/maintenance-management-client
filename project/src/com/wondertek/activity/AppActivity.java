@@ -2,15 +2,6 @@ package com.wondertek.activity;
 
 
 //import com.phonegap.DroidGap;
-import android.widget.AbsoluteLayout;
-//GDMAP
-import com.mapabc.mapapi.map.MapActivity;
-//import com.wondertek.plugins.alipay.AlixDemo;
-import com.wondertek.video.Util;
-import com.wondertek.video.VenusActivity;
-import com.wondertek.video.VenusApplication;
-
-import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -19,6 +10,14 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.AbsoluteLayout;
+
+import com.mapabc.mapapi.map.MapActivity;
+import com.wondertek.video.Util;
+import com.wondertek.video.VenusActivity;
+import com.wondertek.video.VenusApplication;
+//GDMAP
+//import com.wondertek.plugins.alipay.AlixDemo;
 
 //baidu
 //public class AppActivity extends MapActivity {

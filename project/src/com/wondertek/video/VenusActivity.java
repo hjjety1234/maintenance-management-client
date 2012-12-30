@@ -72,9 +72,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Vibrator;
+import android.provider.Contacts.People;
 import android.provider.ContactsContract;
 import android.provider.Settings;
-import android.provider.Contacts.People;
 import android.provider.Settings.SettingNotFoundException;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
@@ -104,8 +104,8 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.DownloadListener;
 import android.webkit.WebSettings;
-import android.webkit.WebView;
 import android.webkit.WebSettings.LayoutAlgorithm;
+import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AbsListView;
 import android.widget.AbsoluteLayout;
@@ -136,18 +136,16 @@ import com.wondertek.video.monitor.MonitorHeadset;
 import com.wondertek.video.monitor.MonitorManager;
 import com.wondertek.video.monitor.MonitorScreen;
 import com.wondertek.video.phonegap.PhonegapObserver;
-//import com.wondertek.video.ifly.VoiceInputManager;
-//import com.wondertek.video.player.PlayerObserver;
 import com.wondertek.video.sensor.SensorObserver;
+import com.wondertek.video.sysplayer.SysMediaPlayerMgr;
 import com.wondertek.video.update.UpdateMan;
 import com.wondertek.video.wifi.WifiObserver;
-
+//import com.wondertek.video.ifly.VoiceInputManager;
+//import com.wondertek.video.player.PlayerObserver;
 //MsgPush
 //import com.wondertek.video.msgpush.MsgPushManager;
-
 //SMSSpam
 //import com.wondertek.video.smsspam.SMSSpamMgr;
-import com.wondertek.video.sysplayer.SysMediaPlayerMgr;
 
 public class VenusActivity implements SurfaceHolder.Callback {
 	private static String TAG = "VenusActivity";
