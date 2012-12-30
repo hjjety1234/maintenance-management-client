@@ -86,7 +86,22 @@
                 </button>
                 </node>
                 
-                 <node name="listNode" rect="0,150,480,584" extendstyle="1111">
+                 <node name="NameNode" rect="10,150,460,50" enable="true"
+                extendstyle="1111">
+                 <label name="label2" rect="5,0,100,50" border="false" text="地市区域："
+                    v-align="center" color="#303030"  font-size="24" font-family='微软雅黑' />
+
+                <image rect="113,5,220,40" src="file://image/select_bg.png"  style="sudoku-auto" sudoku="15,15,15,15"
+                    extendstyle="1111">
+                </image>
+                <button name="quyuBtn" rect="113,5,220,40" border="false"
+                    text="" color="#0" OnSelect="quyuOnSelect">
+                    <scrolltext name="quyuName" rect="5,0,180,40" border="false" text="请选择区域" scroll="true" h-align="left"
+                        v-align="center" color="#303030" font-size="24" font-family='微软雅黑' />
+                </button>
+                </node>
+                
+                 <node name="listNode" rect="0,200,480,584" extendstyle="1111">
                 <listview name="sampleList" rect="0,0,480,645" extendstyle="1111" />
             </node>
            </listview>
@@ -119,6 +134,36 @@
                 </button>
             </node>
        
+         <!-- 搜索区域动态下拉框  -->
+            <node name="quyuSelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
+                 <button name="button" rect="0,0,480,800" OnSelect="hideCompanySelected1">
+                 </button>
+                 <node rect="66,200,368,68" extendstyle="1111"  border="false">
+                    <image rect="0,0,368,68" src="file://image/top.png"  style="autosize" extendstyle="0010" />
+                    <image rect="20,30,22,22" src="file://image/icon_arrow.png"  style="autosize" extendstyle="0010" />
+                    <label rect="50,6,140,68" border="false" color="#FFFFFF" style="autosize"
+                     text="选择区域" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                 </node>
+                 <image rect="66,264,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" />
+                <listview name="quyuList" rect="66,268,368,216" extendstyle="1111" auto-scroll="true" style="autosize"
+                    auto-adjust="true" >
+                </listview>
+                <image rect="66,480,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
+            </node>         
+            <!-- 搜索区域动态listItem -->
+            <node name="listitem2" rect="0,0,368,72" visible="false" enable="false" active="false">                   
+                <button name="btnName" rect="5,0,275,61" text="" color="#303030" h-align="center" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
+                    extendstyle="0010" OnSelect="quyuGroupOnSelect"  normal=""
+                    sel=""
+                    data="01"  > 
+                    <label name="dwquyu" rect="10,0,202,61" border="false" color="#0" style="autosize"
+                     text="" h-align="left" v-align="center" font-family="微软雅黑" font-size="24"></label>     
+                    <image rect="285,15,32,32" src="file://image/list_arrow.png"  style="autosize" extendstyle="1111" />           
+                    <image rect="12,70,320,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
+
+                </button>
+            </node> 
+       
             <node name="listitemstation" visible="false" enable="false" active="false"
                 extendstyle="1011" rect="0,200,480,106">
                 <image name="listButtonImage" rect="3,0,468,86" src="file://image/tongxunlu_bg.png"
@@ -148,7 +193,9 @@ local rootSprite
 local values
 local curCompanyBtn
 local cmpData
+local quyuData
 local data
+local quyuid
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -214,6 +261,30 @@ function bodyOnPluginEvent(msg)
     else
         Dialog:show(rootSpsrite, '未知错误！', 'ok')
     end
+    
+    elseif msg == 103 then
+        quyuData = Http:jsonDecode('quyu_data')
+        Log:write("quyuData = ",quyuData)
+        if not quyuData or type(quyuData) ~= 'table' then
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        end
+        if quyuData ~= nil then
+            if quyuData.code == '0' then
+                if #quyuData.value > 0 then
+                    loadList2(#quyuData.value + 1)
+                elseif quyuData.value[0] then
+                    loadList2(1)
+                end
+            else
+                local list = Sprite:findChild(rootSprite, 'CompanyList')
+                ListView:removeAllItems(list,1)
+                Dialog:show(rootSprite, getErrorCode(quyuData.code), 'ok')
+            end
+        else
+            Dialog:show(rootSprite, '未知错误！', 'ok')
+        end
+    
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -250,7 +321,7 @@ function loadRequest()
     local companycode=Sprite:getData(Sprite:findChild(CompanyNode, 'CompanyBtn'))
     companycode=string.gsub(companycode,' ','')
     
-        local param = string.format('&pagesize=10&page=1&stationtype=&stationname=%s&stationcode=%s&companycode=%s&areacode=340100',stationname,codetext,companycode)
+        local param = string.format('&pagesize=10&page=1&stationtype=&stationname=%s&stationcode=%s&companycode=%s&areacode=%s',stationname,codetext,companycode,quyuid)
         Log:write("&param = ", param)
         local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
         Http:request('jizhan_data', reqURL, 102, {useCache = false, method = 'post', postData='cmd=wlbstationsearch'..param})
@@ -311,11 +382,23 @@ function hideCompanySelected(sprite)
     setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 0)
 end
 
+function hideCompanySelected1(sprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'quyuSelectNode'), 0)
+end
+
 function CompanyOnSelect(sprite)
     local companyData = Sprite:getData(sprite)
     curCompanyBtn = sprite
     loadCompanyRequest()
     setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 1)
+end
+
+-- 点击区域下拉框
+function quyuOnSelect(sprite)
+    curquyuBtn = sprite
+    loadquyuRequest()
+    setAllShoworHide(Sprite:findChild(rootSprite, 'quyuSelectNode'), 1)
+    Log:write('quyu12345')
 end
 
 function CompanyGroupOnSelect(sprite)
@@ -327,11 +410,32 @@ function CompanyGroupOnSelect(sprite)
     setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 0)
 end
 
+--区域item点击事件
+function quyuGroupOnSelect(sprite)
+    local quyuText = Sprite:findChild(curquyuBtn, 'quyuName')
+    local quyuNameCode = Sprite:findChild(curquyuBtn, 'quyuNameCode')
+    local index = ListView:getItemIndex(Sprite:getParent(sprite))
+    Sprite:setProperty(quyuText, 'text', quyuData.value[index].regionname)
+    quyuid=quyuData.value[index].regionid
+    setAllShoworHide(Sprite:findChild(rootSprite, 'quyuSelectNode'), 0)
+end
+
 function loadCompanyRequest()
     local param = 'cmd=wlbCmpList&page='..'1'..'&code=340100'
     local reqURL = getWholeUrl('nbspweb/webservice/chart!doWebservice.action', param)
     Http:request('group_data', reqURL, 101, {useCache = false})
      Loading:show()
+end
+
+--- 调用搜索条件接口
+function loadquyuRequest()
+    Log:write('hhhh')
+    --cmd=wlbUserRegionList&usercode=liuguoli&page=1&pagesize=15
+    local param = 'cmd=wlbUserRegionList&page=1'
+    local reqURL = getWholeUrl('nbspweb/webservice/chart!doWebservice.action', param)
+    Log:write('2345',reqURL)
+    Http:request('quyu_data', reqURL, 103, {useCache = false})
+    Loading:show()
 end
 
 function Copanycontent(count)
@@ -348,6 +452,28 @@ function loadCompanyListItem(list, item, index)
     local textNum = Sprite:findChild(item, 'btnName')
     Sprite:setProperty(textNum, 'data', "        "..cmpData.value[index].id)
     Sprite:setProperty(textNum, 'text', "        "..cmpData.value[index].cmpname)
+end
+
+--加载区域数据
+function loadList2(count)
+    Log:write('1111111111111111111111111')
+    local list = Sprite:findChild(rootSprite, 'quyuList')
+    ListView:removeAllItems(list,true)
+    Log:write('2222222222222222222222222---------->', count)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem2'), count, 'loadListItem2')
+    ListView:adjust(list)
+end
+--为区域下拉框区域赋数据库取值
+function loadListItem2(list, item, index)
+    Log:write('333333333333333')
+    Sprite:setRect(item, 0, 0, 480, 76)
+    Sprite:setProperty(item, 'extendstyle', '0010')
+    local num = index + 1
+    Log:write('4444444444444444444')
+    local dwquyu = Sprite:findChild(item, 'dwquyu')
+    Log:write('55555555555555555555', quyuData.value[index].regionname)
+    Sprite:setProperty(dwquyu, 'text', "  "..quyuData.value[index].regionname)
+    Log:write('55555555555555555555', quyuData.value[index].regionname)
 end
     ]]>
 </root>
