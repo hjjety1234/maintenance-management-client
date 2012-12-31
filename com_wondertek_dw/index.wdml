@@ -58,54 +58,26 @@ local g_packageUrl                  -- 客户端升级包url地址
 local g_downloadTime = 0            -- 记录下载所花的时间
 local g_progressWidth = 154         -- 进度条长度
 
-local umsagentPlugin = nil
-local umsagentHasAppkey = 0
 
 ---------------------------------------回调函数列表--------------------------------
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    System:setFontSize()
-    if SCREEN_WIDTH >= 700 then
-		System:changeSkin('MODULE:\\com_wondertek_dw/image/skin/skin.dat', 'MODULE:\\com_wondertek_dw/image/skin/')
-	else
-		System:changeSkin('MODULE:\\com_wondertek_dw/image/skin/skin1.dat', 'MODULE:\\com_wondertek_dw/image/skin/')
-	end
-	
-	Log:write('123',SCREEN_WIDTH)
-	
-    umsagentPlugin = pluginCreate("UmsAgent")
-    local reg = Reg:create(Alias.index)
-    Reg:setInteger(reg, 'UmsAgent', umsagentPlugin)
-    pluginInvoke(umsagentPlugin, 'SetDefaultReportPolicy', 1)
-    local f = io.open('MODULE:\\preUrl.ini')
-    if f then
-        local data = f:read('*all')
-        f:close()
-        local appkey = string.match(data, 'UMS_APPKEY%s*=%s*([^\r\n]*)')
-        Log:write('appkey=', appkey)
-        if appkey then
-            Reg:setInteger(reg, 'umsagentHasAppkey', 1)
-        end
-    end
-    
-    umsagentHasAppkey = Reg:getInteger(reg, 'umsagentHasAppkey')
-	
     connectToWAP()
-    checkClientVersion()
 end
 
 --  root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then
-        if umsagentHasAppkey == 1 then
-            pluginInvoke(umsagentPlugin, "SendEvent", 'postClientData', 'postClientData')
-            pluginInvoke(umsagentPlugin, "OnActivate", string.match(Alias.index, 'MODULE:\\(.*)'))
-        end
+        System:setFontSize()
+	    if SCREEN_WIDTH >= 700 then
+	        System:changeSkin('MODULE:\\com_wondertek_dw/image/skin/skin.dat', 'MODULE:\\com_wondertek_dw/image/skin/')
+	    else
+	        System:changeSkin('MODULE:\\com_wondertek_dw/image/skin/skin1.dat', 'MODULE:\\com_wondertek_dw/image/skin/')
+	    end
+	    Log:write('123',SCREEN_WIDTH)
+	    checkClientVersion()
     elseif msg == MSG_DEACTIVATE then
-        if umsagentHasAppkey == 1 then
-            pluginInvoke(umsagentPlugin, "OnDeactivate")
-        end
         Scene:freeByHandle(rootSprite)
     elseif msg == MSG_NETWORK then
         Log:write('param', param)

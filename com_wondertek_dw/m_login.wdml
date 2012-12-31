@@ -106,22 +106,49 @@ require 'com_wondertek_dw.common.framework'
 local rootSprite
 local user_name
 
+local umsagentPlugin = nil
+local umsagentHasAppkey = 0
+
 local g_exitFlag = false
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    
+    umsagentPlugin = pluginCreate("UmsAgent")
+    local reg = Reg:create(Alias.index)
+    Reg:setInteger(reg, 'UmsAgent', umsagentPlugin)
+    pluginInvoke(umsagentPlugin, 'SetDefaultReportPolicy', 1)
+    local f = io.open('MODULE:\\preUrl.ini')
+    if f then
+        local data = f:read('*all')
+        f:close()
+        local appkey = string.match(data, 'UMS_APPKEY%s*=%s*([^\r\n]*)')
+        Log:write('appkey=', appkey)
+        if appkey then
+            Reg:setInteger(reg, 'umsagentHasAppkey', 1)
+        end
+    end
+    
+    umsagentHasAppkey = Reg:getInteger(reg, 'umsagentHasAppkey')
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then
+        if umsagentHasAppkey == 1 then
+            pluginInvoke(umsagentPlugin, "SendEvent", 'postClientData', 'postClientData')
+            pluginInvoke(umsagentPlugin, "OnActivate", string.match(Alias.index, 'MODULE:\\(.*)'))
+        end
         -- 取帐号密码
         readPwd()
         if Config:get('autoRemeber') ~= nil and Config:get('autoRemeber') == '1' then
             loginOnSelect(Sprite:findChild(rootSprite, 'btnLogin'))
         end
     elseif msg == MSG_DEACTIVATE then
+        if umsagentHasAppkey == 1 then
+            pluginInvoke(umsagentPlugin, "OnDeactivate")
+        end
     elseif msg == MSG_NETWORK then 
         if g_exitFlag ==  true then
             doExit()
