@@ -5,10 +5,13 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.animation.ScaleAnimation;
+import android.widget.AbsoluteLayout;
+import android.widget.ZoomControls;
 
 import com.mapabc.mapapi.map.MapController;
 import com.mapabc.mapapi.map.MapView;
 import com.mapabc.mapapi.map.ZoomButtonsController;
+import com.mapabc.mapapi.map.ZoomButtonsController.OnZoomListener;
 
 /**
  * 
@@ -37,6 +40,7 @@ public class GDPinchMapView extends MapView {
 
 	protected ZoomButtonsController mZoomController;
 	protected MapController mMapController;
+	protected ZoomControls mZoom;
 
 	protected static float density, x1, x2, y1, y2, x1_pre, y1_pre,
 			dist_delta = 0, dist_curr = -1, dist_pre = -1, dist_scale = 0;
@@ -59,8 +63,13 @@ public class GDPinchMapView extends MapView {
 	}
 
 	public void init() {
+		setLayoutParams(new AbsoluteLayout.LayoutParams(0, 0, 0, 0));
+		setBuiltInZoomControls(true);
+		setMapGestureRotate(false);
 
 		mMapController = getController();
+
+		mZoomController = getZoomButtonsController();
 
 		density = getContext().getResources().getDisplayMetrics().density;
 		mZoomScale = getZoomLevel();
@@ -68,6 +77,9 @@ public class GDPinchMapView extends MapView {
 
 		SCALE_DIVISOR = getContext().getResources().getDisplayMetrics().widthPixels
 				* density;
+		Log.d(TAG, "init density:" + density + " mZoomScale:" + mZoomScale
+				+ " mMaxZoomScale:" + mMaxZoomScale + " SCALE_DIVISOR:"
+				+ SCALE_DIVISOR);
 	}
 
 	public boolean onTouchEvent(MotionEvent event) {
@@ -105,6 +117,7 @@ public class GDPinchMapView extends MapView {
 
 					int mode = dist_delta > 0 ? ZOOM_IN
 							: (dist_curr == dist_pre ? 2 : ZOOM_OUT);
+					mZoomScale = getZoomLevel();
 					switch (mode) {
 					case ZOOM_IN: // grow
 						if (mZoomScale < mMaxZoomScale) {
@@ -131,8 +144,9 @@ public class GDPinchMapView extends MapView {
 						scale.setInterpolator(getContext(),
 								android.R.anim.accelerate_interpolator);
 						startAnimation(scale);
-						Log.e("ZOOM SCALE", "From: " + mLastScale + ", To: "
-								+ mScale);
+						Log.d(TAG, "ZOOM SCALE " + "From: " + mLastScale
+								+ ", To: " + mScale);
+
 					}
 
 					mLastZoomDelta = mZoomDelta;
@@ -148,14 +162,14 @@ public class GDPinchMapView extends MapView {
 			}
 			break;
 		case MotionEvent.ACTION_POINTER_1_UP:
-			Log.e("Pointer Up", "Count: " + p_count);
+			Log.d(TAG, "Pointer Up Count: " + p_count);
 			mScale = mLastScale = 1;
 			mZoomDelta = mLastZoomDelta = 0;
 			mLastGestureTime = android.os.SystemClock.uptimeMillis();
 			clearAnimation();
 			break;
 		case MotionEvent.ACTION_POINTER_1_DOWN:
-			Log.e("Pointer Down", "Count: " + p_count);
+			Log.d(TAG, "Pointer Down Count: " + p_count);
 			x1 = x1_pre = event.getX(0);
 			y1 = y1_pre = event.getY(0);
 			mLastGestureTime = android.os.SystemClock.uptimeMillis();
