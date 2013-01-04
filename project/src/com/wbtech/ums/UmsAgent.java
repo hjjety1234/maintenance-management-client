@@ -25,6 +25,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -51,12 +52,14 @@ import com.wbtech.common.UmsConstants;
 import com.wbtech.dao.NetworkUitlity;
 
 public class UmsAgent {
+	public static String TAG = "UmsAgent";
 	public static boolean mUseLocationService = true;
 	public static String start_millis = null;// 开始的时间点 yyyy-MM-dd HH:mm:ss
 	public static long start = 0;// 开始的时间点 毫秒表示
 	public static String end_millis = null;// 结束的时间点 yyyy-MM-dd HH:mm:ss
 	public static long end = 0;// 结束的时间点 毫秒表示
 	public static String duration = null;// 运行时间
+	public static String callTime = null;// 加载时间
 	public static String session_id = null;
 	public static String activities = null;// 当前activity名称
 	public static String appkey = "";
@@ -343,6 +346,9 @@ public class UmsAgent {
 			info.put("start_millis", start_millis);
 			info.put("end_millis", end_millis);
 			info.put("duration", duration);
+			if (callTime != null) {
+				info.put("calltime", callTime);
+			}
 			info.put("version", CommonUtil.getVersion(context));
 			info.put("activities", activities);
 			info.put("appkey", appkey);
@@ -355,7 +361,7 @@ public class UmsAgent {
 			e.printStackTrace();
 		}
 		
-Log.d("xdz", info+"");
+		Log.d("onPause", info+"");
 
 		// 根据数据上传方式 处理info 保存在本地或上传服务器
 		// 根据不同的发送方式处理
@@ -797,6 +803,13 @@ Log.d("xdz", info+"");
 				e.printStackTrace();
 			}
 		
+		}
+	}
+	public static void onLoadFinish(Context context, String label) {
+		long end = Long.valueOf(System.currentTimeMillis());// 结束时间点毫秒表示
+		callTime = end - start + "";
+		if (label != null && !label.trim().equals("")) {
+			page_tag = label;
 		}
 	}
 	

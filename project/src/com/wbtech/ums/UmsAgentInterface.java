@@ -16,7 +16,10 @@ public class UmsAgentInterface {
 		if (event_id.equals("postClientData")) {
 			CommonUtil.updateConfig();
 			UmsAgent.postClientData(VenusActivity.appActivity);
-		} else {
+		} else if (event_id.equals("onLoadFinish")) {
+			UmsAgent.onLoadFinish(VenusActivity.appActivity, label);
+		} 
+		else {
 			UmsAgent.onEvent(VenusActivity.appActivity, event_id, label);
 		}
 	}
@@ -41,7 +44,7 @@ public class UmsAgentInterface {
 
 	public static void javaOnResume(String scene, String tag) {
 		if (canPause == false) {
-			Log.d(TAG, "javaOnPause: " + scene);
+			Log.d(TAG, "javaOnPause: " + scene + tag);
 			UmsAgent.onResume(VenusActivity.appActivity, scene, tag);
 			canPause = true;
 		}
