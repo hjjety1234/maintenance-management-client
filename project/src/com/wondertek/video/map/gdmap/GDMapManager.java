@@ -156,6 +156,7 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 		mMapView = new MapView(mContext, GDMapConstants.GDMAP_API_KEYS);
 		mMapView.setLayoutParams(new AbsoluteLayout.LayoutParams(0,0,0,0));
 		mMapView.setBuiltInZoomControls(true);
+		mMapView.setMapGestureRotate(false);
 //		mMapView.setVectorMap(true);
 		mMapController = mMapView.getController();
         mMapController.animateTo(new GeoPoint(31848818, 117255403));
