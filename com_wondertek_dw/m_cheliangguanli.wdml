@@ -140,6 +140,9 @@ local page = 1
 local isSearchBarVisible = false
 local nSearchBarWidth = 56
 local bIsFirst = true
+local num=5
+local preRespValue=nil
+
 ---------------------------------------回调函数--------------------------------
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -162,6 +165,7 @@ function bodyOnPluginEvent(msg)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
         local resp = Http:jsonDecode('car_list')
+        preRespValue=resp
         --Config:set('lines','10')
         Log:write(resp.value)
         if (resp.code == nil or resp.code ~= '0') then
@@ -206,7 +210,11 @@ function bodyOnPluginEvent(msg)
             Loading:close()
             return
             elseif  getJsonArrayCount(resp.value)>=5 then
+            if getJsonArrayCount(resp.value)==getJsonArrayCount(preRespValue.value) then
               Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
+              Sprite:setRect(Sprite:findChild(rootSprite, 'sampleList'), 0, 0, 480, 735)
+             else
+             end
             Loading:close()
         end
         -- 删除原来的列表
@@ -220,6 +228,7 @@ function bodyOnPluginEvent(msg)
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listitem'), len, 'loadListItem')
         ListView:adjust(listView)
         Loading:close() 
+        preRespValue=resp
          elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -300,7 +309,10 @@ function OnSearchButtonClicked(sprite)
 end
 
 function OnMoreButtonClicked(sprite)
-    Config:set('lines','100')
+ local str
+    num=num+5
+    str=''..num
+    Config:set('lines',str)
     local requestParam
     local searchBar = Sprite:getParent(sprite)
     local keywordEdit = Sprite:findChild(searchBar, 'keywordEdit')
@@ -314,8 +326,8 @@ function OnMoreButtonClicked(sprite)
     Http:request('car_list', requestURL, 102)
     Loading:show()
     Config:set('lines','10')
-     Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
-    Sprite:setRect(Sprite:findChild(rootSprite, 'sampleList'), 0, 0, 480, 735)
+    -- Sprite:setVisible(Sprite:findChild(rootSprite, 'btnmorebar'), 0)
+    
 end
 
 ---------------------------------------util functions---------------------------
