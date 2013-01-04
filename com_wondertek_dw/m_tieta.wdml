@@ -19,10 +19,10 @@
         <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
             OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
             
-             <!-- 设置背景 -->
+            <!-- 设置背景 -->
             <image rect="0,0,0,0" src="file://image/backgroundImg.png" style="autosize" extendstyle="1177" />
             
-            <!-- 设置头部 -->
+            <!-- 设置标题栏 -->
             <node name="NodeTitle" rect="0,0,480,66" extendstyle="1111">
                 <image name="titleBg" rect="0,0,480,66" src="file://image/title_new.png" extendstyle="1111" style="autosize" />
                 <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
@@ -32,20 +32,21 @@
                     <image name="sel" rect="15,8,75,75" src="file://image/skin/title_back_new.png"
                        extendstyle="1111" />
                 </button>
-
                 <scrolltext name="title" rect="100,0,280,66" text="铁塔查询"
                     extendstyle="1111" font-family="微软雅黑" font-size="30" h-align="center" v-align="center"
                     color="#ffffff" scroll="true" step="2" />
             </node>
+
 			<!-- 搜索按钮 -->
 			<button name="searchButton" rect="400,0,75,75" OnSelect="OnSearchButtonClicked"
 					extendstyle="1111" color="#ffffff">
-					<image name="searchButtonImage" rect="21,8,75,75"
+				<image name="searchButtonImage" rect="21,8,75,75"
 						src="file://image/skin/ico_search_new.png" 
 						extendstyle="1111" />
 			</button>
-            <node name="TypeNode" rect="10,80,460,50" enable="true" extendstyle="1111">
-                
+
+            <!-- 搜索条件：名称 -->
+            <node name="TypeNode" rect="10,80,460,50" enable="true" extendstyle="1111">               
                 <label name="label2" rect="5,0,140,50" border="false" text="所属站点："
                     v-align="center" color="#303030"  font-size="26" font-family='微软雅黑'/>
                  <image rect="130,5,220,40" src="file://image/input_text.png"  style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
@@ -55,7 +56,8 @@
                     v-align="center" color="#303030" font-size="26" font-family='微软雅黑' />
                     </button>
             </node>
-            <!-- 选择铁塔区域 -->
+
+            <!-- 搜索条件：区域 -->
             <node name="NameNode" rect="10,140,460,50" enable="true"
                 extendstyle="1111">              
                 <label name="label2" rect="5,0,140,50" border="false" text="所属区域："
@@ -71,11 +73,12 @@
                     <label name="quyuCode" rect="5,0,220,40" border="false" text=""
                         v-align="center" color="#303030" font-size="26" font-family='微软雅黑' />
 				</button>
-            </node>   
-            <!-- 选择代维公司  -->			
+            </node>
+
+            <!-- 搜索条件：公司 -->		
              <node name="CompanyNode" rect="10,200,460,50" enable="true"
                 extendstyle="1111">
-                 <label name="label2" rect="5,0,140,50" border="false" text="代维公司："
+                <label name="label2" rect="5,0,140,50" border="false" text="代维公司："
                     v-align="center" color="#303030"  font-size="26" font-family='微软雅黑' />
                 <image rect="130,5,220,40" src="file://image/select_bg.png"  style="sudoku-auto" sudoku="15,15,15,15"
                     extendstyle="1111">
@@ -89,27 +92,30 @@
                         v-align="center" color="#303030" font-size="26" font-family='微软雅黑' />
                 </button>
              </node>
-			<!-- 加载搜索结果  -->
+
+			<!-- 查询结果展示区域  -->
             <node name="listNode" rect="0,0,480,1045" extendstyle="1111">
 			<listview name="sampleList" rect="0,260,480,645" extendstyle="1111" />
-			</node>   
-            <!-- 搜索公司动态下拉框  -->
+			</node>
+
+            <!-- 公司列表展示区域  -->
             <node name="CompanySelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
-			     <button name="button" rect="0,0,480,800" OnSelect="hideCompanySelected">
-                 </button>
-                 <node rect="66,200,368,68" extendstyle="1111"  border="false">
+			    <button name="button" rect="0,0,480,800" OnSelect="hideCompanySelected">
+                </button>
+                <node rect="66,200,368,68" extendstyle="1111"  border="false">
                     <image rect="0,0,368,68" src="file://image/top.png"  style="autosize" extendstyle="0010" />
                     <image rect="20,30,22,22" src="file://image/icon_arrow.png"  style="autosize" extendstyle="0010" />
                     <label rect="50,6,140,68" border="false" color="#FFFFFF" style="autosize"
                      text="选择代维公司" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
-                 </node>
-				 <image rect="66,264,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" />
+                </node>
+				<image rect="66,264,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" />
 				<listview name="CompanyList" rect="66,268,368,216" extendstyle="1111" auto-scroll="true" style="autosize"
                     auto-adjust="true" >
 				</listview>
 				<image rect="66,480,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
-            </node>  		
-            <!-- 搜索公司动态listItem -->
+            </node>
+
+            <!-- 公司列表加载项 -->
             <node name="listitem1" rect="0,0,368,72" visible="false" enable="false" active="false">                   
                 <button name="btnName" rect="5,0,275,61" text="" color="#303030" h-align="center" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
                     extendstyle="0010" OnSelect="CompanyGroupOnSelect"  normal=""
@@ -121,24 +127,26 @@
                     <image rect="12,70,320,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
 
                 </button>
-            </node>	
-           <!-- 搜索区域动态下拉框  -->
+            </node>
+
+            <!-- 区域列表展示区域  -->
             <node name="quyuSelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
-			     <button name="button" rect="0,0,480,800" OnSelect="hideCompanySelected1">
-                 </button>
-                 <node rect="66,200,368,68" extendstyle="1111"  border="false">
+			    <button name="button" rect="0,0,480,800" OnSelect="hideCompanySelected1">
+                </button>
+                <node rect="66,200,368,68" extendstyle="1111"  border="false">
                     <image rect="0,0,368,68" src="file://image/top.png"  style="autosize" extendstyle="0010" />
                     <image rect="20,30,22,22" src="file://image/icon_arrow.png"  style="autosize" extendstyle="0010" />
                     <label rect="50,6,140,68" border="false" color="#FFFFFF" style="autosize"
                      text="选择区域" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
-                 </node>
-				 <image rect="66,264,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" />
+                </node>
+				<image rect="66,264,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" />
 				<listview name="quyuList" rect="66,268,368,216" extendstyle="1111" auto-scroll="true" style="autosize"
                     auto-adjust="true" >
 				</listview>
 				<image rect="66,480,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
-            </node>  		
-            <!-- 搜索区域动态listItem -->
+            </node>
+
+            <!-- 区域列表加载项 -->
             <node name="listitem2" rect="0,0,368,72" visible="false" enable="false" active="false">                   
                 <button name="btnName" rect="5,0,275,61" text="" color="#303030" h-align="center" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
                     extendstyle="0010" OnSelect="quyuGroupOnSelect"  normal=""
@@ -148,11 +156,10 @@
                      text="" h-align="left" v-align="center" font-family="微软雅黑" font-size="24"></label>		
                     <image rect="285,15,32,32" src="file://image/list_arrow.png"  style="autosize" extendstyle="1111" />           
                     <image rect="12,70,320,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
-
                 </button>
             </node>	
-			 <!-- 加载站点数据 -->
-
+			
+            <!-- 查询列表加载项 -->
 			<node name="listitem" visible="false" enable="false" active="false"
 				extendstyle="1011" rect="0,200,480,110">
                 <image name="listButtonImage" rect="3,0,468,100" src="file://image/tongxunlu_bg.png"
@@ -180,7 +187,7 @@
 					<image name="normalImage" rect="420,30,32,32" src="file://image/jiantou_new_1.png"
 						 extendstyle="1111" />
 				</button>
-				</node>
+			</node>
         </node>
     </body>
     <![CDATA[
@@ -298,6 +305,8 @@ function mainNodeOnKeyUp(sprite, kc)
         return 1
     end
 end
+
+--搜索按钮点击事件
 function OnSearchButtonClicked(sprite)
         local list = Sprite:findChild(rootSprite, 'sampleList')
         ListView:removeAllItems(list,1)
@@ -316,6 +325,7 @@ Log:write('777777777777777',content)
         end
         loadRequest(content,companyid,quyuid)
 end
+
 -- 点击公司下拉框
 function CompanyOnSelect(sprite)
     curCompanyBtn = sprite
