@@ -355,7 +355,7 @@ public class UmsAgent {
 			info.put("version", CommonUtil.getVersion(context));
 			info.put("activities", activities);
 			info.put("appkey", appkey);
-			if (page_tag != null) {
+			if (page_tag != null && !page_tag.trim().equals("")) {
 				info.put("tag", page_tag);
 				page_tag = null;
 			}
@@ -437,8 +437,10 @@ public class UmsAgent {
 //		}
 		start_millis = CommonUtil.getTime();// 开始的时间点
 		start = Long.valueOf(System.currentTimeMillis());// 开始时间点毫秒表示
-		
-		page_tag = tag;
+		if (tag != null && !tag.trim().equals(""))
+			page_tag = tag;
+		else
+			page_tag = "";
 	}
 
 	
@@ -808,18 +810,11 @@ public class UmsAgent {
 		
 		}
 	}
-	public static void onLoadFinish(Context context, String label) {
+	public static void onLoadFinish(Context context) {
 		load_end = Long.valueOf(System.currentTimeMillis());// 结束时间点毫秒表示
 		load_duration = load_end - load_start + "";
-		if (label != null && !label.trim().equals("")) {
-			page_tag = label;
-		}
 	}
-	public static void onLoadStart(Context context, String label) {
+	public static void onLoadStart(Context context) {
 		load_start = Long.valueOf(System.currentTimeMillis());// 开始时间点毫秒表示
-		if (label != null && !label.trim().equals("")) {
-			page_tag = label;
-		}
-		
 	}
 }

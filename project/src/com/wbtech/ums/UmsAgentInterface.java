@@ -17,11 +17,10 @@ public class UmsAgentInterface {
 			CommonUtil.updateConfig();
 			UmsAgent.postClientData(VenusActivity.appActivity);
 		}else if (event_id.equals("onLoadStart")) {
-			UmsAgent.onLoadStart(VenusActivity.appActivity, label);
+			UmsAgent.onLoadStart(VenusActivity.appActivity);
 		} else if (event_id.equals("onLoadFinish")) {
-			UmsAgent.onLoadFinish(VenusActivity.appActivity, label);
-		} 
-		else {
+			UmsAgent.onLoadFinish(VenusActivity.appActivity);
+		} else {
 			UmsAgent.onEvent(VenusActivity.appActivity, event_id, label);
 		}
 	}
