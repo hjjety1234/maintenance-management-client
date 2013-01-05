@@ -41,7 +41,6 @@ Alias = {
     noticeFav = 'MODULE:\\com_wondertek_dw\\noticeFav.wdml', -- 公告详情
     cheliangguanli = 'MODULE:\\com_wondertek_dw\\m_cheliangguanli.wdml', -- 车辆管理
     cheliangxiangqing = 'MODULE:\\com_wondertek_dw\\m_cheliangxiangqing.wdml', -- 车辆详情
-    imageDetail = 'MODULE:\\com_wondertek_dw\\imageDetail.wdml', -- 图片详情
     orignImg = 'MODULE:\\com_wondertek_dw\\orignImg.wdml', -- 查看原图（隐患上传）
     tongjiliebiao = 'MODULE:\\com_wondertek_dw\\tongjiliebiao.wdml', -- 统计列表
     tongxunlu='MODULE:\\com_wondertek_dw\\tongxunlu.wdml', -- 通讯录
@@ -65,6 +64,7 @@ Alias = {
     chart = 'MODULE:\\com_wondertek_dw\\chart.wdml', -- 统计报表demo
     
     ------------------------------Metro Style ------------------------------------------
+    imageDetail = 'MODULE:\\com_wondertek_dw\\imageDetail.wdml', -- 图片详情
     home_new = 'MODULE:\\com_wondertek_dw\\home_new.wdml',  -- 首页
     m_login = 'MODULE:\\com_wondertek_dw\\m_login.wdml',    -- 登录
     m_daibangongdan = 'MODULE:\\com_wondertek_dw\\m_daibangongdan.wdml', -- 待办列表
