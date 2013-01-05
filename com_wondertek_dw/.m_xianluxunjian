@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		 <!-- 页面背景  -->
+		 <node rect="0,0,480,800" extendstyle="1111">
+			 <image name="background" rect="0,0,480,800" border="false"
+				 src="file://image/background.png" style="autosize" extendstyle="1111">
+			 </image>
+		 </node>
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+			<!-- 页面标题  -->
+            <node name="NodeTitle" rect="0,0,480,66" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,66" src="file://image/nav_bar.png"
+                    extendstyle="1111" style="autosize" />
+                <button name="backBtn" rect="20,10,40,40" normal="normal" sel="sel"
+                    OnSelect="doBackDialog" extendstyle="1111">
+                    <image name="normal" rect="0,0,40,40" src="file://image/ico_back.png"
+                        style="autosize" extendstyle="1111" />
+                    <image name="sel" rect="0,0,40,40" src="file://image/ico_back.png"
+                        style="autosize" extendstyle="1111" />
+                </button>
+
+                <scrolltext name="titleNode" rect="105,0,280,66" text="线路巡检"
+                    extendstyle="1111" font-size="28" font-family="黑体" h-align="center" 
+                    v-align="center" color="#ffffff" scroll="true" step="2" />
+				<!--
+                <button name="btnForget" rect="420,10,40,40" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="submitOnSelect"
+                   normal="src:file://image/ico_submit.png;style:autosize;color:#ffffff"
+                    sel="src:file://image/ico_submit.png;style:autosize;color:#000000"
+                     font-size="24"/>
+				-->
+            </node>
+            <!--开始、结束巡检两个标签页 -->
+            <node name="tabNode" rect="0,66,480,60" extendstyle="1111">
+                <image name="title" rect="0,0,480,60" border="false"
+                    src="file://image/tab_bg.png" style="autosize" extendstyle="1111" />
+                <button name="btnTab1" rect="0,0,239,60" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
+                    <image name="tabBg" rect="0,0,239,60" border="false"
+                        src="" style="sudoku-auto" sudoku="15,15,15,15"
+                        extendstyle="1111" />
+                    <label name="labeltab" rect="0,0,239,60" text="开始巡检" color="#ffffff"
+                        v-align="center" h-align="center" font-size="28" font-family="黑体"  
+                        extendstyle="1111" />
+                </button>
+                <image  rect="239,0,2,60" border="false"
+                    src="file://image/sep.png" style="autosize" extendstyle="1111" />
+                <button name="btnTab2" rect="241,0,239,60" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
+                    <image name="tabBg" rect="0,0,239,60" border="false"
+                        src="" style="sudoku-auto" sudoku="15,15,15,15"
+                        extendstyle="1111" />
+                    <label name="labeltab" rect="0,0,239,60" text="结束巡检" color="#ffffff"
+                        v-align="center" h-align="center" font-size="28" font-family="黑体" 
+                        extendstyle="1111" />
+                </button>
+            </node>
+            <node name="baseShangbaoqu" rect="0,160,480,180" extendstyle="1111" border="false">
+                <label name="lbllonandlat" rect="0,0,480,50" extendstyle="1111" border="false" font-size="20"></label>
+                <button name="btnUP" rect="125,60,480,60"  OnSelect="btnUP_OnSelected" extendstyle="1111" border="false">
+                    <image src="file://image/button_up.png" rect="0,0,229,51" extendstyle="1111"
+                     style="sudoku-auto" sudoku="15,15,15,15"></image>
+                     <label rect="0,0,229,51" extendstyle="1111" h-align="center" v-align="center" text="上报巡检点"></label>
+                </button>
+            </node>
+            <node name="baseSprite" rect="0,320,480,50" extendstyle="1111"
+                border="false">
+                <image rect="0,0,480,50" src="file://image/search_bg_new.png"
+                    style="autosize" extendstyle="1111" />
+                <label name="label1" rect="20,0,460,50" border="false" text="上报历史"
+                    h-align="left" v-align="center" color="#000000" font-size="22"
+                    extendstyle="1111" />
+            </node>
+        </node>
+        <listview name="lvHis" rect="0,360,480,400" border="false" extendstyle="1111"></listview>
+		<node name="listitem" visible="false" enable="false" active="false"
+                extendstyle="1011" rect="0,40,480,40">
+			<image name="listItemBg" rect="0,0,480,40" src="file://image/item_bg_m.png" 
+                    style="autosize" extendstyle="1111" />
+			<label name="lblhis" rect="0,40,480,40" extendstyle="1111" text=""></label>
+		</node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+local rootSprite
+local planId
+local stationId
+local templateId
+local Inflag = '1'
+local tab = {}
+local list
+local timerNum = 50
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+	list = Sprite:findChild(rootSprite,'lvHis')
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+		local regHandle = Reg:create('xunjianzhixiang')
+        planId=Reg:getString(regHandle, 'planId')
+        templateId=Reg:getString(regHandle, 'templateId')
+        stationId=Reg:getString(regHandle, 'stationId')
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+--返回按钮单击
+function doBackDialog()
+	Scene:back();
+end
+
+
+--开始、结束巡检按钮
+function tabOnSelect(sprite)
+    local dataInfo = Sprite:getData(sprite)
+    local tab1 = Sprite:findChild(rootSprite, 'btnTab1')
+    local tab2 = Sprite:findChild(rootSprite, 'btnTab2')
+    if dataInfo=='01' then
+        --开始请求
+        inRequest()
+    elseif dataInfo=='02' then
+        -- 确认是否已经开始
+        if Inflag ~= '1' then
+            -- Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_s_l')
+            Dialog:show('提示','请先执行进站操作！','ok')
+            return
+        else
+            --结束请求
+            outRequest()
+        end
+    end
+end
+
+--开始巡检 
+function inRequest()
+    local url=getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
+    Log:write('url is '..url)
+    local username = Config:get('username')
+    local param = 'cmd=wlbxunjianStart&usercode='..username..'&code='..planId..'&resourceId='..stationId..''
+    Log:write("inrequest param = ", param)
+    Http:request('Indata', url, 105, {useCache = false, method = 'post', postData=param})
+    Loading:show(rootSprite)
+    --Dialog:show('提示','功能正在开发中！','ok')
+end
+
+-- 结束巡检
+-- issue#: 出站前需要判断输入是否合法
+function outRequest()
+    -- 对用户输入合法性进行判断
+    -- 返回非0时，检查失败，无法出站
+    if isSupervisor() == false then
+        if checkUserInput() ~= 0 then
+            return
+        end
+    end
+    -- 请求出站
+    local tabNode=Sprite:findChild(rootSprite,"tabNode")
+    local btnTab2 = Sprite:findChild(tabNode,"btnTab2")
+    local url = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
+    local username = Config:get('username')
+    local param = '&usercode='..username..'&code='..planId..'&resourceId='..stationId..''
+    Http:request('Outdata', url, 106, {useCache = false, method = 'post', postData='cmd=wlbxunjianEnd'..param})
+    Loading:show(rootSprite)
+end
+--上报位置按钮单击
+function btnUP_OnSelected(sprite)
+  Loading:show()
+  local lbltips = Sprite:findChild(rootSprite, 'lbllonandlat')
+   -- 当前无经纬度信息，检查当前gps状态
+    local result = System:getGPSStatus()
+    if result == -1 then
+        Sprite:setProperty(lbltips, 'text', '对不起，当前GPS不可用')
+    elseif result == 0 then
+        local gpsStatus = System:setGPSStatus(1)
+        if gpsStatus then
+            Sprite:setProperty(lbltips, 'text', 'GPS开启成功，正在定位...')
+            Timer:cancel(111)
+            Timer:set(111, 1000, '_requestNearbyStationByRadius')
+        else
+            Sprite:setProperty(lbltips, 'text', 'GPS开启失败')
+        end
+    elseif result == 1 then
+        Sprite:setProperty(lbltips, 'text', 'GPS已经开启，正在定位...')
+        Timer:cancel(111)
+        Timer:set(111, 1000, '_requestNearbyStationByRadius')
+    end
+    if(Loading:isShow()) then
+        Loading:close()
+    end
+end
+
+function _requestNearbyStationByRadius()
+    -- 需要对gps的数据请求多次
+    local statusBarText = Sprite:findChild(rootSprite, 'lbllonandlat')
+    local longitude,latitude,gpsdate = System:getGPSData()
+    if longitude and longitude ~= 0 and latitude and latitude ~= 0 and
+         isLocationChanaged(longitude, latitude) == true then
+		Log:write('gps date is ------------------->'..gpsdate)
+        timerNum = 50
+        Timer:cancel(111)
+        System:setGPSStatus(0)
+        
+        -- 判断定位是否成功
+        local latitudeValue = tonumber(latitude) / 10000000.0
+        local longitudeValue = tonumber(longitude) / 10000000.0
+        local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
+        Sprite:setProperty(statusBarText, 'text', '定位成功，经纬度为:'.. posValue)
+        
+        local date = os.date('%y%m%d%H%M%S')
+        
+        -- 发送短信
+        local smshead = 'XGXV30'
+        local deviceId = '44010001'
+        local cmd = '00' --手动巡检
+        local date = '121216143406 '
+        local endstr = '00000000AAA10'
+        local smscontent=smshead..deviceId..cmd..date..latitudeValue..longitudeValue
+	    Log:write('111111111111111111111111111111111111111111111111111111111111111', smscontent)
+	    local phone = '10658452'
+	       
+        if Util:sendSMS(phone, smscontent) then
+            Sprite:setProperty(statusBarText, 'text', '巡检信息上报成功')
+			local tabhis = {os.date()..'上报成功'}
+			table.insert(tab,tabhis)
+        else
+           Sprite:setProperty(statusBarText, 'text', '巡检信息上报失败:短信上报失败')
+        end
+        Loading:close()
+    elseif timerNum > 0 then
+        timerNum = timerNum - 1
+        Sprite:setProperty(statusBarText, 'text', 'GPS已经开启，正在定位，超时剩余'..timerNum..'秒.')
+        Timer:set(111, 1000, '_requestNearbyStationByRadius')
+    else
+        Timer:cancel(111)
+        System:setGPSStatus(0)
+        timerNum = 50
+        
+        -- 是否有gps缓存
+        if longitude ~= 0 and latitude ~=0  then
+            local latitudeValue = tonumber(latitude) / 10000000.0
+            local longitudeValue = tonumber(longitude) / 10000000.0
+            local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
+            Sprite:setProperty(statusBarText, 'text', '使用经纬度缓存:'.. posValue)
+            request('1', posValue, '1000', page, 1001)
+            return
+        end
+        
+        -- 定位失败
+        Sprite:setProperty(statusBarText, 'text', '定位失败，请稍候再试.')
+    end
+ end
+-- 检查是否有位置变化
+function isLocationChanaged(longitude, latitude)
+    if lastLongitude == 0 or lastLatitude == 0 then
+        lastLongitude = longitude
+        lastLatitude =  latitude
+        return false
+    elseif  lastLongitude ~= longitude and lastLatitude ~= latitude then
+        lastLongitude = longitude
+        lastLatitude =  latitude
+        return true
+    else
+        return false
+    end
+end
+
+function LoadList()
+	local count = tab.getn()
+	ListView:removeAllItems(list,true)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
+    ListView:adjust(list)
+end
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 40)
+    local listItemBg = Sprite:findChild(item, 'listItemBg')
+    Sprite:setRect(listItemBg, 0, 0, 480, 40)
+    if index % 2 > 0 then
+        Sprite:setProperty(listItemBg, 'src', '')
+    else
+        Sprite:setProperty(listItemBg, 'src', 'file://image/item_bg_m.png')
+    end
+	local lblHis = Sprite:findChild(item,'lblHis')
+	Sprite:setProperty(lblHis,'text',tab[index])
+end
+    ]]>
+</root>

@@ -105,7 +105,7 @@
 									text="" color="#ffffff" extendstyle="1111" >
 									<image rect="0,0,292,60" src="file://image/input.png" style="autosize"
 										extendstyle="1111" />
-									<label name="yinhuanLocName" rect="5,18,252,60" text="" color="#0" extendstyle="1111"
+									<edit name="yinhuanLocName" rect="5,18,252,60" text="" color="#0" extendstyle="1111"
 										style="autosize" h-align="center" v-align="top" font-size="24" />
 								</node>
 						</list-item>
@@ -230,26 +230,12 @@ end
 
 function doFillData()
     -- body
-    if data then
-        if data.accidentTypeName then
-            Sprite:setProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'typeBtn'), 'name') , 'text', data.accidentTypeName)
-        end
-        if data.businessType then
-            Sprite:setProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'zhuanyeBtn'), 'name') , 'text', data.businessType)
-        end
-        if data.accidentLevel then
-            Sprite:setProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'levelBtn'), 'name') , 'text', data.accidentLevel)
-        end
-        if data.name then
-            Sprite:setProperty(Sprite:findChild(rootSprite, 'yinhuanName') , 'text', data.name)
-        end
-        if data.remark then
-            Sprite:setProperty(Sprite:findChild(rootSprite, 'detail'), 'text', data.remark)
-        end
-        if data.positionRemark then
-            Sprite:setProperty(Sprite:findChild(rootSprite, 'yinhuanLocName'), 'text', data.positionRemark)
-        end
-    end
+    Sprite:setProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'typeBtn'), 'name') , 'text', data.accidentTypeName)
+    Sprite:setProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'zhuanyeBtn'), 'name') , 'text', data.businessType)
+    Sprite:setProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'levelBtn'), 'name') , 'text', data.accidentLevel)
+    Sprite:setProperty(Sprite:findChild(rootSprite, 'yinhuanName') , 'text', data.name)
+    Sprite:setProperty(Sprite:findChild(rootSprite, 'detail'), 'text', data.remark)
+    Sprite:setProperty(Sprite:findChild(rootSprite, 'yinhuanLocName'), 'text', data.positionRemark)
     Loading:close()
     if type(data.pictures) == 'table' then
         if data.pictures ~= nil then
@@ -266,9 +252,9 @@ function doFillData()
 end
 
 function doDown()
-    local path = getDownloadPath() .. 'daiwei' .. '/' .. pYinhuanID .. 'temp.amr'
+    local path = getDownloadPath() .. 'daiwei' .. '/' .. 'temp.amr'
     --downloadFilePath = downloadFilePath .. '\\' .. pYinhuanID .. '.amr'
-    Download:append(path, pYinhuanID .. 'temp.amr', data.voices[0].annexUrl)
+    Download:append(path, 'temp.amr', data.voices[0].annexUrl)
     Loading:show()
     onGetDownloadStatus()
 end
@@ -330,11 +316,11 @@ function playRecord()
     if playStatus == 0 then
         playStatus = 1
         Sprite:setProperty(playRecord, 'src', "file://image/pause.png")
-        NativePlayer:open(path .. '/' .. pYinhuanID .. 'temp.amr')
+        NativePlayer:open(path .. '/' .. 'temp.amr')
     elseif playStatus == 1 then
         playStatus = 2
         Sprite:setProperty(playRecord, 'src', "file://image/play.png")
-        NativePlayer:stop()
+        NativePlayer:pause()
     elseif playStatus == 2 then
         playStatus = 1
         Sprite:setProperty(playRecord, 'src', "file://image/pause.png")
