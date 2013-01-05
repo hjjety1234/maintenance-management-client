@@ -147,6 +147,7 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.umsagent'
 
 local rootSprite
 local observer
@@ -173,8 +174,10 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+		UmsAgent:OnActivate(string.match(Alias.home_new, 'MODULE:\\(.*)'), '巡检员首页')
         updateDaibanNum()
     elseif msg == MSG_DEACTIVATE then
+		UmsAgent:OnDeactivate()
     elseif msg == MSG_NETWORK then 
         if g_exitFlag == true then
             doExit()
@@ -186,6 +189,7 @@ end
 function bodyOnPluginEvent(msg, param)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
+        UmsAgent:onLoadFinish()
         data = Http:jsonDecode('daiban_data')
         Log:write("data 101 = ", data)
         if not data or type(data) ~= 'table' then
@@ -252,6 +256,7 @@ function loadRequest()
     local param = '&page=1'
     local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
     Http:request('daiban_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbtasklist'})
+	UmsAgent:onLoadStart()
 end
 
 function setDaibanNum(num)
