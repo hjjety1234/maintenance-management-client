@@ -1,4 +1,4 @@
-﻿-- -----------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
 -- | WonderTek [ 网络无处不在，沟通及时到达 ]
 -- -----------------------------------------------------------------------------
 -- | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
@@ -93,14 +93,29 @@ Alias = {
     m_kaohebaobiao = 'MODULE:\\com_wondertek_dw\\m_kaohebaobiao.wdml', -- 考核报表
     m_staff_statistical = 'MODULE:\\com_wondertek_dw\\m_staff_statistical.wdml', -- 人员资质统计
     m_search = 'MODULE:\\com_wondertek_dw\\m_search.wdml',--资源查询
-    m_resourcereport = 'MODULE:\\com_wondertek_dw\\m_resourcereport.wdml',
+	m_tieta = 'MODULE:\\com_wondertek_dw\\m_tieta.wdml',--铁塔查询
+	m_tietadetail = 'MODULE:\\com_wondertek_dw\\m_tietadetail.wdml',--铁塔详情
+    m_zonghefugai = 'MODULE:\\com_wondertek_dw\\m_zonghefugai.wdml',--综合覆盖
+    m_wlandetail = 'MODULE:\\com_wondertek_dw\\m_wlandetail.wdml',--WLAN详情
+    m_zhifangdetail = 'MODULE:\\com_wondertek_dw\\m_zhifangdetail.wdml',--直放站详情
+    m_dateDialog = 'MODULE:\\com_wondertek_dw\\m_dateDialog.wdml',--日期下拉框
+    m_jikejiake_search = 'MODULE:\\com_wondertek_dw\\m_jikejiake_search.wdml',--集客家客搜索
+    m_jikejiake_detail = 'MODULE:\\com_wondertek_dw\\m_jikejiakedetail.wdml',--集客家客详情
+    m_resourcereport = 'MODULE:\\com_wondertek_dw\\m_resourcereport.wdml',--资源统计
     
     m_xianluxunjian = 'MODULE:\\com_wondertek_dw\\m_xianluxunjian.wdml',--线路巡检
     
     m_setting = 'MODULE:\\com_wondertek_dw\\m_setting.wdml', -- 系统设置页面(江峰)
     m_zhandiandaohang = 'MODULE:\\com_wondertek_dw\\m_zhandiandaohang.wdml', -- 站点导航
+    m_xunjiandaohang = 'MODULE:\\com_wondertek_dw\\m_xunjiandaohang.wdml', -- 巡检导航
+    m_zhandiansousuo = 'MODULE:\\com_wondertek_dw\\m_zhandiansousuo.wdml', -- 站点搜索
+    m_daohangsousuo = 'MODULE:\\com_wondertek_dw\\m_daohangsousuo.wdml', -- 导航搜索
     m_renyuantongji = 'MODULE:\\com_wondertek_dw\\m_renyuantongji.wdml', -- 人员统计
     m_xunjiantongji = 'MODULE:\\com_wondertek_dw\\m_xunjiantongji.wdml', -- 巡检统计
     monthDialog = 'MODULE:\\com_wondertek_dw\\monthDialog.wdml', -- 人员统计
+    m_basestation='MODULE:\\com_wondertek_dw\\m_basestation.wdml',
+    m_zonghefugai='MODULE:\\com_wondertek_dw\\m_zonghefugai.wdml',
+    m_tieta='MODULE:\\com_wondertek_dw\\m_tieta.wdml',
+    m_stationdetail='MODULE:\\com_wondertek_dw\\m_stationdetail.wdml',
 }
 

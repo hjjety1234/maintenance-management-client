@@ -24,15 +24,13 @@
             <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
                  <image name="title" rect="0,0,480,66" border="false" src="file://image/title_new.png" 
                     style="autosize" extendstyle="1111">
-                     <label name="titleText" rect="0,0,480,66" text="资源管理" color="#ffffff" v-align="center"  
+                     <label name="titleText" rect="0,0,480,66" text="资源查询" color="#ffffff" v-align="center"  
                        h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />
                  </image>
                  <!-- 返回按钮  -->
-                 <button name="backBtn" rect="10,10,40,40"  style="autosize"  normal="" sel="" 
+                 <button name="backBtn" rect="0,0,66,66"  style="autosize"  normal="" sel="" 
                     OnSelect="doBack" extendstyle="1111">
-                    <image name="normal" rect="0,0,40,40" src="file://image/ic_home_new.png"
-                       extendstyle="1111" />
-                    <image name="sel" rect="0,0,40,40" src="file://image/ic_home_new.png" 
+                    <image name="normal" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                        extendstyle="1111" />
                 </button>
             </node>
@@ -45,45 +43,45 @@
                     <button name="jizhanbtn" rect="0,0,88,70" border="false"
                             text="" color="#ffffff" OnSelect="itemOnSelect" extendstyle="1111"
                             data="01">
-                             <image name="img" rect="29,5,30,30" src="file://image/ico_jizhans.png"
-                   extendstyle="1111" />
+                             <image name="img" rect="29,10,30,30" src="file://image/ico_jizhans.png"
+                        extendstyle="1111" style="autosize"/>
                         <label name="jizhanText" rect="0,40,88,30" text="基站" color="#303030" v-align="center"  
                        h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
                     </button>
-                    <button name="tietabtn" rect="98,0,88,70" border="false"
+                    <button name="tietabtn" rect="120,0,88,70" border="false"
                             text="" color="#ffffff" OnSelect="itemOnSelect" extendstyle="1111"
                             data="02">
-                            <image name="img" rect="29,5,30,30" src="file://image/ico_tieta.png"
-                   extendstyle="1111" />
+                            <image name="img" rect="29,10,30,30" src="file://image/ico_tieta.png"
+                   extendstyle="1111" style="autosize"/>
                         <label name="tietaText" rect="0,40,88,30" text="铁塔" color="#303030" v-align="center"  
                        h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
                     </button>
-                    <button name="zonghebtn" rect="196,0,88,70" border="false"
+                    <button name="zonghebtn" rect="240,0,88,70" border="false"
                             text="" color="#ffffff" OnSelect="itemOnSelect" extendstyle="1111"
                             data="03">
-                             <image name="img" rect="29,5,30,30" src="file://image/dt_fugai.png"
-                   extendstyle="1111" />
+                             <image name="img" rect="29,10,30,30" src="file://image/dt_fugai.png"
+                   extendstyle="1111" style="autosize"/>
                        <label name="zongheText" rect="0,40,88,30" text="综合覆盖" color="#303030" v-align="center"  
                        h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
                     </button>
                     
-                     <button name="jijiabtn" rect="294,0,88,70" border="false"
+                     <button name="jijiabtn" rect="360,0,88,70" border="false"
                             text="" color="#ffffff" OnSelect="itemOnSelect" extendstyle="1111"
                             data="04">
-                             <image name="img" rect="29,5,30,30" src="file://image/dt_jike.png"
-                   extendstyle="1111" />
+                             <image name="img" rect="29,10,30,30" src="file://image/dt_jike.png"
+                   extendstyle="1111" style="autosize"/>
                        <label name="jijiaText" rect="0,40,88,30" text="集客家客" color="#303030" v-align="center"  
                        h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
                     </button>
                     
-                      <button name="jijiabtn" rect="392,0,88,70" border="false"
+                      <!--<button name="jijiabtn" rect="392,0,88,70" border="false"
                             text="" color="#ffffff" OnSelect="itemOnSelect" extendstyle="1111"
                             data="05">
-                             <image name="img" rect="29,5,30,30" src="file://image/dt_route.png"
-                   extendstyle="1111" />
+                             <image name="img" rect="29,10,30,30" src="file://image/dt_route.png"
+                              extendstyle="1111" style="autosize"/>
                        <label name="jijiaText" rect="0,40,88,30" text="线路" color="#303030" v-align="center"  
                        h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
-                    </button>
+                    </button>-->
                 </node>
                 <!--
                 
@@ -143,18 +141,22 @@ local g_stationName = nil -- 目标站点名称
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-  
-    openMap(0, 70, 480, 658)
-    getCurPosition()
     
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-    
+        openMap(0, 70, 480, 658)
+        getCurPosition()
+        local regHandle = Reg:create(Alias.m_basestation)
+        local pois = Reg:getString(regHandle, 'pois')
+        if pois ~= nil and pois ~= '' then
+            Log:write('pois---->', pois)
+            local observer = Plugin:getObserver()
+            Map:showPOIs(observer, 1008, pois, 1)
+        end
     elseif msg == MSG_DEACTIVATE then
-    
     end
 end
 
@@ -279,11 +281,18 @@ if dataInfo=='01' then
  Map:close()
  Scene:setReturn(Alias.m_search, Alias.m_basestation)
        Scene:go(Alias.m_basestation)
-  
+  elseif dataInfo=='02'  then
+     Map:close()
+Scene:setReturn(Alias.m_search, Alias.m_tieta)
+        Scene:go( Alias.m_tieta)    
     elseif dataInfo=='03'  then
      Map:close()
 Scene:setReturn(Alias.m_search, Alias.m_zonghefugai)
         Scene:go( Alias.m_zonghefugai)    
+    elseif dataInfo == '04' then --集客家客
+        Map:close()
+        Scene:setReturn(Alias.m_search, Alias.m_jikejiake_search)
+        Scene:go( Alias.m_jikejiake_search)
 end
 end
 

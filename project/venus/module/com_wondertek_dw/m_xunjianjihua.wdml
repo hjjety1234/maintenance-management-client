@@ -31,11 +31,11 @@
                     h-align="center" font-size="28" font-family="黑体"  extendstyle="1111" />
             </image>
             <!-- 返回首页按钮  -->
-            <button name="backBtn" rect="20,13,60,40" normal="normal" sel="sel"
+            <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
                 OnSelect="doBack" extendstyle="1111">
-                <image name="normal" rect="0,0,40,40" src="file://image/ico_home.png"
+                <image name="normal" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                     extendstyle="1111" />
-                <image name="sel" rect="0,0,40,40" src="file://image/ico_home.png"
+                <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                     extendstyle="1111" />
             </button>
         </node>
@@ -64,12 +64,12 @@
                     <label name="textTitle" rect="50,40,160,25" text="巡检完成数/总数 :" color="#5a5a5a" font-family="微软雅黑"
                         font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label name="finished" rect="210,40,20,25" font-family="微软雅黑" 
+                    <label name="finished" rect="200,40,50,25" font-family="微软雅黑" 
                         font-size="20" extendstyle="1111" text="40" h-align="center" 
                         v-align="center" color="#0062ab"></label>
-                    <label rect="230,40,10,25" text="/" color="#303030" v-align="center"
+                    <label rect="245,45,10,25" text="/" color="#303030" v-align="center"
                         h-align="left" font-size="20" font-family="微软雅黑" extendstyle="1111" />
-                    <label name="total" rect="240,40,50,25" text="100" color="#dd512e" v-align="center"
+                    <label name="total" rect="260,40,50,25" text="100" color="#dd512e" v-align="center"
                         h-align="left" font-size="20" font-family="微软雅黑" extendstyle="1111" />
                     <!-- 巡检率 -->
                     <label name="pollingRate" rect="320,40,80,25" text="巡检率 :" color="#5a5a5a" font-family="微软雅黑"
@@ -99,28 +99,6 @@
                 <label rect="0,25,480,35" extendstyle="1010" text="暂无巡检任务"
                     h-align="center" v-align="center" color="#686868" font-size="24" />
             </node>
-
-            <!--线路巡检-->
-            <node name="ContextMenuNode" rect="0,720,480,80" border="false"
-                visible="false" enable="false" active="false" extendstyle="1111">
-                <image name="ContextMenuNodeBgImage" style="autosize" rect="0,0,480,80"
-                    src="file://image/tab_n.png" extendstyle="1111" />
-                <node name="FavListImg" rect="0,0,480,80" extendstyle="1111"
-                    visible="true">
-                    <button name="favListButton" rect="0,0,480,80"
-                        OnSelect="ContextMenuListItemOnSelect" extendstyle="1111">
-                        <image rect="182,18,40,40" src="file://image/bookmark1.png"
-                            style="autosize" border="false" extendstyle="1111" />
-                        <label name="noticeDate" rect="325,75,90,20" border="false"
-                            text="" h-align="right" v-align="center" color="#303030"
-                            font-size="15" extendstyle="1111" />
-                        <label name="label2" rect="228,18,120,40" border="false"
-                            text="线路巡检" h-align="left" v-align="center" color="#303030"
-                            font-family="微软雅黑" font-size="24" extendstyle="1111" />
-                    </button>
-                </node>
-            </node>
-
         </node>
     </body>
     <![CDATA[
@@ -146,12 +124,6 @@ function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     nullNode = Sprite:findChild(rootSprite, 'nullNode')
     list = Sprite:findChild(rootSprite, 'sampleList')
-    local username = Config:get('username')
-    if username == 'zyhefei' then
-        local ContextMenuNode = Sprite:findChild(rootSprite,'ContextMenuNode')
-        --Sprite:setProperty(ContextMenuNode,'visible','true')
-        --setAllShoworHide(ContextMenuNode,1)
-    end
     getCurrentLoc()
 end
 
@@ -357,10 +329,6 @@ end
 
 function xianlu_onselected(sprite)
 	Scene:go(Alias.m_xianluxunjian)
-end
-function ContextMenuListItemOnSelect(sprite)
-    Log:write('xl onclicked....')
-    Scene:go(Alias.m_xianluxunjian)
 end
 ---------------------------------------GPS相关函数---------------------------
 -- 取得当前的经纬度，设置全局变量

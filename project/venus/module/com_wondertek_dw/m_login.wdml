@@ -102,6 +102,7 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.umsagent'
 
 local rootSprite
 local user_name
@@ -116,12 +117,14 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then
+        UmsAgent:OnActivate(string.match(Alias.m_login, 'MODULE:\\(.*)'), "登录页")
         -- 取帐号密码
         readPwd()
         if Config:get('autoRemeber') ~= nil and Config:get('autoRemeber') == '1' then
             loginOnSelect(Sprite:findChild(rootSprite, 'btnLogin'))
         end
     elseif msg == MSG_DEACTIVATE then
+         UmsAgent:OnDeactivate()
     elseif msg == MSG_NETWORK then 
         if g_exitFlag ==  true then
             doExit()
@@ -132,6 +135,7 @@ end
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
     Loading:close()
+    UmsAgent:onLoadFinish()
     Log:write('msg=================================',msg)
     if msg == 101 then
         local loginData = Http:jsonDecode('login_istrue')
@@ -142,7 +146,10 @@ function bodyOnPluginEvent(msg)
             writeuserInfo()
             if user_name == 'qianshan' then 
             	Scene:go(Alias.home_new)
-            elseif user_name == 'fanbingheng' then
+            elseif user_name == 'fanbingheng' or user_name == 'zhangxiangjun' 
+                or user_name == 'tangjizhi' or user_name == 'liutingliang' 
+                or user_name == 'sunjun' or user_name == 'mengzhengyu' 
+                or user_name == 'hanlu' or user_name == 'xufan' then
            		Scene:go(Alias.home_sheng)  
 			else
 				Scene:go(Alias.home_new)
@@ -181,6 +188,7 @@ end
 
 ---------------------------------------util functions---------------------------
 function loginOnSelect(sprite)
+    UmsAgent:onLoadStart()
     local username=Sprite:getText(Sprite:findChild(rootSprite, 'username'))
     local password=Sprite:getText(Sprite:findChild(rootSprite, 'password'))
     user_name=username
