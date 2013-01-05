@@ -56,10 +56,12 @@ public class UmsAgent {
 	public static boolean mUseLocationService = true;
 	public static String start_millis = null;// 开始的时间点 yyyy-MM-dd HH:mm:ss
 	public static long start = 0;// 开始的时间点 毫秒表示
+	public static long load_start = 0; // 页面加载时间点 毫秒表示
 	public static String end_millis = null;// 结束的时间点 yyyy-MM-dd HH:mm:ss
 	public static long end = 0;// 结束的时间点 毫秒表示
+	private static Long load_end; // 页面加载结束时间点 毫秒表示
 	public static String duration = null;// 运行时间
-	public static String callTime = null;// 加载时间
+	public static String load_duration = null;// 加载时间
 	public static String session_id = null;
 	public static String activities = null;// 当前activity名称
 	public static String appkey = "";
@@ -346,8 +348,9 @@ public class UmsAgent {
 			info.put("start_millis", start_millis);
 			info.put("end_millis", end_millis);
 			info.put("duration", duration);
-			if (callTime != null) {
-				info.put("calltime", callTime);
+			if (load_duration != null) {
+				info.put("calltime", load_duration);
+				load_duration = null;
 			}
 			info.put("version", CommonUtil.getVersion(context));
 			info.put("activities", activities);
@@ -806,12 +809,17 @@ public class UmsAgent {
 		}
 	}
 	public static void onLoadFinish(Context context, String label) {
-		long end = Long.valueOf(System.currentTimeMillis());// 结束时间点毫秒表示
-		callTime = end - start + "";
+		load_end = Long.valueOf(System.currentTimeMillis());// 结束时间点毫秒表示
+		load_duration = load_end - load_start + "";
 		if (label != null && !label.trim().equals("")) {
 			page_tag = label;
 		}
 	}
-	
-	
+	public static void onLoadStart(Context context, String label) {
+		load_start = Long.valueOf(System.currentTimeMillis());// 开始时间点毫秒表示
+		if (label != null && !label.trim().equals("")) {
+			page_tag = label;
+		}
+		
+	}
 }

@@ -16,6 +16,8 @@ public class UmsAgentInterface {
 		if (event_id.equals("postClientData")) {
 			CommonUtil.updateConfig();
 			UmsAgent.postClientData(VenusActivity.appActivity);
+		}else if (event_id.equals("onLoadStart")) {
+			UmsAgent.onLoadStart(VenusActivity.appActivity, label);
 		} else if (event_id.equals("onLoadFinish")) {
 			UmsAgent.onLoadFinish(VenusActivity.appActivity, label);
 		} 
