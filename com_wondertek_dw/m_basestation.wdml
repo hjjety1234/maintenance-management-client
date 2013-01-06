@@ -202,6 +202,8 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.umsagent'
+
 local rootSprite
 local values
 local curCompanyBtn
@@ -220,8 +222,9 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        
+        UmsAgent:OnActivate(string.match(Alias.basestation, 'MODULE:\\(.*)'), '基站查询页面')
     elseif msg == MSG_DEACTIVATE then
+    UmsAgent:OnDeactivate()
     end
 end
 
@@ -229,6 +232,7 @@ end
 function bodyOnPluginEvent(msg)
    Loading:close()
     if msg == 101 then
+    UmsAgent:onLoadFinish()
     cmpData = Http:jsonDecode('group_data')
         Log:write("data101 = ", cmpData)
         if not cmpData or type(cmpData) ~= 'table' then
@@ -417,19 +421,15 @@ function doBack(sprite)
         local name = station.stationname
         local longitude = station.lon
         local latitude = station.lat
-
-        if longitude ~= nil and longitude ~= '' 
-            and latitude ~= nil and latitude ~= '' then 
-            -- 创建poi点
-            local poiString = string.format('{"id":"%d", "longitude":%d, "latitude":%d, "desc":"%s"}',
-                   i, station.lon * 1000000, station.lat * 1000000, station.stationname)
-            Log:write('poiString', poiString)
-            
-            if i < len then
-                poisString = poisString..poiString..',' 
-            else
-                poisString = poisString..poiString
-            end
+        -- 创建poi点
+        local poiString = string.format('{"id":"%d", "longitude":%d, "latitude":%d, "desc":"%s"}',
+               i, station.lon * 1000000, station.lat * 1000000, station.stationname)
+        Log:write('poiString', poiString)
+        
+        if i < len then
+            poisString = poisString..poiString..',' 
+        else
+            poisString = poisString..poiString
         end
     end
     poisString = poisString..']}'
@@ -505,6 +505,7 @@ function loadCompanyRequest()
     local param = 'cmd=wlbCmpList&page='..'1'..'&code=340100'
     local reqURL = getWholeUrl('nbspweb/webservice/chart!doWebservice.action', param)
     Http:request('group_data', reqURL, 101, {useCache = false})
+    UmsAgent:onLoadStart()
      Loading:show()
 end
 

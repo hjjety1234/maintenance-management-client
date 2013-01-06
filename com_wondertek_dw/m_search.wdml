@@ -139,6 +139,7 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.umsagent'
 require 'framework.map'
 local rootSprite
 
@@ -160,6 +161,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+    UmsAgent:OnActivate(string.match(Alias.m_search, 'MODULE:\\(.*)'), '资源查询首页')
         openMap(0, 70, 480, 644)
         getCurPosition()
         local regHandle = Reg:create(Alias.m_basestation)
@@ -170,12 +172,14 @@ function bodyOnSpriteEvent(msg, param)
             Map:showPOIs(observer, 1008, pois, 1)
         end
     elseif msg == MSG_DEACTIVATE then
+    UmsAgent:OnDeactivate()
     end
 end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg, param)
     if msg == 1000 then
+    UmsAgent:onLoadFinish()
         -- postData为Json数据({"latitude":"31250614","longitude":"121600975"})
         local postDataString = Param:getString(param, 0)
         local postData = Json:loadString2Table(postDataString)
@@ -220,6 +224,7 @@ end
 function getCurPosition()
     local observer = Plugin:getObserver()
     Map:getCurPosition(observer, 1000)
+    UmsAgent:onLoadStart()
 end
 
 
