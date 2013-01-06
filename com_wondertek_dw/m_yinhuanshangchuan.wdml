@@ -353,6 +353,7 @@ local longitude = 0
 local latitude = 0
 
 local isFavContextMenuVisible = false -- 收藏上下文菜单是否显示标志
+local g_codeValue = nil --  当前的专业类别
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -469,6 +470,19 @@ end
 
 function fillSelect()
     setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
+    -- 根据专业类型，对隐患类别进行过滤
+    if selectIndex == 1 and getJsonArrayCount(selectData.value) > 0 
+        and g_codeValue ~= nil then    
+        dataValue = {}
+        for i=0, getJsonArrayCount(selectData.value) - 1  do
+            if selectData.value[i].businessType == g_codeValue then 
+                Log:write('fillSelect: ', i, selectData.value[i])
+                table.insert(dataValue, 0, selectData.value[i])
+            end
+        end
+        selectData.value = dataValue
+    end
+    Log:write('fillSelect: selectData.value = ', selectData.value)
     local count = #selectData.value + 1
     local list = Sprite:findChild(rootSprite, 'listSelect')
     local item = Sprite:findChild(rootSprite, 'selectItem')
@@ -557,7 +571,7 @@ function editOnTextChanged(sprite,ncount)
     end
 end
 
--- 巡检类别选择
+-- 隐患类别选择
 function xunjianOnSelect(sprite)
     --@Log:write('tempid===', tempid)
     local xunjianData = Sprite:getData(sprite)
@@ -622,6 +636,11 @@ function xunjianGroupOnSelect(sprite)
     elseif selectIndex == 3 then
         title = selectData.value[index].lable
         typeValue = xunjianData
+        -- 保存当前选择的专业类型
+        if selectData.value[index].codevalue ~= nil then
+            g_codeValue = selectData.value[index].codevalue
+            Log:write('xunjianGroupOnSelect： g_codeValue = '.. g_codeValue)
+        end
     end
     Sprite:setProperty(curXunjianBtn, 'data', Sprite:getProperty(sprite, 'data'))
     Sprite:setProperty(xunjianText, 'text', title)
