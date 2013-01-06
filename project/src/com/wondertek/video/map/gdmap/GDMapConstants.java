@@ -8,6 +8,8 @@ package com.wondertek.video.map.gdmap;
 public class GDMapConstants {
     /** Api_Key */
     public static final String GDMAP_API_KEYS = "c2b0f58a6f09cafd1503c06ef08ac7aeb7ddb91ada929925831b67f673bf10ad69195de3c7db4836";
+    public static final String GDMAP_CMCC_API_KEYS = "5bcb93cef3bf75163c161bb7cea81b302f3815e5d9935e84bd763cd4b8be14cb7861f1266f659f31";
+    
     /** Location Update Min Time */
     public static final long GDMAP_LOCATION_UPDATE_MIN_TIME = 2000;
     /** Location Update Min Distance */

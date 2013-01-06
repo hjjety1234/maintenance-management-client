@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import com.mapabc.mapapi.core.GeoPoint;
 import com.mapabc.mapapi.core.PoiItem;
+import com.mapabc.mapapi.core.ServerUrlSetting;
 import com.mapabc.mapapi.geocoder.Geocoder;
 import com.mapabc.mapapi.location.LocationManagerProxy;
 import com.mapabc.mapapi.location.LocationProviderProxy;
@@ -154,10 +155,18 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 		Log.d(TAG, ">>>GDMapManager<<<");
 		mContext = cxt;
 		mMapView = new MapView(mContext, GDMapConstants.GDMAP_API_KEYS);
+		
+		// 修改栅格地图地址为省内GIS平台服务
+		ServerUrlSetting serverUrlSetting = new ServerUrlSetting();
+		serverUrlSetting.strTileUrl  = "http://221.130.163.121:8088";
+		//serverUrlSetting.strPoiSearchUrl = "http://221.130.163.121:7001/";
+		mMapView.setServerUrl(serverUrlSetting);
+		
 		mMapView.setLayoutParams(new AbsoluteLayout.LayoutParams(0,0,0,0));
 		mMapView.setBuiltInZoomControls(true);
 		mMapView.setMapGestureRotate(false);
 //		mMapView.setVectorMap(true);
+		
 		mMapController = mMapView.getController();
         mMapController.animateTo(new GeoPoint(31848818, 117255403));
 		mMapController.setZoom(15);
