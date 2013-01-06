@@ -348,6 +348,7 @@ require 'com_wondertek_dw.common.framework'
 require 'framework.upload'
 require 'framework.barcode'
 require 'framework.map'
+require 'framework.umsagent'
 
 local rootSprite
 
@@ -403,7 +404,9 @@ end
 --  root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        UmsAgent:OnActivate(string.match(Alias.m_xunjiantijiao, 'MODULE:\\(.*)'), "巡检提交")
     elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
     end
 end
 
@@ -433,6 +436,7 @@ function bodyOnPluginEvent(msg, param)
         --]]
     elseif msg == 102 then -- 获取巡检子项
 		Loading:close()
+        UmsAgent:onLoadFinish()
         local data = Http:jsonDecode('sub_items_detail')
         -- 服务端返回数据合法性检查
         if not data or type(data) ~= 'table' then
@@ -870,6 +874,7 @@ end
 
 -- 请求巡检子项
 function requestSubItems()
+    UmsAgent:onLoadStart()
     local param = 'cmd=wlbxunjianTplSubItemDetail&code='..g_templateId
     local requestURL = getWholeUrl('nbspweb/webservice/wplan!doWebservice.action', param)
     Http:request('sub_items_detail', requestURL, 102, {useCache = false})

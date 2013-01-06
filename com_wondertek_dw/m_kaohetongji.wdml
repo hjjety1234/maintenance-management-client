@@ -81,13 +81,12 @@
 
     require 'com_wondertek_dw.common.framework'
     require 'framework.webbrowser'
+    require 'framework.umsagent'
     local rootSprite
     
     local g_x1, g_y1, g_w1, g_h1
     local g_x2, g_y2, g_w2, g_h2
-    
-    local umsagentPlugin = nil
-    local umsagentHasAppkey = 0
+	
     ---------------------------------------回调函数列表--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
@@ -113,9 +112,7 @@
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
-            if umsagentHasAppkey == 1 then
-                pluginInvoke(umsagentPlugin, "OnActivate", string.match(Alias.chart, 'MODULE:\\(.*)'))
-            end
+            UmsAgent:OnActivate(string.match(Alias.m_kaohetongji, 'MODULE:\\(.*)'), '考核统计')
             -- 检查是否有月份数据
             local regHandle = Reg:create('year_month')
             local year = Reg:getString(regHandle, 'year')
@@ -124,11 +121,17 @@
             if year ~= nil and year ~= '' and month ~= nil and month ~= '' then
                 Sprite:setProperty(monthNode, 'text', year..'-'..month)
             end
+            --[[
+            local xscal = SCREEN_WIDTH / 480
+		    local yscal = SCREEN_HEIGHT / 800
+		    local requestUrl = 'http://120.209.131.146/webcloud/resources/highchart.html'
+		    WebBrowser:create(5, 70*yscal, 470*xscal, 730*yscal)
+		    WebBrowser:showWebBrowser(1)
+		    WebBrowser:openUrl(requestUrl)
+            --]]
             refresh()
         elseif msg == MSG_DEACTIVATE then
-            if umsagentHasAppkey == 1 then
-                pluginInvoke(umsagentPlugin, "OnDeactivate")
-            end
+            UmsAgent:OnDeactivate()
         end
     end
     -- @brief 插件消息方法
