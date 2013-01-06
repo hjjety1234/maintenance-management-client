@@ -406,15 +406,19 @@ function doBack(sprite)
         local name = station.stationname
         local longitude = station.lon
         local latitude = station.lat
-        -- 创建poi点
-        local poiString = string.format('{"id":"%d", "longitude":%d, "latitude":%d, "desc":"%s"}',
-               i, station.lon * 1000000, station.lat * 1000000, station.stationname)
-        Log:write('poiString', poiString)
-        
-        if i < len then
-            poisString = poisString..poiString..',' 
-        else
-            poisString = poisString..poiString
+
+        if longitude ~= nil and longitude ~= '' 
+            and latitude ~= nil and latitude ~= '' then 
+            -- 创建poi点
+            local poiString = string.format('{"id":"%d", "longitude":%d, "latitude":%d, "desc":"%s"}',
+                   i, station.lon * 1000000, station.lat * 1000000, station.stationname)
+            Log:write('poiString', poiString)
+            
+            if i < len then
+                poisString = poisString..poiString..',' 
+            else
+                poisString = poisString..poiString
+            end
         end
     end
     poisString = poisString..']}'
