@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: hewu <hewu2008@gmail.com> ==
+============================================================================
+== | Desc: 页面描述 ==
+============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent" extendstyle="1111">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+
+            <!-- 页面背景  -->
+            <node rect="0,0,480,800" extendstyle="1111">
+	            <image name="background" rect="0,0,480,800" border="false"
+	                src="file://image/background.png" style="autosize" extendstyle="1111">
+	            </image>
+            </node>
+
+            <!-- 巡检站点头部  -->
+            <node name="headSprite" rect="0,0,480,66" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,66" src="file://image/nav_bar.png"
+                    extendstyle="1111" style="autosize" />
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
+                    OnSelect="doBack" extendstyle="1111">
+                    <image name="normal" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                        extendstyle="1111" />
+                    <image name="sel" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                        extendstyle="1111" />
+                </button>
+                <!-- 页面标题  -->
+                <scrolltext name="title" rect="0,0,480,66" text="站点搜索"
+                    extendstyle="1111" font-size="28" font-family="微软雅黑" 
+                    h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2" />
+            </node>
+            
+            <!-- 标签页  -->
+            <node border="0" name="tabNode" rect="0,66,480,60" extendstyle="1111" data="01">
+                <image rect="0,0,480,60" src="file://image/tab_bg.png"
+                    extendstyle="1111" style="autosize" />
+                <button name="btnTab2" rect="0,0,480,60" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
+                    <image name="tabBg" rect="0,0,480,60" border="false" src=""
+                        style="autosize" extendstyle="1111" />
+                    <label rect="0,0,480,60" text="请点击搜索周边站点" color="#ffffff" v-align="center"
+                        h-align="center" font-size="22" font-family="微软雅黑" extendstyle="1111" />
+                </button>
+
+            </node>
+            
+
+            <!-- 站点列表  -->
+            <node name="listviewNode" border="false" rect="0,186,480,564" extendstyle="1111">
+                <listview name="listview1" border="false" rect="0,0,480,564" extendstyle="1111" />
+            </node>
+
+            <!-- 状态栏  -->
+            <node name="statusBar" rect="0,750,480,50" extendstyle="1111" visible="false">
+                <scrolltext name ="statusBarText" rect="0,0,430,50" text="" color="#000000"
+                    extendstyle="1111" style="autosize" h-align="left" v-align="center"
+                    font-size="22" font-family="微软雅黑" scroll="true">
+                </scrolltext>
+                <button name="getLocButton" rect="430,0,50,50" OnSelect="doGetLocAgain"
+                    extendstyle="1111" border="false">
+                    <image name="getLocImage" rect="0,0,50,50" src="file://image/refresh.png"
+                        style="autosize" extendstyle="1111" />
+                </button>
+            </node>
+
+            <!-- 站点列表项 -->
+            <node name="listitem" visible="false" enable="false" active="false"
+                extendstyle="1011" rect="0,256,480,70">
+                <image name="listItemBg" rect="0,0,480,70" src="file://image/item_bg_m.png" 
+                    style="autosize" extendstyle="1111" />
+                <button name="btnname" rect="0,0,400,70" OnSelect="itemOnSelect" 
+                    extendstyle="1111" data="">
+                    <image name="stationStatusImage" rect="20,20,26,26" src=""
+                        extendstyle="1111" />
+                    <label name="stationId" rect="40,20,0,0" text="" color="#0"
+                        font-size="16" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" visible="false" />
+                    <scrolltext name="stationName" rect="67,11,200,50" text=""
+                        color="#0" font-size="24" font-family="微软雅黑" h-align="left" v-align="center"
+                        scroll="true" extendstyle="1111" border="false" />
+                    <label name="stationDistance" rect="270,10,110,50" text=""
+                        color="#0" font-size="20" h-align="left" v-align="center"
+                        extendstyle="1111" border="false" />
+                </button>
+                
+                <!-- 导航按钮  -->
+                <button name="navigationBtn" rect="400,0,40,70" OnSelect="doNavigation" 
+                    extendstyle="1111" data="">
+                    <image rect="0,0,40,70" src="file://image/nav.png" style="center" 
+                        extendstyle="1111">
+                    </image>
+                </button>
+                
+                <!-- 向右图标  -->
+                <image rect="450,0,20,70" src="file://image/ico_r.png" style="center"
+                    extendstyle="1111" />
+            </node>
+
+            <button name="cancelDetailBtn" rect="0,0,0,0" OnSelect="hideDetialNodeSel" visible="false" enable="false" extendstyle="1177" />
+            <node name="seeDetailNode" rect="0,0,120,60" visible="false" enable="false" extendstyle="1111">
+                <shadow rect="0,0,0,0" color="#555555" alpha="255" extendstyle="1177" />
+                <button rect="0,0,0,0" text="查看详情" OnSelect="gotoXunjianmingDetail" extendstyle="1177" />
+            </node>
+
+        </node>
+    </body>
+
+<![CDATA[
+require 'com_wondertek_dw.common.framework'
+require 'framework.map'
+require 'framework.barcode'
+local rootSprite = nil
+local respValue = nil -- 站点列表值
+local planId = nil
+local g_planName = nil -- 计划名称
+local g_businessType = nil -- 专业类别代码
+local templateId = nil
+local code = nil
+local total = 0
+local page = 1
+
+local stationDistanceVisible = false
+local statusBarText
+
+-- gps重试次数和经纬度信息
+local timerNum = 50
+local clickTime -- 长按巡检名称时的时间
+local longClickItemIndex -- 当前长按按钮列表索引
+local firtClick_y -- 第一次点击时的纵坐标
+
+local lon 
+local lat 
+local resp
+
+---------------------------------------回调函数列表--------------------------------
+-- root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    --request(sprite)
+    statusBarText =  Sprite:findChild(sprite, 'statusBarText')
+end
+
+-- root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+    elseif msg == MSG_DEACTIVATE then
+        System:setGPSStatus(0)
+    end
+end
+
+-- 插件消息方法
+function bodyOnPluginEvent(msg, param)
+  if msg == 1001 then
+        local list = Sprite:findChild(rootSprite,'listview1')
+        ListView:removeAllItems(list,1)
+        ListView:loadItem(list, Sprite:findChild(rootSprite,'listitem'),#resp.value + 1,'loadListItem')
+        ListView:adjust(list)
+  elseif msg == 1010 then
+	   local postDataString = Param:getString(param, 0)
+	   Log:write('postData is ----------->'..postDataString)
+	   local postData = Json:loadString2Table(postDataString)
+	   lat = tonumber(postData.latitude) / 1000000.0
+       lon = tonumber(postData.longitude) / 1000000.0
+       local posValue = string.format('%f,%f', lon, lat)
+       Sprite:setProperty(statusBarText, 'text', '定位成功，经纬度为:'.. posValue)
+       System:setGPSStatus(0)
+       -- 请求站点列表
+       request()
+
+    elseif msg > MSG_NETWORK_ERROR then
+        if Loading:isShow() then Loading:close() end
+        Dialog:show('','网络错误', 'ok')
+    else
+        if Loading:isShow() then Loading:close() end
+        Dialog:show('','请求超时！', 'ok')
+    end
+end
+
+-- 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        doBack()
+        return 1
+    end
+end
+
+
+
+
+function hideDetialNodeSel(sprite)
+    setDetailNodeEnable(0)
+end
+
+function setDetailNodeEnable(isEnable)
+    local seeDetailNode = Sprite:findChild(rootSprite, 'seeDetailNode')
+    local cancelDetailBtn = Sprite:findChild(rootSprite, 'cancelDetailBtn')
+    Sprite:setVisible(seeDetailNode, isEnable)
+    Sprite:setEnable(seeDetailNode, isEnable)
+    Sprite:setActive(seeDetailNode, isEnable)
+    Sprite:setVisible(cancelDetailBtn, isEnable)
+    Sprite:setEnable(cancelDetailBtn, isEnable)
+    Sprite:setActive(cancelDetailBtn, isEnable)
+end
+
+-- 标签页选择
+function tabOnSelect(sprite)
+    local tabNode = Sprite:getParent(sprite)
+    local dataInfo = Sprite:getData(sprite)
+    local tab2 = Sprite:findChild(tabNode, 'btnTab2')
+    Sprite:setProperty(tabNode, 'data', dataInfo)
+    Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_s_new.png') 
+    getGPSDataByMap();
+    
+end
+
+---------------------------------------界面操作函数列表---------------------------
+-- 跳转到上一个页面
+function doBack()
+    if (Loading:isShow() == true) then
+        Loading:close()
+    end
+    Scene:back()
+end
+
+--传统方式获取经纬度
+function getGPSDataByMap()
+    --  显示状态栏
+    local statusBar = Sprite:findChild(rootSprite, 'statusBar')
+    Sprite:setProperty(statusBar, 'visible', 'true')
+    Sprite:setProperty(statusBar, 'enable', 'true')
+    local result = System:getGPSStatus()
+    Log:write("result is ---------->"..result)
+    if result == -1 then
+        Sprite:setProperty(statusBarText, 'text', '对不起，当前GPS不可用')
+    elseif result == 0 then
+        local gpsStatus = System:setGPSStatus(1)
+        if gpsStatus then
+            Sprite:setProperty(statusBarText, 'text', 'GPS开启成功，正在定位...')
+		    local observer = Plugin:getObserver()
+		    Map:getCurPosition(observer, 1010)
+        else
+            Sprite:setProperty(statusBarText, 'text', 'GPS开启失败')
+        end
+    elseif result == 1 then
+        Sprite:setProperty(statusBarText, 'text', 'GPS已经开启，正在定位...')
+	    local observer = Plugin:getObserver()
+	    Map:getCurPosition(observer, 1010)
+    end
+end
+
+-- 加载列表项
+function loadListItem(list, item, index)
+    -- 设置列表项的大小的背景色
+    Sprite:setRect(item, 0, 0, 480, 70)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local listItemBg = Sprite:findChild(item, 'listItemBg')
+    local stationName = Sprite:findChild(item, 'stationName')
+    Sprite:setRect(listItemBg, 0, 0, 480, 70)
+    if index % 2 > 0 then
+        Sprite:setProperty(listItemBg, 'visible', 0)
+    else
+        Sprite:setProperty(listItemBg, 'src', 'file://image/item_bg_m.png')
+    end
+    Log:write('11111111111111111111111')
+    local stationName = Sprite:findChild(item,'stationName')
+    Log:write('22222222222222222222222')
+    Sprite:setProperty(stationName,'text',resp.value[index].itemname)
+end
+
+---------------------------------------与服务端交互函数列表---------------------------
+-- issue #18 提供重新定位按钮
+function doGetLocAgain(sprite)
+    --getNearbyStationByRadius()
+    --修改定位为传统定位方式
+    getGPSDataByMap();
+end
+
+-- 进行http请求，巡检资源搜索
+function request()
+	-- 构造请求参数
+    Log:write('djl1',lon)
+    Log:write('djl2',lat)
+	local requestParam = string.format('cmd=wlbjingwei&usercode=%s&lon=%s&lat=%s&radius=%s&page=1&pagesize=15', 
+	                       Config:get('username'),lon,lat,1000)
+	local requestURL = getUrl()..'nbspweb/webservice/assessment!doWebservice.action?'..requestParam
+	-- 请求http
+	Http:request('stationList', requestURL, 1001, {useCache=false})
+    resp = Http:jsonDecode('stationList')
+    if resp.total=='0'then
+    Dialog:show(rootSprite,'服务端无数据', 'ok')
+    return
+    end
+end
+
+
+
+]]>
+</root>
