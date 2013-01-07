@@ -310,6 +310,7 @@
 
 require 'com_wondertek_dw.common.framework'
 require 'os' 
+require 'framework.umsagent'
 local rootSprite
 local values
 local data
@@ -355,6 +356,7 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then
      -- 页面激活 
+        UmsAgent:OnActivate(string.match(Alias.m_zonghefugai, 'MODULE:\\(.*)'), "综合覆盖")
         local list = Sprite:findChild(rootSprite, 'sampleList')
         ListView:removeAllItems(list,1)
          local regHandle = Reg:create("dateTime")
@@ -373,6 +375,7 @@ function bodyOnSpriteEvent(msg, param)
             end
         end
     elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
     end
 end
 
@@ -489,81 +492,7 @@ function mainNodeOnKeyUp(sprite, kc)
     end
 end
 
---搜索按钮点击事件
-function OnSearchButtonClicked(sprite)
-        listNode = Sprite:findChild(rootSprite, 'listNode')
-        local circleNode=Sprite:findChild(rootSprite, 'circleNode')
-        local jiantou=Sprite:findChild(rootSprite, 'jiantou')
-        local updownbutton=Sprite:findChild(rootSprite, 'updownbutton')
-        local circleName=Sprite:findChild(rootSprite, 'circleName')
-        local data =Sprite:getData(updownbutton)
 
-        if data =='1' then
-	        Sprite:setProperty(circleNode,'rect','0,-180,480,800')
-	        Sprite:setProperty(listNode,'rect','0,30,480,645') 
-	        Sprite:setProperty(jiantou,'src','file://image/jiantou_down.png')
-	        Sprite:setProperty(updownbutton,'data','2') 
-        elseif data == '3' then
-            Sprite:setProperty(circleNode,'rect','0,-320,480,800')
-            Sprite:setProperty(listNode,'rect','0,30,480,645') 
-            Sprite:setProperty(jiantou,'src','file://image/jiantou_down.png')
-            Sprite:setProperty(updownbutton,'data','4') 
-            
-        end 
-        
-        
-        local list = Sprite:findChild(rootSprite, 'sampleList')
-        ListView:removeAllItems(list,1)
-        local typeValue = Sprite:getText(Sprite:findChild(rootSprite,'typeName'))
-        local contentName = Sprite:getText(Sprite:findChild(rootSprite,'contentName'))
-        local areaName = Sprite:getText(Sprite:findChild(rootSprite,'areaName'))
-        local CompanyName = Sprite:getText(Sprite:findChild(rootSprite,'CompanyName'))
-        if contentName == '' then
---            Dialog:show('提示', '搜索名称不能为空!', 'ok')
---            return
-        end
-        if areaName == '' then
---            Dialog:show('提示', '搜索区域不能为空!', 'ok')
---            return
-        end
-        if CompanyName =='' then
-              companyValue = ''
---            Dialog:show('提示', '请选择代维公司!', 'ok')
---            return
-        else
-            companyValue = Sprite:getData(curCompanyBtn)
-            Log:write("companyCode = "..companyValue)
-        end
-        if typeValue == "直放站" then
-            local startTimeNode = Sprite:findChild(rootSprite,'startTimeNode')
-            local startTimeValue = Sprite:getText(Sprite:findChild(startTimeNode,'timeContent'))
-            local endTimeNode = Sprite:findChild(rootSprite,'endTimeNode')
-            local endTimeValue = Sprite:getText(Sprite:findChild(endTimeNode,'timeContent'))
-            if quyuid == nil or quyuid == '' then
-                quyuid = '340100'
-            end  
-            loadRequest(contentName,areaName,companyValue,typeValue,quyuid,startTimeValue,endTimeValue)
-        else
-            if quyuid == nil or quyuid == '' then
-                quyuid = '340100'
-            end  
-            loadRequest(contentName,areaName,companyValue,typeValue,quyuid)      
-        end
-end
-
--- 点击公司下拉框
-function CompanyOnSelect(sprite)
-    curCompanyBtn = sprite
-    loadCompanyRequest()
-    setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 1)
-end
--- 点击区域下拉框
-function quyuOnSelect(sprite)
-    curquyuBtn = sprite
-    loadquyuRequest()
-    setAllShoworHide(Sprite:findChild(rootSprite, 'quyuSelectNode'), 1)
-    Log:write('quyu12345')
-end
 ---------------------------------------util functions---------------------------
 
 --@brief 返回按钮消息处理函数
@@ -680,6 +609,83 @@ function loadquyuRequest()
     Loading:show()
 end
 
+--搜索按钮点击事件
+function OnSearchButtonClicked(sprite)
+        listNode = Sprite:findChild(rootSprite, 'listNode')
+        local circleNode=Sprite:findChild(rootSprite, 'circleNode')
+        local jiantou=Sprite:findChild(rootSprite, 'jiantou')
+        local updownbutton=Sprite:findChild(rootSprite, 'updownbutton')
+        local circleName=Sprite:findChild(rootSprite, 'circleName')
+        local data =Sprite:getData(updownbutton)
+
+        if data =='1' then
+            Sprite:setProperty(circleNode,'rect','0,-180,480,800')
+            Sprite:setProperty(listNode,'rect','0,30,480,645') 
+            Sprite:setProperty(jiantou,'src','file://image/jiantou_down.png')
+            Sprite:setProperty(updownbutton,'data','2') 
+        elseif data == '3' then
+            Sprite:setProperty(circleNode,'rect','0,-320,480,800')
+            Sprite:setProperty(listNode,'rect','0,30,480,645') 
+            Sprite:setProperty(jiantou,'src','file://image/jiantou_down.png')
+            Sprite:setProperty(updownbutton,'data','4') 
+            
+        end 
+   
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list,1)
+        local typeValue = Sprite:getText(Sprite:findChild(rootSprite,'typeName'))
+        local contentName = Sprite:getText(Sprite:findChild(rootSprite,'contentName'))
+        local areaName = Sprite:getText(Sprite:findChild(rootSprite,'areaName'))
+        local CompanyName = Sprite:getText(Sprite:findChild(rootSprite,'CompanyName'))
+        if contentName == '' then
+--            Dialog:show('提示', '搜索名称不能为空!', 'ok')
+--            return
+        end
+        if areaName == '' then
+--            Dialog:show('提示', '搜索区域不能为空!', 'ok')
+--            return
+        end
+        if CompanyName =='' then
+              companyValue = ''
+--            Dialog:show('提示', '请选择代维公司!', 'ok')
+--            return
+        else
+            companyValue = Sprite:getData(curCompanyBtn)
+            Log:write("companyCode = "..companyValue)
+        end
+        if typeValue == "直放站" then
+            UmsAgent:onLoadStart()
+            local startTimeNode = Sprite:findChild(rootSprite,'startTimeNode')
+            local startTimeValue = Sprite:getText(Sprite:findChild(startTimeNode,'timeContent'))
+            local endTimeNode = Sprite:findChild(rootSprite,'endTimeNode')
+            local endTimeValue = Sprite:getText(Sprite:findChild(endTimeNode,'timeContent'))
+            if quyuid == nil or quyuid == '' then
+                quyuid = '340100'
+            end  
+            loadRequest(contentName,areaName,companyValue,typeValue,quyuid,startTimeValue,endTimeValue)
+        else
+            UmsAgent:onLoadStart()
+            if quyuid == nil or quyuid == '' then
+                quyuid = '340100'
+            end  
+            loadRequest(contentName,areaName,companyValue,typeValue,quyuid)      
+        end
+end
+
+-- 点击公司下拉框
+function CompanyOnSelect(sprite)
+    curCompanyBtn = sprite
+    loadCompanyRequest()
+    setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 1)
+end
+-- 点击区域下拉框
+function quyuOnSelect(sprite)
+    curquyuBtn = sprite
+    loadquyuRequest()
+    setAllShoworHide(Sprite:findChild(rootSprite, 'quyuSelectNode'), 1)
+    Log:write('quyu12345')
+end
+
 -- WLAN数据加载
 function loadList(count)
         local list = Sprite:findChild(rootSprite, 'sampleList')
@@ -708,6 +714,7 @@ function loadListItem_zhifang(list, item, index)
     Sprite:setProperty(lon, 'text', zhifangData.value[index].lon)
     Sprite:setProperty(lat, 'text', zhifangData.value[index].lat)
     Sprite:setProperty(textTitle, 'text', zhifangData.value[index].area)
+    UmsAgent:onLoadFinish()
 end
 --WLAN列表赋数据库值
 function loadListItem(list, item, index)
@@ -723,6 +730,7 @@ function loadListItem(list, item, index)
     Sprite:setProperty(lon, 'text', data.value[index].lon)
     Sprite:setProperty(lat, 'text', data.value[index].lat)
     Sprite:setProperty(textTitle, 'text', data.value[index].address)
+    UmsAgent:onLoadFinish()
 end
 
 function hideCompanySelected(sprite)
