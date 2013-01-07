@@ -195,7 +195,7 @@ end
 
 --------------------------------统计报表相关函数----------------------------
 require 'framework.webbrowser'
--- 在webview中显示统计报表
+-- 在webview中显示fusionCharts统计报表
 -- @param dataUrl - string 数据源地址UTF-8编码
 -- @param charType -- string 
 --                    柱状图Column
@@ -242,6 +242,47 @@ function showChartInWebView(dataUrl, chartType, x, y, w, h)
     WebBrowser:create(x, y*yscal, w*xscal, h*yscal)
     WebBrowser:showWebBrowser(1)
     WebBrowser:openUrl(requestUrl)
+end
+
+-- 在webview中显示HighCharts统计报表
+-- @param labels - string 报表的底部名称，以逗号分隔
+-- @param values - string 与报表底部名称对应的统计值,以逗号分隔，
+--                 如果是MULTI类型的报表则以分号分隔,内部再以逗号分隔
+-- @param seriesType - string 定义报表类型single/multi/pie
+-- @param showType - string 图表的类型 line/spline/bar/column/pie/piedonut
+function showHighCharts(labels, values, seriesType, showType)
+    -- 打印日志
+    local param = string.format('showHighCharts(label=%s, values=%s, seriesType = %s, showType = %s)', 
+        labels, values, seriesType, showType)
+    Log:write(param)
+
+    -- 取得云平台服务器地址
+    local webcloud = Config:get('webcloud')
+    if webcloud == nil or webcloud == '' then 
+        Log:write('webcloud server url is missing!')
+        return
+    end
+    Log:write('webcloud:'..webcloud)
+
+    -- 检查webview是否打开
+    if WebBrowser:isBrowserRun() == 0 then 
+        Log:write('showHighCharts：无法显示报表，浏览器未打开！')
+        return
+    end
+
+    -- 构造请求地址
+    local requestUrl = string.format('http://%s/webcloud/client/chart/hc_show.action?'..
+        'labels=%s&values=%s&seriesType=%s&showType=%s', 
+        webcloud, labels, values, seriesType, showType)
+    WebBrowser:openUrl(requestUrl)
+end
+
+-- 显示webView
+function showWebView(x, y, w, h)
+    local xscal = SCREEN_WIDTH / 480
+    local yscal = SCREEN_HEIGHT / 800
+    WebBrowser:create(x, y*yscal, w*xscal, h*yscal)
+    WebBrowser:showWebBrowser(1)
 end
 
 -- 关闭报表显示
