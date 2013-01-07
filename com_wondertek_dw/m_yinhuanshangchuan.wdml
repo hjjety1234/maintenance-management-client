@@ -324,6 +324,7 @@ require 'com_wondertek_dw.common.framework'
 require 'framework.upload'
 require 'framework.map'
 require 'framework.nativeplayer'
+require 'framework.umsagent'
 local rootSprite
 local observer
 local mapViewPlugin
@@ -372,9 +373,11 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        UmsAgent:OnActivate(string.match(Alias.m_yinhuanList, 'MODULE:\\(.*)'), "已报隐患")
         upStatus = 0
         System:setGPSStatus(0)
-        elseif msg == MSG_DEACTIVATE then
+    elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
     end
 end
 
