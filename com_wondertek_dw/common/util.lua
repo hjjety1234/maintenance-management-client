@@ -252,7 +252,7 @@ end
 -- @param showType - string 图表的类型 line/spline/bar/column/pie/piedonut
 function showHighCharts(title, labels, values, seriesType, showType)
     -- 打印日志
-    local param = string.format('showHighCharts(title, label=%s, values=%s, seriesType = %s, showType = %s)', 
+    local param = string.format('showHighCharts(title=%s, label=%s, values=%s, seriesType = %s, showType = %s)', 
         title, labels, values, seriesType, showType)
     Log:write(param)
 
