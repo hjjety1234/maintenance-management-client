@@ -81,5 +81,8 @@ Alias = {
     m_zonghefugai='MODULE:\\com_wondertek_dw\\m_zonghefugai.wdml',
     m_tieta='MODULE:\\com_wondertek_dw\\m_tieta.wdml',
     m_stationdetail='MODULE:\\com_wondertek_dw\\m_stationdetail.wdml',
+
+    m_sitecheck1='MODULE:\\com_wondertek_dw\\m_sitecheck1.wdml',
+    m_checkzhandian='MODULE:\\com_wondertek_dw\\m_checkzhandian.wdml',
 }
 
