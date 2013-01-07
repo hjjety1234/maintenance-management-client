@@ -171,6 +171,7 @@ require 'com_wondertek_dw.common.framework'
 require 'framework.map'
 require 'framework.nativeplayer'
 require 'framework.download'
+require 'framework.umsagent'
 local rootSprite
 local imageArray = {}
 local thumbImageArray = {}
@@ -185,17 +186,20 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        UmsAgent:OnActivate(string.match(Alias.m_yinhuanList, 'MODULE:\\(.*)'), "隐患详情")
         imageArray = {}
         thumbImageArray = {}
         if pYinhuanID==nil or pYinhuanID=='' then
             local regHandle = Reg:create("imageId")
             pYinhuanID=Reg:getString(regHandle, "pYinhuanID")
         end
+        UmsAgent:onLoadStart()
         local param = 'cmd=wlbdangerdetail&id='..pYinhuanID
         local reqURL = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
         Http:request('daiban_data', reqURL, 101, {useCache = false})
         Loading:show()
     elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
     end
 end
 
@@ -264,6 +268,7 @@ function doFillData()
     if type(data.voices) == 'table' then
         showPlay()
     end
+    UmsAgent:onLoadFinish()
 end
 
 function doDown()
