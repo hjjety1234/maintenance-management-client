@@ -52,7 +52,7 @@
                     extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
                     <image name="tabBg" rect="0,0,480,60" border="false" src=""
                         style="autosize" extendstyle="1111" />
-                    <label rect="0,0,480,60" text="请点击搜索周边站点" color="#ffffff" v-align="center"
+                    <label rect="0,0,480,60" text="请点击刷新周边站点" color="#ffffff" v-align="center"
                         h-align="center" font-size="22" font-family="微软雅黑" extendstyle="1111" />
                 </button>
 
@@ -60,21 +60,16 @@
             
 
             <!-- 站点列表  -->
-            <node name="listviewNode" border="false" rect="0,186,480,564" extendstyle="1111">
-                <listview name="listview1" border="false" rect="0,0,480,564" extendstyle="1111" />
+            <node name="listviewNode" border="false" rect="0,126,480,624" extendstyle="1111">
+                <listview name="listview1" border="false" rect="0,0,480,624" extendstyle="1111" />
             </node>
 
-            <!-- 状态栏  -->
+            <!-- gps状态栏  -->
             <node name="statusBar" rect="0,750,480,50" extendstyle="1111" visible="false">
                 <scrolltext name ="statusBarText" rect="0,0,430,50" text="" color="#000000"
                     extendstyle="1111" style="autosize" h-align="left" v-align="center"
                     font-size="22" font-family="微软雅黑" scroll="true">
                 </scrolltext>
-                <button name="getLocButton" rect="430,0,50,50" OnSelect="doGetLocAgain"
-                    extendstyle="1111" border="false">
-                    <image name="getLocImage" rect="0,0,50,50" src="file://image/refresh.png"
-                        style="autosize" extendstyle="1111" />
-                </button>
             </node>
 
             <!-- 站点列表项 -->
@@ -89,8 +84,11 @@
                     <label name="stationId" rect="40,20,0,0" text="" color="#0"
                         font-size="16" h-align="left" v-align="center" extendstyle="1111"
                         border="false" visible="false" />
-                    <scrolltext name="stationName" rect="67,11,200,50" text=""
-                        color="#0" font-size="24" font-family="微软雅黑" h-align="left" v-align="center"
+                    <scrolltext name="stationName" rect="167,11,200,50" text=""
+                        color="#0062ab" font-size="24" font-family="微软雅黑" h-align="left" v-align="center"
+                        scroll="true" extendstyle="1111" border="false" />
+                    <scrolltext name="distanceName" rect="37,11,200,50" text=""
+                        color="#e33a10" font-size="24" font-family="微软雅黑" h-align="left" v-align="center"
                         scroll="true" extendstyle="1111" border="false" />
                     <label name="stationDistance" rect="270,10,110,50" text=""
                         color="#0" font-size="20" h-align="left" v-align="center"
@@ -100,7 +98,7 @@
                 <!-- 导航按钮  -->
                 <button name="navigationBtn" rect="400,0,40,70" OnSelect="doNavigation" 
                     extendstyle="1111" data="">
-                    <image rect="0,0,40,70" src="file://image/nav.png" style="center" 
+                    <image rect="0,0,40,70" src="" style="center" 
                         extendstyle="1111">
                     </image>
                 </button>
@@ -134,7 +132,7 @@ local total = 0
 local page = 1
 
 local stationDistanceVisible = false
-local statusBarText
+
 
 -- gps重试次数和经纬度信息
 local timerNum = 50
@@ -142,14 +140,16 @@ local clickTime -- 长按巡检名称时的时间
 local longClickItemIndex -- 当前长按按钮列表索引
 local firtClick_y -- 第一次点击时的纵坐标
 
-local lon 
-local lat 
+local lon=117.2491107
+local lat=31.850543
 local resp
+local statusBarText
 
 ---------------------------------------回调函数列表--------------------------------
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    request()
     --request(sprite)
     statusBarText =  Sprite:findChild(sprite, 'statusBarText')
 end
@@ -164,11 +164,18 @@ end
 
 -- 插件消息方法
 function bodyOnPluginEvent(msg, param)
+  
   if msg == 1001 then
+        resp = Http:jsonDecode('stationList')
+        if resp.total=='0'then
+        Dialog:show(rootSprite,'服务端无数据', 'ok')
+        return
+        end
         local list = Sprite:findChild(rootSprite,'listview1')
         ListView:removeAllItems(list,1)
         ListView:loadItem(list, Sprite:findChild(rootSprite,'listitem'),#resp.value + 1,'loadListItem')
         ListView:adjust(list)
+        Loading:close()
   elseif msg == 1010 then
 	   local postDataString = Param:getString(param, 0)
 	   Log:write('postData is ----------->'..postDataString)
@@ -223,7 +230,8 @@ function tabOnSelect(sprite)
     local tab2 = Sprite:findChild(tabNode, 'btnTab2')
     Sprite:setProperty(tabNode, 'data', dataInfo)
     Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_s_new.png') 
-    getGPSDataByMap();
+    getGPSDataByMap()
+    Loading:show()
     
 end
 
@@ -269,6 +277,7 @@ function loadListItem(list, item, index)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local listItemBg = Sprite:findChild(item, 'listItemBg')
     local stationName = Sprite:findChild(item, 'stationName')
+    local distanceName = Sprite:findChild(item, 'distanceName')
     Sprite:setRect(listItemBg, 0, 0, 480, 70)
     if index % 2 > 0 then
         Sprite:setProperty(listItemBg, 'visible', 0)
@@ -279,33 +288,37 @@ function loadListItem(list, item, index)
     local stationName = Sprite:findChild(item,'stationName')
     Log:write('22222222222222222222222')
     Sprite:setProperty(stationName,'text',resp.value[index].itemname)
+    Sprite:setProperty(distanceName,'text',math.ceil (resp.value[index].distance)..'米')
+    Sprite:setProperty(item, 'data', index)
 end
 
 ---------------------------------------与服务端交互函数列表---------------------------
--- issue #18 提供重新定位按钮
-function doGetLocAgain(sprite)
-    --getNearbyStationByRadius()
-    --修改定位为传统定位方式
-    getGPSDataByMap();
-end
 
 -- 进行http请求，巡检资源搜索
 function request()
 	-- 构造请求参数
     Log:write('djl1',lon)
     Log:write('djl2',lat)
-	local requestParam = string.format('cmd=wlbjingwei&usercode=%s&lon=%s&lat=%s&radius=%s&page=1&pagesize=15', 
+	local requestParam = string.format('cmd=wlbjingwei&usercode=%s&lon=%s&lat=%s&radius=%s&page=1&pagesize=50', 
 	                       Config:get('username'),lon,lat,1000)
 	local requestURL = getUrl()..'nbspweb/webservice/assessment!doWebservice.action?'..requestParam
 	-- 请求http
 	Http:request('stationList', requestURL, 1001, {useCache=false})
-    resp = Http:jsonDecode('stationList')
-    if resp.total=='0'then
-    Dialog:show(rootSprite,'服务端无数据', 'ok')
-    return
-    end
 end
 
+-- 跳转到现场检查界面
+function itemOnSelect(sprite)
+local index
+local tabNode = Sprite:getParent(sprite)
+index = tonumber(Sprite:getData(tabNode))
+regHandle=Reg:create('resp')
+Reg:setString(regHandle, "stationid",resp.value[index].xtbh)
+Log:write('cacaca',stationid)
+Reg:setString(regHandle, "itemname",resp.value[index].itemname)
+Log:write('cacaca',itemname)
+    Scene:setReturn(Alias.m_checkzhandian, Alias.m_sitecheck1)
+    Scene:go(Alias.m_sitecheck1)
+end
 
 
 ]]>
