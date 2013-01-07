@@ -245,6 +245,7 @@ function showChartInWebView(dataUrl, chartType, x, y, w, h)
 end
 
 -- 在webview中显示HighCharts统计报表
+-- @param title - string 报表标题
 -- @param labels - string 报表的底部名称，以逗号分隔
 -- @param values - string 与报表底部名称对应的统计值,以逗号分隔，
 --                 如果是MULTI类型的报表则以分号分隔,内部再以逗号分隔
@@ -274,6 +275,7 @@ function showHighCharts(title, labels, values, seriesType, showType)
     local requestUrl = string.format('http://%s/webcloud/client/chart/hc_show.action?'..
         'title=%s&labels=%s&values=%s&seriesType=%s&showType=%s', 
         webcloud, title, labels, values, seriesType, showType)
+    Log:write('showHighCharts: requestUrl', requestUrl)
     WebBrowser:openUrl(requestUrl)
 end
 

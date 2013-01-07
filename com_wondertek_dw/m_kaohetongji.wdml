@@ -86,14 +86,83 @@
     
     local g_x1, g_y1, g_w1, g_h1
     local g_x2, g_y2, g_w2, g_h2
+
+    local g_data = {
+        {
+            region = 'dishi', 
+            month = '2012-9', 
+            title = '综合代维市代维中心9月份绩效排名', 
+            labels = "亳州-安徽电信工程,阜阳-安徽电信工程,宿州-安徽电信工程,合肥-安徽中移,淮南-河北吉讯,淮北-河北吉讯,马鞍山-江苏邮电,滁州-江苏邮电,蚌埠-江苏邮电,铜陵-南京欣网视讯,宣城-南京欣网视讯,芜湖-南京欣网视讯,合肥-浙江邮电,池州-浙江邮电,安庆-浙江邮电,黄山-中通建三局,六安-中通建三局", 
+            values = "90.35,93.20,92.98,92.53,92.09,93.09,90.96,93.37,92.02,92.62,92.40,91.56,92.76,91.81,90.47,92.67,92.64", 
+            seriesType = "single", 
+            showType = "bar"
+        },
+        
+        {
+            region = 'dishi', 
+            month = '2012-10', 
+            title = '综合代维市代维中心10月份绩效排名', 
+            labels = "亳州-安徽电信工程,阜阳-安徽电信工程,宿州-安徽电信工程,合肥-安徽中移,淮南-河北吉讯,淮北-河北吉讯,马鞍山-江苏邮电,滁州-江苏邮电,蚌埠-江苏邮电,铜陵-南京欣网视讯,宣城-南京欣网视讯,芜湖-南京欣网视讯,合肥-浙江邮电,池州-浙江邮电,安庆-浙江邮电,黄山-中通建三局,六安-中通建三局", 
+            values = "90.15,92.60,92.12,92.15,92.47,93.07,92.31,92.66,92.94,92.18,91.72,90.67,92.38,91.60,90.73,92.05,93.25", 
+            seriesType = "single", 
+            showType = "bar"
+        },
+
+        {
+            region = 'dishi', 
+            month = '2012-11', 
+            title = '综合代维市代维中心11月份绩效排名', 
+            labels = "亳州-安徽电信工程,阜阳-安徽电信工程,宿州-安徽电信工程,合肥-安徽中移,淮南-河北吉讯,淮北-河北吉讯,马鞍山-江苏邮电,滁州-江苏邮电,蚌埠-江苏邮电,铜陵-南京欣网视讯,宣城-南京欣网视讯,芜湖-南京欣网视讯,合肥-浙江邮电,池州-浙江邮电,安庆-浙江邮电,黄山-中通建三局,六安-中通建三局", 
+            values = "90.15,92.60,92.12,92.15,92.47,93.07,92.31,92.66,92.94,92.18,91.72,90.67,92.38,91.60,90.73,92.05,93.25", 
+            seriesType = "single", 
+            showType = "bar"
+        },
+
+        {
+            region = 'dwgs', 
+            month = '2012-9', 
+            title = '各综合代维单位9月代维绩效排名', 
+            labels = "安徽电信工程,安徽中移,河北吉讯,江苏邮电,南京欣网视讯,浙江邮电,中通建三局", 
+            values = "92.18,92.53,92.59,92.12,92.19,91.68,92.65", 
+            seriesType = "single", 
+            showType = "column"
+        },
+
+        {
+            region = 'dwgs', 
+            month = '2012-10', 
+            title = '各综合代维单位10月代维绩效排名', 
+            labels = "安徽电信工程,安徽中移,河北吉讯,江苏邮电,南京欣网视讯,浙江邮电,中通建三局", 
+            values = "91.62,92.15,92.77,92.63,91.52,91.57,92.65", 
+            seriesType = "single", 
+            showType = "bar"
+        },
+
+        {
+            region = 'dwgs', 
+            month = '2012-11', 
+            title = '各综合代维单位11月代维绩效排名', 
+            labels = "安徽电信工程,安徽中移,河北吉讯,江苏邮电,南京欣网视讯,浙江邮电,中通建三局", 
+            values = "92.84,92.70,92.74,93.49,91.14,92.78,93.88", 
+            seriesType = "single", 
+            showType = "bar"
+        },
+
+        {
+            region = 'any', 
+            month = '2013-1', 
+            title = '对不起，暂无数据', 
+            labels = "", 
+            values = "", 
+            seriesType = "single", 
+            showType = "bar"
+        }
+    }
 	
     ---------------------------------------回调函数列表--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
         rootSprite = sprite
-        local reg = Reg:create(Alias.index)
-        umsagentPlugin = Reg:getInteger(reg, 'UmsAgent')
-        umsagentHasAppkey = Reg:getInteger(reg, 'umsagentHasAppkey')
         
         -- 获取tab1的大小
         local btnTab1 = Sprite:findChild(rootSprite, 'btnTab1')
@@ -121,15 +190,12 @@
             if year ~= nil and year ~= '' and month ~= nil and month ~= '' then
                 Sprite:setProperty(monthNode, 'text', year..'-'..month)
             end
-            --[[
-            local xscal = SCREEN_WIDTH / 480
-		    local yscal = SCREEN_HEIGHT / 800
-		    local requestUrl = 'http://120.209.131.146/webcloud/resources/highchart.html'
-		    WebBrowser:create(5, 70*yscal, 470*xscal, 730*yscal)
-		    WebBrowser:showWebBrowser(1)
-		    WebBrowser:openUrl(requestUrl)
-            --]]
-            refresh()
+			if SCREEN_WIDTH <= 540 then 
+				 refreshHighCharts()
+			else
+				refreshFusionCharts()
+			end
+            
         elseif msg == MSG_DEACTIVATE then
             UmsAgent:OnDeactivate()
         end
@@ -212,9 +278,9 @@
         end
         refresh()
     end
-
-    -- 刷新整个页面
-    function  refresh()
+	
+    -- 刷新FusinChart页面
+    function  refreshFusionCharts()
         -- 获取当前的标签页
         local tabNodeData = Sprite:getData(Sprite:findChild(rootSprite, 'tabNode'))
         if tabNodeData == '01' then 
@@ -231,6 +297,36 @@
             -- 显示webview内容
             showChartInWebView(dataUrl, 'Bar', 0, 160, 480, 640)
         end
+    end
+
+    -- 刷新HighCharts页面
+    function  refreshHighCharts()
+        -- 获取当前的标签页
+        local tabNodeData = Sprite:getData(Sprite:findChild(rootSprite, 'tabNode'))
+        if tabNodeData == '01' then 
+            tabNodeData = 'dishi'
+        else
+            tabNodeData = 'dwgs'
+        end
+        -- 获取当前的月份
+        local month = Sprite:getText(Sprite:findChild(rootSprite, 'monthNode'))
+        Log:write('refreshHighCharts: tabNodeData, month', tabNodeData, month)
+
+        for i = 1, #g_data do
+            if tabNodeData == g_data[i].region and 
+                month == g_data[i].month then
+                showWebView(0, 160, 480, 640)
+                showHighCharts(g_data[i].title, g_data[i].labels, 
+                    g_data[i].values, g_data[i].seriesType, g_data[i].showType)
+				return
+            end
+        end
+
+		showWebView(0, 160, 480, 640)
+		local len = #g_data
+        showHighCharts(g_data[len].title, g_data[len].labels, 
+            g_data[len].values, g_data[len].seriesType, g_data[len].showType)
+		return
     end
 ]]>
 </root>
