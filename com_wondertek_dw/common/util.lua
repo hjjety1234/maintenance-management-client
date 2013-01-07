@@ -250,10 +250,10 @@ end
 --                 如果是MULTI类型的报表则以分号分隔,内部再以逗号分隔
 -- @param seriesType - string 定义报表类型single/multi/pie
 -- @param showType - string 图表的类型 line/spline/bar/column/pie/piedonut
-function showHighCharts(labels, values, seriesType, showType)
+function showHighCharts(title, labels, values, seriesType, showType)
     -- 打印日志
-    local param = string.format('showHighCharts(label=%s, values=%s, seriesType = %s, showType = %s)', 
-        labels, values, seriesType, showType)
+    local param = string.format('showHighCharts(title, label=%s, values=%s, seriesType = %s, showType = %s)', 
+        title, labels, values, seriesType, showType)
     Log:write(param)
 
     -- 取得云平台服务器地址
@@ -272,8 +272,8 @@ function showHighCharts(labels, values, seriesType, showType)
 
     -- 构造请求地址
     local requestUrl = string.format('http://%s/webcloud/client/chart/hc_show.action?'..
-        'labels=%s&values=%s&seriesType=%s&showType=%s', 
-        webcloud, labels, values, seriesType, showType)
+        'title=%s&labels=%s&values=%s&seriesType=%s&showType=%s', 
+        webcloud, title, labels, values, seriesType, showType)
     WebBrowser:openUrl(requestUrl)
 end
 
