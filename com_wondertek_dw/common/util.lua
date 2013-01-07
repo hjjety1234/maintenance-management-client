@@ -153,7 +153,7 @@ function getErrorCode(code)
         elseif code == '12' then
         return '用户被禁用'
         elseif code == '13' then
-        return '用户手机号码不正确（需做手机绑定）'
+        return '手机未注册，请在系统端注册该终端'
         elseif code == '14' then
         return '用户暂无权限'
         elseif code == '20' then
