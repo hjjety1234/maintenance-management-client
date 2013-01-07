@@ -37,6 +37,7 @@
             <!--
            visible="false" enable="false" 
             -->
+            <!--
              <node name="nearstationnode" rect="0,642,480,72" visible="false" enable="false" extendstyle="1111">
                      <image rect="0,0,480,86" src="file://image/dt_bar.png"
                             style="autosize" extendstyle="1111" />
@@ -65,7 +66,7 @@
                              <image name="img" rect="26,12,67,50" src="file://image/dt_jikes.png"
                    extendstyle="1111" style="autosize"/>
                     </button>
-                </node>
+                </node>-->
             
             <node name="searchstationnode" rect="0,642,480,72" visible="false" enable="false" extendstyle="1111">
                      <image rect="0,0,480,86" src="file://image/dt_bar.png"
@@ -147,9 +148,9 @@ local umsagentPlugin = nil
 local umsagentHasAppkey = 0
 local searchflag=0
 local nearflag=0
-local g_desLon = nil  -- 目标位置的经度
-local g_desLat = nil  -- 目标位置的纬度
-local g_stationName = nil -- 目标站点名称
+local latitudeValue
+local longitudeValue
+local stationdata
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -164,13 +165,14 @@ function bodyOnSpriteEvent(msg, param)
     UmsAgent:OnActivate(string.match(Alias.m_search, 'MODULE:\\(.*)'), '资源查询首页')
         openMap(0, 70, 480, 644)
         getCurPosition()
-        local regHandle = Reg:create(Alias.m_basestation)
+    --[[    local regHandle = Reg:create(Alias.m_basestation)
         local pois = Reg:getString(regHandle, 'pois')
         if pois ~= nil and pois ~= '' then
             Log:write('pois---->', pois)
             local observer = Plugin:getObserver()
             Map:showPOIs(observer, 1008, pois, 1)
         end
+    --]]
     elseif msg == MSG_DEACTIVATE then
     UmsAgent:OnDeactivate()
     end
@@ -187,8 +189,56 @@ function bodyOnPluginEvent(msg, param)
             Log:write('移动到当前位置失败', postData)
             return
         end
-        --Map:searchMapByName('合肥', '国购广场')
-        --searchRoute(1, postData.longitude,  postData.latitude, g_desLon, g_desLat)
+        latitudeValue = tonumber(postData.latitude) / 1000000.0
+        longitudeValue = tonumber(postData.longitude) / 1000000.0
+    elseif msg == 101 then
+    stationdata = Http:jsonDecode('stationdata')
+    Log:write("stationdata = ", stationdata) 
+     local pois   
+     
+          -- 获取查询结果数目
+    local respValue = stationdata.value
+    local len = #respValue
+    if len == 0 and respValue[0] ~= nil and respValue[0] ~= '' then 
+        len = 1
+    elseif len > 0 then
+        len = len + 1 
+    end
+    Log:write('stations-->', respValue)
+        
+    -- 格式化基站数据
+    local poisString = '{pois:['
+
+    for i=1,len do 
+        -- 取感兴趣的站点数据
+        local station = respValue[i-1]
+        local name = station.itemname
+        local longitude = station.lon
+        local latitude = station.lat
+        -- 部分站点没有经纬度，做一下保护
+        if longitude ~= nil and longitude ~= '' 
+            and latitude ~= nil and latitude ~= '' then 
+            -- 创建poi点
+            local poiString = string.format('{"id":"%d", "longitude":%d, "latitude":%d, "desc":"%s"}',
+                   i, longitude * 1000000, latitude * 1000000, name)
+            Log:write('poiString', poiString)
+            
+            if i < len then
+                poisString = poisString..poiString..',' 
+            else
+                poisString = poisString..poiString
+            end
+        end
+    end
+    poisString = poisString..']}'
+    
+    pois=poisString
+    if pois ~= nil and pois ~= '' then
+            Log:write('pois---->', pois)
+            local observer = Plugin:getObserver()
+            Map:showPOIs(observer, 1008, pois, 1)
+        end   
+                  
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -271,8 +321,8 @@ end
 
 function SearchOnSelect(sprite)
     local btnData = Sprite:getData(sprite)
-   setAllShoworHide(Sprite:findChild(rootSprite, 'nearstationnode'), 0)
-   nearflag=0
+--   setAllShoworHide(Sprite:findChild(rootSprite, 'nearstationnode'), 0)
+--   nearflag=0
    
     if searchflag==0 then
     searchflag=1
@@ -289,7 +339,7 @@ function NearOnSelect(sprite)
     setAllShoworHide(Sprite:findChild(rootSprite, 'searchstationnode'), 0)
     searchflag=0
     
-    if nearflag==0 then
+   --[[ if nearflag==0 then
     nearflag=1
     openMap(0, 70, 480, 572)
     setAllShoworHide(Sprite:findChild(rootSprite, 'nearstationnode'), 1)
@@ -297,7 +347,13 @@ function NearOnSelect(sprite)
     nearflag=0
     openMap(0, 70, 480, 644)
     setAllShoworHide(Sprite:findChild(rootSprite, 'nearstationnode'), 0)
-    end
+    end--]]
+
+    local param = 'cmd=wlbjingwei&page='..'1'..'&radius=1000&lon='..longitudeValue..'&lat='..latitudeValue
+    local reqURL = getWholeUrl('nbspweb/webservice/assessment!doWebservice.action', param)
+    Http:request('stationdata', reqURL, 101, {useCache = false})
+    UmsAgent:onLoadStart()
+     Loading:show() 
 end
 
 function itemOnSelect(sprite)
