@@ -124,7 +124,6 @@ function bodyOnSpriteEvent(msg, param)
             loginOnSelect(Sprite:findChild(rootSprite, 'btnLogin'))
         end
     elseif msg == MSG_DEACTIVATE then
-         UmsAgent:OnDeactivate()
     elseif msg == MSG_NETWORK then 
         if g_exitFlag ==  true then
             doExit()
@@ -134,10 +133,10 @@ end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
-    Loading:close()
-    UmsAgent:onLoadFinish()
     Log:write('msg=================================',msg)
     if msg == 101 then
+        Loading:close()
+        UmsAgent:onLoadFinish()
         local loginData = Http:jsonDecode('login_istrue')
         Log:write('+++++++++++++++++',loginData)
         local result=loginData['code']
