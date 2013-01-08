@@ -23,6 +23,7 @@ public class GDMapConstants {
     public static final int GDMAP_AUTOLOCATION = 0x1004; 
     public static final int GDMAP_SIGNTOMAP = 0x1005;
     public static final int GDMAP_POIDETAIL = 0x1006;
+    public static final int GDMAP_POIPRESSED = 0x1007;
     public static final int GDMAP_ERROR = 0xffff;
     
     public static final int GDMAP_GEOCODER_COUNT = 3;
@@ -51,3 +52,4 @@ public class GDMapConstants {
     public static final int GDMAP_CAR_ROUTE = 1;
     public static final int GDMAP_WALK_ROUTE = 2;
 }
+
