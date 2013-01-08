@@ -103,7 +103,7 @@ local planId
 local stationId
 local templateId
 local Inflag = '1'
-local tab = {'开始巡检'..os.date('%c',os.time())}
+local tab = {'开始巡检'..getCurDateAndTime()}
 local list
 local timerNum = 50
 
@@ -112,6 +112,7 @@ local timerNum = 50
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
 	list = Sprite:findChild(rootSprite,'lvHis')
+    Log:write('当前时间点为：'..getCurrentTimeStamp())
 end
 
 -- @brief root节点消息方法
@@ -150,7 +151,7 @@ function bodyOnPluginEvent(msg,param)
             local smshead = Config:get('xlSmsHead')--'XGXV30'
             local deviceId = Config:get('deviceId')--'44010001'
             local cmd = Config:get('cmd')--'00' --手动巡检
-            local date = '121227143406 '
+            local date = getCurrentTimeStamp()--'121227143406 '
             local endstr = Config:get('xlSmsEndStr')--'00000000AAA10'
             local smscontent=smshead..deviceId..cmd..date..latitudeValue..longitudeValue..endstr
             Log:write('111111111111111111111111111111111111111111111111111111111111111', smscontent)
@@ -330,7 +331,7 @@ function _requestNearbyStationByRadius()
     local statusBarText = Sprite:findChild(rootSprite, 'lbllonandlat')
     local longitude,latitude,gpsdate = System:getGPSData()
     if longitude and longitude ~= 0 and latitude and latitude ~= 0 and
-         isLocationChanaged(longitude, latitude) == true then
+        isLocationChanaged(longitude, latitude) == true then
 		Log:write('gps data is ------------------->'..gpsdate)
         timerNum = 50
         Timer:cancel(111)
@@ -349,7 +350,7 @@ function _requestNearbyStationByRadius()
         local smshead = Config:get('xlSmsHead')--'XGXV30'
         local deviceId = Config:get('deviceId')--'44010001'
         local cmd = Config:get('cmd')--'00' --手动巡检
-        local date = '000000000000'
+        local date = getCurrentTimeStamp()--'000000000000'
         local hx = Config:get('xlHx')
         local endstr = Config:get('xlSmsEndStr')--'00000000AAA10'
         local smscontent=smshead..deviceId..cmd..date..latitudeValue..longitudeValue..hx..endstr
@@ -379,13 +380,13 @@ function _requestNearbyStationByRadius()
             local latitudeValue = tonumber(latitude) / 10000000.0
             local longitudeValue = tonumber(longitude) / 10000000.0
             local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
-            Sprite:setProperty(statusBarText, 'text', '使用经纬度缓存:'.. posValue)
+            Sprite:setProperty(statusBarText, 'text', '定位失败，请点击下方按钮重试')
             request('1', posValue, '1000', page, 1001)
             return
         end
         
         -- 定位失败
-        Sprite:setProperty(statusBarText, 'text', '定位失败，请稍候再试.')
+        Sprite:setProperty(statusBarText, 'text', '定位失败，请点击下方按钮重试.')
     end
  end
 -- 检查是否有位置变化
@@ -422,6 +423,16 @@ function loadListItem(list, item, index)
 	local stLog = Sprite:findChild(item,'stLog')
 	Sprite:setProperty(stLog,'text',tab[index+1])
     Log:write('tab value is '..tab[index+1])
+end
+--巡检时间戳
+function getCurrentTimeStamp()
+    local year = os.date("*t")["year"]
+    local month = os.date("*t")["month"]
+    local day = os.date("*t")["day"]
+    local hour = os.date("*t")["hour"]
+    local minute = os.date("*t")["min"]
+    local sec = os.date("*t")["sec"]
+    return string.format('%04s%02s%02s%02s%02s%02s', year, month, day, hour, minute, sec)
 end
     ]]>
 </root>
