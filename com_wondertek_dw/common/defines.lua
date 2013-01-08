@@ -25,7 +25,7 @@ Alias = {
     home = 'MODULE:\\com_wondertek_dw\\home.wdml', -- 首页
     login = 'MODULE:\\com_wondertek_dw\\login.wdml', -- 登录
     m_login = 'MODULE:\\com_wondertek_dw\\m_login.wdml', -- 登录
-    
+    home_xianlu = 'MODULE:\\com_wondertek_dw\\home_xianlu.wdml',--巡检员首页
     
     ------------------------------Metro Style ------------------------------------------
     imageDetail = 'MODULE:\\com_wondertek_dw\\imageDetail.wdml', -- 图片详情
