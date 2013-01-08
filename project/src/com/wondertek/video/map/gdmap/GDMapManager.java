@@ -27,6 +27,7 @@ import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.AbsoluteLayout;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -108,6 +109,9 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 					Log.d(TAG, "Search Detail");
 					MapPluginMgr.getInstance().nativePoiItemDetailCallback((String)msg.obj);
 					break;
+				case GDMapConstants.GDMAP_POIPRESSED :
+					Log.d(TAG, "POI PopView Pressed: " + (String)msg.obj);
+                    MapPluginMgr.getInstance().nativePoiPopViewPressedCallback((String)msg.obj);
 				case GDMapConstants.GDMAP_ERROR:
 					GDPoiSearch.getInstance(mContext, mMapView).mapError();
 					break;
@@ -309,8 +313,9 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 				int longitude = poi.getInt("longitude");
 				int latitude = poi.getInt("latitude");
 				String desc = poi.getString("desc");
+                String poiId = poi.getString("id");
 				
-				PoiItem poiItem = new PoiItem("", new GeoPoint(latitude, longitude), desc, "");
+				PoiItem poiItem = new PoiItem(poiId, new GeoPoint(latitude, longitude), desc, "");
 				items.add(poiItem);
 				//showPoiPopView(latitude, longitude, desc, false);
 				
@@ -632,6 +637,28 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 //					handler.sendMessage(Message.obtain(handler, GDMapConstants.GDMAP_POIDETAIL, sb.toString()));
 //				}
 //			});
+			
+			final ImageButton btn_right= (ImageButton) view.findViewById(mContext.getResources().
+					getIdentifier("btn_right", "id", mContext.getPackageName()));
+			btn_right.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					Log.d(TAG, ">>>+++++RouteSearch+++++<<<");
+					handler.sendMessage(Message.obtain(handler, GDMapConstants.GDMAP_ROUTESEARCH_RESULT,""));
+				}
+			});
+			
+			
+            view.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					handler.sendMessage(Message.obtain(handler, GDMapConstants.GDMAP_POIPRESSED, item.getPoiId()));
+				}
+			});
 			return view;
 		}
 
@@ -643,3 +670,4 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 		}
 	}
 }
+
