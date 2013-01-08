@@ -155,7 +155,7 @@ function bodyOnPluginEvent(msg)
 				Scene:go(Alias.home_new)
            	end
         else
-            Dialog:show('登陆提醒', getErrorCode(code), 'ok')
+            Dialog:show('登陆提醒', '账户密码错误！', 'ok')
         end
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -200,7 +200,7 @@ function loginOnSelect(sprite)
     elseif(password=='') then
         Dialog:show('提醒','密码不能为空','ok')
     else
-        local dataString = string.format('usercode=%s&password=%s&cmd=%s&imei=%s',username, password,'wlblogin', imei)
+        local dataString = string.format('usercode=%s&password=%s&cmd=%s',username, password,'wlblogin')
 	    local reqURL = getUrl()..'nbspweb/webservice/user!doWebservice.action?'..dataString
 	    Http:request('login_istrue', reqURL, 101, {useCache=false})
 	    Loading:show(rootSprite) 
