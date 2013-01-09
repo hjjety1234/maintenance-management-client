@@ -38,7 +38,14 @@ public class UmsAgentInterface {
 	public static void javaOnPause() {
 		if (canPause == true) {
 			Log.d(TAG, "javaOnPause");
-			UmsAgent.onPause(VenusActivity.appActivity);
+			// UmsAgent.onPause(VenusActivity.appActivity);
+			new Thread(){
+				@Override
+				public void run() {
+					// onPause会调用网络接口，耗时比较长，因此在工作线程执行
+					UmsAgent.onPause(VenusActivity.appActivity);
+				}
+			}.start();
 			canPause = false;
 		}
 	}
