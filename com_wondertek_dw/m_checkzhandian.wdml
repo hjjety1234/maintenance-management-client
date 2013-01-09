@@ -23,6 +23,8 @@
 	            <image name="background" rect="0,0,480,800" border="false"
 	                src="file://image/background.png" style="autosize" extendstyle="1111">
 	            </image>
+                <image name="listItemBg" rect="0,66,480,60" src="file://image/site_bg.png" 
+                    style="autosize" extendstyle="1111" />
             </node>
 
             <!-- 巡检站点头部  -->
@@ -37,6 +39,16 @@
                     <image name="sel" rect="15,8,75,75" src="file://image/skin/ico_back.png"
                         extendstyle="1111" />
                 </button>
+
+                <!-- 刷新按钮 -->
+                <button name="tabNode" rect="410,0,66,66" normal="normal" sel="sel"
+                    OnSelect="tabOnSelect" extendstyle="1111">
+                    <image name="normal" rect="15,8,75,75" src="file://image/site_refresh.png"
+                        extendstyle="1111" />
+                    <image name="sel" rect="15,8,75,75" src="file://image/site_refresh.png"
+                        extendstyle="1111" />
+                </button>
+
                 <!-- 页面标题  -->
                 <scrolltext name="title" rect="0,0,480,66" text="站点搜索"
                     extendstyle="1111" font-size="28" font-family="微软雅黑" 
@@ -44,29 +56,18 @@
                     color="#ffffff" scroll="true" step="2" />
             </node>
             
-            <!-- 标签页  -->
-            <node border="0" name="tabNode" rect="0,66,480,60" extendstyle="1111" data="01">
-                <image rect="0,0,480,60" src="file://image/tab_bg.png"
-                    extendstyle="1111" style="autosize" />
-                <button name="btnTab2" rect="0,0,480,60" text="" color="#ffffff"
-                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
-                    <image name="tabBg" rect="0,0,480,60" border="false" src=""
-                        style="autosize" extendstyle="1111" />
-                    <label rect="0,0,480,60" text="请点击刷新周边站点" color="#ffffff" v-align="center"
-                        h-align="center" font-size="22" font-family="微软雅黑" extendstyle="1111" />
-                </button>
-
-            </node>
             
 
             <!-- 站点列表  -->
-            <node name="listviewNode" border="false" rect="0,126,480,624" extendstyle="1111">
-                <listview name="listview1" border="false" rect="0,0,480,624" extendstyle="1111" />
+            <node name="listviewNode" border="false" rect="0,116,480,674" extendstyle="1111">
+                <listview name="listview1" border="false" rect="0,0,480,674" extendstyle="1111" />
             </node>
 
             <!-- gps状态栏  -->
-            <node name="statusBar" rect="0,750,480,50" extendstyle="1111" visible="false">
-                <scrolltext name ="statusBarText" rect="0,0,430,50" text="" color="#000000"
+            <node name="statusBar" rect="10,66,480,50" extendstyle="1111" visible="false">
+                <image name="listItemBg" rect="20,15,17,25" src="file://image/locate.png" 
+                     extendstyle="1111" />
+                <scrolltext name ="statusBarText" rect="50,10,430,30" text="" color="#000000"
                     extendstyle="1111" style="autosize" h-align="left" v-align="center"
                     font-size="22" font-family="微软雅黑" scroll="true">
                 </scrolltext>
@@ -84,35 +85,23 @@
                     <label name="stationId" rect="40,20,0,0" text="" color="#0"
                         font-size="16" h-align="left" v-align="center" extendstyle="1111"
                         border="false" visible="false" />
-                    <scrolltext name="stationName" rect="167,11,200,50" text=""
-                        color="#0062ab" font-size="24" font-family="微软雅黑" h-align="left" v-align="center"
+                    <scrolltext name="stationName" rect="130,11,280,50" text=""
+                        color="#000000" font-size="24" font-family="微软雅黑" h-align="left" v-align="center"
                         scroll="true" extendstyle="1111" border="false" />
                     <scrolltext name="distanceName" rect="37,11,200,50" text=""
-                        color="#e33a10" font-size="24" font-family="微软雅黑" h-align="left" v-align="center"
+                        color="#0062ab" font-size="24" font-family="微软雅黑" h-align="left" v-align="center"
                         scroll="true" extendstyle="1111" border="false" />
                     <label name="stationDistance" rect="270,10,110,50" text=""
                         color="#0" font-size="20" h-align="left" v-align="center"
                         extendstyle="1111" border="false" />
                 </button>
-                
-                <!-- 导航按钮  -->
-                <button name="navigationBtn" rect="400,0,40,70" OnSelect="doNavigation" 
-                    extendstyle="1111" data="">
-                    <image rect="0,0,40,70" src="" style="center" 
-                        extendstyle="1111">
-                    </image>
-                </button>
-                
+                                
                 <!-- 向右图标  -->
                 <image rect="450,0,20,70" src="file://image/ico_r.png" style="center"
                     extendstyle="1111" />
             </node>
 
             <button name="cancelDetailBtn" rect="0,0,0,0" OnSelect="hideDetialNodeSel" visible="false" enable="false" extendstyle="1177" />
-            <node name="seeDetailNode" rect="0,0,120,60" visible="false" enable="false" extendstyle="1111">
-                <shadow rect="0,0,0,0" color="#555555" alpha="255" extendstyle="1177" />
-                <button rect="0,0,0,0" text="查看详情" OnSelect="gotoXunjianmingDetail" extendstyle="1177" />
-            </node>
 
         </node>
     </body>
@@ -140,8 +129,8 @@ local clickTime -- 长按巡检名称时的时间
 local longClickItemIndex -- 当前长按按钮列表索引
 local firtClick_y -- 第一次点击时的纵坐标
 
-local lon=117.2491107
-local lat=31.850543
+local lon
+local lat
 local resp
 local statusBarText
 
@@ -149,14 +138,13 @@ local statusBarText
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    request()
-    --request(sprite)
     statusBarText =  Sprite:findChild(sprite, 'statusBarText')
 end
 
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+    getGPSDataByMap()
     elseif msg == MSG_DEACTIVATE then
         System:setGPSStatus(0)
     end
@@ -247,6 +235,7 @@ end
 --传统方式获取经纬度
 function getGPSDataByMap()
     --  显示状态栏
+    Loading:show()
     local statusBar = Sprite:findChild(rootSprite, 'statusBar')
     Sprite:setProperty(statusBar, 'visible', 'true')
     Sprite:setProperty(statusBar, 'enable', 'true')
@@ -280,9 +269,9 @@ function loadListItem(list, item, index)
     local distanceName = Sprite:findChild(item, 'distanceName')
     Sprite:setRect(listItemBg, 0, 0, 480, 70)
     if index % 2 > 0 then
-        Sprite:setProperty(listItemBg, 'visible', 0)
-    else
         Sprite:setProperty(listItemBg, 'src', 'file://image/item_bg_m.png')
+    else
+        Sprite:setProperty(listItemBg, 'visible', 0)
     end
     Log:write('11111111111111111111111')
     local stationName = Sprite:findChild(item,'stationName')
