@@ -29,6 +29,7 @@ Alias = {
     
     ------------------------------Metro Style ------------------------------------------
     imageDetail = 'MODULE:\\com_wondertek_dw\\imageDetail.wdml', -- 图片详情
+    orignImg = 'MODULE:\\com_wondertek_dw\\orignImg.wdml', -- 查看原图（隐患上传）
     home_new = 'MODULE:\\com_wondertek_dw\\home_new.wdml',  -- 首页
     m_login = 'MODULE:\\com_wondertek_dw\\m_login.wdml',    -- 登录
     m_daibangongdan = 'MODULE:\\com_wondertek_dw\\m_daibangongdan.wdml', -- 待办列表
