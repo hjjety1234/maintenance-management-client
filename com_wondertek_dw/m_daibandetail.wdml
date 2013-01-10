@@ -131,9 +131,9 @@
                          <image rect="0,5,180,40" src="file://image/select.png" style="autosize"
                             extendstyle="1111">                         
                         </image>
-                        <label name="xunjianName" rect="7,0,212,50" font-size="24"
+                        <scrolltext name="xunjianName" rect="7,0,145,50" font-size="24"
                             text="请选择巡检组" color="#303030" extendstyle="1111" style="autosize"
-                            h-align="left" v-align="center" />
+                            h-align="left" v-align="center" scroll="true" step="2"/>
                     </button>
 
                 </node>
@@ -185,7 +185,7 @@
                        <image rect="0,5,180,40" src="file://image/select.png" style="autosize"
                             extendstyle="1111">
                         </image>
-                        <scrolltext name="xunjianName" font-size="24" rect="7,0,140,50"
+                        <scrolltext name="xunjianName" font-size="24" rect="7,0,145,50"
                             text="请选择转审人" color="#303030" extendstyle="1111" style="autosize"
                             h-align="left" v-align="center" scroll="true" step="2"/>
                     </button>
@@ -625,7 +625,7 @@ function loadRequest()
     local param = 'cmd=wlbtaskdetail&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&step='..step
     local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
     Http:request('daibandetail_data', reqURL, 101, {useCache = false})
-    Loading:show()
+    Loading:show(rootSprite)
 end
 
 function editOnTextChanged(sprite,ncount)
@@ -641,14 +641,14 @@ function loadXunjianRequest()
     local param = 'cmd=wlbpatrolGroupList&page='..'1'..'&patrolgroupname='
     local reqURL = getWholeUrl('nbspweb/webservice/user!doWebservice.action', param)
     Http:request('group_data', reqURL, 105, {useCache = false})
-     Loading:show()
+     Loading:show(rootSprite)
 end
 
 function loadZhuanshenRequest()
     local param = 'cmd=wlbuserinfo&page='..'1'..'&username='
     local reqURL = getWholeUrl('nbspweb/webservice/user!doWebservice.action', param)
     Http:request('renyuan_data', reqURL, 106, {useCache = false})
-     Loading:show()
+     Loading:show(rootSprite)
 end
 
 function renyuancontent(count)
@@ -930,7 +930,7 @@ function okCallback()
         Log:write('++++++++++++++patrolgroupcode+++++++++++++', patrolgroupcode)
         local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
         Http:request('daibanqianshou', reqURL, 102, {useCache = false, method = 'post', postData='cmd=wlbtaskdealsign'..param})
-         Loading:show()
+         Loading:show(rootSprite)
     elseif stepdata=='2' or stepdata=='4' then
         local juqianNode = Sprite:findChild(rootSprite, 'juqian')
         local itemNode = Sprite:findChild(juqianNode, 'resultNode')
@@ -964,7 +964,7 @@ function okCallback()
             local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
             Http:request('daibanjuqian', reqURL, 104, {useCache = false})
         end
-         Loading:show()
+         Loading:show(rootSprite)
         --stringData = string.format('%s;%s;%s;%s;%s;', stepdata, stringData, itemtext, xunjiantext,contenttext)
    elseif stepdata=='3' then
         local huidanNode= Sprite:findChild(rootSprite, 'huidan')
@@ -980,7 +980,7 @@ function okCallback()
         local param = 'cmd=wlbtaskdealrequest&id='..id..'&taskcode='..taskcode..'&pid='..pid..'&step='..step..'&issubmit='..issubmit..'&remark='..content
         local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
         Http:request('daibanhuidan', reqURL, 103, {useCache = false})
-        Loading:show()
+        Loading:show(rootSprite)
     end
     --Scene:setReturn(Alias.home, Alias.daibangongdan)
     --Scene:go(Alias.daibangongdan)
