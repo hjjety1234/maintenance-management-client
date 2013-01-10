@@ -129,8 +129,8 @@ local clickTime -- 长按巡检名称时的时间
 local longClickItemIndex -- 当前长按按钮列表索引
 local firtClick_y -- 第一次点击时的纵坐标
 
-local lon
-local lat
+local lon=117.2491107
+local lat=31.850543
 local resp
 local statusBarText
 
@@ -139,12 +139,13 @@ local statusBarText
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     statusBarText =  Sprite:findChild(sprite, 'statusBarText')
+    request()
 end
 
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-    getGPSDataByMap()
+    --getGPSDataByMap()
     elseif msg == MSG_DEACTIVATE then
         System:setGPSStatus(0)
     end
@@ -305,8 +306,8 @@ Reg:setString(regHandle, "stationid",resp.value[index].xtbh)
 Log:write('cacaca',stationid)
 Reg:setString(regHandle, "itemname",resp.value[index].itemname)
 Log:write('cacaca',itemname)
-    Scene:setReturn(Alias.m_checkzhandian, Alias.m_sitecheck1)
-    Scene:go(Alias.m_sitecheck1)
+    Scene:setReturn(Alias.m_checkzhandian, Alias.m_sitemajor)
+    Scene:go(Alias.m_sitemajor)
 end
 
 
