@@ -373,7 +373,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        UmsAgent:OnActivate(string.match(Alias.m_yinhuanshangchuan, 'MODULE:\\(.*)'), "已报隐患")
+        UmsAgent:OnActivate(string.match(Alias.m_yinhuanshangchuan, 'MODULE:\\(.*)'), "隐患上报")
         upStatus = 0
         System:setGPSStatus(0)
     elseif msg == MSG_DEACTIVATE then
@@ -425,6 +425,7 @@ function bodyOnPluginEvent(msg, param)
             fillSelect()  
         end
     elseif msg == 103 then
+        UmsAgent:onLoadFinish()
         local updateData = Http:jsonDecode('upload_data')
         Log:write("updateData:", updateData)
         if updateData.code ~= '0' then
@@ -736,6 +737,7 @@ function isSave(sprites)
     Dialog:show('提示','是否保存该内容？','ok_cancel','doSave','doBack')
 end
 function submitOnSelect(sprites)
+    UmsAgent:onLoadStart()
     local yinhuanNameText = Sprite:getProperty(Sprite:findChild(rootSprite, 'yinhuanName'), 'text')
     local zhuanyeBtnText = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'zhuanyeBtn'), 'name'), 'text')
     local typeBtnText = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'typeBtn'), 'name'), 'text')
