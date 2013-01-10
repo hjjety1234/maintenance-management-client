@@ -94,6 +94,7 @@
     <![CDATA[
 
     require 'com_wondertek_dw.common.framework'
+    require 'framework.umsagent'
     local rootSprite
     local data = {}
     --local name = {'余奇','程川','何武','周瑜'}
@@ -108,16 +109,19 @@
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
+            UmsAgent:OnActivate(string.match(Alias.m_tongxunlu, 'MODULE:\\(.*)'), '通讯录')
             --tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
             loadRequest('')
             --loadList(4)
-            elseif msg == MSG_DEACTIVATE then
+        elseif msg == MSG_DEACTIVATE then
+            UmsAgent:OnDeactivate()
         end
     end
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg)
         if Loading:isShow() then Loading:close() end
         if msg == 101 then
+            UmsAgent:onLoadFinish()
             data = Http:jsonDecode('txl_data')
             Log:write("data101 = ", data)
             if not data or type(data) ~= 'table' then
@@ -155,6 +159,7 @@
     end
     ---------------------------------------util functions---------------------------
     function loadRequest(name)
+        UmsAgent:onLoadStart()
         if name==nil then
             name=''
         end
