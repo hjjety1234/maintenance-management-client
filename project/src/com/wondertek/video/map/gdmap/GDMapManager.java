@@ -609,7 +609,10 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 			// TODO Auto-generated method stub
 			return super.getPopupMarker(item);
 		}
-
+		
+		/**
+		 * 获取POI点的view
+		 */
 		@Override
 		protected View getPopupView(final PoiItem item) {
 			View view = ((Activity) mContext).getLayoutInflater().inflate(mContext.getResources().
@@ -638,27 +641,39 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 //				}
 //			});
 			
+			// 设置左侧详情按钮的消息响应
+			ImageButton btnLeft = (ImageButton)view.findViewById(mContext.getResources().
+					getIdentifier("btn_left", "id", mContext.getPackageName()));
+			btnLeft.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Log.d(TAG, ">>>+++++PoIDetail+++++<<<");
+					String str = String.format("{\"PoiId\":\"%s\", \"cmd\":\"%s\"}", item.getPoiId(), "PoIDetail");
+					handler.sendMessage(Message.obtain(handler, GDMapConstants.GDMAP_POIPRESSED, str));
+				}
+			});
+			
+			// 设置右侧导航按钮的点击消息处理
 			final ImageButton btn_right= (ImageButton) view.findViewById(mContext.getResources().
 					getIdentifier("btn_right", "id", mContext.getPackageName()));
 			btn_right.setOnClickListener(new OnClickListener() {
-				
 				@Override
 				public void onClick(View v) {
-					// TODO Auto-generated method stub
 					Log.d(TAG, ">>>+++++RouteSearch+++++<<<");
-					handler.sendMessage(Message.obtain(handler, GDMapConstants.GDMAP_ROUTESEARCH_RESULT,""));
+					String str = String.format("{\"PoiId\":\"%s\", \"cmd\":\"%s\"}", item.getPoiId(), "RouteSearch");
+					handler.sendMessage(Message.obtain(handler, GDMapConstants.GDMAP_POIPRESSED, str));
 				}
 			});
 			
-			
+			// 设置整个PoiView的点击消息处理
+			/*
             view.setOnClickListener(new OnClickListener() {
-				
 				@Override
 				public void onClick(View v) {
-					// TODO Auto-generated method stub
 					handler.sendMessage(Message.obtain(handler, GDMapConstants.GDMAP_POIPRESSED, item.getPoiId()));
 				}
 			});
+			*/
 			return view;
 		}
 
