@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.http.HttpEntity;
@@ -38,12 +39,15 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.telephony.TelephonyManager;
 import android.telephony.gsm.GsmCellLocation;
 import android.util.Log;
 
+// import com.autonavi.aps.api.Location;
 import com.wondertek.video.VenusApplication;
 
 public class CommonUtil {
@@ -614,4 +618,33 @@ public static String getConfig(String key) {
 	return ret;
 }
 
+public static SItude getLatitudeAndLongitude(Context context, boolean mUseLocationService){
+	SItude itude = new SItude();
+	if (context == null) {
+		if (UmsConstants.DebugMode) {
+			Log.e("getItude Error", "context is null");
+		}
+		itude.latitude = "";
+		itude.longitude = "";
+		return itude;
+	}
+	if (mUseLocationService) {
+		LocationManager loctionManager = (LocationManager) context
+				.getSystemService(Context.LOCATION_SERVICE);
+		List<String> matchingProviders = loctionManager.getAllProviders();
+		for (String prociderString : matchingProviders) {
+			System.out.println(prociderString);
+			Location location = loctionManager
+					.getLastKnownLocation(prociderString);
+			if (location != null) {
+				itude.latitude = location.getLatitude() + "";
+				itude.longitude = location.getLongitude() + "";
+			} else {
+				itude.latitude = "";
+				itude.longitude = "";
+			}
+		}
+	}
+	return itude;
+}
 }

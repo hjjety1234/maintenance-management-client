@@ -775,8 +775,11 @@ public class UmsAgent {
 			    clientData.put("cellid",sCell!=null?sCell.CID+"":"");
 			    clientData.put("lac", sCell!=null?sCell.LAC+"":"");
 				try {
-					 clientData.put("latitude", CommonUtil.getItude(sCell,UmsAgent.mUseLocationService).latitude);
-					 clientData.put("longitude", CommonUtil.getItude(sCell,UmsAgent.mUseLocationService).longitude);
+//					 clientData.put("latitude", CommonUtil.getItude(sCell,UmsAgent.mUseLocationService).latitude);
+//					 clientData.put("longitude", CommonUtil.getItude(sCell,UmsAgent.mUseLocationService).longitude);
+					 clientData.put("latitude", CommonUtil.getLatitudeAndLongitude(context, UmsAgent.mUseLocationService).latitude);
+					 clientData.put("longitude", CommonUtil.getLatitudeAndLongitude(context, UmsAgent.mUseLocationService).longitude);
+					
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
