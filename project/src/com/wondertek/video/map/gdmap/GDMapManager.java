@@ -112,6 +112,7 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 				case GDMapConstants.GDMAP_POIPRESSED :
 					Log.d(TAG, "POI PopView Pressed: " + (String)msg.obj);
                     MapPluginMgr.getInstance().nativePoiPopViewPressedCallback((String)msg.obj);
+                    break;
 				case GDMapConstants.GDMAP_ERROR:
 					GDPoiSearch.getInstance(mContext, mMapView).mapError();
 					break;
