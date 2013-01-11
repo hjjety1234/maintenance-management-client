@@ -76,27 +76,27 @@
                 </node>
                 <node rect="20,110,305,55" extendstyle="1111">
 	                <!-- 公交  -->
-	                <button rect="0,0,100,55" style="autosize"
-	                    OnSelect="" extendstyle="1111">
+	                <button name="byBus" rect="0,0,100,55" style="autosize"
+	                    OnSelect="" extendstyle="1111" data="0">
 	                    <image name="normal" rect="0,0,100,55" extendstyle="1111" 
 	                       src="file://image/bus.png" style="autosize"></image>
 	                </button>
 	                <!-- 驾车  -->
-	                <button rect="100,0,100,55" style="autosize" 
-	                    OnSelect="" extendstyle="1111">
+	                <button name="byCar" rect="100,0,100,55" style="autosize" 
+	                    OnSelect="" extendstyle="1111" data="1">
 	                    <image name="normal" rect="0,0,100,55" src="file://image/car_on.png"
 	                       style="autosize" extendstyle="1111" />
 	                </button>
 	                <!-- 步行  -->
-	                <button rect="200,0,105,55" style="autosize"
-	                    OnSelect="" extendstyle="1111">
+	                <button name="byFoot" rect="200,0,105,55" style="autosize"
+	                    OnSelect="" extendstyle="1111" data="0">
 	                    <image name="normal" rect="0,0,105,55" src="file://image/foot.png"
 	                       style="autosize" extendstyle="1111" />
 	                </button>
                 </node>
                 <!-- 导航搜索   -->
                 <button rect="335,110,120,55" style="autosize"
-                    OnSelect="" extendstyle="1111">
+                    OnSelect="doRouteSearch" extendstyle="1111">
                     <image name="normal" rect="0,0,120,55" extendstyle="1111" 
                        src="file://image/map_search_btn.png" style="autosize"></image>
                 </button>
@@ -110,9 +110,6 @@ require 'com_wondertek_dw.common.framework'
 require 'framework.map'
 local rootSprite
 
-local umsagentPlugin = nil
-local umsagentHasAppkey = 0
-
 local g_desLon = nil  -- 目标位置的经度
 local g_desLat = nil  -- 目标位置的纬度
 local g_stationName = nil -- 目标站点名称
@@ -121,51 +118,31 @@ local g_stationName = nil -- 目标站点名称
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    --[[
-    local reg = Reg:create(Alias.index)
-    umsagentPlugin = Reg:getInteger(reg, 'UmsAgent')
-    umsagentHasAppkey = Reg:getInteger(reg, 'umsagentHasAppkey')
-    --]] 
-
-    local regHandle = Reg:create(Alias.m_xunjianzhandian)
-    g_stationName = Reg:getString(regHandle, 'stationName')
-    local longitude = Reg:getString(regHandle, 'destLongitude')
-    local latitude = Reg:getString(regHandle, 'destLatitude')
-
-    if g_stationName ~= nil and g_stationName  ~= '' then
-        local titleText = Sprite:findChild(rootSprite, 'titleText')
-        Log:write('bodyBuildChildrenFinished(): title', g_stationName)
-        Sprite:setProperty(titleText, 'text', g_stationName)
-    end
-
-    if longitude == nil or longitude == '' or
-        latitude == nil or latitude == '' then 
-        Dialog:show(rootSprite, '目前站点的经纬度非法！', 'ok')
-        return
-    end 
-
-    g_desLon = tonumber(longitude) * 1000000
-    g_desLat = tonumber(latitude) * 1000000
-
-    Log:write('g_desLon, g_desLon:', g_desLon, g_desLat)
-    openMap(0, 70, 480, 730)
-    getCurPosition()
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        --[[
-	    if umsagentHasAppkey == 1 then
-	        pluginInvoke(umsagentPlugin, "OnActivate", string.match(Alias.chart, 'MODULE:\\(.*)'))
+        local regHandle = Reg:create(Alias.m_search)
+	    g_stationName = Reg:getString(regHandle, 'stationName')
+	    local longitude = Reg:getString(regHandle, 'destLongitude')
+	    local latitude = Reg:getString(regHandle, 'destLatitude')
+	
+	    if g_stationName ~= nil and g_stationName  ~= '' then
+	        local keywordEdit = Sprite:findChild(rootSprite, 'keywordEdit')
+	        Log:write('bodyBuildChildrenFinished(): title', g_stationName)
+	        Sprite:setProperty(keywordEdit, 'text', g_stationName)
 	    end
-        --]]
+	
+	    if longitude == nil or longitude == '' or
+	        latitude == nil or latitude == '' then 
+	        Dialog:show(rootSprite, '目前站点的经纬度非法！', 'ok')
+	        return
+	    end 
+	
+	    g_desLon = tonumber(longitude) * 1000000
+	    g_desLat = tonumber(latitude) * 1000000
     elseif msg == MSG_DEACTIVATE then
-        --[[
-        if umsagentHasAppkey == 1 then
-            pluginInvoke(umsagentPlugin, "OnDeactivate")
-        end
-        --]]
     end
 end
 
@@ -175,10 +152,6 @@ function bodyOnPluginEvent(msg, param)
         -- postData为Json数据({"latitude":"31250614","longitude":"121600975"})
         local postDataString = Param:getString(param, 0)
 		local postData = Json:loadString2Table(postDataString)
-        if showCurPosition(postData.longitude, postData.latitude) ==  false then
-            Log:write('移动到当前位置失败', postData)
-            return
-        end
         searchRoute(1, postData.longitude,  postData.latitude, g_desLon, g_desLat)
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
@@ -199,21 +172,12 @@ end
 
 -- 返回上一个页面
 function doBack()
-    Map:close()
     Scene:back()
 end
 
 ---------------------------------------地图相关函数---------------------------
 -- 打开地图
-function openMap(x, y, w, h)
-    local reg = registerCreate(Reg.g_Map)
-    local handle = registerGetInteger(reg, 'MapPlugin')
-    if handle == 0 then
-        handle = pluginCreate('MapView', 'MapView')
-        registerSetInteger(reg, 'MapPlugin', handle)
-    end
-    pluginInvoke(handle, 'ShowLocationButton', 1)
-    
+function openMap(x, y, w, h)    
     local xscal = SCREEN_WIDTH / 480
     local yscal = SCREEN_HEIGHT / 800
     Map:open(x*xscal, y*yscal, w*xscal, h*yscal)
@@ -223,20 +187,6 @@ end
 function getCurPosition()
     local observer = Plugin:getObserver()
     Map:getCurPosition(observer, 1000)
-end
-
-
--- 显示当前位置到地图
--- @paramlongitude string 如 "121600975"
--- @param latitude string 如 "31250614"
-function  showCurPosition(longitude, latitude)
-    if longitude == nil or longitude == '' or 
-        latitude == nil or latitude == '' then
-        Log:write('经纬度参数不合法:', longitude, latitude)
-        return false
-    end
-    Map:moveTo(tonumber(latitude), tonumber(longitude), '') 
-    return true
 end
 
 -- 在地图上搜索导航路径
@@ -262,23 +212,18 @@ function searchRoute(routeType, curLongitude, curlatitude, desLonitude, desLatit
     end
 
     -- 搜索路径
+    openMap(0, 260, 480, 540)
     Map:searchRoute(routeType, "", "",
         tonumber(curlatitude), tonumber(curLongitude), "", "",
         tonumber(desLatitude), tonumber(desLonitude))
 end
 
-function doMapNavigate(  )
-    -- body
+-- 搜索路径
+function doRouteSearch(sprite)
+    getCurPosition()
 end
 
-function doMapSearch(  )
-    Scene:setReturn(Alias.m_zhandiandaohang, Alias.m_zhandiansousuo)
-    Scene:go(Alias.m_zhandiansousuo)
-end
-
-function doMapLocate(  )
-    -- body
-end
+    
 
 ]]>
 </root>
