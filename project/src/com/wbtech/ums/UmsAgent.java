@@ -336,7 +336,8 @@ public class UmsAgent {
 	 */
 	public static void onPause(Context context) {
 		// 将数据上传
-		
+		TelephonyManager tm = (TelephonyManager) (context.getSystemService(Context.TELEPHONY_SERVICE)); 
+		String deviceid = tm.getDeviceId();
 		end_millis = CommonUtil.getTime();// 结束的时间点
 		end = Long.valueOf(System.currentTimeMillis());// 结束时间点毫秒表示
 		duration = end - start + "";
@@ -345,6 +346,7 @@ public class UmsAgent {
 		JSONObject info = new JSONObject();
 		try {
 			info.put("session_id", session_id);
+			info.put("deviceid", deviceid);
 			info.put("start_millis", start_millis);
 			info.put("end_millis", end_millis);
 			info.put("duration", duration);
