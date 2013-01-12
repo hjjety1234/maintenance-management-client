@@ -299,6 +299,7 @@
 
 require 'com_wondertek_dw.common.framework'
 require 'framework.webbrowser'
+require 'framework.umsagent'
 local rootSprite
 
 data = {{key="hefei",      name="合肥",   cmpNum="14",  staffNum="468",  staffRatio="93.2", turnOverRate="0.8"}, 
@@ -328,9 +329,11 @@ end
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        UmsAgent:OnActivate(string.match(Alias.m_renyuantongji, 'MODULE:\\(.*)'), "人员统计")
         local btnHefei = Sprite:findChild(rootSprite, 'btnHefei')
         doRegionClick(btnHefei)
     elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
     end
 end
 
@@ -361,6 +364,7 @@ end
 
 ----------------------------------服务端交互函数列表---------------------------------
 function doRegionClick(sprite)
+    UmsAgent:onLoadStart()
     -- 获取当前被选地市的数据
     local name = Sprite:getData(sprite)
     local city = nil
@@ -452,6 +456,7 @@ function doRegionClick(sprite)
     -- 突出显示当前选择的地市
     local cityImage = Sprite:findChild(rootSprite, city.key)
     Sprite:setProperty(cityImage, 'visible', 'true')
+    UmsAgent:onLoadFinish()
 end
 
 -- 隐藏地市

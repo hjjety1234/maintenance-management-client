@@ -134,6 +134,8 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.umsagent'
+
 local rootSprite
 local respValue = nil
 local page = 1
@@ -152,11 +154,13 @@ end
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+    UmsAgent:OnActivate(string.match(Alias.m_cheliangguanli, 'MODULE:\\(.*)'), '车辆管理首页')
         if bIsFirst == true then 
             getCarList()
             bIsFirst = false
         end
     elseif msg == MSG_DEACTIVATE then
+    UmsAgent:OnDeactivate()
     end
 end
 
@@ -164,6 +168,7 @@ end
 function bodyOnPluginEvent(msg)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
+     UmsAgent:onLoadFinish()
         local resp = Http:jsonDecode('car_list')
         preRespValue=resp
         --Config:set('lines','10')
@@ -261,8 +266,8 @@ function itemOnSelect(sprite)
     Reg:setString(regHandle,'companyName', companyName)
     Reg:setString(regHandle,'carType', carType)
     -- 进行页面跳转
-    Scene:setReturn(Alias.cheliangguanli, Alias.cheliangxiangqing)
-    Scene:go(Alias.cheliangxiangqing)
+    Scene:setReturn(Alias.m_cheliangguanli, Alias.m_cheliangxiangqing)
+    Scene:go(Alias.m_cheliangxiangqing)
 end
 
 -- 显示或者隐藏搜索条
@@ -372,6 +377,7 @@ function getCarList()
     local requestParam = string.format('cmd=wlbcarlist&usercode=%s&keyword=&page=%s', Config:get('username'), page)
     local requestURL = getWholeUrl('nbspweb/webservice/car!doWebservice.action', requestParam)
     Http:request('car_list', requestURL, 101)
+    UmsAgent:onLoadStart()
      Config:set('lines','10')
      Loading:show()
 end

@@ -163,6 +163,7 @@
     <![CDATA[
 
     require 'com_wondertek_dw.common.framework'
+    require 'framework.umsagent'
     local rootSprite
     local isSearchBarVisible = false -- 搜索条是否显示标志
     local isFavContextMenuVisible = false -- 收藏上下文菜单是否显示标志
@@ -177,14 +178,17 @@
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
+            UmsAgent:OnActivate(string.match(Alias.m_notice, 'MODULE:\\(.*)'), '通知公告')
             requestNoticeList('')
-            elseif msg == MSG_DEACTIVATE then
+        elseif msg == MSG_DEACTIVATE then
+            UmsAgent:OnDeactivate()
         end
     end
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg)
         if Loading:isShow() then Loading:close() end
         if msg == 101 then
+            UmsAgent:onLoadFinish()
             local resp = Http:jsonDecode('notice_list')
             -- 检查是否有返回结果
             if (resp.code ~= '0') then
@@ -282,6 +286,7 @@
     end
     --@brief 请求服务器公告列表
     function requestNoticeList(title)
+        UmsAgent:onLoadStart()
         local param = string.format('title=%s&collectflag=0&page=%s&cmd=wlbnewslist', title, page)
         Log:write("请求公告列表:"..param)
         local requestURL = getWholeUrl('nbspweb/webservice/notice!doWebservice.action', param)

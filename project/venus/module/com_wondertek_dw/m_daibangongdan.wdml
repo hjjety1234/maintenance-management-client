@@ -134,6 +134,8 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.umsagent'
+
 local rootSprite
 local isSearchBarVisible = false        -- 搜索条是否显示标志
 local nSearchBarWidth = 55
@@ -152,6 +154,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+    UmsAgent:OnActivate(string.match(Alias.m_daibangongdan, 'MODULE:\\(.*)'), '待办工单首页')
    if Config:get('curDaiBanListTab') == '1' then
         tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))       
     elseif  Config:get('curDaiBanListTab') == '2' then
@@ -160,6 +163,7 @@ function bodyOnSpriteEvent(msg, param)
         tabOnSelect(Sprite:findChild(rootSprite, 'btnTab3'))
        end
     elseif msg == MSG_DEACTIVATE then
+    UmsAgent:OnDeactivate()
     end
 end
 
@@ -167,6 +171,7 @@ end
 function bodyOnPluginEvent(msg)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
+     UmsAgent:onLoadFinish()
         local list = Sprite:findChild(rootSprite, 'sampleList')
         ListView:removeAllItems(list,true)
         data = Http:jsonDecode('daiban_data')
@@ -239,8 +244,8 @@ function loadRequest()
     Log:write("param = ", param)
     Log:write('++++++++url+++++++++++++', url)
     Http:request('daiban_data', url, 101, {useCache = false, method = 'post', postData='cmd=wlbtasklist'..param})
-    
-    Loading:show() 
+    UmsAgent:onLoadStart()
+    Loading:show(rootSprite) 
 end
 
 function loadDoneRequest()
@@ -250,7 +255,7 @@ function loadDoneRequest()
     local param = '&page=1'
     Log:write("param = ", param)
     Http:request('handled_data', url, 102, {useCache = false, method = 'post', postData='cmd=wlbhandledtasklist'..param})
-    Loading:show()
+    Loading:show(rootSprite)
 end
 
 function loadList(count)
@@ -458,7 +463,7 @@ end
         local requestURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
         Http:request('daiban_data', requestURL, 101, {useCache=false})
         -- issue#56 开始是空白，进去后速度慢
-         Loading:show()
+         Loading:show(rootSprite)
     end
 
 --@brief 点击搜索按钮消息处理函数

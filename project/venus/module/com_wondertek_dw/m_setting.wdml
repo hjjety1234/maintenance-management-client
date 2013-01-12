@@ -79,16 +79,35 @@
             </node>
 
             <node name="resultNode" rect="10,320,460,100" extendstyle="1111">
-                <label rect="0,0,460,50" text="分页显示条数：" font-family='微软雅黑' color="#0" v-align="center"
+                <label rect="0,0,460,50" text="分页显示条数" font-family='微软雅黑' color="#0" v-align="center"
                     h-align="left" font-size="28" extendstyle="1111" />
                 <image rect="210,0,210,50" src="file://image/title_edit_bg.png"
                     style="sudoku-auto" extendstyle="1111"  sudoku="15,15,15,15" />
                 <edit name="editLines" rect="215,10,220,30" font-size="22"  border="false" font-family='微软雅黑'
                     extendstyle="1111" v-center="true" option="numeric"/>
             </node>
+
+            <node name="xlFlagNode" rect="10,380,460,100" extendstyle="1111">
+                <label rect="0,0,460,50" text="线路巡检" extendstyle="1111" font-family="微软雅黑" color="#0" v-align="center" h-align="left"
+                 font-size="28"></label>
+                 <button name="btnxlFlag" rect="210,0,33,50" border="false" text=""
+                    color="#ffffff" OnSelect="btnxlFlag_Clicked" extendstyle="1111" data="0">
+                    <image name="image3" rect="0,8,33,34" border="false"
+                        src="file://image/form_psw_s.png" style="autosize" extendstyle="1111" />
+                </button>
+            </node>
+
+            <node name="xlContent" rect="10,440,460,100" extendstyle="1111" visible="false" enable="false" active="false">
+                <label rect="0,0,200,50" text="设备编号" extendstyle="1111" font-family="微软雅黑" color="#0" v-align="center" h-align="left"
+                 font-size="28"></label>
+                 <image rect="210,0,210,50" src="file://image/title_edit_bg.png"
+                    style="sudoku-auto" extendstyle="1111"  sudoku="15,15,15,15" />
+                <edit name="editDeviceno" rect="215,10,220,30" font-size="22"  border="false" font-family='微软雅黑'
+                    extendstyle="1111" v-center="true"/>
+            </node>
             
             <!-- 保存配置  -->
-            <node name="saveNode" rect="10,420,460,100" extendstyle="1111">
+            <node name="saveNode" rect="10,520,460,100" extendstyle="1111">
                 <button name="saveButton" rect="150,25,160,50" text="保存" color="#ffffff"
                     extendstyle="1111" OnSelect="doSave"
                     normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
@@ -147,6 +166,14 @@ function doSave()
     local editLines = Sprite:getProperty(Sprite:findChild(rootSprite, 'editLines'), 'text')
     local btnUpdate = Sprite:findChild(rootSprite, 'btnUpdate')
     local btnLogin = Sprite:findChild(rootSprite, 'btnLogin')
+    local xlFlag = Sprite:getData(Sprite:findChild(rootSprite,'btnxlFlag'))
+    local deviceno = Sprite:getProperty(Sprite:findChild(rootSprite,'editDeviceno'),'text')
+    if xlFlag == '1' then
+        if deviceno == '' then
+            Dialog:show('提示','设备编号必须填写','ok')
+            return
+        end
+    end
     if editServer ~= '' then
         Config:set('server_url', editServer)
     end
@@ -165,6 +192,12 @@ function doSave()
     end
     Config:set('autoUpdate', Sprite:getData(btnUpdate))
     Config:set('autoRemeber', Sprite:getData(btnLogin))
+    Config:set('xlFlag',xlFlag)
+    if deviceno ~= '' then
+        Config:set('deviceId',deviceno)
+    else
+        Config:set('deviceId','')
+    end
     Dialog:show('提示','配置已保存！','ok')
 end
 
@@ -191,6 +224,23 @@ function autoUpdate(sprite)
     elseif flag=='1' then
         Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_s.png')
         Sprite:setProperty(sprite,'data','0')
+    end
+end
+
+function btnxlFlag_Clicked(sprite)
+    Log:write('btn is clicked')
+    local flag = Sprite:getData(sprite)
+    local imgNode = Sprite:findChild(sprite,'image3')
+    local xlContent = Sprite:findChild(rootSprite,'xlContent')
+    if flag == '0' then
+        Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_select.png')
+        Sprite:setProperty(sprite,'data','1')
+        setAllShoworHide(xlContent,'1')
+        --显示下方设备号
+    elseif flag == '1' then
+        Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_s.png')
+        Sprite:setProperty(sprite,'data','0')
+        setAllShoworHide(xlContent,'0')
     end
 end
 
@@ -230,6 +280,25 @@ function init()
         else
             Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_s.png')
         end
+    end
+
+    --判断是否选择了线路巡检
+    if Config:get('xlFlag') ~=nil and Config:get('xlFlag') ~='' then
+        local btnxlFlag = Sprite:findChild(rootSprite,'btnxlFlag')
+        local xlFlag = Config:get('xlFlag')
+        if xlFlag == '0' then
+            xlFlag = '1'
+        else
+            --设置设备编号的值
+            if Config:get('deviceId')~=nil and Config:get('deviceId')~='' then
+                local editDeviceno = Sprite:findChild(rootSprite,'editDeviceno')
+                Sprite:setProperty(editDeviceno,'text',Config:get('deviceId'))
+            end
+
+            xlFlag = '0'
+        end
+        Sprite:setProperty(btnxlFlag,'data',xlFlag)
+        btnxlFlag_Clicked(btnxlFlag)
     end
 end
 

@@ -124,7 +124,7 @@ function bodyOnSpriteEvent(msg, param)
             loginOnSelect(Sprite:findChild(rootSprite, 'btnLogin'))
         end
     elseif msg == MSG_DEACTIVATE then
-         UmsAgent:OnDeactivate()
+        UmsAgent:OnDeactivate()
     elseif msg == MSG_NETWORK then 
         if g_exitFlag ==  true then
             doExit()
@@ -134,19 +134,23 @@ end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
-    Loading:close()
-    UmsAgent:onLoadFinish()
     Log:write('msg=================================',msg)
+    Loading:close()
     if msg == 101 then
+        UmsAgent:onLoadFinish()
         local loginData = Http:jsonDecode('login_istrue')
         Log:write('+++++++++++++++++',loginData)
         local result=loginData['code']
         if result=='0' then
             Config:set('tasknum', loginData.taskNum)
             writeuserInfo()
-            if user_name == 'qianshan' then 
+            local xlFlag = Config:get("xlFlag")
+            Log:write('xianlu flag is -->'..xlFlag)
+            if xlFlag == '1' then
+                Scene:go(Alias.home_xianlu)
+            elseif user_name == 'qianshan' then 
             	Scene:go(Alias.home_new)
-            elseif user_name == 'fanbingheng' or user_name == 'zhangxiangjun' 
+            elseif user_name == 'fanbingheng' or user_name == 'zhangxiangjun'
                 or user_name == 'tangjizhi' or user_name == 'liutingliang' 
                 or user_name == 'sunjun' or user_name == 'mengzhengyu' 
                 or user_name == 'hanlu' or user_name == 'xufan' then
@@ -155,7 +159,7 @@ function bodyOnPluginEvent(msg)
 				Scene:go(Alias.home_new)
            	end
         else
-            Dialog:show('登陆提醒','账户密码错误！','ok')
+            Dialog:show('登陆提醒', '账户密码错误！', 'ok')
         end
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -191,6 +195,9 @@ function loginOnSelect(sprite)
     UmsAgent:onLoadStart()
     local username=Sprite:getText(Sprite:findChild(rootSprite, 'username'))
     local password=Sprite:getText(Sprite:findChild(rootSprite, 'password'))
+    local imei = System:getMachineInfo(4) 
+    if imei == nil then imei = "" end
+    Log:write('loginOnSelect: imei = '..imei)
     user_name=username
     if(username=='') then
         Dialog:show('提醒','用户名不能为空!','ok')

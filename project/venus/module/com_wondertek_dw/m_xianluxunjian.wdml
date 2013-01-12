@@ -85,12 +85,13 @@
                     extendstyle="1111" />
             </node>
         </node>
-        <listview name="lvHis" rect="0,360,480,400" border="false" extendstyle="1111"></listview>
+        <listview name="lvHis" rect="0,375,480,400" border="false" extendstyle="1111"></listview>
 		<node name="listitem" visible="false" enable="false" active="false"
                 extendstyle="1011" rect="0,40,480,40">
 			<image name="listItemBg" rect="0,0,480,40" src="file://image/item_bg_m.png" 
                     style="autosize" extendstyle="1111" />
-			<label name="lblhis" rect="0,40,480,40" extendstyle="1111" text=""></label>
+			
+            <scrolltext name="stLog" rect="0,0,480,40" extendstyle="1111"></scrolltext>
 		</node>
     </body>
     <![CDATA[
@@ -102,7 +103,7 @@ local planId
 local stationId
 local templateId
 local Inflag = '1'
-local tab = {}
+local tab = {'开始巡检'..getCurDateAndTime()}
 local list
 local timerNum = 50
 
@@ -111,6 +112,7 @@ local timerNum = 50
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
 	list = Sprite:findChild(rootSprite,'lvHis')
+    Log:write('当前时间点为：'..getCurrentTimeStamp())
 end
 
 -- @brief root节点消息方法
@@ -149,19 +151,21 @@ function bodyOnPluginEvent(msg,param)
             local smshead = Config:get('xlSmsHead')--'XGXV30'
             local deviceId = Config:get('deviceId')--'44010001'
             local cmd = Config:get('cmd')--'00' --手动巡检
-            local date = '121227143406 '
+            local date = getCurrentTimeStamp()--'121227143406 '
             local endstr = Config:get('xlSmsEndStr')--'00000000AAA10'
             local smscontent=smshead..deviceId..cmd..date..latitudeValue..longitudeValue..endstr
             Log:write('111111111111111111111111111111111111111111111111111111111111111', smscontent)
             local phone = Config:get('xlSmsNo')--'10658452'
-               
+            local tabhis = {smscontent}
+            table.insert(tab,1,tabhis)
             if Util:sendSMS(phone, smscontent) then
                 Sprite:setProperty(statusBarText, 'text', '巡检信息上报成功')
                 local tabhis = {os.date()..'上报成功'}
-                table.insert(tabhis,tabhis)
+             --   table.insert(tabhis,tabhis)
             else
                Sprite:setProperty(statusBarText, 'text', '巡检信息上报失败:短信上报失败')
             end
+            LoadList()
         end
         -- postData为Json数据({"latitude":"31250614","longitude":"121
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
@@ -297,6 +301,8 @@ function btnUP_OnSelected2(sprite)
     --getGPSDataByMap()
   Loading:show()
   local lbltips = Sprite:findChild(rootSprite, 'lbllonandlat')
+  --table.insert(tab,1,'clicked')
+  LoadList()
    -- 当前无经纬度信息，检查当前gps状态
     local result = System:getGPSStatus()
     if result == -1 then
@@ -325,7 +331,7 @@ function _requestNearbyStationByRadius()
     local statusBarText = Sprite:findChild(rootSprite, 'lbllonandlat')
     local longitude,latitude,gpsdate = System:getGPSData()
     if longitude and longitude ~= 0 and latitude and latitude ~= 0 and
-         isLocationChanaged(longitude, latitude) == true then
+        isLocationChanaged(longitude, latitude) == true then
 		Log:write('gps data is ------------------->'..gpsdate)
         timerNum = 50
         Timer:cancel(111)
@@ -344,20 +350,21 @@ function _requestNearbyStationByRadius()
         local smshead = Config:get('xlSmsHead')--'XGXV30'
         local deviceId = Config:get('deviceId')--'44010001'
         local cmd = Config:get('cmd')--'00' --手动巡检
-        local date = '000000000000'
+        local date = getCurrentTimeStamp()--'000000000000'
         local hx = Config:get('xlHx')
         local endstr = Config:get('xlSmsEndStr')--'00000000AAA10'
         local smscontent=smshead..deviceId..cmd..date..latitudeValue..longitudeValue..hx..endstr
 	    Log:write('111111111111111111111111111111111111111111111111111111111111111', smscontent)
 	    local phone = Config:get('xlSmsNo')--'10658452'
-	       
+	    table.insert(tab,1,smscontent)
         if Util:sendSMS(phone, smscontent) then
             Sprite:setProperty(statusBarText, 'text', '巡检信息上报成功')
 			local tabhis = {os.date()..'上报成功'}
-			table.insert(tab,tabhis)
+		--	table.insert(tab,tabhis)
         else
            Sprite:setProperty(statusBarText, 'text', '巡检信息上报失败:短信上报失败')
         end
+        LoadList()
         Loading:close()
     elseif timerNum > 0 then
         timerNum = timerNum - 1
@@ -373,13 +380,13 @@ function _requestNearbyStationByRadius()
             local latitudeValue = tonumber(latitude) / 10000000.0
             local longitudeValue = tonumber(longitude) / 10000000.0
             local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
-            Sprite:setProperty(statusBarText, 'text', '使用经纬度缓存:'.. posValue)
+            Sprite:setProperty(statusBarText, 'text', '定位失败，请点击下方按钮重试')
             request('1', posValue, '1000', page, 1001)
             return
         end
         
         -- 定位失败
-        Sprite:setProperty(statusBarText, 'text', '定位失败，请稍候再试.')
+        Sprite:setProperty(statusBarText, 'text', '定位失败，请点击下方按钮重试.')
     end
  end
 -- 检查是否有位置变化
@@ -398,7 +405,8 @@ function isLocationChanaged(longitude, latitude)
 end
 
 function LoadList()
-	local count = tab.getn()
+	local count = table.getn(tab)
+    Log:write('tab count is ------------->'..count)
 	ListView:removeAllItems(list,true)
     ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
     ListView:adjust(list)
@@ -412,8 +420,19 @@ function loadListItem(list, item, index)
     else
         Sprite:setProperty(listItemBg, 'src', 'file://image/item_bg_m.png')
     end
-	local lblHis = Sprite:findChild(item,'lblHis')
-	Sprite:setProperty(lblHis,'text',tab[index])
+	local stLog = Sprite:findChild(item,'stLog')
+	Sprite:setProperty(stLog,'text',tab[index+1])
+    Log:write('tab value is '..tab[index+1])
+end
+--巡检时间戳
+function getCurrentTimeStamp()
+    local year = os.date("*t")["year"]
+    local month = os.date("*t")["month"]
+    local day = os.date("*t")["day"]
+    local hour = os.date("*t")["hour"]
+    local minute = os.date("*t")["min"]
+    local sec = os.date("*t")["sec"]
+    return string.format('%04s%02s%02s%02s%02s%02s', year, month, day, hour, minute, sec)
 end
     ]]>
 </root>

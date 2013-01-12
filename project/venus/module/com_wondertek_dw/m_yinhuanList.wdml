@@ -119,6 +119,7 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.umsagent'
 local rootSprite
 local savedDatas
 local curpage=nil
@@ -139,6 +140,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        UmsAgent:OnActivate(string.match(Alias.m_yinhuanList, 'MODULE:\\(.*)'), "已传隐患")
         initList()
         if Config:get('curYinHuanListTab') == '1' then
             tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
@@ -146,6 +148,7 @@ function bodyOnSpriteEvent(msg, param)
             tabOnSelect(Sprite:findChild(rootSprite, 'btnTab2'))
         end
     elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
     end
 end
 
@@ -287,6 +290,7 @@ function loadListItem(list, item, index)
     if data.value[index].createTimeDis ~= nil then
         Sprite:setProperty(textTime, 'text', data.value[index].createTimeDis)
     end
+    UmsAgent:onLoadFinish()
 end
 
 function itemOnSelect(sprite)
@@ -313,6 +317,7 @@ function loadSavedDatas()
 end
 
 function loadUploadDatas()
+    UmsAgent:onLoadStart()
     local param = 'cmd=wlbdangerlist&page=1'
     local url = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
     Http:request('daiban_data', url, 101, {useCache = false})
