@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: hewu <hewu2008@gmail.com> ==
+============================================================================
+== | Desc: 页面描述 ==
+============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            
+            <!-- 设置背景 -->
+            <image rect="0,0,0,0" src="file://image/backgroundImg.png" style="autosize" extendstyle="1177" />
+
+            <!-- 显示专业区域 --> 
+            <node name="majorNode" rect="0,66,480,734" enable="true"
+                    extendstyle="1111">
+                <!-- 专业1 -->
+                <button name="button1" rect="0,0,480,47"  style='autosize'
+                    OnSelect="button1On" extendstyle="1111">
+                    <image name="button1Img" rect="0,0,480,47" src="file://image/tab_n_new.png"
+                     style='autosize'  extendstyle="1111" >
+                        <label name="label1" rect="0,0,480,30" border="false" text="基站设备及配套" h-align="center"
+                        v-align="center" color="#ffffff"  font-size="26" font-family='微软雅黑' />
+                    </image>  
+                </button>    
+            </node>
+
+            <!-- 设置标题栏 -->
+            <node name="NodeTitle" rect="0,0,480,66" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,66" src="file://image/title_new.png" extendstyle="1111" style="autosize" />
+                <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
+                    OnSelect="doBack" extendstyle="1111">
+                    <image name="normal" rect="15,8,75,75" src="file://image/skin/title_back_new.png"
+                         extendstyle="1111" />
+                    <image name="sel" rect="15,8,75,75" src="file://image/skin/title_back_new.png"
+                       extendstyle="1111" />
+                </button>
+                <scrolltext name="title" rect="100,0,280,50" text="现场检查"
+                    extendstyle="1111" font-family="微软雅黑" font-size="30" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2" />
+                <button name="btnForget" rect="400,0,75,75" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="submitOnSelect"
+                     font-size="24">
+                    <image name="titleBg1" rect="21,8,75,75" src="file://image/skin/ico_submit.png"
+                        extendstyle="1111"  />
+                </button>
+            </node>
+
+            <!-- 现场信息填写 --> 
+            <node name="siteNode" rect="0,20,480,800" enable="true"
+                    extendstyle="1111">
+                <image rect="10,120,462,15" src="file://image/content_top.png" style="autosize" extendstyle="1111" />
+                <image rect="10,135,462,40" src="file://image/content_center.png" style="autosize" extendstyle="1111" />
+                <image rect="10,175,462,15" src="file://image/content_bottom.png" style="autosize" extendstyle="1111" />
+                <!-- 显示代维公司 -->        
+                <node name="CompanyNode" rect="15,130,460,50" enable="true" visible="true"
+                    extendstyle="1111">
+                    <label name="label2" rect="5,0,220,50" border="false" text="代维公司："
+                        v-align="center" color="#303030"  font-size="26" font-family='微软雅黑' />
+                    <image rect="100,5,150,40" src="file://image/input.png"  style="sudoku-auto" sudoku="15,15,15,15"
+                        extendstyle="1111">
+                    </image>
+                    <scrolltext name="CompanyName" rect="110,5,150,40" text="" color="#303030" scroll="true" h-align="left" 
+                            v-align="center" font-family='微软雅黑' font-size="22" style="autosize" extendstyle="1111">
+                    </scrolltext>
+                </node>
+                <!-- 扣分总计 -->
+                <node name="reduceNode" rect="220,130,460,50" enable="true" visible="true"
+                    extendstyle="1111">
+                    <label name="label2" rect="55,0,120,50" border="false" text="扣分总计："
+                        v-align="center" color="#303030"  font-size="26" font-family='微软雅黑' />
+                    <image rect="150,5,100,40" src="file://image/input.png"  style="sudoku-auto" sudoku="15,15,15,15"
+                        extendstyle="1111">
+                    </image>
+                    <scrolltext name="reduceName" rect="160,5,150,40" text="" color="#303030" scroll="true" h-align="left" 
+                            v-align="center" font-family='微软雅黑' font-size="22" style="autosize" extendstyle="1111">
+                    </scrolltext>
+                </node>
+            </node>
+
+            <!-- 主页面内容：检查项列表   -->
+            <node name="mainNodeContent" rect="10,236,462,664" extendstyle="1111" visible="true">
+                <listview name="mainListView" rect="0,0,462,664" col="1" limit="true"
+                    visible="true" enable="true" extendstyle="1111">
+                </listview>
+            </node>
+            <image rect="10,231,462,15" src="file://image/content_top.png" style="autosize" extendstyle="1111" />
+            <!--  检查项模板  -->
+            <node name="mainItemNode" rect="" enable="false" active="true"
+                visible="false" extendstyle="1111" data="">   <!-- data标记巡检项下标 -->
+                <node name="mainTitleNode" rect="" extendstyle="1111">
+                    <image rect="0,0,462,50" src="file://image/content_center.png"  style="autosize" extendstyle="1111" />
+                    <scrolltext name="mainTitleName" rect="20,0,440,50"
+                        extendstyle="1111" font-size="22" font-family="微软雅黑" font-style="bold"
+                        h-align="left" v-align="center" color="#0062ab" scroll="true" step="2" />
+                    <button name="btnImg" rect="0,0,462,70" text="" color="#ffffff"
+                        extendstyle="1111" OnSelect="ImgOnSelect" font-size="24" data="1">
+                        <image name="NodeImg" rect="423,20,20,14" src="file://image/site_down.png" 
+                         extendstyle="1111" />
+                    </button>
+                </node>
+                <!-- 巡检子项列表  -->
+                <node name="subListviewNode" rect="0,50,462,70" extendstyle="1111" >
+                    <listview name="subListView" rect="0,0,480,710" col="1" limit="true"
+                        extendstyle="1111" border="false" >
+                    </listview>
+                </node>
+            </node>
+
+            <!-- 巡检子项模板  -->
+            <node name="subItemNode" rect="0,0,480,70" enable="false" active="false"
+                visible="false" extendstyle="1111" data=""> <!-- data标记巡检子项下标 -->
+                <!-- 扣分子项 -->
+                <node name="errorTitleNode1" rect="0,0,480,50" extendstyle="1111">
+                    <image rect="0,0,462,200" src="file://image/content_center.png"  style="autosize" extendstyle="1111" />
+                    <image rect="0,7,462,1" src="file://image/line.png"  style="autosize" extendstyle="1111" />
+                    <image rect="10,20,240,50" src="file://image/site_item.png"
+                        style="autosize" extendstyle="1111"  >
+                    <edit name="itemName" rect="10,2,220,50" border="false" font-family='微软雅黑'
+                    h-align="left" v-align="top" color="#ffffff" font-size="22" multiline="true"，line-height = '10'
+                    extendstyle="1111" />
+                    </image>
+                    <image rect="260,20,80,40" src="file://image/input_text.png" bord='true'
+                        style="autosize" extendstyle="1111"  />
+                    <edit name="editName" rect="265,30,80,30" border="false"  option="numeric"
+                         font-family="微软雅黑" color="#303030" font-size="24" max-size="60" OnTextChanged="editOnTextChanged"
+                        extendstyle="1111" >
+                        <label name="hideLabel" rect="0,0,100,30" text="扣分" color="#c0c0c0" font-family='微软雅黑'
+                            extendstyle="1111" font-size="24" style="autosize" h-align="left" 
+                            v-align="top" />
+                    </edit>
+                    
+                    <!-- 查看参考标准  -->
+                    <button name="normButton" rect="360,20,84,37" text="" color="#ffffff"
+                        extendstyle="1111" OnSelect="normOn" font-size="24" >
+                    <image rect="0,0,84,37" src="file://image/site_norm.png"
+                        style="autosize" extendstyle="1111" />
+                    <label name="label1" rect="10,0,100,30" border="false" text="扣分标准" font-family='微软雅黑'
+                        h-align="left" v-align="center" color="#ffffff" font-size="22"
+                        extendstyle="1111" />
+                    </button>
+
+                    <!-- 异常状态输入框  -->
+                    <image rect="0,80,462,10" src="file://image/content_center.png"  style="autosize" extendstyle="1111" />
+                    <label name="label1" rect="10,70,150,50" border="false" text="扣分说明："
+                        h-align="left" v-align="center" color="#000000" font-size="22"
+                        font-family="微软雅黑" extendstyle="1111" />
+                    <image rect="95,75,350,40" src="file://image/input_text.png" bord='true'
+                    style="autosize" extendstyle="1111"  />
+                    <edit name="editNorm" rect="100,85,345,40" border="false"  
+                        font-family="微软雅黑" color="#303030" font-size="24" max-size="60" OnTextChanged="editOnTextChanged"
+                        extendstyle="1111" >
+                       <label name="hideLabel" rect="0,0,280,40" text="无" color="#c0c0c0" font-family='微软雅黑'
+                        extendstyle="1111" font-size="24" style="autosize" h-align="left" 
+                        v-align="top" />
+                    </edit>
+                </node>
+            </node>
+
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+require 'os'
+local rootSprite
+local regHandle
+local major
+local site_data
+local g_items = {}          -- 巡检项（DS）
+local g_curItemIndex = 0    -- 当前加载的巡检项索引
+local g_page = 1            -- 当前页号
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+
+    --获取公司名称
+    regHandle = Reg:create('major_data')
+    Log:write('bodyBuildChildrenFinished: userSelect', major_data)
+    local userSelect = Reg:getTable(regHandle, 'userSelect')
+    local idSelect = Reg:getTable(regHandle, 'idSelect')
+    local name1 = userSelect[1].name
+    -----加载巡检子项
+    major = idSelect[1].id
+    Log:write('major:',major)
+    
+
+    ----显示代维公司
+    local CompanyName=Sprite:findChild(rootSprite,'CompanyName')
+    Sprite:setProperty(CompanyName,'text',name1)
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+     requestSubItems()
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+	Loading:close()
+    if msg == 101 then
+	elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+	elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+			Log:write('拨号失败')
+	elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+			Log:write('请求超时')
+
+    elseif  msg==102 then
+        local data = Http:jsonDecode('sub_items_detail')
+        -- 服务端返回数据合法性检查
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '获取巡检子项失败，服务端返回数据格式错误', 'ok')
+            return
+        end
+        if data.code ~= '0' then
+            Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+            return 
+        end
+        -- 解析返回的巡检子项
+        local subitems = data.value
+        --Log:write('subitems:',subitems)
+        -- 创建巡检项
+        for i = 0, getJsonArrayCount(subitems) - 1  do 
+            local item = {id=subitems[i].id , name=subitems[i].subitemname}
+            --Log:write('item',item)
+            -- 检查巡检项是否已经添加到table中
+            local bFound = false
+            for j=1,#g_items do 
+                if g_items[j].name == item.name then
+                  bFound = true 
+                  break
+                end
+            end
+            -- 新的巡检项
+            if bFound == false then 
+                table.insert(g_items, item)
+            end
+        end
+        -- 将巡检子项添加到对应的巡检项中
+
+        for i=0, getJsonArrayCount(subitems) - 1 do
+            for j=1, #g_items do
+                if subitems[i].subitemname == g_items[j].name then 
+                    table.insert(g_items[j], subitems[i])
+                end
+            end
+        end
+        Log:write('g_items', g_items)
+        --Log:write('将巡检子项添加到对应的巡检项中', g_items)
+        -- 在界面上加载巡检项
+        local mainListView = Sprite:findChild(rootSprite,'mainListView')
+        local mainItemNode = Sprite:findChild(rootSprite,'mainItemNode')
+        ListView:removeAllItems(mainListView, 1, 1)
+        --Log:write('#g_items',#g_items)
+        ListView:loadItem(mainListView, mainItemNode, #g_items, 'loadListItem')
+        ListView:adjust(mainListView)
+        -- 隐藏所有的巡检子项
+        setAllSubItemsVisible(false)
+    end
+end 
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:go( Alias.m_search)
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+--@brief 返回按钮消息处理函数
+function doBack(sprite)
+   Scene:back()
+end
+
+-- 请求巡检子项
+function requestSubItems()
+    local param = '&code='..major
+    local requestURL = 'http://211.138.191.85/nbspweb/webservice/assessment!doWebservice.action?usercode=liuguoli&pagesize=200&page=1&cmd=wlbitemcheck'..param
+    Http:request('sub_items_detail', requestURL, 102, {useCache = false})
+    Loading:show()
+    Log:write('requestURL:',requestURL)
+end
+
+-- 加载巡检项
+function loadListItem(list, item, index)
+    Log:write('loadListItem')
+    -- 设置巡检项样式
+    Sprite:setRect(item, 0, 0, 462, 200)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    g_curItemIndex = index + 1
+    Log:write('显示巡检项名称')
+    -- 显示巡检项名称
+    local mainTitleNode = Sprite:findChild(item, 'mainTitleNode')
+    local mainTitleName = Sprite:findChild(mainTitleNode, 'mainTitleName')
+    Log:write('#g_items[g_curItemIndex]:',#g_items[g_curItemIndex])
+    Sprite:setProperty(mainTitleName, 'text', g_items[g_curItemIndex].name)
+    -- 获取巡检子项Sprite 
+    local subListviewNode = Sprite:findChild(item, 'subListviewNode')
+    local subListView = Sprite:findChild(subListviewNode, 'subListView')
+    local subItemNode = Sprite:findChild(rootSprite, 'subItemNode')
+    -- 加载巡检子项内容 
+    ListView:removeAllItems(subListView, 1, 1)
+    --Log:write('#g_items:',#g_items)
+    ListView:loadItem(subListView, subItemNode, #g_items[g_curItemIndex], 'loadSubListItem')
+    -- 调整巡检子项列表大小
+    local x,y,w,h = Sprite:getRect(subListView)
+    Sprite:setRect(subListView, x, y, w,  #g_items[g_curItemIndex]* 130)
+    
+    x,y,w,h = Sprite:getRect(subListviewNode)
+    Sprite:setRect(subListviewNode, x, y, w, #g_items[g_curItemIndex] * 130)
+   
+    -- 调整巡检项大小
+    Sprite:setRect(item, 0, 0, 462, #g_items[g_curItemIndex] * 130 + 130)
+    
+    ListView:adjust(subListView)
+    
+    -- 设置当前的索引值
+    Sprite:setProperty(item, 'data', g_curItemIndex)
+end
+
+-- 加载巡检子项
+function loadSubListItem(list, item, index)
+    Log:write('loadSubListItem')
+    Sprite:setRect(item, 0, 0, 462, 130)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local itemName = Sprite:findChild(item, 'itemName')
+    local normButton=Sprite:findChild(item, 'normButton')
+    local editNorm = Sprite:findChild(item, 'editNorm')
+    local curSubItemIndex = index + 1
+    Sprite:setProperty(itemName,'text',g_items[g_curItemIndex][curSubItemIndex].demanddesc)
+    Sprite:setProperty(normButton,'data',g_items[g_curItemIndex][curSubItemIndex].evaluationcriterion)
+    Sprite:setProperty(editNorm,'data',g_items[g_curItemIndex][curSubItemIndex])
+    Log:write('editNorm',g_items[g_curItemIndex][curSubItemIndex])
+    -- 隐藏所有的输入框
+
+    -- 设置当前的索引值
+    Sprite:setProperty(item, 'data', curSubItemIndex)
+end
+
+-- 展开或收起所有的巡检子项
+-- @param bVisible - true 显示所有巡检项，false 隐藏之
+function setAllSubItemsVisible(bVisible)
+    local mainNodeContent = Sprite:findChild(rootSprite,'mainNodeContent')
+    local mainListView =Sprite:findChild(mainNodeContent,'mainListView')
+    local MLVcount = ListView:getItemCount(mainListView)
+    
+    if bVisible == true then 
+        -- 显示所有的巡检子项
+        for i=1,MLVcount do
+            local mainItemNode = ListView:getItem(mainListView, i-1)
+            local mainTitleNode=Sprite:findChild(mainItemNode,'mainTitleNode')
+            local btnImg = Sprite:getData(Sprite:findChild(mainTitleNode,'btnImg'))
+            if Sprite:getData(btnImg) == '2' then
+                -- this item is hide, set to visible
+                ImgOnSelect(btnImg)
+            end
+        end
+    else
+        -- 隐藏所有的巡检子项
+        for i=1,MLVcount do
+            local mainItemNode = ListView:getItem(mainListView, i-1)
+            local mainTitleNode=Sprite:findChild(mainItemNode,'mainTitleNode')
+            local btnImg = Sprite:findChild(mainTitleNode,'btnImg')
+            if Sprite:getData(btnImg) == '1' then
+                -- this item is visible, hide it.
+                ImgOnSelect(btnImg)
+            end
+        end
+    end
+end
+
+-- 巡检项的伸缩
+function ImgOnSelect(sprite)
+    local NodeImg = Sprite:findChild(sprite,"NodeImg")
+    local mainTitleNode=Sprite:getParent(sprite)
+    local mainItemNode = Sprite:getParent(mainTitleNode)
+    local mainListView = Sprite:getParent(mainItemNode)
+    local subListviewNode = Sprite:findChild(mainItemNode,"subListviewNode")
+    local subListView = Sprite:findChild(subListviewNode,"subListView")
+
+    local dataflag = Sprite:getData(sprite)
+    if  dataflag=='1' then -- show->hide
+        setAllShoworHide(subListviewNode,0)
+        setAllShoworHide(subListView,0)
+        Sprite:setProperty(sprite,"data","2")
+        Sprite:setProperty(NodeImg,"src","file://image/site_down.png")
+        Sprite:setRect(mainItemNode,0, 0, 480, 70)
+        ListView:adjust(mainListView)
+    elseif dataflag=='2' then -- hide->show
+        x,y,width,heigh=Sprite:getRect(subListviewNode)
+        Sprite:setRect(mainItemNode,0, 0, 480, 70+heigh)
+        setAllShoworHide(subListviewNode,1)
+        setAllShoworHide(subListView,1)
+        Sprite:setProperty(sprite,"data","1")
+        Sprite:setProperty(NodeImg,"src","file://image/site_top.png")
+        ListView:adjust(mainListView)
+    end
+end
+
+function normOn(sprite)
+    local normNode =Sprite:getParent(sprite)
+    local normButton =Sprite:findChild(normNode,'normButton')
+    local data =Sprite:getData(normButton)
+    Dialog:show(rootSprite,data,'ok')
+end
+
+------------------------- NUM类型输入框处理函数--------------------------------
+-- 数字类型输入框焦点消失响应处理
+--[[function editOnTextChanged(sprite,ncount)
+   editOnTextChanged(sprite,ncount)
+   Log:write('OnTextChanged')
+   local itemNode =Sprite:getParent(Sprite:getParent(sprite))
+   local normNode =Sprite:getParent(itemNode)
+   local normNode1=Sprite:getParent(normNode)
+   local editName =Sprite:findChild(normNode,'editName')
+   local editText =Sprite:getText(editName)
+   Log:write('editText',editText)
+
+    -- 用户未输入，直接返回
+    if editText == '' then
+        return
+    end
+
+    -- 获取当前输入
+    Log:write('获取当前输入')
+    local content = tonumber(editText)
+
+    -- 获取值域
+    local min = 0
+    local max = 100
+
+    -- 检查用户输入
+    if not content then
+        -- 用户输入非数字,清空输入
+        Dialog:show('提示','输入必须是数字！','ok')
+        Sprite:setProperty(editName, 'text', '') 
+    else
+      showErrorNode(true, itemNode,normNode, normNode1)  
+    end
+end
+
+-- 显示或隐藏异常输入框
+-- @param bVisible:boolean - true:显示，false:隐藏
+function showErrorNode(bVisible,itemNode,normNode,normNode1)
+    Log:write('showErrorNode')
+
+    -- 显示或隐藏异常输入框
+    if bVisible == true then 
+        local x,y,w,h = Sprite:getRect(normNode)
+        Log:write('showErrorNode, x, y, w, h', x, y, w, h)
+        Sprite:setRect(itemNode, x, y, w, h + 55)
+        Sprite:setRect(normNode, x, y, w, h + 55)
+        --Sprite:setRect(normNode1, x, y, w, h+55)
+    end
+    ListView:adjust(normNode)
+
+
+end--]]
+function submitOnSelect(sprite)
+    Dialog:show('提示','是否确定提交本次检查任务？','ok_cancel')
+end
+
+
+    ]]>
+</root>

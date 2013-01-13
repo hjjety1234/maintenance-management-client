@@ -137,7 +137,6 @@ require 'os'
 local rootSprite
 local stationid
 local num
-local num1
 local major_data
 local data1 
 local data2 
@@ -186,9 +185,8 @@ function bodyOnPluginEvent(msg)
 	Loading:close()
     if msg == 101 then
     major_data = Http:jsonDecode('muban_data')
-    num1 = #(major_data.value[0].contractor)+1 
     --若只有一个专业则不显示全选
-    num = #(major_data.value[0].template)+1
+    num = #(major_data.value[0].contractor)+1
     Log:write('123',num)
     if num==1  then
         local allBtn =  Sprite:findChild(rootSprite,'allBtn')
@@ -200,7 +198,7 @@ function bodyOnPluginEvent(msg)
     ---获取专业号
     local i=0
     while i<num do
-    local major=major_data.value[0].template[i].major
+    local major=major_data.value[0].contractor[i].major
     show(major)
     i = i + 1
     end
@@ -384,55 +382,119 @@ local xianluBtn =  Sprite:findChild(rootSprite,'xianluBtn')
 end
 
 function nextOn(sprite)
-------传递公司名称
+    -- 传递公司名称
     local jizhanBtn =  Sprite:findChild(rootSprite,'jizhanBtn')
     local tietaBtn =  Sprite:findChild(rootSprite,'tietaBtn')
     local zongheBtn =  Sprite:findChild(rootSprite,'zongheBtn')
     local jikeBtn =  Sprite:findChild(rootSprite,'jikeBtn')
     local xianluBtn =  Sprite:findChild(rootSprite,'xianluBtn')
 
--------计算所选专业的数目和编号
-    local companyLen=#(major_data.value[0].contractor)+1   
+    -- 计算所选专业的数目和编号
     data1 = Sprite:getData(jizhanBtn)
     data2 = Sprite:getData(tietaBtn)
     data3 = Sprite:getData(zongheBtn)
     data4 = Sprite:getData(jikeBtn)
     data5 = Sprite:getData(xianluBtn)
-    ----提示请选择专业
-    if data1=='1' and data2=='1' and data3=='1' and data4=='1' and data5=='1' then
-    Dialog:show('sprite', '请选择检查专业！', 'ok')
+    
+    -- 提示请选择专业
+    if data1 =='1' and data2 =='1' and data3=='1' and data4=='1' and data5=='1' then
+        Dialog:show('sprite', '请选择检查专业！', 'ok')
+        return
     end
-    ---计算选择专业数，传递专业号
-    regHandle=Reg:create('major_data')
-    local i=0
-    if data1=='2' then 
-        if major_data.value[0].contractor[0].major=='C31' then
-            local jizhanName=major_data.value[0].contractor[0].name
-            local jizhanId=major_data.value[0].template[0].id
-            Reg:setString(regHandle, "companyName",jizhanName)
-            Log:write('33333',jizhanName)
+
+    -- 获取服务端返回的专业
+    Log:write('major_data：', major_data)
+    local value = major_data.value
+    local contractor = value[0].contractor
+    local template = value[0].template
+    if contractor == nil or contractor == '' then 
+        Log:write('nextOn: contractor为空!')
+        return
+    end
+
+    if template == nil or template == '' then 
+        Log:write('nextOn: template为空!')
+        return
+    end
+
+    -- 保存用户选择的数据
+    local userSelect = {}
+    local idSelect = {}
+    Log:write('data1', data1)
+    if data1 == '2' then 
+        for j = 0, getJsonArrayCount(contractor) - 1 do
+            if contractor[j].major == 'C31' then 
+                table.insert(userSelect, contractor[j])
+            end
         end
-        i = i + 1
+        for k = 0, getJsonArrayCount(template)-1 do
+            if contractor[k].major == 'C31' then 
+                table.insert(idSelect, template[k])
+            end
+        end
+    end
+
+    if data2 == '2' then 
+        for j = 0, getJsonArrayCount(contractor) - 1 do
+            if contractor[j].major == 'C33' then 
+                table.insert(userSelect, contractor[j])
+            end
+        end
+        for k = 0, getJsonArrayCount(template)-1 do
+            if contractor[k].major == 'C33' then 
+                table.insert(idSelect, template[k])
+            end
+        end
     end
 
 
-
-    if data2=='2' then 
-    i = i + 1
-    end
-
-    if data3=='2' then 
-    i = i + 1
+    if data3 == '2' then 
+        for j = 0, getJsonArrayCount(contractor) - 1 do
+            if contractor[j].major == 'C32' then 
+                table.insert(userSelect, contractor[j])
+            end
+        end
+        for k = 0, getJsonArrayCount(template)-1 do
+            if contractor[k].major == 'C32' then 
+                table.insert(idSelect, template[k])
+            end
+        end
     end
 
     if data4=='2' then 
-    i = i + 1
+        for j = 0, getJsonArrayCount(contractor) - 1 do
+            if contractor[j].major == 'C34' then 
+                table.insert(userSelect, contractor[j])
+            end
+        end
+        for k = 0, getJsonArrayCount(template)-1 do
+            if contractor[k].major == 'C34' then 
+                table.insert(idSelect, template[k])
+            end
+        end
     end
 
     if data5=='2' then 
-    i = i + 1
+        for j = 0, getJsonArrayCount(contractor) - 1 do
+            if contractor[j].major == 'C30' then 
+                table.insert(userSelect, contractor[j])
+            end
+        end
+        for k = 0, getJsonArrayCount(template)-1 do
+            if contractor[k].major == 'C30' then 
+                table.insert(idSelect, template[k])
+            end
+        end
     end
 
+    Log:write('nextOn: userSelect', userSelect)
+    Log:write('nextOn: idSelect', idSelect)
+    -- 计算已经选择的专业
+    regHandle = Reg:create('major_data')
+    Reg:setTable(regHandle, 'userSelect', userSelect)
+    Reg:setTable(regHandle, 'idSelect', idSelect)
+
+    -- 跳转到现场检查页面
     Scene:setReturn(Alias.m_sitemajor,Alias.m_sitecheck)
     Scene:go(Alias.m_sitecheck)
 end
