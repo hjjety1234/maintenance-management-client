@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: hewu2008 <hewu2008@gmail.com> ==
+============================================================================
+== | Desc: 页面描述 ==
+============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        
+        <!-- 页面背景  -->
+        <node rect="0,0,480,800" extendstyle="1111">
+            <image name="background" rect="0,0,480,800" border="false"
+                src="file://image/background.png" style="autosize" extendstyle="1111">
+            </image>
+        </node>
+                
+        <!-- 页面头部  -->
+        <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+            <image name="title" rect="0,0,480,66" border="false"
+                src="file://image/nav_bar.png" style="autosize" extendstyle="1111">
+                <label rect="0,0,480,66" text="历史检查" color="#ffffff" v-align="center"
+                    h-align="center" font-size="30" font-family="微软雅黑"  extendstyle="1111" />
+            </image>
+            <!-- 返回首页按钮  -->
+            <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
+                OnSelect="doBack" extendstyle="1111">
+                <image name="normal" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                    extendstyle="1111" />
+                <image name="sel" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                    extendstyle="1111" />
+            </button>
+        </node>
+        
+        <!-- 页面主体  -->
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <node name="listNode" rect="0,60,480,740" extendstyle="1111">
+                <listview name="sampleList" rect="0,10,480,730" extendstyle="1111">
+                </listview>
+            </node>
+            
+            <!-- 列表项模板  -->
+             <node name="listitem" visible="false" enable="false" active="false"
+                extendstyle="1011" rect="0,600,480,140">
+                <button name="btnname" rect="5,5,470,130" OnSelect="itemOnSelect"
+                    extendstyle="1111">
+                    <image rect="0,0,470,130" border="false" src="file://image/tongxunlu_bg.png" 
+                         style="autosize" sudoku="15,15,15,15" extendstyle="1111" >
+                    </image>
+                    <!-- 计划标题 -->
+                    <image rect="10,15,30,30" border="false" src="file://image/ico_tieta.png" 
+                          extendstyle="1111" />
+                    <scrolltext name="stationname" rect="50,10,370,30" text="中移公司" color="#0062ab" font-family="微软雅黑"
+                        font-size="24" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" scroll="true" step="2" />
+                    <label rect="50,40,120,25" text="专        业 :" color="#5a5a5a" font-family="微软雅黑"
+                        font-size="20" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" />
+                    <label name="major" rect="150,40,130,25" text="综合覆盖" color="#5a5a5a" v-align="center"
+                        h-align="left" font-size="20" font-family="微软雅黑" extendstyle="1111" />
+                    <!-- 巡检率 -->
+                    <label rect="300,40,90,25" text="扣        分 :" color="#5a5a5a" font-family="微软雅黑"
+                        font-size="20" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" />
+                    <label name="score" rect="400,40,60,25" text="10" color="#dd512e"  font-family="微软雅黑"
+                        font-size="20" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" />
+                    <label rect="50,65,120,25" text="检  查  人 :" 
+                        color="#5a5a5a" v-align="center" font-family="微软雅黑" 
+                        h-align="left" font-size="20" extendstyle="1111" />
+                     <label name="checkman" rect="150,65,130,25" text="刘国利" 
+                        color="#5a5a5a" v-align="center" font-family="微软雅黑" 
+                        h-align="left" font-size="20" extendstyle="1111" />
+                    <label rect="50,90,120,25" text="检查日期 :" 
+                        color="#5a5a5a" v-align="center" font-family="微软雅黑" 
+                        h-align="left" font-size="20" extendstyle="1111" />
+                    <label name="checkdate" rect="150,90,130,25" text="2013/01/10" 
+                        color="#5a5a5a" v-align="center" font-family="微软雅黑" 
+                        h-align="left" font-size="20" extendstyle="1111" />
+                </button>               
+            </node>
+            
+            <!-- 无历史检查时的提示信息  -->
+            <node name="nullNode" rect="0,220,480,220" extendstyle="1010"
+                visible="false" enable="false" active="false">
+                <label rect="0,25,480,35" extendstyle="1010" text="暂无数据"
+                    h-align="center" v-align="center" color="#686868" font-size="24" />
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+local rootSprite
+local data = {}
+local list
+local nullNode
+local stationid=''
+local strstationname=''
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    nullNode = Sprite:findChild(rootSprite, 'nullNode')
+    list = Sprite:findChild(rootSprite, 'sampleList')
+     local regHandle = Reg:create(Alias.m_checkzhandian)
+     stationid = Reg:getString(regHandle, 'stationid')
+     Log:write('=====stationid======', stationid)
+     strstationname = Reg:getString(regHandle, 'stationname')    
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        loadRequest()
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    showOrHideNullNode(0)
+    if Loading:isShow() then Loading:close() end
+    if msg == 101 then
+        data = Http:jsonDecode('pay_data')
+        Log:write("data101 = ", data)
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        end
+        if data ~= nil then
+            if data.code == '0' then
+            if data.total=='0' then
+            Dialog:show(rootSprite,'服务端无数据', 'ok')
+             return
+             else
+                loadList(#data.value+1)
+             end
+            elseif data.code == '50' then 
+                    showOrHideNullNode(1)
+                    Dialog:show(rootSprite, '暂无数据！', 'ok')
+            else
+                showOrHideNullNode(1)
+                Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+            end
+        else
+            Dialog:show(rootSprite, '未知错误！', 'ok')
+        end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:freeByHandle(rootSprite)
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function loadRequest()
+    local param = 'cmd=wlbstationchkhistorylist&page=1&stationid='..stationid 
+    local Url = getWholeUrl('nbspweb/webservice/assessment!doWebservice.action', param)
+    Http:request('pay_data', Url, 101, {useCache = false})
+    -- Loading:show()
+end
+
+function loadList(count)
+    ListView:removeAllItems(list,true)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
+    ListView:adjust(list)
+end
+
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 140)
+    
+    -- 获取服务端的返回的字段
+    local strcheckman = data.value[index].checkman
+    local strmajor =data.value[index].major
+    local strscore =data.value[index].score
+    local strcheckdate =data.value[index].checkdate
+    
+    -- 获取列表项的Sprite
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local stationname = Sprite:findChild(item, 'stationname')
+    local btnname = Sprite:findChild(item, 'btnname')
+    local checkman = Sprite:findChild(item, 'checkman')
+    local major = Sprite:findChild(item, 'major')   
+    local score = Sprite:findChild(item, 'score')
+    local checkdate = Sprite:findChild(item, 'checkdate')
+   
+    -- 显示到界面
+    Sprite:setProperty(btnname, "data", index)
+    Sprite:setProperty(stationname, 'text', strstationname)  --站点名称
+    Sprite:setProperty(checkman, 'text', '刘国利')   -- 检查人
+    if strmajor=='C31' then
+    Sprite:setProperty(major, 'text', '基站')         -- 专业
+    elseif strmajor=='C32' then
+    Sprite:setProperty(major, 'text', '综合覆盖')
+    elseif strmajor=='C33' then
+    Sprite:setProperty(major, 'text', '铁塔')
+    elseif strmajor=='C34' then
+    Sprite:setProperty(major, 'text', '集客')
+    elseif strmajor=='C37' then
+    Sprite:setProperty(major, 'text', '家客')
+    end   
+    Sprite:setProperty(score, 'text', strscore)         -- 得分
+    Sprite:setProperty(checkdate, 'text', strcheckdate) -- 检查日期 
+end
+
+function itemOnSelect(sprite)
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    local index = tonumber(Sprite:getData(sprite))
+    -- 获取计划信息
+    --[[local planId = data.value[index].id
+    local planName = data.value[index].planName
+    local templateId = data.value[index].templateId
+    local businessType = data.value[index].businessType
+    local regHandle = Reg:create('xunjianrenwu')
+    
+    Reg:clear(regHandle)
+    Reg:setString(regHandle, 'planId', planId)
+    Reg:setString(regHandle, 'planName', planName)
+    Reg:setString(regHandle, 'templateId', templateId)
+    Reg:setString(regHandle, 'businessType', businessType)--]]
+    
+    local regHandle = Reg:create('toalscore')
+    Reg:setString(regHandle,'score' ,data.value[index].score..'')
+    
+    -- 页面跳转，跳转到站点列表
+    Scene:setReturn(Alias.m_checkhistory, Alias.m_sitecheckdetail)   
+    Scene:go(Alias.m_sitecheckdetail, true)
+end
+
+function doBack(sprite)
+    Scene:freeByHandle(rootSprite)
+    Scene:back()
+end
+
+function showOrHideNullNode(showOrHide)
+    if showOrHide == 0 then
+        Sprite:setEnable(nullNode, 0)
+        Sprite:setActive(nullNode, 0)
+        Sprite:setVisible(nullNode, 0)
+        Sprite:setEnable(list, 1)
+        Sprite:setActive(list, 1)
+        Sprite:setVisible(list, 1)
+    else
+        Sprite:setEnable(nullNode, 1)
+        Sprite:setActive(nullNode, 1)
+        Sprite:setVisible(nullNode, 1)
+        Sprite:setEnable(list, 0)
+        Sprite:setActive(list, 0)
+        Sprite:setVisible(list, 0)
+    end
+end
+
+]]>
+</root>
