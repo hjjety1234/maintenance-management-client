@@ -118,12 +118,15 @@ public class GDRouteSearch implements RouteMessageHandler {
 			carLine.setAntiAlias(true);
 			switch (getRouteType(mode)) {
 				case GDMapConstants.GDMAP_BUS_ROUTE:
+					Log.d(TAG, "drawRouteOnMap: GDMAP_BUS_ROUTE, mode=" + mode);
 					routeOverlay.setBusLinePaint(carLine);
 					break;
 				case GDMapConstants.GDMAP_CAR_ROUTE:
+					Log.d(TAG, "drawRouteOnMap: GDMAP_CAR_ROUTE, mode=" + mode);
 					routeOverlay.setCarLinePaint(carLine);
 					break;
 				default:
+					Log.d(TAG, "drawRouteOnMap: Default, mode=" + mode);
 					routeOverlay.setFootLinePaint(carLine);
 					break;
 			}
@@ -240,7 +243,7 @@ public class GDRouteSearch implements RouteMessageHandler {
 		data.append("]}");
 		return data.toString();
 	}
-
+	
 	private int getRouteType(int mode) {
 		switch (mode) {
 		case GDMapConstants.GDMAP_BUS_Default:
