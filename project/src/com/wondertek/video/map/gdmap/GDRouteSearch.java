@@ -78,8 +78,14 @@ public class GDRouteSearch implements RouteMessageHandler {
                     if (dialog.isShowing())
                     	dialog.dismiss();
 					e.printStackTrace();
-                    Toast.makeText(context, context.getResources().getString(context.getResources().
-                    		getIdentifier("gdmap_route_error", "string", context.getPackageName())), Toast.LENGTH_LONG).show();
+					Activity activity = (Activity) context;
+					activity.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Toast.makeText(context, context.getResources().getString(context.getResources().
+								getIdentifier("gdmap_route_error", "string", context.getPackageName())), Toast.LENGTH_LONG).show();
+						}
+					});
 				}
 			}
 		});
