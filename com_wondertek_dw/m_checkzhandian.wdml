@@ -100,7 +100,7 @@
                     
                     <!-- 查看检查历史按钮  -->
                 <button name="historyBtn" rect="400,0,40,70" OnSelect="doHistory" 
-                    extendstyle="1111" data="">
+                    extendstyle="1111" visible="false" enable="false" data="">
                     <image rect="0,0,40,70" src="file://image/check_bg.png" style="center" extendstyle="1111">
                     <image rect="0,0,40,70" src="file://image/check_history.png" style="center"
                     extendstyle="1111" />
@@ -143,6 +143,7 @@ local lon=117.2491107
 local lat=31.850543
 local resp -- 站点列表值
 local statusBarText
+local g_curItemIndex = 0
 
 ---------------------------------------回调函数列表--------------------------------
 -- root子节点创建完事件
@@ -176,6 +177,7 @@ function bodyOnPluginEvent(msg, param)
         ListView:loadItem(list, Sprite:findChild(rootSprite,'listitem'),#resp.value + 1,'loadListItem')
         ListView:adjust(list)
         Loading:close()
+        refreshHistoryBtn()
   elseif msg == 1010 then
 	   local postDataString = Param:getString(param, 0)
 	   Log:write('postData is ----------->'..postDataString)
@@ -187,7 +189,21 @@ function bodyOnPluginEvent(msg, param)
        System:setGPSStatus(0)
        -- 请求站点列表
        request()
-
+    elseif msg == 101 then 
+         local paydata = Http:jsonDecode('pay_data')
+         Log:write('payData', paydata)
+         local listview1 = Sprite:findChild(rootSprite, 'listview1')
+         local item = ListView:getItem(listview1, g_curItemIndex) 
+         local historyBtn = Sprite:findChild(item, 'historyBtn')
+         if paydata.total ~= '0' then 
+            Sprite:setProperty(historyBtn, 'visible', "true")
+            Sprite:setProperty(historyBtn, 'enable', "true")
+         else
+            Sprite:setProperty(historyBtn, 'visible', "false")
+            Sprite:setProperty(historyBtn, 'enable', "false")
+         end 
+         g_curItemIndex = g_curItemIndex + 1
+         refreshHistoryBtn()
     elseif msg > MSG_NETWORK_ERROR then
         if Loading:isShow() then Loading:close() end
         Dialog:show('','网络错误', 'ok')
@@ -350,6 +366,22 @@ function  doHistory( sprite )
     Scene:setReturn(Alias.m_checkzhandian, Alias.m_checkhistory)
     Scene:go(Alias.m_checkhistory)
 end
+
+
+-- 刷新历史按钮
+function refreshHistoryBtn()
+    local listview1 = Sprite:findChild(rootSprite, 'listview1')
+    local count =  ListView:getItemCount(listview1)   
+    Log:write('refreshHistoryBtn: count'..count)
+    -- 迭代listview
+    Log:write('refreshHistoryBtn: g_curItemIndex'..g_curItemIndex)
+    if g_curItemIndex < count then 
+         local param = 'cmd=wlbstationchkhistorylist&page=1&stationid='..resp.value[g_curItemIndex].xtbh
+	     local Url = getWholeUrl('nbspweb/webservice/assessment!doWebservice.action', param)
+	     Http:request('pay_data', Url, 101, {useCache = false})
+    end
+end
+
 
 ]]>
 </root>
