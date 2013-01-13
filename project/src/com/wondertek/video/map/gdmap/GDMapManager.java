@@ -65,6 +65,7 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 	private MyLocationOverlay autoLocationOverlay = null;
 	private GeoPoint currentPoint = null;
 	private View locationPopView = null;
+	private GDPoiOverlayEx poiOverlay = null;
 	private List<View> mPopViewList = new ArrayList<View>();
     private boolean bAutoLocationEnable = false;
     
@@ -322,7 +323,7 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 				
 				
 			}
-			GDPoiOverlayEx poiOverlay = new GDPoiOverlayEx(marker, items);
+			poiOverlay = new GDPoiOverlayEx(marker, items);
 			poiOverlay.addToMap(mMapView);
 			mMapView.invalidate();
 		} catch (JSONException e) {
@@ -572,6 +573,10 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
         GDMapPointOverlay.getInstance(mContext, mMapView).removePointOverlay();
         GDPoiSearch.getInstance(mContext, mMapView).removeAllPOIs();
 		GDRouteSearch.getInstance(mContext, mMapView).removeRouteOnMap();
+		if (poiOverlay != null) {
+			poiOverlay.removeFromMap();
+			poiOverlay = null;
+		}
 	}
 
 	private void removeAllPopViews() {
