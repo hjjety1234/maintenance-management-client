@@ -129,9 +129,8 @@ local templateId = nil
 local code = nil
 local total = 0
 local page = 1
-
+local count
 local stationDistanceVisible = false
-
 
 -- gps重试次数和经纬度信息
 local timerNum = 50
@@ -190,6 +189,7 @@ function bodyOnPluginEvent(msg, param)
        -- 请求站点列表
        request()
     elseif msg == 101 then 
+   
          local paydata = Http:jsonDecode('pay_data')
          Log:write('payData', paydata)
          local listview1 = Sprite:findChild(rootSprite, 'listview1')
@@ -204,6 +204,9 @@ function bodyOnPluginEvent(msg, param)
          end 
          g_curItemIndex = g_curItemIndex + 1
          refreshHistoryBtn()
+         if g_curItemIndex==count then
+          Loading:close()
+         end
     elseif msg > MSG_NETWORK_ERROR then
         if Loading:isShow() then Loading:close() end
         Dialog:show('','网络错误', 'ok')
@@ -270,7 +273,7 @@ end
 --传统方式获取经纬度
 function getGPSDataByMap()
     --  显示状态栏
-    Loading:show()
+     Loading:show()
     local statusBar = Sprite:findChild(rootSprite, 'statusBar')
     Sprite:setProperty(statusBar, 'visible', 'true')
     Sprite:setProperty(statusBar, 'enable', 'true')
@@ -371,7 +374,7 @@ end
 -- 刷新历史按钮
 function refreshHistoryBtn()
     local listview1 = Sprite:findChild(rootSprite, 'listview1')
-    local count =  ListView:getItemCount(listview1)   
+     count =  ListView:getItemCount(listview1)   
     Log:write('refreshHistoryBtn: count'..count)
     -- 迭代listview
     Log:write('refreshHistoryBtn: g_curItemIndex'..g_curItemIndex)
@@ -379,6 +382,7 @@ function refreshHistoryBtn()
          local param = 'cmd=wlbstationchkhistorylist&page=1&stationid='..resp.value[g_curItemIndex].xtbh
 	     local Url = getWholeUrl('nbspweb/webservice/assessment!doWebservice.action', param)
 	     Http:request('pay_data', Url, 101, {useCache = false})
+	     Loading:show()
     end
 end
 
