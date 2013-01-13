@@ -56,7 +56,7 @@
                     <edit name="keywordEdit" rect="20,0,260,38" extendstyle='1111'
 	                    font-family='微软雅黑' v-align="center" font-size="22" text=""
 	                    OnTextChanged="editOnTextChanged" style='autosize'>
-                    <label name="hideLabel" rect="0,0,260,38" text="请输入站点名称"
+                    <label name="hideLabel" rect="0,0,260,38" text=""
                         font-family='微软雅黑' color="#c0c0c0" extendstyle="1111" h-align="left"
                         v-align="center" font-size="22" style='autosize' />
                     </edit>
@@ -74,22 +74,22 @@
                         v-align="center" font-size="22" style='autosize' />
                     </edit>
                 </node>
-                <node rect="20,110,305,55" extendstyle="1111">
+                <node name="routeTypeNode" rect="20,110,305,55" extendstyle="1111" data="2">
 	                <!-- 公交  -->
 	                <button name="byBus" rect="0,0,100,55" style="autosize"
-	                    OnSelect="" extendstyle="1111" data="0">
+	                    OnSelect="selectRouteType" extendstyle="1111" data="1">
 	                    <image name="normal" rect="0,0,100,55" extendstyle="1111" 
 	                       src="file://image/bus.png" style="autosize"></image>
 	                </button>
 	                <!-- 驾车  -->
 	                <button name="byCar" rect="100,0,100,55" style="autosize" 
-	                    OnSelect="" extendstyle="1111" data="1">
+	                    OnSelect="selectRouteType" extendstyle="1111" data="2">
 	                    <image name="normal" rect="0,0,100,55" src="file://image/car_on.png"
 	                       style="autosize" extendstyle="1111" />
 	                </button>
 	                <!-- 步行  -->
 	                <button name="byFoot" rect="200,0,105,55" style="autosize"
-	                    OnSelect="" extendstyle="1111" data="0">
+	                    OnSelect="selectRouteType" extendstyle="1111" data="3">
 	                    <image name="normal" rect="0,0,105,55" src="file://image/foot.png"
 	                       style="autosize" extendstyle="1111" />
 	                </button>
@@ -152,7 +152,19 @@ function bodyOnPluginEvent(msg, param)
         -- postData为Json数据({"latitude":"31250614","longitude":"121600975"})
         local postDataString = Param:getString(param, 0)
 		local postData = Json:loadString2Table(postDataString)
-        searchRoute(1, postData.longitude,  postData.latitude, g_desLon, g_desLat)
+		
+		local routeTypeNode = Sprite:findChild(rootSprite, "routeTypeNode")
+		local routeType = Sprite:getData(routeTypeNode)
+        if routeType == '1' then 
+            routeType = 4
+        elseif routeType == '2' then 
+            routeType = 1
+        elseif routeType == '3' then 
+            routeType = 9
+        else
+            routeType = 0
+        end
+        searchRoute(routeType, postData.longitude,  postData.latitude, g_desLon, g_desLat)
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -173,6 +185,35 @@ end
 -- 返回上一个页面
 function doBack()
     Scene:back()
+end
+
+-- 选择路径类型
+function selectRouteType(sprite)
+    -- 获取当前路径类型的父节点和所有的路径类型
+    local data = Sprite:getData(sprite)
+    local routeTypeNode = Sprite:getParent(sprite)
+    local byBus = Sprite:findChild(routeTypeNode, 'byBus')
+    local byCar = Sprite:findChild(routeTypeNode, 'byCar')
+    local byFoot = Sprite:findChild(routeTypeNode, 'byFoot')
+    Sprite:setProperty(routeTypeNode, "data", data)
+    
+    -- 取消所有的选择
+    Sprite:setProperty(Sprite:findChild(byBus, 'normal'), 'src', 'file://image/bus.png')
+    Sprite:setProperty(Sprite:findChild(byCar, 'normal'), 'src', 'file://image/car.png')
+    Sprite:setProperty(Sprite:findChild(byFoot, 'normal'), 'src', 'file://image/foot.png')
+    
+    -- 检查用户选择
+    if data == '1' then 
+        Sprite:setProperty(Sprite:findChild(byBus, 'normal'), 'src', 'file://image/bus_on.png')
+    elseif data == '2' then 
+        Sprite:setProperty(Sprite:findChild(byCar, 'normal'), 'src', 'file://image/car_on.png')
+    elseif data == '3' then 
+        Sprite:setProperty(Sprite:findChild(byFoot, 'normal'), 'src', 'file://image/foot_on.png')
+    else
+        Log:write("未知的路径类型:"..data)
+        return
+    end
+    
 end
 
 ---------------------------------------地图相关函数---------------------------
@@ -210,9 +251,6 @@ function searchRoute(routeType, curLongitude, curlatitude, desLonitude, desLatit
         Log:write('目标经纬度参数不合法:', longitude, latitude)
         return
     end
-
-    -- 搜索路径
-    openMap(0, 260, 480, 540)
     Map:searchRoute(routeType, "", "",
         tonumber(curlatitude), tonumber(curLongitude), "", "",
         tonumber(desLatitude), tonumber(desLonitude))
@@ -220,10 +258,9 @@ end
 
 -- 搜索路径
 function doRouteSearch(sprite)
+    -- 搜索路径
+    openMap(0, 260, 480, 540)
     getCurPosition()
 end
-
-    
-
 ]]>
 </root>
