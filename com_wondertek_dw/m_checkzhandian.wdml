@@ -60,19 +60,21 @@
 
             <!-- 站点列表  -->
             <node name="listviewNode" border="false" rect="0,116,480,674" extendstyle="1111">
-                <listview name="listview1" border="false" rect="0,0,480,674" extendstyle="1111" limit='true' auto-scroll='true' />
+                <listview name="listview1" border="false" rect="0,0,480,674" extendstyle="1111" />
             </node>
 
             <!-- gps状态栏  -->
             <node name="statusBar" rect="10,66,480,50" extendstyle="1111" visible="false">
-                <image name="listItemBg" rect="10,15,17,25" src="file://image/locate.png" 
+                <image name="listItemBg" rect="20,15,17,25" src="file://image/locate.png" 
                      extendstyle="1111" />
-                <scrolltext name ="statusBarText" rect="40,10,430,30" text="" color="#000000"
+                <scrolltext name ="statusBarText" rect="50,10,430,30" text="" color="#000000"
                     extendstyle="1111" style="autosize" h-align="left" v-align="center"
                     font-size="22" font-family="微软雅黑" scroll="true">
                 </scrolltext>
             </node>
-
+            <!--
+            visible="false"
+            -->
             <!-- 站点列表项 -->
             <node name="listitem" visible="false" enable="false" active="false"
                 extendstyle="1011" rect="0,256,480,70">
@@ -85,7 +87,7 @@
                     <label name="stationId" rect="40,20,0,0" text="" color="#0"
                         font-size="16" h-align="left" v-align="center" extendstyle="1111"
                         border="false" visible="false" />
-                    <scrolltext name="stationName" rect="130,11,280,50" text=""
+                    <scrolltext name="stationName" rect="130,11,270,50" text=""
                         color="#000000" font-size="24" font-family="微软雅黑" h-align="left" v-align="center"
                         scroll="true" extendstyle="1111" border="false" />
                     <scrolltext name="distanceName" rect="37,11,200,50" text=""
@@ -94,6 +96,15 @@
                     <label name="stationDistance" rect="270,10,110,50" text=""
                         color="#0" font-size="20" h-align="left" v-align="center"
                         extendstyle="1111" border="false" />
+                </button>
+                    
+                    <!-- 查看检查历史按钮  -->
+                <button name="historyBtn" rect="400,0,40,70" OnSelect="doHistory" 
+                    extendstyle="1111" data="">
+                    <image rect="0,0,40,70" src="file://image/check_bg.png" style="center" extendstyle="1111">
+                    <image rect="0,0,40,70" src="file://image/check_history.png" style="center"
+                    extendstyle="1111" />
+                    </image>
                 </button>
                                 
                 <!-- 向右图标  -->
@@ -111,7 +122,6 @@ require 'com_wondertek_dw.common.framework'
 require 'framework.map'
 require 'framework.barcode'
 local rootSprite = nil
-local respValue = nil -- 站点列表值
 local planId = nil
 local g_planName = nil -- 计划名称
 local g_businessType = nil -- 专业类别代码
@@ -131,7 +141,7 @@ local firtClick_y -- 第一次点击时的纵坐标
 
 local lon=117.2491107
 local lat=31.850543
-local resp
+local resp -- 站点列表值
 local statusBarText
 
 ---------------------------------------回调函数列表--------------------------------
@@ -156,6 +166,7 @@ function bodyOnPluginEvent(msg, param)
   
   if msg == 1001 then
         resp = Http:jsonDecode('stationList')
+        Log:write('+++++++++站点数据', resp)
         if resp.total=='0'then
         Dialog:show(rootSprite,'服务端无数据', 'ok')
         return
@@ -189,7 +200,7 @@ end
 -- 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-        Scene:go( Alias.m_homenew)
+        doBack()
         return 1
     end
 end
@@ -233,6 +244,13 @@ function doBack()
     Scene:back()
 end
 
+function loadRequest(stationid)
+    local param = 'cmd=wlbstationchkhistorylist&page=1&stationid='..stationid 
+    local Url = getWholeUrl('nbspweb/webservice/assessment!doWebservice.action', param)
+    Http:request('pay_data', Url, 101, {useCache = false})
+    -- Loading:show()
+end
+
 --传统方式获取经纬度
 function getGPSDataByMap()
     --  显示状态栏
@@ -274,9 +292,9 @@ function loadListItem(list, item, index)
     else
         Sprite:setProperty(listItemBg, 'visible', 0)
     end
-    Log:write('11111111111111111111111')
+   -- Log:write('11111111111111111111111')
     local stationName = Sprite:findChild(item,'stationName')
-    Log:write('22222222222222222222222')
+    --Log:write('22222222222222222222222')
     Sprite:setProperty(stationName,'text',resp.value[index].itemname)
     Sprite:setProperty(distanceName,'text',math.ceil (resp.value[index].distance)..'米')
     Sprite:setProperty(item, 'data', index)
@@ -310,6 +328,28 @@ Log:write('cacaca',itemname)
     Scene:go(Alias.m_sitemajor)
 end
 
+function  doHistory( sprite )
+    Log:write('doHistory(): ')
+    local item = Sprite:getParent(sprite)
+    local index = Sprite:getData(item)
+    Log:write('=====resp======', resp)
+    Log:write('=====index======', index)
+    local itemValue = resp.value[tonumber(index)]
+    Log:write('doHistory(): itemValue', itemValue)
+    local stationid = itemValue.xtbh  
+    local stationname = itemValue.itemname
+    local addr = itemValue.addr
+    local regHandle = Reg:create(Alias.m_checkzhandian)
+    Reg:clear(regHandle)
+    Reg:setString(regHandle, 'stationid', stationid)
+    Reg:setString(regHandle, 'stationname', stationname)
+    --Reg:setString(regHandle, 'addr', addr)
+    
+    
+    -- 跳转到站点检查历史
+    Scene:setReturn(Alias.m_checkzhandian, Alias.m_checkhistory)
+    Scene:go(Alias.m_checkhistory)
+end
 
 ]]>
 </root>
