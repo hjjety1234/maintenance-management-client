@@ -36,7 +36,7 @@
                 <!-- 获取站点名称 -->
                 <node name="TypeNode" rect="25,70,460,50" enable="true" extendstyle="1111">               
                     <label name="label2" rect="5,0,220,50" border="false" text="所属站点："
-                        v-align="center" color="#303030"  font-size="26" font-family='微软雅黑'/>
+                        v-align="center" color="#0062ab"  font-size="26" font-family='微软雅黑'/>
                     <image rect="130,5,300,40" src="file://image/input_text.png"  style='autosize' extendstyle="1111" />
                     <label name="content" rect="135,5,300,40" border="false" text="" autoup ="true" 
                         v-align="center" color="#303030" font-size="26" font-family='微软雅黑' />
@@ -45,18 +45,18 @@
                 <!-- 时间 -->
                 <node name="TimeNode" rect="25,130,200,50"  visible="true" extendstyle="1111">
                         <label name="label2" rect="5,0,140,50" border="false" text="检查日期："
-                            v-align="center" color="#303030"  font-size="26" font-family='微软雅黑' />
+                            v-align="center" color="#0062ab"  font-size="26" font-family='微软雅黑' />
                         <image rect="130,5,150,40" src="file://image/input_text.png"  style="sudoku-auto" sudoku="15,15,15,15"
                             extendstyle="1111">
                         </image>
                         <label name="timeContent" rect="135,5,140,40" border="false" text="" 
-                                v-align="center" color="#303030"  font-size="24" font-family='微软雅黑' />
+                                v-align="center" color="#0062ab"  font-size="24" font-family='微软雅黑' />
                 </node>
 
                 <!-- 检查人 -->
                 <node name="personNode" rect="25,190,200,50"  visible="true" extendstyle="1111">
                         <label name="label2" rect="5,0,140,50" border="false" text="检查人员："
-                            v-align="center" color="#303030"  font-size="26" font-family='微软雅黑' />
+                            v-align="center" color="#0062ab"  font-size="26" font-family='微软雅黑' />
                         <image rect="130,5,150,40" src="file://image/input_text.png"  style="sudoku-auto" sudoku="15,15,15,15"
                             extendstyle="1111">
                         </image>
@@ -67,41 +67,41 @@
                 <!-- 选择专业 -->
                 <node name="majorNode" rect="25,250,200,50"  visible="true" extendstyle="1111">
                         <label name="majorName" rect="5,0,140,50" border="false" text="选择专业："
-                            v-align="center" color="#303030"  font-size="26" font-family='微软雅黑' />
+                            v-align="center" color="#0062ab"  font-size="26" font-family='微软雅黑' />
                         --基站
-                        <button name="jizhanBtn" rect="0,60,66,66" 
+                        <button name="jizhanBtn" rect="0,60,75,75" 
                          OnSelect="jizhanOn" extendstyle="1111" data="1" visible='false' enable='false'  >
-                           <image name="jizhanImg" rect="15,8,75,75"  src="file://image/site_jizhan.png"
+                           <image name="jizhanImg" rect="15,8,75,75"  src="file://image/site_jizhan.png" 
                            extendstyle="1111" />
                         </button>
                         --铁塔
                         <button name="tietaBtn" rect="70,60,66,66" data="1" visible='false' enable='false'
                          OnSelect="tietaOn" extendstyle="1111">
-                           <image name="tietaImg" rect="15,8,75,75" src="file://image/site_tieta.png"
+                           <image name="tietaImg" rect="15,8,75,75" src="file://image/site_tieta.png" 
                            extendstyle="1111" />
                         </button>
                         --综合覆盖
                         <button name="zongheBtn" rect="140,60,66,66" data="1" visible='false' enable='false'
                          OnSelect="zongheOn" extendstyle="1111">
-                           <image name="zongheImg" rect="15,8,75,75" src="file://image/site_zonghe.png"
+                           <image name="zongheImg" rect="15,8,66,66" src="file://image/site_zonghe.png" style='autosize'
                            extendstyle="1111" />
                         </button>
                         --集客家客
                         <button name="jikeBtn" rect="210,60,66,66" data="1" visible='false' enable='false'
                          OnSelect="jikeOn" extendstyle="1111">
-                           <image name="jikeImg" rect="15,8,75,75" src="file://image/site_jike.png"
+                           <image name="jikeImg" rect="15,8,75,75" src="file://image/site_jike.png" 
                            extendstyle="1111" />
                         </button>
                         --光缆线路
                         <button name="xianluBtn" rect="280,60,66,66" data="1" visible='false' enable='false'
                          OnSelect="xianluOn" extendstyle="1111"> 
-                           <image name="xianluImg" rect="15,8,75,75" src="file://image/site_xianlu.png"
+                           <image name="xianluImg" rect="15,8,75,75" src="file://image/site_xianlu.png" 
                            extendstyle="1111" />
                         </button>
                         --全选
-                        <button name="allBtn" rect="350,60,66,66" data="1" 
+                        <button name="allBtn" rect="350,60,66,66" data="1" visable='false' enable='false'
                          OnSelect="allOn" extendstyle="1111">
-                           <image name="allImg" rect="15,8,75,75" src="file://image/site_all.png"
+                           <image name="allImg" rect="15,8,75,75" src=""
                            extendstyle="1111" />
                         </button>
                         --下一步
@@ -185,7 +185,12 @@ function bodyOnPluginEvent(msg)
 	Loading:close()
     if msg == 101 then
     major_data = Http:jsonDecode('muban_data')
+    Log:write('major_data',major_data)
     --若只有一个专业则不显示全选
+    Log:write('#major_data.value',#major_data.value)
+    if major_data.value == nil or  major_data.value == '' then 
+        Dialog:show('','服务端无数据','ok')
+    end
     num = #(major_data.value[0].contractor)+1
     Log:write('123',num)
     if num==1  then
@@ -222,6 +227,7 @@ end
 
 --@brief 返回按钮消息处理函数
 function doBack(sprite)
+   Reg:clear(regHandle)
    Scene:back()
 end
 
@@ -402,18 +408,21 @@ function nextOn(sprite)
         return
     end
 
+
+
+
     -- 获取服务端返回的专业
     Log:write('major_data：', major_data)
     local value = major_data.value
     local contractor = value[0].contractor
     local template = value[0].template
     if contractor == nil or contractor == '' then 
-        Log:write('nextOn: contractor为空!')
+        Dialog:show('','服务端无数据','ok')
         return
     end
 
     if template == nil or template == '' then 
-        Log:write('nextOn: template为空!')
+        Dialog:show('','服务端无数据','ok')
         return
     end
 
@@ -421,6 +430,7 @@ function nextOn(sprite)
     local userSelect = {}
     local idSelect = {}
     Log:write('data1', data1)
+    local m = 0
     if data1 == '2' then 
         for j = 0, getJsonArrayCount(contractor) - 1 do
             if contractor[j].major == 'C31' then 
@@ -432,6 +442,7 @@ function nextOn(sprite)
                 table.insert(idSelect, template[k])
             end
         end
+        m=m+1
     end
 
     if data2 == '2' then 
@@ -445,6 +456,7 @@ function nextOn(sprite)
                 table.insert(idSelect, template[k])
             end
         end
+        m=m+1
     end
 
 
@@ -459,6 +471,7 @@ function nextOn(sprite)
                 table.insert(idSelect, template[k])
             end
         end
+        m=m+1
     end
 
     if data4=='2' then 
@@ -472,6 +485,7 @@ function nextOn(sprite)
                 table.insert(idSelect, template[k])
             end
         end
+        m=m+1
     end
 
     if data5=='2' then 
@@ -485,12 +499,19 @@ function nextOn(sprite)
                 table.insert(idSelect, template[k])
             end
         end
+        m=m+1
+    end
+    -- 提示只选择一个专业
+    if m>1 then
+        Dialog:show('sprite', '请选择一个专业！', 'ok')
+        return
     end
 
     Log:write('nextOn: userSelect', userSelect)
     Log:write('nextOn: idSelect', idSelect)
     -- 计算已经选择的专业
     regHandle = Reg:create('major_data')
+    Reg:clear(regHandle)
     Reg:setTable(regHandle, 'userSelect', userSelect)
     Reg:setTable(regHandle, 'idSelect', idSelect)
 
