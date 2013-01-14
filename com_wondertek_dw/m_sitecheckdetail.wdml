@@ -215,7 +215,6 @@ function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
 	    Sprite:setProperty(Sprite:findChild(rootSprite,'reduceName'),'text',totalscore)
 	    requestChkDetail()
-        requestSubItems()     
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -223,20 +222,18 @@ end
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
     if msg == 101 then
-    Loading:close()
-    Log:write('msg 101')
-    data_history = Http:jsonDecode('data_detail')
-    Log:write('data_history', data_history)
-    
-    --Log:write('=====data_history=====', data_history)
-    --Log:write('======data_history count====', #data_history.value)
-    
+	    Loading:close()
+	    Log:write('msg 101')
+	    data_history = Http:jsonDecode('data_detail')
+	    Log:write('data_history', data_history)
+	    requestSubItems()  
+	    --Log:write('=====data_history=====', data_history)
+	    --Log:write('======data_history count====', #data_history.value)
 	elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
 	elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
 			Log:write('拨号失败')
 	elseif msg > MSG_NETWORK_ERROR then -- 请求超时
 			Log:write('请求超时')
-
     elseif  msg==102 then
         Log:write('msg 102')
         local data = Http:jsonDecode('sub_items_detail')
@@ -270,7 +267,6 @@ function bodyOnPluginEvent(msg)
             end
         end
         -- 将巡检子项添加到对应的巡检项中
-
         for i=0, getJsonArrayCount(subitems) - 1 do
             for j=1, #g_items do
                 if subitems[i].subitemname == g_items[j].name then 
@@ -287,7 +283,6 @@ function bodyOnPluginEvent(msg)
         --Log:write('#g_items',#g_items)
         ListView:loadItem(mainListView, mainItemNode, #g_items, 'loadListItem')
         ListView:adjust(mainListView)
-      
         -- 隐藏所有的巡检子项
         setAllSubItemsVisible(false)
     end
@@ -312,17 +307,17 @@ function requestChkDetail()
     local param = '&id='..g_id
     local requestURL = 'http://211.138.191.85/nbspweb/webservice/assessment!doWebservice.action?usercode=liuguoli&pagesize=200&page=1&cmd=wlbstationchkhistorydetail'..param
     Http:request('data_detail', requestURL, 101, {useCache = false})
-    Loading:show()
     Log:write('requestURL:',requestURL)
+    Loading:show()
 end
 
 -- 请求巡检子项
 function requestSubItems()
-    local param = '&code='..majorid
-    local requestURL = 'http://211.138.191.85/nbspweb/webservice/assessment!doWebservice.action?usercode=liuguoli&pagesize=200&page=1&cmd=wlbitemcheck'..param
-    Http:request('sub_items_detail', requestURL, 102, {useCache = false})
-    --Loading:show()
-    Log:write('requestURL:',requestURL)
+    local param = string.format('nbspweb/webservice/assessment!doWebservice.action?usercode=%s&pagesize=200&page=1&cmd=wlbitemcheck&code=%s',
+        Config:get("username"), majorid)
+    local requestUrl = getUrl()..param
+    Log:write('requestSubItems: requestUrl', requestUrl)
+    Http:request('sub_items_detail', requestUrl, 102, {useCache = false})
 end
 
 -- 加载巡检项
@@ -364,7 +359,7 @@ end
 
 -- 加载巡检子项
 function loadSubListItem(list, item, index)
-    Log:write('loadSubListItem')
+    Log:write('loadSubListItem ', index)
     Sprite:setRect(item, 0, 0, 462, 130)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local itemName = Sprite:findChild(item, 'itemName')
@@ -372,17 +367,21 @@ function loadSubListItem(list, item, index)
     local normButton=Sprite:findChild(item, 'normButton')
     local editNorm = Sprite:findChild(item, 'editNorm')
     local curSubItemIndex = index + 1
-    local strdemand=g_items[g_curItemIndex][curSubItemIndex].demanddesc
-    Sprite:setProperty(itemName,'text',g_items[g_curItemIndex][curSubItemIndex].demanddesc)
     
-    local count=#data_history.value  
-    Log:write('g_items[g_curItemIndex][curSubItemIndex].demanddesc',g_items[g_curItemIndex][curSubItemIndex].demanddesc)
-    for k=0, count do
-   --[[ if strdemand == data_history.value[k].demanddesc then
-     Sprite:setProperty(editName,'text',data_history.value[k].score..'')
-     break
-     end--]]
-      Sprite:setProperty(editName,'text','0')    
+    Log:write('loadSubListItem, g_items[g_curItemIndex][curSubItemIndex]=',
+        g_items[g_curItemIndex][curSubItemIndex])
+    local strdemand=g_items[g_curItemIndex][curSubItemIndex].demanddesc
+    
+    Sprite:setProperty(itemName,'text',g_items[g_curItemIndex][curSubItemIndex].demanddesc)
+    local count = getJsonArrayCount(data_history.value)  
+    
+    Sprite:setProperty(editName,'text','')
+    for k = 0, count - 1 do
+	  if g_items[g_curItemIndex][curSubItemIndex].itemid == data_history.value[k].id then
+	      Sprite:setProperty(editName, 'text', data_history.value[k].score..'')
+	      Log:write('111111111111111')
+	      break
+	  end
     end
      
     Sprite:setProperty(normButton,'data',g_items[g_curItemIndex][curSubItemIndex].evaluationcriterion)
