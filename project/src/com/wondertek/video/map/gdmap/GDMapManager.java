@@ -262,6 +262,7 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 			if (provider == null || provider.equals("")) {
 				provider = LocationProviderProxy.MapABCNetwork;
 			}
+			Log.d(TAG, "getCurrentPosition: provider " + provider);
 			locationManager.requestLocationUpdates(provider, GDMapConstants.GDMAP_LOCATION_UPDATE_MIN_TIME,
 					GDMapConstants.GDMAP_LOCATION_UPDATE_MIN_DISTANCE, listener);
 		} else {
