@@ -176,7 +176,7 @@ function bodyOnPluginEvent(msg, param)
         ListView:loadItem(list, Sprite:findChild(rootSprite,'listitem'),#resp.value + 1,'loadListItem')
         ListView:adjust(list)
         Loading:close()
-        refreshHistoryBtn()
+        --refreshHistoryBtn()
   elseif msg == 1010 then
 	   local postDataString = Param:getString(param, 0)
 	   Log:write('postData is ----------->'..postDataString)
@@ -317,6 +317,16 @@ function loadListItem(list, item, index)
     Sprite:setProperty(stationName,'text',resp.value[index].itemname)
     Sprite:setProperty(distanceName,'text',math.ceil (resp.value[index].distance)..'米')
     Sprite:setProperty(item, 'data', index)
+    Log:write('resp.value.lastchecktime',resp.value[index].lastchecktime)
+    ------查看历史图标
+     local historyBtn = Sprite:findChild(item, 'historyBtn')
+     if resp.value[index].lastchecktime==nil  then
+        resp.value[index].lastchecktime=''
+     end
+     if resp.value[index].lastchecktime ~= '' then 
+        Sprite:setProperty(historyBtn, 'visible', "true")
+        Sprite:setProperty(historyBtn, 'enable', "true")
+     end 
 end
 
 ---------------------------------------与服务端交互函数列表---------------------------
@@ -372,7 +382,7 @@ end
 
 
 -- 刷新历史按钮
-function refreshHistoryBtn()
+--[[function refreshHistoryBtn()
     local listview1 = Sprite:findChild(rootSprite, 'listview1')
      count =  ListView:getItemCount(listview1)   
     Log:write('refreshHistoryBtn: count'..count)
@@ -384,7 +394,7 @@ function refreshHistoryBtn()
 	     Http:request('pay_data', Url, 101, {useCache = false})
 	     Loading:show()
     end
-end
+end--]]
 
 
 ]]>

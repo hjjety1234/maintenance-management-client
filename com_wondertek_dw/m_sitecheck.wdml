@@ -214,6 +214,7 @@ local button2Text
 local button3
 local button3Img
 local button3Text
+local resultid
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -247,6 +248,7 @@ function bodyBuildChildrenFinished(sprite)
         local CompanyName=Sprite:findChild(rootSprite,'CompanyName')
         companyID = userSelect[1].id
         major = idSelect[1].id
+        Log:write('major',major)
         Sprite:setProperty(CompanyName,'text',name1)
         Sprite:setProperty(button1,'rect','0,0,480,66')
         Sprite:setProperty(button1Text,'text',majorName)
@@ -260,8 +262,8 @@ function bodyOnSpriteEvent(msg, param)
     Log:write('requestSubItems')
     local url='http://211.138.191.85/nbspweb/webservice/assessment!doWebservice.action?'
     local username = Config:get('username')
-    local param = '&usercode='..username..'&stationid='..stationid..'&patrolman=&contractorid='..companyID
-    Log:write("param=",param)
+    local param = '&usercode='..username..'&stationid='..stationid..'&patrolman=&contractorid='..companyID..'&tableid='..major
+    Log:write("param",param)
     Http:request('Submitdata', url, 103, {useCache = false, method = 'post', postData='cmd=wlbitemcheckobjectsave'..param})
     elseif msg == MSG_DEACTIVATE then
     end
@@ -331,7 +333,8 @@ function bodyOnPluginEvent(msg)
         setAllSubItemsVisible(false)
     elseif  msg==103 then
         local Submitdata = Http:jsonDecode('Submitdata')
-        Log:write('Submitdata',Submitdata)
+        Log:write('Submitdata',Submitdata.data)
+        resultid = Submitdata.data
     elseif  msg==104 then
         local savedata = Http:jsonDecode('savedata')
         Log:write('savedata',savedata)
@@ -538,7 +541,7 @@ function onTextLostFocus(sprite,ncount)
      Log:write('subitemid',subitemid)
     local url='http://211.138.191.85/nbspweb/webservice/assessment!doWebservice.action?'
     local username =Config:get('username')
-    local param = '&usercode='..username..'&subitemid='..subitemid..'&stationid='..stationid..'&subitemvalue='..content..'&subitemremark='..subitemremark
+    local param = '&usercode='..username..'&subitemid='..subitemid..'&stationid='..stationid..'&subitemvalue='..content..'&subitemremark='..subitemremark..'&resultid='..resultid
     Http:request('savedata', url, 104, {useCache = false, method = 'post', postData='cmd=wlbitemchecksave'..param})
 end
 
