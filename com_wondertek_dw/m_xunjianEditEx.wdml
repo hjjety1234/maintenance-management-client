@@ -866,14 +866,16 @@ function submitOnSelect(sprite)
     Dialog:show('提示','是否确定提交本次巡检任务？','ok_cancel','doUpload')
 end
 
-function doBack(sprite)
-    --Scene:freeByHandle(rootSprite)
+-- 返回上一个页面
+function doBack()
+    if Loading:isShow() then Loading:close() end
     Scene:back()
 end
 
 -- 全部保存
 function doUpload(sprite)
     -- 执行用户输入检查
+    Log:write('start doUpload function')
     if isSupervisor()== false then
 	    if checkUserInput() ~= 0 then
 	        return
@@ -881,6 +883,7 @@ function doUpload(sprite)
     end
     Loading:show(rootSprite)
     if #imageArray >= 1 then
+        Log:write('imagearray size is ',#imageArray)
         getUploadUrl(imageArray[#imageArray]) 
     else
         Timer:set(111, 3000, 'hideLoading')
@@ -889,6 +892,7 @@ end
 
 function hideLoading()
     Loading:close()
+    Dialog:show('巡检提交', '提交成功','ok','doBack')
 end
 
 -- 检查用户输入，成功返回0，否则返回1
