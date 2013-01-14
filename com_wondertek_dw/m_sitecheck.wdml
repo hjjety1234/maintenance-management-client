@@ -496,7 +496,16 @@ function onTextLostFocus(sprite,ncount)
    local itemNode =Sprite:getParent(Sprite:getParent(sprite))
    local normNode =Sprite:getParent(itemNode)
    local normNode1=Sprite:getParent(normNode)
-
+   local mainItemNode = Sprite:getParent(normNode1)
+   
+   local curSubItemIndex = tonumber(Sprite:getData(itemNode)) 
+   local g_curItemIndex = tonumber(Sprite:getData(mainItemNode))
+   Log:write('onTextLostFocus: g_curItemIndex, curSubItemIndex', g_curItemIndex, curSubItemIndex)
+   if g_curItemIndex == nil or curSubItemIndex == nil then 
+       Log:write('无法获得下标:', g_curItemIndex, curSubItemIndex)
+       return
+   end
+    
    local editName =Sprite:findChild(normNode,'editName')
    local editNorm=Sprite:findChild(normNode,'editNorm')
 
@@ -538,8 +547,8 @@ function onTextLostFocus(sprite,ncount)
     end
     ---上传检查数据
     local subitemid=g_items[g_curItemIndex][curSubItemIndex].id
-     Log:write('g_items[g_curItemIndex][curSubItemIndex]',g_items[g_curItemIndex][curSubItemIndex])
-     Log:write('subitemid',subitemid)
+    Log:write('g_items[g_curItemIndex][curSubItemIndex]',g_items[g_curItemIndex][curSubItemIndex])
+    Log:write('subitemid',subitemid)
     local url='http://211.138.191.85/nbspweb/webservice/assessment!doWebservice.action?'
     local username =Config:get('username')
     local param = '&usercode='..username..'&subitemid='..subitemid..'&stationid='..stationid..'&subitemvalue='..content..'&subitemremark='..subitemremark..'&resultid='..resultid

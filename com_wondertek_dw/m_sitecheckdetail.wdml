@@ -180,6 +180,7 @@ local g_items = {}          -- 巡检项（DS）
 local g_curItemIndex = 0    -- 当前加载的巡检项索引
 local g_page = 1            -- 当前页号
 local totalscore=''
+local g_id = nil            -- 历史id
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -189,7 +190,9 @@ function bodyBuildChildrenFinished(sprite)
     --获取公司名称
     regHandle = Reg:create('toalscore')
     totalscore = Reg:getString(regHandle, 'score')
-   Log:write('datascore======', score)   
+    g_id = Reg:getString(regHandle, 'id')
+    Log:write('totalscore=', totalscore)
+    Log:write('g_id=', g_id)   
 --    Log:write('bodyBuildChildrenFinished: userSelect', major_data)
     --local userSelect = Reg:getTable(regHandle, 'userSelect')
     --local idSelect = Reg:getTable(regHandle, 'idSelect')
@@ -210,9 +213,9 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-    Sprite:setProperty(Sprite:findChild(rootSprite,'reduceName'),'text',totalscore)
-     requestChkDetail()
-     requestSubItems()     
+	    Sprite:setProperty(Sprite:findChild(rootSprite,'reduceName'),'text',totalscore)
+	    requestChkDetail()
+        requestSubItems()     
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -221,8 +224,11 @@ end
 function bodyOnPluginEvent(msg)
     if msg == 101 then
     Loading:close()
+    Log:write('msg 101')
     data_history = Http:jsonDecode('data_detail')
-     Log:write('=====data_history=====', data_history)
+    Log:write('data_history', data_history)
+    
+    --Log:write('=====data_history=====', data_history)
     --Log:write('======data_history count====', #data_history.value)
     
 	elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
@@ -232,6 +238,7 @@ function bodyOnPluginEvent(msg)
 			Log:write('请求超时')
 
     elseif  msg==102 then
+        Log:write('msg 102')
         local data = Http:jsonDecode('sub_items_detail')
         -- 服务端返回数据合法性检查
         if not data or type(data) ~= 'table' then
@@ -302,7 +309,7 @@ end
 
 -- 请求站点历史检查详细信息
 function requestChkDetail() 
-    local param = '&id='..'001000232001'
+    local param = '&id='..g_id
     local requestURL = 'http://211.138.191.85/nbspweb/webservice/assessment!doWebservice.action?usercode=liuguoli&pagesize=200&page=1&cmd=wlbstationchkhistorydetail'..param
     Http:request('data_detail', requestURL, 101, {useCache = false})
     Loading:show()
