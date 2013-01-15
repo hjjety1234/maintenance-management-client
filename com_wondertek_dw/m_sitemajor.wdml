@@ -50,7 +50,7 @@
                             extendstyle="1111">
                         </image>
                         <label name="timeContent" rect="135,5,140,40" border="false" text="" 
-                                v-align="center" color="#0062ab"  font-size="24" font-family='微软雅黑' />
+                                v-align="center" color="#303030"  font-size="24" font-family='微软雅黑' />
                 </node>
 
                 <!-- 检查人 -->
@@ -167,7 +167,7 @@ function bodyBuildChildrenFinished(sprite)
     -- 获取当前用户
     local personNode = Sprite:findChild(rootSprite, "personNode")
     local personContent=Sprite:findChild(personNode,"personContent")
-    Sprite:setProperty(personContent, "text",Config:get('username'))
+    Sprite:setProperty(personContent, "text",Config:get('realname'))
 
 end
 
@@ -404,13 +404,9 @@ function nextOn(sprite)
     
     -- 提示请选择专业
     if data1 =='1' and data2 =='1' and data3=='1' and data4=='1' and data5=='1' then
-        Dialog:show('sprite', '请选择检查专业！', 'ok')
+        Dialog:show('', '请选择检查专业！', 'ok')
         return
     end
-
-
-
-
     -- 获取服务端返回的专业
     Log:write('major_data：', major_data)
     local value = major_data.value
@@ -503,7 +499,7 @@ function nextOn(sprite)
     end
     -- 提示只选择一个专业
     if m>1 then
-        Dialog:show('sprite', '请选择一个专业！', 'ok')
+        Dialog:show('', '请选择一个专业！', 'ok')
         return
     end
 
@@ -514,10 +510,15 @@ function nextOn(sprite)
     Reg:clear(regHandle)
     Reg:setTable(regHandle, 'userSelect', userSelect)
     Reg:setTable(regHandle, 'idSelect', idSelect)
+    Dialog:show('', '点击确定，将开始检查！', 'ok_cancel','site_check')
+   
 
-    -- 跳转到现场检查页面
+end
+-- 跳转到现场检查页面
+function site_check()
     Scene:setReturn(Alias.m_sitemajor,Alias.m_sitecheck)
     Scene:go(Alias.m_sitecheck)
 end
     ]]>
 </root>
+i

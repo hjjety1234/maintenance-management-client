@@ -27,7 +27,7 @@
                     style="autosize" extendstyle="1111" />
             </node>
 
-            <!-- 巡检站点头部  -->
+            <!-- 标题栏  -->
             <node name="headSprite" rect="0,0,480,66" extendstyle="1111">
                 <image name="titleBg" rect="0,0,480,66" src="file://image/nav_bar.png"
                     extendstyle="1111" style="autosize" />
@@ -50,15 +50,13 @@
                 </button>
 
                 <!-- 页面标题  -->
-                <scrolltext name="title" rect="0,0,480,66" text="站点搜索"
+                <scrolltext name="title" rect="0,0,480,40" text="站点搜索"
                     extendstyle="1111" font-size="28" font-family="微软雅黑" 
                     h-align="center" v-align="center"
                     color="#ffffff" scroll="true" step="2" />
             </node>
             
-            
-
-            <!-- 站点列表  -->
+            <!-- 站点显示区域  -->
             <node name="listviewNode" border="false" rect="0,116,480,674" extendstyle="1111">
                 <listview name="listview1" border="false" rect="0,0,480,674" extendstyle="1111" />
             </node>
@@ -72,9 +70,7 @@
                     font-size="22" font-family="微软雅黑" scroll="true">
                 </scrolltext>
             </node>
-            <!--
-            visible="false"
-            -->
+
             <!-- 站点列表项 -->
             <node name="listitem" visible="false" enable="false" active="false"
                 extendstyle="1011" rect="0,256,480,70">
@@ -98,11 +94,11 @@
                         extendstyle="1111" border="false" />
                 </button>
                     
-                    <!-- 查看检查历史按钮  -->
+                <!-- 查看检查历史按钮  -->
                 <button name="historyBtn" rect="400,0,40,70" OnSelect="doHistory" 
                     extendstyle="1111" visible="false" enable="false" data="">
-                    <image rect="0,0,40,70" src="file://image/check_bg.png" style="center" extendstyle="1111">
-                    <image rect="0,0,40,70" src="file://image/check_history.png" style="center"
+                    <image rect="0,20,28,35" src="file://image/check_bg.png" style="autosize" extendstyle="1111">
+                    <image rect="2,5,24,26" src="file://image/check_history.png" style="autosize"
                     extendstyle="1111" />
                     </image>
                 </button>
@@ -111,9 +107,6 @@
                 <image rect="450,0,20,70" src="file://image/ico_r.png" style="center"
                     extendstyle="1111" />
             </node>
-
-            <button name="cancelDetailBtn" rect="0,0,0,0" OnSelect="hideDetialNodeSel" visible="false" enable="false" extendstyle="1177" />
-
         </node>
     </body>
 
@@ -138,8 +131,8 @@ local clickTime -- 长按巡检名称时的时间
 local longClickItemIndex -- 当前长按按钮列表索引
 local firtClick_y -- 第一次点击时的纵坐标
 
-local lon          --=117.2491107
-local lat          --=31.850543
+local lon=117.2491107
+local lat=31.850543
 local resp -- 站点列表值
 local statusBarText
 local g_curItemIndex = 0
@@ -149,13 +142,13 @@ local g_curItemIndex = 0
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     statusBarText =  Sprite:findChild(sprite, 'statusBarText')
-    --request()
+    request()
 end
 
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-    getGPSDataByMap()
+    --getGPSDataByMap()
     elseif msg == MSG_DEACTIVATE then
         System:setGPSStatus(0)
     end
@@ -166,7 +159,7 @@ function bodyOnPluginEvent(msg, param)
   
   if msg == 1001 then
         resp = Http:jsonDecode('stationList')
-        Log:write('+++++++++站点数据', resp)
+        Log:write('站点数据', resp)
         if resp.total=='0'then
         Dialog:show(rootSprite,'服务端无数据', 'ok')
         return
@@ -176,7 +169,6 @@ function bodyOnPluginEvent(msg, param)
         ListView:loadItem(list, Sprite:findChild(rootSprite,'listitem'),#resp.value + 1,'loadListItem')
         ListView:adjust(list)
         Loading:close()
-        --refreshHistoryBtn()
   elseif msg == 1010 then
 	   local postDataString = Param:getString(param, 0)
 	   Log:write('postData is ----------->'..postDataString)
@@ -188,25 +180,6 @@ function bodyOnPluginEvent(msg, param)
        System:setGPSStatus(0)
        -- 请求站点列表
        request()
-    elseif msg == 101 then 
-   
-         local paydata = Http:jsonDecode('pay_data')
-         Log:write('payData', paydata)
-         local listview1 = Sprite:findChild(rootSprite, 'listview1')
-         local item = ListView:getItem(listview1, g_curItemIndex) 
-         local historyBtn = Sprite:findChild(item, 'historyBtn')
-         if paydata.total ~= '0' then 
-            Sprite:setProperty(historyBtn, 'visible', "true")
-            Sprite:setProperty(historyBtn, 'enable', "true")
-         else
-            Sprite:setProperty(historyBtn, 'visible', "false")
-            Sprite:setProperty(historyBtn, 'enable', "false")
-         end 
-         g_curItemIndex = g_curItemIndex + 1
-         refreshHistoryBtn()
-         if g_curItemIndex==count then
-          Loading:close()
-         end
     elseif msg > MSG_NETWORK_ERROR then
         if Loading:isShow() then Loading:close() end
         Dialog:show('','网络错误', 'ok')
@@ -219,13 +192,10 @@ end
 -- 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-        doBack()
+        Scene:go(home_new)
         return 1
     end
 end
-
-
-
 
 function hideDetialNodeSel(sprite)
     setDetailNodeEnable(0)
@@ -242,7 +212,7 @@ function setDetailNodeEnable(isEnable)
     Sprite:setActive(cancelDetailBtn, isEnable)
 end
 
--- 标签页选择
+-- 刷新周边站点，重新调用接口
 function tabOnSelect(sprite)
     local tabNode = Sprite:getParent(sprite)
     local dataInfo = Sprite:getData(sprite)
@@ -251,7 +221,6 @@ function tabOnSelect(sprite)
     Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_s_new.png') 
     getGPSDataByMap()
     Loading:show()
-    
 end
 
 ---------------------------------------界面操作函数列表---------------------------
@@ -260,14 +229,7 @@ function doBack()
     if (Loading:isShow() == true) then
         Loading:close()
     end
-    Scene:back()
-end
-
-function loadRequest(stationid)
-    local param = 'cmd=wlbstationchkhistorylist&page=1&stationid='..stationid 
-    local Url = getWholeUrl('nbspweb/webservice/assessment!doWebservice.action', param)
-    Http:request('pay_data', Url, 101, {useCache = false})
-    -- Loading:show()
+    Scene:go(Alias.home_new)
 end
 
 --传统方式获取经纬度
@@ -278,7 +240,7 @@ function getGPSDataByMap()
     Sprite:setProperty(statusBar, 'visible', 'true')
     Sprite:setProperty(statusBar, 'enable', 'true')
     local result = System:getGPSStatus()
-    Log:write("result is ---------->"..result)
+    Log:write("GPS状态 ---------->"..result)
     if result == -1 then
         Sprite:setProperty(statusBarText, 'text', '对不起，当前GPS不可用')
     elseif result == 0 then
@@ -311,22 +273,20 @@ function loadListItem(list, item, index)
     else
         Sprite:setProperty(listItemBg, 'visible', 0)
     end
-   -- Log:write('11111111111111111111111')
     local stationName = Sprite:findChild(item,'stationName')
-    --Log:write('22222222222222222222222')
     Sprite:setProperty(stationName,'text',resp.value[index].itemname)
     Sprite:setProperty(distanceName,'text',math.ceil (resp.value[index].distance)..'米')
     Sprite:setProperty(item, 'data', index)
-    Log:write('resp.value.lastchecktime',resp.value[index].lastchecktime)
+    Log:write('上次检查时间',resp.value[index].lastchecktime)
     ------查看历史图标
-     --[[local historyBtn = Sprite:findChild(item, 'historyBtn')
-     if resp.value[index].lastchecktime==nil  then
+    local historyBtn = Sprite:findChild(item, 'historyBtn')
+    if resp.value[index].lastchecktime==nil  then
         resp.value[index].lastchecktime=''
-     end
-     if resp.value[index].lastchecktime ~= '' then 
+    end
+    if resp.value[index].lastchecktime ~= '' then 
         Sprite:setProperty(historyBtn, 'visible', "true")
         Sprite:setProperty(historyBtn, 'enable', "true")
-     end--]] 
+    end
 end
 
 ---------------------------------------与服务端交互函数列表---------------------------
@@ -334,8 +294,6 @@ end
 -- 进行http请求，巡检资源搜索
 function request()
 	-- 构造请求参数
-    Log:write('djl1',lon)
-    Log:write('djl2',lat)
 	local requestParam = string.format('cmd=wlbjingwei&usercode=%s&lon=%s&lat=%s&radius=%s&page=1&pagesize=50', 
 	                       Config:get('username'),lon,lat,1000)
 	local requestURL = getUrl()..'nbspweb/webservice/assessment!doWebservice.action?'..requestParam
@@ -345,20 +303,19 @@ end
 
 -- 跳转到现场检查界面
 function itemOnSelect(sprite)
-local index
-local tabNode = Sprite:getParent(sprite)
-index = tonumber(Sprite:getData(tabNode))
-regHandle=Reg:create('resp')
-Reg:setString(regHandle, "stationid",resp.value[index].xtbh)
-Log:write('cacaca',stationid)
-Reg:setString(regHandle, "itemname",resp.value[index].itemname)
-Log:write('cacaca',itemname)
+    local index
+    local tabNode = Sprite:getParent(sprite)
+    index = tonumber(Sprite:getData(tabNode))
+    regHandle=Reg:create('resp')
+    Reg:setString(regHandle, "stationid",resp.value[index].xtbh)
+    Log:write('站点编号：',stationid)
+    Reg:setString(regHandle, "itemname",resp.value[index].itemname)
+    Log:write('代维公司名称：',itemname)
     Scene:setReturn(Alias.m_checkzhandian, Alias.m_sitemajor)
     Scene:go(Alias.m_sitemajor)
 end
 
 function  doHistory( sprite )
-    Log:write('doHistory(): ')
     local item = Sprite:getParent(sprite)
     local index = Sprite:getData(item)
     Log:write('=====resp======', resp)
@@ -373,29 +330,9 @@ function  doHistory( sprite )
     Reg:setString(regHandle, 'stationid', stationid)
     Reg:setString(regHandle, 'stationname', stationname)
     --Reg:setString(regHandle, 'addr', addr)
-    
-    
     -- 跳转到站点检查历史
     Scene:setReturn(Alias.m_checkzhandian, Alias.m_checkhistory)
     Scene:go(Alias.m_checkhistory)
 end
-
-
--- 刷新历史按钮
---[[function refreshHistoryBtn()
-    local listview1 = Sprite:findChild(rootSprite, 'listview1')
-     count =  ListView:getItemCount(listview1)   
-    Log:write('refreshHistoryBtn: count'..count)
-    -- 迭代listview
-    Log:write('refreshHistoryBtn: g_curItemIndex'..g_curItemIndex)
-    if g_curItemIndex < count then 
-         local param = 'cmd=wlbstationchkhistorylist&page=1&stationid='..resp.value[g_curItemIndex].xtbh
-	     local Url = getWholeUrl('nbspweb/webservice/assessment!doWebservice.action', param)
-	     Http:request('pay_data', Url, 101, {useCache = false})
-	     Loading:show()
-    end
-end--]]
-
-
 ]]>
 </root>
