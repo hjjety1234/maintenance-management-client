@@ -235,6 +235,10 @@ function bodyOnPluginEvent(msg, param)
             local locInfo = Sprite:findChild(rootSprite, 'locInfo')
             local latitudeValue = tonumber(postData.latitude) / 10000000.0
             local longitudeValue = tonumber(postData.longitude) / 10000000.0
+            if latitudeValue < 10 then 
+                latitudeValue = latitudeValue * 10 
+                longitudeValue = longitudeValue * 10
+            end
             local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
             Sprite:setProperty(locInfo, 'text', '网络定位成功，经纬度为:'.. posValue)
             -- 显示到界面
@@ -487,6 +491,10 @@ function getLoctude()
             -- 定位成功
             local latitudeValue = tonumber(latitude) / 10000000.0
             local longitudeValue = tonumber(longitude) / 10000000.0
+            if latitudeValue < 10 then 
+                latitudeValue = latitudeValue * 10
+                longitudeValue = longitudeValue * 10
+            end
             local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
             Sprite:setProperty(locInfo, 'text', 'GPS定位成功，经纬度为:'.. posValue)
             -- 显示到界面
@@ -505,6 +513,8 @@ function getLoctude()
         Timer:set(222, 1000, 'getLoctude')
     else
         Timer:cancel(222)
+        System:setGPSStatus(0)
+        System:setGPSStatus(0)
         System:setGPSStatus(0)
         g_retryCount = 20
         Sprite:setProperty(locInfo, 'text', 'GPS定位失败，采用网络定位...')
