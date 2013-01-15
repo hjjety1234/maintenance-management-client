@@ -468,7 +468,9 @@ function getLoctude()
     local locInfo = Sprite:findChild(rootSprite, 'locInfo')
     Sprite:setProperty(locInfo, "text", "GPS正在定位中，剩余"..g_retryCount.."秒")
     longitude,latitude = System:getGPSData()
-    if longitude and longitude ~= 0 and latitude and latitude ~= 0 then
+    if longitude ~= nil and longitude ~= 0 and latitude ~= nil and latitude ~= 0 
+        and g_retryCount > 0 then
+		Log:write(string.format("getLoctude: latitude=%s, lonitude=%s", latitude, longitude))
         -- 首次获得gps数据，作为判断是否有效的基准
         if g_latitude == nil and g_longitude == nil then 
             g_latitude = latitude
