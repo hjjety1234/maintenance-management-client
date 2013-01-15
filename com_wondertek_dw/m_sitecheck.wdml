@@ -98,7 +98,7 @@
                     extendstyle="1111">
                     <label name="label2" rect="60,0,150,50" border="false" text="扣分总计" font-style="bold"
                         v-align="center" color="#0062ab"  font-size="24" font-family='微软雅黑' />
-                    <image rect="160,5,80,40" src="file://image/input.png" 
+                    <image rect="160,5,80,40" src="file://image/input.png" style="sudoku-auto" sudoku="15,15,15,15"
                         extendstyle="1111">
                     </image>
                     <scrolltext name="reduceName" rect="170,5,50,40" text="" color="#303030" scroll="true" h-align="center" 
@@ -150,9 +150,9 @@
                     extendstyle="1111" />
                     </image>
                     <image rect="260,20,80,40" src="file://image/input_text.png" bord='true'
-                        style="autosize" extendstyle="1111"  />
-                    <edit name="editName" rect="265,30,80,30" border="false"  option="numeric"
-                         font-family="微软雅黑" color="#303030" font-size="20" max-size="60" OnTextChanged='editOnTextChanged'
+                        style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111"  />
+                    <edit name="editName" rect="265,30,80,30" border="false"  
+                         font-family="微软雅黑" color="#303030" font-size="22" max-size="60" OnTextChanged='editOnTextChanged'
                         extendstyle="1111" OnLostFocus="onTextLostFocus">
                         <label name="hideLabel" rect="0,0,100,30" text="扣分" color="#c0c0c0" font-family='微软雅黑'
                             extendstyle="1111" font-size="24" style="autosize" h-align="left" 
@@ -176,10 +176,10 @@
                         font-family="微软雅黑" extendstyle="1111" />
                     <image rect="105,85,340,40" src="file://image/input_text.png" bord='true'
                     style="autosize" extendstyle="1111"  />
-                    <edit name="editNorm" rect="115,95,335,40" border="false"  v-align='top'
+                    <edit name="editNorm" rect="112,95,330,30" border="false"  v-align='top'
                         font-family="微软雅黑" color="#303030" font-size="24" max-size="60" OnTextChanged="editOnTextChanged"
                         extendstyle="1111" OnLostFocus="onTextLostFocus1">
-                       <label name="hideLabel" rect="0,0,280,40" text="无" color="#c0c0c0" font-family='微软雅黑'
+                       <label name="hideLabel" rect="0,0,280,30" text="无" color="#c0c0c0" font-family='微软雅黑'
                         extendstyle="1111" font-size="24" style="autosize" h-align="left" 
                         v-align="top" />
                     </edit>
@@ -361,9 +361,10 @@ end
 
 -- 请求巡检子项
 function requestSubItems()
-    local param = '&code='..major
-    local requestURL = 'http://211.138.191.85/nbspweb/webservice/assessment!doWebservice.action?usercode=liuguoli&pagesize=200&page=1&cmd=wlbitemcheck'..param
-    Http:request('sub_items_detail', requestURL, 102, {useCache = false})
+    local username = Config:get('username')
+    local param = 'nbspweb/webservice/assessment!doWebservice.action?usercode='..username..'&pagesize=200&page=1&'..'&code='..major
+    local requestURL = getUrl()..param
+    Http:request('sub_items_detail', requestURL, 102, {useCache = false, method = 'post', postData='cmd=wlbitemcheck'})
     Loading:show()
     Log:write('requestURL:',requestURL)
 end
@@ -539,7 +540,7 @@ function onTextLostFocus(sprite)
     Log:write('计算次数',#g_items)
     Log:write('计算次数',ListView:getItemCount(normNode) )
 
-    reduceNum = reduceNum + content
+    --reduceNum = reduceNum + content
     --[[for i=1,#g_items do
           for j=1 ,#g_items[g_curItemIndex]  do
             local item = ListView:getItem(normNode, j)
@@ -598,14 +599,6 @@ function onTextLostFocus1(sprite)
     Log:write('获取当前输入')
     local content = tonumber(editText)
     Log:write('content',content)
-    -- 检查用户输入
-    if content == nil or  content >=0 then
-        -- 用户输入非数字,清空输入
-        Dialog:show('','扣分应为负数！','ok')
-        Sprite:setProperty(editName, 'text', '') 
-    else
-    Sprite:setProperty(reduceName,'text',tostring(reduceNum))
-    end
     ---上传检查数据
     local subitemid=g_items[g_curItemIndex][curSubItemIndex].id
     Log:write('g_items[g_curItemIndex][curSubItemIndex]',g_items[g_curItemIndex][curSubItemIndex])
@@ -623,7 +616,7 @@ function submitOnSelect(sprite)
     Reg:clear(regHandle1)
 end
 function okON()
-    Scene:go(Alias.m_checkzhandian)
+    Scene:go(Alias.m_checkzhandian,true)
 end
 
 function sum()

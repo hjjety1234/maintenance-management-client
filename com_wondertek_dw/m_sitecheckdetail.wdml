@@ -60,8 +60,8 @@
                 <!-- 显示代维公司 -->        
                 <node name="CompanyNode" rect="15,130,460,50" enable="true" visible="true"
                     extendstyle="1111">
-                    <label name="label2" rect="5,0,150,50" border="false" text="代维公司" font-style="bold"
-                        v-align="center" color="#0062ab"  font-size="24" font-family='微软雅黑' />
+                    <label name="label2" rect="5,0,100,50" border="false" text="检查人" font-style="bold"
+                        v-align="center" h-align='center' color="#0062ab"  font-size="24" font-family='微软雅黑' />
                     <image rect="100,5,150,40" src="file://image/input.png"  style="sudoku-auto" sudoku="15,15,15,15"
                         extendstyle="1111">
                     </image>
@@ -181,33 +181,33 @@ local g_curItemIndex = 0    -- 当前加载的巡检项索引
 local g_page = 1            -- 当前页号
 local totalscore=''
 local g_id = nil            -- 历史id
+local checkman
+local major          
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-
     --获取公司名称
     regHandle = Reg:create('toalscore')
     totalscore = Reg:getString(regHandle, 'score')
     g_id = Reg:getString(regHandle, 'id')
+    checkman = Reg:getString(regHandle, 'checkman')
+    major = Reg:getString(regHandle, 'major')
     Log:write('totalscore=', totalscore)
-    Log:write('g_id=', g_id)   
---    Log:write('bodyBuildChildrenFinished: userSelect', major_data)
-    --local userSelect = Reg:getTable(regHandle, 'userSelect')
-    --local idSelect = Reg:getTable(regHandle, 'idSelect')
---    local name1 = userSelect[1].name
-    local name1 = Config:get('realname')
-    
-    -----加载巡检子项
-      --majorid = idSelect[1].id      
-      majorid = '000000005015'   --临时数据
-     --majorid= Reg:getString(regHandle, 'majorid')
-      Log:write('majorid:',majorid)   
+    Log:write('g_id=', g_id) 
+    Log:write('major=',major)      
+    -----加载巡检子项 
+    if major == 'C31'  then
+      majorid = '000000005015'
+    elseif  major == 'C33'  then 
+        majorid = '000000001036'
+    end
+    Log:write('详情id:',majorid)   
 
     ----显示代维公司
     local CompanyName=Sprite:findChild(rootSprite,'CompanyName')
-    Sprite:setProperty(CompanyName,'text',name1)
+    Sprite:setProperty(CompanyName,'text',checkman)
 end
 
 -- @brief root节点消息方法
@@ -304,9 +304,10 @@ end
 
 -- 请求站点历史检查详细信息
 function requestChkDetail() 
-    local param = '&id='..g_id
-    local requestURL = 'http://211.138.191.85/nbspweb/webservice/assessment!doWebservice.action?usercode=liuguoli&pagesize=200&page=1&cmd=wlbstationchkhistorydetail'..param
-    Http:request('data_detail', requestURL, 101, {useCache = false})
+    local username = Config:get('username')
+    local param = 'nbspweb/webservice/assessment!doWebservice.action?pagesize=200&page=1&usercode='..username..'&id='..g_id
+    local url=getUrl()..param
+    Http:request('data_detail', url, 101, {useCache = false, method = 'post', postData='cmd=wlbstationchkhistorydetail'})
     Log:write('requestURL:',requestURL)
     Loading:show()
 end
@@ -457,60 +458,5 @@ function normOn(sprite)
     local data =Sprite:getData(normButton)
     Dialog:show(rootSprite,data,'ok')
 end
-
-------------------------- NUM类型输入框处理函数--------------------------------
--- 数字类型输入框焦点消失响应处理
---[[function editOnTextChanged(sprite,ncount)
-   editOnTextChanged(sprite,ncount)
-   Log:write('OnTextChanged')
-   local itemNode =Sprite:getParent(Sprite:getParent(sprite))
-   local normNode =Sprite:getParent(itemNode)
-   local normNode1=Sprite:getParent(normNode)
-   local editName =Sprite:findChild(normNode,'editName')
-   local editText =Sprite:getText(editName)
-   Log:write('editText',editText)
-
-    -- 用户未输入，直接返回
-    if editText == '' then
-        return
-    end
-
-    -- 获取当前输入
-    Log:write('获取当前输入')
-    local content = tonumber(editText)
-
-    -- 获取值域
-    local min = 0
-    local max = 100
-
-    -- 检查用户输入
-    if not content then
-        -- 用户输入非数字,清空输入
-        Dialog:show('提示','输入必须是数字！','ok')
-        Sprite:setProperty(editName, 'text', '') 
-    else
-      showErrorNode(true, itemNode,normNode, normNode1)  
-    end
-end
-
--- 显示或隐藏异常输入框
--- @param bVisible:boolean - true:显示，false:隐藏
-function showErrorNode(bVisible,itemNode,normNode,normNode1)
-    Log:write('showErrorNode')
-
-    -- 显示或隐藏异常输入框
-    if bVisible == true then 
-        local x,y,w,h = Sprite:getRect(normNode)
-        Log:write('showErrorNode, x, y, w, h', x, y, w, h)
-        Sprite:setRect(itemNode, x, y, w, h + 55)
-        Sprite:setRect(normNode, x, y, w, h + 55)
-        --Sprite:setRect(normNode1, x, y, w, h+55)
-    end
-    ListView:adjust(normNode)
-
-
-end--]]
-
-
     ]]>
 </root>
