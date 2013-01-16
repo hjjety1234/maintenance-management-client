@@ -84,10 +84,11 @@ Alias = {
     m_tieta='MODULE:\\com_wondertek_dw\\m_tieta.wdml',
     m_stationdetail='MODULE:\\com_wondertek_dw\\m_stationdetail.wdml',
 
-   m_sitecheck='MODULE:\\com_wondertek_dw\\m_sitecheck.wdml',
+    m_sitecheck='MODULE:\\com_wondertek_dw\\m_sitecheck.wdml',
     m_checkzhandian='MODULE:\\com_wondertek_dw\\m_checkzhandian.wdml',
     m_sitemajor='MODULE:\\com_wondertek_dw\\m_sitemajor.wdml',
     m_checkhistory='MODULE:\\com_wondertek_dw\\m_checkhistory.wdml',
     m_sitecheckdetail='MODULE:\\com_wondertek_dw\\m_sitecheckdetail.wdml',
+    m_jiucuolishi='MODULE:\\com_wondertek_dw\\m_jiucuolishi.wdml', -- 纠错历史记录
 }
 
