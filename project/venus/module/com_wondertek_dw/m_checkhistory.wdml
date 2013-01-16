@@ -104,8 +104,8 @@ local rootSprite
 local data = {}
 local list
 local nullNode
-local stationid=''
-local strstationname=''
+local stationid
+local strstationname
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -175,8 +175,10 @@ end
 
 ---------------------------------------util functions---------------------------
 function loadRequest()
+    Log:write('stationid',stationid)
     local param = 'cmd=wlbstationchkhistorylist&page=1&stationid='..stationid 
     local Url = getWholeUrl('nbspweb/webservice/assessment!doWebservice.action', param)
+    Log:write('Url',Url)
     Http:request('pay_data', Url, 101, {useCache = false})
 end
 

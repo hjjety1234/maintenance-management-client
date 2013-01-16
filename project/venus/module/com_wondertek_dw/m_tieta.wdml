@@ -177,6 +177,14 @@
 						h-align="left" v-align="center" extendstyle="1111" border="false" />
 					<label name="lat" rect="270,88,120,45" font-family='微软雅黑' color="#303030" text='' font-size="22"
 						h-align="left" v-align="center" extendstyle="1111" border="false" />
+                    <!-- 查看检查历史按钮  -->
+	                <button name="historyBtn" rect="370,65,40,70" OnSelect="checkHistory" 
+	                    extendstyle="1111" visible="true" enable="true" data="">
+	                    <image rect="0,20,28,35" src="file://image/check_bg.png" style="autosize" extendstyle="1111">
+	                    <image rect="2,5,24,26" src="file://image/check_history.png" style="autosize"
+	                       extendstyle="1111" />
+	                    </image>
+	                </button>
 					<image name="normalImage" rect="420,80,32,32" src="file://image/jiantou_new_1.png"
 						 extendstyle="1111" />
 				</button>
@@ -555,6 +563,23 @@ function updownButton(sprite)
     Sprite:setProperty(updownbutton,'data','1')
     --OnSearchButtonClicked1(sprite)
     end
+end
+
+-- 检查站点的纠错历史
+function checkHistory(sprite)
+    local item = Sprite:getParent(Sprite:getParent(sprite))
+    local index = Sprite:getData(item)
+    Log:write("checkHistory: index="..index)
+    
+    local station = data.value[tonumber(index)]
+    
+    local regHandle = Reg:create("correctionHistory")
+    Reg:clear(regHandle)
+    Reg:setTable(regHandle, "station", station)
+    
+    -- 跳转到纠错历史页面
+    Scene:setReturn(Alias.m_basestation, Alias.m_jiucuolishi)
+    Scene:go(Alias.m_jiucuolishi)
 end
     ]]>
 </root>

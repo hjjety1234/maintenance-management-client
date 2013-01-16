@@ -90,5 +90,7 @@ Alias = {
     m_checkhistory='MODULE:\\com_wondertek_dw\\m_checkhistory.wdml',
     m_sitecheckdetail='MODULE:\\com_wondertek_dw\\m_sitecheckdetail.wdml',
     m_jiucuolishi='MODULE:\\com_wondertek_dw\\m_jiucuolishi.wdml', -- 纠错历史记录
+    m_jizhanzhuanye='MODULE:\\com_wondertek_dw\\m_jizhanzhuanye.wdml'
+    
 }
 
