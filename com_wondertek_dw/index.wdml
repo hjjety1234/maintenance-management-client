@@ -58,6 +58,7 @@ local rootSprite
 local g_packageUrl                  -- 客户端升级包url地址
 local g_downloadTime = 0            -- 记录下载所花的时间
 local g_progressWidth = 154         -- 进度条长度
+local g_localpath = nil             -- 下载apk路径
 
 
 ---------------------------------------回调函数列表--------------------------------
@@ -242,8 +243,8 @@ function downloadPackage()
     local startX,startY,_,startH = Sprite:getRect(progress)
     -- 开始下载
     require('framework.download')
-    local localPath = 'WONDER:\\temp\\' .. 'intallPackageName' .. Config:get('install_pkg_ext')
-    Download:append(localPath, 'intallPackageName', g_packageUrl, true)
+    getDownloadPath()
+    Download:append(g_localpath, 'intallPackageName', g_packageUrl, true)
     onGetDownloadStatus()
 end
 
@@ -282,7 +283,7 @@ function onGetDownloadStatus()
                 Sprite:setRect(progressImg, x, y, g_progressWidth * percent / 100, h)
                 Http:stopNetwork()
                 -- 安装退出
-                Util:installApp('WONDER:\\temp\\' .. 'intallPackageName' .. '.apk')
+                Util:installApp(g_localpath)
                 -- 安装成功，重启时引擎将干掉module
                 -- 清除cache
                 IO:dirRemove('CACHE:\\com_wondertek_dw', 1)
@@ -293,6 +294,30 @@ function onGetDownloadStatus()
         end
     end
     Timer:set(111, 500, 'onGetDownloadStatus')
+end
+
+-- 获取apk下载路径
+function getDownloadPath()
+    g_localpath = ""
+    local downloadPath = System:getFlashCardName(1) 
+    if downloadPath == nil or downloadPath == "" then 
+        Log:write("SD卡不存在,使用内部存储！")
+        downloadPath = System:getFlashCardName(0)
+    end
+    g_localpath = downloadPath.."download"
+    Log:write("getDownloadPath: localDir="..g_localpath)
+    -- 如果路径不存在，创建下载目录
+    if IO:dirExist(g_localpath) == false then 
+        IO:dirCreate(g_localpath)
+    end
+    -- 如果apk已经存在，删除之
+    g_localpath = g_localpath.."/Venus_DW.apk"
+    Log:write("getDownloadPath: g_localpath="..g_localpath)
+    if IO:fileExist(g_localpath) == true then 
+        IO:fileRemove(g_localpath)
+    end
+    -- 返回apk本地路径
+    return g_localpath
 end
 ]]>
 </root>
