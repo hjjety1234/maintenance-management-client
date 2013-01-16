@@ -164,7 +164,7 @@
                         extendstyle="1111" OnSelect="normOn" font-size="24" >
                     <image rect="0,0,84,37" src="file://image/site_norm.png"
                         style="autosize" extendstyle="1111" />
-                    <label name="label1" rect="0,0,100,30" border="false" text="扣分标准" font-family='微软雅黑'
+                    <label name="label1" rect="1,1,100,30" border="false" text="扣分标准" font-family='微软雅黑'
                         h-align="left" v-align="center" color="#ffffff" font-size="20"
                         extendstyle="1111" />
                     </button>
@@ -176,7 +176,7 @@
                         font-family="微软雅黑" extendstyle="1111" />
                     <image rect="105,85,340,40" src="file://image/input_text.png" bord='true'
                     style="autosize" extendstyle="1111"  />
-                    <edit name="editNorm" rect="112,95,330,30" border="false"  v-align='top'
+                    <edit name="editNorm" rect="112,90,330,30" border="false"  v-align='top'
                         font-family="微软雅黑" color="#303030" font-size="24" max-size="60" OnTextChanged="editOnTextChanged"
                         extendstyle="1111" OnLostFocus="onTextLostFocus1">
                        <label name="hideLabel" rect="0,0,280,30" text="无" color="#c0c0c0" font-family='微软雅黑'
@@ -261,10 +261,11 @@ function bodyOnSpriteEvent(msg, param)
     requestSubItems()
     Log:write('requestSubItems')
     local username = Config:get('username')
-    local param = 'nbspweb/webservice/assessment!doWebservice.action?usercode='..username..'&stationid='..stationid..'&patrolman=&contractorid='..companyID..'&tableid='..major
+    local realname = Config:get('realname')
+    local param = 'nbspweb/webservice/assessment!doWebservice.action?cmd=wlbitemcheckobjectsave&usercode='..username..'&stationid='..stationid..'&patrolman='..realname..'&contractorid='..companyID..'&tableid='..major
     local url=getUrl()..param
-    Log:write('上传检查数据',url..'cmd=wlbitemcheckobjectsave')
-    Http:request('Submitdata', url, 103, {useCache = false, method = 'post', postData='cmd=wlbitemcheckobjectsave'})
+    Log:write('上传检查数据',url)
+    Http:request('Submitdata', url, 103, {useCache = false})
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -414,8 +415,8 @@ function loadSubListItem(list, item, index)
     local itemName = Sprite:findChild(item, 'itemName')
     local normButton=Sprite:findChild(item, 'normButton')
     curSubItemIndex = index + 1
-    Log:write('curSubItemIndex',curSubItemIndex)
-    Sprite:setProperty(itemName,'text',g_items[g_curItemIndex][curSubItemIndex].demanddesc)
+    Log:write('g_items[g_curItemIndex][curSubItemIndex]',g_items[g_curItemIndex][curSubItemIndex])
+    Sprite:setProperty(itemName,'text',g_items[g_curItemIndex][curSubItemIndex].demandDesc)
     Sprite:setProperty(normButton,'data',g_items[g_curItemIndex][curSubItemIndex].evaluationcriterion)
     --Log:write('editNorm',g_items[g_curItemIndex][curSubItemIndex])
 
@@ -556,10 +557,10 @@ function onTextLostFocus(sprite)
     Log:write('g_items[g_curItemIndex][curSubItemIndex]',g_items[g_curItemIndex][curSubItemIndex])
     Log:write('subitemid',subitemid)
     local username =Config:get('username')
-    local param = 'nbspweb/webservice/assessment!doWebservice.action?usercode='..username..'&subitemid='..subitemid..'&stationid='..stationid..'&subitemvalue='..content..'&subitemremark='..subitemremark..'&resultid='..resultid
+    local param = 'nbspweb/webservice/assessment!doWebservice.action?cmd=wlbitemchecksave&usercode='..username..'&subitemid='..subitemid..'&subitemvalue='..content..'&subitemremark='..subitemremark..'&resultid='..resultid
     local url=getUrl()..param
-    Log:write('上传检查数据',url..param..'cmd=wlbitemchecksave')
-    Http:request('savedata', url, 104, {useCache = false, method = 'post', postData='cmd=wlbitemchecksave'})
+    Log:write('上传检查数据',url)
+    Http:request('savedata', url, 104, {useCache = false})
     sum()
 end
 
@@ -604,10 +605,10 @@ function onTextLostFocus1(sprite)
     Log:write('g_items[g_curItemIndex][curSubItemIndex]',g_items[g_curItemIndex][curSubItemIndex])
     Log:write('subitemid',subitemid)
     local username =Config:get('username')
-    local param = 'nbspweb/webservice/assessment!doWebservice.action?usercode='..username..'&subitemid='..subitemid..'&stationid='..stationid..'&subitemvalue='..content..'&subitemremark='..subitemremark..'&resultid='..resultid
+    local param = 'nbspweb/webservice/assessment!doWebservice.action?usercode='..username..'&subitemid='..subitemid..'&subitemvalue='..content..'&subitemremark='..subitemremark..'&resultid='..resultid
     local url=getUrl()..param
-    Log:write('上传检查数据',url..param..'cmd=wlbitemchecksave')
-    Http:request('savedata', url, 104, {useCache = false, method = 'post', postData='cmd=wlbitemchecksave'})
+    Log:write('上传检查数据1',url..'cmd=wlbitemchecksave')
+    Http:request('savedata', url, 104, {useCache = false, method = 'post', postData='&cmd=wlbitemchecksave'})
 end
 
 function submitOnSelect(sprite)

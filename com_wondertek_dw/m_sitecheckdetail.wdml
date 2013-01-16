@@ -305,10 +305,11 @@ end
 -- 请求站点历史检查详细信息
 function requestChkDetail() 
     local username = Config:get('username')
-    local param = 'nbspweb/webservice/assessment!doWebservice.action?pagesize=200&page=1&usercode='..username..'&id='..g_id
+    Log:write('g_id',g_id)
+    local param = 'nbspweb/webservice/assessment!doWebservice.action?pagesize=200&page=1&cmd=wlbstationchkhistorydetail&usercode='..username..'&id='..g_id
     local url=getUrl()..param
-    Http:request('data_detail', url, 101, {useCache = false, method = 'post', postData='cmd=wlbstationchkhistorydetail'})
-    Log:write('requestURL:',requestURL)
+    Http:request('data_detail', url, 101, {useCache = false})
+    Log:write('请求站点历史检查详细信息:',url)
     Loading:show()
 end
 
@@ -369,19 +370,18 @@ function loadSubListItem(list, item, index)
     local editNorm = Sprite:findChild(item, 'editNorm') 
     local hideLabel = Sprite:findChild(item, 'hideLabel')
     local curSubItemIndex = index + 1
-    Sprite:setProperty(itemName,'text',g_items[g_curItemIndex][curSubItemIndex].demanddesc)
-    local count = getJsonArrayCount(data_history.value)  
-    Sprite:setProperty(editName,'text','')
-    Sprite:setProperty(editNorm,'text','')
+    Sprite:setProperty(itemName,'text',g_items[g_curItemIndex][curSubItemIndex].demandDesc)
+    local count = getJsonArrayCount(data_history.value) 
+    --Sprite:setProperty(editName,'text','')
+    --Sprite:setProperty(editNorm,'text','')
     Log:write('data_history',data_history)
-    Log:write('g_items[g_curItemIndex][curSubItemIndex].itemid',g_items[g_curItemIndex][curSubItemIndex].itemid)
+    Log:write('检查子项',g_items[g_curItemIndex][curSubItemIndex])
     for k = 0, count-1 do
-    	if g_items[g_curItemIndex][curSubItemIndex].itemid == data_history.value[k].id then
+    	if g_items[g_curItemIndex][curSubItemIndex].id == data_history.value[k].id then
             Log:write('data_history.value',data_history.value)
     	    Sprite:setProperty(editName, 'text', data_history.value[k].score)
             Sprite:setProperty(editNorm, 'text', data_history.value[k].remark)
-            Sprite:setProperty(hideLabel, 'text', '')
-    	       
+            Sprite:setProperty(hideLabel, 'text', '')  
     	    break
     	end
     end
