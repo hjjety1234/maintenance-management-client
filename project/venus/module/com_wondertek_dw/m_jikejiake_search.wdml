@@ -1,0 +1,625 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: hewu <hewu2008@gmail.com> ==
+============================================================================
+== | Desc: 页面描述 ==
+============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            
+            <!-- 设置背景 -->
+            <image rect="0,0,0,0" src="file://image/backgroundImg.png" style="autosize" extendstyle="1177" />
+            
+            <!-- 查询结果展示区域  -->
+            <node name="listNode" rect="0,0,480,1045" extendstyle="1111">
+                <listview name="sampleList" rect="0,160,480,645" extendstyle="1111" />
+            </node>
+
+            <!-- 自动缩放框 --> 
+            <node name="circleNode" rect="0,70,480,800" enable="true"
+                    extendstyle="1111">
+                <image rect="20,0,445,261" src="file://image/circle.png"  style='autosize'  extendstyle="1111" />
+                <image rect="46,57,393,1" src="file://image/line.png"  style='autosize' extendstyle="1111" />
+                <image rect="58,102,368,1" src="file://image/line.png"  style='autosize' extendstyle="1111" />
+                <image rect="84,147,316,1" src="file://image/line.png"  style='autosize' extendstyle="1111" />
+                <!-- 收起或放大弹出框 -->
+                <button name="updownbutton" rect="210,210,80,80" border="false"
+                        text="" color="#0" OnSelect="updownButton_OnClicked" data='1'>
+                    <image name="jiantou"rect="0,0,65,43" src="file://image/jiantou_up.png"  style='autosize' extendstyle="1111" />
+                </button>
+
+                <!--搜索条件：类型-->
+                <node name="typeNode" rect="85,10,460,40" enable="true" extendstyle="1111">
+                    <label name="labelType" rect="5,0,200,40" border="false" text="站点类型："
+                        v-align="center" color="#0062ab"  font-size="26" font-family='微软雅黑'/>
+                    <image rect="130,5,200,40" src="file://image/select_bg.png"  style="sudoku-auto" sudoku="15,15,15,15"
+                        extendstyle="1111">
+                    </image>
+                    <button name="typeBtn" rect="130,5,200,40" border="false" text="" color="#0" OnSelect="typeOnSelect">
+                        <scrolltext name="typeName" rect="5,0,165,40" text="" color="#303030" scroll="true" h-align="left" 
+                            v-align="center" font-family='微软雅黑' font-size="24" style="autosize" extendstyle="1111">
+                        </scrolltext>
+                        <label name="typeCode" rect="5,0,165,40" border="false" text="" visible='false'
+                            v-align="center" color="#303030"  font-size="24" font-family='微软雅黑' />
+                    </button>
+                </node>
+
+                <!-- 搜索条件：名称 -->
+                <node name="TypeNode" rect="85,55,460,50" enable="true" extendstyle="1111">               
+                    <label name="label2" rect="5,0,200,50" border="false" text="站点名称："
+                        v-align="center" color="#0062ab"  font-size="26" font-family='微软雅黑'/>
+                    <image rect="130,5,205,40" src="file://image/input_text.png"  style='autosize' extendstyle="1111" />
+                    <button name="userContent" rect="130,5,200,40" border="false"
+                        text="" color="#0" >
+                    <edit name="content" rect="5,0,200,40" border="false" text="" autoup ="true" 
+                        v-align="center" color="#303030" font-size="26" font-family='微软雅黑' />
+                    </button>
+                </node>
+
+                <!-- 搜索条件：区域 -->      
+                <node name="NameNode" rect="85,100,460,50" enable="true"
+                    extendstyle="1111">              
+                    <label name="label2" rect="5,0,140,50" border="false" text="所属区域："
+                        v-align="center" color="#0062ab"  font-size="26" font-family='微软雅黑' />
+                    <image rect="130,5,150,40" src="file://image/select_bg.png"  style="sudoku-auto" sudoku="15,15,15,15"
+                        extendstyle="1111">
+                    </image>
+                    <button name="quyuBtn" rect="130,5,140,40" border="false"
+                        text="" color="#0" OnSelect="quyuOnSelect">
+                        <scrolltext name="quyuName" rect="5,0,140,40" text="" color="#303030" scroll="true" h-align="left" 
+                                v-align="center" font-family='微软雅黑' font-size="24" style="autosize" extendstyle="1111">
+                        </scrolltext>
+                        <label name="quyuCode" rect="5,0,140,40" border="false" text=""
+                            v-align="center" color="#303030" font-size="26" font-family='微软雅黑' />
+                    </button>
+                </node>
+
+                <!-- 搜索条件：公司 -->        
+                <node name="CompanyNode" rect="85,145,460,50" enable="true"
+                    extendstyle="1111">
+                    <label name="label2" rect="25,0,140,50" border="false" text="代维公司："
+                        v-align="center" color="#0062ab"  font-size="26" font-family='微软雅黑' />
+                    <image rect="130,5,150,40" src="file://image/select_bg.png"  style="sudoku-auto" sudoku="15,15,15,15"
+                        extendstyle="1111">
+                    </image>
+                    <button name="CompanyBtn" rect="130,5,140,40" border="false"
+                        text="" color="#0" OnSelect="CompanyOnSelect">
+                        <scrolltext name="CompanyName" rect="5,0,185,40" text="" color="#303030" scroll="true" h-align="left" 
+                                v-align="center" font-family='微软雅黑' font-size="24" style="autosize" extendstyle="1111">
+                        </scrolltext>
+                        <label name="companyNameCode" rect="5,0,220,40" border="false" text=""
+                            v-align="center" color="#303030" font-size="26" font-family='微软雅黑' />
+                    </button>
+                 </node>
+            </node>
+
+
+            <!-- 区域下拉框值 -->
+            <node name="filterTypeNode" rect="0,0,480,800" visible="false"  mushroom="false" enable="false">
+                <button rect="0,0,480,800" OnSelect="hideFilterSelected">
+                </button>
+                  <node rect="86,200,368,68" extendstyle="1111"  border="false">
+                      <image rect="0,0,368,68" src="file://image/top.png"  style="autosize" extendstyle="1111" />
+                      <image rect="20,30,31,32" src="file://image/icon_arrow.png"  style="autosize" extendstyle="1111" />
+                      <label rect="42,10,120,68" border="false" color="#FFFFFF"
+                       text="选择类型" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                  </node>
+                  <node rect="86,264,368,143" extendstyle="1111" border="false">
+                     <image rect="0,0,368,143" src="file://image/center.png"  style="autosize" extendstyle="1111" />
+                     <button rect="12,0,342,61" text="    集客" h-align="left" 
+                            color="#303030" extendstyle="1111" OnSelect="typeItemSelect" font-family="微软雅黑" 
+                             normal=""
+                            sel=""
+                            font-size="24" data="1">
+                            <image rect="285,15,32,32" src="file://image/list_arrow.png" extendstyle="1111" />
+                            <image rect="12,70,320,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
+                     </button>
+                      <button rect="12,73,342,61" text="    家客" h-align="left" 
+                            color="#303030" extendstyle="1111" OnSelect="typeItemSelect" font-family="微软雅黑" 
+                             normal=""
+                            sel=""
+                            font-size="24" data="2">
+                            <image rect="285,15,32,32" src="file://image/list_arrow.png"  extendstyle="1111" />
+                      </button>
+                  </node>
+                  <image rect="86,407,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
+            </node>  
+
+
+
+            <!-- 公司列表展示区域  -->
+            <node name="CompanySelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
+                <button name="button" rect="0,0,480,800" OnSelect="hideCompanySelected">
+                </button>
+                <node rect="66,200,368,68" extendstyle="1111"  border="false">
+                    <image rect="0,0,368,68" src="file://image/top.png"  style="autosize" extendstyle="0010" />
+                    <image rect="20,30,22,22" src="file://image/icon_arrow.png"  style="autosize" extendstyle="0010" />
+                    <label rect="50,6,140,68" border="false" color="#FFFFFF" style="autosize"
+                     text="选择代维公司" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                </node>
+                <image rect="66,264,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" />
+                <listview name="CompanyList" rect="66,268,368,216" extendstyle="1111" auto-scroll="true" style="autosize"
+                    auto-adjust="true" >
+                </listview>
+                <image rect="66,480,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
+            </node>
+
+            <!-- 公司列表加载项 -->
+            <node name="listitem1" rect="0,0,368,72" visible="false" enable="false" active="false">                   
+                <button name="btnName" rect="5,0,275,61" text="" color="#303030" h-align="center" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
+                    extendstyle="0010" OnSelect="CompanyGroupOnSelect"  normal=""
+                    sel=""
+                    data="01"  > 
+                    <label name="dwcompany" rect="10,0,202,61" border="false" color="#0" style="autosize"
+                     text="" h-align="left" v-align="center" font-family="微软雅黑" font-size="24"></label>     
+                    <image rect="285,15,32,32" src="file://image/list_arrow.png"  style="autosize" extendstyle="1111" />           
+                    <image rect="12,70,320,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
+
+                </button>
+            </node>
+
+            <!-- 区域列表展示区域  -->
+            <node name="quyuSelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
+                <button name="button" rect="0,0,480,800" OnSelect="hideCompanySelected1">
+                </button>
+                <node rect="66,200,368,68" extendstyle="1111"  border="false">
+                    <image rect="0,0,368,68" src="file://image/top.png"  style="autosize" extendstyle="0010" />
+                    <image rect="20,30,22,22" src="file://image/icon_arrow.png"  style="autosize" extendstyle="0010" />
+                    <label rect="50,6,140,68" border="false" color="#FFFFFF" style="autosize"
+                     text="选择区域" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                </node>
+                <image rect="66,264,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" />
+                <listview name="quyuList" rect="66,268,368,216" extendstyle="1111" auto-scroll="true" style="autosize"
+                    auto-adjust="true" >
+                </listview>
+                <image rect="66,480,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
+            </node>
+
+            <!-- 区域列表加载项 -->
+            <node name="listitem2" rect="0,0,368,72" visible="false" enable="false" active="false">                   
+                <button name="btnName" rect="5,0,275,61" text="" color="#303030" h-align="center" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
+                    extendstyle="0010" OnSelect="quyuGroupOnSelect"  normal=""
+                    sel=""
+                    data="01"  > 
+                    <label name="dwquyu" rect="10,0,202,61" border="false" color="#0" style="autosize"
+                     text="" h-align="left" v-align="center" font-family="微软雅黑" font-size="24"></label>     
+                    <image rect="285,15,32,32" src="file://image/list_arrow.png"  style="autosize" extendstyle="1111" />           
+                    <image rect="12,70,320,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
+                </button>
+            </node> 
+            
+            <!-- 查询列表加载项 -->
+            <node name="listitem" visible="false" enable="false" active="false"
+                extendstyle="1011" rect="0,200,480,150">
+                <image name="listButtonImage" rect="3,0,468,140" src="file://image/tongxunlu_bg.png"
+                    extendstyle="1111" style='autosize' />
+                <image  rect="3,0,468,52" src="file://image/chaxun_bg.png"
+                    extendstyle="1111" style='autosize' />
+                <button name="btnname" rect="3,0,480,150" OnSelect="btnname_OnSelected"
+                    extendstyle="1111">
+                    <label rect="5,2,140,45"  text="所属站点：" font-family='微软雅黑' color="#0062ab" font-size="24"
+                        h-align="center" v-align="center" extendstyle="1111" border="false" />
+                    <label name="textNum" rect="130,2,300,45" font-family='微软雅黑' text="" color="#0062ab"
+                        font-size="24" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" />
+                    <label rect="15,50,80,45" text="地址：" font-family='微软雅黑' color="#303030" font-size="22"
+                        h-align="left" v-align="center" extendstyle="1111" border="false" />
+                    <label name="textTitle" rect="74,50,360,45" font-family='微软雅黑' text="" color="#0"
+                        font-size="20" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" />
+                    <label rect="15,88,80,45" text="经度：" font-family='微软雅黑' color="#303030" font-size="22"
+                        h-align="left" v-align="center" extendstyle="1111" border="false" />
+                    <label name="lon" rect="74,88,120,45" font-family='微软雅黑' color="#303030" text='' font-size="22"
+                        h-align="left" v-align="center" extendstyle="1111" border="false" />
+                    <label rect="210,88,80,45" text="纬度：" font-family='微软雅黑' color="#303030" font-size="22"
+                        h-align="left" v-align="center" extendstyle="1111" border="false" />
+                    <label name="lat" rect="270,88,120,45" font-family='微软雅黑' color="#303030" text='' font-size="22"
+                        h-align="left" v-align="center" extendstyle="1111" border="false" />
+                    <image name="normalImage" rect="420,80,32,32" src="file://image/jiantou_new_1.png"
+                         extendstyle="1111" />
+                </button>
+            </node>
+            <!-- 设置标题栏 -->
+            <node name="NodeTitle" rect="0,0,480,66" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,66" src="file://image/title_new.png" extendstyle="1111" style="autosize" />
+                <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
+                    OnSelect="doBack" extendstyle="1111">
+                    <image name="normal" rect="15,8,75,75" src="file://image/skin/title_back_new.png"
+                         extendstyle="1111" />
+                    <image name="sel" rect="15,8,75,75" src="file://image/skin/title_back_new.png"
+                       extendstyle="1111" />
+                </button>
+                <scrolltext name="title" rect="100,0,280,66" text="集客家客查询"
+                    extendstyle="1111" font-family="微软雅黑" font-size="30" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2" />
+
+                <!-- 搜索按钮 -->
+                <button name="searchButton" rect="400,0,75,75" OnSelect="OnSearchButtonClicked"
+                    extendstyle="1111" color="#ffffff">
+                <image name="searchButtonImage" rect="21,8,75,75"
+                        src="file://image/skin/ico_search_new.png" 
+                        extendstyle="1111" />
+                </button>
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+require 'os'
+local rootSprite
+local values
+local data
+local curCompanyBtn
+local cmpData
+local nameValue
+local areaValue
+local companyValue
+local typeStatus 
+local quyuData
+local curquyuBtn
+local listNode
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    local typeText = Sprite:findChild(rootSprite, 'typeName')
+    Sprite:setProperty(typeText, 'text', '集客')
+    --OnSearchButtonClicked(Sprite:findChild(rootSprite,'btnForget'))
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活 
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list,1)
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    Loading:close()
+    if msg == 101 then
+        data = Http:jsonDecode('zonghefugai_data')
+        Log:write("data101 = ", data)
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '请填写正确的参数', 'ok')
+            return
+        end
+        if data ~= nil then
+            if data.code == '0' then
+                if #data.value > 0 then
+                    loadList(#data.value + 1)
+                elseif data.value[0] then
+                    loadList(1)
+                end
+            else
+                local list = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(list,1)
+                Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+            end
+        else
+            Dialog:show(rootSpsrite, '未知错误！', 'ok')
+        end
+    elseif msg == 102 then
+        cmpData = Http:jsonDecode('group_data')
+        Log:write("cmpData = ", cmpData)
+        if not cmpData or type(cmpData) ~= 'table' then
+            Dialog:show(rootSprite, '请填写正确的参数', 'ok')
+            return
+        end
+        if cmpData ~= nil then
+            if cmpData.code == '0' then
+                if #cmpData.value > 0 then
+                    Copanycontent(#cmpData.value + 1)
+                elseif cmpData.value[0] then
+                    Copanycontent(1)
+                end
+            else
+                -- Dialog:show(rootSprite, '提交失败，请稍后再试！', 'ok')
+            end
+        else
+            --Dialog:show(rootSprite, '未知错误！', 'ok')
+        end
+    elseif msg == 103 then
+        quyuData = Http:jsonDecode('quyu_data')
+        Log:write("quyuData = ",quyuData)
+        if not quyuData or type(quyuData) ~= 'table' then
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        end
+        if quyuData ~= nil then
+            if quyuData.code == '0' then
+                if #quyuData.value > 0 then
+                    loadList2(#quyuData.value + 1)
+                elseif quyuData.value[0] then
+                    loadList2(1)
+                end
+            else
+                local list = Sprite:findChild(rootSprite, 'CompanyList')
+                ListView:removeAllItems(list,1)
+                Dialog:show(rootSprite, getErrorCode(quyuData.code), 'ok')
+            end
+        else
+            Dialog:show(rootSprite, '未知错误！', 'ok')
+        end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:go( Alias.m_search)
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+--搜索按钮
+function OnSearchButtonClicked(sprite)
+        local typeValue = Sprite:getText(Sprite:findChild(rootSprite,'typeName'))
+        local contentName = Sprite:getText(Sprite:findChild(rootSprite,'contentName'))
+        local areaName = Sprite:getData(Sprite:findChild(rootSprite,'quyuName'))
+        local CompanyName = Sprite:getText(Sprite:findChild(rootSprite,'CompanyName'))
+        -- if contentName == '' then
+        --     Dialog:show('提示', '搜索名称不能为空!', 'ok')
+        --     return
+        -- end
+        if areaName == '' then
+            areaName = ''
+            -- Dialog:show('提示', '搜索区域不能为空!', 'ok')
+            -- return
+        end
+        if CompanyName =='' then
+              companyCode = ''
+        else
+            local companyCode = Sprite:getData(curCompanyBtn)
+        end
+
+        listNode = Sprite:findChild(rootSprite, 'listNode')
+        local circleNode=Sprite:findChild(rootSprite, 'circleNode')
+        local jiantou=Sprite:findChild(rootSprite, 'jiantou')
+        local updownbutton=Sprite:findChild(rootSprite, 'updownbutton')
+        local data =Sprite:getData(updownbutton)
+
+        if data =='1' then
+            Sprite:setProperty(circleNode,'rect','0,-130.480,800')
+            Sprite:setProperty(listNode,'rect','0,0.480,645') 
+            Sprite:setProperty(jiantou,'src','file://image/jiantou_down.png')      
+        end 
+        
+        loadRequest(contentName,areaName,curCompanyBtn,typeValue)
+end
+
+--@brief 返回按钮消息处理函数
+function doBack(sprite)
+        Scene:back()
+end
+--显示过滤区域
+function typeOnSelect(sprite)
+    Log:write('type on selected')
+    setAllShoworHide(Sprite:findChild(rootSprite, 'filterTypeNode'), 1)
+end
+---隐藏过滤区域
+function hideFilterSelected(sprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'filterTypeNode'), 0)
+end
+ --设置选中区域
+function typeItemSelect(sprite)
+    local xdData = Sprite:getData(sprite)
+    local typeText = Sprite:findChild(rootSprite, 'typeName')
+    if xdData == '1' then
+         Sprite:setProperty(typeText, 'text', '集客')
+         typeStatus='1'
+    elseif xdData == '2' then
+         Sprite:setProperty(typeText, 'text', '家客')
+         typeStatus='2'
+    end
+    setAllShoworHide(Sprite:findChild(rootSprite, 'filterTypeNode'), 0)
+end
+function loadRequest(contentName,areaName,companyCode,typeValue)
+        Log:write('名称  = ',contentName)
+        Log:write('区域 =',areaName)
+        Log:write('代维公司Code',companyCode)
+        Log:write('类型',typeValue)
+        if contentName==nil then
+            contentName=''
+        end
+        if areaName==nil then
+            areaName=''
+        end
+        if companyCode==nil then
+            companyCode=''
+        end
+        Log:write('type value is '..typeValue)
+        if typeValue == "集客" then
+            local param = string.format('&page=1&name=%s&companycode=%s&areacode=%s', contentName,companyCode,areaName)
+            Log:write("&param = ", param)
+            local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
+            Http:request('zonghefugai_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbgroupersearch'..param})
+            Loading:show(rootSprite)
+         else
+            local param = string.format('&page=1&name=%s&companycode=%s&areacode=%s', contentName,companyCode,areaName)
+            Log:write("&param = ", param)
+            local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
+            Http:request('zonghefugai_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbcustomersearch'..param})
+            Loading:show(rootSprite)
+         end
+end
+function loadList(count)
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list,1)
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
+        ListView:adjust(list)
+end
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 3, 0, 468, 180)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local listItemBg = Sprite:findChild(item, 'normalImage1')
+    Sprite:setRect(listItemBg, 3, 0, 468, 180)
+    local num = index + 1
+    local textNum = Sprite:findChild(item, 'textNum')
+    local textTitle = Sprite:findChild(item, 'textTitle')
+    local lon = Sprite:findChild(item, 'lon')
+    local lat = Sprite:findChild(item, 'lat')
+    Sprite:setProperty(item, 'data', index)
+    Sprite:setProperty(textNum, 'text', data.value[index].station)
+    Sprite:setProperty(lon, 'text', data.value[index].lon)
+    Sprite:setProperty(lat, 'text', data.value[index].lat)
+    if data.value[index].address == nil or data.value[index].address == '' then
+        Sprite:setProperty(textTitle, 'text', '')
+    else
+        Sprite:setProperty(textTitle, 'text', data.value[index].address)
+    end
+end
+
+function hideCompanySelected(sprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 0)
+end
+
+function CompanyOnSelect(sprite)
+    Log:write('1111111111')
+    curCompanyBtn = sprite
+    loadCompanyRequest()
+    setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 1)
+end
+
+function CompanyGroupOnSelect(sprite)
+    local companyData = Sprite:getData(sprite)
+    local companyText = Sprite:findChild(curCompanyBtn, 'CompanyName')
+    local companyNameCode = Sprite:findChild(curCompanyBtn, 'companyNameCode')
+    Sprite:setProperty(curCompanyBtn, 'data', companyData)
+    local index = ListView:getItemIndex(Sprite:getParent(sprite))
+    Sprite:setProperty(companyText, 'text', cmpData.value[index].cmpname)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 0)
+end
+--点击代维公司下拉框
+function loadCompanyRequest()
+    local param = 'cmd=wlbCmpList&page='..'1'..'&code=340100'
+    local reqURL = getWholeUrl('nbspweb/webservice/chart!doWebservice.action', param)
+    Http:request('group_data', reqURL, 102, {useCache = false})
+    Loading:show()
+end
+--加载代维公司数据
+function Copanycontent(count)
+    local CompanySelectNode = Sprite:findChild(rootSprite, 'CompanySelectNode')
+    local list = Sprite:findChild(CompanySelectNode, 'CompanyList')
+    ListView:removeAllItems(list,true)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem1'), count, 'loadCompanyListItem')
+    ListView:adjust(list)
+end
+--为代维公司下拉框区域赋数据库取值
+function loadCompanyListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 76)
+    Sprite:setProperty(item, 'extendstyle', '0010')
+    local textNum = Sprite:findChild(item, 'dwcompany')
+    Sprite:setProperty(textNum, 'data', cmpData.value[index].id)
+    Sprite:setProperty(textNum, 'text', "  "..cmpData.value[index].cmpname)
+end
+-- 点击区域下拉框
+function quyuOnSelect(sprite)
+    Log:write('quyu selected')
+    curquyuBtn = sprite
+    loadquyuRequest()
+    setAllShoworHide(Sprite:findChild(rootSprite, 'quyuSelectNode'), 1)
+    Log:write('quyu12345')
+end
+--- 调用搜索条件接口
+function loadquyuRequest()
+    Log:write('hhhh')
+    local param = 'cmd=wlbUserRegionList&page=1&pagesize=100&usercode='..Config:get('username')
+    local reqURL = getUrl()..'nbspweb/webservice/chart!doWebservice.action?'..param
+    Log:write('2345',reqURL)
+    Http:request('quyu_data', reqURL, 103, {useCache = false})
+    Loading:show()
+end
+--加载区域数据
+function loadList2(count)
+    Log:write('1111111111111111111111111')
+    local list = Sprite:findChild(rootSprite, 'quyuList')
+    ListView:removeAllItems(list,true)
+    Log:write('2222222222222222222222222---------->', count)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem2'), count, 'loadListItem2')
+    ListView:adjust(list)
+end
+--为区域下拉框区域赋数据库取值
+function loadListItem2(list, item, index)
+    Log:write('333333333333333')
+    Sprite:setRect(item, 0, 0, 480, 76)
+    Sprite:setProperty(item, 'extendstyle', '0010')
+    local num = index + 1
+    Log:write('4444444444444444444')
+    local dwquyu = Sprite:findChild(item, 'dwquyu')
+    Log:write('55555555555555555555', quyuData.value[index].regionname)
+    Sprite:setProperty(dwquyu, 'text', "  "..quyuData.value[index].regionname)
+    Log:write('55555555555555555555', quyuData.value[index].regionname)
+end
+--区域item点击事件
+function quyuGroupOnSelect(sprite)
+    local quyuText = Sprite:findChild(curquyuBtn, 'quyuName')
+    local quyuNameCode = Sprite:findChild(curquyuBtn, 'quyuNameCode')
+    local index = ListView:getItemIndex(Sprite:getParent(sprite))
+    Sprite:setProperty(quyuText, 'text', quyuData.value[index].regionname)
+    Sprite:setProperty(quyuText,'data',quyuData.value[index].regionid)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'quyuSelectNode'), 0)
+end
+--站点列表单击事件，跳转到站点详情
+function btnname_OnSelected(sprite)
+    local  index
+    local tabNode = Sprite:getParent(sprite)
+    index = tonumber(Sprite:getData(tabNode))
+
+    regHandle=Reg:create('jikejiake_data')
+    Reg:setString(regHandle, "stationname",data.value[index].stationname)
+    Reg:setString(regHandle, "station",data.value[index].station)
+    Reg:setString(regHandle, "lon",data.value[index].lon)
+    Reg:setString(regHandle, "lat",data.value[index].lat)
+    Reg:setString(regHandle, "khtype",data.value[index].khtype)
+    Reg:setString(regHandle, "jointype",data.value[index].jointype)
+    Reg:setString(regHandle, "address",data.value[index].address)
+
+    Scene:setReturn(Alias.m_jikejiake_search, Alias.m_jikejiake_detail)
+    Scene:go(Alias.m_jikejiake_detail)
+end
+
+function updownButton_OnClicked(sprite)
+    listNode = Sprite:findChild(rootSprite, 'listNode')
+    local circleNode=Sprite:findChild(rootSprite, 'circleNode')
+    local jiantou=Sprite:findChild(rootSprite, 'jiantou')
+    local updownbutton=Sprite:findChild(rootSprite, 'updownbutton')
+    local data =Sprite:getData(updownbutton)
+    local sampleList=Sprite:findChild(rootSprite, 'sampleList')
+    if data=='1' then
+    Sprite:setProperty(circleNode,'rect','0,-130.480,800')
+    Sprite:setProperty(listNode,'rect','0,0.480,645')
+    Sprite:setProperty(jiantou,'src','file://image/jiantou_down.png')
+    Sprite:setProperty(updownbutton,'data','2')
+    elseif data=='2' then
+    Sprite:setProperty(circleNode,'rect','0,70.480,800')
+    Sprite:setProperty(listNode,'rect','0,200.480,645')
+    Sprite:setProperty(jiantou,'src','file://image/jiantou_up.png')
+    Sprite:setProperty(updownbutton,'data','1')
+    --OnSearchButtonClicked1(sprite)
+    end
+end
+
+    ]]>
+</root>
