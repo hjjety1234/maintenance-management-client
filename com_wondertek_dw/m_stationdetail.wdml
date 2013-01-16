@@ -63,7 +63,7 @@
                 <button name="correctionBtn" rect="400,0,75,75" color="#ffffff"
                     extendstyle="1111" OnSelect="onCorrectionBtnClicked" font-size="24"
                     data="1">
-                    <image name="correctionBtn" rect="21,8,75,75"
+                    <image name="correctionBtnImg" rect="21,8,75,75"
                         src="file://image/ico_search_new.png" 
                         extendstyle="1111" />
                 </button>         
@@ -300,6 +300,8 @@ function onCorrectionBtnClicked(sprite)
     if data == '1' then -- 当前状态为详情状态
         _enableCorrection()
         Sprite:setProperty(sprite, "data", "2")
+        local correctionBtnImg = Sprite:findChild(sprite, "correctionBtnImg")
+        Sprite:setProperty(correctionBtnImg, "src", "file://image/ico_submit.png")
     elseif data == '2' then 
         _submitCorrection() -- 当前状态为纠错编辑
     else
@@ -433,6 +435,10 @@ function _disableCorrection(bChangeText)
     -- 进入详情模式
     local correctionBtn = Sprite:findChild(rootSprite, "correctionBtn")
     Sprite:setProperty(correctionBtn, "data", "1")
+    
+    -- 更改纠错图标
+    local correctionBtnImg = Sprite:findChild(rootSprite, "correctionBtnImg")
+    Sprite:setProperty(correctionBtnImg, "src", "file://image/ico_search_new.png")
 end
 
 ---------------------------------定位相关函数列表------------------------------
