@@ -74,8 +74,23 @@
             </node>
             <!-- 主页面内容：巡检项列表   -->
             <node name="mainNodeContent" rect="0,126,480,674" extendstyle="1111">
+
+                <!-- 提示页面1：如果该站点的经纬度信息不存在，需要进行经纬度上报 -->
+                <node name="tipNode1" rect="0,70,480,640" extendstyle="1111" 
+                    visible="false" enable="false">
+                    <image rect="0,0,480,230" border="false" src="file://image/report_loc.png"
+                       style="center" extendstyle="1111" />
+                    <button rect="125,250,230,50" color="#ffffff" extendstyle="1111" 
+                       OnSelect="reportCurrentLoc" font-size="24" data="01">
+                        <image rect="10,0,210,50" border="false" src="file://image/tip_btn.png"
+                            style="autosize" sudoku="15,15,15,15" extendstyle="1111" />
+                        <label rect="10,0,210,50" text="请上报当前位置" color="#5a5a5a"
+                            v-align="center" h-align="center" font-size="26" font-family="微软雅黑" 
+                            extendstyle="1111" />
+                    </button>
+                </node>
                 <listview name="mainListView" rect="0,10,480,660" col="1" limit="true"
-                    extendstyle="1111">
+                    visible="false" enable="false" extendstyle="1111">
                 </listview>
             </node>
             
@@ -272,6 +287,7 @@ require 'com_wondertek_dw.common.tempDataJZ'    -- 基站模板
 require 'com_wondertek_dw.common.tempDataTT'    -- 铁塔模板
 require 'com_wondertek_dw.common.tempDataZHFG'  -- 综合覆盖模板
 require 'framework.upload'
+require 'framework.map'
 local rootSprite
 local mainListView
 local curMainIndex = 0 --当前的主索引
@@ -297,6 +313,10 @@ local stationName
 local errorItemNode
 local errorDetailBtn
 local usercode
+
+local g_stationLon        -- 站点的经度
+local g_stationLat        -- 站点的纬度
+
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -309,40 +329,23 @@ function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         local regHandle = Reg:create('xunjianzhixiang')
 
-        planId=Reg:getString(regHandle, 'planId')
-        templateId=Reg:getString(regHandle, 'templateId')
-        stationId=Reg:getString(regHandle, 'stationId')
+        planId = Reg:getString(regHandle, 'planId')
+        templateId = Reg:getString(regHandle, 'templateId')
+        stationId = Reg:getString(regHandle, 'stationId')
         stationName=Reg:getString(regHandle, 'stationName')
+        g_stationLat = Reg:getString(regHandle, 'stationLat')
+        g_stationLon = Reg:getString(regHandle, 'stationLon')
         
         local titleNode =  Sprite:findChild(rootSprite, 'titleNode')
         Sprite:setProperty(titleNode, 'text', stationName)
-        
-        Log:write("templateId======================================"..templateId)
-        --最初的设计思想是根据模板ID，从服务器端下载巡检项目。功能没有实现。by zhouyuzy@ahmobile.com
-        if templateId~=nil and templateId=='000000000012' then
-            Log:write('this is jizhan xunjian')
-            jdtitleItems = jztitleItems
-            loadTempData()
-            ContractionSet()
-        elseif templateId~=nil and (templateId =='000000000149'  or templateId == '000000037136') then --铁塔模板
-            Log:write('this is tieta xunjian')
-            jdtitleItems = tttitleItems
-            --Log:write('the template is '..jdtitleItems)
-            loadTempData()
-            ContractionSet()
-        else
-            jdtitleItems = jztitleItems
-            loadTempData()
-            ContractionSet()
-            --Dialog:show('','暂无巡检项模版！请联系系统管理员！','ok','doBack')
-        end
-        
+
+        checkSiteLoc()
     elseif msg == MSG_DEACTIVATE then
     end
 end
 
 -- @brief 插件消息方法
-function bodyOnPluginEvent(msg)
+function bodyOnPluginEvent(msg, param)
     if msg == 103 then -- 阶段保存提交
         Loading:close()
         local data = Http:jsonDecode('Submitdata')
@@ -408,6 +411,37 @@ function bodyOnPluginEvent(msg)
             end
         else
             --Dialog:show(rootSprite, '未知错误！', 'ok')
+        end
+    elseif msg == 1000 then  -- 定位插件消息
+        local postDataString = Param:getString(param, 0)
+        local postData = Json:loadString2Table(postDataString)
+        Log:write('postData', postData)
+        -- 如果返回的GPS数据有效
+        if postData ~= nil and postData.longitude ~= nil and 
+            postData.longitude ~= '' and postData.latitude ~= nil and 
+            postData.latitude ~= '' then 
+            -- 上报当前的位置
+            local lon = tonumber(postData.longitude) / 1000000.0
+            local lat = tonumber(postData.latitude) / 1000000.0
+            local requestParam = string.format('cmd=wlbreportstationloc&usercode=%s&stationId=%s&lon=%s&lat=%s', 
+                           Config:get('username'), stationId, lon, lat)
+            local requestURL = getUrl()..'nbspweb/webservice/wplanpatrol!doWebservice.action?'..requestParam
+            Http:request('report_station', requestURL, 1001)
+        else
+            Loading:close()
+            Dialog:show(rootSprite, '上报位置失败，请重新上报！', 'ok')
+            return
+        end
+    elseif msg == 1001 then -- 位置上报响应处理
+        Loading:close()
+        local data = Http:jsonDecode('report_station')
+        if data.code == '0' then
+            Dialog:show(rootSprite, '上报位置成功！', 'ok')
+            -- 加载巡检项
+            loadListItem()
+        else
+            Dialog:show(rootSprite, '上报位置失败，请重新上报！', 'ok')
+            return 
         end
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Loading:close()
@@ -1105,6 +1139,55 @@ function ContextMenuListItemOnSelect(sprite)
     setAllShoworHide(FavListNodeSprite,0)
     Scene:setReturn(Alias.xunjianSubmit, Alias.xunjianupload)
     Scene:go(Alias.xunjianupload)
+end
+
+-- 检查站点的经纬度信息
+function checkSiteLoc()
+    if g_stationLon == '' or g_stationLat == '' then 
+        local tipNode1 = Sprite:findChild(rootSprite, 'tipNode1')
+        Sprite:setProperty(tipNode1, 'visible', 'true')
+        Sprite:setProperty(tipNode1, 'enable', 'true')
+    else
+        loadListItem()
+    end
+end
+
+-- 加载巡检模板
+function loadListItem()
+    local tipNode1 = Sprite:findChild(rootSprite, 'tipNode1')
+    Sprite:setProperty(tipNode1, 'visible', 'false')
+    Sprite:setProperty(tipNode1, 'enable', 'false')
+    local mainListView = Sprite:findChild(rootSprite, 'mainListView')
+    Sprite:setProperty(mainListView, 'visible', 'true')
+    Sprite:setProperty(mainListView, 'enable', 'true')
+    Log:write("templateId======================================"..templateId)
+
+    --最初的设计思想是根据模板ID，从服务器端下载巡检项目。功能没有实现。by zhouyuzy@ahmobile.com
+    if templateId ~= nil and templateId == '000000000012' then
+        Log:write('this is jizhan xunjian')
+        jdtitleItems = jztitleItems
+        loadTempData()
+        ContractionSet()
+    elseif templateId ~= nil and (templateId =='000000000149'  or templateId == '000000037136') then --铁塔模板
+        Log:write('this is tieta xunjian')
+        jdtitleItems = tttitleItems
+        --Log:write('the template is '..jdtitleItems)
+        loadTempData()
+        ContractionSet()
+    else
+        jdtitleItems = jztitleItems
+        loadTempData()
+        ContractionSet()
+        --Dialog:show('','暂无巡检项模版！请联系系统管理员！','ok','doBack')
+    end
+end
+
+-- 获取当前的经纬度，并上报
+function reportCurrentLoc(sprite)
+    Log:write('reportCurrentLoc()')
+    local observer = Plugin:getObserver()
+    Map:getCurPosition(observer, 1000)
+    Loading:show()
 end
 
     ]]>
