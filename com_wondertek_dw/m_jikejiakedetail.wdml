@@ -9,6 +9,7 @@
 == | Author: xxxx <xxxx@xxxx.com> ==
 ============================================================================
 == | Desc: 页面描述 ==
+== | 2013/01/17 增加纠错功能
 ============================================================================
 -->
 <root>
@@ -59,6 +60,14 @@
                     extendstyle="1111" font-family="微软雅黑" font-size="30" h-align="center" v-align="center"
                     color="#ffffff" scroll="true" step="2" />
                
+                <!-- 纠错和提交按钮  -->
+                <button name="correctionBtn" rect="400,0,75,75" color="#ffffff"
+                    extendstyle="1111" OnSelect="onCorrectionBtnClicked" font-size="24"
+                    data="1">
+                    <image name="correctionBtnImg" rect="21,8,75,75"
+                        src="file://image/ico_search_new.png" 
+                        extendstyle="1111" />
+                </button>         
             </node>
 
             <node rect="10,160,480,600" name="jikejakeNode" extendstyle="1111">
@@ -68,6 +77,9 @@
                         extendstyle="1111" />
                     <scrolltext name="lblcode" v-align="center" font-size="24" h-align="left"
                         rect="150,5,292,60" text="" color="#303030" extendstyle="1111" scroll="true" step="2"  />
+	                <edit name="lblcodeEdit" v-align="center" font-size="24" h-align="left" font-family="微软雅黑"
+	                    rect="150,10,292,50" text="" border="true" color="#303030" extendstyle="1111" scroll="true" step="2"  
+	                    visible="false" enable="false"/>
                 </node>
                 <node name="stationnode" rect="0,130,480,70" extendstyle="1111">
                     <image rect="30,20,420,38" src="file://image/ziyuan_bg.png" style="autosize" extendstyle="1111" />
@@ -94,6 +106,7 @@
                     <label name="lblcode" v-align="center" h-align="left"
                         font-size="24" rect="150,5,292,60" text="" color="#303030"
                         extendstyle="1111" />
+	               
                 </node>
                 <node name="lonnode" rect="0,310,480,70" extendstyle="1111">
                     <label name="label1" rect="0,5,150,60" border="false" text="经       度："
@@ -102,6 +115,13 @@
                     <label name="lblcode" v-align="center" h-align="left"
                         font-size="24" rect="150,5,292,60" text="" color="#303030"
                         extendstyle="1111" />
+					<!-- 重新定位按钮  -->
+	                <button name="doLocationBtn" rect="380,5,80,60" text="" color="#303030" 
+	                    h-align="center" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
+	                    extendstyle="0010" OnSelect="doLocation" enable="false" visible="false"> 
+	                    <image rect="0,5,80,60" src="file://image/ic_location.png"  style="autosize" 
+	                        extendstyle="1111" />           
+	                </button>
                 </node>
                 <node name="latnode" rect="0,370,480,70" extendstyle="1111">
                 <image rect="30,20,420,38" src="file://image/ziyuan_bg.png" style="autosize" extendstyle="1111" />
@@ -118,14 +138,27 @@
                         extendstyle="1111" />
                         <scrolltext name="lblcode" v-align="center" h-align="left"
                         font-size="24" rect="150,5,292,60" text="" color="#303030"
-                        extendstyle="1111" />
+	                        extendstyle="1111" />
+	                <edit name="lblcodeEdit" v-align="center" h-align="left" font-family="微软雅黑"
+	                    font-size="24" rect="150,20,292,40" text="" color="#303030" scroll="true" step="2"
+	                    extendstyle="1111" border="true" visible="false" enable="false"/>
                 </node>
-            </node>
+            <!-- 定位 -->    
+             <node name="locInfoNode" rect="25,570,400,25" visible="true" extendstyle="1111" > 
+               <image name="locInfoImg" rect="0,5,14,14" src="file://image/ico_loading.png"  style="sudoku-auto" 
+                    sudoku="15,15,15,15" visible="false" extendstyle="1111">                  
+               </image>
+               <label name="locInfo" rect="20,0,380,25" border="false" text="" visible="true"
+                    h-align="left" v-align="center" color="#303030" font-size="18"
+                    extendstyle="1111" />  
+            </node>  
+        </node>
         </node>
     </body>
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.map'
 local rootSprite
 regHandle=Reg:create('jikejiake_data')
 local stationname
@@ -138,6 +171,12 @@ local company
 local address
 local road
 local station
+local g_stationId = nil     -- 站点id
+local g_ischanged = false   -- 标记是否已经被纠错
+local g_retryCount = 20     -- gps重试次数
+local g_longitude = nil     -- 当前经度
+local g_latitude = nil      -- 当前纬度
+
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -156,6 +195,7 @@ function bodyOnSpriteEvent(msg, param)
         khtype= Reg:getString(regHandle,'khtype')
         jointype= Reg:getString(regHandle,'jointype')
         address= Reg:getString(regHandle,'address')
+        g_stationId = Reg:getString(regHandle,'stationid')
         Log:write('address is --------->'..address)
 
 
@@ -165,10 +205,41 @@ function bodyOnSpriteEvent(msg, param)
 end
 
 -- @brief 插件消息方法
-function bodyOnPluginEvent(msg)
+function bodyOnPluginEvent(msg, param)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then      
-
+    elseif msg == 1001 then 
+        Loading:close()
+		local resp = Http:jsonDecode('correction')
+		if resp ~= nil and resp.code == "0" then 
+	       Dialog:show(rootSprite, "纠错成功!", "ok")
+	       _disableCorrection(true) -- 写回修改的值
+		else
+		   Dialog:show(rootSprite, "纠错失败，"..getErrorCode(resp.code), "ok")
+           _disableCorrection(false) -- 不写回修改的值
+		end
+    elseif msg == 1002 then 
+        local postDataString = Param:getString(param, 0)
+        local postData = Json:loadString2Table(postDataString)
+        if postData.longitude ~= nil and postData.latitude ~= nil then
+            -- 定位成功
+            local locInfo = Sprite:findChild(rootSprite, 'locInfo')
+            local latitudeValue = tonumber(postData.latitude) / 10000000.0
+            local longitudeValue = tonumber(postData.longitude) / 10000000.0
+            if latitudeValue < 10 then 
+                latitudeValue = latitudeValue * 10 
+                longitudeValue = longitudeValue * 10
+            end
+            local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
+            Sprite:setProperty(locInfo, 'text', '网络定位成功，经纬度为:'.. posValue)
+            -- 显示到界面
+            local lonnode = Sprite:findChild(rootSprite, "lonnode")
+            local latnode = Sprite:findChild(rootSprite, "latnode")
+            Sprite:setProperty(Sprite:findChild(lonnode, "lblcode"), "text", tostring(longitudeValue))
+            Sprite:setProperty(Sprite:findChild(latnode, "lblcode"), "text", tostring(latitudeValue))
+            -- 标记已经被修改
+            g_ischanged = true
+        end
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -208,6 +279,244 @@ end
 function doBack()
     Scene:back()
 end
+
+---------------------------------纠错编辑函数列表------------------------------
+-- 纠错和纠错提交按钮消息处理函数
+function onCorrectionBtnClicked(sprite)
+    local data = Sprite:getData(sprite)
+    Log:write("onCorrectionBtnClicked: data="..data)
+    -- 状态1 - 详情状态, 状态2 - 纠错编辑
+    if data == '1' then -- 当前状态为详情状态
+        _enableCorrection()
+        Sprite:setProperty(sprite, "data", "2")
+        local correctionBtnImg = Sprite:findChild(sprite, "correctionBtnImg")
+        Sprite:setProperty(correctionBtnImg, "src", "file://image/ico_submit.png")
+    elseif data == '2' then 
+        _submitCorrection() -- 当前状态为纠错编辑
+    else
+        Log:write('警告: 未知状态,不做处理')
+        return 
+    end
+end
+
+-- 启用纠错
+function _enableCorrection()
+    g_ischanged = false
+    -- 站点名称可编辑
+    local  namenode = Sprite:findChild(rootSprite, "namenode")
+    local lblcode = Sprite:findChild(namenode, "lblcode")
+    local lblcodeEdit = Sprite:findChild(namenode, "lblcodeEdit")
+    _labelToEdit(lblcode, lblcodeEdit)
+    
+    -- 站点地址可编辑
+    local  addrnode = Sprite:findChild(rootSprite, "addressnode")
+    lblcode = Sprite:findChild(addrnode, "lblcode")
+    lblcodeEdit = Sprite:findChild(addrnode, "lblcodeEdit")
+    _labelToEdit(lblcode, lblcodeEdit)
+
+    -- 显示定位按钮
+    local doLocationBtn = Sprite:findChild(rootSprite, "doLocationBtn")
+    Sprite:setProperty(doLocationBtn, "visible", "true")
+    Sprite:setProperty(doLocationBtn, "enable", "true")
+end
+
+-- 隐藏label并将其显示为edit
+function _labelToEdit(labelSprite, editSprite)
+    local labelText = Sprite:getText(labelSprite)
+    Sprite:setProperty(labelSprite, "enable", "false")
+    Sprite:setProperty(labelSprite, "visible", "false")
+    Sprite:setProperty(editSprite, "enable", "true")
+    Sprite:setProperty(editSprite, "visible", "true")
+    Sprite:setProperty(editSprite, "text", labelText)
+end
+
+-- 隐藏edit并将其显示为label
+function _editToLabel(editSprite, labelSprite)
+    local editText = Sprite:getText(editSprite)
+    Sprite:setProperty(labelSprite, "enable", "true")
+    Sprite:setProperty(labelSprite, "visible", "true")
+    Sprite:setProperty(editSprite, "enable", "false")
+    Sprite:setProperty(editSprite, "visible", "false")
+    Sprite:setProperty(labelSprite, "text", editText)
+end
+
+---------------------------------纠错提交函数列表------------------------------
+-- 纠错提交
+function _submitCorrection()
+    -- 检查用户输入，如果有改动，则提交
+    -- 检查站点名称
+    local namenode = Sprite:findChild(rootSprite, "namenode")
+    local lblcode = Sprite:findChild(namenode, "lblcode")
+    local lblcodeEdit = Sprite:findChild(namenode, "lblcodeEdit")
+    if Sprite:getText(lblcodeEdit) == "" then
+        Dialog:show(rootSprite, "站点名称不能为空!", "ok") 
+        return
+    end
+    if isTextChanged(lblcode, lblcodeEdit) == true then
+        g_ischanged =  true
+    end
+    -- 检查站点地址
+    local addrnode = Sprite:findChild(rootSprite, "addressnode")
+    lblcode = Sprite:findChild(addrnode, "lblcode")
+    lblcodeEdit = Sprite:findChild(addrnode, "lblcodeEdit")
+    if Sprite:getText(lblcodeEdit) == "" then
+        Dialog:show(rootSprite, "站点地址不能为空!", "ok") 
+    end
+    if isTextChanged(lblcode, lblcodeEdit) == true then
+        g_ischanged =  true
+    end
+    -- 提交纠错结果
+    if g_ischanged == true then
+        local namenode = Sprite:findChild(rootSprite, 'namenode')
+	    local lonnode = Sprite:findChild(rootSprite, 'lonnode')
+	    local latnode = Sprite:findChild(rootSprite, 'latnode')
+	    local addrnode = Sprite:findChild(rootSprite, 'addressnode')
+	    
+        local lat = Sprite:getText(Sprite:findChild(latnode, "lblcode"))
+        local lon = Sprite:getText(Sprite:findChild(lonnode, "lblcode"))
+        local stationName = Sprite:getText(Sprite:findChild(namenode, "lblcodeEdit"))
+        local address = Sprite:getText(Sprite:findChild(addrnode, "lblcodeEdit"))
+        local param = string.format("nbspweb/webservice/resource!doWebservice.action?cmd=wlbfixerror&usercode=%s&stationid=%s&lon=%s&lat=%s&stationname=%s&address=%s",
+            Config:get("username"), g_stationId, lon, lat, stationName, address)
+        local requestUrl = getUrl()..param
+        Log:write("_submitCorrection: requestUrl="..requestUrl)
+        Http:request('correction', requestUrl, 1001, {useCache = false})
+        Loading:show()
+    else
+        Dialog:show(rootSprite, "您未修改任何内容!", "ok")
+        _disableCorrection(true)
+    end
+end
+
+-- sprite的text属性比较
+function isTextChanged(sprite1, sprite2)
+    if Sprite:getText(sprite1) ~=  Sprite:getText(sprite2) then 
+        return true
+    else
+        return false
+    end
+end
+
+
+-- 禁用纠错
+function _disableCorrection(bChangeText)
+    -- 站点名称不可编辑
+    local  namenode = Sprite:findChild(rootSprite, "namenode")
+    local lblcode = Sprite:findChild(namenode, "lblcode")
+    local lblcodeEdit = Sprite:findChild(namenode, "lblcodeEdit")
+    if bChangeText ==  true then 
+        _editToLabel(lblcodeEdit, lblcode)
+    end
+    
+    -- 站点地址不可编辑
+    local  addrnode = Sprite:findChild(rootSprite, "addressnode")
+    lblcode = Sprite:findChild(addrnode, "lblcode")
+    lblcodeEdit = Sprite:findChild(addrnode, "lblcodeEdit")
+    if bChangeText ==  true then 
+        _editToLabel(lblcodeEdit, lblcode)
+    end
+
+    -- 禁用定位按钮
+    local doLocationBtn = Sprite:findChild(rootSprite, "doLocationBtn")
+    Sprite:setProperty(doLocationBtn, "visible", "false")
+    Sprite:setProperty(doLocationBtn, "enable", "false")
+    
+    -- 进入详情模式
+    local correctionBtn = Sprite:findChild(rootSprite, "correctionBtn")
+    Sprite:setProperty(correctionBtn, "data", "1")
+    
+    -- 更改纠错图标
+    local correctionBtnImg = Sprite:findChild(rootSprite, "correctionBtnImg")
+    Sprite:setProperty(correctionBtnImg, "src", "file://image/ico_search_new.png")
+end
+
+---------------------------------定位相关函数列表------------------------------
+-- 综合定位方式，优先使用gps，在gps定位失败时采用网络定位
+function doLocation()
+    Sprite:setProperty(Sprite:findChild(rootSprite,'locInfoImg'),'visible','true')
+    local locInfo = Sprite:findChild(rootSprite, 'locInfo')
+    Sprite:setProperty(locInfo, 'text', '正在定位中......')
+    -- 当前无经纬度信息，检查当前gps状态
+    local result = System:getGPSStatus()
+    if result == -1 then
+        Sprite:setProperty(locInfo, 'text', '当前GPS不可用, 尝试使用网络定位...')
+        getGPSDataByMap()
+    elseif result == 0 then
+        local gpsStatus = System:setGPSStatus(1)
+        if gpsStatus then
+            Sprite:setProperty(locInfo, 'text', 'GPS开启成功，正在定位...')
+            Timer:set(222, 1000, 'getLoctude')
+        else
+            Sprite:setProperty(locInfo, 'text', 'GPS开启失败, 尝试使用网络定位...')
+            getGPSDataByMap()
+        end
+    elseif result == 1 then
+        Sprite:setProperty(locInfo, 'text', 'GPS已经开启，正在定位...')
+        Timer:set(222, 1000, 'getLoctude')
+    end
+end
+
+-- 传统方式获取经纬度
+function getGPSDataByMap()
+    local observer = Plugin:getObserver()
+    Map:getCurPosition(observer, 1002)
+end
+
+function getLoctude()
+    -- 需要对gps的数据请求多次
+    local locInfo = Sprite:findChild(rootSprite, 'locInfo')
+    Sprite:setProperty(locInfo, "text", "GPS正在定位中，剩余"..g_retryCount.."秒")
+    longitude,latitude = System:getGPSData()
+    if longitude ~= nil and longitude ~= 0 and latitude ~= nil and latitude ~= 0 
+        and g_retryCount > 0 then
+		Log:write(string.format("getLoctude: latitude=%s, lonitude=%s", latitude, longitude))
+        -- 首次获得gps数据，作为判断是否有效的基准
+        if g_latitude == nil and g_longitude == nil then 
+            g_latitude = latitude
+            g_longitude = longitude
+            g_retryCount = g_retryCount - 1
+            Timer:set(222, 1000, 'getLoctude')
+            return
+        end
+        -- 有效的gps数据，与上次的定位结果不同
+        if g_latitude ~= latitude and g_longitude ~= longitude then 
+            g_retryCount = 20
+            Timer:cancel(222)
+            System:setGPSStatus(0)
+            -- 定位成功
+            local latitudeValue = tonumber(latitude) / 10000000.0
+            local longitudeValue = tonumber(longitude) / 10000000.0
+            if latitudeValue < 10 then 
+                latitudeValue = latitudeValue * 10
+                longitudeValue = longitudeValue * 10
+            end
+            local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
+            Sprite:setProperty(locInfo, 'text', 'GPS定位成功，经纬度为:'.. posValue)
+            -- 显示到界面
+            local lonnode = Sprite:findChild(rootSprite, "lonnode")
+            local latnode = Sprite:findChild(rootSprite, "latnode")
+            Sprite:setProperty(Sprite:findChild(lonnode, "lblcode"), "text", tostring(longitudeValue))
+            Sprite:setProperty(Sprite:findChild(latnode, "lblcode"), "text", tostring(latitudeValue))
+            -- 标记已经被修改
+            g_ischanged = true
+        else -- 无效的gps数据， 与上次的定位结果不同
+            g_retryCount = g_retryCount - 1
+            Timer:set(222, 1000, 'getLoctude')
+        end
+    elseif g_retryCount > 0 then
+        g_retryCount = g_retryCount - 1
+        Timer:set(222, 1000, 'getLoctude')
+    else
+        Timer:cancel(222)
+        System:setGPSStatus(0)
+        System:setGPSStatus(0)
+        System:setGPSStatus(0)
+        g_retryCount = 20
+        Sprite:setProperty(locInfo, 'text', 'GPS定位失败，采用网络定位...')
+        getGPSDataByMap()
+    end
+end
+
 
     ]]>
 </root>
