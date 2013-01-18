@@ -75,7 +75,9 @@
 	                    font-family="微软雅黑" extendstyle="1111" />
 	                <scrolltext name="stationValue" v-align="center" font-size="24" h-align="left" font-family="微软雅黑"
 	                    rect="142,5,252,60" text="" color="#303030" extendstyle="1111" scroll="true" step="2"  />
-                
+                    <edit name="lblcodeEdit" v-align="center" font-size="24" h-align="left" font-family="微软雅黑"
+                        rect="150,10,292,50" text="" border="true" color="#303030" extendstyle="1111" scroll="true" step="2"  
+                        visible="false" enable="false"/>
 	            </node>
 	
 	            <node name="wlancoverNode" rect="0,130,480,65" extendstyle="1111">
@@ -85,9 +87,7 @@
 	                    extendstyle="1111" />
 	                <scrolltext name="wlancoverValue" v-align="center" font-size="24" h-align="left" font-family="微软雅黑"
 	                    rect="142,5,252,60" text="" color="#303030" extendstyle="1111" scroll="true" step="2"  />
-                    <edit name="lblcodeEdit" v-align="center" font-size="24" h-align="left" font-family="微软雅黑"
-                        rect="150,10,292,50" text="" border="true" color="#303030" extendstyle="1111" scroll="true" step="2"  
-                        visible="false" enable="false"/>
+                  
 	            </node>
 	
 	            <node name="stationnameNode" rect="0,195,480,65" extendstyle="1111">
@@ -118,8 +118,8 @@
 	                <button name="doLocationBtn" rect="380,5,80,60" text="" color="#303030" 
 	                    h-align="center" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
 	                    extendstyle="0010" OnSelect="doLocation" enable="false" visible="false"> 
-	                    <image rect="0,5,80,60" src="file://image/ic_location.png"  style="autosize" 
-	                        extendstyle="1111" />           
+                    	<image rect="20,15,26,35" src="file://image/ico_locate.png"  style="autosize" 
+                       	 	extendstyle="1111" />           
 	                </button>
 	            </node>
 	            <node name="latNode" rect="0,390,480,65" extendstyle="1111">
@@ -315,8 +315,8 @@ end
 function _enableCorrection()
     g_ischanged = false
     -- 站点名称可编辑
-    local  namenode = Sprite:findChild(rootSprite, "stationnameNode")
-    local lblcode = Sprite:findChild(namenode, "stationnameValue")
+    local  namenode = Sprite:findChild(rootSprite, "stationNode")
+    local lblcode = Sprite:findChild(namenode, "stationValue")
     local lblcodeEdit = Sprite:findChild(namenode, "lblcodeEdit")
     _labelToEdit(lblcode, lblcodeEdit)
     
@@ -357,8 +357,8 @@ end
 function _submitCorrection()
     -- 检查用户输入，如果有改动，则提交
     -- 检查站点名称
-    local namenode = Sprite:findChild(rootSprite, "stationnameNode")
-    local lblcode = Sprite:findChild(namenode, "stationnameValue")
+    local namenode = Sprite:findChild(rootSprite, "stationNode")
+    local lblcode = Sprite:findChild(namenode, "stationValue")
     local lblcodeEdit = Sprite:findChild(namenode, "lblcodeEdit")
     if Sprite:getText(lblcodeEdit) == "" then
         Dialog:show(rootSprite, "站点名称不能为空!", "ok") 
@@ -379,7 +379,7 @@ function _submitCorrection()
     end
     -- 提交纠错结果
     if g_ischanged == true then
-        local namenode = Sprite:findChild(rootSprite, 'stationnameNode')
+        local namenode = Sprite:findChild(rootSprite, 'stationNode')
 	    local lonnode = Sprite:findChild(rootSprite, 'lonNode')
 	    local latnode = Sprite:findChild(rootSprite, 'latNode')
 	    local addrnode = Sprite:findChild(rootSprite, 'addressNode')
@@ -413,8 +413,8 @@ end
 -- 禁用纠错
 function _disableCorrection(bChangeText)
     -- 站点名称不可编辑
-    local  namenode = Sprite:findChild(rootSprite, "stationnameNode")
-    local lblcode = Sprite:findChild(namenode, "stationnameValue")
+    local  namenode = Sprite:findChild(rootSprite, "stationNode")
+    local lblcode = Sprite:findChild(namenode, "stationValue")
     local lblcodeEdit = Sprite:findChild(namenode, "lblcodeEdit")
     if bChangeText ==  true then 
         _editToLabel(lblcodeEdit, lblcode)
