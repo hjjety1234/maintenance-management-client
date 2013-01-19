@@ -138,17 +138,13 @@
     ---------------------------------------回调函数列表--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
-        rootSprite = sprite
-        
-        --从服务器端获取数据
-        Log:write('start to get data')
-        getCountDataFromUrl()
-        
+        rootSprite = sprite        
     end
     --从服务器端获取数据，并转换成需要的格式
     function getCountDataFromUrl()
         --http://211.138.191.85/nbspweb/webservice/count!doWebservice.action?usercode=tangjizhi&year=2012-11&cmd=wlbbasestation
-        local param = 'cmd=wlbbasestation&year=2012-11'
+        local monthSelected =  Sprite:getText(Sprite:findChild(rootSprite, 'monthNode'))
+        local param = 'cmd=wlbbasestation&year='..monthSelected
         local requestURL = getWholeUrl('nbspweb/webservice/count!doWebservice.action', param)
         Log:write('the request url is ',requestURL)
         Http:request('count_detail', requestURL, 101, {useCache = false})
@@ -166,7 +162,7 @@
             if year ~= nil and year ~= '' and month ~= nil and month ~= '' then
                 Sprite:setProperty(monthNode, 'text', year..'-'..month)
             end
-			--refresh()
+			getCountDataFromUrl()
         elseif msg == MSG_DEACTIVATE then
             UmsAgent:OnDeactivate()
         end
@@ -215,9 +211,7 @@
             Loading:close()
             --refreshHighChartsByServer()
             Log:write('start to show Charts')
-            showWebView(0, 160, 480, 740)
-            showHighCharts(title, citys, 
-            cityValues, seriesType, showType)
+            refreshHighChartsByServer()
         elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
         elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
         elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -240,21 +234,7 @@
         Scene:back()
     end
     ---------------------------------------消息处理函数---------------------------
-    -- 显示详情，跳转到下一个页面
-    function showAssesDetail()
-        closeWebView()
 
-        local monthNode = Sprite:findChild(rootSprite, 'monthNode')
-        local month = Sprite:getText(monthNode)
-
-        local regHandle = Reg:create(Alias.m_kaohetongji)
-        Reg:clear(regHandle)
-        Reg:setString(regHandle, 'month', month)
-
-        Scene:setReturn(Alias.m_kaohetongji, Alias.m_kaohebaobiao)
-        Scene:go(Alias.m_kaohebaobiao)
-    end
-    
     -- 显示月份选择对话框
     function selectMonth(sprite)
         closeWebView()
@@ -262,11 +242,11 @@
         local monthNode = Sprite:findChild(rootSprite, 'monthNode')
         local month = Sprite:getText(monthNode)
 
-        local regHandle = Reg:create(Alias.m_kaohetongji)
+        local regHandle = Reg:create(Alias.m_xiaoqucount)
         Reg:clear(regHandle)
         Reg:setString(regHandle, 'month', month)
         
-        Scene:setReturn(Alias.m_kaohetongji, Alias.monthDialog)
+        Scene:setReturn(Alias.m_xiaoqucount, Alias.monthDialog)
         Scene:go(Alias.monthDialog)
     end
     
@@ -315,10 +295,11 @@
             g_data[len].values, g_data[len].seriesType, g_data[len].showType)
 		return
     end
-
+--showHighCharts(title, citys,cityValues, seriesType, showType)
     function refreshHighChartsByServer()
         if(viewData~=nil and viewData~='') then
             Log:write('the data length is ',viewData.title)
+            showWebView(0, 120, 480, 640)
             showHighCharts(viewData.title, viewData.labels, 
             viewData.values, viewData.seriesType, viewData.showType)
         end
