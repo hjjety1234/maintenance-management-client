@@ -598,6 +598,8 @@ function bodyOnPluginEvent(msg, param)
         local code = Param:getString(param, 1)  -- 解码后的文本
         local isFound = false
         local found = nil
+        Log:write('the code is ',code)
+        Log:write('the g_ewms is ',g_ewms)
         for i=1, #g_ewms do 
             if g_ewms[i].ewm == code then 
                 isFound =  true
@@ -883,8 +885,10 @@ end
 
 -- 请求待扫描的二维码资源
 function requestBarcodeResource()
-	local param = 'cmd=wlbxunjianEwm&code='..g_resultId..'&resourceId='..g_stationId..'&page='..g_page
-    local requestURL = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', param)
+    local usercode = Config:get('username')
+	local param = 'usercode='..usercode..'&pagesize=100&cmd=wlbxunjianEwm&code='..g_resultId..'&resourceId='..g_stationId..'&page='..g_page
+    local requestURL = getUrl()..'nbspweb/webservice/wplanpatrol!doWebservice.action?'..param
+    Log:write('the request url is '..requestURL)
     Http:request('ewm_code', requestURL, 107, {useCache = false})
     Loading:show()
 end
