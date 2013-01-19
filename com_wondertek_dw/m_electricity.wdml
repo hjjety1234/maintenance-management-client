@@ -56,12 +56,12 @@
                                     font-family="微软雅黑" font-size="22" color="#0"  style="autosize" extendstyle="1111"/>
                     </button>
             </node>
+            <!--列表区域-->
             <node name="listNode" rect="0,56,480,734" extendstyle="1111">
-               <!--列表区域-->
                 <listview name="sampleList" rect="0,90,480,645" extendstyle="1111" limit='false'/>
             </node>
             <!-- 列表加载项 -->
-            <node name="listitem" rect="0,0,368,72" visible="false" enable="false" active="false">  
+            <node name="listitem" rect="0,0,368,72" visible="false" enable="false" active="true">  
                     <image name='bulb' rect="260,40,18,28" border="false" src="" 
                              style="autosize" extendstyle="1111"/>                 
                     <label name="area" rect="60,20,202,61" border="false" color="#515151" style="autosize"
@@ -70,6 +70,7 @@
                      text="地区" h-align="left" v-align="center" font-family="微软雅黑" font-size="22"/>  
                     <shadow rect="12,70,441,2" color='d4d4d4'  style="autosize" extendstyle="1111" />
             </node>
+
             <!-- 区域下拉框值 -->
             <node name="filterAreaNode" rect="0,0,480,800" visible="false" enable="true">
                 <button name="bthide" rect="0,0,480,800" border="false" text=""
@@ -101,6 +102,7 @@
                  </node>
                  <image rect="66,354,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
             </node> 
+
 
         </node>
     </body>
@@ -184,22 +186,27 @@ function loadList(count)
         ListView:adjust(list)
 end
 function loadListItem(list, item, index)
-    Log:write('loadListItem') 
-    Log:write('data.value.value[index]',data.value.value[index])
     Sprite:setRect(item, 0, 0, 468, 35)
     Sprite:setProperty(item, 'extendstyle', '1111')
+    Log:write('111111') 
     local area = Sprite:findChild(item, 'area')
+    Log:write('222222')
     local score = Sprite:findChild(item, 'score')
+    Log:write('333333')
     local bulb = Sprite:findChild(item, 'bulb')
     Sprite:setProperty(area,'text',data.value.value[index].city)
+    Log:write('444444')
     Sprite:setProperty(score,'text',data.value.value[index].electricity)
+    Log:write('555555')
     if tonumber(data.value.value[index].electricity) > 97 then 
         Sprite:setProperty(bulb,'src','file://image/base_bulb.png')
+        Log:write('666666')
     end 
 
     if tonumber(data.value.value[index].electricity) < 80 then 
         Sprite:setProperty(bulb,'src','file://image/base_bulb_1.png')
-    end 
+        Log:write('777777')
+    end
 
 end
 
@@ -220,7 +227,7 @@ function areaSampleOnSelect(sprite)
             elseif xdData == '03' then
             Sprite:setProperty(areaText, 'text', '11月')
             year ='2012-11'
-        end
+            end
         setAllShoworHide(Sprite:findChild(rootSprite, 'filterAreaNode'), 0)
         local username = Config:get('username') 
         local param ='nbspweb/webservice/count!doWebservice.action?usercode='..username..'&year='..year..'&cmd=wlbbasestation'
