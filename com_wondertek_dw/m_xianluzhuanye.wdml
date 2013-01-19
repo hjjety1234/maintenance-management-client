@@ -24,7 +24,7 @@
             <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
 				 <image name="title" rect="0,0,480,66" border="false" src="file://image/title_bg_new.png" 
 				    style="autosize" extendstyle="1111">
-					 <label rect="0,0,480,66" text="基站专业" color="#ffffff" v-align="center"  
+					 <label rect="0,0,480,66" text="线路专业" color="#ffffff" v-align="center"  
 					   h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />
 				 </image>
 				 <!-- 返回按钮  -->
@@ -47,8 +47,6 @@
             <node rect="0,66,480,52" extendstyle="1111" visible="true" enable="true">
                 <image name="search_bg_new" rect="0,0,480,52" src="file://image/search_bg_new.png"
                     style="autosize" extendstyle="1111" />
-                <label name="charttitle" rect="10,5,260,40" text="" color="#ffffff" v-align="center"  
-                       h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
                 <!-- 选择月份 -->
 				<button name="selectMonthBtn" rect="290,5,170,40" OnSelect="selectMonth"
 					color="#0" font-size="20" border="false" extendstyle="1111"
@@ -62,18 +60,25 @@
             <!-- 地市和代维公司两个维度进行选择   -->
             <node name="tabNode" rect="0,120,480,40" extendstyle="1111" 
                 visible="true" enable="true" data="01">
-                <button name="btnTab1" rect="0,0,240,50" text="" color="#ffffff"
+                <button name="btnTab1" rect="0,0,190,50" text="" color="#ffffff"
                     extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
-                    <image name="tabBg" rect="140,5,100,30" border="false" src="file://image/tab.png"
+                    <image name="tabBg" rect="90,5,100,30" border="false" src="file://image/tab.png"
                         style="autosize" extendstyle="1111" />
-                    <label rect="140,5,100,30" text="发电及时率" color="#ffffff" v-align="center"
+                    <label rect="90,5,100,30" text="障碍数" color="#ffffff" v-align="center"
                         h-align="center" font-size="18" font-family="黑体" extendstyle="1111" />
                 </button>
-                <button name="btnTab2" rect="241,0,240,40" text="" color="#ffffff"
+                <button name="btnTab2" rect="191,0,100,50" text="" color="#ffffff"
                     extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
                     <image name="tabBg" rect="0,5,100,30" border="false" src="file://image/tab.png"
                         style="autosize" extendstyle="1111" />
-                    <label rect="0,5,100,30" text="小区完好率" color="#ffffff" v-align="center"
+                    <label rect="0,5,100,30" text="处理及时率" color="#ffffff" v-align="center"
+                        h-align="center" font-size="18" font-family="黑体" extendstyle="1111" />
+                </button>
+                <button name="btnTab3" rect="292,0,190,50" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="03">
+                    <image name="tabBg" rect="0,5,100,30" border="false" src="file://image/tab.png"
+                        style="autosize" extendstyle="1111" />
+                    <label rect="0,5,100,30" text="障碍时长" color="#ffffff" v-align="center"
                         h-align="center" font-size="18" font-family="黑体" extendstyle="1111" />
                 </button>
             </node>
@@ -88,6 +93,7 @@
     
     local g_x1, g_y1, g_w1, g_h1
     local g_x2, g_y2, g_w2, g_h2
+    local g_x3, g_y3, g_w3, g_h3
 
     local g_data = {
         {
@@ -179,6 +185,11 @@
         local btnTab2 = Sprite:findChild(rootSprite, 'btnTab2')
         tabBg = Sprite:findChild(btnTab2, 'tabBg')
         g_x2, g_y2, g_w2, g_h2 = Sprite:getRect(tabBg)
+
+        -- 获取tab3的大小
+        local btnTab3 = Sprite:findChild(rootSprite, 'btnTab3')
+        tabBg = Sprite:findChild(btnTab3, 'tabBg')
+        g_x3, g_y3, g_w3, g_h3 = Sprite:getRect(tabBg)
     end
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
@@ -262,18 +273,41 @@
         -- 标记当前被选中的标签页，去标记原来的标签页
         local btnTab1 = Sprite:findChild(rootSprite, 'btnTab1')
         local btnTab2 = Sprite:findChild(rootSprite, 'btnTab2')
+        local btnTab3 = Sprite:findChild(rootSprite, 'btnTab3')
         if dataInfo == '01' then
             Sprite:setProperty(Sprite:findChild(btnTab1, 'tabBg'), 'src', 'file://image/tab_on.png')
             Sprite:setProperty(Sprite:findChild(btnTab2, 'tabBg'), 'src', 'file://image/tab.png')
+            Sprite:setProperty(Sprite:findChild(btnTab3, 'tabBg'), 'src', 'file://image/tab.png')
             Sprite:setRect(Sprite:findChild(btnTab1, 'tabBg'), g_x1, g_y1, g_w1, g_h1 + 6)
             Sprite:setRect(Sprite:findChild(btnTab2, 'tabBg'), g_x2, g_y2, g_w2, g_h2)
-        else
+            Sprite:setRect(Sprite:findChild(btnTab3, 'tabBg'), g_x3, g_y3, g_w3, g_h3)
+            hinderNum()
+        elseif dataInfo == '02' then
             Sprite:setProperty(Sprite:findChild(btnTab1, 'tabBg'), 'src', 'file://image/tab.png')
             Sprite:setProperty(Sprite:findChild(btnTab2, 'tabBg'), 'src', 'file://image/tab_on.png')
+            Sprite:setProperty(Sprite:findChild(btnTab3, 'tabBg'), 'src', 'file://image/tab.png')
             Sprite:setRect(Sprite:findChild(btnTab1, 'tabBg'), g_x1, g_y1, g_w1, g_h1)
             Sprite:setRect(Sprite:findChild(btnTab2, 'tabBg'), g_x2, g_y2, g_w2, g_h2  + 6)
+            Sprite:setRect(Sprite:findChild(btnTab3, 'tabBg'), g_x3, g_y3, g_w3, g_h3)
+        else
+            Sprite:setProperty(Sprite:findChild(btnTab1, 'tabBg'), 'src', 'file://image/tab.png')
+            Sprite:setProperty(Sprite:findChild(btnTab2, 'tabBg'), 'src', 'file://image/tab.png')
+            Sprite:setProperty(Sprite:findChild(btnTab3, 'tabBg'), 'src', 'file://image/tab_on.png')
+            Sprite:setRect(Sprite:findChild(btnTab1, 'tabBg'), g_x1, g_y1, g_w1, g_h1)
+            Sprite:setRect(Sprite:findChild(btnTab2, 'tabBg'), g_x2, g_y2, g_w2, g_h2)
+            Sprite:setRect(Sprite:findChild(btnTab3, 'tabBg'), g_x3, g_y3, g_w3, g_h3 + 6)
         end
         refresh()
+    end
+
+    function hinderNum()
+        local stringUrl = "{\"chart\": {\"caption\": \"各地市代维单位统计\",\"showlabels\": \"1\",\"showvalues\": \"1\",\"decimals\": \"0\",\"numberprefix\": \"\",\"yaxisminvalue\": \"0\",\"yaxismaxvalue\": \"20\"},\"categories\": [{\"category\": [{\"label\": \"淮北\"},{\"label\": \"黄山\"},{\"label\": \"六安\"},{\"label\": \"蚌埠\"},{\"label\": \"阜阳\"},{\"label\": \"马鞍山\"},{\"label\": \"池州\"},{\"label\": \"亳州\"},{\"label\": \"滁州\"},{\"label\": \"合肥\"},{\"label\": \"芜湖\"},{\"label\": \"淮南\"},{\"label\": \"安庆\"},{\"label\": \"铜陵\"},{\"label\": \"宿州\"},{\"label\": \"宣城\"},{\"label\": \"合肥区域汇聚环以上\"},{\"label\": \"宁汉干线\"}]}],\"dataset\": [{\"seriesname\": \"代维单位个数\",\"color\": \"8BBA00\",\"showvalues\": \"0\",\"data\": [{\"value\": \"5\"},{\"value\": \"4\"},{\"value\": \"10\"},{\"value\": \"6\"},{\"value\": \"5\"},{\"value\": \"3\"},{\"value\": \"6\"},{\"value\": \"8\"},{\"value\": \"4\"},{\"value\": \"14\"},{\"value\": \"8\"},{\"value\": \"6\"},{\"value\": \"14\"},{\"value\": \"5\"},{\"value\": \"4\"},{\"value\": \"4\"},{\"value\": \"2\"},{\"value\": \"3\"}]}]}"
+
+        local webcloud = Config:get('webcloud')
+        local requestUrl = string.format('http://%s/webcloud/client/chart/chart_show.action?'..
+                'dataUrl=%s&swf=MSBar3D.swf&renderer=javascript&dataFormat=jsonurl',webcloud,stringUrl)
+
+        Log:write('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$',requestUrl)
     end
 
     -- 刷新整个页面
@@ -322,15 +356,8 @@
             if tabNodeData == g_data[i].region and 
                 month == g_data[i].month then
                 showWebView(0, 160, 480, 640)
-                --showHighCharts(g_data[i].title, g_data[i].labels, 
-                    --g_data[i].values, g_data[i].seriesType, g_data[i].showType)
-                Sprite:setProperty(Sprite:findChild(rootSprite,'charttitle'),'text',g_data[i].title)
-                
-                local webcloud = Config:get('webcloud')
-                local requestUrl = string.format('http://%s/webcloud/client/chart/chart_show.action?'..
-                        '&type=single&labels=%s&values=%s&swf=Bar2D.swf&renderer=flash', webcloud,g_data[i].labels,g_data[i].values)
-                Log:write('showHighCharts: requestUrl', requestUrl)
-                WebBrowser:openUrl(requestUrl)
+                showHighCharts(g_data[i].title, g_data[i].labels, 
+                    g_data[i].values, g_data[i].seriesType, g_data[i].showType)
 				return
             end
         end
