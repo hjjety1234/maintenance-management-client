@@ -28,6 +28,7 @@ Alias = {
     home_xianlu = 'MODULE:\\com_wondertek_dw\\home_xianlu.wdml',--巡检员首页
     home_jzgly = 'MODULE:\\com_wondertek_dw\\home_jzgly.wdml', --基站管理员首页
     home_xlgly = 'MODULE:\\com_wondertek_dw\\home_xlgly.wdml', --线路管理员首页
+    home_jkgly = 'MODULE:\\com_wondertek_dw\\home_jkgly.wdml', --集客管理员首页
     
     ------------------------------Metro Style ------------------------------------------
     imageDetail = 'MODULE:\\com_wondertek_dw\\imageDetail.wdml', -- 图片详情
