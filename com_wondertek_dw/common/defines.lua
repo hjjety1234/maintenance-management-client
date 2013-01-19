@@ -98,6 +98,9 @@ Alias = {
     m_jizhanzhuanye='MODULE:\\com_wondertek_dw\\m_jizhanzhuanye.wdml',
 
     m_xiaoqucount = 'MODULE:\\com_wondertek_dw\\m_xiaoqucount.wdml',  --小区完好率统计
+    m_electricity = 'MODULE:\\com_wondertek_dw\\m_electricity.wdml',  --小区完好率统计
+
+
     
 }
 
