@@ -47,6 +47,40 @@
 			<label name="noticeLbl" rect="0,525,480,30" font-size="20" 
 			    text="" v-align="center" h-align="center" color="#ffffff" 
 			    extendstyle="1111" />
+
+            <!-- 升级框  -->
+            <node name="upgradeNode" rect="0,0,480,800"  visible="false" enable="false" style='autosize'>
+                <shadow rect="0,0,480,800" color="#F8F8FF" alpha="125"/>
+                <image rect="66,215,368,68" src="file://image/top.png"  style="autosize" extendstyle="0010" >
+                    <label rect="20,20,240,68" border="false" color="#FFFFFF" style="autosize"
+                    text="版本更新内容(V3.0.2)" h-align="center" v-align="top" font-family="微软雅黑" font-size="24"/>
+                </image>
+                <image rect="66,264,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" >
+                    <label rect="15,10,368,30" border="false" color="#000000" style="autosize"
+                    text="1、带语音的图片功能开发" h-align="left" v-align="center" font-family="微软雅黑" font-size="24"/>
+                    <label rect="15,45,368,30" border="false" color="#000000" style="autosize"
+                    text="2、隐患上报功能细化" h-align="left" v-align="center" font-family="微软雅黑" font-size="24"/>
+                </image>
+                --升级
+                <button  rect="126,434,94,38" border="false" enable='true'
+                 extendstyle="1111" OnSelect="downloadPackage" style='autosize' >
+                    <image rect="10,1,94,38" src="file://image/btn_yes.png" style="autosize" 
+                        extendstyle="1111">
+                        <label rect="25,5,100,30" border="false" color="#FFFFFF" style="autosize"
+                        text="升级" h-align="left" v-align="top" font-family="微软雅黑" font-size="24"/>
+                    </image> 
+                </button>
+                --不升级
+                <button  rect="266,434,94,38" border="false"  enable='true'
+                extendstyle="1111" OnSelect="goLogin" style='autosize'>
+                    <image rect="10,1,94,38" src="file://image/btn_no.png" style="autosize" 
+                        extendstyle="1111" >
+                        <label rect="17,5,100,30" border="false" color="#FFFFFF" style="autosize"
+                        text="不升级" h-align="left" v-align="top" font-family="微软雅黑" font-size="24"/>
+                    </image>
+                </button>
+                <image rect="66,478,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
+            </node>
        	</node>
     </body>
     <![CDATA[
@@ -108,8 +142,12 @@ function bodyOnPluginEvent(msg)
             if tonumber(checkversionData['version']['isNeedUpdate']) == 0 then  -- 不需要升级
                  goLogin()
             elseif tonumber(checkversionData['version']['isNeedUpdate']) == 1 then -- 提示升级
-                Dialog:show('', '检测到新版本，是否升级？', 'ok_cancel', 'downloadPackage', 'goLogin')
-                return
+                local mainNode = Sprite:findChild(rootSprite, 'mainNode')
+                local upgradeNode = Sprite:findChild(rootSprite, 'upgradeNode')
+                --Sprite:setProperty(mainNode,'visible','true')
+                -- Sprite:setProperty(mainNode,'enable','false')
+                Sprite:setProperty(upgradeNode,'visible','true')
+                Sprite:setProperty(upgradeNode,'enable','true')
             elseif tonumber(checkversionData['version']['isNeedUpdate']) == 2 then -- 强制升级
                 downloadPackage()
                 return
@@ -222,6 +260,9 @@ end
 
 --  下载升级安装包
 function downloadPackage()
+    local upgradeNode = Sprite:findChild(rootSprite, "upgradeNode")
+    Sprite:setProperty(upgradeNode, "enable", "false")
+    Sprite:setProperty(upgradeNode, "visible", "false")
     if not g_packageUrl or '' == g_packageUrl then
         Dialog:show('', '返回下载地址为空，版本升级失败！【确定】继续进入，【取消】退出客户端！', 
             'ok_cancel', 'goLogin', 'doExit')
