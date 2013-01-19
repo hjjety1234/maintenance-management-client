@@ -35,12 +35,6 @@
 					<image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png" 
 					    extendstyle="1111" />
                 </button>
-                <!-- 详情按钮  -->
-                <button name="btnDetail" rect="400,0,75,75" OnSelect="showAssesDetail"
-                    text="" color="#ffffff" font-size="24" border="false" extendstyle="1111">
-				<image name="titleBg1" rect="21,8,75,75" src="file://image/skin/title_back.png"
-					extendstyle="1111"  />
-				</button>
             </node>
             
             <!-- 工具栏  -->
@@ -48,6 +42,8 @@
                 <image name="search_bg_new" rect="0,0,480,52" src="file://image/search_bg_new.png"
                     style="autosize" extendstyle="1111" />
                 <!-- 选择月份 -->
+                <label rect="20,10,200,30" text="家庭宽带咨询投诉比" color="#000000" v-align="center" 
+                       h-align="left" font-family="微软雅黑" font-size="30" extendstyle="1111" />
 				<button name="selectMonthBtn" rect="290,5,170,40" OnSelect="selectMonth"
 					color="#0" font-size="20" border="false" extendstyle="1111"
 					normal="src:file://image/new_select_w.png;style:autosize;color:#ffffff"
@@ -58,30 +54,21 @@
             </node>
 
             <node name="showoftab1" rect="0,120,480,680" extendstyle="1111" visible="true" enable="true">
-                <node rect="0,0,480,320" extendstyle="1111" visible="true" enable="true">
-                    <image name="search_bg_new" rect="0,0,480,320" src="file://image/pic.png"
-                        style="autosize" extendstyle="1111" />
-                    <textarea name="textcont" v-align="center" line-height="23" h-align="center"
-                            rect="70,30,205,60" text="安徽移动全省集客障碍处理及时率" color="#4d4d4d" extendstyle="1111" font-size="21">
-                    </textarea>
-                </node>
-
-                <node name="listNode" rect="16,320,448,360" extendstyle="1111" visible="true" enable="true">
-                    <image name="search_bg_new" rect="0,160,480,120" src="file://image/touming.png"
-                        style="autosize" extendstyle="1111" />
-                    <listview name="BaobiaoList" rect="0,0,480,360" extendstyle="1111" auto-scroll="true" style="autosize"
-                        direction="horizontal" auto-adjust="true" >
+                <node name="listNode" rect="0,0,448,680" extendstyle="1111" visible="true" enable="true">
+                    <listview name="BaobiaoList" rect="0,10,480,670" extendstyle="1111" auto-scroll="true" style="autosize"
+                        auto-adjust="true" >
                     </listview>
                 </node>
             </node>
 
-            <node name="BaobiaoListItem" visible="false" enable="false" active="false" rect="0,0,28,360">
-                <label name="ratio" rect="0,0,28,30" text="王" color="#4d4d4d" v-align="center"
+            <node name="BaobiaoListItem" visible="false" enable="false" active="false" rect="0,0,480,60">
+                <label name="city" rect="30,0,120,30" text="合肥" color="#3a3735" v-align="center"
+                     h-align="left" font-size="18" font-family="黑体" extendstyle="1111"/>
+                <shadow name="" rect="30,42,400,5" color="#3a3735" alpha="200" extendstyle="1111"/>
+                <image name="barname" rect="20,32,120,25" src="file://image/bluebar.png"
+                        style="sudoku-auto" sudoku="15,5,15,5"  extendstyle="1111"/>
+                <label name="ratio" rect="20,32,30,25" text="合肥" color="#ffffff" v-align="center"
                      h-align="center" font-size="14" font-family="黑体" extendstyle="1111"/>
-                <shadow name="background" rect="0,30,25,300" color="#3baaf7" alpha="200" extendstyle="1111" border="true"/>
-                <textarea name="cityname" line-height="18" h-align="left" 
-                    rect="0,285,25,80" text="合肥市" color="#4d4d4d" extendstyle="1111" font-size="16">
-                </textarea>
             </node>
         </node>
     </body>
@@ -93,8 +80,30 @@
     local rootSprite
     local zhangailvData
     local citytable
-    local MaxRatio = 3.0
-    local MaxHigh = 280
+    local MaxRatio = 4.0
+    local MaxLong = 440
+    local MaxIndex
+    local MaxIndexTable = {}
+    MaxIndexTable[1]={}
+    MaxIndexTable[2]={}
+    MaxIndexTable[3]={}
+    local tempcitytable = {}
+    tempcitytable[1]={}
+    tempcitytable[2]={}
+    tempcitytable[3]={}
+    tempcitytable[4]={}
+    tempcitytable[5]={}
+    tempcitytable[6]={}
+    tempcitytable[7]={}
+    tempcitytable[8]={}
+    tempcitytable[9]={}
+    tempcitytable[10]={}
+    tempcitytable[11]={}
+    tempcitytable[12]={}
+    tempcitytable[13]={}
+    tempcitytable[14]={}
+    tempcitytable[15]={}
+    tempcitytable[16]={}
     
     local g_x1, g_y1, g_w1, g_h1
     local g_x2, g_y2, g_w2, g_h2
@@ -210,7 +219,7 @@
                 year="2012"
                 month="11"
             end
-            local reqURL = string.format("%s".."nbspweb/webservice/count!doWebservice.action?usercode=tangjizhi&year=%s-%s&cmd=wlbgroupline",reqURLNum,year,month)
+            local reqURL = string.format("%s".."nbspweb/webservice/count!doWebservice.action?usercode=tangjizhi&year=%s-%s&cmd=wlbbroadband",reqURLNum,year,month)
             Log:write('###################',reqURL)
             Http:request('jikezhangai_data', reqURL, 101)
 			--refresh()
@@ -227,6 +236,15 @@
             if tonumber(code)==0 then
                 Log:write('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&')
                 citytable = zhangailvData.value.value
+                --tempcitytable[1].city = citytable[1].city
+                --tempcitytable[1].broadbandinfo = citytable[1].broadbandinfo
+                for i=1,16 do
+                    tempcitytable[i].city = citytable[i-1].city
+                    tempcitytable[i].broadbandinfo = citytable[i-1].broadbandinfo
+                    tempcitytable[i].index=i-1
+                end
+                getMaxThree()
+                sorttempcitytable()
                 --Log:write('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&',citytable)
                 fillcontent()
             end
@@ -238,6 +256,7 @@
             Log:write('请求超时')
         end
     end
+
     -- @brief 按键响应处理
     function mainNodeOnKeyUp(sprite, kc)
         if kc == Key.F2 then -- 按下返回键
@@ -253,6 +272,42 @@
     end
     ---------------------------------------消息处理函数---------------------------
 
+    function getMaxThree()
+        Log:write('99999999999999999999999999999999999999999999999999999999999999999',tempcitytable)
+        for x=1,3 do
+            MaxIndex=1
+            for i=2,16 do
+                if tonumber(tempcitytable[i].broadbandinfo)*100 > tonumber(tempcitytable[MaxIndex].broadbandinfo)*100 then
+                    MaxIndex=i
+                end
+            end
+            MaxIndexTable[x]=MaxIndex
+            Log:write('444444444444444444444444444444444444444444444',MaxIndex)
+            tempcitytable[MaxIndex].broadbandinfo=0
+        end
+    end
+
+    function sorttempcitytable()
+        for i=1,3 do
+            tempcitytable[i].city=citytable[MaxIndexTable[i]-1].city
+            tempcitytable[i].broadbandinfo=citytable[MaxIndexTable[i]-1].broadbandinfo
+            tempcitytable[i].index=MaxIndexTable[i]
+        end
+        Log:write('5555555555555555555555555555555555555555555555555555555',tempcitytable)
+        
+        local weizhi = 4
+        for i=0,15 do
+            if i+1 ~=MaxIndexTable[1] and i+1 ~=MaxIndexTable[2] and i+1 ~=MaxIndexTable[3] then
+                tempcitytable[weizhi].city=citytable[i].city
+                tempcitytable[weizhi].broadbandinfo=citytable[i].broadbandinfo
+                tempcitytable[weizhi].index=i+1
+                weizhi=weizhi+1
+            end
+        end
+
+        Log:write('5555555555555555555555555555555555555555555555555555555',tempcitytable)
+    end
+
     function fillcontent()
         local BaobiaoList = Sprite:findChild(rootSprite,'BaobiaoList')
         ListView:removeAllItems(BaobiaoList, 1) 
@@ -263,25 +318,31 @@
     end
 
     function loadBaobiaoListItem(list,item,index)
-        Sprite:setRect(item, 0, 0, 28, 320)
-        Log:write('$$$$$$$$$$$$$$$$$$$$$$$', index)
+        Sprite:setRect(item, 0,0,480,60)
+        Log:write('$$$$$$$$$$$$$$$$$$$$$$$', index,tempcitytable[index+1])
+        local city = Sprite:findChild(item,'city')
+        local barname = Sprite:findChild(item,'barname')
         local ratio = Sprite:findChild(item,'ratio')
-        local background = Sprite:findChild(item,'background')
-        local cityname = Sprite:findChild(item,'cityname')
 
-        item_x3, item_y3, item_w3, item_h3 = Sprite:getRect(background)
+        if index==0 then
+            Sprite:setProperty(barname,'src',"file://image/yellow.png")
+        elseif index==1 then
+            Sprite:setProperty(barname,'src',"file://image/orange.png")
+        elseif index==2 then
+            Sprite:setProperty(barname,'src',"file://image/green.png")
+        end
+
+        item_x3, item_y3, item_w3, item_h3 = Sprite:getRect(barname)
         label_x3, label_y3, label_w3, label_h3 = Sprite:getRect(ratio)
 
-        Log:write('^^^^^^^^^^^^^^^^^^^^^^^^',item_x3, item_y3, item_w3, item_h3)
+        local broadbandinfo = tempcitytable[index+1].broadbandinfo
+        local new_item_w3 = math.floor((broadbandinfo/MaxRatio)*MaxLong)
+        Log:write('^^^^^^^^^^^^^^^^^^^^^^^^',item_x3, item_y3, item_w3, item_h3,new_item_w3)
+        Sprite:setRect(barname,item_x3, item_y3, new_item_w3, item_h3)
+        Sprite:setRect(ratio,new_item_w3-25, label_y3, label_w3, label_h3)
 
-        local breakdownradio = citytable[index].breakdownradio
-        local new_item_h3 = math.floor((breakdownradio/MaxRatio)*MaxHigh)
-        local new_item_y3 = MaxHigh-new_item_h3
-        Sprite:setRect(background,item_x3, new_item_y3, item_w3, new_item_h3)
-        Sprite:setRect(ratio, label_x3, new_item_y3-30, label_w3, label_h3)
-
-        Sprite:setProperty(ratio,'text',citytable[index].breakdownradio)
-        Sprite:setProperty(cityname,'text',citytable[index].city)
+        Sprite:setProperty(ratio,'text',string.format("%s",broadbandinfo))
+        Sprite:setProperty(city,'text',tempcitytable[index+1].city)
 
         --local numofcity = getJsonArrayCount(citytable)
         --Log:write('&&&&&&&&&&&&&&&&&&&&&&&&&',citytable[1],numofcity)
@@ -313,7 +374,7 @@
         Reg:clear(regHandle)
         Reg:setString(regHandle, 'month', month)
         
-        Scene:setReturn(Alias.m_jikezhuanye, Alias.monthDialog)
+        Scene:setReturn(Alias.m_jiakezhuanye, Alias.monthDialog)
         Scene:go(Alias.monthDialog)
     end
     
