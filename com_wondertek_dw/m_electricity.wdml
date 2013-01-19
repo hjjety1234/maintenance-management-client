@@ -55,8 +55,10 @@
                            <label name="comboxLable" rect="10,0,155,42" text="11月" h-align="left" v-align="center"
                                     font-family="微软雅黑" font-size="22" color="#0"  style="autosize" extendstyle="1111"/>
                     </button>
-                <!--列表区域-->
-                <listview name="sampleList" rect="0,90,480,645" extendstyle="1111" limit='true'/>
+            </node>
+            <node name="listNode" rect="0,56,480,734" extendstyle="1111">
+               <!--列表区域-->
+                <listview name="sampleList" rect="0,90,480,645" extendstyle="1111" limit='false'/>
             </node>
             <!-- 列表加载项 -->
             <node name="listitem" rect="0,0,368,72" visible="false" enable="false" active="false">  
@@ -139,13 +141,7 @@ function bodyOnPluginEvent(msg, param)
                 elseif data.value.value[0] then
                 loadList(1)
                 end
-            else
-                local list = Sprite:findChild(rootSprite, 'sampleList')
-                ListView:removeAllItems(list,1)
-                Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
-                end
-            else
-            Dialog:show(rootSpsrite, '未知错误！', 'ok')
+            end
         end
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
