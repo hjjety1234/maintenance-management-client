@@ -98,9 +98,12 @@ Alias = {
     m_jizhanzhuanye='MODULE:\\com_wondertek_dw\\m_jizhanzhuanye.wdml',
 
     m_xiaoqucount = 'MODULE:\\com_wondertek_dw\\m_xiaoqucount.wdml',  --小区完好率统计
-    m_electricity = 'MODULE:\\com_wondertek_dw\\m_electricity.wdml',  --小区完好率统计
-
-
+    m_electricity = 'MODULE:\\com_wondertek_dw\\m_electricity.wdml',  --小区发电率统计
+    m_linecount =  'MODULE:\\com_wondertek_dw\\m_linecount.wdml',     --线路障碍数 
+    m_linecounttime = 'MODULE:\\com_wondertek_dw\\m_linecounttime.wdml',     --线路障碍时长
+    m_jikezhuanye= 'MODULE:\\com_wondertek_dw\\m_jikezhuanye.wdml',     --集客障碍率
+    m_grouptime= 'MODULE:\\com_wondertek_dw\\m_grouptime.wdml',     --集客障碍处理及时率
+    m_jiakezhuanye = 'MODULE:\\com_wondertek_dw\\m_jiakezhuanye.wdml',     --家客业务咨询投诉比
     
 }
 
