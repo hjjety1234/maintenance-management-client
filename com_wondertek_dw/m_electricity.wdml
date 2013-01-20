@@ -35,9 +35,9 @@
                 </image>
                 <image rect="10,65,461,62" border="false" src="file://image/base_bj.png" 
                              style="autosize" extendstyle="1111">
-                    <label rect="50,25,60,30" text="地区" color="#ffffff" v-align="left"  h-align="center" font-family="微软雅黑" 
+                    <label rect="50,20,60,30" text="地区" color="#ffffff" v-align="left"  h-align="center" font-family="微软雅黑" 
                                   font-size="28" extendstyle="1111" />
-                    <label rect="180,25,260,30" text="发电及时率" color="#ffffff" v-align="left"  h-align="center" font-family="微软雅黑" 
+                    <label rect="180,20,260,30" text="发电及时率" color="#ffffff" v-align="left"  h-align="center" font-family="微软雅黑" 
                                   font-size="28" extendstyle="1111" />
                 </image>
                 <image rect="10,127,461,562" border="false" src="file://image/base_line.png" 
@@ -58,17 +58,17 @@
             </node>
             <!--列表区域-->
             <node name="listNode" rect="0,56,480,734" extendstyle="1111">
-                <listview name="sampleList" rect="0,90,480,645" extendstyle="1111" limit='false'/>
+                <listview name="sampleList" rect="0,120,480,670" extendstyle="1111" limit='true' />
             </node>
             <!-- 列表加载项 -->
             <node name="listitem" rect="0,0,368,72" visible="false" enable="false" active="true">  
-                    <image name='bulb' rect="260,40,18,28" border="false" src="" 
+                    <image name='bulb' rect="260,15,18,28" border="false" src="" 
                              style="autosize" extendstyle="1111"/>                 
-                    <label name="area" rect="60,20,202,61" border="false" color="#515151" style="autosize"
+                    <label name="area" rect="60,10,202,35" border="false" color="#515151" style="autosize"
                      text="地区" h-align="left" v-align="center" font-family="微软雅黑" font-size="22"></label>   
-                    <label name="score" rect="320,20,202,61" border="false" color="#515151" style="autosize"
+                    <label name="score" rect="320,10,202,35" border="false" color="#515151" style="autosize"
                      text="地区" h-align="left" v-align="center" font-family="微软雅黑" font-size="22"/>  
-                    <shadow rect="12,70,441,2" color='d4d4d4'  style="autosize" extendstyle="1111" />
+                    <shadow name = 'shadow' rect="12,10,441,2" color='d4d4d4' v-align="center" style="autosize" extendstyle="1111" />
             </node>
 
             <!-- 区域下拉框值 -->
@@ -140,9 +140,9 @@ function bodyOnPluginEvent(msg, param)
             if data.code == '0' then 
                 Log:write('#data.value.value')           
                 if #data.value.value > 0 then
-                loadList(#data.value.value + 1)
-                elseif data.value.value[0] then
-                loadList(1)
+                  loadList(#data.value.value + 1)
+                else
+                  loadList(1)
                 end
             end
         end
@@ -186,18 +186,17 @@ function loadList(count)
         ListView:adjust(list)
 end
 function loadListItem(list, item, index)
-    Sprite:setRect(item, 0, 0, 468, 35)
+    Sprite:setRect(item, 0, 0, 468, 36)
     Sprite:setProperty(item, 'extendstyle', '1111')
-    Log:write('111111') 
     local area = Sprite:findChild(item, 'area')
-    Log:write('222222')
     local score = Sprite:findChild(item, 'score')
-    Log:write('333333')
     local bulb = Sprite:findChild(item, 'bulb')
+    local shadow = Sprite:findChild(item, 'shadow')
     Sprite:setProperty(area,'text',data.value.value[index].city)
-    Log:write('444444')
     Sprite:setProperty(score,'text',data.value.value[index].electricity)
-    Log:write('555555')
+    if index == 0 then 
+       Sprite:setProperty(shadow,'visible','false')
+    end
     if tonumber(data.value.value[index].electricity) > 97 then 
         Sprite:setProperty(bulb,'src','file://image/base_bulb.png')
         Log:write('666666')
