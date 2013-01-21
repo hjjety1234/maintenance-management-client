@@ -21,7 +21,7 @@
             <!-- 页面背景  -->
             <node rect="0,0,480,800" extendstyle="1111">
 	            <image name="background" rect="0,0,480,800" border="false"
-	                src="file://image/background.png" style="autosize" extendstyle="1111">
+	                src="file://image/backgroundImg.png" style="autosize" extendstyle="1111">
 	            </image>
                 <image name="listItemBg" rect="0,66,480,60" src="file://image/site_bg.png" 
                     style="autosize" extendstyle="1111" />
@@ -62,7 +62,7 @@
             </node>
 
             <!-- gps状态栏  -->
-            <node name="statusBar" rect="5,68,480,50" extendstyle="1111" visible="false">
+            <node name="statusBar" rect="0,68,480,50" extendstyle="1111" visible="false">
                 <image name="listItemBg" rect="20,15,17,25" src="file://image/locate.png" 
                      extendstyle="1111" />
                 <scrolltext name ="statusBarText" rect="50,10,430,30" text="" color="#000000"
@@ -131,8 +131,8 @@ local clickTime -- 长按巡检名称时的时间
 local longClickItemIndex -- 当前长按按钮列表索引
 local firtClick_y -- 第一次点击时的纵坐标
 
-local lon=117.2491107
-local lat=31.850543
+local lon       --=117.2491107
+local lat       --=31.850543
 local resp -- 站点列表值
 local statusBarText
 local g_curItemIndex = 0
@@ -142,13 +142,13 @@ local g_curItemIndex = 0
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     statusBarText =  Sprite:findChild(sprite, 'statusBarText')
-    request()
+    --request()
 end
 
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-    --getGPSDataByMap()
+    getGPSDataByMap()
     elseif msg == MSG_DEACTIVATE then
         System:setGPSStatus(0)
     end
@@ -229,7 +229,7 @@ function doBack()
     if (Loading:isShow() == true) then
         Loading:close()
     end
-    Scene:go(Alias.home_new)
+    Scene:back(true)
 end
 
 --传统方式获取经纬度
@@ -313,7 +313,7 @@ function itemOnSelect(sprite)
     Reg:setString(regHandle, "itemname",resp.value[index].itemname)
     Log:write('代维公司名称：',itemname)
     Scene:setReturn(Alias.m_checkzhandian, Alias.m_sitemajor)
-    Scene:go(Alias.m_sitemajor)
+    Scene:go(Alias.m_sitemajor,true)
 end
 
 function  doHistory( sprite )
@@ -333,7 +333,7 @@ function  doHistory( sprite )
     --Reg:setString(regHandle, 'addr', addr)
     -- 跳转到站点检查历史
     Scene:setReturn(Alias.m_checkzhandian, Alias.m_checkhistory)
-    Scene:go(Alias.m_checkhistory)
+    Scene:go(Alias.m_checkhistory,true)
 end
 ]]>
 </root>

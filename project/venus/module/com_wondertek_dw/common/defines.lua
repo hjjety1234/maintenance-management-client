@@ -26,9 +26,15 @@ Alias = {
     login = 'MODULE:\\com_wondertek_dw\\login.wdml', -- 登录
     m_login = 'MODULE:\\com_wondertek_dw\\m_login.wdml', -- 登录
     home_xianlu = 'MODULE:\\com_wondertek_dw\\home_xianlu.wdml',--巡检员首页
+    home_jzgly = 'MODULE:\\com_wondertek_dw\\home_jzgly.wdml', --基站管理员首页
+    home_xlgly = 'MODULE:\\com_wondertek_dw\\home_xlgly.wdml', --线路管理员首页
+    home_jkgly = 'MODULE:\\com_wondertek_dw\\home_jkgly.wdml', --集客管理员首页
+    home_jiakgly = 'MODULE:\\com_wondertek_dw\\home_jiakgly.wdml', --家客管理员首页
     
     ------------------------------Metro Style ------------------------------------------
     imageDetail = 'MODULE:\\com_wondertek_dw\\imageDetail.wdml', -- 图片详情
+    orignImg = 'MODULE:\\com_wondertek_dw\\orignImg.wdml', -- 查看原图（隐患上传）
+    m_picRecord = 'MODULE:\\com_wondertek_dw\\m_picRecord.wdml', -- 进入拍照页面进行录音
     home_new = 'MODULE:\\com_wondertek_dw\\home_new.wdml',  -- 首页
     m_login = 'MODULE:\\com_wondertek_dw\\m_login.wdml',    -- 登录
     m_daibangongdan = 'MODULE:\\com_wondertek_dw\\m_daibangongdan.wdml', -- 待办列表
@@ -90,7 +96,15 @@ Alias = {
     m_checkhistory='MODULE:\\com_wondertek_dw\\m_checkhistory.wdml',
     m_sitecheckdetail='MODULE:\\com_wondertek_dw\\m_sitecheckdetail.wdml',
     m_jiucuolishi='MODULE:\\com_wondertek_dw\\m_jiucuolishi.wdml', -- 纠错历史记录
-    m_jizhanzhuanye='MODULE:\\com_wondertek_dw\\m_jizhanzhuanye.wdml'
+    m_jizhanzhuanye='MODULE:\\com_wondertek_dw\\m_jizhanzhuanye.wdml',
+
+    m_xiaoqucount = 'MODULE:\\com_wondertek_dw\\m_xiaoqucount.wdml',  --小区完好率统计
+    m_electricity = 'MODULE:\\com_wondertek_dw\\m_electricity.wdml',  --小区发电率统计
+    m_linecount =  'MODULE:\\com_wondertek_dw\\m_linecount.wdml',     --线路障碍数 
+    m_linecounttime = 'MODULE:\\com_wondertek_dw\\m_linecounttime.wdml',     --线路障碍时长
+    m_jikezhuanye= 'MODULE:\\com_wondertek_dw\\m_jikezhuanye.wdml',     --集客障碍率
+    m_grouptime= 'MODULE:\\com_wondertek_dw\\m_grouptime.wdml',     --集客障碍处理及时率
+    m_jiakezhuanye = 'MODULE:\\com_wondertek_dw\\m_jiakezhuanye.wdml',     --家客业务咨询投诉比
     
 }
 

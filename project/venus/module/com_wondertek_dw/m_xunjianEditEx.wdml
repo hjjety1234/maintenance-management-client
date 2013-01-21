@@ -18,7 +18,7 @@
          <!-- 页面背景  -->
          <node rect="0,0,480,800" extendstyle="1111">
              <image name="background" rect="0,0,480,800" border="false"
-                 src="file://image/background.png" style="autosize" extendstyle="1111">
+                 src="file://image/backgroundImg.png" style="autosize" extendstyle="1111">
              </image>
          </node>
             
@@ -74,8 +74,23 @@
             </node>
             <!-- 主页面内容：巡检项列表   -->
             <node name="mainNodeContent" rect="0,126,480,674" extendstyle="1111">
+
+                <!-- 提示页面1：如果该站点的经纬度信息不存在，需要进行经纬度上报 -->
+                <node name="tipNode1" rect="0,70,480,640" extendstyle="1111" 
+                    visible="false" enable="false">
+                    <image rect="0,0,480,230" border="false" src="file://image/report_loc.png"
+                       style="center" extendstyle="1111" />
+                    <button rect="125,250,230,50" color="#ffffff" extendstyle="1111" 
+                       OnSelect="reportCurrentLoc" font-size="24" data="01">
+                        <image rect="10,0,210,50" border="false" src="file://image/tip_btn.png"
+                            style="autosize" sudoku="15,15,15,15" extendstyle="1111" />
+                        <label rect="10,0,210,50" text="请上报当前位置" color="#5a5a5a"
+                            v-align="center" h-align="center" font-size="26" font-family="微软雅黑" 
+                            extendstyle="1111" />
+                    </button>
+                </node>
                 <listview name="mainListView" rect="0,10,480,660" col="1" limit="true"
-                    extendstyle="1111">
+                    visible="false" enable="false" extendstyle="1111">
                 </listview>
             </node>
             
@@ -268,10 +283,8 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
-require 'com_wondertek_dw.common.tempDataJZ'    -- 基站模板
-require 'com_wondertek_dw.common.tempDataTT'    -- 铁塔模板
-require 'com_wondertek_dw.common.tempDataZHFG'  -- 综合覆盖模板
 require 'framework.upload'
+require 'framework.map'
 local rootSprite
 local mainListView
 local curMainIndex = 0 --当前的主索引
@@ -297,6 +310,11 @@ local stationName
 local errorItemNode
 local errorDetailBtn
 local usercode
+
+local g_stationLon        -- 站点的经度
+local g_stationLat        -- 站点的纬度
+local g_httpTempData      -- 网络获取模板数据
+
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -309,40 +327,23 @@ function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         local regHandle = Reg:create('xunjianzhixiang')
 
-        planId=Reg:getString(regHandle, 'planId')
-        templateId=Reg:getString(regHandle, 'templateId')
-        stationId=Reg:getString(regHandle, 'stationId')
+        planId = Reg:getString(regHandle, 'planId')
+        templateId = Reg:getString(regHandle, 'templateId')
+        stationId = Reg:getString(regHandle, 'stationId')
         stationName=Reg:getString(regHandle, 'stationName')
+        g_stationLat = Reg:getString(regHandle, 'stationLat')
+        g_stationLon = Reg:getString(regHandle, 'stationLon')
         
         local titleNode =  Sprite:findChild(rootSprite, 'titleNode')
         Sprite:setProperty(titleNode, 'text', stationName)
-        
-        Log:write("templateId======================================"..templateId)
-        --最初的设计思想是根据模板ID，从服务器端下载巡检项目。功能没有实现。by zhouyuzy@ahmobile.com
-        if templateId~=nil and templateId=='000000000012' then
-            Log:write('this is jizhan xunjian')
-            jdtitleItems = jztitleItems
-            loadTempData()
-            ContractionSet()
-        elseif templateId~=nil and (templateId =='000000000149'  or templateId == '000000037136') then --铁塔模板
-            Log:write('this is tieta xunjian')
-            jdtitleItems = tttitleItems
-            --Log:write('the template is '..jdtitleItems)
-            loadTempData()
-            ContractionSet()
-        else
-            jdtitleItems = jztitleItems
-            loadTempData()
-            ContractionSet()
-            --Dialog:show('','暂无巡检项模版！请联系系统管理员！','ok','doBack')
-        end
-        
+
+        checkSiteLoc()
     elseif msg == MSG_DEACTIVATE then
     end
 end
 
 -- @brief 插件消息方法
-function bodyOnPluginEvent(msg)
+function bodyOnPluginEvent(msg, param)
     if msg == 103 then -- 阶段保存提交
         Loading:close()
         local data = Http:jsonDecode('Submitdata')
@@ -409,6 +410,42 @@ function bodyOnPluginEvent(msg)
         else
             --Dialog:show(rootSprite, '未知错误！', 'ok')
         end
+    elseif msg == 1000 then  -- 定位插件消息
+        local postDataString = Param:getString(param, 0)
+        local postData = Json:loadString2Table(postDataString)
+        Log:write('postData', postData)
+        -- 如果返回的GPS数据有效
+        if postData ~= nil and postData.longitude ~= nil and 
+            postData.longitude ~= '' and postData.latitude ~= nil and 
+            postData.latitude ~= '' then 
+            -- 上报当前的位置
+            local lon = tonumber(postData.longitude) / 1000000.0
+            local lat = tonumber(postData.latitude) / 1000000.0
+            local requestParam = string.format('cmd=wlbreportstationloc&usercode=%s&stationId=%s&lon=%s&lat=%s', 
+                           Config:get('username'), stationId, lon, lat)
+            local requestURL = getUrl()..'nbspweb/webservice/wplanpatrol!doWebservice.action?'..requestParam
+            Http:request('report_station', requestURL, 1001)
+        else
+            Loading:close()
+            Dialog:show(rootSprite, '上报位置失败，请重新上报！', 'ok')
+            return
+        end
+    elseif msg == 1001 then -- 位置上报响应处理
+        Loading:close()
+        local data = Http:jsonDecode('report_station')
+        if data.code == '0' then
+            Dialog:show(rootSprite, '上报位置成功！', 'ok')
+            -- 加载巡检项
+            loadListItem()
+        else
+            Dialog:show(rootSprite, '上报位置失败，请重新上报！', 'ok')
+            return 
+        end
+    elseif msg == 1002 then
+        g_httpTempData = Http:jsonDecode('http_temp_data')
+        jdtitleItems = formatHttpTempData(g_httpTempData)
+        loadTempData()
+        ContractionSet()
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Loading:close()
         Log:write('拨号失败')
@@ -449,19 +486,19 @@ function loadMainListItem(list, item, index)
     curMainIndex = index + 1
     local mainTitleNode = Sprite:findChild(item, 'mainTitleNode')
     local mainTitleName = Sprite:findChild(mainTitleNode, 'mainTitleName')
-    Sprite:setProperty(mainTitleName, 'text', jdtitleItems[curMainIndex][3])
+    Sprite:setProperty(mainTitleName, 'text', jdtitleItems[curMainIndex].name)
 
     local subListviewNode = Sprite:findChild(item, 'subListviewNode')
     local subListView = Sprite:findChild(subListviewNode, 'subListView')
     local subItemNode = Sprite:findChild(rootSprite, 'subItemNode')
 
     ListView:removeAllItems(subListView, 1, 1)
-    ListView:loadItem(subListView, subItemNode, #jdtitleItems[curMainIndex][4], 'loadSubListItem')
+    ListView:loadItem(subListView, subItemNode, #jdtitleItems[curMainIndex].subitems, 'loadSubListItem')
     local x,y,w,h = Sprite:getRect(subListView)
-    Sprite:setRect(subListView, x, y, w, #jdtitleItems[curMainIndex][4] * 50)
+    Sprite:setRect(subListView, x, y, w, #jdtitleItems[curMainIndex].subitems * 50)
     x,y,w,h = Sprite:getRect(subListviewNode)
-    Sprite:setRect(subListviewNode, x, y, w, #jdtitleItems[curMainIndex][4] * 50)
-    Sprite:setRect(item, 0, 0, 480, #jdtitleItems[curMainIndex][4] * 50 + 50)
+    Sprite:setRect(subListviewNode, x, y, w, #jdtitleItems[curMainIndex].subitems * 50)
+    Sprite:setRect(item, 0, 0, 480, #jdtitleItems[curMainIndex].subitems * 50 + 50)
     ListView:adjust(subListView)
 end
 
@@ -477,7 +514,7 @@ function loadSubListItem(list, item, index)
     end
     
     local subIndex = index + 1
-    local curSubItemData = jdtitleItems[curMainIndex][4][subIndex]
+    local curSubItemData = jdtitleItems[curMainIndex].subitems[subIndex]
 
     --根据type设置显示的node
     local errorTitleNode1 = Sprite:findChild(item, 'errorTitleNode1')
@@ -487,8 +524,8 @@ function loadSubListItem(list, item, index)
     setAllShoworHide(errorTitleNode2, 0)
     setAllShoworHide(errorTitleNode3, 0)
     --设置输入框类型
-    Sprite:setProperty(item, 'data', curSubItemData[3])
-    if curSubItemData[3] == '1' then
+    Sprite:setProperty(item, 'data', curSubItemData.inputType)
+    if curSubItemData.inputType == '1' then
         setAllShoworHide(errorTitleNode1, 1)
 
         local errorTitleNameType1 = Sprite:findChild(errorTitleNode1, 'errorTitleName')
@@ -497,26 +534,26 @@ function loadSubListItem(list, item, index)
         local errorTypeNameListType1 = Sprite:findChild(errorTitleBtnType1, 'errorTypeNameList')
         local errorTypeCodeListType1 = Sprite:findChild(errorTitleBtnType1, 'errorTypeCodeList')
 
-        Sprite:setProperty(errorTitleNode1,'data',curSubItemData[6])
-        Sprite:setProperty(errorTitleNameType1, 'text', tostring(index+1)..'、'..curSubItemData[2])
-        Sprite:setProperty(errorTypeNameListType1, 'data', curSubItemData[4])
-        Sprite:setProperty(errorTypeCodeListType1, 'data', curSubItemData[5])
-    elseif curSubItemData[3] == '2' then
+        Sprite:setProperty(errorTitleNode1,'data',curSubItemData.id)
+        Sprite:setProperty(errorTitleNameType1, 'text', tostring(index+1)..'、'..curSubItemData.subitemName)
+        Sprite:setProperty(errorTypeNameListType1, 'data', curSubItemData.valueScope)
+        Sprite:setProperty(errorTypeCodeListType1, 'data', curSubItemData.exceptionValue)
+    elseif curSubItemData.inputType == '2' then
         setAllShoworHide(errorTitleNode2, 1)
         local errorTitleNameType2 = Sprite:findChild(errorTitleNode2, 'errorTitleName')
         local editInputType2 = Sprite:findChild(errorTitleNode2, 'editInput')
         local errorCodeMaxMinType2 = Sprite:findChild(errorTitleNode2, 'errorCodeMaxMin')
-        Sprite:setProperty(errorTitleNameType2, 'text', tostring(index+1)..'、'..curSubItemData[2])
-        Sprite:setProperty(errorCodeMaxMinType2, 'data', curSubItemData[4])
-        Sprite:setProperty(errorTitleNode2,'data',curSubItemData[6])
-    elseif curSubItemData[3] == '3' then
+        Sprite:setProperty(errorTitleNameType2, 'text', tostring(index+1)..'、'..curSubItemData.subitemName)
+        Sprite:setProperty(errorCodeMaxMinType2, 'data', curSubItemData.valueScope)
+        Sprite:setProperty(errorTitleNode2,'data',curSubItemData.id)
+    elseif curSubItemData.inputType == '3' then
         setAllShoworHide(errorTitleNode3, 1)
         local errorTitleNameType3 = Sprite:findChild(errorTitleNode3, 'errorTitleName')
         local editInputType3 = Sprite:findChild(errorTitleNode3, 'editInput')
         local errorCodeMaxMinType3 = Sprite:findChild(errorTitleNode3, 'errorCodeMaxMin')
-        Sprite:setProperty(errorTitleNameType3, 'text', tostring(index+1)..'、'..curSubItemData[2])
-        Sprite:setProperty(errorCodeMaxMinType3, 'data', curSubItemData[4])
-        Sprite:setProperty(errorTitleNode3,'data',curSubItemData[6])
+        Sprite:setProperty(errorTitleNameType3, 'text', tostring(index+1)..'、'..curSubItemData.subitemName)
+        Sprite:setProperty(errorCodeMaxMinType3, 'data', curSubItemData.valueScope)
+        Sprite:setProperty(errorTitleNode3,'data',curSubItemData.id)
     else
         return
     end
@@ -685,11 +722,7 @@ end
 
 -- 是否是特权用户
 function isSupervisor()
-    if usercode ~= nil then
-        if usercode == 'zyhefei1' or usercode == 'zyhefei2' or usercode == '0554' or usercode == '0564' or usercode == '0523' or usercode == 'hanruitao' then
-            return true
-        end
-    end
+    
     return false
 end
 
@@ -698,11 +731,11 @@ end
 function outRequest()
     -- 对用户输入合法性进行判断
     -- 返回非0时，检查失败，无法出站
-    if isSupervisor() == false then
-	    if checkUserInput() ~= 0 then
-	        return
-	    end
+    if checkUserInput() ~= 0 then
+        Log:write('input is error')
+        return
     end
+
     -- 请求出站
     local tabNode=Sprite:findChild(rootSprite,"tabNode")
     local btnTab2 = Sprite:findChild(tabNode,"btnTab2")
@@ -932,7 +965,7 @@ function checkUserInput()
                     patrolResult=Sprite:getText(errorTypeName)
                     if patrolResult==nil or patrolResult=='' then
                         checkIsSpread(errorTypeName, mainItemNode)
-                        Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok', 'showErrorInfo')
+                        Dialog:show(rootSprite,jdtitleItems[i].name ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok', 'showErrorInfo')
                         return 1
                     else
                         setAllShoworHide(Sprite:findChild(errorTitleNode1,'SaveFlag'),1)
@@ -948,7 +981,7 @@ function checkUserInput()
                     patrolResult=Sprite:getText(editInput)
                     if patrolResult==nil or patrolResult=='' then
                         checkIsSpread(editInput, mainItemNode)
-                        Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok', 'showErrorInfo')
+                        Dialog:show(rootSprite,jdtitleItems[i].name ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok', 'showErrorInfo')
                         return 1
                     else
                         setAllShoworHide(Sprite:findChild(errorTitleNode2,'SaveFlag'),1)
@@ -965,7 +998,7 @@ function checkUserInput()
                     if patrolResult==nil or patrolResult=='' then
                         checkIsSpread(editInput, mainItemNode)
                         ImgOnSelect(Sprite:findChild(mainItemNode, 'btnImg'))
-                        Dialog:show(rootSprite,jdtitleItems[i][3] ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok', 'showErrorInfo')
+                        Dialog:show(rootSprite,jdtitleItems[i].name ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok', 'showErrorInfo')
                         return 1
                     else
                         setAllShoworHide(Sprite:findChild(errorTitleNode3,'SaveFlag'),1)
@@ -1105,6 +1138,129 @@ function ContextMenuListItemOnSelect(sprite)
     setAllShoworHide(FavListNodeSprite,0)
     Scene:setReturn(Alias.xunjianSubmit, Alias.xunjianupload)
     Scene:go(Alias.xunjianupload)
+end
+
+-- 检查站点的经纬度信息
+function checkSiteLoc()
+    if g_stationLon == '' or g_stationLat == '' then 
+        local tipNode1 = Sprite:findChild(rootSprite, 'tipNode1')
+        Sprite:setProperty(tipNode1, 'visible', 'true')
+        Sprite:setProperty(tipNode1, 'enable', 'true')
+    else
+        loadListItem()
+    end
+end
+
+-- 加载巡检模板
+function loadListItem()
+    local tipNode1 = Sprite:findChild(rootSprite, 'tipNode1')
+    Sprite:setProperty(tipNode1, 'visible', 'false')
+    Sprite:setProperty(tipNode1, 'enable', 'false')
+    local mainListView = Sprite:findChild(rootSprite, 'mainListView')
+    Sprite:setProperty(mainListView, 'visible', 'true')
+    Sprite:setProperty(mainListView, 'enable', 'true')
+    Log:write("templateId======================================"..templateId)
+
+    ---------------------shiyan----------------------
+    local curUser = Config:get('username')
+    local requestURL = getUrl()..'nbspweb/webservice/wplan!doWebservice.action?cmd=wlbxunjianTplSubItemDetail&usercode='..curUser..'&code='..templateId
+    Http:request('http_temp_data', requestURL, 1002)
+    ---------------------shiyan----------------------
+
+    --最初的设计思想是根据模板ID，从服务器端下载巡检项目。功能没有实现。by zhouyuzy@ahmobile.com
+    --if templateId ~= nil and templateId == '000000000012' then
+    --    Log:write('this is jizhan xunjian')
+    --    jdtitleItems = jztitleItems
+    --    loadTempData()
+    --    ContractionSet()
+    --elseif templateId ~= nil and (templateId =='000000000149'  or templateId == '000000037136') then --铁塔模板
+    --    Log:write('this is tieta xunjian')
+    --    jdtitleItems = tttitleItems
+    --    --Log:write('the template is '..jdtitleItems)
+    --    loadTempData()
+    --    ContractionSet()
+    --else
+    --    jdtitleItems = jztitleItems
+    --    loadTempData()
+    --    ContractionSet()
+    --    --Dialog:show('','暂无巡检项模版！请联系系统管理员！','ok','doBack')
+    --end
+end
+
+-- 获取当前的经纬度，并上报
+function reportCurrentLoc(sprite)
+    Log:write('reportCurrentLoc()')
+    local observer = Plugin:getObserver()
+    Map:getCurPosition(observer, 1000)
+    Loading:show()
+end
+function formatHttpTempData( data )
+    local resultData = {}
+    local count = getJsonArrayCount(data.value)
+
+    local tempTableData = {}
+    local tempKeyTable = {}
+    for i = 0, count-1 do
+        if tempTableData[data.value[i].itemId] == nil then
+            tempTableData[data.value[i].itemId] = {}
+            table.insert(tempKeyTable, data.value[i].itemId)
+        end
+        table.insert(tempTableData[data.value[i].itemId], data.value[i])
+    end
+    for i=1, #tempKeyTable do
+        local item = {index=i, itemId=tempTableData[tempKeyTable[i]][1].itemId , desc=tempTableData[tempKeyTable[i]][1].itemName , name=tempTableData[tempKeyTable[i]][1].itemName, subitems=getFormatSubItem(tempTableData[tempKeyTable[i]])}
+        table.insert(resultData, item)
+    end
+    return resultData
+end
+function getFormatSubItem(data)
+    local resultData ={}
+    for i=1, #data do
+        --1   选择  2   数字  3   文本
+        local showType = getInputType(data[i].inputType)
+        local range, exception = getFormatScop(data[i].valueScope, data[i].exceptionValue)
+        local item = {index=i, id=data[i].id, subitemName=data[i].subitemName, inputType=showType, valueScope=range, exceptionValue=exception}
+        table.insert(resultData, item)
+    end
+    return resultData
+end
+function getInputType( dataInputType )
+    -- body
+    local showType = '0'
+    if dataInputType == 'CHOOSE' then
+        showType = '1'
+    elseif dataInputType == 'NUM' then
+        showType = '2'
+    elseif dataInputType == 'TEXT' then
+        showType = '3'
+    end
+    return showType
+end
+function getFormatScop( dataScop, dataException )
+    -- body
+    local range = dataScop
+    if range == '' then
+        range = '0,1000000'
+    end
+    local exception =''
+    --if dataException ~= '' then
+        local array = Split(dataScop, ',')
+        for i=1, #array do
+            if array[i] == dataException then
+                array[i] = '0'
+            else
+                array[i] = '1'
+            end
+        end
+        for i = 1, #array do
+            if exception == '' then
+                exception = array[i]
+            else
+                exception = exception .. ',' .. array[i]
+            end
+        end
+    --end
+    return range, exception
 end
 
     ]]>

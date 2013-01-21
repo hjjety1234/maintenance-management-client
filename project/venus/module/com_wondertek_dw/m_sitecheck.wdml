@@ -219,7 +219,6 @@ local resultid
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-
     --获取公司名称
     regHandle = Reg:create('major_data')
     regHandle1=Reg:create('resp')
@@ -358,7 +357,7 @@ end
 function doBack(sprite)
    Reg:clear(regHandle)
    Reg:clear(regHandle1)
-   Scene:back()
+   Scene:back(true)
 end
 
 -- 请求巡检子项
@@ -515,12 +514,6 @@ function onTextLostFocus(sprite)
     --计算总扣分
     local listcount = ListView:getItemCount(normNode1) 
     Log:write('listcount',listcount)
-    --[[for k = 0 ，g_curItemIndex do
-        for j = 0 , curSubItemIndex do
-            local score = ListView:getItem(normNode, index) 
-        end 
-    end--]]
-    --ListView:getItem(itemNode, index) 
    local reduceName = Sprite:findChild(rootSprite,'reduceName')
    local reduce = Sprite:getText(reduceName)
    
@@ -528,7 +521,6 @@ function onTextLostFocus(sprite)
     if tostring(editText) == '' then
         return
     end
-
     -- 获取当前输入
     Log:write('获取当前输入')
     local content = tonumber(editText)
@@ -541,16 +533,6 @@ function onTextLostFocus(sprite)
     else
     Log:write('计算次数',#g_items)
     Log:write('计算次数',ListView:getItemCount(normNode) )
-
-    --reduceNum = reduceNum + content
-    --[[for i=1,#g_items do
-          for j=1 ,#g_items[g_curItemIndex]  do
-            local item = ListView:getItem(normNode, j)
-            local editName1 = Sprite:findChild(item,'editName')
-            local content1 = tonumber(Sprite:getText(editName1))
-             reduceNum = reduceNum + content1
-          end
-    end--]]
     Sprite:setProperty(reduceName,'text',tostring(reduceNum))
     end
     ---上传检查数据
@@ -618,6 +600,8 @@ function submitOnSelect(sprite)
     Reg:clear(regHandle1)
 end
 function okON()
+    Reg:clear(regHandle)
+    Reg:clear(regHandle1)
     Scene:go(Alias.m_checkzhandian,true)
 end
 
