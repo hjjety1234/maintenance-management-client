@@ -105,6 +105,8 @@ Alias = {
     m_jikezhuanye= 'MODULE:\\com_wondertek_dw\\m_jikezhuanye.wdml',     --集客障碍率
     m_grouptime= 'MODULE:\\com_wondertek_dw\\m_grouptime.wdml',     --集客障碍处理及时率
     m_jiakezhuanye = 'MODULE:\\com_wondertek_dw\\m_jiakezhuanye.wdml',     --家客业务咨询投诉比
+    m_about = 'MODULE:\\com_wondertek_dw\\m_about.wdml',     --关于
+    m_password = 'MODULE:\\com_wondertek_dw\\m_password.wdml',     --修改密码
     
 }
 
