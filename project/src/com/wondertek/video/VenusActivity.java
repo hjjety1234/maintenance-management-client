@@ -1482,8 +1482,9 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 		@Override
 		public void surfaceChanged(SurfaceHolder holder, int format, int width,int height) {
-			holder.setType(SurfaceHolder.SURFACE_TYPE_NORMAL);
-			holder.setFormat(PixelFormat.RGB_565);
+			//解决中兴U960s3二维码扫描异常@zhouyu 2013.1.23
+			//holder.setType(SurfaceHolder.SURFACE_TYPE_NORMAL);
+			//holder.setFormat(PixelFormat.RGB_565);
 			nativeupdatemaincanvas(holder.getSurface(),sdkint);
 
 		}
