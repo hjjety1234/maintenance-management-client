@@ -181,7 +181,7 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         -- 客户端心跳功能
-        heartBeatFuc()
+        doLocation()
         -- 客户端心跳功能END
 
         UmsAgent:OnActivate(string.match(Alias.home_new, 'MODULE:\\(.*)'), '巡检员首页')
@@ -377,6 +377,7 @@ function getLoctude()
         local longitudeValue = tonumber(longitude) / 10000000.0
         local timeValue = time
         posValue = string.format('%f,%f,%s', longitudeValue, latitudeValue,time)
+        heartBeatFuc()
     elseif timerNum > 0 then
         timerNum = timerNum - 1
         Timer:set(222, 1000, 'getLoctude')
@@ -388,7 +389,6 @@ function getLoctude()
 end
 -- 心跳函数
 function heartBeatFuc()
-    doLocation()
     local imei = System:getMachineInfo(4) 
         if imei == nil then 
             imei = "" 
