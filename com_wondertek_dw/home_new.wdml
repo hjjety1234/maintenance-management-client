@@ -153,6 +153,12 @@ local rootSprite
 local observer
 local mapViewPlugin
 local g_exitFlag =  false
+local usercode = Config:get('username')
+local timerNum = 10
+local longitude = 0
+local latitude = 0
+local time 
+local posValue
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -174,10 +180,14 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-		UmsAgent:OnActivate(string.match(Alias.home_new, 'MODULE:\\(.*)'), '巡检员首页')
+        -- 客户端心跳功能
+        heartBeatFuc()
+        -- 客户端心跳功能END
+
+        UmsAgent:OnActivate(string.match(Alias.home_new, 'MODULE:\\(.*)'), '巡检员首页')
         updateDaibanNum()
     elseif msg == MSG_DEACTIVATE then
-		UmsAgent:OnDeactivate()
+	UmsAgent:OnDeactivate()
     elseif msg == MSG_NETWORK then 
         if g_exitFlag == true then
             doExit()
@@ -189,7 +199,7 @@ end
 function bodyOnPluginEvent(msg, param)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
-        UmsAgent:onLoadFinish()
+        -- UmsAgent:onLoadFinish()
         data = Http:jsonDecode('daiban_data')
         Log:write("data 101 = ", data)
         if not data or type(data) ~= 'table' then
@@ -215,6 +225,10 @@ function bodyOnPluginEvent(msg, param)
                 Sprite:setProperty(daibanNum, 'text', loginData.taskNum)
             end
         end
+    elseif msg == 103 then
+        local heartBeatData = Http:jsonDecode('heartBeatTag')
+        Log:write("客户端心跳返回数据：",heartBeatData)
+        -- Timer:set(1, 3000, 'heartBeatFuc')
     elseif msg == 1000 then
         local postData = Param:getString(param, 0)
         if postData.latitude ~= nil then
@@ -256,7 +270,7 @@ function loadRequest()
     local param = '&page=1'
     local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
     Http:request('daiban_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbtasklist'})
-	UmsAgent:onLoadStart()
+    UmsAgent:onLoadStart()
 end
 
 function setDaibanNum(num)
@@ -328,6 +342,64 @@ function  doExitApp()
         Scene:exit()
     end
 end
+
+-- 客户端心跳
+--纯卫星定位
+function doLocation()
+    Log:write("测试进入doLocation函数")
+    -- 当前无经纬度信息，检查当前gps状态
+    local result = System:getGPSStatus()
+    Log:write("result = ",result)
+    if result == 0 then
+        local gpsStatus = System:setGPSStatus(1)
+        if gpsStatus then
+            Timer:set(222, 1000, 'getLoctude')
+        end
+    elseif result == 1 then
+        Timer:set(222, 1000, 'getLoctude')
+    end  
+ end
+-- 调gps函数
+function getLoctude()
+    Log:write("测试进入getLoctude函数")
+    -- 需要对gps的数据请求多次
+    longitude,latitude,time = System:getGPSData()
+    Log:write("卫星定位经度 = ",longitude)
+    Log:write("卫星定位维度 = ",latitude)
+    Log:write("卫星时间 = ",time)
+
+    if longitude and longitude ~= 0 and latitude and latitude ~= 0 then
+        timerNum = 10
+        System:setGPSStatus(0)
+        
+        -- 判断定位是否成功
+        local latitudeValue = tonumber(latitude) / 10000000.0
+        local longitudeValue = tonumber(longitude) / 10000000.0
+        local timeValue = time
+        posValue = string.format('%f,%f,%s', longitudeValue, latitudeValue,time)
+    elseif timerNum > 0 then
+        timerNum = timerNum - 1
+        Timer:set(222, 1000, 'getLoctude')
+    else
+        Timer:cancel(222)
+        System:setGPSStatus(0)
+        timerNum = 10
+    end
+end
+-- 心跳函数
+function heartBeatFuc()
+    doLocation()
+    local imei = System:getMachineInfo(4) 
+        if imei == nil then 
+            imei = "" 
+        end
+        Log:write('loginOnSelect: imei = '..imei)
+        local dataString = string.format('usercode=%s&lon=%s&lat=%s&gpstime=%s&cmd=%s&simid=%s', 
+            usercode, posValue, 'wlbheartbeat', imei)
+        local reqURL = getUrl()..'nbspweb/webservice/common!doWebservice.action?'..dataString
+        Http:request('heartBeatTag', reqURL, 103, {useCache=false})
+        Loading:show(rootSprite) 
+end 
 
     ]]>
 </root>
