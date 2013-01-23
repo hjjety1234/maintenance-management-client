@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <!-- 页面背景  -->
+         <node rect="0,0,480,800" extendstyle="1111">
+             <image name="background" rect="0,0,480,800" border="false"
+                 src="file://image/backgroundImg.png" style="autosize" extendstyle="1111">
+             </image>
+         </node>
+         <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 页面标题  -->
+            <node name="NodeTitle" rect="0,0,480,66" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,66" src="file://image/nav_bar.png"
+                    extendstyle="1111" style="autosize" />
+                <button name="backBtn" rect="20,10,40,40" normal="normal" sel="sel"
+                    OnSelect="doBackDialog" extendstyle="1111">
+                    <image name="normal" rect="0,0,40,40" src="file://image/ico_back.png"
+                        style="autosize" extendstyle="1111" />
+                    <image name="sel" rect="0,0,40,40" src="file://image/ico_back.png"
+                        style="autosize" extendstyle="1111" />
+                </button>
+
+                <scrolltext name="titleNode" rect="105,0,280,66" text="线路漏检点提醒"
+                    extendstyle="1111" font-size="28" font-family="黑体" h-align="center" 
+                    v-align="center" color="#ffffff" scroll="true" step="2" />
+                <!--
+                <button name="btnForget" rect="420,10,40,40" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="submitOnSelect"
+                   normal="src:file://image/ico_submit.png;style:autosize;color:#ffffff"
+                    sel="src:file://image/ico_submit.png;style:autosize;color:#000000"
+                     font-size="24"/>
+                -->
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require('framework.common')
+local rootSprite
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function myfunc()
+
+end
+
+    ]]>
+</root>
