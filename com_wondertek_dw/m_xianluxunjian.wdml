@@ -168,6 +168,9 @@ function bodyOnPluginEvent(msg,param)
             LoadList()
         end
         -- postData为Json数据({"latitude":"31250614","longitude":"121
+    elseif msg == 106 then  --提交数据到服务器，表明进行线路巡检，便于服务器端统计
+        local updata = Http:jsonDecode('updata')
+        Log:write("上传线路巡检记录到服务器端：",updata)
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -364,6 +367,8 @@ function _requestNearbyStationByRadius()
         else
            Sprite:setProperty(statusBarText, 'text', '巡检信息上报失败:短信上报失败')
         end
+        --同时向服务器发送一条消息，让服务器系统记录该用户进行了线路巡检
+        upRecordtoServer()
         LoadList()
         Loading:close()
     elseif timerNum > 0 then
@@ -388,6 +393,12 @@ function _requestNearbyStationByRadius()
         -- 定位失败
         Sprite:setProperty(statusBarText, 'text', '定位失败，请点击下方按钮重试.')
     end
+ end
+ --此函数的意义是向服务器端发送一条消息，告知服务器端进行了线路巡检，便于用户进行统计
+ function upRecordtoServer()
+    local url = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
+    local username = Config:get('username')
+    Http:request('updata', url, 106, {useCache = false, method = 'post', postData='cmd=wlbxunjianEnd'})
  end
 -- 检查是否有位置变化
 function isLocationChanaged(longitude, latitude)
