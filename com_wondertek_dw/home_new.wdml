@@ -142,6 +142,45 @@
 		             </node>
 		        </button>
             </node>
+            <!-- 键盘按钮  -->
+            <node name="menuNode" rect="0,0,480,800" extendstyle="1111"
+                visible="false" enable="false" active="false">
+                <button name="" rect="0,0,480,800" extendstyle="1111" color="#ffffff"
+                    font-size="20" v-align="center" h-align="left" OnSelect="hideMenuNode" >
+                </button>
+                <shadow name="daibanimg" rect="0,660,480,140" style="autosize"
+                    extendstyle="1111" color='#1d8cc5'  alpha='255'/>
+                <!-- 我的收藏  -->
+                <button name="recordStatus" rect="70,685,122,32" extendstyle="1111"
+                    color="#ffffff" font-size="20" v-align="center" h-align="left"
+                    OnSelect="noticeFav" >
+                    <image rect="0,0,122,32" src="file://image/home_fav.png" style="autosize"
+                        extendstyle="1111" />
+                </button>
+                <!-- 修改密码  -->
+                <button name="recordStatus" rect="285,685,122,32" extendstyle="1111"
+                    color="#ffffff" font-size="20" v-align="center" h-align="left"
+                    OnSelect="passwordOn" >
+                    <image rect="0,0,122,32" src="file://image/home_password.png" style="autosize"
+                        extendstyle="1111" />
+                </button>
+                <!-- 关于  -->
+                <button name="recordStatus" rect="70,745,122,32" extendstyle="1111"
+                    color="#ffffff" font-size="20" v-align="center" h-align="left"
+                    OnSelect="aboutOn" >
+                    <image rect="0,0,122,32" src="file://image/home_about.png" style="autosize"
+                        extendstyle="1111" />
+                </button>
+                <!-- 退出  -->
+                <button name="recordStatus" rect="285,745,122,32" extendstyle="1111"
+                    color="#ffffff" font-size="20" v-align="center" h-align="left"
+                    OnSelect="exitOn" >
+                    <image rect="0,0,122,32" src="file://image/home_exit.png" style="autosize"
+                        extendstyle="1111" />
+                </button>
+
+            </node>
+            
         </node>
     </body>
     <![CDATA[
@@ -248,12 +287,17 @@ end
 
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
+    Log:write('mainNodeOnKeyUp')
     if kc == Key.F2 then -- 按下返回键
         showExitDialog()
         return 1
     elseif kc == Key.F1 then
         local menuNode = Sprite:findChild(rootSprite, 'menuNode')
-        setAllShoworHide(menuNode, 1)
+        if Sprite:isVisible(menuNode) == 1 then
+            setAllShoworHide(menuNode, 0)
+        else
+            setAllShoworHide(menuNode, 1)
+        end
         return 1
     end
 end
@@ -341,6 +385,25 @@ function  doExitApp()
     else
         Scene:exit()
     end
+end
+
+function noticeFav()--跳转到我的收藏
+    Scene:setReturn(Alias.home_new,Alias.m_noticeFav)
+    Scene:go(Alias.m_noticeFav)
+end
+
+function passwordOn()--跳转到修改密码
+    Scene:setReturn(Alias.home_new,Alias.m_password)
+    Scene:go(Alias.m_password)
+end
+
+function aboutOn()--跳转到关于
+    Scene:setReturn(Alias.home_new,Alias.m_about)
+    Scene:go(Alias.m_about)
+end
+
+function exitOn()
+    Scene:exit()
 end
 
 -- 客户端心跳
