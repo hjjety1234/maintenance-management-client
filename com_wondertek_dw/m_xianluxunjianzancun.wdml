@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置背景 -->
+            <image rect="0,0,0,0" src="file://image/backgroundImg.png" style="autosize" extendstyle="1177" />
+            <!-- 设置头部 -->
+            <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+                <image name="title" rect="0,0,480,66" border="false"
+                    src="file://image/title_new.png" style="autosize" extendstyle="1111" />
+                <label rect="0,0,480,66" text="线路暂存" color="#ffffff" v-align="center"
+                        h-align="center" font-family="黑体" font-size="28" extendstyle="1111" />    
+                <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
+                    OnSelect="doBack" extendstyle="1111">
+                    <image name="normal" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
+                        extendstyle="1111" />
+                    <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
+                        extendstyle="1111" />
+                </button>
+                <button name="btnForget" rect="400,0,75,75" OnSelect="addOnSelect"
+                    text="" color="#ffffff" font-size="24" border="false" 
+                    normal="normal" sel="sel" extendstyle="1111">
+                    <image name="normal" rect="21,8,75,75" src="file://image/skin/ico_submit.png"
+                        extendstyle="1111" />
+                    <image name="sel" rect="21,8,75,75" src="file://image/skin/ico_submit.png"
+                        extendstyle="1111" />
+                </button>
+            </node>
+            <!-- 暂存信息底部列表 -->
+            <node name="zancunSelectNode" rect="0,0,480,800" mushroom="true" visible="true" enable="true">
+                <!-- 头部 -->
+                <node rect="10,80,460,15" extendstyle="1111"  border="false">
+                    <image rect="0,0,460,15" src="file://image/xianluzancun_top.png"  style="autosize" extendstyle="0010" />
+                </node>
+                <!-- 中间部分 -->
+                <image rect="10,95,460,676" src="file://image/xianluzancun_center.png"  style="autosize" extendstyle="1111" />
+                <listview name="sampleList" rect="10,95,460,676" auto-scroll="true" style="autosize"
+                      auto-adjust="true" extendstyle="1111" />
+                <!-- 底部 -->   
+                <image rect="10,771,460,15" src="file://image/xianluzancun_bottom.png"  style="autosize" extendstyle="1111"/>
+            </node>
+            <!-- 暂存信息列表加载模版 -->          
+            <node name="listitem" visible="false" enable="false" active="false" style="autosize"
+                  rect="0,0,460,66" extendstyle="0010" > 
+                <!-- 暂存信息内容详情 -->
+                <scrolltext name="xianluxunjian" rect="10,10,440,46" border="false"
+                    h-align="left" v-align="center" color="#5d5c5c" scroll="true" step="4"
+                    font-family="bold" text="" font-size="18" extendstyle="1111"> 
+                </scrolltext>
+                <image rect="5,65,450,1" src="file://image/xianluzancun_line.png"  style="autosize" extendstyle="1114" />       
+            </node>
+
+        </node>
+    </body>
+    <![CDATA[
+
+require('com_wondertek_dw.common.framework')
+local rootSprite
+local list
+local xianluArray = {}
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    list = Sprite:findChild(rootSprite, 'sampleList')
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        -- 线路暂存功能
+        local regHandlerTest =Reg:create("temporarySave")
+        xianluArray = Reg:getTable(regHandlerTest, "xianluHistoryList")
+        if xianluArray ~= nil then
+            Log:write("暂存数组xianluArray = ",xianluArray)
+            Log:write("暂存数组中保存的数据数目 = ",#xianluArray)
+
+            if #xianluArray > 0 then
+                LoadTemporiryList()
+            end 
+        else
+            Log:write("暂存数组xianluArray中数据为空！")
+        end 
+        -- 线路暂存功能END
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function myfunc()
+
+end
+-- 返回函数
+function doBack()
+    local regHandlerTest =Reg:create("xianluzancunTest")
+    Reg:setTable(regHandlerTest,'xianluzancunArray',xianluArray)
+    Scene:back()
+end
+-- 加载暂存信息列表
+function LoadTemporiryList()
+    local count = #xianluArray
+    Log:write("暂存信息的数目 = ",count)
+
+    ListView:removeAllItems(list)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
+    ListView:adjust(list) 
+end
+-- 设置暂存列表项
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 460, 66)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    -- 获取要创建的列表项Sprite
+    local xianluxunjian = Sprite:findChild(item, 'xianluxunjian')
+
+    -- 设置列表项的内容
+    if (xianluArray ~= nil) then
+        local value = xianluArray[index+1]
+        Log:write("线路巡检每一项的暂存数据为：",value)
+        Sprite:setProperty(xianluxunjian, 'text', xianluArray[index+1])
+    end
+end
+-- 暂存信息提交
+function addOnSelect()
+    if #xianluArray == 0 then
+        Dialog:show("", "线路巡检暂存列表记录为空！", "ok")
+        return
+    else 
+        local count= ListView:getItemCount(list)
+        Log:write("暂存列表项的数目：",count)
+        for i=1,count do
+            local itemNode = ListView:getItem(list, i-1)
+            local xianluxunjian =Sprite:findChild(itemNode,'xianluxunjian')
+            local xianluxunjianValue=Sprite:getText(xianluxunjian)
+            Log:write("暂存信息提交时，发送的短信内容为：",xianluxunjianValue)
+            if Util:sendSMS(phone, xianluxunjianValue) then   -- i == 1
+                Log:write("此条暂存信息短信上报成功！")
+                table.remove(xianluArray, i)
+            else
+                Log:write("此条暂存信息短信上报失败！")
+            end
+        end
+        Log:write("线路暂存除去上传成功数据后的数组：",xianluArray)
+        Log:write("线路暂存数组的数目：",#xianluArray)
+        if #xianluArray == 0 then
+            Log:write("上报提交后线路巡检暂存列表为空！")
+            Timer:set(1,2000,'doBack')
+        else 
+            Log:write("测试是否进入此函数")
+            Dialog:show('提示','是否返回到此次线路暂存上报失败列表项？','ok_cancel','doSave','doBack')
+        end 
+    end 
+end
+-- 暂存信息提交失败的列表项
+function doSave()
+    Timer:set(1,2000,'LoadTemporiryList')
+end
+
+    ]]>
+</root>
