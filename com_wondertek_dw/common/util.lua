@@ -312,17 +312,19 @@ function XY_TO_GPSCOORDINATE(lon, lat)
     -- 取纬度的整数和小数部分
     ladu = math.floor(lat)
     lafen = (lat - ladu) * 60
-    lafenstr = string.gsub(string.format("%07.4f", lafen), "%.", "")
-    ladustr = string.format("%03d", ladu)
+    lafenstr = string.gsub(string.format("%013.10f", lafen), "%.", "")
+    lafenstr = string.sub(lafenstr, 1, 6)
+    ladustr = string.format("%02d", ladu)
     
-    -- 取经度度的整数和小数部分
+    -- 取经度的整数和小数部分
     longdu = math.floor(lon)
     longfen = (lon - longdu) * 60
-    longfenstr = string.gsub(string.format("%07.4f", longfen), "%.", "")
+    longfenstr = string.gsub(string.format("%013.10f", longfen), "%.", "")
+    longfenstr = string.sub(longfenstr, 1, 6)
     longdustr = string.format("%03d", longdu)
     
     -- 拼接返回字符串
-    result = longdustr..longfenstr..","..ladustr..lafenstr
+    result = ladustr..lafenstr..longdustr..longfenstr
     Log:write(result)
     return result
 end
