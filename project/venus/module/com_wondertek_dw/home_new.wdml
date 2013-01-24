@@ -142,6 +142,45 @@
 		             </node>
 		        </button>
             </node>
+            <!-- 键盘按钮  -->
+            <node name="menuNode" rect="0,0,480,800" extendstyle="1111"
+                visible="false" enable="false" active="false">
+                <button name="" rect="0,0,480,800" extendstyle="1111" color="#ffffff"
+                    font-size="20" v-align="center" h-align="left" OnSelect="hideMenuNode" >
+                </button>
+                <shadow name="daibanimg" rect="0,660,480,140" style="autosize"
+                    extendstyle="1111" color='#1d8cc5'  alpha='255'/>
+                <!-- 我的收藏  -->
+                <button name="recordStatus" rect="70,685,122,60" extendstyle="1111"
+                    color="#ffffff" font-size="20" v-align="center" h-align="left"
+                    OnSelect="noticeFav" >
+                    <image rect="0,0,122,32" src="file://image/home_fav.png" style="autosize"
+                        extendstyle="1111" />
+                </button>
+                <!-- 修改密码  -->
+                <button name="recordStatus" rect="285,685,122,60" extendstyle="1111"
+                    color="#ffffff" font-size="20" v-align="center" h-align="left"
+                    OnSelect="passwordOn" >
+                    <image rect="0,0,122,32" src="file://image/home_password.png" style="autosize"
+                        extendstyle="1111" />
+                </button>
+                <!-- 关于  -->
+                <button name="recordStatus" rect="52,745,122,60" extendstyle="1111"
+                    color="#ffffff" font-size="20" v-align="center" h-align="left"
+                    OnSelect="aboutOn" >
+                    <image rect="0,0,122,32" src="file://image/home_about.png" style="autosize"
+                        extendstyle="1111" />
+                </button>
+                <!-- 注销  -->
+                <button name="recordStatus" rect="267,745,122,60" extendstyle="1111"
+                    color="#ffffff" font-size="20" v-align="center" h-align="left"
+                    OnSelect="exitOn" >
+                    <image rect="0,0,122,32" src="file://image/home_exit.png" style="autosize"
+                        extendstyle="1111" />
+                </button>
+
+            </node>
+            
         </node>
     </body>
     <![CDATA[
@@ -153,6 +192,12 @@ local rootSprite
 local observer
 local mapViewPlugin
 local g_exitFlag =  false
+local usercode = Config:get('username')
+local timerNum = 10
+local longitude = 0
+local latitude = 0
+local time 
+local posValue
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -174,10 +219,14 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-		UmsAgent:OnActivate(string.match(Alias.home_new, 'MODULE:\\(.*)'), '巡检员首页')
+        -- 客户端心跳功能
+        doLocation()
+        -- 客户端心跳功能END
+
+        UmsAgent:OnActivate(string.match(Alias.home_new, 'MODULE:\\(.*)'), '巡检员首页')
         updateDaibanNum()
     elseif msg == MSG_DEACTIVATE then
-		UmsAgent:OnDeactivate()
+	UmsAgent:OnDeactivate()
     elseif msg == MSG_NETWORK then 
         if g_exitFlag == true then
             doExit()
@@ -189,7 +238,7 @@ end
 function bodyOnPluginEvent(msg, param)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
-        UmsAgent:onLoadFinish()
+        -- UmsAgent:onLoadFinish()
         data = Http:jsonDecode('daiban_data')
         Log:write("data 101 = ", data)
         if not data or type(data) ~= 'table' then
@@ -215,6 +264,10 @@ function bodyOnPluginEvent(msg, param)
                 Sprite:setProperty(daibanNum, 'text', loginData.taskNum)
             end
         end
+    elseif msg == 103 then
+        local heartBeatData = Http:jsonDecode('heartBeatTag')
+        Log:write("客户端心跳返回数据：",heartBeatData)
+        -- Timer:set(1, 3000, 'heartBeatFuc')
     elseif msg == 1000 then
         local postData = Param:getString(param, 0)
         if postData.latitude ~= nil then
@@ -234,12 +287,17 @@ end
 
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
+    Log:write('mainNodeOnKeyUp')
     if kc == Key.F2 then -- 按下返回键
         showExitDialog()
         return 1
     elseif kc == Key.F1 then
         local menuNode = Sprite:findChild(rootSprite, 'menuNode')
-        setAllShoworHide(menuNode, 1)
+        if Sprite:isVisible(menuNode) == 1 then
+            setAllShoworHide(menuNode, 0)
+        else
+            setAllShoworHide(menuNode, 1)
+        end
         return 1
     end
 end
@@ -256,7 +314,7 @@ function loadRequest()
     local param = '&page=1'
     local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
     Http:request('daiban_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbtasklist'})
-	UmsAgent:onLoadStart()
+    UmsAgent:onLoadStart()
 end
 
 function setDaibanNum(num)
@@ -328,6 +386,83 @@ function  doExitApp()
         Scene:exit()
     end
 end
+
+function noticeFav()--跳转到我的收藏
+    Scene:setReturn(Alias.home_new,Alias.m_noticeFav)
+    Scene:go(Alias.m_noticeFav)
+end
+
+function passwordOn()--跳转到修改密码
+    Scene:setReturn(Alias.home_new,Alias.m_password)
+    Scene:go(Alias.m_password)
+end
+
+function aboutOn()--跳转到关于
+    Scene:setReturn(Alias.home_new,Alias.m_about)
+    Scene:go(Alias.m_about)
+end
+
+function exitOn()--注销
+    Scene:go(Alias.index)
+end
+
+-- 客户端心跳
+--纯卫星定位
+function doLocation()
+    Log:write("测试进入doLocation函数")
+    -- 当前无经纬度信息，检查当前gps状态
+    local result = System:getGPSStatus()
+    Log:write("result = ",result)
+    if result == 0 then
+        local gpsStatus = System:setGPSStatus(1)
+        if gpsStatus then
+            Timer:set(222, 1000, 'getLoctude')
+        end
+    elseif result == 1 then
+        Timer:set(222, 1000, 'getLoctude')
+    end  
+ end
+-- 调gps函数
+function getLoctude()
+    Log:write("测试进入getLoctude函数")
+    -- 需要对gps的数据请求多次
+    longitude,latitude,time = System:getGPSData()
+    Log:write("卫星定位经度 = ",longitude)
+    Log:write("卫星定位维度 = ",latitude)
+    Log:write("卫星时间 = ",time)
+
+    if longitude and longitude ~= 0 and latitude and latitude ~= 0 then
+        timerNum = 10
+        System:setGPSStatus(0)
+        
+        -- 判断定位是否成功
+        local latitudeValue = tonumber(latitude) / 10000000.0
+        local longitudeValue = tonumber(longitude) / 10000000.0
+        local timeValue = time
+        posValue = string.format('%f,%f,%s', longitudeValue, latitudeValue,time)
+        heartBeatFuc()
+    elseif timerNum > 0 then
+        timerNum = timerNum - 1
+        Timer:set(222, 1000, 'getLoctude')
+    else
+        Timer:cancel(222)
+        System:setGPSStatus(0)
+        timerNum = 10
+    end
+end
+-- 心跳函数
+function heartBeatFuc()
+    local imei = System:getMachineInfo(4) 
+        if imei == nil then 
+            imei = "" 
+        end
+        Log:write('loginOnSelect: imei = '..imei)
+        local dataString = string.format('usercode=%s&lon=%s&lat=%s&gpstime=%s&cmd=%s&simid=%s', 
+            usercode, posValue, 'wlbheartbeat', imei)
+        local reqURL = getUrl()..'nbspweb/webservice/common!doWebservice.action?'..dataString
+        Http:request('heartBeatTag', reqURL, 103, {useCache=false})
+        Loading:show(rootSprite) 
+end 
 
     ]]>
 </root>

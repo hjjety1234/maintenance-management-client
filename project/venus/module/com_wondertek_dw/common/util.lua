@@ -297,3 +297,34 @@ end
 function showSysSetting()
     ShowNetSetting()
 end
+
+-- 经纬度格式转换
+require 'math'
+function XY_TO_GPSCOORDINATE(lon, lat)
+    -- 转换为数值类型
+    lon = tonumber(lon)
+    lat = tonumber(lat)
+    if lon == nil or lat == nil then 
+       Log:write("经纬度参数非法!")
+       return
+    end
+    
+    -- 取纬度的整数和小数部分
+    ladu = math.floor(lat)
+    lafen = (lat - ladu) * 60
+    lafenstr = string.gsub(string.format("%013.10f", lafen), "%.", "")
+    lafenstr = string.sub(lafenstr, 1, 6)
+    ladustr = string.format("%02d", ladu)
+    
+    -- 取经度的整数和小数部分
+    longdu = math.floor(lon)
+    longfen = (lon - longdu) * 60
+    longfenstr = string.gsub(string.format("%013.10f", longfen), "%.", "")
+    longfenstr = string.sub(longfenstr, 1, 6)
+    longdustr = string.format("%03d", longdu)
+    
+    -- 拼接返回字符串
+    result = ladustr..lafenstr..longdustr..longfenstr
+    Log:write(result)
+    return result
+end

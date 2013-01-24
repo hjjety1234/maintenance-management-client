@@ -76,6 +76,8 @@ Alias = {
     m_resourcereport = 'MODULE:\\com_wondertek_dw\\m_resourcereport.wdml',--资源统计
     
     m_xianluxunjian = 'MODULE:\\com_wondertek_dw\\m_xianluxunjian.wdml',--线路巡检
+    m_xianluomit = 'MODULE:\\com_wondertek_dw\\m_xianluomit.wdml',--线路漏检提醒 
+    m_xianluxunjianzancun = 'MODULE:\\com_wondertek_dw\\m_xianluxunjianzancun.wdml',--线路巡检暂存  
     
     m_setting = 'MODULE:\\com_wondertek_dw\\m_setting.wdml', -- 系统设置页面(江峰)
     m_zhandiandaohang = 'MODULE:\\com_wondertek_dw\\m_zhandiandaohang.wdml', -- 站点导航
@@ -105,6 +107,8 @@ Alias = {
     m_jikezhuanye= 'MODULE:\\com_wondertek_dw\\m_jikezhuanye.wdml',     --集客障碍率
     m_grouptime= 'MODULE:\\com_wondertek_dw\\m_grouptime.wdml',     --集客障碍处理及时率
     m_jiakezhuanye = 'MODULE:\\com_wondertek_dw\\m_jiakezhuanye.wdml',     --家客业务咨询投诉比
+    m_about = 'MODULE:\\com_wondertek_dw\\m_about.wdml',     --关于
+    m_password = 'MODULE:\\com_wondertek_dw\\m_password.wdml',     --修改密码
     
 }
 

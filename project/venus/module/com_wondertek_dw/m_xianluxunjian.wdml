@@ -75,6 +75,13 @@
                      style="sudoku-auto" sudoku="15,15,15,15"></image>
                      <label rect="0,0,229,51" extendstyle="1111" h-align="center" v-align="center" text="上报巡检点"></label>
                 </button>
+                <!-- 线路巡检暂存 -->
+                <button name="btnTemporiry" rect="125,130,480,60"  OnSelect="btnTemporiryOnSelected" extendstyle="1111" border="false">
+                    <image src="file://image/button_up.png" rect="0,0,229,51" extendstyle="1111"
+                     style="sudoku-auto" sudoku="15,15,15,15"></image>
+                     <label rect="0,0,229,51" extendstyle="1111" h-align="center" v-align="center" text="线路暂存页面"></label>
+                </button>
+                <!-- 线路巡检暂存END -->
             </node>
             <node name="baseSprite" rect="0,320,480,50" extendstyle="1111"
                 border="false">
@@ -104,6 +111,7 @@ local stationId
 local templateId
 local Inflag = '1'
 local tab = {'开始巡检'..getCurDateAndTime()}
+local xianluArray = {}
 local list
 local timerNum = 50
 
@@ -118,6 +126,14 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        -- 线路暂存页面提交过后提交失败数组
+        local regHandlerTest =Reg:create("xianluzancunTest")
+        xianluArray = Reg:getTable(regHandlerTest,'xianluzancunArray')
+        if xianluArray == nil then
+                xianluArray = {}
+        end 
+        Log:write("线路巡检暂存数组：",xianluArray)
+        -- 线路暂存页面提交过后提交失败数组END
 		local regHandle = Reg:create('xunjianzhixiang')
         planId=Reg:getString(regHandle, 'planId')
         templateId=Reg:getString(regHandle, 'templateId')
@@ -168,6 +184,9 @@ function bodyOnPluginEvent(msg,param)
             LoadList()
         end
         -- postData为Json数据({"latitude":"31250614","longitude":"121
+    elseif msg == 106 then  --提交数据到服务器，表明进行线路巡检，便于服务器端统计
+        local updata = Http:jsonDecode('updata')
+        Log:write("上传线路巡检记录到服务器端：",updata)
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -362,8 +381,11 @@ function _requestNearbyStationByRadius()
 			local tabhis = {os.date()..'上报成功'}
 		--	table.insert(tab,tabhis)
         else
-           Sprite:setProperty(statusBarText, 'text', '巡检信息上报失败:短信上报失败')
+            table.insert(xianluArray,smscontent)
+            Sprite:setProperty(statusBarText, 'text', '巡检信息上报失败:短信上报失败')
         end
+        --同时向服务器发送一条消息，让服务器系统记录该用户进行了线路巡检
+        upRecordtoServer()
         LoadList()
         Loading:close()
     elseif timerNum > 0 then
@@ -388,6 +410,12 @@ function _requestNearbyStationByRadius()
         -- 定位失败
         Sprite:setProperty(statusBarText, 'text', '定位失败，请点击下方按钮重试.')
     end
+ end
+ --此函数的意义是向服务器端发送一条消息，告知服务器端进行了线路巡检，便于用户进行统计
+ function upRecordtoServer()
+    local url = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
+    local username = Config:get('username')
+    Http:request('updata', url, 106, {useCache = false, method = 'post', postData='cmd=wlbxunjianEnd'})
  end
 -- 检查是否有位置变化
 function isLocationChanaged(longitude, latitude)
@@ -433,6 +461,13 @@ function getCurrentTimeStamp()
     local minute = os.date("*t")["min"]
     local sec = os.date("*t")["sec"]
     return string.format('%04s%02s%02s%02s%02s%02s', year, month, day, hour, minute, sec)
+end
+-- 点击按钮进入线路巡检暂存页面
+function btnTemporiryOnSelected()
+    local regHandlerTest =Reg:create("temporarySave")
+    Reg:setTable(regHandlerTest,'xianluHistoryList',xianluArray)
+    Scene:setReturn(Alias.m_xianluxunjian, Alias.m_xianluxunjianzancun)
+    Scene:go(Alias.m_xianluxunjianzancun,1)
 end
     ]]>
 </root>

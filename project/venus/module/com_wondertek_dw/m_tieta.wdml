@@ -349,8 +349,9 @@ function OnSearchButtonClicked(sprite)
 
         local list = Sprite:findChild(rootSprite, 'sampleList')
         ListView:removeAllItems(list,1)
-        local ParentNode=Sprite:getParent(sprite)
-        content=Sprite:getText(Sprite:findChild(ParentNode,'content'))
+        local contentsprite=Sprite:findChild(rootSprite,'content')
+        content = Sprite:getText(contentsprite)
+        --Log:write('contentsprite',contentsprite)
 		if content==nil or content=='' then
             content=''			
 		elseif companyid==nil or companyid=='' then
@@ -392,15 +393,13 @@ function loadRequest(content,companyid,quyuid)
 		if quyuid==nil then
             quyuid=''
         end
-		Log:write('1111111111111111111111111111111111',content)
-		Log:write('222222222222222222222222222222222222',companyid)
-		Log:write('333333333333333333333333333333333333',quyuid)
-        --local param = string.format('&pagesize=10&page=1&name=%s&companycode=%s&areacode=%s&page=1',content,companyid,quyuid)
-		local param ='&pagesize=10&page=1&name='..content..'&companycode='..companyid..'&areacode='..quyuid
+        local username = Config:get('username')
+        Log:write('quyuid:',quyuid)
+		local param ='nbspweb/webservice/resource!doWebservice.action?usercode='..username..'&pagesize=10&page=1&name='..content..'&companycode='..companyid..'&areacode='..quyuid..'&cmd=wlbtowersearch'
         Log:write("&param = ", param)
-        local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
+        local reqURL = getUrl()..param
 		Log:write('111',reqURL)
-        Http:request('tieta_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbtowersearch'..param})
+        Http:request('tieta_data', reqURL, 101, {useCache = false})
         Loading:show(rootSprite)
 end
 --- 调用搜索条件接口
@@ -462,7 +461,7 @@ function CompanyGroupOnSelect(sprite)
     local index = ListView:getItemIndex(Sprite:getParent(sprite))		
     Sprite:setProperty(companyText, 'text', cmpData.value[index].cmpname)
 	companyid=cmpData.value[index].id
-	Log:write('12345',companyid)
+	Log:write('12345',cmpData.value[index])
     setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 0)
 end
 --区域item点击事件
