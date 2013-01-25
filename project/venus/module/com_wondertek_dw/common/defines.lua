@@ -109,6 +109,7 @@ Alias = {
     m_jiakezhuanye = 'MODULE:\\com_wondertek_dw\\m_jiakezhuanye.wdml',     --家客业务咨询投诉比
     m_about = 'MODULE:\\com_wondertek_dw\\m_about.wdml',     --关于
     m_password = 'MODULE:\\com_wondertek_dw\\m_password.wdml',     --修改密码
+    m_system = 'MODULE:\\com_wondertek_dw\\m_system.wdml',     --新系统设置
     
 }
 

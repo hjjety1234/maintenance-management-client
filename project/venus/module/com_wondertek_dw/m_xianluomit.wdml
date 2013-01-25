@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == | Revised: hewu <hewu2008@gmail.com> 2013/01/25 
+ == ============================================================================
+ == | Desc: 页面描述
+ == |       添加漏检点地图POI显示功能
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <!-- 页面背景  -->
+         <node rect="0,0,480,800" extendstyle="1111">
+             <image name="background" rect="0,0,480,800" border="false"
+                 src="file://image/backgroundImg.png" style="autosize" extendstyle="1111">
+             </image>
+         </node>
+         <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 页面标题  -->
+            <node name="NodeTitle" rect="0,0,480,66" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,66" src="file://image/nav_bar.png"
+                    extendstyle="1111" style="autosize" />
+                <button name="backBtn" rect="20,10,40,40" normal="normal" sel="sel"
+                    OnSelect="doBackDialog" extendstyle="1111">
+                    <image name="normal" rect="0,0,40,40" src="file://image/ic_home_new.png"
+                        style="autosize" extendstyle="1111" />
+                    <image name="sel" rect="0,0,40,40" src="file://image/ic_home_new.png"
+                        style="autosize" extendstyle="1111" />
+                </button>
+
+                <scrolltext name="titleNode" rect="105,0,280,66" text="线路漏检点提醒"
+                    extendstyle="1111" font-size="28" font-family="黑体" h-align="center" 
+                    v-align="center" color="#ffffff" scroll="true" step="2" />
+                <!--
+                <button name="btnForget" rect="420,10,40,40" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="submitOnSelect"
+                   normal="src:file://image/ico_submit.png;style:autosize;color:#ffffff"
+                    sel="src:file://image/ico_submit.png;style:autosize;color:#000000"
+                     font-size="24"/>
+                -->
+            </node>
+            <node name="tabNode" rect="0,66,480,60" extendstyle="1111">
+                <image name="title" rect="0,0,480,60" border="false"
+                    src="file://image/tab_n_new.png" style="autosize" extendstyle="1111" />
+                <button name="btnTab1" rect="0,0,160,60" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
+                    <image name="tabBg" rect="0,0,160,60" border="false" src=""
+                        style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+                    <label rect="0,0,160,60" text="线路巡检" color="#ffffff" v-align="center"
+                        h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                </button>
+                <button name="btnTab2" rect="160,0,160,60" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
+                    <image name="tabBg" rect="0,0,160,60" border="false" src=""
+                        style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+                    <label rect="0,0,160,60" text="巡检暂存" color="#ffffff" v-align="center"
+                        h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                </button>
+                <button name="btnTab3" rect="320,0,160,60" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="03">
+                    <image name="tabBg" rect="0,0,160,60" border="false" src="file://image/tab_s_new.png"
+                        style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+                    <label rect="0,0,160,60" text="漏点查询" color="#ffffff" v-align="center"
+                        h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                </button>
+            </node>
+            <node name="contentNode" extendstyle="1111" rect="0,126,480,674">
+                <listview name="lvomit" rect="0,0,480,674" border="false" extendstyle="1111"></listview>
+                <node name="listitem" visible="false" enable="false" active="false"
+                    extendstyle="1011" rect="0,40,480,40">
+                    <image name="listItemBg" rect="0,0,480,40" src="file://image/item_bg_m.png" 
+                            style="autosize" extendstyle="1111" />
+                    <scrolltext name="stXL" scroll="true" rect="5,0,240,40" extendstyle="1111"></scrolltext>
+                    <scrolltext name="stXLD" scroll="true" rect="240,0,240,40" extendstyle="1111"></scrolltext>
+                    <!-- 导航按钮  -->
+                    <button name="navigationBtn" visible="false" rect="400,0,70,40"
+                        extendstyle="1111" data="">
+                        <image rect="0,0,70,40" src="file://image/icon_xxianlu.png" style="center" 
+                            extendstyle="1111">
+                        </image>
+                    </button>
+                </node>
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+require 'framework.map'
+
+local rootSprite
+local data --漏检点集合
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    requestUrl()
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        openMap(0, 70, 480, 700)
+        local json = {pois:[{"id":"-1", "longitude":117251716, "latitude":31850759, "desc":"匡河路,井0001"},{"id":"-1", "longitude":117228327, "latitude":31821309, "desc":"匡河路,井0002"}]}
+        showPois(json)
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+
+    elseif msg == 102 then
+        data = Http:jsonDecode('omitdata')
+        Log:write('the back data is ',data)
+        Loading:close()
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        end
+        if(data.code == '-1') then
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        else
+            --解析数据
+            if #data.value>0 then
+                loadlist(#data.value+1)
+            else
+                --造数据进行测试
+                data = {cmd='wlbxunjianxianluhis',cmd='0',
+                    value={
+                            {pointid='0001',pointname='井0001',sublinename='匡河路',lon='',lat=''},
+                            {pointid='0002',pointname='井0002',sublinename='匡河路',lon='',lat=''},
+                        }
+                    }
+                Log:write('data count is ',#data.value)
+                loadlist(#data.value+1)
+            end
+        end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+	    closeMap()
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+--返回按钮单击
+function doBackDialog()
+    closeMap()
+    Scene:back();
+end
+--巡检、暂存、漏点查询
+function tabOnSelect(sprite)
+    local dataInfo = Sprite:getData(sprite)
+    if dataInfo=='01' then
+        Log:write('go to  url is ',Alias.m_xianluxunjian)
+        Scene:setReturn(Alias.home_xianlu,Alias.m_xianluxunjian)
+        Scene:go(Alias.m_xianluxunjian,1)
+    elseif dataInfo=='02' then
+        --跳转至暂存界面
+        Scene:setReturn(Alias.home_xianlu, Alias.m_xianluxunjianzancun)
+        Scene:go(Alias.m_xianluxunjianzancun)
+    elseif dataInfo == '03' then
+        --跳转至漏点查询
+        return
+    end
+end
+
+--加载漏点明细
+function requestUrl()
+    local url = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action')
+    local imei = System:getMachineInfo(4) 
+    if imei == nil then imei = "" end
+    Log:write('loginOnSelect: imei = '..imei)
+    local param = "cmd=wlbxunjianxianluomit&lon=&lat=&radius=1000&deviceid="..imei.."&page=1"
+    Log:write('the param is ',param)
+    url = url .. '&'..param
+    Log:write('the url is ',url)
+    Http:request('omitdata', url, 102, {useCache = true})
+    Loading:show(rootSprite)
+end
+
+--绑定
+function loadlist(count)
+    local list = Sprite:findChild(rootSprite, 'lvomit')
+    ListView:removeAllItems(list,true) 
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
+    ListView:adjust(list)
+end
+
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 5, 0, 240, 40)
+
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local listItemBg = Sprite:findChild(item, 'listItemBg') 
+    Sprite:setRect(listItemBg, 240, 0, 240, 40)
+ 
+    local num = index+1
+    Log:write('index=============================',num%2)
+    if num % 2 > 0 then
+       Sprite:setProperty(listItemBg, 'alpha', '0')
+    else
+       Sprite:setProperty(listItemBg, 'alpha', '20')
+    end
+    Log:write('the pointname is ',data.value[index].pointname)
+    local stXL = Sprite:findChild(item,'stXL')
+    local stXLD = Sprite:findChild(item,'stXLD')
+    local navigationBtn = Sprite:findChild(item,'navigationBtn')
+    Sprite:setProperty(stXL,'text',data.value[index].sublinename)
+    Sprite:setProperty(stXLD,'text',data.value[index].pointname)
+    Sprite:setProperty(navigationBtn,'visible','true')
+end
+
+
+---------------------------------------漏检点地图显示相关函数------------------------
+local g_isMapOpen = false
+
+-- 打开地图
+function openMap(x, y, w, h)
+    if g_isMapOpen == false then 
+        local xscal = SCREEN_WIDTH / 480
+        local yscal = SCREEN_HEIGHT / 800
+        Map:open(x*xscal, y*yscal, w*xscal, h*yscal)
+        g_isMapOpen = true
+    end
+end
+
+-- 关闭地图
+function closeMap()
+    if g_isMapOpen == true then 
+        Map:close()
+        g_isMapOpen = false
+    end
+end
+
+-- 在地图上显示漏检点
+-- local json = '{pois:[{"id":"0", "latitude":32168548, "longitude":116538469, "desc":"东方大厦"}, {...}, {...}]}'
+function showPois(pois)
+    if g_isMapOpen == false then 
+        openMap(0, 70, 480, 700)
+    end
+    local observer = Plugin:getObserver()
+    Map:showPOIs(observer, 1002, pois, 1)
+end
+
+ ]]>
+</root>

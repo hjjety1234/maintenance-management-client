@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置背景 -->
+            <image rect="0,0,0,0" src="file://image/backgroundImg.png" style="autosize" extendstyle="1177" />
+            <!-- 设置头部 -->
+            <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+                 <image name="title" rect="0,0,480,66" border="false" src="file://image/title_new.png" 
+                             style="autosize" extendstyle="1111">
+                        <label rect="0,0,480,66" text="基站专业" color="#ffffff" v-align="center"  h-align="center" font-family="微软雅黑" 
+                                  font-size="30" extendstyle="1111" />
+                 </image>
+                 <button name="backBtn" rect="0,0,66,66" normal="" sel="" OnSelect="doBack" extendstyle="1111">
+                         <image name="normal" rect="15,8,75,75" src="file://image/skin/ic_home_new.png" extendstyle="1111" />
+                         <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png" extendstyle="1111" />
+                </button>
+            </node>
+            <!-- 设置表格 -->
+            <node name="baseNode" rect="0,56,480,734" extendstyle="1111">
+                <image rect="5,20,330,33" border="false" src="file://image/base_title.png" 
+                             style="autosize" extendstyle="1111">
+                </image>
+                <image rect="10,65,461,62" border="false" src="file://image/base_bj.png" 
+                             style="autosize" extendstyle="1111">
+                    <label rect="50,20,60,30" text="地区" color="#ffffff" v-align="left"  h-align="center" font-family="微软雅黑" 
+                                  font-size="28" extendstyle="1111" />
+                    <label rect="180,20,260,30" text="发电及时率" color="#ffffff" v-align="left"  h-align="center" font-family="微软雅黑" 
+                                  font-size="28" extendstyle="1111" />
+                </image>
+                <image rect="10,127,461,562" border="false" src="file://image/base_line.png" 
+                             style="autosize" extendstyle="1111">
+                </image>
+                <image rect="10,689,461,13" border="false" src="file://image/base_bottom.png" 
+                             style="autosize" extendstyle="1111">
+                </image>
+                <!-- 区域下拉框 -->      
+                    <button name="areaBtn" rect="340,15,145,42" border="false" text="" color="#ffffff" 
+                            OnSelect="areaOnSelect" extendstyle="1111">
+                           <image rect="0,0,130,42" src="file://image/select_bg.png"  style="sudoku-auto" 
+                                     sudoku="15,15,15,15" extendstyle="1111">                  
+                           </image>
+                           <label name="comboxLable" rect="10,0,155,42" text="11月" h-align="left" v-align="center"
+                                    font-family="微软雅黑" font-size="22" color="#0"  style="autosize" extendstyle="1111"/>
+                    </button>
+            </node>
+            <!--列表区域-->
+            <node name="listNode" rect="0,56,480,734" extendstyle="1111">
+                <listview name="sampleList" rect="0,120,480,670" extendstyle="1111" limit='true' />
+            </node>
+            <!-- 列表加载项 -->
+            <node name="listitem" rect="0,0,368,72" visible="false" enable="false" active="true">  
+                    <image name='bulb' rect="260,15,18,28" border="false" src="" 
+                             style="autosize" extendstyle="1111"/>                 
+                    <label name="area" rect="60,10,202,35" border="false" color="#515151" style="autosize"
+                     text="地区" h-align="left" v-align="center" font-family="微软雅黑" font-size="22"></label>   
+                    <label name="score" rect="320,10,202,35" border="false" color="#515151" style="autosize"
+                     text="地区" h-align="left" v-align="center" font-family="微软雅黑" font-size="22"/>  
+                    <shadow name = 'shadow' rect="12,10,441,2" color='d4d4d4' v-align="center" style="autosize" extendstyle="1111" />
+            </node>
+
+            <!-- 区域下拉框值 -->
+            <node name="filterAreaNode" rect="0,0,480,800" visible="false" enable="true">
+                <button name="bthide" rect="0,0,480,800" border="false" text=""
+                     color="#ffffff" OnSelect="hideFilterSelected">
+                </button>
+                <node rect="66,160,368,68" extendstyle="1111"  border="false">
+                      <image rect="0,0,368,68" src="file://image/top.png"  style="autosize" extendstyle="1111" />
+                      <image rect="20,30,22,22" src="file://image/icon_arrow.png"  style="autosize" extendstyle="1111" />
+                      <label rect="20,5,170,68" border="false" color="#FFFFFF"
+                             text="选择月份" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                </node>   
+                <node rect="66,228,368,216" extendstyle="1111" border="false">
+                    <image rect="0,0,368,126" src="file://image/center.png"  style="autosize" extendstyle="1111" />
+                    <button name="btnDangerStatus" rect="12,0,342,61" text="      10月" h-align="left" font-family="微软雅黑"
+                             color="#000000" extendstyle="1111" OnSelect="areaSampleOnSelect"
+                             normal=""
+                             sel=""
+                             font-size="24" data="02">
+                             <image rect="285,15,32,32" src="file://image/list_arrow.png" extendstyle="1111" />
+                             <image rect="12,70,320,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
+                    </button>
+                    <button name="btnDangerGrade" rect="12,76,342,61" text="      11月" h-align="left" font-family="微软雅黑"
+                             color="#000000" extendstyle="1111" OnSelect="areaSampleOnSelect"
+                             normal=""
+                             sel=""
+                             font-size="24" data="03">
+                             <image rect="285,15,32,32" src="file://image/list_arrow.png" extendstyle="1111" />
+                    </button>
+                 </node>
+                 <image rect="66,354,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
+            </node> 
+
+
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+local rootSprite
+local data
+local year = '2012-11'
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    Log:write('bodyBuildChildrenFinished')
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        requset()
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then
+        data = Http:jsonDecode('data')
+        Log:write('基站data:',data)
+        if data.total=='0'then
+        Dialog:show(rootSprite, '服务端无数据', 'ok')
+        return
+        end
+        if data ~= nil then
+            if data.code == '0' then 
+                Log:write('#data.value.value')           
+                if #data.value.value > 0 then
+                  loadList(#data.value.value + 1)
+                else
+                  loadList(1)
+                end
+            end
+        end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+
+
+---------------------------------------util functions---------------------------
+--返回到上一个页面
+function doBack()
+    Scene:back()
+end
+
+function requset()
+        local username = Config:get('username') 
+        local param ='nbspweb/webservice/count!doWebservice.action?usercode='..username..'&year='..year..'&cmd=wlbbasestation'
+        local reqURL = getUrl()..param
+        Log:write('reqURL：',reqURL)
+        Http:request('data', reqURL, 101, {useCache = false})
+end
+
+function loadList(count)
+        Log:write('基站loadList')
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list,1)
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), 16, 'loadListItem')
+        ListView:adjust(list)
+end
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 468, 36)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local area = Sprite:findChild(item, 'area')
+    local score = Sprite:findChild(item, 'score')
+    local bulb = Sprite:findChild(item, 'bulb')
+    local shadow = Sprite:findChild(item, 'shadow')
+    Sprite:setProperty(area,'text',data.value.value[index].city)
+    Sprite:setProperty(score,'text',data.value.value[index].electricity)
+    if index == 0 then 
+       Sprite:setProperty(shadow,'visible','false')
+    end
+    if tonumber(data.value.value[index].electricity) > 97 then 
+        Sprite:setProperty(bulb,'src','file://image/base_bulb.png')
+        Log:write('666666')
+    end 
+
+    if tonumber(data.value.value[index].electricity) < 80 then 
+        Sprite:setProperty(bulb,'src','file://image/base_bulb_1.png')
+        Log:write('777777')
+    end
+
+end
+
+function areaOnSelect(sprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'filterAreaNode'), 1)
+end
+---隐藏过滤区域
+function hideFilterSelected(sprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'filterAreaNode'), 0)
+end
+
+function areaSampleOnSelect(sprite)
+        local xdData = Sprite:getData(sprite)
+        local areaText = Sprite:findChild(rootSprite, 'comboxLable')
+            if xdData == '02' then
+            Sprite:setProperty(areaText, 'text', '10月')
+            year ='2012-10'
+            elseif xdData == '03' then
+            Sprite:setProperty(areaText, 'text', '11月')
+            year ='2012-11'
+            end
+        setAllShoworHide(Sprite:findChild(rootSprite, 'filterAreaNode'), 0)
+        local username = Config:get('username') 
+        local param ='nbspweb/webservice/count!doWebservice.action?usercode='..username..'&year='..year..'&cmd=wlbbasestation'
+        local reqURL = getUrl()..param
+        Log:write('reqURL：',reqURL)
+        Http:request('data', reqURL, 101, {useCache = false})
+end
+    ]]>
+</root>

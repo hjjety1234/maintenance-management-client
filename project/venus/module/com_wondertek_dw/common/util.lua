@@ -325,6 +325,6 @@ function XY_TO_GPSCOORDINATE(lon, lat)
     
     -- 拼接返回字符串
     result = ladustr..lafenstr..longdustr..longfenstr
-    Log:write(result)
+    Log:write('XY_TO_GPSCOORDINATE result is -->',result)
     return result
 end
