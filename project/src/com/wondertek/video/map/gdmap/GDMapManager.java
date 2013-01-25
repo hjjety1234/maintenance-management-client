@@ -65,7 +65,7 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 	private MyLocationOverlay autoLocationOverlay = null;
 	private GeoPoint currentPoint = null;
 	private View locationPopView = null;
-	private GDPoiOverlayEx poiOverlay = null;
+	private GDPoiOverlay poiOverlay = null;
 	private List<View> mPopViewList = new ArrayList<View>();
     private boolean bAutoLocationEnable = false;
     
@@ -309,22 +309,29 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 			}
 			
 			mMapView.getController().setZoom(13);
-			Drawable marker = mContext.getResources().getDrawable(mContext.getResources().getIdentifier("dingwei", "drawable", mContext.getPackageName()));
+			Drawable marker = mContext.getResources().getDrawable(mContext.getResources().
+					getIdentifier("gdmap_icon_mis", "drawable", mContext.getPackageName()));
+			Drawable markerEx = mContext.getResources().getDrawable(mContext.getResources().
+					getIdentifier("dingwei", "drawable", mContext.getPackageName()));
 			List<PoiItem> items = new ArrayList<PoiItem>();
+			boolean isLineInspect = false;	// 是否是线路巡检
 			for (int i = 0; i < poisArray.length(); ++i) {
 				JSONObject poi = poisArray.getJSONObject(i);
 				int longitude = poi.getInt("longitude");
 				int latitude = poi.getInt("latitude");
 				String desc = poi.getString("desc");
                 String poiId = poi.getString("id");
-				
-				PoiItem poiItem = new PoiItem(poiId, new GeoPoint(latitude, longitude), desc, "");
+                if (poiId.equals("-1")) {
+                	isLineInspect = true;
+                }
+            	PoiItem poiItem = new PoiItem(poiId, new GeoPoint(latitude, longitude), desc, "");
 				items.add(poiItem);
-				//showPoiPopView(latitude, longitude, desc, false);
-				
-				
 			}
-			poiOverlay = new GDPoiOverlayEx(marker, items);
+			if (isLineInspect == false) {
+				poiOverlay = new GDPoiOverlayEx(markerEx, items);
+			}else {
+				poiOverlay = new GDPoiOverlay(marker, items);
+			}
 			poiOverlay.addToMap(mMapView);
 			mMapView.invalidate();
 		} catch (JSONException e) {
@@ -588,14 +595,17 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 		}
 	}
 	
-	class GDPoiOverlayEx extends PoiOverlay {
+	/**
+	 * 基本的Poi点Overlay
+	 */
+	class GDPoiOverlay extends PoiOverlay {
 		private Drawable marker;
-		public GDPoiOverlayEx(Drawable marker, List<PoiItem> items) {
+		public GDPoiOverlay(Drawable marker, List<PoiItem> items) {
 			super(marker, items);
 			this.marker = marker;
 			this.populate();
 		}
-
+		
 		@Override
 		protected LayoutParams getLayoutParam(int index) {
 			PoiItem poi = getItem(index);
@@ -603,6 +613,45 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 			LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
 					poi.getPoint(), 0, -mHeight, LayoutParams.BOTTOM_CENTER);
 			return params;
+		}
+		
+		@Override
+		protected Drawable getPopupBackground() {
+			return mContext.getResources().getDrawable(mContext.getResources().
+					getIdentifier("wd_tip_pointer_button", "drawable", mContext.getPackageName()));
+		}
+		
+		@Override
+		protected Drawable getPopupMarker(PoiItem item) {
+			return super.getPopupMarker(item);
+		}
+		
+		/**
+		 * 获取POI点的view
+		 */
+		@Override
+		protected View getPopupView(final PoiItem item) {
+			View view = ((Activity) mContext).getLayoutInflater().inflate(mContext.getResources().
+					getIdentifier("gdmap_popview_item", "layout", mContext.getPackageName()), null);
+			final TextView title = (TextView) view.findViewById(mContext.getResources().
+					getIdentifier("item_name", "id", mContext.getPackageName()));
+			title.setText(item.getTitle());
+			return view;
+		}
+
+		@Override
+		protected boolean onTap(int index) {
+			Log.d(TAG, ">>>onTap<<<" + " index: " + index);
+			return super.onTap(index);
+		}
+	}
+	
+	/**
+	 * 扩展的Poi点Overlay，支持查看POI详情和导航功能。
+	 */
+	class GDPoiOverlayEx extends GDPoiOverlay {
+		public GDPoiOverlayEx(Drawable marker, List<PoiItem> items) {
+			super(marker, items);
 		}
 
 		@Override
@@ -613,7 +662,6 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 
 		@Override
 		protected Drawable getPopupMarker(PoiItem item) {
-			// TODO Auto-generated method stub
 			return super.getPopupMarker(item);
 		}
 		
@@ -682,13 +730,6 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 			});
 			*/
 			return view;
-		}
-
-		@Override
-		protected boolean onTap(int index) {
-			Log.d(TAG, ">>>onTap<<<" + " index: " + index);
-			// TODO Auto-generated method stub
-			return super.onTap(index);
 		}
 	}
 }
