@@ -112,6 +112,7 @@ local templateId
 local Inflag = '1'
 local tab = {'开始巡检'..getCurDateAndTime()}
 local xianluArray = {}
+local zancunTimeArray = {}
 local list
 local timerNum = 20
 
@@ -131,10 +132,15 @@ function bodyOnSpriteEvent(msg, param)
         -- 线路暂存页面提交过后提交失败数组
         local regHandlerTest =Reg:create("xianluzancunTest")
         xianluArray = Reg:getTable(regHandlerTest,'xianluzancunArray')
+        zancunTimeArray = Reg:getTable(regHandlerTest,'zancunTimeArray')
         if xianluArray == nil then
                 xianluArray = {}
         end 
-        Log:write("线路巡检暂存数组：",xianluArray)
+        if zancunTimeArray == nil then
+                zancunTimeArray = {}
+        end 
+        Log:write("线路巡检暂存短信发送内容数组：",xianluArray)
+        Log:write("线路巡检暂存列表显示数组：",zancunTimeArray)
         -- 线路暂存页面提交过后提交失败数组END
 		local regHandle = Reg:create('xunjianzhixiang')
         planId=Reg:getString(regHandle, 'planId')
@@ -227,9 +233,12 @@ function tabOnSelect(sprite)
         --线路巡检
         return
     elseif dataInfo=='02' then
-        --跳转至暂存界面
+        --跳转至暂存界面   
+        local regHandlerTest =Reg:create("temporarySave")
+        Reg:setTable(regHandlerTest,'xianluHistoryList',xianluArray)
+        Reg:setTable(regHandlerTest,'zancunTimeList',zancunTimeArray)
         Scene:setReturn(Alias.home_xianlu, Alias.m_xianluxunjianzancun)
-        Scene:go(Alias.m_xianluxunjianzancun)
+        Scene:go(Alias.m_xianluxunjianzancun,1)
     elseif dataInfo == '03' then
         --跳转至漏点查询
         Log:write('go to  url is ',Alias.m_xianluomit)
@@ -324,6 +333,11 @@ function btnUP_OnSelected(sprite)
 end
 --上报位置按钮单击
 function btnUP_OnSelected2(sprite)
+    -- 线路巡检暂存测试
+    -- table.insert(zancunTimeArray,getCurDateAndTime_xianlu()..'   暂存巡检点')
+    -- table.insert(xianluArray,'线路巡检暂存实际发送短信信息')
+    -- Log:write("线路巡检暂存zancunTimeArray = ",zancunTimeArray)
+    -- Log:write("线路巡检暂存xianluArray = ",xianluArray)
     --getGPSDataByMap()
   Loading:show()
   local lbltips = Sprite:findChild(rootSprite, 'lbllonandlat')
@@ -395,7 +409,8 @@ function _requestNearbyStationByRadius()
             Sprite:setProperty(statusBarText, 'text', '巡检信息上报成功')
 			local tabhis = {os.date()..'上报成功'}
 		--	table.insert(tab,tabhis)
-        else
+        else           
+            table.insert(zancunTimeArray,getCurDateAndTime_xianlu()..'   暂存巡检点')
             table.insert(xianluArray,smscontent)
             Sprite:setProperty(statusBarText, 'text', '巡检信息上报失败:短信上报失败')
         end
@@ -496,6 +511,16 @@ function btnTemporiryOnSelected()
     Reg:setTable(regHandlerTest,'xianluHistoryList',xianluArray)
     Scene:setReturn(Alias.m_xianluxunjian, Alias.m_xianluxunjianzancun)
     Scene:go(Alias.m_xianluxunjianzancun,1)
+end
+-- 系统当前日期与时间
+function getCurDateAndTime_xianlu()
+    local year = os.date("*t")["year"]
+    local month = os.date("*t")["month"]
+    local day = os.date("*t")["day"]+1
+    local hour = os.date("*t")["hour"]
+    local minute = os.date("*t")["min"]
+    local sec = os.date("*t")["sec"]
+    return string.format('%04s-%02s-%02s %02s:%02s:%02s', year, month, day, hour, minute, sec)
 end
     ]]>
 </root>
