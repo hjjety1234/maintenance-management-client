@@ -270,10 +270,38 @@ function showMap()
         if pois ~= nil and pois ~= '{pois:[]}' then
             Log:write('pois---->', pois)
             local observer = Plugin:getObserver()
-            Map:showPOIs(observer, 1002, pois, 1)
+            showPois(pois)
         end
 end
 
+local g_isMapOpen = false
+
+-- 打开地图
+function openMap(x, y, w, h)
+    if g_isMapOpen == false then 
+        local xscal = SCREEN_WIDTH / 480
+        local yscal = SCREEN_HEIGHT / 800
+        Map:open(x*xscal, y*yscal, w*xscal, h*yscal)
+        g_isMapOpen = true
+    end
+end
+
+-- 在地图上显示漏检点
+function showPois(pois)
+    if g_isMapOpen == false then 
+        openMap(0, 70, 480, 700)
+    end
+    local observer = Plugin:getObserver()
+    Map:showPOIs(observer, 1002, pois, 1)
+end
+
+-- 关闭地图
+function closeMap()
+    if g_isMapOpen == true then 
+        Map:close()
+        g_isMapOpen = false
+    end
+end
 
     ]]>
 </root>
