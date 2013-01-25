@@ -120,7 +120,7 @@ local timerNum = 20
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
 	list = Sprite:findChild(rootSprite,'lvHis')
-    Log:write('当前时间点为：'..getCurrentTimeStamp())
+    Log:write('当前时间点为：'..getCurrentTimeandDate())
     Log:write('经纬度转换后：'..XY_TO_GPSCOORDINATE('173.815118','32.303518'))
     Log:write(getCurDateAndTime()..'上报巡检点成功')
 end
@@ -182,7 +182,7 @@ function bodyOnPluginEvent(msg,param)
             Log:write('111111111111111111111111111111111111111111111111111111111111111', smscontent)
             local phone = Config:get('xlSmsNo')--'10658452'
             local tabhis = {smscontent}
-            table.insert(tab,1,os.date("*t",os.time()+86400)..'上报巡检点成功')
+            table.insert(tab,1,getCurrentTimeandDate()..'上报巡检点成功')
             if Util:sendSMS(phone, smscontent) then
                 Sprite:setProperty(statusBarText, 'text', '巡检信息上报成功')
                 local tabhis = {os.date()..'上报成功'}
@@ -389,7 +389,7 @@ function _requestNearbyStationByRadius()
         Log:write('111111111111111111111111111111111111111111111111111111111111111', smscontent)
         local phone = Config:get('xlSmsNo')--'10658452'
         local tabhis = {smscontent}
-        table.insert(tab,1,os.date("*t",os.time()+86400)..'上报巡检点成功')
+        table.insert(tab,1,getCurrentTimeandDate()..'上报巡检点成功')
         
         if Util:sendSMS(phone, smscontent) then
             Sprite:setProperty(statusBarText, 'text', '巡检信息上报成功')
@@ -479,6 +479,16 @@ function getCurrentTimeStamp()
     local minute = os.date("*t")["min"]
     local sec = os.date("*t")["sec"]
     return string.format('%02s%02s%02s%02s%02s%02s', year, month, day, hour, minute, sec)
+end
+function getCurrentTimeandDate()
+    local now = os.date("*t",os.time()+86400)
+    local year = now['year']
+    local month = now['month']
+    local day = now['day']
+    local hour = os.date("*t")["hour"]
+    local minute = os.date("*t")["min"]
+    local sec = os.date("*t")["sec"]
+    return string.format('%04s-%02s-%02s %02s:%02s:%02s', year, month, day, hour, minute, sec)
 end
 -- 点击按钮进入线路巡检暂存页面
 function btnTemporiryOnSelected()
