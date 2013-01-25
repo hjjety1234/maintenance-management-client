@@ -6,8 +6,10 @@
  == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
  == ============================================================================
  == | Author: xxxx <xxxx@xxxx.com>
+ == | Revised: hewu <hewu2008@gmail.com> 2013/01/25 
  == ============================================================================
  == | Desc: 页面描述
+ == |       添加漏检点地图POI显示功能
  == ============================================================================
 -->
 <root>
@@ -90,6 +92,8 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.map'
+
 local rootSprite
 local data --漏检点集合
 
@@ -103,7 +107,9 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-
+        openMap(0, 70, 480, 700)
+        local json = {pois:[{"id":"-1", "longitude":117251716, "latitude":31850759, "desc":"匡河路,井0001"},{"id":"-1", "longitude":117228327, "latitude":31821309, "desc":"匡河路,井0002"}]}
+        showPois(json)
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -150,6 +156,7 @@ end
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
+	    closeMap()
         Scene:back()
         return 1
     end
@@ -158,6 +165,7 @@ end
 ---------------------------------------util functions---------------------------
 --返回按钮单击
 function doBackDialog()
+    closeMap()
     Scene:back();
 end
 --巡检、暂存、漏点查询
@@ -198,6 +206,7 @@ function loadlist(count)
     ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
     ListView:adjust(list)
 end
+
 function loadListItem(list, item, index)
     Sprite:setRect(item, 5, 0, 240, 40)
 
@@ -221,5 +230,37 @@ function loadListItem(list, item, index)
     Sprite:setProperty(navigationBtn,'visible','true')
 end
 
-    ]]>
+
+---------------------------------------漏检点地图显示相关函数------------------------
+local g_isMapOpen = false
+
+-- 打开地图
+function openMap(x, y, w, h)
+    if g_isMapOpen == false then 
+        local xscal = SCREEN_WIDTH / 480
+        local yscal = SCREEN_HEIGHT / 800
+        Map:open(x*xscal, y*yscal, w*xscal, h*yscal)
+        g_isMapOpen = true
+    end
+end
+
+-- 关闭地图
+function closeMap()
+    if g_isMapOpen == true then 
+        Map:close()
+        g_isMapOpen = false
+    end
+end
+
+-- 在地图上显示漏检点
+-- local json = '{pois:[{"id":"0", "latitude":32168548, "longitude":116538469, "desc":"东方大厦"}, {...}, {...}]}'
+function showPois(pois)
+    if g_isMapOpen == false then 
+        openMap(0, 70, 480, 700)
+    end
+    local observer = Plugin:getObserver()
+    Map:showPOIs(observer, 1002, pois, 1)
+end
+
+ ]]>
 </root>
