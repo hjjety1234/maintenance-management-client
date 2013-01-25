@@ -70,16 +70,17 @@
                         h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
                 </button>
             </node>
-            <node name="contentNode" extendstyle="1111" rect="0,126,480,674">
+            <node name="contentNode" extendstyle="1111" rect="0,136,480,674">
                 <listview name="lvomit" rect="0,0,480,674" border="false" extendstyle="1111"></listview>
                 <node name="listitem" visible="false" enable="false" active="false"
                     extendstyle="1011" rect="0,40,480,40">
                     <image name="listItemBg" rect="0,0,480,40" src="file://image/item_bg_m.png" 
                             style="autosize" extendstyle="1111" />
+                    <button name="navButton" rect="0,0,480,40" extendstyle="1111" OnSelect="navigationBtn_clicked"></button>
                     <scrolltext name="stXL" scroll="true" rect="5,0,240,40" extendstyle="1111"></scrolltext>
                     <scrolltext name="stXLD" scroll="true" rect="240,0,240,40" extendstyle="1111"></scrolltext>
                     <!-- 导航按钮  -->
-                    <button name="navigationBtn" visible="false" rect="400,0,70,40"
+                    <button name="navigationBtn" OnSelect="navigationBtn_clicked" rect="400,0,70,40"
                         extendstyle="1111" data="">
                         <image rect="0,0,70,40" src="file://image/icon_xxianlu.png" style="center" 
                             extendstyle="1111">
@@ -93,7 +94,6 @@
 
 require 'com_wondertek_dw.common.framework'
 require 'framework.map'
-
 local rootSprite
 local data --漏检点集合
 
@@ -107,9 +107,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        openMap(0, 70, 480, 700)
-        local json = '{pois:[{"id":"-1", "longitude":117251716, "latitude":31850759, "desc":"匡河路,井0001"},{"id":"-1", "longitude":117228327, "latitude":31821309, "desc":"匡河路,井0002"}]}'
-        showPois(json)
+
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -132,17 +130,18 @@ function bodyOnPluginEvent(msg)
         else
             --解析数据
             if #data.value>0 then
+                Log:write('data.value>0')
                 loadlist(#data.value+1)
             else
                 --造数据进行测试
                 data = {cmd='wlbxunjianxianluhis',cmd='0',
                     value={
-                            {pointid='0001',pointname='井0001',sublinename='匡河路',lon='',lat=''},
-                            {pointid='0002',pointname='井0002',sublinename='匡河路',lon='',lat=''},
+                            {pointid='0001',pointname='井0001',sublinename='匡河路',lon='117.251716',lat='31.850759'},
+                            {pointid='0002',pointname='井0002',sublinename='匡河路',lon='117.228327',lat='31.821309'},
                         }
                     }
                 Log:write('data count is ',#data.value)
-                loadlist(#data.value+1)
+                loadlist(#data.value)
             end
         end
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
@@ -156,7 +155,7 @@ end
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-	    closeMap()
+        closeMap()
         Scene:back()
         return 1
     end
@@ -166,7 +165,7 @@ end
 --返回按钮单击
 function doBackDialog()
     closeMap()
-    Scene:back();
+    Scene:back()
 end
 --巡检、暂存、漏点查询
 function tabOnSelect(sprite)
@@ -201,66 +200,80 @@ end
 
 --绑定
 function loadlist(count)
+    Log:write('the count is ',count)
     local list = Sprite:findChild(rootSprite, 'lvomit')
     ListView:removeAllItems(list,true) 
     ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
     ListView:adjust(list)
 end
-
 function loadListItem(list, item, index)
-    Sprite:setRect(item, 5, 0, 240, 40)
+        index = index + 1
+        Sprite:setRect(item, 5, 0, 480, 40)
 
-    Sprite:setProperty(item, 'extendstyle', '1111')
-    local listItemBg = Sprite:findChild(item, 'listItemBg') 
-    Sprite:setRect(listItemBg, 240, 0, 240, 40)
- 
-    local num = index+1
-    Log:write('index=============================',num%2)
-    if num % 2 > 0 then
-       Sprite:setProperty(listItemBg, 'alpha', '0')
-    else
-       Sprite:setProperty(listItemBg, 'alpha', '20')
-    end
-    Log:write('the pointname is ',data.value[index].pointname)
-    local stXL = Sprite:findChild(item,'stXL')
-    local stXLD = Sprite:findChild(item,'stXLD')
-    local navigationBtn = Sprite:findChild(item,'navigationBtn')
-    Sprite:setProperty(stXL,'text',data.value[index].sublinename)
-    Sprite:setProperty(stXLD,'text',data.value[index].pointname)
-    Sprite:setProperty(navigationBtn,'visible','true')
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        local listItemBg = Sprite:findChild(item, 'listItemBg') 
+        Sprite:setRect(listItemBg, 0, 0, 480, 40)
+     
+        Log:write('index=============================',index)
+        if index % 2 > 0 then
+           Sprite:setProperty(listItemBg, 'alpha', '0')
+        else
+           Sprite:setProperty(listItemBg, 'alpha', '20')
+        end
+
+
+        Log:write('the pointname is ',data.value[index].pointname)
+        local stXL = Sprite:findChild(item,'stXL')
+        local stXLD = Sprite:findChild(item,'stXLD')
+        local navigationBtn = Sprite:findChild(item,'navigationBtn')
+        Sprite:setProperty(stXL,'text',data.value[index].sublinename)
+        Sprite:setProperty(stXLD,'text',data.value[index].pointname)
+        Sprite:setProperty(navigationBtn,'visible','true')
+end
+
+function navigationBtn_clicked(sprite)
+    showMap()
+end
+
+function showMap()
+    local len = #data.value
+        if len == 0 then 
+            len = 1
+        end
+        -- 格式化基站数据
+        local poisString = '{pois:['
+        for i=1,len do 
+            -- 取感兴趣的站点数据
+            Log:write('index is ',data.value[i])
+            local station = data.value[i]
+            local name = station.sublinename..','..station.pointname
+            local longitude = station.lon
+            local latitude = station.lat
+            local staionId = '-1'
+            -- 部分站点没有经纬度，做一下保护
+            if longitude ~= nil and longitude ~= '' 
+                and latitude ~= nil and latitude ~= '' then 
+                -- 创建poi点
+                local poiString = string.format('{"id":"%s", "longitude":%d, "latitude":%d, "desc":"%s"}',
+                       staionId, longitude * 1000000, latitude * 1000000, name)
+                Log:write('poiString', poiString)
+                if i < len then
+                    poisString = poisString..poiString..',' 
+                else
+                    poisString = poisString..poiString
+                end
+            end
+        end
+        poisString = poisString..']}'
+        pois = poisString
+        Log:write('pois is ',pois)
+        if pois ~= nil and pois ~= '{pois:[]}' then
+            Log:write('pois---->', pois)
+            local observer = Plugin:getObserver()
+            Map:showPOIs(observer, 1002, pois, 1)
+        end
 end
 
 
----------------------------------------漏检点地图显示相关函数------------------------
-local g_isMapOpen = false
-
--- 打开地图
-function openMap(x, y, w, h)
-    if g_isMapOpen == false then 
-        local xscal = SCREEN_WIDTH / 480
-        local yscal = SCREEN_HEIGHT / 800
-        Map:open(x*xscal, y*yscal, w*xscal, h*yscal)
-        g_isMapOpen = true
-    end
-end
-
--- 关闭地图
-function closeMap()
-    if g_isMapOpen == true then 
-        Map:close()
-        g_isMapOpen = false
-    end
-end
-
--- 在地图上显示漏检点
--- local json = '{pois:[{"id":"0", "latitude":32168548, "longitude":116538469, "desc":"东方大厦"}, {...}, {...}]}'
-function showPois(pois)
-    if g_isMapOpen == false then 
-        openMap(0, 70, 480, 700)
-    end
-    local observer = Plugin:getObserver()
-    Map:showPOIs(observer, 1002, pois, 1)
-end
-
- ]]>
+    ]]>
 </root>
