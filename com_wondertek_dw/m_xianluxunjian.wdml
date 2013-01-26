@@ -129,19 +129,19 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        -- 线路暂存页面提交过后提交失败数组
+        -- 线路暂存信息数组
         local regHandlerTest =Reg:create("xianluzancunTest")
         xianluArray = Reg:getTable(regHandlerTest,'xianluzancunArray')
         zancunTimeArray = Reg:getTable(regHandlerTest,'zancunTimeArray')
         if xianluArray == nil then
-                xianluArray = {}
+            xianluArray = {}
         end 
         if zancunTimeArray == nil then
-                zancunTimeArray = {}
+            zancunTimeArray = {}
         end 
         Log:write("线路巡检暂存短信发送内容数组：",xianluArray)
         Log:write("线路巡检暂存列表显示数组：",zancunTimeArray)
-        -- 线路暂存页面提交过后提交失败数组END
+        -- 线路暂存信息数组END
 		local regHandle = Reg:create('xunjianzhixiang')
         planId=Reg:getString(regHandle, 'planId')
         templateId=Reg:getString(regHandle, 'templateId')
@@ -338,6 +338,9 @@ function btnUP_OnSelected2(sprite)
     -- table.insert(xianluArray,'线路巡检暂存实际发送短信信息')
     -- Log:write("线路巡检暂存zancunTimeArray = ",zancunTimeArray)
     -- Log:write("线路巡检暂存xianluArray = ",xianluArray)
+    -- local regHandlerTest =Reg:create("xianluzancunTest")
+    -- Reg:setTable(regHandlerTest,'xianluzancunArray',xianluArray)
+    -- Reg:setTable(regHandlerTest,'zancunTimeArray',zancunTimeArray)
     --getGPSDataByMap()
   Loading:show()
   local lbltips = Sprite:findChild(rootSprite, 'lbllonandlat')
@@ -409,9 +412,12 @@ function _requestNearbyStationByRadius()
             Sprite:setProperty(statusBarText, 'text', '巡检信息上报成功')
 			local tabhis = {os.date()..'上报成功'}
 		--	table.insert(tab,tabhis)
-        else           
+        else        
             table.insert(zancunTimeArray,getCurDateAndTime_xianlu()..'   暂存巡检点')
             table.insert(xianluArray,smscontent)
+            local regHandlerTest =Reg:create("xianluzancunTest")
+            Reg:setTable(regHandlerTest,'xianluzancunArray',xianluArray)
+            Reg:setTable(regHandlerTest,'zancunTimeArray',zancunTimeArray)
             Sprite:setProperty(statusBarText, 'text', '巡检信息上报失败:短信上报失败')
         end
         --同时向服务器发送一条消息，让服务器系统记录该用户进行了线路巡检
@@ -505,13 +511,7 @@ function getCurrentTimeandDate()
     local sec = os.date("*t")["sec"]
     return string.format('%04s-%02s-%02s %02s:%02s:%02s', year, month, day, hour, minute, sec)
 end
--- 点击按钮进入线路巡检暂存页面
-function btnTemporiryOnSelected()
-    local regHandlerTest =Reg:create("temporarySave")
-    Reg:setTable(regHandlerTest,'xianluHistoryList',xianluArray)
-    Scene:setReturn(Alias.m_xianluxunjian, Alias.m_xianluxunjianzancun)
-    Scene:go(Alias.m_xianluxunjianzancun,1)
-end
+
 -- 系统当前日期与时间
 function getCurDateAndTime_xianlu()
     local year = os.date("*t")["year"]
