@@ -31,9 +31,9 @@
 			<!-- 下载进度指示 -->
 			<node name="downloadingNode" rect="163,500,0,0" visible="false"
 			    enable="false" extendstyle="1111">
-			    <image name="progressBg" rect="0,0,154,10" 
+			    <image name="progressBg" rect="0,0,154,10" style="autosize" 
 			        src="file://image/login_progress_bg.png" extendstyle="1111" />
-			    <image name="progressImg" rect="0,0,0,10" 
+			    <image name="progressImg" rect="0,0,0,10" style="autosize"
 			        src="file://image/login_progress.png" extendstyle="1111" />
 			    <label name="proLab" rect="164,-8,160,26" text="0KB/0KB" 
 			        font-size="16" color="#ffffff" v-align="center" h-align="left" 
@@ -55,12 +55,12 @@
                     <label rect="20,20,240,68" border="false" color="#FFFFFF" style="autosize"
                     text="版本更新" h-align="left" v-align="top" font-family="微软雅黑" font-size="24"/>
                 </image>
-                <image rect="66,264,368,166" src="file://image/center.png"  style="autosize" extendstyle="1111" >
-                    <label rect="5,45,368,30" border="false" color="#303030" style="autosize"
-                    text="检查到有最新版，推荐更新！" h-align="center" v-align="center" font-family="微软雅黑" font-size="26"/>
+                <image rect="66,264,368,316" src="file://image/center.png"  style="autosize" extendstyle="1111" >
+                    <textarea name='update'   rect="15,10,338,300" step="1" loop='true' border="false" color="#303030" style="autosize"
+                    text="" h-align="left" v-align="top" font-family="微软雅黑" font-size="22" extendstyle="1111"/>
                 </image>
                 <!--升级-->
-                <button  rect="126,384,94,38" border="false" enable='true'
+                <button  rect="126,534,94,38" border="false" enable='true'
                  extendstyle="1111" OnSelect="downloadPackage" style='autosize' >
                     <image rect="10,1,94,38" src="file://image/btn_yes.png" style="autosize" 
                         extendstyle="1111">
@@ -69,7 +69,7 @@
                     </image> 
                 </button>
                 <!--不升级-->
-                <button  rect="266,384,94,38" border="false"  enable='true'
+                <button  rect="266,534,94,38" border="false"  enable='true'
                 extendstyle="1111" OnSelect="goLogin" style='autosize'>
                     <image rect="10,1,94,38" src="file://image/btn_no.png" style="autosize" 
                         extendstyle="1111" >
@@ -77,7 +77,7 @@
                         text="取消" h-align="center" v-align="top" font-family="微软雅黑" font-size="24"/>
                     </image>
                 </button>
-                <image rect="66,428,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
+                <image rect="66,578,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
             </node>
        	</node>
     </body>
@@ -133,6 +133,9 @@ function bodyOnPluginEvent(msg)
     if msg == 101 then
     elseif msg == 102 then --  版本检测
         local checkversionData = Http:jsonDecode('index_checkversion')
+        Log:write('checkversionData.releaseLog',checkversionData.version.releaseLog)
+        local update=Sprite:findChild(rootSprite,'update')
+        Sprite:setProperty(update,'text',checkversionData.version.releaseLog)
         Log:write('index_checkversion', checkversionData)
         Loading:close()
         if checkversionData and checkversionData['version'] then

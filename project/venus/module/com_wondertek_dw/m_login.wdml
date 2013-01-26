@@ -140,10 +140,10 @@ function bodyOnPluginEvent(msg)
     if msg == 101 then
         UmsAgent:onLoadFinish()
         local loginData = Http:jsonDecode('login_istrue')
-        Config:set('realname', loginData.userName)
         Log:write('+++++++++++++++++',loginData)
         local result=loginData['code']
         if result=='0' then
+            Config:set('realname', loginData.userName)
             Config:set('tasknum', loginData.taskNum)
             writeuserInfo()
             local xlFlag = Config:get("xlFlag")

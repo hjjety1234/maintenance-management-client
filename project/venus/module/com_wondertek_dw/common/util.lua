@@ -90,6 +90,17 @@ function getCurDateAndTime()
     local sec = os.date("*t")["sec"]
     return string.format('%04s-%02s-%02s %02s:%02s:%02s', year, month, day, hour, minute, sec)
 end
+--取系统日期时间，少一天的误差
+function getCurDateAndTimeAddOneDay()
+    local now = os.date("*t",os.time()+86400)
+    local year = now['year']
+    local month = now['month']
+    local day = now['day']
+    local hour = os.date("*t")["hour"]
+    local minute = os.date("*t")["min"]
+    local sec = os.date("*t")["sec"]
+    return string.format('%04s-%02s-%02s %02s:%02s:%02s', year, month, day, hour, minute, sec)
+end
 function getCurDate()
     local year = os.date("*t")["year"]
     local month = os.date("*t")["month"]
@@ -327,4 +338,29 @@ function XY_TO_GPSCOORDINATE(lon, lat)
     result = ladustr..lafenstr..longdustr..longfenstr
     Log:write('XY_TO_GPSCOORDINATE result is -->',result)
     return result
+end
+
+-- 将table写入指定的文件中
+require 'com_wondertek_dw.common.json'
+function writeTable2File(tbl, filePath)
+    if tbl == nil or type(tbl) ~= "table" then 
+        Log:write("writeTable2File:", "待写入的table非法!")
+        return
+    end
+    if filePath == nil then 
+        Log:write("writeTable2File:", "文件路径不能为空!")
+        return
+    end
+    local tblStr = encode(tbl)
+    -- 获取待写入文件的目录位置
+    local _,_,dirPath =  string.find(filePath, '(.+)[/\\].+$')
+    if dirPath ~= nil and IO:dirExist(dirPath) == false then 
+        IO:dirCreate(dirPath)
+    end
+    -- 如果文件不存在，需要重新创建
+    if IO:fileExist(filePath) == false then 
+        IO:fileCreate(filePath) 
+    end
+    -- 写入TABLE字符串
+    IO:fileWrite(filePath, tblStr)
 end
