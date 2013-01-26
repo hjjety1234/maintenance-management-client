@@ -400,11 +400,7 @@ function bodyBuildChildrenFinished(sprite)
     -- 设置页面标题
     Sprite:setProperty(Sprite:findChild(rootSprite, 'titleNode'), 'text', g_stationName)
     -- 反序列化巡检暂存
-    if Patrol:deserialize() == true then 
-        Log:write("反序列化巡检暂存成功！")
-    else
-        Log:write("反序列化巡检暂存失败！")
-    end
+    Patrol:deserialize() 
     -- 检查站点的位置
     checkSiteLoc()
 end
@@ -484,7 +480,7 @@ function bodyOnPluginEvent(msg, param)
             end
         end
         -- 检查是否有暂存数据
-        local userInput = Patrol:getUserInput(g_planId, g_stationId, g_resultId)
+        local userInput = Patrol:getUserInput(g_planId, g_stationId)
         if userInput ~= nil then 
             Log:write("找到暂存数据，替代服务器返回的巡检项!")
             g_items = userInput
@@ -717,8 +713,10 @@ end
 -- 返回上一个页面
 function doBack()
     if Loading:isShow() then Loading:close() end
-    Patrol:save(g_planId, g_resultId, g_resultId, g_items)
-    Patrol:serialize()
+    if isTableEmpty(g_items) == false then 
+        Patrol:save(g_planId, g_resultId, g_items)
+        Patrol:serialize()
+    end
     Scene:back()
 end
 
@@ -806,19 +804,19 @@ function loadSubListItem(list, item, index)
         local errorTitleName = Sprite:findChild(errorTitleNode1, 'errorTitleName')
         local editInput =  Sprite:findChild(errorTitleNode1, 'editInput')
         Sprite:setProperty(errorTitleName, 'text', subitem.subitemName)
-        Sprite:setProperty(editInput, 'text', subItem.value)
+        Sprite:setProperty(editInput, 'text', subitem.value)
     elseif subitem.inputType == 'NUM' then
         setAllShoworHide(errorTitleNode2, 1)
         local errorTitleName = Sprite:findChild(errorTitleNode2, 'errorTitleName')
         local editInput =  Sprite:findChild(errorTitleNode2, 'editInput')
         Sprite:setProperty(errorTitleName, 'text', subitem.subitemName)
-        Sprite:setProperty(editInput, 'text', subItem.value)
+        Sprite:setProperty(editInput, 'text', subitem.value)
     elseif subitem.inputType == 'TEXT' then
         setAllShoworHide(errorTitleNode3, 1)
         local errorTitleName = Sprite:findChild(errorTitleNode3, 'errorTitleName')
         local editInput =  Sprite:findChild(errorTitleNode3, 'editInput')
         Sprite:setProperty(errorTitleName, 'text', subitem.subitemName)
-        Sprite:setProperty(editInput, 'text', subItem.value)
+        Sprite:setProperty(editInput, 'text', subitem.value)
     else
         return
     end
@@ -1248,7 +1246,7 @@ function doUpload(sprite)
         return
     end
     -- 如果有暂存数据，需要先删除
-    Patrol:delete(g_planId, g_stationId, g_resultId)
+    Patrol:delete(g_planId, g_stationId)
 
     -- 检查是否已经出站
     if g_outFlag ~= '1' then 
