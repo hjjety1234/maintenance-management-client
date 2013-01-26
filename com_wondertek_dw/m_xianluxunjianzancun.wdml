@@ -20,7 +20,7 @@
             <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
                 <image name="title" rect="0,0,480,66" border="false"
                     src="file://image/title_new.png" style="autosize" extendstyle="1111" />
-                <label rect="0,0,480,66" text="线路暂存" color="#ffffff" v-align="center"
+                <label rect="0,0,480,66" text="巡检暂存" color="#ffffff" v-align="center"
                         h-align="center" font-family="黑体" font-size="28" extendstyle="1111" />  
                 <!--  
                 <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
@@ -133,9 +133,14 @@ function bodyOnSpriteEvent(msg, param)
 
             if #xianluArray > 0 then
                 LoadTemporiryList()
+            else
+                Dialog:show("", "线路巡检暂存列表记录为空！", "ok")
+                return
             end 
         else
             Log:write("暂存数组xianluArray中数据为空！")
+            Dialog:show("", "线路巡检暂存列表记录为空！", "ok")
+            return
         end 
         -- 线路暂存功能END
     elseif msg == MSG_DEACTIVATE then
@@ -255,16 +260,12 @@ function addOnSelect()
         Log:write("线路暂存数组的数目：",#xianluArray)
         if #xianluArray == 0 then
             Log:write("上报提交后线路巡检暂存列表为空！")
-            Timer:set(1,2000,'doBack')
+            doBack()
         else 
             Log:write("测试是否进入此函数")
-            Dialog:show('提示','是否返回到此次线路暂存上报失败列表项？','ok_cancel','doSave','doBack')
+            Dialog:show('提示','有'..#xianluArray..'条巡检信息提交失败,是否重新提交？','ok_cancel','LoadTemporiryList','doBack')
         end 
     end 
-end
--- 暂存信息提交失败的列表项
-function doSave()
-    Timer:set(1,2000,'LoadTemporiryList')
 end
 -- 系统当前日期与时间
 function getCurDateAndTime_xianlu()
