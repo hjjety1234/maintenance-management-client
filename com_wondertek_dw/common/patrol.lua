@@ -21,8 +21,10 @@ Patrol.data = {}
 -- 反序列化巡检暂存
 function Patrol:deserialize()
 	if IO:fileExist(Patrol.filePath) == true then 
-		Patrol.data = Json:loadFile2Table(Patrol.filePath) 
+		local fileContent = IO:fileRead(Patrol.filePath)
+		Patrol.data = Json:loadString2Table(fileContent) 
 		if Patrol.data == nil then 
+			Log:write("反序列化巡检暂存失败，数据文件格式非法或为空!")
 			Patrol.data = {}
 			return false
 		else
@@ -44,18 +46,17 @@ function Patrol:serialize()
 end
 
 -- 获取巡检暂存数据
-function Patrol:getUserInput( planId, stationId, resultId )
-	if Patrol.data == nil or Patrol.data[planId] == nil or 
-		Patrol.data[planId][stationId] == nil  or
-		Patrol.data[planId][stationId][resultId] == nil then 
-		return nil
-	end
-	return Patrol.data[planId][stationId][resultId]
+function Patrol:getUserInput( planId, stationId )
+	Log:write("getUserInput:", Patrol.data)
+    if Patrol.data == nil or Patrol.data[planId] == nil or 
+        Patrol.data[planId][stationId] == nil then 
+        return nil
+    end
+    return Patrol.data[planId][stationId]
 end
 
-
 -- 保存暂存数据
-function Patrol:save(planId, stationId, resultId, userinput)
+function Patrol:save(planId, stationId, userinput)
 	-- 保存巡检计划ID
 	if Patrol.data[planId] == nil then 
 		Patrol.data[planId] = {}
@@ -65,24 +66,17 @@ function Patrol:save(planId, stationId, resultId, userinput)
 		Patrol.data[planId][stationId] = {}
 	end
 	-- 保存巡检结果ID
-	Patrol.data[planId][stationId][resultId] = userinput
+	Patrol.data[planId][stationId] = userinput
 end
 
 -- 删除暂存数据
-function Patrol:delete(planId, stationId, resultId)
+function Patrol:delete(planId, stationId)
 	-- 查找是否有指定的暂存数据,如果找到则删除之，否则直接返回
 	if Patrol.data[planId] ~= nil and 
-		Patrol.data[planId][stationId] ~= nil  and
-		Patrol.data[planId][stationId][resultId] ~= nil then 
-		Patrol.data[planId][stationId][resultId] = nil
+		Patrol.data[planId][stationId] ~= nil then 
+		Patrol.data[planId][stationId] = nil
 	else
 		return
-	end
-
-	-- 检查是否有空的站点ID
-	if Patrol.data[planId] ~= nil and 
-		isTableEmpty(Patrol.data[planId][stationId]) == true then 
-		Patrol.data[planId][stationId] = nil
 	end
 
 	-- 检查是否有空的计划ID
@@ -93,7 +87,7 @@ end
 
 
 function isTableEmpty (tbl)
-	if tbl == nil return true end 
+	if tbl == nil then return true end 
     for _, _ in pairs(tbl) do
         return false
     end
