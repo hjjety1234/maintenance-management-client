@@ -328,3 +328,27 @@ function XY_TO_GPSCOORDINATE(lon, lat)
     Log:write('XY_TO_GPSCOORDINATE result is -->',result)
     return result
 end
+
+-- 将table写入指定的文件中
+function writeTable2File(tbl, filePath)
+    if tbl == nil or type(tbl) ~= "table" then 
+        Log:write("writeTable2File:", "待写入的table非法!")
+        return
+    end
+    if filePath == nil then 
+        Log:write("writeTable2File:", "文件路径不能为空!")
+        return
+    end
+    local tblStr = Util:tostring(tbl)
+    -- 获取待写入文件的目录位置
+    local _,_,dirPath =  string.find(filePath, '(.+)[/\\].+$')
+    if dirPath ~= nil and IO:dirExist(dirPath) == false then 
+        IO:dirCreate(dirPath)
+    end
+    -- 如果文件不存在，需要重新创建
+    if IO:fileExist(filePath) == false then 
+        IO:fileCreate(filePath) 
+    end
+    -- 写入TABLE字符串
+    IO:fileWrite(filePath, tblStr)
+end
