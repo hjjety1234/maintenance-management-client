@@ -90,6 +90,17 @@ function getCurDateAndTime()
     local sec = os.date("*t")["sec"]
     return string.format('%04s-%02s-%02s %02s:%02s:%02s', year, month, day, hour, minute, sec)
 end
+--取系统日期时间，少一天的误差
+function getCurDateAndTimeAddOneDay()
+    local now = os.date("*t",os.time()+86400)
+    local year = now['year']
+    local month = now['month']
+    local day = now['day']
+    local hour = os.date("*t")["hour"]
+    local minute = os.date("*t")["min"]
+    local sec = os.date("*t")["sec"]
+    return string.format('%04s-%02s-%02s %02s:%02s:%02s', year, month, day, hour, minute, sec)
+end
 function getCurDate()
     local year = os.date("*t")["year"]
     local month = os.date("*t")["month"]
