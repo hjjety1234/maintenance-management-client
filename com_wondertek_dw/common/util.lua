@@ -330,6 +330,7 @@ function XY_TO_GPSCOORDINATE(lon, lat)
 end
 
 -- 将table写入指定的文件中
+require 'com_wondertek_dw.common.json'
 function writeTable2File(tbl, filePath)
     if tbl == nil or type(tbl) ~= "table" then 
         Log:write("writeTable2File:", "待写入的table非法!")
@@ -339,7 +340,7 @@ function writeTable2File(tbl, filePath)
         Log:write("writeTable2File:", "文件路径不能为空!")
         return
     end
-    local tblStr = Util:tostring(tbl)
+    local tblStr = encode(tbl)
     -- 获取待写入文件的目录位置
     local _,_,dirPath =  string.find(filePath, '(.+)[/\\].+$')
     if dirPath ~= nil and IO:dirExist(dirPath) == false then 
