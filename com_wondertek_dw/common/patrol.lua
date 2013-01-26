@@ -44,7 +44,7 @@ function Patrol:serialize()
 end
 
 -- 获取巡检暂存数据
-function getUserInput( planId, stationId, resultId )
+function Patrol:getUserInput( planId, stationId, resultId )
 	if Patrol.data == nil or Patrol.data[planId] == nil or 
 		Patrol.data[planId][stationId] == nil  or
 		Patrol.data[planId][stationId][resultId] == nil then 
@@ -54,8 +54,8 @@ function getUserInput( planId, stationId, resultId )
 end
 
 
--- 插入暂存数据
-function Patrol:insert(planId, stationId, resultId, userinput)
+-- 保存暂存数据
+function Patrol:save(planId, stationId, resultId, userinput)
 	-- 保存巡检计划ID
 	if Patrol.data[planId] == nil then 
 		Patrol.data[planId] = {}
@@ -91,15 +91,6 @@ function Patrol:delete(planId, stationId, resultId)
 	end
 end
 
--- 更新暂存数据
-function Patrol:update( planId, stationId, resultId, itemIndex, subItemIndex, value)
-	local userinput = getUserInput( planId, stationId, resultId )
-	if userinput == nil then 
-		Log:write("更新暂存数据失败，未找到指定的用户输入!")
-		return 
-	end
-	userinput[itemIndex].subitems[subItemIndex].value = value
-end
 
 function isTableEmpty (tbl)
 	if tbl == nil return true end 

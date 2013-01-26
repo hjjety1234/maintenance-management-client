@@ -325,7 +325,7 @@
 		    <image rect="66,268,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" />
 		    <listview name="listSelect" rect="66,268,368,216" auto-scroll="true" style="autosize"
 		        auto-adjust="true" extendstyle="1111" />
-	`	    <image rect="66,483,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
+		    <image rect="66,483,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
 		</node>
 
 	   <!-- 选择对话框列表项模板  -->
@@ -345,6 +345,7 @@
 
 <![CDATA[
 require 'com_wondertek_dw.common.framework'
+require 'com_wondertek_dw.common.patrol'
 require 'framework.upload'
 require 'framework.barcode'
 require 'framework.map'
@@ -398,6 +399,12 @@ function bodyBuildChildrenFinished(sprite)
     g_stationLon = Reg:getString(regHandle, 'stationLon')
     -- 设置页面标题
     Sprite:setProperty(Sprite:findChild(rootSprite, 'titleNode'), 'text', g_stationName)
+    -- 反序列化巡检暂存
+    if Patrol:deserialize() == true then 
+        Log:write("反序列化巡检暂存成功！")
+    else
+        Log:write("反序列化巡检暂存失败！")
+    end
     -- 检查站点的位置
     checkSiteLoc()
 end
@@ -471,11 +478,24 @@ function bodyOnPluginEvent(msg, param)
         -- 将巡检子项添加到对应的巡检项中
         for i=0, getJsonArrayCount(subitems) - 1 do
             for j=1, #g_items do
-                if subitems[i].itemId == g_items[j].id then 
+                if subitems[i].itemId == g_items[j].id then
                     table.insert(g_items[j].subitems, subitems[i])
                 end
             end
         end
+        -- 检查是否有暂存数据
+        local userInput = Patrol:getUserInput(g_planId, g_stationId, g_resultId)
+        if userInput ~= nil then 
+            Log:write("找到暂存数据，替代服务器返回的巡检项!")
+            g_items = userInput
+        else
+            Log:write("未找到暂存数据，构造空的用户数输入!")
+            for i=1, #g_items do 
+                for j=1, #g_items[i].subitems do
+                    g_items[i].subitems[j].value = ""
+                end
+            end
+        end 
         -- 在界面上加载巡检项
         local mainListView = Sprite:findChild(rootSprite,'mainListView')
         local mainItemNode = Sprite:findChild(rootSprite,'mainItemNode')
@@ -697,6 +717,8 @@ end
 -- 返回上一个页面
 function doBack()
     if Loading:isShow() then Loading:close() end
+    Patrol:save(g_planId, g_resultId, g_resultId, g_items)
+    Patrol:serialize()
     Scene:back()
 end
 
@@ -782,15 +804,21 @@ function loadSubListItem(list, item, index)
         setAllShoworHide(errorTitleNode1, 1)
         -- 设置选择框的显示名称
         local errorTitleName = Sprite:findChild(errorTitleNode1, 'errorTitleName')
+        local editInput =  Sprite:findChild(errorTitleNode1, 'editInput')
         Sprite:setProperty(errorTitleName, 'text', subitem.subitemName)
+        Sprite:setProperty(editInput, 'text', subItem.value)
     elseif subitem.inputType == 'NUM' then
         setAllShoworHide(errorTitleNode2, 1)
         local errorTitleName = Sprite:findChild(errorTitleNode2, 'errorTitleName')
+        local editInput =  Sprite:findChild(errorTitleNode2, 'editInput')
         Sprite:setProperty(errorTitleName, 'text', subitem.subitemName)
+        Sprite:setProperty(editInput, 'text', subItem.value)
     elseif subitem.inputType == 'TEXT' then
         setAllShoworHide(errorTitleNode3, 1)
         local errorTitleName = Sprite:findChild(errorTitleNode3, 'errorTitleName')
+        local editInput =  Sprite:findChild(errorTitleNode3, 'editInput')
         Sprite:setProperty(errorTitleName, 'text', subitem.subitemName)
+        Sprite:setProperty(editInput, 'text', subItem.value)
     else
         return
     end
@@ -1219,6 +1247,9 @@ function doUpload(sprite)
     if checkUserInput() ~= 0 then
         return
     end
+    -- 如果有暂存数据，需要先删除
+    Patrol:delete(g_planId, g_stationId, g_resultId)
+
     -- 检查是否已经出站
     if g_outFlag ~= '1' then 
         Dialog:show('提示', '请先进行出站操作!', 'ok')
@@ -1370,6 +1401,8 @@ function doSave(sprite)
         if subitemId == '' or subitemId == nil  then
             Dialog:show(rootSprite, '巡检子项编号为空，请联系系统管理员！', 'ok')
         else
+            -- 更新用户输入
+            g_items[g_curItemIndex].subitems[g_curSubItemIndex].value = patrolResult
             local url = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
             local username = Config:get('username')
             local param = '&usercode='..username..'&resultId='..g_resultId..'&subitemId='..subitemId..'&patrolResult='..patrolResult..'&exception='..'&dealDetail='
