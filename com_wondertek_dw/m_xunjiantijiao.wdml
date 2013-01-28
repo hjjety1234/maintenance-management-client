@@ -827,49 +827,52 @@ function loadSubListItem(list, item, index)
         -- 显示暂存的数据
         local errorTypeName =  Sprite:findChild(errorTitleNode1, 'errorTypeName')
         Sprite:setProperty(errorTypeName, 'text', subitem.value)
-        -- 如果有异常信息，显示之
-        local exceptionDetail = subitem.exceptionDetail
-        if exceptionDetail ~= nil and string.gsub(exceptionDetail, " ", "") ~= "" then 
-            local exceptionReason = Split(exceptionDetail, ";")[1] or ""
-            local handleResult = Split(exceptionDetail, ";")[2] or ""
-            showErrorNode(true)
-            local exEdit = Sprite:findChild(item, "exEdit")
-            local doEdit = Sprite:findChild(item, "doEdit")
-            Sprite:setProperty(exEdit, 'text', exceptionReason)
-            Sprite:setProperty(doEdit, 'text', handleResult)
-        end
-        -- 如果有暂存照片，还需要显示
-        local takePicBtn = Sprite:findChild(item, "takePicBtn")
-        local imageArray = subitem.imageArray
-        if imageArray ~= nil then 
-            for i=1,#imageArray do 
-                if i < 4 and IO:fileExist(imageArray[i]) == true then 
-                    Log:write("暂存的照片路径为:"..imageArray[i])
-                    local pic = Sprite:findChild(item, "pic"..i)
-                    local bg = Sprite:findChild(pic, "bg")
-                    Sprite:setProperty(bg, "src", imageArray[i])
-                    table.insert(g_imageArray, imageArray[i])
-                    table.insert(g_subitemidArray, subitem.id)
-                end  
-            end 
-            Sprite:setProperty(takePicBtn, "data", #imageArray)
-        end 
-
     elseif subitem.inputType == 'NUM' then
         setAllShoworHide(errorTitleNode2, 1)
         local errorTitleName = Sprite:findChild(errorTitleNode2, 'errorTitleName')
-        local editInput =  Sprite:findChild(errorTitleNode2, 'editInput')
         Sprite:setProperty(errorTitleName, 'text', subitem.subitemName)
+        -- 显示暂存的数据
+        local editInput =  Sprite:findChild(errorTitleNode2, 'editInput')
         Sprite:setProperty(editInput, 'text', subitem.value)
     elseif subitem.inputType == 'TEXT' then
         setAllShoworHide(errorTitleNode3, 1)
         local errorTitleName = Sprite:findChild(errorTitleNode3, 'errorTitleName')
-        local editInput =  Sprite:findChild(errorTitleNode3, 'editInput')
         Sprite:setProperty(errorTitleName, 'text', subitem.subitemName)
+         -- 显示暂存的数据
+        local editInput =  Sprite:findChild(errorTitleNode3, 'editInput')
         Sprite:setProperty(editInput, 'text', subitem.value)
     else
         return
     end
+
+    -- 如果有异常信息，显示之
+    local exceptionDetail = subitem.exceptionDetail
+    if exceptionDetail ~= nil and string.gsub(exceptionDetail, " ", "") ~= "" then 
+        local exceptionReason = Split(exceptionDetail, ";")[1] or ""
+        local handleResult = Split(exceptionDetail, ";")[2] or ""
+        showErrorNode(true)
+        local exEdit = Sprite:findChild(item, "exEdit")
+        local doEdit = Sprite:findChild(item, "doEdit")
+        Sprite:setProperty(exEdit, 'text', exceptionReason)
+        Sprite:setProperty(doEdit, 'text', handleResult)
+    end
+    
+    -- 如果有暂存照片，还需要显示
+    local takePicBtn = Sprite:findChild(item, "takePicBtn")
+    local imageArray = subitem.imageArray
+    if imageArray ~= nil then 
+        for i=1,#imageArray do 
+            if i < 4 and IO:fileExist(imageArray[i]) == true then 
+                Log:write("暂存的照片路径为:"..imageArray[i])
+                local pic = Sprite:findChild(item, "pic"..i)
+                local bg = Sprite:findChild(pic, "bg")
+                Sprite:setProperty(bg, "src", imageArray[i])
+                table.insert(g_imageArray, imageArray[i])
+                table.insert(g_subitemidArray, subitem.id)
+            end  
+        end 
+        Sprite:setProperty(takePicBtn, "data", #imageArray)
+    end 
 	
 	-- 设置当前的索引值
 	Sprite:setProperty(item, 'data', curSubItemIndex)
