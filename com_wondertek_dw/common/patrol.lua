@@ -54,16 +54,27 @@ function Patrol:getUserInput( planId, stationId )
         Patrol.data[planId][stationId] == nil then 
         return nil
     end
-    -- 格式化暂存数据，从下表1开始
+    -- 格式化巡检大项，从下表1开始
     if Patrol.data[planId][stationId][0] ~= nil then 
 	    table.insert(Patrol.data[planId][stationId], 1, Patrol.data[planId][stationId][0])
 	    Patrol.data[planId][stationId][0] = nil
 	end 
+	-- 格式化巡检子项，从下标1开始
 	for i=1,#Patrol.data[planId][stationId] do 
 		table.insert(Patrol.data[planId][stationId][i].subitems, 1, 
 			Patrol.data[planId][stationId][i].subitems[0])
 		Patrol.data[planId][stationId][i].subitems[0] = nil
+		-- 格式化巡检子项的照片列表
+		for j=1, #Patrol.data[planId][stationId][i].subitems do 
+			if Patrol.data[planId][stationId][i].subitems[j].imageArray ~= nil 
+				and Patrol.data[planId][stationId][i].subitems[j].imageArray[0] ~= nil then 
+				table.insert(Patrol.data[planId][stationId][i].subitems[j].imageArray, 1, 
+					Patrol.data[planId][stationId][i].subitems[j].imageArray[0])
+					Patrol.data[planId][stationId][i].subitems[j].imageArray[0] = nil
+			end
+		end 
 	end 
+
 	Log:write("获取暂存的用户输入:", Patrol.data)
     return Patrol.data[planId][stationId]
 end

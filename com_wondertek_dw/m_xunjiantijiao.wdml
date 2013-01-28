@@ -490,8 +490,10 @@ function bodyOnPluginEvent(msg, param)
                 for j=1, #g_items[i].subitems do
                     -- 构造空的用户输入
                     g_items[i].subitems[j].value = ""
-                    -- 构造空的异常描述和处理描述，中间以;分割
+                    -- 构造空的异常描述和处理描述
                     g_items[i].subitems[j].exceptionDetail="" 
+                    -- 构造空的照片列表
+                    g_items[i].subitems[j].imageArray = {}
                 end
             end
         end 
@@ -836,6 +838,23 @@ function loadSubListItem(list, item, index)
             Sprite:setProperty(exEdit, 'text', exceptionReason)
             Sprite:setProperty(doEdit, 'text', handleResult)
         end
+        -- 如果有暂存照片，还需要显示
+        local takePicBtn = Sprite:findChild(item, "takePicBtn")
+        local imageArray = subitem.imageArray
+        if imageArray ~= nil then 
+            for i=1,#imageArray do 
+                if i < 4 and IO:fileExist(imageArray[i]) == true then 
+                    Log:write("暂存的照片路径为:"..imageArray[i])
+                    local pic = Sprite:findChild(item, "pic"..i)
+                    local bg = Sprite:findChild(pic, "bg")
+                    Sprite:setProperty(bg, "src", imageArray[i])
+                    table.insert(g_imageArray, imageArray[i])
+                    table.insert(g_subitemidArray, subitem.id)
+                end  
+            end 
+            Sprite:setProperty(takePicBtn, "data", #imageArray)
+        end 
+
     elseif subitem.inputType == 'NUM' then
         setAllShoworHide(errorTitleNode2, 1)
         local errorTitleName = Sprite:findChild(errorTitleNode2, 'errorTitleName')
@@ -1233,9 +1252,6 @@ end
 -- 相机回调函数
 function onCameraDialog(photoPath, photoType)
     --预留存储巡检计划号、基站号、巡检子项号
-    --table.insert(g_imageArray, photoPath)000001000599
-
-    --[[
     local tmpSplitArray = Split(photoPath, '%.')
     local dest = tmpSplitArray[1] .. 'temp' .. System:getTickTime() .. '.jpg'
     Log:write('目标文件路径为:'..dest)
@@ -1248,9 +1264,6 @@ function onCameraDialog(photoPath, photoType)
         table.insert(g_imageArray, photoPath)
         Log:write('警告：图片压缩失败，使用未压缩的图片:'..photoPath)
     end
-    --]]
-
-    table.insert(g_imageArray, photoPath)
     Log:write("g_imageArray", g_imageArray)
     
     local errorHideNode = Sprite:getParent(g_piccurrbtn)
@@ -1264,10 +1277,18 @@ function onCameraDialog(photoPath, photoType)
 
     --存储子巡检项的ID号
     table.insert(g_subitemidArray, g_items[itemIndex].subitems[subItemIndex].id)
+
+    -- 将照片路径存储暂存项中
+    if g_items[itemIndex].subitems[subItemIndex].imageArray == nil then 
+        g_items[itemIndex].subitems[subItemIndex].imageArray = {}
+    end 
+    table.insert(g_items[itemIndex].subitems[subItemIndex].imageArray, 
+        g_imageArray[#g_imageArray])
+
     local dataflag = Sprite:getData(g_piccurrbtn)
     local imgNode = Sprite:findChild(errorHideNode, 'pic'..dataflag)
     local bg = Sprite:findChild(imgNode, 'bg')
-    Sprite:setProperty(bg,'src', photoPath)
+    Sprite:setProperty(bg,'src', g_imageArray[#g_imageArray])
 end
 
 -- 上传图片
