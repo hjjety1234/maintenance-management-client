@@ -9,6 +9,7 @@
 == | Author: xxxx <xxxx@xxxx.com> ==
 ============================================================================
 == | Desc: 页面描述 ==
+== |       2013/01/28 增加巡检暂存功能
 ============================================================================
 -->
 <root>
@@ -29,7 +30,7 @@
                 <image name="titleBg" rect="0,0,480,66" src="file://image/nav_bar.png"
                     extendstyle="1111" style="autosize" />
                 <button name="backBtn" rect="20,10,40,40" normal="normal" sel="sel"
-                    OnSelect="doBack" extendstyle="1111">
+                    OnSelect="doBackWithSave" extendstyle="1111">
                     <image name="normal" rect="0,0,40,40" src="file://image/ico_back.png"
                         style="autosize" extendstyle="1111" />
                     <image name="sel" rect="0,0,40,40" src="file://image/ico_back.png"
@@ -181,7 +182,7 @@
                         v-align="center" font-size="22" />
                     <edit name="editInput" rect="310,13,130,45" option="numeric"
                         style="autosize" extendstyle="1111" font-size="18" font-family="黑体" 
-                        OnLostFocus="doSave" data='1' />
+                        OnLostFocus="doTextSave" data='1' />
                 </node>
                 
                 <!-- 异常状态输入框  -->
@@ -283,18 +284,25 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'com_wondertek_dw.common.patrol'
 require 'framework.upload'
 require 'framework.map'
 local rootSprite
 local mainListView
-local curMainIndex = 0 --当前的主索引
+
+local g_curItemIndex = 0     -- 当前的主索引
+local g_curSubItemIndex = 0  -- 巡检子项索引
+local g_curSubItem = nil     -- 当前巡检子项Sprite
+
 local curErrorBtn
 local curNameContent
 local curCodeContent
 local Inflag='0'  --进站标志位
 local resultId --巡检结果ID
-local imageArray = {}
-local subitemidArray = {}
+
+local g_imageArray = {}
+local g_subitemidArray = {}
+
 local taskidArray = {}
 local piccurrbtn
 local imgnum=0 --记录上传图片的个数
@@ -302,6 +310,7 @@ local imgnum=0 --记录上传图片的个数
 local TempID  --保存已上传的巡检子项ID
 
 local jdtitleItems
+local g_items 
 
 local planId
 local templateId
@@ -336,7 +345,9 @@ function bodyOnSpriteEvent(msg, param)
         
         local titleNode =  Sprite:findChild(rootSprite, 'titleNode')
         Sprite:setProperty(titleNode, 'text', stationName)
-
+	    -- 反序列化巡检暂存
+	    Patrol:deserialize() 
+	    -- 检查站点的位置
         checkSiteLoc()
     elseif msg == MSG_DEACTIVATE then
     end
@@ -444,6 +455,25 @@ function bodyOnPluginEvent(msg, param)
     elseif msg == 1002 then
         g_httpTempData = Http:jsonDecode('http_temp_data')
         jdtitleItems = formatHttpTempData(g_httpTempData)
+        -- 检查是否有暂存数据 
+        g_items = jdtitleItems   
+        local userInput = Patrol:getUserInput(planId, stationId)         
+        if userInput ~= nil then         
+            Log:write("找到暂存数据，替代服务器返回的巡检项!")         
+            g_items = userInput      
+        else         
+            Log:write("未找到暂存数据，构造空的用户数输入!")      
+            for i=1, #g_items do         
+                for j=1, #g_items[i].subitems do         
+                    -- 构造空的用户输入      
+                    g_items[i].subitems[j].value = ""        
+                    -- 构造空的异常描述和处理描述         
+                    g_items[i].subitems[j].exceptionDetail=""        
+                    -- 构造空的照片列表      
+                    g_items[i].subitems[j].imageArray = {}       
+                end      
+            end      
+        end
         loadTempData()
         ContractionSet()
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -458,7 +488,7 @@ end
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-        Dialog:show('', '您即将离开巡检页面,是否继续？','ok_cancel','doBack')
+        Dialog:show('', '您即将离开巡检页面,是否继续？','ok_cancel','doBackWithSave')
         return 1
     elseif kc==Key.F1 then--按下菜单键
         local FavListNodeSprite = Sprite:findChild(rootSprite, "ContextMenuNode")
@@ -469,7 +499,7 @@ end
 
 ---------------------------------------util functions---------------------------
 function loadTempData()
-    Log:write('模版数据源：----------------',jdtitleItems)
+    Log:write('模版数据源：----------------', g_items)
     local mainNodeContent = Sprite:findChild(rootSprite,'mainNodeContent')
     local mainListView = Sprite:findChild(mainNodeContent,'mainListView')
 
@@ -483,23 +513,40 @@ end
 function loadMainListItem(list, item, index)
     Sprite:setRect(item, 0,0,480,50)
     Sprite:setProperty(item, 'extendstyle', '1111')
-    curMainIndex = index + 1
+    g_curItemIndex = index + 1
+
     local mainTitleNode = Sprite:findChild(item, 'mainTitleNode')
     local mainTitleName = Sprite:findChild(mainTitleNode, 'mainTitleName')
-    Sprite:setProperty(mainTitleName, 'text', jdtitleItems[curMainIndex].name)
+    Sprite:setProperty(mainTitleName, 'text', jdtitleItems[g_curItemIndex].name)
 
     local subListviewNode = Sprite:findChild(item, 'subListviewNode')
     local subListView = Sprite:findChild(subListviewNode, 'subListView')
     local subItemNode = Sprite:findChild(rootSprite, 'subItemNode')
 
+    -- 计算巡检子项异常项的数目
+    local exceptionCount = 0         
+    for i = 1, #g_items[g_curItemIndex].subitems do      
+        if  g_items[g_curItemIndex].subitems[i].exceptionDetail ~= nil and       
+            string.gsub(g_items[g_curItemIndex].subitems[i].exceptionDetail, ' ', '') ~= '' then         
+            exceptionCount = exceptionCount + 1      
+        end      
+    end
+
     ListView:removeAllItems(subListView, 1, 1)
-    ListView:loadItem(subListView, subItemNode, #jdtitleItems[curMainIndex].subitems, 'loadSubListItem')
+    ListView:loadItem(subListView, subItemNode, #jdtitleItems[g_curItemIndex].subitems, 'loadSubListItem')
+    
     local x,y,w,h = Sprite:getRect(subListView)
-    Sprite:setRect(subListView, x, y, w, #jdtitleItems[curMainIndex].subitems * 50)
+    Sprite:setRect(subListView, x, y, w, #jdtitleItems[g_curItemIndex].subitems * 50 + exceptionCount * 150)
+    
     x,y,w,h = Sprite:getRect(subListviewNode)
-    Sprite:setRect(subListviewNode, x, y, w, #jdtitleItems[curMainIndex].subitems * 50)
-    Sprite:setRect(item, 0, 0, 480, #jdtitleItems[curMainIndex].subitems * 50 + 50)
+    Sprite:setRect(subListviewNode, x, y, w, #jdtitleItems[g_curItemIndex].subitems * 50 + exceptionCount * 150)
+
+    Sprite:setRect(item, 0, 0, 480, #jdtitleItems[g_curItemIndex].subitems * 50 + 50 + exceptionCount * 150)
+    
     ListView:adjust(subListView)
+
+     -- 设置当前的索引值        
+    Sprite:setProperty(item, 'data', g_curItemIndex)
 end
 
 function loadSubListItem(list, item, index)
@@ -513,8 +560,9 @@ function loadSubListItem(list, item, index)
         Sprite:setProperty(listItemBg, 'src', 'file://image/item_bg_m.png')
     end
     
-    local subIndex = index + 1
-    local curSubItemData = jdtitleItems[curMainIndex].subitems[subIndex]
+    g_curSubItem = item
+    local curSubItemIndex = index + 1
+    local subitem = g_items[g_curItemIndex].subitems[curSubItemIndex]
 
     --根据type设置显示的node
     local errorTitleNode1 = Sprite:findChild(item, 'errorTitleNode1')
@@ -524,8 +572,8 @@ function loadSubListItem(list, item, index)
     setAllShoworHide(errorTitleNode2, 0)
     setAllShoworHide(errorTitleNode3, 0)
     --设置输入框类型
-    Sprite:setProperty(item, 'data', curSubItemData.inputType)
-    if curSubItemData.inputType == '1' then
+    Sprite:setProperty(item, 'data', subitem.inputType)
+    if subitem.inputType == '1' then
         setAllShoworHide(errorTitleNode1, 1)
 
         local errorTitleNameType1 = Sprite:findChild(errorTitleNode1, 'errorTitleName')
@@ -534,34 +582,74 @@ function loadSubListItem(list, item, index)
         local errorTypeNameListType1 = Sprite:findChild(errorTitleBtnType1, 'errorTypeNameList')
         local errorTypeCodeListType1 = Sprite:findChild(errorTitleBtnType1, 'errorTypeCodeList')
 
-        Sprite:setProperty(errorTitleNode1,'data',curSubItemData.id)
-        Sprite:setProperty(errorTitleNameType1, 'text', tostring(index+1)..'、'..curSubItemData.subitemName)
-        Sprite:setProperty(errorTypeNameListType1, 'data', curSubItemData.valueScope)
-        Sprite:setProperty(errorTypeCodeListType1, 'data', curSubItemData.exceptionValue)
-    elseif curSubItemData.inputType == '2' then
+        Sprite:setProperty(errorTitleNode1,'data',subitem.id)
+        Sprite:setProperty(errorTitleNameType1, 'text', tostring(index+1)..'、'..subitem.subitemName)
+        Sprite:setProperty(errorTypeNameListType1, 'data', subitem.valueScope)
+        Sprite:setProperty(errorTypeCodeListType1, 'data', subitem.exceptionValue)
+        -- 显示暂存的数据 
+        local errorTypeName =  Sprite:findChild(errorTitleNode1, 'errorTypeName')        
+        Sprite:setProperty(errorTypeName, 'text', subitem.value)         
+    elseif subitem.inputType == '2' then
         setAllShoworHide(errorTitleNode2, 1)
         local errorTitleNameType2 = Sprite:findChild(errorTitleNode2, 'errorTitleName')
         local editInputType2 = Sprite:findChild(errorTitleNode2, 'editInput')
         local errorCodeMaxMinType2 = Sprite:findChild(errorTitleNode2, 'errorCodeMaxMin')
-        Sprite:setProperty(errorTitleNameType2, 'text', tostring(index+1)..'、'..curSubItemData.subitemName)
-        Sprite:setProperty(errorCodeMaxMinType2, 'data', curSubItemData.valueScope)
-        Sprite:setProperty(errorTitleNode2,'data',curSubItemData.id)
-    elseif curSubItemData.inputType == '3' then
+        Sprite:setProperty(errorTitleNameType2, 'text', tostring(index+1)..'、'..subitem.subitemName)
+        Sprite:setProperty(errorCodeMaxMinType2, 'data', subitem.valueScope)
+        Sprite:setProperty(errorTitleNode2,'data',subitem.id)
+        -- 显示暂存的数据 
+        local editInput =  Sprite:findChild(errorTitleNode2, 'editInput')        
+        Sprite:setProperty(editInput, 'text', subitem.value)         
+    elseif subitem.inputType == '3' then
         setAllShoworHide(errorTitleNode3, 1)
         local errorTitleNameType3 = Sprite:findChild(errorTitleNode3, 'errorTitleName')
         local editInputType3 = Sprite:findChild(errorTitleNode3, 'editInput')
         local errorCodeMaxMinType3 = Sprite:findChild(errorTitleNode3, 'errorCodeMaxMin')
-        Sprite:setProperty(errorTitleNameType3, 'text', tostring(index+1)..'、'..curSubItemData.subitemName)
-        Sprite:setProperty(errorCodeMaxMinType3, 'data', curSubItemData.valueScope)
-        Sprite:setProperty(errorTitleNode3,'data',curSubItemData.id)
+        Sprite:setProperty(errorTitleNameType3, 'text', tostring(index+1)..'、'..subitem.subitemName)
+        Sprite:setProperty(errorCodeMaxMinType3, 'data', subitem.valueScope)
+        Sprite:setProperty(errorTitleNode3,'data',subitem.id)
+         -- 显示暂存的数据 
+        local editInput =  Sprite:findChild(errorTitleNode3, 'editInput')        
+        Sprite:setProperty(editInput, 'text', subitem.value)  
     else
         return
+    end
+
+    -- 如果有异常信息，显示之       
+    local exceptionDetail = subitem.exceptionDetail      
+    if exceptionDetail ~= nil and string.gsub(exceptionDetail, " ", "") ~= "" then       
+        local exceptionReason = Split(exceptionDetail, ";")[1] or ""         
+        local handleResult = Split(exceptionDetail, ";")[2] or ""        
+        showErrorNode(true)      
+        local exEdit = Sprite:findChild(item, "exEdit")      
+        local doEdit = Sprite:findChild(item, "doEdit")      
+        Sprite:setProperty(exEdit, 'text', exceptionReason)      
+        Sprite:setProperty(doEdit, 'text', handleResult)         
+    end      
+    -- 如果有暂存照片，还需要显示         
+    local takePicBtn = Sprite:findChild(item, "takePicBtn")      
+    local imageArray = subitem.imageArray        
+    if imageArray ~= nil then        
+        for i=1,#imageArray do       
+            if i < 4 and IO:fileExist(imageArray[i]) == true then        
+                Log:write("暂存的照片路径为:"..imageArray[i])        
+                local pic = Sprite:findChild(item, "pic"..i)         
+                local bg = Sprite:findChild(pic, "bg")       
+                Sprite:setProperty(bg, "src", imageArray[i])         
+                table.insert(g_imageArray, imageArray[i])        
+                table.insert(g_subitemidArray, subitem.id)       
+            end          
+        end      
+        Sprite:setProperty(takePicBtn, "data", #imageArray)      
     end
 
     local errorHideNode = Sprite:findChild(item, 'errorHideNode')
     local exEdit = Sprite:findChild(errorHideNode, 'exEdit')
     local doEdit = Sprite:findChild(errorHideNode, 'doEdit')
     local takePicBtn = Sprite:findChild(errorHideNode, 'takePicBtn')
+
+    -- 设置当前的索引值  
+    Sprite:setProperty(item, 'data', curSubItemIndex)
 end
 
 -- 数字类型输入框焦点消失响应处理
@@ -570,6 +658,14 @@ function onTextLostFocus(sprite)
     if Sprite:getText(sprite) == '' then
         return
     end
+
+     -- 获取当前的巡检子项和下标
+    g_curSubItem = Sprite:getParent(Sprite:getParent(sprite))
+    local curItem = Sprite:getParent(Sprite:getParent(Sprite:getParent(g_curSubItem)))
+    g_curItemIndex = tonumber(Sprite:getData(curItem))
+    g_curSubItemIndex = tonumber(Sprite:getData(g_curSubItem))
+    Log:write('info: onTextLostFocus() i, j', g_curItemIndex, g_curSubItemIndex)
+
     local content = tonumber(Sprite:getText(sprite))
     local oldData = Sprite:getData(sprite)
     local newData = '1'
@@ -612,6 +708,12 @@ function errorOnSelect(sprite)
 
     local errorTypeNameList = Sprite:findChild(sprite, 'errorTypeNameList')
     local errorTypeCodeList = Sprite:findChild(sprite, 'errorTypeCodeList')
+
+    -- 获取当前的巡检子项下标
+    g_curSubItem = Sprite:getParent(Sprite:getParent(sprite))
+    local curItem = Sprite:getParent(Sprite:getParent(Sprite:getParent(g_curSubItem)))
+    g_curItemIndex = tonumber(Sprite:getData(curItem))
+    g_curSubItemIndex = tonumber(Sprite:getData(g_curSubItem))
 
     curErrorBtn = sprite
     curNameContent = Split(Sprite:getData(errorTypeNameList), ',')
@@ -808,7 +910,6 @@ function ImgOnSelect(sprite)
     end
 end
 
-
 --正常时保存提交
 function doSave(sprite)
     -- body
@@ -829,6 +930,9 @@ function doSave(sprite)
         if subitemId=='' or subitemId==nil  then
             Dialog:show(rootSprite, '巡检子项编号为空，请联系系统管理员！', 'ok')
         else
+            -- 更新用户输入
+            g_items[g_curItemIndex].subitems[g_curSubItemIndex].value = patrolResult
+            g_items[g_curItemIndex].subitems[g_curSubItemIndex].exceptionDetail = ""
             local url=getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
             local username = Config:get('username')
             local param = '&usercode='..username..'&resultId='..resultId..'&subitemId='..subitemId..'&patrolResult='..patrolResult..'&exception='..'&dealDetail='
@@ -842,6 +946,57 @@ function doSave(sprite)
             end
         end
     end
+end
+
+-- 显示或隐藏异常输入框
+-- @param bVisible:boolean - true:显示，false:隐藏
+function showErrorNode(bVisible)
+    -- 获取巡检项和巡检子项的sprite
+    local errorHideNode = Sprite:findChild(g_curSubItem, 'errorHideNode')
+    local subListView = Sprite:getParent(g_curSubItem)
+    local subListViewNode = Sprite:getParent(subListView)
+    local mainItem = Sprite:getParent(subListViewNode)
+    local mainListView = Sprite:getParent(mainItem)
+    
+    -- 显示或隐藏异常输入框
+    Log:write('errorHideNode visible attribute:', Sprite:isVisible(errorHideNode))
+    if bVisible == true and Sprite:isVisible(errorHideNode) == 0 then
+        setAllShoworHide(errorHideNode, 1)
+        local x, y, w, h = Sprite:getRect(g_curSubItem)
+        Sprite:setRect(g_curSubItem, x, y, w, h + 150)
+        x, y, w, h = Sprite:getRect(subListView)
+        Sprite:setRect(subListView, x, y, w, h + 150)
+        x, y, w, h = Sprite:getRect(subListViewNode)
+        Sprite:setRect(subListViewNode, x, y, w, h + 150)
+        x, y, w, h = Sprite:getRect(mainItem)
+        Sprite:setRect(mainItem, x, y, w, h + 150)
+    elseif bVisible ==  false and Sprite:isVisible(errorHideNode) == 1 then
+        setAllShoworHide(errorHideNode, 0)
+        local x, y, w, h = Sprite:getRect(g_curSubItem)
+        Sprite:setRect(g_curSubItem, x, y, w, h - 150)
+        x, y, w, h = Sprite:getRect(subListView)
+        Sprite:setRect(subListView, x, y, w, h - 150)
+        x, y, w, h = Sprite:getRect(subListViewNode)
+        Sprite:setRect(subListViewNode, x, y, w, h - 150)
+        x, y, w, h = Sprite:getRect(mainItem)
+        Sprite:setRect(mainItem, x, y, w, h - 150)
+    end
+    ListView:adjust(subListView)
+    ListView:adjust(mainListView)
+end
+
+-- 文本类型输入框焦点消失响应处理
+--  @param sprite - editInput's sprite
+function doTextSave(sprite)
+    -- 获取当前的巡检子项和下标
+    g_curSubItem = Sprite:getParent(Sprite:getParent(sprite))
+    local curItem = Sprite:getParent(Sprite:getParent(Sprite:getParent(g_curSubItem)))
+    g_curItemIndex = tonumber(Sprite:getData(curItem))
+    g_curSubItemIndex = tonumber(Sprite:getData(g_curSubItem))
+    Log:write('info: onTextLostFocus() i, j', g_curItemIndex, g_curSubItemIndex)  
+
+    -- 保存文本输入结果即可
+    doSave(sprite)
 end
 
 --异常信息保存
@@ -879,6 +1034,10 @@ function ErrorSave(sprite)
         if subitemId=='' or subitemId==nil  then
             Dialog:show(rootSprite, '巡检子项编号为空，请联系系统管理员！', 'ok')
         else
+            -- 暂存异常的用户输入
+            g_items[g_curItemIndex].subitems[g_curSubItemIndex].value = patrolResult
+            g_items[g_curItemIndex].subitems[g_curSubItemIndex].exceptionDetail = exception..";"..dealdetail
+
             local url=getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
             local username = Config:get('username')
             local param = '&usercode='..username..'&resultId='..resultId..'&subitemId='..subitemId..'&patrolResult='..patrolResult..'&exception='..exception..'&dealDetail='..dealdetail
@@ -899,7 +1058,17 @@ function submitOnSelect(sprite)
     Dialog:show('提示','是否确定提交本次巡检任务？','ok_cancel','doUpload')
 end
 
--- 返回上一个页面
+-- 返回上一个页面，如果有暂存数据，需要暂存 
+function doBackWithSave()        
+    if Loading:isShow() then Loading:close() end         
+    if isTableEmpty(g_items) == false then       
+        Patrol:save(planId, stationId, g_items)      
+        Patrol:serialize()       
+    end      
+    Scene:back()         
+end
+
+-- 直接返回上一个页面，无暂存
 function doBack()
     if Loading:isShow() then Loading:close() end
     Scene:back()
@@ -914,10 +1083,14 @@ function doUpload(sprite)
 	        return
 	    end
     end
+
+    -- 如果有暂存数据，需要先删除
+    Patrol:delete(planId, stationId)
+
     Loading:show(rootSprite)
-    if #imageArray >= 1 then
-        Log:write('imagearray size is ',#imageArray)
-        getUploadUrl(imageArray[#imageArray]) 
+    if #g_imageArray >= 1 then
+        Log:write('imagearray size is ',#g_imageArray)
+        getUploadUrl(imageArray[#g_imageArray]) 
     else
         Timer:set(111, 3000, 'hideLoading')
     end
@@ -1058,12 +1231,12 @@ function getUploadUrl(photoPath)
 end
 
 function doRealUpload(url, param,imgnum)
-    local _,_,fileName = string.find(imageArray[#imageArray], '([^/\\%.]+)%.?[^/\\]*$')
-    local poststr = 'id=' .. planId .. '&markid='..subitemidArray[#imageArray]..'&interfaceMainType=3&usercode=' .. Config:get('username') .. '&uploadFileName=' .. fileName .. '.jpg'
-    Upload:append(url, param .. poststr, imageArray[#imageArray], fileName .. '.jpg', fileName, 'jpg')
-    table.remove(imageArray, #imageArray)
-    if imageArray[#imageArray] and imageArray[#imageArray] ~= '' then
-        getUploadUrl(imageArray[#imageArray])
+    local _,_,fileName = string.find(g_imageArray[#g_imageArray], '([^/\\%.]+)%.?[^/\\]*$')
+    local poststr = 'id=' .. planId .. '&markid='..g_subitemidArray[#g_imageArray]..'&interfaceMainType=3&usercode=' .. Config:get('username') .. '&uploadFileName=' .. fileName .. '.jpg'
+    Upload:append(url, param .. poststr, g_imageArray[#g_imageArray], fileName .. '.jpg', fileName, 'jpg')
+    table.remove(g_imageArray, #g_imageArray)
+    if g_imageArray[#g_imageArray] and g_imageArray[#g_imageArray] ~= '' then
+        getUploadUrl(g_imageArray[#g_imageArray])
     else
         if Loading:isShow() then Loading:close() end
         Dialog:show('', '已加入上传队列中！', 'ok', 'doBack')
@@ -1104,32 +1277,42 @@ end
 
 function onCameraDialog(photoPath, photoType)
     --预留存储巡检计划号、基站号、巡检子项号
-    --table.insert(imageArray, photoPath)000001000599
-
     local tmpSplitArray = Split(photoPath,'%.')
     local dest = tmpSplitArray[1] .. 'temp' .. System:getTickTime() .. '.jpg'
     Log:write('目标文件路径为:'..dest)
     local ret = ScaleImageAsJpg(photoPath, dest, 480, 800, 0)
     if ret == 1 then
-        table.insert(imageArray, dest)
+        table.insert(g_imageArray, dest)
         Log:write('图片压缩成功，压缩后的图片位置为:'..dest)
     else
-        table.insert(imageArray, photoPath)
+        table.insert(g_imageArray, photoPath)
         Log:write('警告：图片压缩失败，使用未压缩的图片:'..photoPath)
     end
 
-    Log:write("imageArray", imageArray)
+    Log:write("g_imageArray", g_imageArray)
     local errorHideNode = Sprite:getParent(piccurrbtn)
     local subItemNode = Sprite:getParent(errorHideNode)
+
+    -- 获取当前的巡检子项下标          
+    local curItem = Sprite:getParent(Sprite:getParent(Sprite:getParent(subItemNode)))          
+           
+    local subItemIndex = tonumber(Sprite:getData(subItemNode))          
+    local itemIndex = tonumber(Sprite:getData(curItem))
+
     --存储子巡检项的ID号
-    table.insert(subitemidArray, Sprite:getData(subItemNode))
-    local dataflag=Sprite:getData(piccurrbtn)
+    table.insert(g_subitemidArray, Sprite:getData(subItemNode))
 
-    local imgNode=Sprite:findChild(errorHideNode,'pic'..dataflag)
+    -- 将照片路径存储暂存项中      
+    if g_items[itemIndex].subitems[subItemIndex].imageArray == nil then      
+        g_items[itemIndex].subitems[subItemIndex].imageArray = {}        
+    end      
+    table.insert(g_items[itemIndex].subitems[subItemIndex].imageArray,       
+        g_imageArray[#g_imageArray])
 
-    local bg=Sprite:findChild(imgNode,'bg')
-
-    Sprite:setProperty(bg,'src',photoPath)
+    local dataflag = Sprite:getData(piccurrbtn)
+    local imgNode = Sprite:findChild(errorHideNode,'pic'..dataflag)
+    local bg = Sprite:findChild(imgNode,'bg')
+    Sprite:setProperty(bg, 'src', g_imageArray[#g_imageArray])
 end
 
 function ContextMenuListItemOnSelect(sprite)
@@ -1194,6 +1377,7 @@ function reportCurrentLoc(sprite)
     Map:getCurPosition(observer, 1000)
     Loading:show()
 end
+
 function formatHttpTempData( data )
     local resultData = {}
     local count = getJsonArrayCount(data.value)
@@ -1213,6 +1397,7 @@ function formatHttpTempData( data )
     end
     return resultData
 end
+
 function getFormatSubItem(data)
     local resultData ={}
     for i=1, #data do
@@ -1224,6 +1409,7 @@ function getFormatSubItem(data)
     end
     return resultData
 end
+
 function getInputType( dataInputType )
     -- body
     local showType = '0'
@@ -1236,6 +1422,7 @@ function getInputType( dataInputType )
     end
     return showType
 end
+
 function getFormatScop( dataScop, dataException )
     -- body
     local range = dataScop
