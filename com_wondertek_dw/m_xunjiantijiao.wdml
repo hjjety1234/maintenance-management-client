@@ -701,7 +701,7 @@ function mainNodeOnKeyUp(sprite, kc)
             return
         end
 
-        Dialog:show('', '您即将离开巡检页面,是否继续？','ok_cancel','doBack')
+        Dialog:show('', '您即将离开巡检页面,是否继续？','ok_cancel','doBackWithSave')
         return 1
     elseif kc==Key.F1 then--按下菜单键
         local FavListNodeSprite = Sprite:findChild(rootSprite, "ContextMenuNode")
@@ -710,8 +710,8 @@ function mainNodeOnKeyUp(sprite, kc)
     end
 end
 
--- 返回上一个页面
-function doBack()
+-- 返回上一个页面，如果有暂存数据，需要暂存
+function doBackWithSave()
     if Loading:isShow() then Loading:close() end
     if isTableEmpty(g_items) == false then 
         Patrol:save(g_planId, g_stationId, g_items)
@@ -720,9 +720,15 @@ function doBack()
     Scene:back()
 end
 
+-- 直接返回上一个页面，无暂存
+function doBack()
+    if Loading:isShow() then Loading:close() end
+    Scene:back()
+end
+
 -- 确认是否返回
 function doBackDialog()
-    Dialog:show('提示','您即将离开巡检页面,是否继续？','ok_cancel','doBack')
+    Dialog:show('提示','您即将离开巡检页面,是否继续？','ok_cancel','doBackWithSave')
 end
 
 ---------------------------------------界面初始化函数列表--------------------------
