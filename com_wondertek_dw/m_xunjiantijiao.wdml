@@ -488,7 +488,10 @@ function bodyOnPluginEvent(msg, param)
             Log:write("未找到暂存数据，构造空的用户数输入!")
             for i=1, #g_items do 
                 for j=1, #g_items[i].subitems do
+                    -- 构造空的用户输入
                     g_items[i].subitems[j].value = ""
+                    -- 构造空的异常描述和处理描述，中间以;分割
+                    g_items[i].subitems[j].exceptionDetail="" 
                 end
             end
         end 
@@ -766,15 +769,24 @@ function loadListItem(list, item, index)
     ListView:removeAllItems(subListView, 1, 1)
     ListView:loadItem(subListView, subItemNode, #g_items[g_curItemIndex].subitems, 'loadSubListItem')
     
+    -- 计算巡检子项异常项的数目
+    local exceptionCount = 0
+    for i = 1, #g_items[g_curItemIndex].subitems do 
+        if  g_items[g_curItemIndex].subitems[i].exceptionDetail ~= nil and
+            string.gsub(g_items[g_curItemIndex].subitems[i].exceptionDetail, ' ', '') ~= '' then 
+            exceptionCount = exceptionCount + 1
+        end
+    end
+
     -- 调整巡检子项列表大小
     local x,y,w,h = Sprite:getRect(subListView)
-    Sprite:setRect(subListView, x, y, w,  #g_items[g_curItemIndex].subitems * 50)
+    Sprite:setRect(subListView, x, y, w,  #g_items[g_curItemIndex].subitems * 50 + exceptionCount * 150)
     
     x,y,w,h = Sprite:getRect(subListviewNode)
-    Sprite:setRect(subListviewNode, x, y, w, #g_items[g_curItemIndex].subitems * 50)
+    Sprite:setRect(subListviewNode, x, y, w, #g_items[g_curItemIndex].subitems * 50 + exceptionCount * 150)
    
     -- 调整巡检项大小
-    Sprite:setRect(item, 0, 0, 480, #g_items[g_curItemIndex].subitems * 50 + 50)
+    Sprite:setRect(item, 0, 0, 480, #g_items[g_curItemIndex].subitems * 50 + 50 + exceptionCount * 150)
     
     ListView:adjust(subListView)
 	
@@ -788,6 +800,7 @@ function loadSubListItem(list, item, index)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local listitembg = Sprite:findChild(item, 'listitembg')
     local curSubItemIndex = index + 1
+    g_curSubItem = item
     if curSubItemIndex % 2 == 0 then
        Sprite:setProperty(listitembg, 'src', 'file://image/item_bg_m.png')
     else
@@ -808,9 +821,21 @@ function loadSubListItem(list, item, index)
         setAllShoworHide(errorTitleNode1, 1)
         -- 设置选择框的显示名称
         local errorTitleName = Sprite:findChild(errorTitleNode1, 'errorTitleName')
-        local errorTypeName =  Sprite:findChild(errorTitleNode1, 'errorTypeName')
         Sprite:setProperty(errorTitleName, 'text', subitem.subitemName)
+        -- 显示暂存的数据
+        local errorTypeName =  Sprite:findChild(errorTitleNode1, 'errorTypeName')
         Sprite:setProperty(errorTypeName, 'text', subitem.value)
+        -- 如果有异常信息，显示之
+        local exceptionDetail = subitem.exceptionDetail
+        if exceptionDetail ~= nil and string.gsub(exceptionDetail, " ", "") ~= "" then 
+            local exceptionReason = Split(exceptionDetail, ";")[1] or ""
+            local handleResult = Split(exceptionDetail, ";")[2] or ""
+            showErrorNode(true)
+            local exEdit = Sprite:findChild(item, "exEdit")
+            local doEdit = Sprite:findChild(item, "doEdit")
+            Sprite:setProperty(exEdit, 'text', exceptionReason)
+            Sprite:setProperty(doEdit, 'text', handleResult)
+        end
     elseif subitem.inputType == 'NUM' then
         setAllShoworHide(errorTitleNode2, 1)
         local errorTitleName = Sprite:findChild(errorTitleNode2, 'errorTitleName')
@@ -1614,8 +1639,11 @@ function ErrorSave(sprite)
     elseif dealdetail == '' or exception == '' then 
         Dialog:show(rootSprite, '异常描述和处理描述不能为空！', 'ok')  
     else
+        -- 暂存异常的用户输入
+        g_items[g_curItemIndex].subitems[g_curSubItemIndex].value = patrolResult
+        g_items[g_curItemIndex].subitems[g_curSubItemIndex].exceptionDetail = exception..";"..dealdetail
+
         local url = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
-        
         local username = Config:get('username')
         local param = '&usercode='..username..'&resultId='..g_resultId.. '&subitemId='..subItemId..'&patrolResult='..patrolResult ..'&exception='..exception..'&dealDetail='..dealdetail 
         Log:write("info: ErrorSave() param = ", param)
