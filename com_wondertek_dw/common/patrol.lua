@@ -29,6 +29,7 @@ function Patrol:deserialize()
 			Patrol.data = {}
 			return false
 		else
+			Log:write("反序列化巡检暂存成功!")
 			return true
 		end
 	else
@@ -44,6 +45,7 @@ function Patrol:serialize()
 		return
 	end
 	writeTable2File(Patrol.data, Patrol.filePath)
+	Log:write("序列化巡检暂存成功!")
 end
 
 -- 获取巡检暂存数据
@@ -62,7 +64,7 @@ function Patrol:getUserInput( planId, stationId )
 			Patrol.data[planId][stationId][i].subitems[0])
 		Patrol.data[planId][stationId][i].subitems[0] = nil
 	end 
-	Log:write("getUserInput:", Patrol.data)
+	Log:write("获取暂存的用户输入:", Patrol.data)
     return Patrol.data[planId][stationId]
 end
 
