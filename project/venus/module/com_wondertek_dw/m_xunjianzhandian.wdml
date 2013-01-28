@@ -634,10 +634,10 @@ function request(condition, curLoc, value, page, msgno)
 	-- 构造请求参数
 	local requestParam = string.format('cmd=wlbxunjianResSearch&usercode=%s&planId=%s&condition=%s&curLoc=%s&value=%s&page=%s&pagesize=5', 
 	                       Config:get('username'), planId, condition, curLoc, value, page)
-	local requestURL = getUrl()..'nbspweb/webservice/resource!doWebservice.action?'..requestParam
+	local requestURL = getUrl()..'nbspweb/webservice/resource!doWebservice.action'
 	
 	-- 请求http
-	Http:request('stationList', requestURL, msgno, {useCache=false})
+	Http:request('stationList', requestURL, msgno, {useCache=false,method='post',postData=requestParam})
 	if condition == '1' then
 	    stationDistanceVisible =  true --显示距离
 	else

@@ -15,7 +15,8 @@ Patrol = {}
 -- 定义巡检暂存文件路径
 Patrol.filePath = "CACHE:\\Patrol\\patrol.json"
 
--- 暂存数据
+-- 暂存数据，从下表1开始
+-- 注意序列化函数从下表0开始，需要进行格式化
 Patrol.data = {}
 
 -- 反序列化巡检暂存
@@ -28,6 +29,7 @@ function Patrol:deserialize()
 			Patrol.data = {}
 			return false
 		else
+			Log:write("反序列化巡检暂存成功!")
 			return true
 		end
 	else
@@ -43,15 +45,37 @@ function Patrol:serialize()
 		return
 	end
 	writeTable2File(Patrol.data, Patrol.filePath)
+	Log:write("序列化巡检暂存成功!")
 end
 
 -- 获取巡检暂存数据
 function Patrol:getUserInput( planId, stationId )
-	Log:write("getUserInput:", Patrol.data)
     if Patrol.data == nil or Patrol.data[planId] == nil or 
         Patrol.data[planId][stationId] == nil then 
         return nil
     end
+    -- 格式化巡检大项，从下表1开始
+    if Patrol.data[planId][stationId][0] ~= nil then 
+	    table.insert(Patrol.data[planId][stationId], 1, Patrol.data[planId][stationId][0])
+	    Patrol.data[planId][stationId][0] = nil
+	end 
+	-- 格式化巡检子项，从下标1开始
+	for i=1,#Patrol.data[planId][stationId] do 
+		table.insert(Patrol.data[planId][stationId][i].subitems, 1, 
+			Patrol.data[planId][stationId][i].subitems[0])
+		Patrol.data[planId][stationId][i].subitems[0] = nil
+		-- 格式化巡检子项的照片列表
+		for j=1, #Patrol.data[planId][stationId][i].subitems do 
+			if Patrol.data[planId][stationId][i].subitems[j].imageArray ~= nil 
+				and Patrol.data[planId][stationId][i].subitems[j].imageArray[0] ~= nil then 
+				table.insert(Patrol.data[planId][stationId][i].subitems[j].imageArray, 1, 
+					Patrol.data[planId][stationId][i].subitems[j].imageArray[0])
+					Patrol.data[planId][stationId][i].subitems[j].imageArray[0] = nil
+			end
+		end 
+	end 
+
+	Log:write("获取暂存的用户输入:", Patrol.data)
     return Patrol.data[planId][stationId]
 end
 
