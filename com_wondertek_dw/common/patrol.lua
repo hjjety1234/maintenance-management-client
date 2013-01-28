@@ -15,7 +15,8 @@ Patrol = {}
 -- 定义巡检暂存文件路径
 Patrol.filePath = "CACHE:\\Patrol\\patrol.json"
 
--- 暂存数据
+-- 暂存数据，从下表1开始
+-- 注意序列化函数从下表0开始，需要进行格式化
 Patrol.data = {}
 
 -- 反序列化巡检暂存
@@ -47,11 +48,21 @@ end
 
 -- 获取巡检暂存数据
 function Patrol:getUserInput( planId, stationId )
-	Log:write("getUserInput:", Patrol.data)
     if Patrol.data == nil or Patrol.data[planId] == nil or 
         Patrol.data[planId][stationId] == nil then 
         return nil
     end
+    -- 格式化暂存数据，从下表1开始
+    if Patrol.data[planId][stationId][0] ~= nil then 
+	    table.insert(Patrol.data[planId][stationId], 1, Patrol.data[planId][stationId][0])
+	    Patrol.data[planId][stationId][0] = nil
+	end 
+	for i=1,#Patrol.data[planId][stationId] do 
+		table.insert(Patrol.data[planId][stationId][i].subitems, 1, 
+			Patrol.data[planId][stationId][i].subitems[0])
+		Patrol.data[planId][stationId][i].subitems[0] = nil
+	end 
+	Log:write("getUserInput:", Patrol.data)
     return Patrol.data[planId][stationId]
 end
 
