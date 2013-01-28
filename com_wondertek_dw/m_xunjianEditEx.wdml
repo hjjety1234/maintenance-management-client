@@ -760,9 +760,11 @@ end
 --下拉伸缩 flag表示是什么类型的输入框
 function changeErrorDetailNode(oldData, newData, sprite,flag)
     -- body
+    --[[
     if oldData == newData then
         return
     end
+    --]]
 
     local itemNode = Sprite:getParent(Sprite:getParent(sprite))
     local errorHideNode = Sprite:findChild(itemNode, 'errorHideNode')
@@ -772,7 +774,8 @@ function changeErrorDetailNode(oldData, newData, sprite,flag)
     local mainItem = Sprite:getParent(subListViewNode)
     local mainListView = Sprite:getParent(mainItem)
     local x,y,w,h = Sprite:getRect(errorHideNode)
-    if newData == '0' then
+    if newData == '0' and Sprite:isVisible(errorHideNode) == 0 then
+        Log:write("显示异常输入框")
         setAllShoworHide(errorHideNode, 1)
         x,y,w,h = Sprite:getRect(itemNode)
         Sprite:setRect(itemNode, x, y, w, h + 150)
@@ -784,7 +787,8 @@ function changeErrorDetailNode(oldData, newData, sprite,flag)
         Sprite:setRect(mainItem, x, y, w, h + 150)
         ListView:adjust(subListView)
         ListView:adjust(mainListView)
-    else
+    elseif Sprite:isVisible(errorHideNode) == 1 then 
+        Log:write("隐藏异常输入框")
         setAllShoworHide(errorHideNode, 0)
         x,y,w,h = Sprite:getRect(itemNode)
         Sprite:setRect(itemNode, x, y, w, h - 150)
