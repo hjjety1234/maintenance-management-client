@@ -190,7 +190,7 @@ function bodyOnPluginEvent(msg,param)
             local tabhis = {smscontent}
             table.insert(tab,1,getCurrentTimeandDate()..'上报巡检点成功')
             if Util:sendSMS(phone, smscontent) then
-                Sprite:setProperty(statusBarText, 'text', '巡检信息上报成功')
+                Sprite:setProperty(statusBarText, 'text', '巡检信息上报成功'..latitudeValue..','..longitudeValue)
                 local tabhis = {os.date()..'上报成功'}
                 upRecordtoServer()
              --   table.insert(tabhis,tabhis)
@@ -397,8 +397,8 @@ function _requestNearbyStationByRadius()
         local hx = '0000' --航向
         local speed = '0000' --速度
         local endstr = Config:get('xlSmsEndStr')--'00000000AAA10'
-        latitudeValue = tonumber(latitudeValue/1000000.0)
-        longitudeValue = tonumber(longitudeValue/1000000.0)
+        latitudeValue = tonumber(latitudeValue/10000000.0)
+        longitudeValue = tonumber(longitudeValue/10000000.0)
         Log:write('the latitudeValue is ',latitudeValue)
         --               XGXV30   40100100   00  130124195301 00000000 000000000  0000 0000 AAA 10
         Log:write('22222222222222222222222222 is '..XY_TO_GPSCOORDINATE(longitudeValue,latitudeValue))
@@ -409,7 +409,7 @@ function _requestNearbyStationByRadius()
         table.insert(tab,1,getCurrentTimeandDate()..'上报巡检点成功')
         
         if Util:sendSMS(phone, smscontent) then
-            Sprite:setProperty(statusBarText, 'text', '巡检信息上报成功')
+            Sprite:setProperty(statusBarText, 'text', '巡检信息上报成功'..latitudeValue..','..longitudeValue)
 			local tabhis = {os.date()..'上报成功'}
 		--	table.insert(tab,tabhis)
         else        
