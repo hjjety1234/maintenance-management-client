@@ -3,9 +3,11 @@ package com.wondertek.video.gps;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -13,8 +15,14 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.Settings;
+import android.text.AndroidCharacter;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;
@@ -82,8 +90,14 @@ public class GPSObserver {
 	private void openGPS()
 	{
 		if(isGPSEnable())
-			if(!mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER))
+			if(!mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
+				if (Build.VERSION.SDK_INT >= 4.0 && mLocationManager.
+						isProviderEnabled(LocationManager.GPS_PROVIDER) == false) {
+					Log.d(TAG, "getGPSData call buildAlertMessageNoGps");
+					buildAlertMessageNoGps();
+				}
 				toggleGPS();		
+			}
 	}
 
 	private void closeGPS()
@@ -207,6 +221,45 @@ public class GPSObserver {
 		} catch (CanceledException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void buildAlertMessageNoGps() {
+		final AlertDialog.Builder builder = new AlertDialog.Builder(venusHandle.appActivity);
+        builder.setMessage("Yout GPS seems to be disabled, do you want to enable it?");
+        builder.setCancelable(false);
+	        
+        DialogInterface.OnClickListener yesClickListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(final DialogInterface dialog, final int id) {
+				venusHandle.appActivity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+			}
+        };
+	        
+        DialogInterface.OnClickListener noClickListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(final DialogInterface dialog, final int id) {
+				dialog.cancel();
+			}
+        };
+	        
+        builder.setPositiveButton("Yes", yesClickListener);
+        builder.setNegativeButton("No", noClickListener);
+	        
+        // worker thread needs to have an instance of Handler in scope
+        final AlertDialog alert = builder.create();
+        final Handler threadHandler = new Handler(); ;  
+        new Thread() {
+        	@Override
+        	public void run() {
+        		 threadHandler.post( new Runnable(){
+					@Override
+					public void run() {
+						alert.show();
+					}
+        		 });
+        		
+        	}
+        }.start();
 	}
 
 	public void getGPSData()
