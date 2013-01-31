@@ -91,9 +91,8 @@ public class GPSObserver {
 	{
 		if(isGPSEnable())
 			if(!mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
-				if (Build.VERSION.SDK_INT >= 4.0 && mLocationManager.
-						isProviderEnabled(LocationManager.GPS_PROVIDER) == false) {
-					Log.d(TAG, "getGPSData call buildAlertMessageNoGps");
+				if (Build.VERSION.SDK_INT >= 4.0) {
+					Log.d(TAG, "openGPS call buildAlertMessageNoGps");
 					buildAlertMessageNoGps();
 				}
 				toggleGPS();		
@@ -225,7 +224,7 @@ public class GPSObserver {
 
 	private void buildAlertMessageNoGps() {
 		final AlertDialog.Builder builder = new AlertDialog.Builder(venusHandle.appActivity);
-        builder.setMessage("Yout GPS seems to be disabled, do you want to enable it?");
+        builder.setMessage("GPS设备未开启, 确定启用吗?");
         builder.setCancelable(false);
 	        
         DialogInterface.OnClickListener yesClickListener = new DialogInterface.OnClickListener() {
@@ -242,8 +241,8 @@ public class GPSObserver {
 			}
         };
 	        
-        builder.setPositiveButton("Yes", yesClickListener);
-        builder.setNegativeButton("No", noClickListener);
+        builder.setPositiveButton("是", yesClickListener);
+        builder.setNegativeButton("否", noClickListener);
 	        
         // worker thread needs to have an instance of Handler in scope
         final AlertDialog alert = builder.create();
