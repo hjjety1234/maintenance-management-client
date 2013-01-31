@@ -107,6 +107,9 @@ function Patrol:delete(planId, stationId)
 	if  isTableEmpty(Patrol.data[planId]) == true then 
 		Patrol.data[planId] = nil
 	end
+	
+	-- 存盘
+	Patrol:serialize()
 end
 
 

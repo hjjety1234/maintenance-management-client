@@ -345,6 +345,7 @@
 
 <![CDATA[
 require 'com_wondertek_dw.common.framework'
+require 'com_wondertek_dw.common.patrol'
 require 'framework.upload'
 require 'framework.barcode'
 require 'framework.map'
@@ -398,6 +399,8 @@ function bodyBuildChildrenFinished(sprite)
     g_stationLon = Reg:getString(regHandle, 'stationLon')
     -- 设置页面标题
     Sprite:setProperty(Sprite:findChild(rootSprite, 'titleNode'), 'text', g_stationName)
+    -- 反序列化巡检暂存
+    Patrol:deserialize() 
     -- 检查站点的位置
     checkSiteLoc()
 end
@@ -471,11 +474,29 @@ function bodyOnPluginEvent(msg, param)
         -- 将巡检子项添加到对应的巡检项中
         for i=0, getJsonArrayCount(subitems) - 1 do
             for j=1, #g_items do
-                if subitems[i].itemId == g_items[j].id then 
+                if subitems[i].itemId == g_items[j].id then
                     table.insert(g_items[j].subitems, subitems[i])
                 end
             end
         end
+        -- 检查是否有暂存数据
+        local userInput = Patrol:getUserInput(g_planId, g_stationId)
+        if userInput ~= nil then 
+            Log:write("找到暂存数据，替代服务器返回的巡检项!")
+            g_items = userInput
+        else
+            Log:write("未找到暂存数据，构造空的用户数输入!")
+            for i=1, #g_items do 
+                for j=1, #g_items[i].subitems do
+                    -- 构造空的用户输入
+                    g_items[i].subitems[j].value = ""
+                    -- 构造空的异常描述和处理描述
+                    g_items[i].subitems[j].exceptionDetail="" 
+                    -- 构造空的照片列表
+                    g_items[i].subitems[j].imageArray = {}
+                end
+            end
+        end 
         -- 在界面上加载巡检项
         local mainListView = Sprite:findChild(rootSprite,'mainListView')
         local mainItemNode = Sprite:findChild(rootSprite,'mainItemNode')
@@ -685,7 +706,7 @@ function mainNodeOnKeyUp(sprite, kc)
             return
         end
 
-        Dialog:show('', '您即将离开巡检页面,是否继续？','ok_cancel','doBack')
+        Dialog:show('', '您即将离开巡检页面,是否继续？','ok_cancel','doBackWithSave')
         return 1
     elseif kc==Key.F1 then--按下菜单键
         local FavListNodeSprite = Sprite:findChild(rootSprite, "ContextMenuNode")
@@ -694,7 +715,17 @@ function mainNodeOnKeyUp(sprite, kc)
     end
 end
 
--- 返回上一个页面
+-- 返回上一个页面，如果有暂存数据，需要暂存
+function doBackWithSave()
+    if Loading:isShow() then Loading:close() end
+    if isTableEmpty(g_items) == false then 
+        Patrol:save(g_planId, g_stationId, g_items)
+        Patrol:serialize()
+    end
+    Scene:back()
+end
+
+-- 直接返回上一个页面，无暂存
 function doBack()
     if Loading:isShow() then Loading:close() end
     Scene:back()
@@ -702,7 +733,7 @@ end
 
 -- 确认是否返回
 function doBackDialog()
-    Dialog:show('提示','您即将离开巡检页面,是否继续？','ok_cancel','doBack')
+    Dialog:show('提示','您即将离开巡检页面,是否继续？','ok_cancel','doBackWithSave')
 end
 
 ---------------------------------------界面初始化函数列表--------------------------
@@ -740,15 +771,24 @@ function loadListItem(list, item, index)
     ListView:removeAllItems(subListView, 1, 1)
     ListView:loadItem(subListView, subItemNode, #g_items[g_curItemIndex].subitems, 'loadSubListItem')
     
+    -- 计算巡检子项异常项的数目
+    local exceptionCount = 0
+    for i = 1, #g_items[g_curItemIndex].subitems do 
+        if  g_items[g_curItemIndex].subitems[i].exceptionDetail ~= nil and
+            string.gsub(g_items[g_curItemIndex].subitems[i].exceptionDetail, ' ', '') ~= '' then 
+            exceptionCount = exceptionCount + 1
+        end
+    end
+
     -- 调整巡检子项列表大小
     local x,y,w,h = Sprite:getRect(subListView)
-    Sprite:setRect(subListView, x, y, w,  #g_items[g_curItemIndex].subitems * 50)
+    Sprite:setRect(subListView, x, y, w,  #g_items[g_curItemIndex].subitems * 50 + exceptionCount * 150)
     
     x,y,w,h = Sprite:getRect(subListviewNode)
-    Sprite:setRect(subListviewNode, x, y, w, #g_items[g_curItemIndex].subitems * 50)
+    Sprite:setRect(subListviewNode, x, y, w, #g_items[g_curItemIndex].subitems * 50 + exceptionCount * 150)
    
     -- 调整巡检项大小
-    Sprite:setRect(item, 0, 0, 480, #g_items[g_curItemIndex].subitems * 50 + 50)
+    Sprite:setRect(item, 0, 0, 480, #g_items[g_curItemIndex].subitems * 50 + 50 + exceptionCount * 150)
     
     ListView:adjust(subListView)
 	
@@ -762,6 +802,7 @@ function loadSubListItem(list, item, index)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local listitembg = Sprite:findChild(item, 'listitembg')
     local curSubItemIndex = index + 1
+    g_curSubItem = item
     if curSubItemIndex % 2 == 0 then
        Sprite:setProperty(listitembg, 'src', 'file://image/item_bg_m.png')
     else
@@ -783,17 +824,55 @@ function loadSubListItem(list, item, index)
         -- 设置选择框的显示名称
         local errorTitleName = Sprite:findChild(errorTitleNode1, 'errorTitleName')
         Sprite:setProperty(errorTitleName, 'text', subitem.subitemName)
+        -- 显示暂存的数据
+        local errorTypeName =  Sprite:findChild(errorTitleNode1, 'errorTypeName')
+        Sprite:setProperty(errorTypeName, 'text', subitem.value)
     elseif subitem.inputType == 'NUM' then
         setAllShoworHide(errorTitleNode2, 1)
         local errorTitleName = Sprite:findChild(errorTitleNode2, 'errorTitleName')
         Sprite:setProperty(errorTitleName, 'text', subitem.subitemName)
+        -- 显示暂存的数据
+        local editInput =  Sprite:findChild(errorTitleNode2, 'editInput')
+        Sprite:setProperty(editInput, 'text', subitem.value)
     elseif subitem.inputType == 'TEXT' then
         setAllShoworHide(errorTitleNode3, 1)
         local errorTitleName = Sprite:findChild(errorTitleNode3, 'errorTitleName')
         Sprite:setProperty(errorTitleName, 'text', subitem.subitemName)
+         -- 显示暂存的数据
+        local editInput =  Sprite:findChild(errorTitleNode3, 'editInput')
+        Sprite:setProperty(editInput, 'text', subitem.value)
     else
         return
     end
+
+    -- 如果有异常信息，显示之
+    local exceptionDetail = subitem.exceptionDetail
+    if exceptionDetail ~= nil and string.gsub(exceptionDetail, " ", "") ~= "" then 
+        local exceptionReason = Split(exceptionDetail, ";")[1] or ""
+        local handleResult = Split(exceptionDetail, ";")[2] or ""
+        showErrorNode(true)
+        local exEdit = Sprite:findChild(item, "exEdit")
+        local doEdit = Sprite:findChild(item, "doEdit")
+        Sprite:setProperty(exEdit, 'text', exceptionReason)
+        Sprite:setProperty(doEdit, 'text', handleResult)
+    end
+    
+    -- 如果有暂存照片，还需要显示
+    local takePicBtn = Sprite:findChild(item, "takePicBtn")
+    local imageArray = subitem.imageArray
+    if imageArray ~= nil then 
+        for i=1,#imageArray do 
+            if i < 4 and IO:fileExist(imageArray[i]) == true then 
+                Log:write("暂存的照片路径为:"..imageArray[i])
+                local pic = Sprite:findChild(item, "pic"..i)
+                local bg = Sprite:findChild(pic, "bg")
+                Sprite:setProperty(bg, "src", imageArray[i])
+                table.insert(g_imageArray, imageArray[i])
+                table.insert(g_subitemidArray, subitem.id)
+            end  
+        end 
+        Sprite:setProperty(takePicBtn, "data", #imageArray)
+    end 
 	
 	-- 设置当前的索引值
 	Sprite:setProperty(item, 'data', curSubItemIndex)
@@ -1176,9 +1255,6 @@ end
 -- 相机回调函数
 function onCameraDialog(photoPath, photoType)
     --预留存储巡检计划号、基站号、巡检子项号
-    --table.insert(g_imageArray, photoPath)000001000599
-
-    --[[
     local tmpSplitArray = Split(photoPath, '%.')
     local dest = tmpSplitArray[1] .. 'temp' .. System:getTickTime() .. '.jpg'
     Log:write('目标文件路径为:'..dest)
@@ -1191,9 +1267,6 @@ function onCameraDialog(photoPath, photoType)
         table.insert(g_imageArray, photoPath)
         Log:write('警告：图片压缩失败，使用未压缩的图片:'..photoPath)
     end
-    --]]
-
-    table.insert(g_imageArray, photoPath)
     Log:write("g_imageArray", g_imageArray)
     
     local errorHideNode = Sprite:getParent(g_piccurrbtn)
@@ -1207,10 +1280,18 @@ function onCameraDialog(photoPath, photoType)
 
     --存储子巡检项的ID号
     table.insert(g_subitemidArray, g_items[itemIndex].subitems[subItemIndex].id)
+
+    -- 将照片路径存储暂存项中
+    if g_items[itemIndex].subitems[subItemIndex].imageArray == nil then 
+        g_items[itemIndex].subitems[subItemIndex].imageArray = {}
+    end 
+    table.insert(g_items[itemIndex].subitems[subItemIndex].imageArray, 
+        g_imageArray[#g_imageArray])
+
     local dataflag = Sprite:getData(g_piccurrbtn)
     local imgNode = Sprite:findChild(errorHideNode, 'pic'..dataflag)
     local bg = Sprite:findChild(imgNode, 'bg')
-    Sprite:setProperty(bg,'src', photoPath)
+    Sprite:setProperty(bg,'src', g_imageArray[#g_imageArray])
 end
 
 -- 上传图片
@@ -1219,6 +1300,9 @@ function doUpload(sprite)
     if checkUserInput() ~= 0 then
         return
     end
+    -- 如果有暂存数据，需要先删除
+    Patrol:delete(g_planId, g_stationId)
+
     -- 检查是否已经出站
     if g_outFlag ~= '1' then 
         Dialog:show('提示', '请先进行出站操作!', 'ok')
@@ -1370,6 +1454,9 @@ function doSave(sprite)
         if subitemId == '' or subitemId == nil  then
             Dialog:show(rootSprite, '巡检子项编号为空，请联系系统管理员！', 'ok')
         else
+            -- 更新用户输入
+            g_items[g_curItemIndex].subitems[g_curSubItemIndex].value = patrolResult
+            g_items[g_curItemIndex].subitems[g_curSubItemIndex].exceptionDetail = ""
             local url = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
             local username = Config:get('username')
             local param = '&usercode='..username..'&resultId='..g_resultId..'&subitemId='..subitemId..'&patrolResult='..patrolResult..'&exception='..'&dealDetail='
@@ -1577,8 +1664,11 @@ function ErrorSave(sprite)
     elseif dealdetail == '' or exception == '' then 
         Dialog:show(rootSprite, '异常描述和处理描述不能为空！', 'ok')  
     else
+        -- 暂存异常的用户输入
+        g_items[g_curItemIndex].subitems[g_curSubItemIndex].value = patrolResult
+        g_items[g_curItemIndex].subitems[g_curSubItemIndex].exceptionDetail = exception..";"..dealdetail
+
         local url = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
-        
         local username = Config:get('username')
         local param = '&usercode='..username..'&resultId='..g_resultId.. '&subitemId='..subItemId..'&patrolResult='..patrolResult ..'&exception='..exception..'&dealDetail='..dealdetail 
         Log:write("info: ErrorSave() param = ", param)
