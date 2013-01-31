@@ -1,7 +1,17 @@
 package com.wondertek.activity;
 
+//baidu
+//import com.baidu.mapapi.MapActivity;
 
 //import com.phonegap.DroidGap;
+import android.widget.AbsoluteLayout;
+//GDMAP
+import com.mapabc.mapapi.map.MapActivity;
+//import com.wondertek.plugins.alipay.AlixDemo;
+import com.wondertek.video.Util;
+import com.wondertek.video.VenusActivity;
+import com.wondertek.video.VenusApplication;
+
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -10,22 +20,9 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.widget.AbsoluteLayout;
-
-import com.mapabc.mapapi.map.MapActivity;
-import com.wondertek.video.Util;
-import com.wondertek.video.VenusActivity;
-import com.wondertek.video.VenusApplication;
-//GDMAP
-//import com.wondertek.plugins.alipay.AlixDemo;
-
-//baidu
-//public class AppActivity extends MapActivity {
-//phonegap
-//public class AppActivity extends DroidGap {
-//GDMAP
+//Map
 public class AppActivity extends MapActivity {
-// public class AppActivity extends Activity{
+//public class AppActivity extends Activity{
 	private static String SELF	= "AppActivity ";
 	private static AppActivity instance = null;
 	
@@ -143,24 +140,12 @@ public class AppActivity extends MapActivity {
 		}
 	}
 	
-//phonegap	
-	public void loadUrl(String url)
-	{
-//		super.loadUrl(url);		
-	}
-
-	public void setviewsize(int x,int y, int width, int height)
-	{
-//		super.setviewsize(x,y,width,height);
-	}
-	
-	public AbsoluteLayout GetWebViewRoot()
-    {
-//		super.GetWebViewRoot().setBackgroundColor(0);
-//    	return super.GetWebViewRoot();
-		return null;
-    }
-
+//baidu
+//	@Override
+//	protected boolean isRouteDisplayed() {
+//		return false;
+//	}
+    
 	public int getResID(String name, String defType)
 	{
 		return getResources().getIdentifier(name, defType, getPackageName());

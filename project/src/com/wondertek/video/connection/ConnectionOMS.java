@@ -8,12 +8,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.provider.Settings;
 
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
+import com.wondertek.video.VenusApplication;
 
 public class ConnectionOMS extends ConnectionImpl{
 
@@ -29,7 +31,7 @@ public class ConnectionOMS extends ConnectionImpl{
 	private static String		mOMSInterfaceName			= "";
 
 	@Override
-	public void OpenDataConnection() {
+	public void OpenDataConnection(int networktype) {
 		connectTask = null;
 		if(threadMonit != null)
 		{
@@ -50,45 +52,12 @@ public class ConnectionOMS extends ConnectionImpl{
 				int currentTimes = 30;
 				int result = -1;
 				while (currentTimes-- > 0) {
-					/**
-					 * 
-					 * Result of startUsingNetworkFeature()
-					 *   0,		Connected
-					 *   1,		Connecting
-					 *   Other,	Failure	 
-					 * */
-					if(APN_TYPE == APN_TYPE_WAP)
+					if(apnIsConnected())
 					{
-						result = connMan.startUsingNetworkFeature(ConnectivityManager.TYPE_MOBILE, OMS_APTYPE_CMWAP_NAME);
-					}
-					else
-					{
-						result = connMan.startUsingNetworkFeature(ConnectivityManager.TYPE_MOBILE, OMS_APTYPE_CMNET_NAME);
-					}
-					
-					if(result == 0)
-					{
-						if( isOMSAPNConnected(APN_TYPE) == false )
-						{
-							Util.Trace("...Failure...1");
-							
-							Util.m_nNetwork_Connected_Type = Util.Network_Connected_Unknown;
-							VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_InvalidAPN, 0);
-							return ;
-						}
-						
-						//Send the interface name to engine
-						String interfaceValue = mOMSInterfaceName;
-						VenusActivity.getInstance().nativeSetParam("interfaceName", interfaceValue, interfaceValue.length());
-						
-						Util.Trace("...Success...");
 						VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
-
-						Util.m_nNetwork_Connected_Type = Util.Network_Connected_WAP;
-
-						return ;
+						return;
 					}
-					
+					Util.Trace("connected currentTimes=" + currentTimes);
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
@@ -104,6 +73,40 @@ public class ConnectionOMS extends ConnectionImpl{
 		
 		threadMonit = new Thread(null, connectTask, "OMS APN");
 		threadMonit.start();
+	}
+	
+	private boolean apnIsConnected()
+	{
+		try {
+			Context context = VenusApplication.getInstance().getApplicationContext();
+			ConnectivityManager connectivity = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+			if (connectivity == null) 
+			{
+				Util.Trace("G3WLANHttp:: "+"APN isn't connected! #");
+				return false;
+			}
+			else 
+			{
+				NetworkInfo interestInfo = connectivity.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+				if(interestInfo.isAvailable() == false)
+				{
+					return false;
+				}
+				if(interestInfo.isConnected() != true)
+				{
+					return false;
+				}
+			
+			}
+			
+			Util.Trace("G3WLANHttp::" + "APN is connected! ");
+			return true;
+		} catch(Exception e){
+			Util.Trace(e.toString());
+		}
+		
+		Util.Trace("G3WLANHttp:: " + "APN isn't connected! &");
+		return false;
 	}
 
 	@Override
@@ -306,6 +309,7 @@ public class ConnectionOMS extends ConnectionImpl{
 			for (int i = 0; i < len; i++) {
 				NetworkInfo ni = arrInfo[i];
 				String sExtraInfo	= ni.getExtraInfo(); 
+				Util.Trace("isOMSAPNConnected sExtraInfo =" +sExtraInfo);
 				if ( sExtraInfo == null || ( "cmwap".equals(sExtraInfo) == false && "cmnet".equals(sExtraInfo) == false ) )
 				{
 					continue;

@@ -2,15 +2,15 @@ package com.wondertek.video.monitor;
 
 import java.lang.reflect.Field;
 
+import com.wondertek.video.Util;
+import com.wondertek.video.VenusActivity;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
-
-import com.wondertek.video.Util;
-import com.wondertek.video.VenusActivity;
 
 public class MonitorContacts extends MonitorBase{
 	private static ContentObserver mContactsObserver = null;

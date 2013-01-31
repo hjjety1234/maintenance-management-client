@@ -2,6 +2,7 @@ package com.wondertek.video.monitor;
 
 import android.content.IntentFilter;
 
+import com.wondertek.video.monitor.MonitorCommon;
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;

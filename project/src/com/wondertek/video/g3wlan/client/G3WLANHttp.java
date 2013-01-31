@@ -4,13 +4,21 @@
 package com.wondertek.video.g3wlan.client;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -20,6 +28,11 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import com.wondertek.video.Util;
+import com.wondertek.video.VenusApplication;
+
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 /**
  * @author Administrator
@@ -191,7 +204,6 @@ public class G3WLANHttp {
 			Util.Trace("wlanHaveLogin:: GET response code: " + rspCode);
 			
 			// process HTTP 302-redirection 
-//			if(rspCode == HttpURLConnection.HTTP_OK)
 			if(rspCode != -1)
 			{
 				Util.Trace("wlanHaveLogin:: WLAN is connected! ");

@@ -29,9 +29,9 @@ import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
 
+//import com.android.internal.telephony.ITelephony;
 import com.wondertek.video.connection.SystemConnectionManager;
 import com.wondertek.video.g3wlan.client.G3WLANHttp;
-//import com.android.internal.telephony.ITelephony;
 
 public class Util {
 	private static String TAG = "WriteLogs";
@@ -42,7 +42,7 @@ public class Util {
 	public static int PHONE_PLATFORM_OMS	 	= 1;
 	public static int PHONE_PLATFORM_CUSTOM	 	= 2;
 	
-	private static String WLAN_PING_URL				= "http://211.136.119.78/sup3/echo.jsp";
+	private static String WLAN_PING_URL				= "http://www.baidu.com";
 	private static String WLAN_PORTAL__URL			= "http://www.10086.com/index.html";
 
 	//Message to the engine
@@ -72,6 +72,7 @@ public class Util {
 	public final static int ENetworkError_Trans_Password			= 4;
 	public final static int ENetworkError_Trans_ShowNetSetting		= 5;
 	public final static int ENetworkError_Trans_DataConnected		= 6;
+	public final static int ENetworkError_Trans_ConnectedChange		= 7;
 	
 	//WLAN Type
 	public final static int EWLanType_Normal		= 0;
@@ -82,6 +83,8 @@ public class Util {
 	public final static int Network_Connected_WiFi	= 0;
 	public final static int Network_Connected_WAP	= 1;
 	public final static int Network_Connected_NET	= 2;
+	public final static int Network_Connected_WAP_2	= 3;
+	public final static int Network_Connected_WAP_3	= 4;
 	public static int m_nNetwork_Connected_Type	 = Network_Connected_Unknown;	//0 - WiFi, 1 - CMWAP, -1 - Unknown
 	
 	public final static int WIFI_STATE_IDLE			= 0;
@@ -237,6 +240,7 @@ public class Util {
 
 	public final static int Util_HANDLE_MSG_ID_ConnectionChange			= 0;
 	public final static int Util_HANDLE_MSG_ID_AIRPLANE_MODE_CHANGED	= 1;
+	public final static int Util_HANDLE_MSG_ID_WIFIChange				= 2;
 
 	public static boolean Util_WaitforConnConnected = false; 
 	private Handler utilHandler = new Handler()	{

@@ -3,6 +3,10 @@ package com.wondertek.video.connection;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import com.wondertek.video.Util;
+import com.wondertek.video.VenusActivity;
+import com.wondertek.video.VenusApplication;
+
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -17,10 +21,6 @@ import android.os.Bundle;
 import android.os.Message;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
-
-import com.wondertek.video.Util;
-import com.wondertek.video.VenusActivity;
-import com.wondertek.video.VenusApplication;
 
 public class ConnectionMultiplex extends ConnectionImpl{
 
@@ -189,7 +189,7 @@ public class ConnectionMultiplex extends ConnectionImpl{
 	}
 	
 	@Override
-	public void OpenDataConnection() {
+	public void OpenDataConnection(int networktype) {
 		connectTask = null;
 		if(threadMonit != null)
 		{
@@ -1283,7 +1283,7 @@ public class ConnectionMultiplex extends ConnectionImpl{
 					            else
 					            {
 					            	Util.Trace("@@ data connection successful!!!");
-					            	OpenDataConnection();
+					            	OpenDataConnection(usernetworktype);
 					            	break;
 					            }
 							} catch (Exception e) {

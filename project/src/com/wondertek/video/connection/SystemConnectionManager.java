@@ -42,7 +42,7 @@ public class SystemConnectionManager {
 		connectionImpl.Init();
 	}
 
-	public void OpenDataConnection()
+	public void OpenDataConnection(int networktype)
 	{
 		Util.WIFI_STATE	= Util.WIFI_STATE_IDLE;
 		Util.m_nNetwork_Connected_Type = Util.Network_Connected_Unknown;
@@ -51,7 +51,8 @@ public class SystemConnectionManager {
 			if( Util.getMultipleNetworkChip() == Util.NetworkChip_Single || Util.getMultipleNetworkChip() == Util.NetworkChip_Unknow )
 				Util.getWifiManager().setWifiEnabled(false);
 		}
-		connectionImpl.OpenDataConnection();
+		connectionImpl.setUsernetworktype(networktype);
+		connectionImpl.OpenDataConnection(networktype);
 	}
 	
 	public void OpenNetSetting()

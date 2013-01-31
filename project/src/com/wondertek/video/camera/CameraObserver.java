@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.widget.Toast;
+import android.database.Cursor;
 
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;

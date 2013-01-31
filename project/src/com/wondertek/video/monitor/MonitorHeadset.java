@@ -3,9 +3,14 @@ package com.wondertek.video.monitor;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
+
+/**
+ * 
+ * @author yuhongwei
+ *
+ */
 
 public class MonitorHeadset extends MonitorBase {
 

@@ -23,7 +23,7 @@ import android.util.Log;
 import com.wbtech.dao.NetworkUitlity;
 
 public class GetInfoFromFile extends Thread{
-	public static Context context;
+	public Context context;
 	
 
 	public GetInfoFromFile(Context context) {

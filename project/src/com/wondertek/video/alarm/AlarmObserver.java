@@ -7,6 +7,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.wondertek.video.VenusActivity;
 

@@ -14,9 +14,9 @@ import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.Intent.ShortcutIconResource;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.Intent.ShortcutIconResource;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -30,6 +30,7 @@ import android.os.Bundle;
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;
+import com.wondertek.video.appmanager.AES;
 
 public class AppManager {
 
@@ -39,7 +40,25 @@ public class AppManager {
 	private static final int STATE_IDLE = 0;
 	private static final int STATE_INSTALLING = 1;
 	private static final int STATE_UNINSTALLING = 2;
+	
+	private static final int SHARE_TEXT = 1;
+	private static final int SHARE_IMAGE = 2;
+	
 	private static final String AES_PASSWORD = "wondertek";
+	
+	enum EFile_Type{
+		FIEL_TYPE_UNKOWN,
+		FILE_TYPE_HTML,
+		FILE_TYPE_IMAGE,
+		FILE_TYPE_PDF,
+		FILE_TYPE_TEXT,
+		FILE_TYPE_AUDIO,
+		FILE_TYPE_VIDEO,
+		FILE_TYPE_CHM,
+		FILE_TYPE_WORD,
+		FILE_TYPE_EXCEL,
+		FILE_TYPE_PPT,
+	};
 
 	private String mPackageName = "";
 	public int mState = STATE_IDLE;
@@ -555,7 +574,141 @@ public class AppManager {
         }
         return iconPath + iconName;
     }
-
+    
+    public boolean dealWithShare(int type, String value, String subject, String title) {
+        Util.Trace(">>>dealWithShare<<< type : " + type + "  Value: " + value + "  Subject: " + subject + "  Title: " + title);
+        Intent intent = new Intent(Intent.ACTION_SEND);
+    	switch (type) {
+    		case SHARE_TEXT: 
+                intent.setType("text/plain");
+                intent.putExtra(Intent.EXTRA_TEXT, value); 
+    			break;
+    		case SHARE_IMAGE: 
+                intent.setType("image/png");
+                File file = new File(value);
+                Uri uri = Uri.fromFile(file);
+                intent.putExtra(Intent.EXTRA_STREAM, uri);
+    			break;
+            default:
+            	return false;
+    	}
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        final PackageManager packageManager = VenusActivity.appActivity.getPackageManager();
+        List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.GET_ACTIVITIES);
+        if (list.size() > 0) {
+        	VenusActivity.appActivity.startActivity(Intent.createChooser(intent, title));
+        	return true;
+        } else {
+        	return false;
+        }
+    }
+    
+    public boolean openFileByApplication(String fileType, String filePath) {
+        Util.Trace(">>>openFileByApplication<<<  fileType: " + fileType + "  filePath: " + filePath);
+    	EFile_Type type = getFileType(fileType);
+        Intent intent = new Intent("android.intent.action.VIEW");
+        switch (type) {
+        	case FILE_TYPE_HTML:
+        		Uri htmlUri = Uri.parse(filePath).buildUpon().encodedAuthority("com.android.htmlfileprovider")
+    				.scheme("content").encodedPath(filePath).build();
+        		intent.setDataAndType(htmlUri, "text/html");
+				break;
+        	case FILE_TYPE_IMAGE:
+                intent.addCategory("android.intent.category.DEFAULT");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                Uri imageUri = Uri.fromFile(new File(filePath));
+                intent.setDataAndType(imageUri, "image/*");
+				break;
+        	case FILE_TYPE_PDF:
+        		intent.addCategory("android.intent.category.DEFAULT");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                Uri pdfUri = Uri.fromFile(new File(filePath));
+                intent.setDataAndType(pdfUri, "application/pdf");
+				break;
+        	case FILE_TYPE_TEXT:
+        		intent.addCategory("android.intent.category.DEFAULT");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                Uri textUri = Uri.fromFile(new File(filePath));
+                intent.setDataAndType(textUri, "text/plain");
+				break;
+        	case FILE_TYPE_AUDIO:
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.putExtra("oneshot", 0);
+                intent.putExtra("configchange", 0);
+                Uri audioUri = Uri.fromFile(new File(filePath));
+                intent.setDataAndType(audioUri, "audio/*");
+				break;
+        	case FILE_TYPE_VIDEO:
+        		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.putExtra("oneshot", 0);
+                intent.putExtra("configchange", 0);
+                Uri videoUri = Uri.fromFile(new File(filePath));
+                intent.setDataAndType(videoUri, "video/*");
+				break;
+        	case FILE_TYPE_CHM:
+        		intent.addCategory("android.intent.category.DEFAULT");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                Uri chmUri = Uri.fromFile(new File(filePath));
+                intent.setDataAndType(chmUri, "application/x-chm");
+				break;
+        	case FILE_TYPE_WORD:
+        		intent.addCategory("android.intent.category.DEFAULT");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                Uri wordUri = Uri.fromFile(new File(filePath));
+                intent.setDataAndType(wordUri, "application/msword");
+				break;
+        	case FILE_TYPE_EXCEL:
+        		intent.addCategory("android.intent.category.DEFAULT");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                Uri excelUri = Uri.fromFile(new File(filePath));
+                intent.setDataAndType(excelUri, "application/vnd.ms-excel");
+				break;
+        	case FILE_TYPE_PPT:
+        		intent.addCategory("android.intent.category.DEFAULT");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                Uri pptUri = Uri.fromFile(new File(filePath));
+                intent.setDataAndType(pptUri, "application/vnd.ms-powerpoint");
+				break;
+			default :
+				return false;
+		}
+        final PackageManager packageManager = VenusActivity.appActivity.getPackageManager();
+        List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.GET_ACTIVITIES);
+        if (list.size() > 0) {
+        	VenusActivity.appActivity.startActivity(Intent.createChooser(intent, "—°‘Ò”¶”√"));
+        	return true;
+        } else {
+        	return false;
+        }
+    }
+    
+    private EFile_Type getFileType(String type) {
+    	if (type.trim().equalsIgnoreCase("html")) {
+    		return EFile_Type.FILE_TYPE_HTML;
+    	} else if (type.trim().equalsIgnoreCase("image")) {
+    		return EFile_Type.FILE_TYPE_IMAGE;
+    	} else if (type.trim().equalsIgnoreCase("pdf")) {
+    		return EFile_Type.FILE_TYPE_PDF;
+    	} else if (type.trim().equalsIgnoreCase("text")) {
+    		return EFile_Type.FILE_TYPE_TEXT;
+    	} else if (type.trim().equalsIgnoreCase("audio")) {
+    		return EFile_Type.FILE_TYPE_AUDIO;
+    	} else if (type.trim().equalsIgnoreCase("video")) {
+    		return EFile_Type.FILE_TYPE_VIDEO;
+    	} else if (type.trim().equalsIgnoreCase("chm")) {
+    		return EFile_Type.FILE_TYPE_CHM;
+    	} else if (type.trim().equalsIgnoreCase("word")) {
+    		return EFile_Type.FILE_TYPE_WORD;
+    	} else if (type.trim().equalsIgnoreCase("excel")) {
+    		return EFile_Type.FILE_TYPE_EXCEL;
+    	} else if (type.trim().equalsIgnoreCase("ppt")) {
+    		return EFile_Type.FILE_TYPE_PPT;
+    	} else {
+			 return EFile_Type.FIEL_TYPE_UNKOWN;
+		}
+    }
+    
 	class MyReceiver extends BroadcastReceiver {
 
 		@Override

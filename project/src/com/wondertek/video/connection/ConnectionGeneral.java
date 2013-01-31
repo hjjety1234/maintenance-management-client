@@ -44,41 +44,14 @@ public class ConnectionGeneral extends ConnectionImpl{
 	private boolean		bSettingShowFlag = false;
 	
 	private static boolean bDCSettingShowFlag	= false;
-	private static boolean bDCConnected		 = false;
+	private static boolean bDCConnected		 = true;
 	
 	private static ArrayList<WapInfo> wapInfoList = new ArrayList<WapInfo>();
 	
-	class WapInfo
-	{
-		private int id = -1;
-		private String proxy	= "";
-		private String port		= "";
-		
-		public WapInfo(int id, String proxy, String port)
-		{
-			this.id = id;
-			this.proxy = proxy;
-			this.port = port;
-		}
-		
-		public int getType()
-		{
-			return id;
-		}
-		
-		public String getProxy()
-		{
-			return proxy;
-		}
-		
-		public String getPort()
-		{
-			return port;
-		}
-	}
 	
 	@Override
-	public void OpenDataConnection() {
+	public void OpenDataConnection(int networktype) {
+		
 		if(m_APN_Switch_Type == APN_SWITCH_TYPE_DYNAMIC)
 		{
 			//Util.queryDefaultAPNId();
@@ -215,8 +188,6 @@ public class ConnectionGeneral extends ConnectionImpl{
 
 	//[_id, name, numeric, mcc, mnc, apn, user, server, password, proxy, port, mmsproxy, mmsport, mmsc, authtype, type, current, preset]
 	public void queryDefaultAPNId() {
-		String name 	= "";
-		String apn		= "";
 		String proxy 	= "";
 		String port		= "";
 		String current	= "";
@@ -251,14 +222,6 @@ public class ConnectionGeneral extends ConnectionImpl{
 					{
 						type = c.getString(i);
 					}
-					else if(TAG_NAME.equals(columnIndex))
-					{
-						name = c.getString(i);
-					}
-					else if(TAG_APN.equals(columnIndex))
-					{
-						apn = c.getString(i);
-					}
 				}
 				if(m_APN_Switch_Type == APN_SWITCH_TYPE_DYNAMIC)
 				{
@@ -277,7 +240,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 							Util.Trace("Default APN's type config is not [" + TAG_TYPE_Value + "]");
 						}
 					}
-					else if( (proxy == null ||"".equals(proxy)) && (port == null || "".equals(port)) && TAG_TYPE_NET_NAME.equals(name) && TAG_TYPE_NET_APN.equals(apn) && "1".equals(current) )
+					else if( proxy == null || port == null || "".equals(proxy) || "".equals(port) )
 					{
 						defaultAPNType = APN_TYPE_NET;
 						Util.Trace("Default APN type is NET");
@@ -387,9 +350,9 @@ public class ConnectionGeneral extends ConnectionImpl{
 						}
 						else if(APN_TYPE == APN_TYPE_NET)
 						{
-							if ( (proxy == null || "".equals(proxy)) && (port == null || "".equals(port)) && TAG_TYPE_NET_APN.equalsIgnoreCase(apn) && TAG_TYPE_NET_NAME.equalsIgnoreCase(name) && "1".equals(current) )
+							if ( ("".equals(proxy) && "".equals(port))&& "1".equals(current) )
 							{
-								Util.Trace("...Find apn type is " + "APN_TYPE_NET" + "[" + c.getPosition() + "]");
+								Util.Trace("...Find apn type is " + "APN_TYPE_WAP" + "[" + c.getPosition() + "]");
 								findApn = true;
 								break;
 							}
@@ -426,7 +389,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 		}
 		return destApnId;
 	}
-
+	//pj382 add liuhao
 	private void detectAPNConnectionStart()
 	{
 		connectCnt = 15;
@@ -517,17 +480,23 @@ public class ConnectionGeneral extends ConnectionImpl{
 	}
 
 	private void UseCurrentAPN() {
-		if(defaultAPNType == APN_TYPE_WAP)
+		if(apnIsConnected())
 		{
-			VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
-			Util.m_nNetwork_Connected_Type = Util.Network_Connected_WAP;
-		}
-		else if(defaultAPNType == APN_TYPE_NET)
-		{
-			VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
-			Util.m_nNetwork_Connected_Type = Util.Network_Connected_NET;
-		}
-		else
+			if(defaultAPNType == APN_TYPE_WAP)
+			{
+				VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
+				Util.m_nNetwork_Connected_Type = Util.Network_Connected_WAP;
+			}
+			else if(defaultAPNType == APN_TYPE_NET)
+			{
+				VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
+				Util.m_nNetwork_Connected_Type = Util.Network_Connected_NET;
+			}
+			else
+			{
+				VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_InvalidAPN, 0);
+			}
+		}else
 		{
 			VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_InvalidAPN, 0);
 		}
@@ -581,9 +550,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 	}
 	
 	public boolean SetCurrentAPN(int id, boolean detectNetwork) {
-		
 		boolean res = false;
-		
 		Util.initPhoneManufaturer();
 
 		ContentResolver resolver = VenusApplication.getInstance().getContentResolver();
@@ -615,9 +582,9 @@ public class ConnectionGeneral extends ConnectionImpl{
 				{
 					int nAPNID = -1;
 					if (APN_TYPE == APN_TYPE_WAP)
-						nAPNID = createAPNCfg(TAG_TYPE_WAP_APN, TAG_TYPE_WAP_NAME, TAG_TYPE_WAP_PROXY, TAG_TYPE_WAP_PORT, "1");
+						nAPNID = createCmwapAPNCfg(TAG_TYPE_WAP_APN, TAG_TYPE_WAP_NAME, TAG_TYPE_WAP_PROXY, TAG_TYPE_WAP_PORT, "1");
 					else if (APN_TYPE == APN_TYPE_NET)
-						nAPNID = createAPNCfg(TAG_TYPE_NET_APN, TAG_TYPE_NET_NAME, "", "", "1");
+						nAPNID = createCmwapAPNCfg(TAG_TYPE_NET_APN, TAG_TYPE_NET_NAME, "", "", "1");
 					EnumerateAPNs();
 					return res = SetCurrentAPN(nAPNID, detectNetwork);
 				
@@ -645,7 +612,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 		return res;
 	}
 	
-	private int createAPNCfg(String apn, String name, String proxy, String port, String current)
+	private int createCmwapAPNCfg(String apn, String name, String proxy, String port, String current)
 	{
 		ContentResolver resolver = VenusApplication.getInstance().getContentResolver();
 		
@@ -747,50 +714,50 @@ public class ConnectionGeneral extends ConnectionImpl{
 		wapInfoList.add(new WapInfo(4, "10.0.0.172", "80"));
 		wapInfoList.add(new WapInfo(4, "010.000.000.172", "80"));
 
-//		//Detect the type of SIM card
-//		String imsi = (String)VenusActivity.getInstance().javaGetMachineInfo(VenusActivity.EMachineInfo_IMSI);
-//		if(imsi != null && imsi.length() > 0)
-//		{
-//			
-//			if(imsi.startsWith("46000") || imsi.startsWith("46002") || imsi.startsWith("46007"))
-//			{
-//				//China Mobile
-//				TAG_TYPE_WAP_APN = "cmwap";
-//				TAG_TYPE_WAP_NAME = "cmwap";
-//				TAG_TYPE_NET_APN = "cmnet";
-//				TAG_TYPE_NET_NAME = "cmnet";
-//				
-//				TAG_TYPE_WAP_PROXY			= "10.0.0.172";
-//				TAG_TYPE_WAP_PROXY_E		= "010.000.000.172";
-//				TAG_TYPE_WAP_PORT			= "80";
-//				
-//				
-//			}
-//			else if(imsi.startsWith("46001"))
-//			{
-//				//China Unicom
-//				TAG_TYPE_WAP_APN = "wap";
-//				TAG_TYPE_WAP_NAME = "wap";
-//				TAG_TYPE_NET_APN = "net";
-//				TAG_TYPE_NET_NAME = "net";
-//				
-//				TAG_TYPE_WAP_PROXY			= "10.0.0.172";
-//				TAG_TYPE_WAP_PROXY_E		= "010.000.000.172";
-//				TAG_TYPE_WAP_PORT			= "80";
-//			}
-//			else if(imsi.startsWith("46003"))
-//			{
-//				//China Telecom
-//				TAG_TYPE_WAP_APN = "ctwap";
-//				TAG_TYPE_WAP_NAME = "ctwap";
-//				TAG_TYPE_NET_APN = "ctnet";
-//				TAG_TYPE_NET_NAME = "ctnet";
-//				
-//				TAG_TYPE_WAP_PROXY			= "10.0.0.200";
-//				TAG_TYPE_WAP_PROXY_E		= "010.000.000.200";
-//				TAG_TYPE_WAP_PORT			= "80";
-//			}
-//		}
+		//Detect the type of SIM card
+		String imsi = (String)VenusActivity.getInstance().javaGetMachineInfo(VenusActivity.EMachineInfo_IMSI);
+		if(imsi != null && imsi.length() > 0)
+		{
+			
+			if(imsi.startsWith("46000") || imsi.startsWith("46002") || imsi.startsWith("46007"))
+			{
+				//China Mobile
+				TAG_TYPE_WAP_APN = "cmwap";
+				TAG_TYPE_WAP_NAME = "cmwap";
+				TAG_TYPE_NET_APN = "cmnet";
+				TAG_TYPE_NET_NAME = "cmnet";
+				
+				TAG_TYPE_WAP_PROXY			= "10.0.0.172";
+				TAG_TYPE_WAP_PROXY_E		= "010.000.000.172";
+				TAG_TYPE_WAP_PORT			= "80";
+				
+				
+			}
+			else if(imsi.startsWith("46001"))
+			{
+				//China Unicom
+				TAG_TYPE_WAP_APN = "wap";
+				TAG_TYPE_WAP_NAME = "wap";
+				TAG_TYPE_NET_APN = "net";
+				TAG_TYPE_NET_NAME = "net";
+				
+				TAG_TYPE_WAP_PROXY			= "10.0.0.172";
+				TAG_TYPE_WAP_PROXY_E		= "010.000.000.172";
+				TAG_TYPE_WAP_PORT			= "80";
+			}
+			else if(imsi.startsWith("46003"))
+			{
+				//China Telecom
+				TAG_TYPE_WAP_APN = "ctwap";
+				TAG_TYPE_WAP_NAME = "ctwap";
+				TAG_TYPE_NET_APN = "ctnet";
+				TAG_TYPE_NET_NAME = "ctnet";
+				
+				TAG_TYPE_WAP_PROXY			= "10.0.0.200";
+				TAG_TYPE_WAP_PROXY_E		= "010.000.000.200";
+				TAG_TYPE_WAP_PORT			= "80";
+			}
+		}
 		queryDefaultAPNId();
 		if(Util.GetSDK() != Util.SDK_ANDROID_40 && Util.GetSDK() != Util.SDK_ANDROID_41)
 		{
@@ -905,7 +872,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 					            else
 					            {
 					            	Util.Trace("@@ data connection successful!!!");
-					            	OpenDataConnection();
+					            	OpenDataConnection(usernetworktype);
 					            	break;
 					            }
 							} catch (Exception e) {
@@ -1072,6 +1039,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 	            }
 	            return switchOpen;
 		} catch (Exception e) {
+			switchOpen = 1;
 			Util.Trace("@ exception: " + e.getMessage());
 		}
 		return switchOpen;

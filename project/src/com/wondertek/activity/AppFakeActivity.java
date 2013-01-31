@@ -41,9 +41,6 @@ public class AppFakeActivity extends Activity {
 		VenusApplication.getInstance().addActivity(this);
 		VenusApplication.getInstance();
 		VenusApplication.applicationHandler.sendMessage( msg );
-//		UmsAgent.setDefaultReportPolicy(this, 1);
-//		UmsAgent.postClientData(this);
-//		UmsAgent.onError(this);
 	}
 	
 	@Override

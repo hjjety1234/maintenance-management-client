@@ -379,6 +379,7 @@ public class VenusApplication  extends Application {
 				if(VenusApplication.bAppActivityIsRunning)
 				{
 					VenusActivity.nativesendsmsevent();
+					startAppActivity(false);
 				}
 				else
 				{

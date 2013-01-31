@@ -36,6 +36,7 @@ import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
 import com.google.zxing.ResultPointCallback;
 import com.google.zxing.common.HybridBinarizer;
+
 import com.wondertek.activity.R;
 /**
  * This thread does all the heavy lifting of decoding the images.

@@ -1,7 +1,6 @@
 package com.wondertek.video.wifi;
 
 import java.util.List;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
@@ -9,11 +8,11 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 
+//import com.android.internal.telephony.ITelephony;
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.connection.SystemConnectionManager;
 import com.wondertek.video.g3wlan.client.G3WLANHttp;
-//import com.android.internal.telephony.ITelephony;
 
 public class WifiObserver {
 	private static WifiObserver instance = null;
@@ -69,7 +68,7 @@ public class WifiObserver {
 		return false;
 	}
 	
-	public void OpenDataConnection()
+	public void OpenDataConnection(int networktype)
 	{
 		/*
 		Util.WIFI_STATE	= Util.WIFI_STATE_IDLE;
@@ -98,7 +97,7 @@ public class WifiObserver {
 			Util.openOMSDataConnection(Util.APN_TYPE_WAP);
 		}
 		*/
-		SystemConnectionManager.getInstance().OpenDataConnection();
+		SystemConnectionManager.getInstance().OpenDataConnection(networktype);
 	}
 	
 	public void OpenNetSetting()

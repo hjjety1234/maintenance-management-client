@@ -8,8 +8,8 @@ public class ConnectionImpl {
 
 	public static String TAG_TYPE_WAP_APN			= "cmwap";
 	public static String TAG_TYPE_WAP_NAME			= "MobileVideo3";
-	public static String TAG_TYPE_NET_APN			= "xgxzhdw.ah";
-	public static String TAG_TYPE_NET_NAME			= "xgxzhdw.ah";
+	public static String TAG_TYPE_NET_APN			= "cmnet";
+	public static String TAG_TYPE_NET_NAME			= "MobileVideo3";
 	
 	public static String TAG_TYPE_WAP_PROXY			= "10.0.0.172";
 	public static String TAG_TYPE_WAP_PROXY_E		= "010.000.000.172";
@@ -17,8 +17,10 @@ public class ConnectionImpl {
 	
 	public static final int APN_TYPE_WAP		= 0;
 	public static final int APN_TYPE_NET		= 1;
+	public static final int APN_TYPE_WAP_2		= 2;
+	public static final int APN_TYPE_WAP_3		= 3;
 	public static final int APN_TYPE_UNKNOWN	= -1;
-	public static int APN_TYPE					= APN_TYPE_NET;
+	public static int APN_TYPE					= APN_TYPE_WAP;
 
 	public static final Uri PREFERRED_APN_URI = Uri
 	.parse("content://telephony/carriers/preferapn");		//URI for the current APN configuration. /data/data/com.android.providers.telephony/databases/telephony.db
@@ -56,11 +58,103 @@ public class ConnectionImpl {
 	public static final int EVENT_ID_SYSTEM_RESUME				= 2;
 	
 	public static final int TYPE_MOBILE_2 = 7;
-
+	public int usernetworktype = -1;
+	
+	class WapInfo
+	{
+		private int id = -1;
+		private String proxy	= "";
+		private String port		= "";
+		private String apn		= "";
+		private String name		= "";
+		
+		public WapInfo(int id, String proxy, String port)
+		{
+			this.id = id;
+			this.proxy = proxy;
+			this.port = port;
+		}
+		
+		public WapInfo(int id, String proxy, String port, String apn, String name)
+		{
+			this.id = id;
+			this.proxy = proxy;
+			this.port = port;
+			this.apn = apn;
+			this.name = name;
+		}
+		
+		public int getType()
+		{
+			return id;
+		}
+		
+		public String getProxy()
+		{
+			return proxy;
+		}
+		
+		public String getApn()
+		{
+			return apn;
+		}
+		
+		public String getName()
+		{
+			return name;
+		}
+		
+		public String getPort()
+		{
+			return port;
+		}
+	}
+	
+	class APNInfo
+	{
+		private int m_apiID 	= -1;
+		private String m_proxy	= "";
+		private String m_port	= "";
+		
+		public APNInfo()
+		{
+			
+		}
+		
+		public void SetApnID(int apiID)
+		{
+			m_apiID = apiID;
+		}
+		
+		public void SetProxy(String proxy)
+		{
+			m_proxy = proxy;
+		}
+		
+		public void SetPort(String port)
+		{
+			m_port = port;
+		}
+		
+		public int GetApnID()
+		{
+			return m_apiID;
+		}
+		
+		public String getProxy()
+		{
+			return m_proxy;
+		}
+		
+		public String getPort()
+		{
+			return m_port;
+		}
+	}
 
 	public void Init(){};
 	
-	public void OpenDataConnection(){};
+	public void OpenDataConnection(int networktype){};
 	
 	public void OpenNetSetting(){} 
 	
@@ -69,6 +163,8 @@ public class ConnectionImpl {
 	public int GetDataConnectionState(){return 1;}
 	
 	public String GetInterfaceName(){return "";}
+	
+	public void setUsernetworktype(int networktype){usernetworktype = networktype;}
 	
 	/**
 	 * The current APN type. Script may set the Proxy & Port using this.

@@ -117,7 +117,7 @@ public class UmsAgent {
 				JSONObject errorInfo = new JSONObject();
 				
 				try {
-					 Build bd = new Build();
+					Build bd = new Build();
 					errorInfo.put("stacktrace", stacktrace);
 					errorInfo.put("time", time);
 					errorInfo.put("version", CommonUtil.getVersion(context));

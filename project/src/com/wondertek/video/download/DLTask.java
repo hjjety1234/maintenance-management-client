@@ -11,14 +11,16 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
-import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.download.http.HttpImpl;
+import com.wondertek.video.download.QSDownUtils;
+import com.wondertek.video.Util;
 
 /**
  *

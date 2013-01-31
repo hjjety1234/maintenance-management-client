@@ -13,6 +13,13 @@ import android.media.MediaPlayer.OnSeekCompleteListener;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
+
+/**
+ * 
+ * @author yuhongwei
+ *
+ */
 
 public class SystemMediaPlayerService extends Service
 		implements OnErrorListener, OnBufferingUpdateListener, OnInfoListener,
@@ -102,7 +109,7 @@ public class SystemMediaPlayerService extends Service
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra) {
 		// TODO Auto-generated method stub
-		//Toast.makeText(this, TAG + ">>onError<<", Toast.LENGTH_LONG).show();
+		Toast.makeText(this, TAG + ">>onError<<", Toast.LENGTH_LONG).show();
 		playerStatus = SysMPConstants.STATE_ERROR;
         SysMediaPlayerMgr.sendPlayerStatus(playerStatus);
 		switch (what) {

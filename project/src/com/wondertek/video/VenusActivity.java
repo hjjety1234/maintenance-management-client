@@ -17,16 +17,11 @@ package com.wondertek.video;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.SocketAddress;
-import java.net.URL;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,7 +60,6 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -76,6 +70,7 @@ import android.provider.Contacts.People;
 import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
+import android.telephony.PhoneStateListener;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
@@ -85,19 +80,18 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.OrientationEventListener;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
@@ -106,7 +100,6 @@ import android.webkit.DownloadListener;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AbsListView;
 import android.widget.AbsoluteLayout;
 import android.widget.BaseAdapter;
@@ -122,6 +115,7 @@ import android.widget.TextView;
 
 import com.wondertek.video.alarm.AlarmObserver;
 import com.wondertek.video.appmanager.AppManager;
+import com.wondertek.video.arplugin.ArPluginMgr;
 import com.wondertek.video.browser.SysBrowserObserver;
 import com.wondertek.video.calendar.CalendarObserver;
 import com.wondertek.video.call.CallObserver;
@@ -135,20 +129,17 @@ import com.wondertek.video.monitor.MonitorCommon;
 import com.wondertek.video.monitor.MonitorHeadset;
 import com.wondertek.video.monitor.MonitorManager;
 import com.wondertek.video.monitor.MonitorScreen;
-import com.wondertek.video.phonegap.PhonegapObserver;
+import com.wondertek.video.msgpush.MsgPushManager;
 import com.wondertek.video.sensor.SensorObserver;
+import com.wondertek.video.smsspam.SMSSpamMgr;
 import com.wondertek.video.sysplayer.SysMediaPlayerMgr;
+import com.wondertek.video.telephone.PhoneObserver;
 import com.wondertek.video.update.UpdateMan;
 import com.wondertek.video.wifi.WifiObserver;
-//import com.wondertek.video.ifly.VoiceInputManager;
-//import com.wondertek.video.player.PlayerObserver;
-//MsgPush
-//import com.wondertek.video.msgpush.MsgPushManager;
-//SMSSpam
-//import com.wondertek.video.smsspam.SMSSpamMgr;
+import com.wondertek.video.authentic.AuthenticObserver;
 
 public class VenusActivity implements SurfaceHolder.Callback {
-	private static String TAG = "VenusActivity";
+	static String TAG = "VenusActivity";
 
 	public static int PHONE_PLATFORM = 0;	//0-ANDROID, 1-OPHONE
 
@@ -177,9 +168,9 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	protected static final int GUIUPDATEIDENTIFIER = 0x101;
 
-	private static int screenWidth = 0;
-	private static int screenHeight = 0;
-	private static int statusHeight = 0;
+	static int screenWidth = 0;
+	static int screenHeight = 0;
+	static int statusHeight = 0;
 
 	private int videoSurfaceWidth = 1;
 	private int videoSurfaceHeight = 1;
@@ -189,7 +180,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	private int g_player_handle = 0;
 
-	private static int update_frequency = 60;
+	private static int update_frequency = 40;
 
 	public static String mActivityFullName = "";
 
@@ -228,11 +219,22 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	private ListView Contact_list;
 	private RelativeLayout Contact_buttonView;
 	private LinearLayout Contact_view;
-	private WebView webView;
-	private boolean bCleanHistory;
-	private ImageView imageView;
-	private Animation animation;
-	private Stack<String> oldurls = new Stack<String>();
+	WebView webView;
+	private LinearLayout webView_LinearLayout;
+	private LinearLayout webView_Center;
+	private AbsoluteLayout webView_UP;
+	private AbsoluteLayout webView_UP2;
+	private AbsoluteLayout webView_Down;
+	private AbsoluteLayout webView_Down2;
+	private AbsoluteLayout webView_Left;
+	private AbsoluteLayout webView_Left2;
+	private AbsoluteLayout webView_Right;
+	private AbsoluteLayout webView_Right2;
+	
+	boolean bCleanHistory;
+	ImageView imageView;
+	Animation animation;
+	Stack<String> oldurls = new Stack<String>();
     private Stack<String> perurls = new Stack<String>();
 	private Cursor Contact_cursor;
 	private HashSet<Integer> Contact_positions;
@@ -277,7 +279,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	
 	public CalendarObserver calendarObserver;
 	
-	public PhonegapObserver phonegapObserver;
 	public AbsoluteLayout webViewRoot = null;
 
 	public AppManager	appManager;
@@ -292,18 +293,25 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	//private KeyguardLock keyguardLock = null;
 	
 	//MsgPush
-//	private MsgPushManager msgPushMgr = null;
+	private MsgPushManager msgPushMgr = null;
 	
 	//SMSSpam
-//	public SMSSpamMgr smsSpamMgr = null;
+	public SMSSpamMgr smsSpamMgr = null;
     
-	//SysPlayer
+	//TODO SysPlayer
 	public SysMediaPlayerMgr sysMediaPlayer = null;
+    
 	//Map
 	public MapPluginMgr mapPluginMgr = null;
 	
+	//TODO authenticObserver
+	public AuthenticObserver authenticObserver = null;
+	
 	public MediaRecorder mRecorder = null;
-
+	
+	//ArPlugin
+	public ArPluginMgr arPluginMgr = null;
+    
 	public VenusActivity(Activity appActivity) {
 		VenusActivity.appActivity = appActivity;
 		appContext = VenusApplication.getInstance().getApplicationContext();
@@ -324,10 +332,10 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		public void handleMessage(Message msg) {
 			if(msg.what == VenusActivity.GUIUPDATEIDENTIFIER)
 			{
-				long delay=System.currentTimeMillis();
+				long delay = System.currentTimeMillis();
 				nativetimeslice();
-				delay=System.currentTimeMillis()-delay;
-				delay=(delay>=update_frequency)? 1:update_frequency-delay;
+				delay = System.currentTimeMillis() - delay;
+				delay = (delay>=update_frequency) ?  1 : update_frequency - delay;
 				refashHandler.sendEmptyMessageDelayed(VenusActivity.GUIUPDATEIDENTIFIER, delay);
 			}
 		}
@@ -465,9 +473,37 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		venusEventHandler.sendMessage(msg);
 	}
 
+	private boolean checkCPUArmV7()
+	{
+		String str = "";
+		boolean support = false;
+		try {
+			Process pp = Runtime.getRuntime().exec("cat /proc/cpuinfo"); 
+			InputStreamReader ir = new InputStreamReader(pp.getInputStream()); 
+			LineNumberReader input = new LineNumberReader(ir); 
+
+			for (int i = 1; i < 100; i++) { 
+				str = input.readLine(); 
+				if (str != null) { 
+					if (str.indexOf("Feature") > -1) {
+						if (str.indexOf("neon") > -1 || str.indexOf("NEON") > -1)
+							support = true;
+						break;
+					}
+				} else { 
+					break; 
+				}
+		} 
+		} catch (IOException ex) { 
+			ex.printStackTrace(); 
+		} 
+		Util.Trace("checkCPUArmV7 = " + support);
+		return support;
+	}
+
 	private void sysInit()
 	{
-		batteryInfo = new CBatteryInfo();
+		batteryInfo = new CBatteryInfo(this);
 		MonitorManager.getInstance(this).Init();
 		MonitorManager.getInstance(this).RegisterMonitor(MonitorCommon.MONITOR_TYPE_BATTERY);
 		MonitorManager.getInstance(this).RegisterMonitor(MonitorCommon.MONITOR_TYPE_SCREEN);
@@ -490,22 +526,27 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		else
 		{
 			String dirname = VenusApplication.appAbsPath + "/lib2/WD/";
-			if(sdk <= Util.SDK_ANDROID_21)	
+			if(sdk <= Util.SDK_ANDROID_21 || sdk == Util.SDK_OMS_20)	
 				System.load(dirname + "sdk21/libskiaref.so");
-			else if(sdk <= Util.SDK_ANDROID_23)
+			else if(sdk <= Util.SDK_ANDROID_23 || sdk == Util.SDK_OMS_25 || sdk == Util.SDK_OMS_26)
 				System.load(dirname + "sdk23/libskiaref.so");
+			else if(sdk <= Util.SDK_ANDROID_33)
+				System.load(dirname + "sdk33/libskiaref.so");
 			else if(sdk <= Util.SDK_ANDROID_40)
 				System.load(dirname + "sdk40/libskiaref.so");
 			else
 				System.load(dirname + "sdk41/libskiaref.so");
 
-			System.load(dirname + "libapi.so");
+			File apiV7 = new File(dirname + "armv7/libapi.so");
+			if (checkCPUArmV7() && apiV7.exists())
+				System.load(dirname + "armv7/libapi.so");
+			else
+				System.load(dirname + "libapi.so");
 			System.load(dirname + "libcomrepository.so");
 			System.load(dirname + "liblua.so");
 			System.load(dirname + "liblauncher.so");
+			System.load(VenusApplication.appAbsPath + "/lib2/webbrowser/" + "libwebbrowser.so");
 		}
-		//GDMAP
-		//System.load(VenusApplication.appAbsPath + "/lib2/mapview/libmapview.so");
 		// use for c call java find this activity.
 		mActivityFullName = this.getClass().getName().replace('.', '/');
 
@@ -690,7 +731,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		Contact_list.setLayoutParams(new LinearLayout.LayoutParams(
 				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
-//		appActivity.startManagingCursor(Contact_cursor); // 绠＄悊cursor鐢熷懡鍛ㄦ湡
+//		appActivity.startManagingCursor(Contact_cursor);
 		Contact_adapter = new ContactAdapter(appActivity);
 		Contact_list.setAdapter(Contact_adapter);
 
@@ -703,11 +744,16 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		Contact_view.setVisibility(View.GONE);
 
 		/////////////////////////////////////
+		webView_LinearLayout = new LinearLayout(appActivity);
+		webView_LinearLayout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT));
+		webView_LinearLayout.setOrientation(LinearLayout.VERTICAL);
+		
 		webView = new WebView(appActivity);
 		webView.setId(100);
 
 		webView.setLayoutParams(new AbsoluteLayout.LayoutParams(0, 0, 0, 0));
-		webView.setWebViewClient(new WDViewClient());
+		webView.setWebViewClient(new WDViewClient(this));
 		webView.setInitialScale(0);
 		webView.setVerticalScrollBarEnabled(false);
 		webView.requestFocusFromTouch();
@@ -761,7 +807,47 @@ public class VenusActivity implements SurfaceHolder.Callback {
         settings.setBuiltInZoomControls(true);
         settings.setAllowFileAccess(true);
 
+        webView_UP = new AbsoluteLayout(appActivity);
+		webView_UP.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT));
+		webView_UP2 = new AbsoluteLayout(appActivity);
+		
         webView.setVisibility(View.INVISIBLE);
+        webView_UP.addView(webView_UP2);
+        webView_LinearLayout.addView(webView_UP);
+        
+        webView_Center = new LinearLayout(appActivity);
+        webView_Center.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT));
+        webView_Center.setOrientation(LinearLayout.HORIZONTAL);
+        
+        webView_Left = new AbsoluteLayout(appActivity);
+        webView_Left.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT));
+        webView_Left2 = new AbsoluteLayout(appActivity);
+        webView_Left.addView(webView_Left2);
+        
+        webView_Center.addView(webView_Left);
+        
+        webView_Center.addView(webView);
+        
+        webView_Right = new AbsoluteLayout(appActivity);
+        webView_Right.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT));
+        webView_Right2 = new AbsoluteLayout(appActivity);
+        webView_Right.addView(webView_Right2);
+        
+        webView_Center.addView(webView_Right);
+        
+        webView_LinearLayout.addView(webView_Center);
+        
+        webView_Down = new AbsoluteLayout(appActivity);
+        webView_Down.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT));
+        webView_Down2 = new AbsoluteLayout(appActivity);
+        webView_Down.addView(webView_Down2);
+
+        webView_LinearLayout.addView(webView_Down);
 		
         animation = new RotateAnimation(0.0f, +3600.0f, Animation.RELATIVE_TO_SELF,0.5f,Animation.RELATIVE_TO_SELF, 0.5f);
         animation.setDuration(20000);
@@ -778,6 +864,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 //  	javaBrowserOpenUrl("http://192.168.1.19/main.htm");
 // 		javaShowWebBrowser(true);
     
+        PhoneObserver.getInstance(appActivity); 
 		wifiObserver = WifiObserver.getInstance(this);
 		cameraObserver = CameraObserver.getInstance(this);
 		callObserver = CallObserver.getInstance(this);
@@ -787,26 +874,20 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		emailObserver = EmailObserver.getInstance(this);
 		alarmObserver = AlarmObserver.getInstance(this);
 		calendarObserver = CalendarObserver.getInstance(this);
-		phonegapObserver = PhonegapObserver.getInstance(this);
+		
+		authenticObserver = AuthenticObserver.getInstance(this);
 		
 		//SMSSpam
-//		if (smsSpamMgr == null)
-//			smsSpamMgr = SMSSpamMgr.getInstance(appActivity);
+		if (smsSpamMgr == null)
+			smsSpamMgr = SMSSpamMgr.getInstance(appActivity);
 		
         // Add web view but make it invisible while loading URL
 		/////////////////////////////////////
 
-		venusview = new VenusView(appActivity);
+		venusview = new VenusView(this, appActivity);
 		venusview.setLayoutParams(new AbsoluteLayout.LayoutParams(screenWidth,screenHeight, 0, 0));
 		venusview.setVisibility(View.VISIBLE);
-
-		al.addView(Edit_viewone);
-		al.addView(venusview);
-		al.addView(Edit_view);
-		al.addView(Contact_view);
-		al.addView(webView);
-		al.addView(imageView);
-
+		
 		videoview = new SurfaceView(appActivity);
 		videoview.setLayoutParams(new AbsoluteLayout.LayoutParams(videoSurfaceWidth, videoSurfaceHeight, 0, 0));
 //		videoview.setVisibility(View.INVISIBLE);
@@ -817,6 +898,14 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		sh.addCallback(this);
 
 		al.addView(videoview);
+		al.addView(Edit_viewone);
+		al.addView(venusview);
+		al.addView(Edit_view);
+		al.addView(Contact_view);
+		al.addView(webView_LinearLayout);
+		al.addView(imageView);
+		venusview.setZOrderMediaOverlay(true);
+		
 
 		appActivity.setContentView(al);
 		if(mHaveStatusBar)
@@ -839,9 +928,9 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 
 		//MsgPush
-//		if (msgPushMgr == null)
-//			msgPushMgr = new MsgPushManager(appActivity);
-//		msgPushMgr.init();
+		if (msgPushMgr == null)
+			msgPushMgr = MsgPushManager.getInstance(appActivity);
+		msgPushMgr.init();
         
 		if (sysMediaPlayer == null)
 			sysMediaPlayer = new SysMediaPlayerMgr(appActivity);
@@ -849,6 +938,10 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		if (mapPluginMgr == null) {
 			mapPluginMgr = MapPluginMgr.getInstance(appActivity);
 			al.addView(mapPluginMgr.getMapView());
+		}
+        
+		if (arPluginMgr == null) {
+			arPluginMgr = new ArPluginMgr(appActivity);
 		}
 		
 		sysState = SYS_STATE_RUN;
@@ -890,25 +983,25 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public final static char EVENT_PAUSE 		= 0;
 	public final static char EVENT_RESUME 		= 1;
 
-	public final static char SysEvent_Size 				= 0;
-	public final static char SysEvent_Paint				= 1;
+	public final static char SysEvent_Size 			= 0;
+	public final static char SysEvent_Paint			= 1;
 	public final static char SysEvent_SMS				= 2;
 	public final static char SysEvent_DialUp			= 3;
 	public final static char SysEvent_Network			= 4;
 	public final static char SysEvent_AppStart			= 5;
-	public final static char SysEvent_TimeSlice			= 6;
+	public final static char SysEvent_TimeSlice		= 6;
 	public final static char SysEvent_WLanSearch		= 7;
 	public final static char SysEvent_HttpPipe			= 8;
-	public final static char SysEvent_ScreenRotate 		= 9;
-	public final static char SysEvent_TurnBackLight		= 10;
+	public final static char SysEvent_ScreenRotate 	= 9;
+	public final static char SysEvent_TurnBackLight	= 10;
 	public final static char SysEvent_SysPause			= 11;
-	public final static char SysEvent_SysResume			= 12;
+	public final static char SysEvent_SysResume		= 12;
 	public final static char SysEvent_ScreenLock		= 13;
 	public final static char SysEvent_WLan				= 14;
-    public final static char SysEvent_AppInstall        = 15;
-    public final static char SysEvent_AppUnInstall      = 16;
-    public final static char SysEvent_AIRPLANE          = 17;
-    public final static char SysEvent_SD                = 18;
+    public final static char SysEvent_AppInstall      = 15;
+    public final static char SysEvent_AppUnInstall    = 16;
+    public final static char SysEvent_AIRPLANE        = 17;
+    public final static char SysEvent_SD              = 18;
 	public final static char SysEvent_Contacts			= 19;
 
 	
@@ -938,6 +1031,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			SystemConnectionManager.getInstance().PostEvent(ConnectionImpl.EVENT_ID_SYSTEM_PAUSE, null);
 			WifiObserver.getInstance(this).dealWithWLan(EVENT_PAUSE);
 			AppManager.getInstance(this).dealWithAppManager(EVENT_PAUSE);
+			PhoneObserver.getInstance().disablePhoneStateListener();
 			mapPluginMgr.stop();
 		}
 	}
@@ -947,6 +1041,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		
 		if(sysState == SYS_STATE_RUN)
 		{
+		    restoreViewLayout();
 			if (ResumeCount == 0)
 			{
 				sys_window_state = SYS_WINDOW_NORMAL;
@@ -964,12 +1059,13 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			SystemConnectionManager.getInstance().PostEvent(ConnectionImpl.EVENT_ID_SYSTEM_RESUME, null);
 			WifiObserver.getInstance(this).dealWithWLan(EVENT_RESUME);
 			AppManager.getInstance(this).dealWithAppManager(EVENT_RESUME);
+            PhoneObserver.getInstance().enablePhoneStateListener(PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
             mapPluginMgr.start();
 
 			//MsgPush
-//			if (msgPushMgr != null) {
-//				msgPushMgr.notificationCallBack();
-//			}
+			if (msgPushMgr != null) {
+				msgPushMgr.notificationCallBack();
+			}
 		}
 	}
 
@@ -1062,6 +1158,14 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public String javaGetInstalledAppInfoById(String id) {
 		return AppManager.getInstance(this).getInstalledAppInfoById(id);
 	}
+    
+	public boolean javaDealWithShare(int type, String value, String subject, String title) {
+		return AppManager.getInstance(this).dealWithShare(type, value, subject, title);
+	}
+    
+	public boolean javaOpenFileByApplication(String fileType, String filePath) {
+		return AppManager.getInstance(this).openFileByApplication(fileType, filePath);
+	}
 
 	public static int postEventFromNative(int type, String arg1, String arg2)
 			throws UnsupportedEncodingException {
@@ -1090,16 +1194,16 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	//Be match with the cmd type in TMPCPlayer.cpp
 	public static final char Enum_CmdType_MP_Create			= 0;
-	public static final char Enum_CmdType_MP_SetHandle		= 1;
-	public static final char Enum_CmdType_MP_SetInfo		= 2;
+	public static final char Enum_CmdType_MP_SetHandle		    = 1;
+	public static final char Enum_CmdType_MP_SetInfo		    = 2;
 	public static final char Enum_CmdType_MP_Normal			= 3;
 	public static final char Enum_CmdType_MP_FullScreen		= 4;
 	public static final char Enum_CmdType_MP_AudioTrack		= 5;
-	public static final char Enum_CmdType_MP_Stop			= 6;
+	public static final char Enum_CmdType_MP_Stop			    = 6;
 	public static final char Enum_CmdType_MP_Visble			= 7;
 	public static final char Enum_CmdType_MP_Hidden			= 8;
-	public static final char Enum_CmdType_MP_UrlRoute		= 9;
-	public static final char Enum_CmdType_MP_MoveWindow     = 10;
+	public static final char Enum_CmdType_MP_UrlRoute		    = 9;
+	public static final char Enum_CmdType_MP_MoveWindow       = 10;
 	
 	public static int bFullScreen = 0;
 	public int JavaCreateElement(int type, String title, int width,
@@ -1457,156 +1561,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		}
 	}
 
-	class VenusView extends SurfaceView implements SurfaceHolder.Callback
-	{
-		private int sdkint;
-		private SurfaceHolder holder;
-		public VenusView(Context context) {
-			super(context);
-			holder = this.getHolder();
-			holder.addCallback(this);
-			sdkint= Build.VERSION.SDK_INT;
-			this.setFocusableInTouchMode(true);
-			nativeinit(screenWidth, screenHeight, statusHeight, null, mActivityFullName, VenusApplication.appAbsPath, VenusApplication.appPassiveStart);
-			VenusActivity.this.refashHandler.sendEmptyMessageDelayed(VenusActivity.GUIUPDATEIDENTIFIER, 50);
-
-	        mLongPressRunnable = new Runnable() {
-
-	            @Override
-	            public void run() {
-	            	Util.Trace("LongClick: (" + mLastMotionX + "," + mLastMotionY + ")");
-	            	nativesendevent(3, mLastMotionX, mLastMotionY);
-	            }
-	        };
-		}
-
-		@Override
-		public void surfaceChanged(SurfaceHolder holder, int format, int width,int height) {
-			//解决中兴U960s3二维码扫描异常@zhouyu 2013.1.23
-			//holder.setType(SurfaceHolder.SURFACE_TYPE_NORMAL);
-			//holder.setFormat(PixelFormat.RGB_565);
-			nativeupdatemaincanvas(holder.getSurface(),sdkint);
-
-		}
-
-		@Override
-		public void surfaceCreated(SurfaceHolder holder) {
-			holder.setType(SurfaceHolder.SURFACE_TYPE_NORMAL);
-			holder.setFormat(PixelFormat.RGB_565);
-			nativeupdatemaincanvas(holder.getSurface(),sdkint);
-		}
-
-		@Override
-		public void surfaceDestroyed(SurfaceHolder holder) {
-			nativeupdatemaincanvas(null,sdkint);
-		}
-
-		private int mLastMotionX, mLastMotionY;
-
-	    private boolean isMoved;
-
-	    private Runnable mLongPressRunnable;
-
-	    private static final int TOUCH_SLOP = 20;
-	    
-	    public int getTouchType( int nAction )
-	    {
-            switch(nAction&MotionEvent.ACTION_MASK)  
-            {  
-            case MotionEvent.ACTION_DOWN:  			
-            case MotionEvent.ACTION_POINTER_1_DOWN: 
-            case MotionEvent.ACTION_POINTER_2_DOWN:  
-                return 1;  
-            case MotionEvent.ACTION_MOVE:  
-            	return 2;
-            case MotionEvent.ACTION_POINTER_1_UP:  	
-            case MotionEvent.ACTION_POINTER_2_UP:
-            	return 3;
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL: 
-            	return 4;    
-            }	 
-             
-            return 0; 
-	    }
- 
-		public boolean onTouchEvent(MotionEvent event) {
-			int count = event.getPointerCount(); 
-			int nType = getTouchType(event.getAction()); 
-			if ( count == 1 )
-			{   
-				if ( nativetouchevent( count, nType, event.getPointerId(0), (int)event.getX(0), (int)event.getY(0),
-						-1, 0, 0) != 0 )
-				{
-					return true; 
-				}   
-			} 
-			else
-			{
-				if ( nativetouchevent( count, nType, event.getPointerId(0), (int)event.getX(0), (int)event.getY(0),
-						event.getPointerId(1), (int)event.getX(1), (int)event.getY(1)) != 0 )
-				{
-					return true;
-				} 
-			}
-
-			int x = (int) event.getX();
-	        int y = (int) event.getY();
-			nativesendevent(event.getAction(), x, y);
-
-			switch(event.getAction()) {
-	        case MotionEvent.ACTION_DOWN:
-	            mLastMotionX = x;
-	            mLastMotionY = y;
-	            isMoved = false;
-	            postDelayed(mLongPressRunnable, ViewConfiguration.getLongPressTimeout());
-	            break;
-	        case MotionEvent.ACTION_MOVE:
-	            if(isMoved) break;
-	            if(Math.abs(mLastMotionX-x) > TOUCH_SLOP
-	                    || Math.abs(mLastMotionY-y) > TOUCH_SLOP) {
-	                isMoved = true;
-	                removeCallbacks(mLongPressRunnable);
-	            }
-	            break;
-	        case MotionEvent.ACTION_UP:
-	            removeCallbacks(mLongPressRunnable);
-	            break;
-	        }
-			return true;
-		}
-
-		public boolean onKeyDown(int keyCode, KeyEvent event) {
-			if ((keyCode == KeyEvent.KEYCODE_CALL) || (keyCode == KeyEvent.KEYCODE_MENU) ||
-				(keyCode == KeyEvent.KEYCODE_SEARCH) || (keyCode == 92)) {
-				Util.Trace("ignore key:" + keyCode + " event:"+ event.toString());
-				// return true;
-			}
-
-			return super.onKeyDown(keyCode, event);
-		}
-
-		public boolean onKeyLongPress(int keyCode, KeyEvent event) {
-			if ((keyCode == KeyEvent.KEYCODE_CALL)|| (keyCode == KeyEvent.KEYCODE_MENU) ||
-				(keyCode == KeyEvent.KEYCODE_SEARCH) || (keyCode == 92)) {
-				Util.Trace("ignore key:" + keyCode + " event:"+ event.toString());
-				// return true;
-			}
-
-			return super.onKeyLongPress(keyCode, event);
-		}
-
-		public boolean onKeyUp(int keyCode, KeyEvent event) {
-			if ((keyCode == KeyEvent.KEYCODE_CALL) || (keyCode == KeyEvent.KEYCODE_MENU)||
-				(keyCode == KeyEvent.KEYCODE_SEARCH) || (keyCode == 92)) {
-				Util.Trace( "ignore key:" + keyCode + " event:"+ event.toString());
-				// return true;
-			}
-
-			return super.onKeyUp(keyCode, event);
-		}
-	}
-
 	public native void nativeupdatesurface();
 
 	public native void nativesendevent(int keytype, int x, int y);
@@ -1823,6 +1777,22 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				nativesendkeyevent(keyCode, 1, 0);
 				return true;
 			}
+            else if(keyCode == KeyEvent.KEYCODE_VOLUME_UP)
+            {
+                    mKeyPrepared = true;
+                    if(mDispalyMode == DISPLAY_MODE_LANDSCAPE)
+                            return true;
+                    else
+                            return false;
+            }
+            else if(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
+            {
+                    mKeyPrepared = true;
+                    if(mDispalyMode == DISPLAY_MODE_LANDSCAPE)
+                            return true;
+                    else
+                            return false;
+            }
 			else if(   keyCode == KeyEvent.KEYCODE_0
 					|| keyCode == KeyEvent.KEYCODE_1
 					|| keyCode == KeyEvent.KEYCODE_2
@@ -1879,6 +1849,30 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				nativesendkeyevent(keyCode, 0, 0);
 				return true;
 			}
+            else if(keyCode == KeyEvent.KEYCODE_VOLUME_UP)
+            {
+                    if(mDispalyMode == DISPLAY_MODE_LANDSCAPE)
+                    {
+                            nativesendkeyevent(KeyEvent.KEYCODE_VOLUME_UP, 0, 0);
+                            return true;
+                    }
+                    else
+                    {
+                            nativesendkeyevent(KeyEvent.KEYCODE_VOLUME_UP, 0, 0);
+                    }
+            }
+            else if(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
+            {
+                    if(mDispalyMode == DISPLAY_MODE_LANDSCAPE)
+                    {
+                            nativesendkeyevent(KeyEvent.KEYCODE_VOLUME_DOWN, 0, 0);
+                            return true;
+                    }
+                    else
+                    {
+                            nativesendkeyevent(KeyEvent.KEYCODE_VOLUME_DOWN, 0, 0);
+                    }
+            }
 			else if(   keyCode == KeyEvent.KEYCODE_0
 					|| keyCode == KeyEvent.KEYCODE_1
 					|| keyCode == KeyEvent.KEYCODE_2
@@ -1920,80 +1914,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			venusview.setLayoutParams(new AbsoluteLayout.LayoutParams(screenWidth, screenHeight, 0, 0));
 	}
 	
-	public static boolean update(String apkUrl) {
-		if (apkUrl == null || "".equals(apkUrl) || !apkUrl.endsWith(".apk")) {
-			return false;
-		}
-		String temp = apkUrl.substring(apkUrl.lastIndexOf("/"));
-
-		String path = "";
-		if (Environment.getExternalStorageState().equals(
-				Environment.MEDIA_MOUNTED)) {
-			path = Environment.getExternalStorageDirectory() + "/wondertek";
-		} else {
-			return false;
-		}
-		temp = path + "/" + temp;
-		File file = new File(temp);
-		if (file.exists()) {
-			file.delete();
-		}
-		InputStream is = null;
-		RandomAccessFile fos = null;
-		try {
-			file.createNewFile();
-			try {
-				URL url;
-				url = new URL(apkUrl);
-				SocketAddress addr = new InetSocketAddress("10.0.0.172", 80);
-				Proxy typeProxy = new Proxy(Proxy.Type.HTTP, addr);
-				HttpURLConnection c = (HttpURLConnection) url
-						.openConnection(typeProxy);
-				c.setDoInput(true);
-				c.connect();
-				is = c.getInputStream();
-				fos = new RandomAccessFile(file, "rw");
-				fos.seek(0);
-				if (is != null) {
-					byte[] buffer = new byte[4096];
-					int l;
-					while ((l = is.read(buffer)) != -1) {
-						fos.write(buffer, 0, l);
-					}
-				}
-
-				Intent apkintent = new Intent(Intent.ACTION_VIEW);
-				final Uri fileUri = Uri.fromFile(file);
-				apkintent.setDataAndType(fileUri,
-						"application/vnd.android.package-archive");
-				appActivity.startActivity(apkintent);
-
-				// ActivityManager activityManager = (ActivityManager)
-				// VenusApplication
-				// .getInstance().getSystemService(
-				// Context.ACTIVITY_SERVICE);
-				// activityManager.restartPackage(VenusApplication.getInstance()
-				// .getPackageName());
-
-				return true;
-			} catch (Exception e) {
-			}
-		} catch (IOException e) {
-		} finally {
-			try {
-				if (is != null)
-					is.close();
-				if (fos != null)
-					fos.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		}
-		return false;
-	}
-
 	private void releaseEdit() {
 		venusview.setVisibility(View.VISIBLE);
 		Edit_view.setVisibility(View.GONE);
@@ -2041,7 +1961,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		Edit_textone.setText(strText);	
 	}
 
-	public void initNewEdit(int type, int maxSize, int multiLines, String titleText, String defaultText, int top, int width, int height) {
+	public void initNewEdit(int type, int maxSize, int multiLines, String titleText, String defaultText, int top, int width, int height, int uflags) {
 		Log.d(TAG,"top="+top + ", width=" + width + ",height=" + height);
 		Message msg = new Message();
 		bmultiLines = (multiLines == 1)?true:false;;
@@ -2070,6 +1990,11 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			msg.obj = true;
 			venusEventHandler.sendMessage(msg);
 		}
+        if (uflags == 0x0001) {
+        	Edit_textone.setInputType(EditorInfo.TYPE_CLASS_PHONE);
+        } else {
+        	Edit_textone.setInputType(EditorInfo.TYPE_CLASS_TEXT);
+        }
 	}
 
 	private boolean initContact(String titleText) {
@@ -2495,38 +2420,11 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	// get machine info.
 	public static int EMachineInfo_Serial 			= 0; // ID,
 	public static int EMachineInfo_Signal 			= 1; // Sinal, 0 ~ 100
-	public static int EMachineInfo_Battery 			= 2; // Battery energy
-	public static int EMachineInfo_PhoneNumber 		= 3; // Phone Number,
+	public static int EMachineInfo_Battery 		= 2; // Battery energy
+	public static int EMachineInfo_PhoneNumber 	= 3; // Phone Number,
 	public static int EMachineInfo_IMEI 			= 4; // IMEI,
 	public static int EMachineInfo_IMSI 			= 5; // IMSI,
 	public static int EMachineInfo_Count 			= 6; // Boundary check 
-
-	//Class declare
-	public class CBatteryInfo extends Object
-	{
-		public boolean isPresent;
-		public String technology;
-		public int plugged;
-		public int scale;
-		public int health;
-		public int charging;	/*status*/
-		public int rawlevel;
-
-		public CBatteryInfo()
-		{
-			super();
-
-			//Refer to the NOTE in MonitorBattery.java
-			this.isPresent = false;
-			this.technology = "";
-			this.plugged = 0x02;
-			this.scale = 100;
-			this.health = 0x02;
-			this.charging = 0;
-			this.rawlevel = 50;
-		}
-	}
-
 
 	//Field create
 	public CBatteryInfo batteryInfo = null;
@@ -2537,7 +2435,12 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		if(EMachineInfo_IMEI == index)
 		{
 			String imei = telephonyManager.getDeviceId();
-
+			if(imei == null)
+			{
+				imei = android.provider.Settings.System.getString(appActivity.getContentResolver(),android.provider.Settings.System.ANDROID_ID);
+			}
+			imei = (imei == null) ? "":imei;
+			Util.Trace("@@ imei =" +imei);
 			return imei;
 		}
 		else if(EMachineInfo_IMSI == index)
@@ -2546,8 +2449,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			if(simState == TelephonyManager.SIM_STATE_READY)
 			{
 				String imsi = telephonyManager.getSubscriberId();
-
-				imsi = imsi == null?"":imsi;
+				imsi = (imsi == null)?"":imsi;
 
 				return imsi;
 			}
@@ -2648,82 +2550,57 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	public boolean javaSendSMS(String messageAddress, String messageContent,
 			boolean bSilentMode) {
-		if(Util.GetSDK() == Util.SDK_ANDROID_15 || Util.GetSDK() == Util.SDK_OMS_15)
-		{
+		if (bSilentMode) {
 			SmsManager smsManager = SmsManager.getDefault();
-			
-					if (messageAddress.trim().length() != 0
-							&& messageContent.trim().length() != 0) {
-			
-						try {
-							Util.Trace("SMS: ADDRESS="+messageAddress+ "   CONTENT="+messageContent);
-							smsManager.sendMultipartTextMessage(messageAddress, null, smsManager.divideMessage(messageContent),
-									null, null);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-		}
-		else
-		{
-			try {				
-				if (messageAddress.trim().length() != 0 && messageContent.trim().length() != 0) {
-					Class<?> cls = Class.forName("android.telephony.SmsManager");
-					Method m_getDefault = cls.getDeclaredMethod("getDefault");
-					Object smsManager = m_getDefault.invoke(null);
-					
-					Method m_divideMessage = cls.getDeclaredMethod("divideMessage", new Class[]{String.class});
-					ArrayList<String> msgs =  (ArrayList)m_divideMessage.invoke(smsManager, new Object[]{messageContent});
-					
-					Method m_sendMultipartTextMessage = cls.getDeclaredMethod("sendMultipartTextMessage", new Class[]{String.class, String.class, ArrayList.class, ArrayList.class, ArrayList.class});
-					m_sendMultipartTextMessage.invoke(smsManager, new Object[]{messageAddress, null, msgs, null, null});
+			if (messageAddress.trim().length() != 0
+				&& messageContent.trim().length() != 0) {
+				try {
+					Util.Trace("SMS: ADDRESS="+messageAddress+ "   CONTENT="+messageContent);
+					smsManager.sendMultipartTextMessage(messageAddress, null, smsManager.divideMessage(messageContent), null, null);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
+		} else {
+			Util.Trace("Call System SMS");
+			Uri smsUri = Uri.parse("smsto:" + messageAddress);
+			Intent smsIntent = new Intent(Intent.ACTION_VIEW, smsUri);
+			smsIntent.putExtra("sms_body", messageContent);
+			appActivity.startActivity(smsIntent);
 		}
-
 		return true;
 	}
 
 	// Set volume of system
 	private AudioManager audioMgr = null;
-	public boolean javaSetVolume(int nVolume)
-	{
-		if(audioMgr == null)
-			audioMgr = (AudioManager) appActivity.getSystemService(Context.AUDIO_SERVICE);
-		if(audioMgr == null)
-			return false;
-		int maxStreamVolume = audioMgr.getStreamMaxVolume(AudioManager.STREAM_SYSTEM);
-		Util.Trace("maxStreamVolume=" +maxStreamVolume +",nVolume=" +nVolume);
-		nVolume = (nVolume*maxStreamVolume)/4;
-		if (nVolume >= 0 || nVolume <= maxStreamVolume ) {
-			audioMgr.setStreamVolume(AudioManager.STREAM_SYSTEM, nVolume, 0);
-			return true;
-		}
-		else if (nVolume < 0)
-			audioMgr.setStreamVolume(AudioManager.STREAM_SYSTEM, 0, 0);
-		else if (nVolume > maxStreamVolume)
-			audioMgr.setStreamVolume(AudioManager.STREAM_SYSTEM, maxStreamVolume, 0);
-
-		return false;
+	//pj382 add fgx
+    public boolean javaSetVolume(int nVolume)
+    {
+        Util.Trace("javaSetVolume:" + nVolume);
+		audioMgr = (AudioManager) appActivity.getSystemService(Context.AUDIO_SERVICE);
+        if (nVolume < 0)
+            audioMgr.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+        else 
+		{
+            int maxStreamVolume = audioMgr.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            Util.Trace("javaSetVolume0:" + maxStreamVolume);
+            if ((maxStreamVolume*nVolume)/4 > maxStreamVolume)
+                audioMgr.setStreamVolume(AudioManager.STREAM_MUSIC, maxStreamVolume, 0);
+            else
+				audioMgr.setStreamVolume(AudioManager.STREAM_MUSIC, (maxStreamVolume*nVolume)/4, 0);
+            
+            Util.Trace("javaSetVolume1:" + (maxStreamVolume*nVolume)/4);
+         }
+		return true;
 	}
-
-	public int javaGetVolume()
-	{
-		if(audioMgr == null)
-			audioMgr = (AudioManager) appActivity.getSystemService(Context.AUDIO_SERVICE);
-		if(audioMgr == null)
-			return 0;
-		int curStreamVolume = audioMgr.getStreamVolume(AudioManager.STREAM_SYSTEM);
-		int maxStreamVolume = audioMgr.getStreamMaxVolume(AudioManager.STREAM_SYSTEM);
-		Util.Trace("maxStreamVolume=" +maxStreamVolume +",curStreamVolume=" +curStreamVolume);
-		if(maxStreamVolume>0)
-			curStreamVolume = (curStreamVolume*4)/maxStreamVolume;
-		else
-			return 0;
-
-		return curStreamVolume;
+	//pj382 add fgx
+    public int javaGetVolume()
+    {
+        audioMgr = (AudioManager) appActivity.getSystemService(Context.AUDIO_SERVICE);
+        int maxStreamVolume = audioMgr.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        int curStreamVolume = audioMgr.getStreamVolume(AudioManager.STREAM_MUSIC);
+        Util.Trace("javaGetVolume:" + (curStreamVolume*5)/maxStreamVolume);
+        return curStreamVolume/(maxStreamVolume/4);
 	}
 	// ////////////////////////////////////////////////////////////////////////////////
 	// Set Bluetooth
@@ -3545,8 +3422,16 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	//TODO webview
 	public void javaBrowserCreateWindow(int nX,int nY,int nWidth, int nHeight)
 	{
-		Log.d(TAG,"javaBrowserCreateWindow");
-		webView.setLayoutParams(new AbsoluteLayout.LayoutParams(nWidth,nHeight, nX, nY));
+		Log.d(TAG,"javaBrowserCreateWindow nX"+nX+",int nY="+nY+",int nWidth="+nWidth+", int nHeight" + nHeight);
+		webView_UP2.setLayoutParams(new AbsoluteLayout.LayoutParams(nX,nY, 0, 0));
+		webView_Left2.setLayoutParams(new AbsoluteLayout.LayoutParams(nX,nHeight, 0, nY));
+		if(screenWidth>=nX+nWidth)
+			webView_Right2.setLayoutParams(new AbsoluteLayout.LayoutParams(screenWidth-nX-nWidth,nHeight, nX+nWidth, nY));
+		if(screenHeight>=nY+nHeight)
+			webView_Down2.setLayoutParams(new AbsoluteLayout.LayoutParams(nWidth,screenHeight - nY -nHeight, nX, nY+nHeight));
+		webView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,
+				LayoutParams.FILL_PARENT));
+		//webView_LinearLayout.setLayoutParams(new AbsoluteLayout.LayoutParams(nWidth,nHeight, nX, nY));
 		imageView.setLayoutParams(new AbsoluteLayout.LayoutParams(50, 50, nX+(nWidth-50)/2, nY+(nHeight-50)/2));
 	}
 
@@ -3601,13 +3486,22 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			webView.setVisibility(View.INVISIBLE);
 			imageView.setVisibility(View.INVISIBLE);
         	animation.setDuration(0);
+        	Edit_inputone.hideSoftInputFromWindow(Edit_textone.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 		}
 	}
 
 	public void javaSetWebViewRect(int nX,int nY,int nWidth, int nHeight)
 	{
-		Log.d(TAG,"javaSetWebViewRect");
-		webView.setLayoutParams(new AbsoluteLayout.LayoutParams(nWidth,nHeight, nX, nY));
+		Log.d(TAG,"javaSetWebViewRect nX"+nX+",int nY="+nY+",int nWidth="+nWidth+", int nHeight" + nHeight);
+		webView_UP2.setLayoutParams(new AbsoluteLayout.LayoutParams(nX,nY, 0, 0));
+		webView_Left2.setLayoutParams(new AbsoluteLayout.LayoutParams(nX,nHeight, 0, nY));
+		if(screenWidth>=nX+nWidth)
+			webView_Right2.setLayoutParams(new AbsoluteLayout.LayoutParams(screenWidth-nX-nWidth,nHeight, nX+nWidth, nY));
+		if(screenHeight>=nY+nHeight)
+			webView_Down2.setLayoutParams(new AbsoluteLayout.LayoutParams(nWidth,screenHeight - nY -nHeight, nX, nY+nHeight));
+		webView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,
+				LayoutParams.FILL_PARENT));
+		//webView_LinearLayout.setLayoutParams(new AbsoluteLayout.LayoutParams(nWidth,nHeight, nX, nY));
 	}
 	
 	public void javaSetCookie(String url,String cookie)
@@ -3675,201 +3569,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		
 	}
 
-	public class WDViewClient extends WebViewClient {
-
-
-        /**
-         * Give the host application a chance to take over the control when a new url
-         * is about to be loaded in the current WebView.
-         *
-         * @param view          The WebView that is initiating the callback.
-         * @param url           The url to be loaded.
-         * @return              true to override, false for default behavior
-         */
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        	Log.d(TAG, "shouldOverrideUrlLoading url=" + url);
-            
-            // If dialing phone (tel:5551212)
-            if (url.startsWith(WebView.SCHEME_TEL)) {
-                try {
-                    Intent intent = new Intent(Intent.ACTION_DIAL);
-                    intent.setData(Uri.parse(url));
-                    appActivity.startActivity(intent);
-                } catch (android.content.ActivityNotFoundException e) {
-                    
-                }
-            }
-
-            // If displaying map (geo:0,0?q=address)
-            else if (url.startsWith("geo:")) {
-                try {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setData(Uri.parse(url));
-                    appActivity.startActivity(intent);
-                } catch (android.content.ActivityNotFoundException e) {
-                    
-                }
-            }
-
-            // If sending email (mailto:abc@corp.com)
-            else if (url.startsWith(WebView.SCHEME_MAILTO)) {
-                try {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setData(Uri.parse(url));
-                    appActivity.startActivity(intent);
-                } catch (android.content.ActivityNotFoundException e) {
-                    
-                }
-            }
-
-            // If sms:5551212?body=This is the message
-            else if (url.startsWith("sms:")) {
-                try {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-
-                    // Get address
-                    String address = null;
-                    int parmIndex = url.indexOf('?');
-                    if (parmIndex == -1) {
-                        address = url.substring(4);
-                    }
-                    else {
-                        address = url.substring(4, parmIndex);
-
-                        // If body, then set sms body
-                        Uri uri = Uri.parse(url);
-                        String query = uri.getQuery();
-                        if (query != null) {
-                            if (query.startsWith("body=")) {
-                                intent.putExtra("sms_body", query.substring(5));
-                            }
-                        }
-                    }
-                    intent.setData(Uri.parse("sms:"+address));
-                    intent.putExtra("address", address);
-                    intent.setType("vnd.android-dir/mms-sms");
-                    appActivity.startActivity(intent);
-                } catch (android.content.ActivityNotFoundException e) {
-                    
-                }
-            }
-            else if(url.indexOf(".3gp") != -1||url.indexOf(".mp4") != -1||url.indexOf(".flv") != -1)
-            {
-            	try {
-	            	Intent intent = new Intent("android.intent.action.VIEW",Uri.parse(url));
-	            	appActivity.startActivity(intent);
-            	} catch (android.content.ActivityNotFoundException e) {
-                    
-                }
-            }
-            // All else
-            else {
-/*
-                // If our app or file:, then load into a new phonegap webview container by starting a new instance of our activity.
-                // Our app continues to run.  When BACK is pressed, our app is redisplayed.
-                if (url.startsWith("file://") || url.indexOf(this.ctx.baseUrl) == 0 || isUrlWhiteListed(url)) {
-                    this.ctx.loadUrl(url);
-                }
-
-                // If not our application, let default viewer handle
-                else {
-                    try {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse(url));
-                        startActivity(intent);
-                    } catch (android.content.ActivityNotFoundException e) {
-                        LOG.e(TAG, "Error loading url "+url, e);
-                    }
-                }*/
-            	if(url.startsWith("http://"))
-            		view.loadUrl(url);
-            	else
-            	{
-            		try {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse(url));
-                        appActivity.startActivity(intent);
-                    } catch (android.content.ActivityNotFoundException e) {
-                    }
-            	}
-            }
-            
-            nativebrowserreturn(url, 0);
-            
-            return true;
-        	/*
-        	view.loadUrl(url);
-        	imageView.setVisibility(View.VISIBLE);
-        	animation.setDuration(20000);
-        	imageView.setAnimation(animation);
-        	animation.start();	
-            return true;*/
-        }
-
-        @Override
-		public void doUpdateVisitedHistory(WebView view, String url,
-				boolean isReload) {
-			// TODO Auto-generated method stub
-			super.doUpdateVisitedHistory(view, url, isReload);
-			Log.d(TAG,"doUpdateVisitedHistory url=" + url +",isReload=" + isReload);
-			if(bCleanHistory)
-			{
-				bCleanHistory = false;
-				webView.clearHistory();
-			}
-		}
-
-        @Override
-        public void onPageStarted(WebView view, String url, Bitmap favicon) {
-
-            // Clear history so history.back() doesn't do anything.
-            // So we can reinit() native side CallbackServer & PluginManager.
-        	Log.d(TAG,"onPageStarted url=" + url+"");
-        	for (int i=0;i<oldurls.size();i++) {
-                String url1 = oldurls.get(i);
-                Log.d(TAG,"======url=" +url1);
-            }
-        	imageView.setVisibility(View.VISIBLE);
-        	animation.setDuration(20000);
-        	imageView.setAnimation(animation);
-    		
-            //view.clearHistory();
-        }
-
-        /**
-         * Notify the host application that a page has finished loading.
-         *
-         * @param view          The webview initiating the callback.
-         * @param url           The url of the page.
-         */
-        @Override
-        public void onPageFinished(WebView view, String url) {
-            super.onPageFinished(view, url);
-            oldurls.add(url);
-            Log.d(TAG,"onPageFinished url=" + url);
-            imageView.setVisibility(View.INVISIBLE);
-            animation.setDuration(0);
-            view.requestFocus();
-        }
-
-        /**
-         * Report an error to the host application. These errors are unrecoverable (i.e. the main resource is unavailable).
-         * The errorCode parameter corresponds to one of the ERROR_* constants.
-         *
-         * @param view          The WebView that is initiating the callback.
-         * @param errorCode     The error code corresponding to an ERROR_* value.
-         * @param description   A String describing the error.
-         * @param failingUrl    The url that failed to load.
-         */
-        @Override
-        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-        	Log.d(TAG,"onReceivedError errorCode=" + errorCode);
-        	imageView.setVisibility(View.INVISIBLE);
-        	animation.setDuration(0);
-        }
-    }
-	
 	public void setWebViewRoot(AbsoluteLayout view)
 	{
 		if(webViewRoot == null)
@@ -3915,6 +3614,9 @@ public class VenusActivity implements SurfaceHolder.Callback {
         	mRecorder.start();
         } catch (Exception e) {
         	e.printStackTrace();
+        	mRecorder.reset();
+        	mRecorder.release();
+        	mRecorder = null;
             return false;
         }
         return true;
@@ -3923,9 +3625,33 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public void javaStopRecoder() {
         Log.d("MediaRecorder", ">>>Record Stop<<<");
 		if (mRecorder != null) {
-			mRecorder.stop();
-			mRecorder.release();
-			mRecorder = null;
+            try {
+				mRecorder.stop();
+				mRecorder.release();
+				mRecorder = null;
+            } catch (Exception e) {
+            	e.printStackTrace();
+            	mRecorder.reset();
+            	mRecorder.release();
+            	mRecorder = null;
+            }
 		}
+	}
+    
+	public int javaGetSignalStrength() {
+		return PhoneObserver.getInstance().getSignalStrength();
+	}
+	
+	public int javaGetGSMCellId() {
+		return PhoneObserver.getInstance().getCellId();
+	}
+    
+	public String javaGetMacAddress() {
+		return PhoneObserver.getInstance().getMacAddress();
+	}
+
+	public byte[] javaCharSetConvert(byte[] src, String srcCharSet, String desCharSet, int bufferSize) throws UnsupportedEncodingException{
+		String convert = new String(src, 0, bufferSize, srcCharSet);
+		return convert.getBytes(desCharSet);
 	}
 }

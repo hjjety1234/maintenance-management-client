@@ -1,6 +1,9 @@
 package com.wondertek.video.player;
 
+import android.view.SurfaceHolder;
+
 import com.wonder.media.DefaultPlayer;
+
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;

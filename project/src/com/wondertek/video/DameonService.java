@@ -1,20 +1,27 @@
 package com.wondertek.video;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
+import java.io.File;
+
+//import com.wondertek.video.sms.SMS;
+//import com.wondertek.video.sms.SMSHandler;
+//import com.wondertek.video.sms.SMSObserver;
+import com.wondertek.activity.R;
+
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.BroadcastReceiver;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 
-import com.wondertek.activity.R;
-//import com.wondertek.video.sms.SMS;
-//import com.wondertek.video.sms.SMSHandler;
-//import com.wondertek.video.sms.SMSObserver;
+
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 
 
 
@@ -61,8 +68,8 @@ public class DameonService extends Service {
 		}
 		
 		long appStartTime = System.currentTimeMillis();
-		Util.Trace("Configuration::start2===IN " + appStartTime);
 		int appointmentNum = appointmentXml.getAppointmentNum();
+		Util.Trace("DameonService::start1===IN " + appStartTime + ";appointmentNum:" + appointmentNum);
 		for(int i = appointmentNum-1; i >= 0; i--)
 		{
 			long xmlSysTimeValue = 0;
@@ -74,13 +81,13 @@ public class DameonService extends Service {
 			if(appStartTime > xmlSysTimeValue || (appStartTime <= 0 && xmlSysTimeValue >= 0))
 			{	
 				appointmentXml.deleteAppointment(i);
-				Util.Trace("@@@@Configuration::sysTime: 0 delete " + strSysTimeValue); 
+				Util.Trace("@@@@DameonService::sysTime: 0 delete " + strSysTimeValue); 
 			}	
 			else
 			{
 				String sysTime = String.valueOf(xmlSysTimeValue - appStartTime);
 				appointmentXml.modifyTimeInterval(i, sysTime);
-				Util.Trace("@@@@Configuration::sysTime remains: " + sysTime + " index " + i); 
+				Util.Trace("@@@@DameonService::sysTime remains: " + sysTime + " index " + i); 
 			}
 		}
 		appointmentNum = appointmentXml.getAppointmentNum();
@@ -88,17 +95,17 @@ public class DameonService extends Service {
 		for(int i = 0; i < appointmentNum; i++)
 		{	
 			String timeIntervalValue = appointmentXml.getTimeIntervalValue(i);
-			Util.Trace("Configuration::start1===IN " + timeIntervalValue);
+			Util.Trace("DameonService::start2 timeIntervalValue===IN " + timeIntervalValue);
 			if(timeIntervalValue != null)
 				times = Long.parseLong(timeIntervalValue);
 
-			Util.Trace("Configuration::start===IN " + times);
+			Util.Trace("DameonService::start3===IN times" + times);
 
 			Message msg = new Message();
 			msg.what = MSG_ID_NOTIFICATION_APPOINTMENT;
 			Bundle bundle = new Bundle();
-			bundle.putString("tickerText", "（手机视频）预约节目提醒");
-			bundle.putString("contentTitle", "手机视频");
+			bundle.putString("tickerText", VenusApplication.getInstance().getResString("tickerText"));
+			bundle.putString("contentTitle", VenusApplication.getInstance().getResString("contentTitle"));
 			bundle.putString("contentText", appointmentXml.getProgramValue(i));
 			bundle.putString("resptext", appointmentXml.getUrlValue(i));
 			msg.setData(bundle);
@@ -115,22 +122,32 @@ public class DameonService extends Service {
 		}
 
 		long appStartTime = System.currentTimeMillis();
-		long warnSysTime = appStartTime + Long.parseLong(timeInterval);
-		appointmentXml.addAppointment(programID, timeInterval, programName, programUrl, String.valueOf(warnSysTime));
-		int appointmentNum = appointmentXml.getAppointmentNum() - 1;
+		long warnSysTime = appStartTime + Long.parseLong(timeInterval) * 1000;
 		
-		times = Long.parseLong(timeInterval);
-		Message msg = new Message();
-		msg.what = MSG_ID_NOTIFICATION_APPOINTMENT;
-		Bundle bundle = new Bundle();
-		bundle.putString("tickerText", "（手机视频）预约节目提醒");
-		bundle.putString("contentTitle", "手机视频");
-		bundle.putString("contentText", appointmentXml.getProgramValue(appointmentNum));
-		bundle.putString("resptext", appointmentXml.getUrlValue(appointmentNum));
-		msg.setData(bundle);
-		if(times != 0)
-			appointmentHandler.sendMessageDelayed(msg, times);
-		Util.Trace("Configuration:: " + programID + timeInterval + programName + programUrl);
+		String millTimeInterval = null;
+		millTimeInterval = String.valueOf(Long.parseLong(timeInterval) * 1000);
+		if(appointmentXml.getAppointment(programID) == null)
+		{	
+			appointmentXml.addAppointment(programID, millTimeInterval, programName, programUrl, String.valueOf(warnSysTime));
+			int appointmentNum = appointmentXml.getAppointmentNum() - 1;
+		
+			times = Long.parseLong(timeInterval) * 1000;
+			Message msg = new Message();
+			msg.what = MSG_ID_NOTIFICATION_APPOINTMENT;
+			Bundle bundle = new Bundle();
+			bundle.putString("tickerText", VenusApplication.getInstance().getResString("tickerText"));
+			bundle.putString("contentTitle", VenusApplication.getInstance().getResString("contentTitle"));
+			bundle.putString("contentText", appointmentXml.getProgramValue(appointmentNum));
+			bundle.putString("resptext", appointmentXml.getUrlValue(appointmentNum));
+			msg.setData(bundle);
+			if(times != 0)
+				appointmentHandler.sendMessageDelayed(msg, times);
+			Util.Trace("DameonService:: sendMessageDelayed" + programID + times + programName + programUrl);
+		}
+		else
+		{
+			Util.Trace(programID + "DameonService:: this id is exist");
+		}
 
 	}
 	
@@ -177,8 +194,8 @@ public class DameonService extends Service {
 				Message msg = new Message();
 				msg.what = MSG_ID_NOTIFICATION_APPOINTMENT;
 				Bundle bundle = new Bundle();
-				bundle.putString("tickerText", "（手机视频）预约节目提醒");
-				bundle.putString("contentTitle", "手机视频");
+				bundle.putString("tickerText", VenusApplication.getInstance().getResString("tickerText"));
+				bundle.putString("contentTitle", VenusApplication.getInstance().getResString("contentTitle"));
 				bundle.putString("contentText", appointmentXml.getProgramValue(i));
 				bundle.putString("resptext", appointmentXml.getUrlValue(i));
 				msg.setData(bundle);
@@ -204,7 +221,7 @@ public class DameonService extends Service {
 				String contentTitle = message.getData().getString("contentTitle");
 				String contentText = message.getData().getString("contentText");
 				String resptext = message.getData().getString("resptext");
-				Util.Trace("Configuration::start1===IN " + tickerText + ":" + contentTitle);
+				Util.Trace("DameonService::start1 handleMessage===IN " + tickerText + ":" + contentTitle);
 				showNotification(tickerText, contentTitle, contentText, resptext);
 				break;
 			}
@@ -232,7 +249,7 @@ public class DameonService extends Service {
 				pIntent);
 
 		notification.defaults =Notification.DEFAULT_SOUND; 
-		Util.Trace("Configuration::start1===IN " + tickerText + ":" + contentTitle);
+		Util.Trace("DameonService::showNotification===IN " + tickerText + ":" + contentTitle);
 		manager.notify(0, notification);
 	}
 }
