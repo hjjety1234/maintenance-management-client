@@ -627,6 +627,10 @@ function bodyOnPluginEvent(msg, param)
             if g_ewms[i].ewm == code then 
                 isFound =  true
                 found = i
+                Log:write("提交第一个扫描的二维码！")
+                local param = 'cmd=wlbxunjianEwmSave'..'&code='..g_resultId..'&resourceId='..g_ewms[i].id..'&ewm='..code
+                local requestURL = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', param)
+                Http:request('Submitdata', requestURL, 103, {useCache = false})
                 break
             end
         end
