@@ -123,7 +123,7 @@ function bodyBuildChildrenFinished(sprite)
 	list = Sprite:findChild(rootSprite,'lvHis')
     Log:write('当前时间点为：'..getCurrentTimeandDate())
     Log:write('经纬度转换后：'..XY_TO_GPSCOORDINATE('173.815118','32.303518'))
-    Log:write(getCurDateAndTime()..'上报巡检点成功')
+    Log:write(getCurrentTimeStamp()..'上报巡检点成功')
 end
 
 -- @brief root节点消息方法
@@ -494,11 +494,12 @@ function loadListItem(list, item, index)
 end
 --巡检时间戳
 function getCurrentTimeStamp()
-    local now = os.date("*t",os.time()+86400)
+    local now = os.date("*t",os.time()+86400-28800)
     local year = string.sub(now['year'],3,4)
     local month = now['month']
     local day = now['day']
-    local hour = os.date("*t")["hour"]
+    local hour = now["hour"]
+    Log:write('the hour is ',hour)
     local minute = os.date("*t")["min"]
     local sec = os.date("*t")["sec"]
     return string.format('%02s%02s%02s%02s%02s%02s', year, month, day, hour, minute, sec)
