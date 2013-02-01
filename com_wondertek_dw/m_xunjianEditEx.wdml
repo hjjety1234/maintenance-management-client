@@ -297,7 +297,8 @@ local g_curSubItem = nil     -- 当前巡检子项Sprite
 local curErrorBtn
 local curNameContent
 local curCodeContent
-local Inflag='0'  --进站标志位
+local Inflag='0'        --进站标志位
+local g_outFlag = '0'   -- 是否出站标志位
 local resultId --巡检结果ID
 
 local g_imageArray = {}
@@ -861,6 +862,7 @@ function OutHandle(time)
     Sprite:setProperty(labeltab,"font-size","18")
     Sprite:setProperty(labeltab,"text",time.."离站")
     Sprite:setProperty(btnTab2,"enable","false")
+    g_outFlag = '1' -- 出站成功
 end
 
 
@@ -1080,6 +1082,7 @@ end
 
 -- 全部保存
 function doUpload(sprite)
+
     -- 执行用户输入检查
     Log:write('start doUpload function')
     if isSupervisor()== false then
@@ -1090,6 +1093,12 @@ function doUpload(sprite)
 
     -- 如果有暂存数据，需要先删除
     Patrol:delete(planId, stationId)
+
+    -- 检查是否已经出站
+    if g_outFlag ~= '1' then 
+        Dialog:show('提示', '请先进行出站操作!', 'ok')
+        return
+    end
 
     Loading:show(rootSprite)
     if #g_imageArray >= 1 then
