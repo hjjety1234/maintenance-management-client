@@ -346,6 +346,7 @@
 <![CDATA[
 require 'com_wondertek_dw.common.framework'
 require 'com_wondertek_dw.common.patrol'
+require 'com_wondertek_dw.common.arplugin'
 require 'framework.upload'
 require 'framework.barcode'
 require 'framework.map'
@@ -626,6 +627,10 @@ function bodyOnPluginEvent(msg, param)
             if g_ewms[i].ewm == code then 
                 isFound =  true
                 found = i
+                Log:write("提交第一个扫描的二维码！")
+                local param = 'cmd=wlbxunjianEwmSave'..'&code='..g_resultId..'&resourceId='..g_ewms[i].id..'&ewm='..code
+                local requestURL = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', param)
+                Http:request('Submitdata', requestURL, 103, {useCache = false})
                 break
             end
         end
@@ -709,8 +714,7 @@ function mainNodeOnKeyUp(sprite, kc)
         Dialog:show('', '您即将离开巡检页面,是否继续？','ok_cancel','doBackWithSave')
         return 1
     elseif kc==Key.F1 then--按下菜单键
-        local FavListNodeSprite = Sprite:findChild(rootSprite, "ContextMenuNode")
-        setAllShoworHide(FavListNodeSprite,1)
+        ArPlugin:start()
         return 1
     end
 end
@@ -1063,6 +1067,12 @@ function checkUserInput()
     -- 获取巡检项的Sprite
     local mainListView = Sprite:findChild(rootSprite,'mainListView')
     local mainListViewCount = ListView:getItemCount(mainListView)
+
+    -- 检查是否显示了巡检项
+    if #g_items == 0 then 
+        Dialog:show(rootSprite, "您尚未填写任何巡检项！", 'ok')
+        return 
+    end 
     
     -- 迭代主listview
     for i=1,#g_items do

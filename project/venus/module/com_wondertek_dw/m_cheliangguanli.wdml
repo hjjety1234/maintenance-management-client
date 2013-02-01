@@ -95,22 +95,23 @@
                     <label name="id" rect="0,0,1,1" text="" color="#0" font-size="24"
                         h-align="left" v-align="center" extendstyle="1111" border="false"
                         visible="false" />
-                    <label rect="20,5,150,30" text="车牌号码：" color="#0062ab" font-family="微软雅黑" font-size="22"
+                    <label rect="20,5,150,30" name="carNoLabel" text="车牌号码：" color="#0062ab" font-family="微软雅黑" font-size="22"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
                     <label name="carNo" rect="130,5,300,30" text="" color="#303030" font-family="微软雅黑"
                         font-size="22" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label rect="20,35,150,30" text="代维公司：" color="#0062ab" font-family="微软雅黑" font-size="22" 
+                    
+                    <label rect="20,35,150,30" name="cmpLabel" text="代维公司：" color="#0062ab" font-family="微软雅黑" font-size="22" 
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
                     <scrolltext name="companyName" rect="130,35,320,30" text="" color="#303030" font-family="微软雅黑"
                         font-size="22" h-align="left" v-align="center" extendstyle="1111" scroll="true" step="2"
                         border="false" />
-                    <label rect="20,65,150,30" text="车辆类型：" color="#0062ab" font-family="微软雅黑" font-size="22" 
+                    <label rect="20,65,150,30" name="carTypeLabel" text="车辆类型：" color="#0062ab" font-family="微软雅黑" font-size="22" 
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
                     <label name="carType" rect="130,65,131,30" text="" color="#303030" font-family="微软雅黑"
                         font-size="22" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label rect="240,65,150,30" text="车辆状态：" color="#3C57C4" font-size="22"
+                    <label rect="240,65,150,30" name="carStatusLabel" text="车辆状态：" color="#3C57C4" font-size="22"
                         h-align="left" v-align="center" extendstyle="1111" border="false"
                         visible="false" />
                     <label name="carStatus" rect="341,65,129,30" text="" color="#0"
@@ -134,23 +135,23 @@
                     <label name="id" rect="0,0,1,1" text="" color="#0" font-size="24"
                         h-align="left" v-align="center" extendstyle="1111" border="false"
                         visible="false" />
-                    <label rect="20,5,150,30" text="车牌号码：" color="#0062ab" font-family="微软雅黑" font-size="22"
+                    <label rect="20,5,150,30" name="carNoLabel" text="申请理由：" color="#0062ab" font-family="微软雅黑" font-size="22"
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
                     <label name="carNo" rect="130,5,300,30" text="" color="#303030" font-family="微软雅黑"
                         font-size="22" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
                     
-                    <label rect="20,35,150,30" text="代维公司：" color="#0062ab" font-family="微软雅黑" font-size="22" 
+                    <label rect="20,35,150,30" name="cmpLabel" text="申请时间：" color="#0062ab" font-family="微软雅黑" font-size="22" 
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
                     <scrolltext name="companyName" rect="130,35,320,30" text="" color="#303030" font-family="微软雅黑"
                         font-size="22" h-align="left" v-align="center" extendstyle="1111" scroll="true" step="2"
                         border="false" />
-                    <label rect="20,65,150,30" text="车辆类型：" color="#0062ab" font-family="微软雅黑" font-size="22" 
+                    <label rect="20,65,150,30" name="carTypeLabel" text="申请状态：" color="#0062ab" font-family="微软雅黑" font-size="22" 
                         h-align="left" v-align="center" extendstyle="1111" border="false" />
                     <label name="carType" rect="130,65,131,30" text="" color="#303030" font-family="微软雅黑"
                         font-size="22" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label rect="240,65,150,30" text="车辆状态：" color="#3C57C4" font-size="22"
+                    <label rect="240,65,150,30" name="carStatusLabel" text="车辆状态：" color="#3C57C4" font-size="22"
                         h-align="left" v-align="center" extendstyle="1111" border="false"
                         visible="false" />
                     <label name="carStatus" rect="341,65,129,30" text="" color="#0"
@@ -217,7 +218,7 @@ function bodyOnPluginEvent(msg)
         preRespValue=resp
         Log:write(resp.value)
         if (resp.code == nil or resp.code ~= '0') then
-            Dialog:show('', '未搜索到车辆信息!', 'ok','getCarList')
+            Dialog:show('', '未搜索到车辆信息!', 'ok')
             --Dialog:show('', getErrorCode(resp.code), 'ok')
             local listView = Sprite:findChild(rootSprite, 'sampleList')
              ListView:removeAllItems(listView)
@@ -279,6 +280,22 @@ function bodyOnPluginEvent(msg)
         preRespValue=resp
     elseif msg == 103 then
         local flow_data = Http:jsonDecode('car_flow')
+        Log:write('the flow data is ',flow_data)
+        if(flow_data.code == '0' and flow_data.value ~= '') then
+            respValue = flow_data.value
+            Log:write('remote server responsed with value:',respValue)
+            local len = getJsonArrayCount(respValue)
+            Log:write('the array length is ',len)
+             -- 删除原来的列表
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView)
+            total = respValue['total']
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listitem'), len, 'bindCarflowList')
+            ListView:adjust(listView)
+            Loading:close() 
+            preRespValue=resp
+        end
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -435,6 +452,7 @@ function listOn()
     Sprite:setProperty(searchBar,'enable','true')
     Sprite:setProperty(listNode,'visible','true')
     Sprite:setProperty(listNode,'enable','true')
+    Sprite:setProperty(listNode,'rect','0,169,480,500')
     getCarList()--调用车辆列表
 end 
 function flowOn()
@@ -456,8 +474,9 @@ function flowOn()
     local sampleList= Sprite:findChild(rootSprite,'sampleList')
     Sprite:setProperty(searchBar,'visible','false')
     Sprite:setProperty(searchBar,'enable','false')
-    Sprite:setProperty(listNode,'visible','false')
-    Sprite:setProperty(listNode,'enable','false')
+    --Sprite:setProperty(listNode,'visible','false')
+    --Sprite:setProperty(listNode,'enable','false')
+    Sprite:setProperty(listNode,'rect','0,113,480,500')
     getCarFlow()--调用申请列表
 end 
 --请求申请列表
@@ -467,6 +486,47 @@ function getCarFlow()
     Http:request('car_flow', requestURL, 103)
     Log:write('requestURL',requestURL)
     Loading:show()
+end
+
+function bindCarflowList(list, item, index)
+    Log:write('bindCarflowList is clicked')
+    Sprite:setRect(item, 0, 0, 480, 100)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local listItemBg = Sprite:findChild(item, 'listItemBg')
+    Sprite:setRect(listItemBg, 0, 0, 480, 100)
+    if index % 2 > 0 then
+       Sprite:setProperty(listItemBg, 'alpha', '0')
+    else
+        Sprite:setProperty(listItemBg, 'alpha', '20')
+    end
+    -- 读取返回的数据
+    local value = respValue[index]
+    local id = value.id
+    local reason = value.reason
+    local senddate = value.senddate
+    local status = value.status
+    Log:write('the reason is ',reason)
+
+    --更改显示Label
+    local carNoLabel = Sprite:findChild(item,'carNoLabel')
+    Log:write('the label is ',Sprite:getProperty(carNoLabel,'text'))
+    local carTypeLabel = Sprite:findChild(item,'carTypeLabel')
+    local carStatusLabel = Sprite:findChild(item,'cmpLabel')
+    Sprite:setProperty(carNoLabel,'text','申请理由：')
+    Sprite:setProperty(carStatusLabel,'text','申请时间：')
+    Sprite:setProperty(carTypeLabel,'text','审批状态：')
+
+    -- 显示到界面
+    local idSprite = Sprite:findChild(item, 'id')
+    local carNo = Sprite:findChild(item, 'carNo')
+    local companyName = Sprite:findChild(item, 'companyName')
+    local carType = Sprite:findChild(item, 'carType')
+    local carStatus = Sprite:findChild(item, 'carStatus')
+    --Sprite:setProperty(idSprite, 'text', reason)
+    Sprite:setProperty(carNo, 'text', reason)
+    Sprite:setProperty(companyName, 'text', senddate)
+    Sprite:setProperty(carType, 'text', status)
+    Sprite:setProperty(Sprite:findChild(item, 'cheliang_im'), 'visible', 'false')
 end
     ]]>
 </root>
