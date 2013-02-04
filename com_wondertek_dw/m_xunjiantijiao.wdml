@@ -1470,6 +1470,9 @@ function doSave(sprite)
             Log:write("param = ", param)
             Http:request('Submitdata', url, 103, {useCache = false, method = 'post', postData='cmd=wlbxunjianDeal'..param})
             
+            -- 暂存用户输入
+            Patrol:save(g_planId, g_stationId, g_items)
+
             if g_items[g_curItemIndex].subitems[g_curSubItemIndex].inputType == 'CHOOSE' then
                 setAllShoworHide(Sprite:findChild(g_curSubItem, 'SaveFlag'), 1)
     			Sprite:setProperty(Sprite:findChild(g_curSubItem,'SaveFlag'), 'data', '1')
@@ -1671,7 +1674,7 @@ function ErrorSave(sprite)
     elseif dealdetail == '' or exception == '' then 
         Dialog:show(rootSprite, '异常描述和处理描述不能为空！', 'ok')  
     else
-        -- 暂存异常的用户输入
+        -- 更新用户输入
         g_items[g_curItemIndex].subitems[g_curSubItemIndex].value = patrolResult
         g_items[g_curItemIndex].subitems[g_curSubItemIndex].exceptionDetail = exception..";"..dealdetail
 
@@ -1680,6 +1683,9 @@ function ErrorSave(sprite)
         local param = '&usercode='..username..'&resultId='..g_resultId.. '&subitemId='..subItemId..'&patrolResult='..patrolResult ..'&exception='..exception..'&dealDetail='..dealdetail 
         Log:write("info: ErrorSave() param = ", param)
         
+        -- 暂存用户输入
+        Patrol:save(g_planId, g_stationId, g_items)
+
         -- 请求服务器
         Http:request('Submitdata', url, 103, {useCache = false, method = 'post', postData='cmd=wlbxunjianDeal'..param})
 

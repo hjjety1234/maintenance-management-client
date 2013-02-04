@@ -943,6 +943,8 @@ function doSave(sprite)
             Log:write("param = ", param)
             Http:request('Submitdata', url, 103, {useCache = false, method = 'post', postData='cmd=wlbxunjianDeal'..param})
             setAllShoworHide(Sprite:findChild(errorTitleNode,'SaveFlag'),1)
+            -- 暂存用户输入
+            Patrol:save(planId, stationId, g_items) 
             if TempID=='' or TempID==nil then
                 TempID=subitemId
                 else
@@ -1038,7 +1040,7 @@ function ErrorSave(sprite)
         if subitemId=='' or subitemId==nil  then
             Dialog:show(rootSprite, '巡检子项编号为空，请联系系统管理员！', 'ok')
         else
-            -- 暂存异常的用户输入
+            -- 更新用户输入
             g_items[g_curItemIndex].subitems[g_curSubItemIndex].value = patrolResult
             g_items[g_curItemIndex].subitems[g_curSubItemIndex].exceptionDetail = exception..";"..dealdetail
 
@@ -1048,6 +1050,10 @@ function ErrorSave(sprite)
             Log:write("param = ", param)
             Http:request('Submitdata', url, 103, {useCache = false, method = 'post', postData='cmd=wlbxunjianDeal'..param})
             setAllShoworHide(Sprite:findChild(errorTitleNode,'SaveFlag'),1)
+
+             -- 暂存用户输入
+            Patrol:save(planId, stationId, g_items) 
+            
             if TempID=='' or TempID==nil then
                 TempID=subitemId
             else
