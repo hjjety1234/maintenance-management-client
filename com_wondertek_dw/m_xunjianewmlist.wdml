@@ -1,0 +1,553 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2013, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: hewu <hewu@gmail.com> ==
+============================================================================
+== | Desc: 综合覆盖二维码列表界面 ==
+============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+         <!-- 页面背景  -->
+         <node rect="0,0,480,800" extendstyle="1111">
+             <image name="background" rect="0,0,480,800" border="false"
+                 src="file://image/backgroundImg.png" style="autosize" extendstyle="1111">
+             </image>
+         </node>
+        
+        <!-- 主页面内容  -->    
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            
+            <!-- 页面标题栏  -->
+            <node name="NodeTitle" rect="0,0,480,66" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,66" src="file://image/nav_bar.png"
+                    extendstyle="1111" style="autosize" />
+                <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
+                    OnSelect="doBackDialog" extendstyle="1111">
+                    <image name="normal" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                        extendstyle="1111" />
+                    <image name="sel" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                        extendstyle="1111" />
+                </button>
+                <scrolltext name="titleNode" rect="70,0,340,66" text="巡检情况"
+                    extendstyle="1111" font-size="30" font-family="微软雅黑" h-align="center" 
+                    v-align="center" color="#ffffff" scroll="true" step="2" />
+            </node>
+            
+            <!--进站出站两个标签页 -->
+            <node name="tabNode" rect="0,66,480,60" extendstyle="1111">
+                <image name="title" rect="0,0,480,60" border="false"
+                    src="file://image/tab_bg.png" style="autosize" extendstyle="1111" />
+                <button name="btnTab1" rect="0,0,239,60" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
+                    <image name="tabBg" rect="0,0,239,60" border="false"
+                        src="file://image/tab_s_new.png" style="sudoku-auto" sudoku="15,15,15,15"
+                        extendstyle="1111" />
+                    <image name="clockImg" rect="10,20,20,20" border="false"
+                        src="file://image/clock.png" style="center" 
+                        extendstyle="1111" visible="false"/>
+                    <label name="labeltab" rect="35,0,200,60" text="到达站点" color="#ffffff"
+                        v-align="center" h-align="center" font-size="26" font-family="微软雅黑"  
+                        extendstyle="1111" />
+                </button>
+                <image  rect="239,0,2,60" border="false"
+                    src="file://image/sep.png" style="autosize" extendstyle="1111" />
+                <button name="btnTab2" rect="241,0,239,60" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
+                    <image name="tabBg" rect="0,0,239,60" border="false"
+                        src="" style="sudoku-auto" sudoku="15,15,15,15"
+                        extendstyle="1111" />
+                    <image name="clockImg" rect="10,20,20,20" border="false"
+                        src="file://image/clock.png" style="center" 
+                        extendstyle="1111" visible="false"/>
+                    <label name="labeltab" rect="35,0,200,60" text="离开站点" color="#ffffff"
+                        v-align="center" h-align="center" font-size="26" font-family="微软雅黑" 
+                        extendstyle="1111" />
+                </button>
+            </node>
+           
+            <!-- 主页面内容：巡检项列表   -->
+            <node name="mainNodeContent" rect="0,126,480,674" extendstyle="1111" visible="true">
+                
+                <!-- 提示页面1：如果该站点的经纬度信息不存在，需要进行经纬度上报 -->
+                <node name="tipNode1" rect="0,70,480,640" extendstyle="1111" 
+                    visible="false" enable="false">
+                    <image rect="0,0,480,230" border="false" src="file://image/report_loc.png"
+                       style="center" extendstyle="1111" />
+                    <button rect="125,250,230,50" color="#ffffff" extendstyle="1111" 
+                       OnSelect="reportCurrentLoc" font-size="24" data="01">
+                        <image rect="10,0,210,50" border="false" src="file://image/tip_btn.png"
+                            style="autosize" sudoku="15,15,15,15" extendstyle="1111" />
+                        <label rect="10,0,210,50" text="请上报当前位置" color="#5a5a5a"
+                            v-align="center" h-align="center" font-size="26" font-family="微软雅黑" 
+                            extendstyle="1111" />
+                    </button>
+                </node>
+
+                <!-- 提示页面2：提示用户选择进站按钮 -->
+                <node name="tipNode2" rect="0,80,480,594" extendstyle="1111"
+                    visible="false" enable="false">
+					<image rect="170,0,140,140" border="false" src="file://image/ico_jinzhan.png"
+					   style="autosize" sudoku="15,15,15,15" extendstyle="1111" />
+					<button rect="125,180,230,50" color="#ffffff" extendstyle="1111" 
+					   OnSelect="inRequest" font-size="24" data="01">
+						<image rect="0,0,230,50" border="false" src="file://image/tip_btn.png"
+                            style="autosize" sudoku="15,15,15,15" extendstyle="1111" />
+                        <label rect="0,0,230,50" text="请选择到达站点" color="#5a5a5a"
+                            v-align="center" h-align="center" font-size="26" font-family="微软雅黑" 
+                            extendstyle="1111" />
+					</button>
+                </node>
+
+                <listview name="ewmListView" rect="0,10,480,660" col="1" visible="false" 
+                    enable="false" extendstyle="1111">
+                </listview>
+            </node>
+            
+            <!--  二维码扫描模板  -->
+            <node name="ewmItemNode" rect="0,0,480,50" enable="false" active="false"
+                visible="false" extendstyle="1111" data="">   
+                <image name="listItemBg" rect="0,0,480,50" src="file://image/item_bg_m.png" 
+                    style="autosize" extendstyle="1111" />
+                <button name="btnname" rect="0,0,400,50" OnSelect="itemOnSelect" 
+                    extendstyle="1111" data="">
+                    <image name="SaveFlag" rect="5,7,30,30" src=""
+                        style="autosize" extendstyle="1111"  visible="false" data="0"/>
+                    <scrolltext name="barcodeTitleName" rect="40,0,160,50"
+    	                extendstyle="1111" font-size="24" h-align="left" v-align="center"
+    	                color="#0" scroll="true" step="2" />
+                    <image rect="210,0,200,50" src="file://image/input.png"
+                        style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+                    <scrolltext name="barcodeResult" rect="215,13,190,45" style="autosize" 
+                        extendstyle="1111" font-size="18" text="" scroll="true" data='1' />
+                    <button name="barcodeScanBtn" rect="220,2,255,45" normal="normal"
+                        OnSelect="doBarcodeSanner" extendstyle="1111">
+                        <image name="normal" rect="200,0,55,45" src="file://image/button1_normal.png"
+                            style="autosize" extendstyle="1111" />
+                        <label rect="200,0,55,45" text="扫描" color="#ffffff"
+                            extendstyle="1111" style="autosize" h-align="center" v-align="center"
+                            font-size="15" />
+                   </button>
+               </button>
+            </node>
+       </node>
+    </body>
+<![CDATA[
+require 'com_wondertek_dw.common.framework'
+require 'framework.barcode'
+require 'framework.map'
+
+local rootSprite
+--------------------------------页面传值----------------------------------------
+local g_planId            -- 巡检计划ID
+local g_templateId        -- 巡检模板ID
+local g_stationId         -- 站点ID
+local g_stationName       -- 站点名称
+local g_stationLon        -- 站点的经度
+local g_stationLat        -- 站点的纬度
+
+----------------------------界面初始化相关变量----------------------------------
+local g_ewms = {} 			-- 二维码资源列表 （DS）
+local g_inFlag = '0'  	    -- 是否进站标志位
+local g_outFlag = '0'       -- 是否出站标志位
+local g_resultId = nil      -- 巡检结果ID号, 标识本次巡检
+local g_curItem = nil       -- 当前扫描的二维码项
+---------------------------------------回调函数列表-----------------------------
+
+--  root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    -- 页面传值
+    local regHandle = Reg:create('xunjianzhixiang')
+    g_planId = Reg:getString(regHandle, 'planId')
+    g_templateId = Reg:getString(regHandle, 'templateId')
+    g_stationId = Reg:getString(regHandle, 'stationId')
+    g_stationName = Reg:getString(regHandle, 'stationName')
+    g_stationLat = Reg:getString(regHandle, 'stationLat')
+    g_stationLon = Reg:getString(regHandle, 'stationLon')
+    -- 设置页面标题
+    Sprite:setProperty(Sprite:findChild(rootSprite, 'titleNode'), 'text', g_stationName)
+    
+    -- 检查站点的位置
+    checkSiteLoc()
+end
+
+--  root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+--  插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 105 then -- 进站请求
+        Loading:close()
+        local data = Http:jsonDecode('Indata')
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '进站失败，返回数据格式错误', 'ok')
+            return
+        end
+        if data ~= nil then
+            if data.code == '0' then
+                g_resultId = data.data -- 获取巡检结果ID号
+                InHandle(data.inTime)
+            else
+                Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+            end
+        else
+            --Dialog:show(rootSprite, '未知错误！', 'ok')
+        end
+    elseif msg == 106 then -- 出站请求
+        Loading:close()
+        local data = Http:jsonDecode('Outdata')
+        Log:write("data106 ================= ", data)
+        if not data or type(data) ~= 'table' then
+            --Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        end
+        if data ~= nil then
+            if data.code == '0' then
+                OutHandle(data.outTime)
+            else
+                Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+            end
+        else
+            --Dialog:show(rootSprite, '未知错误！', 'ok')
+        end
+	elseif msg == 107 then -- 获取二维码资源列表响应
+        Loading:close()
+		local data = Http:jsonDecode('ewm_code')
+        -- 服务端返回数据合法性检查
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '获取二维码资源列表失败，服务端返回数据格式错误', 'ok')
+            return
+        end
+        if data.code == '50' then
+            Dialog:show(rootSprite, '该站点无待扫描的二维码！', 'ok')
+            return 
+        end
+        if data.code ~= '0' then
+            Dialog:show(rootSprite, getErrorCode(data.code), 'ok', 'doBack')
+            return 
+        end
+        -- 解析返回的二维码列表
+        for i=0, getJsonArrayCount(data.value) - 1 do
+            table.insert(g_ewms, data.value[i])
+        end
+        Log:write('g_ewms:', g_ewms)
+        -- 加载待扫描二维码列表
+        local ewmListView = Sprite:findChild(rootSprite, 'ewmListView')
+        local ewmItemNode = Sprite:findChild(rootSprite, "ewmItemNode")
+        Sprite:setProperty(ewmListView, 'visible', 'true')
+        Sprite:setProperty(ewmListView, 'enable', 'true')
+        ListView:removeAllItems(ewmListView)
+        ListView:loadItem(ewmListView, ewmItemNode, #g_ewms, 'loadBarcodeListItem')
+	elseif msg == 108 then -- 二维码扫描响应函数
+		Log:write('进入二维码扫描响应函数...')
+        -- 获取扫描的二维码
+        local path = Param:getString(param, 0)  -- 条码图片路径
+        local code = Param:getString(param, 1)  -- 解码后的文本
+		doBarcodeRespProc(code)
+    elseif msg == 1000 then  -- Map定位插件消息
+        local postDataString = Param:getString(param, 0)
+        local postData = Json:loadString2Table(postDataString)
+        Log:write('postData', postData)
+        -- 如果返回的GPS数据有效
+        if postData ~= nil and postData.longitude ~= nil and 
+            postData.longitude ~= '' and postData.latitude ~= nil and 
+            postData.latitude ~= '' then 
+            -- 上报当前的位置
+            local lon = tonumber(postData.longitude) / 1000000.0
+            local lat = tonumber(postData.latitude) / 1000000.0
+            local requestParam = string.format('cmd=wlbreportstationloc&usercode=%s&stationId=%s&lon=%s&lat=%s', 
+                           Config:get('username'), g_stationId, lon, lat)
+            local requestURL = getUrl()..'nbspweb/webservice/wplanpatrol!doWebservice.action?'..requestParam
+            Http:request('report_station', requestURL, 1001)
+        else
+            Loading:close()
+            Dialog:show(rootSprite, '上报位置失败，请重新上报！', 'ok')
+            return
+        end
+    elseif msg == 1001 then -- 位置上报响应处理
+        Loading:close()
+        local data = Http:jsonDecode('report_station')
+        if data.code == '0' then
+            Dialog:show(rootSprite, '上报位置成功！', 'ok')
+            -- 隐藏位置上报按钮
+            local tipNode1 = Sprite:findChild(rootSprite, 'tipNode1')
+            Sprite:setProperty(tipNode1, 'visible', 'false')
+            Sprite:setProperty(tipNode1, 'visible', 'false')
+            -- 显示进站提示按钮
+            local tipNode2 = Sprite:findChild(rootSprite, 'tipNode2')
+            Sprite:setProperty(tipNode2, 'visible', 'true')
+            Sprite:setProperty(tipNode2, 'enable', 'true')
+        else
+            Dialog:show(rootSprite, '上报位置失败，请重新上报！', 'ok')
+            return 
+        end
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Loading:close()
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Loading:close()
+        Log:write('请求超时')
+    end
+end
+
+--  按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        if g_outFlag == '0' then 
+            Dialog:show('提示','您即将离开巡检页面,是否继续？','ok_cancel','doBack')
+        else
+            doBack()
+        end
+    elseif kc==Key.F1 then--按下菜单键
+        return 1
+    end
+end
+
+-- 直接返回上一个页面，无暂存
+function doBack()
+    if Loading:isShow() then Loading:close() end
+    Scene:back()
+end
+
+-- 确认是否返回
+function doBackDialog()
+    if g_outFlag == '0' then 
+        Dialog:show('提示','您即将离开巡检页面,是否继续？','ok_cancel','doBack')
+    else
+        doBack()
+    end
+end
+
+---------------------------------------界面函数列表--------------------------
+-- 检查站点的经纬度信息
+function checkSiteLoc()
+    if g_stationLon == '' or g_stationLat == '' then 
+        local tipNode1 = Sprite:findChild(rootSprite, 'tipNode1')
+        Sprite:setProperty(tipNode1, 'visible', 'true')
+        Sprite:setProperty(tipNode1, 'enable', 'true')
+    else
+        local tipNode2 = Sprite:findChild(rootSprite, 'tipNode2')
+        Sprite:setProperty(tipNode2, 'visible', 'true')
+        Sprite:setProperty(tipNode2, 'enable', 'true')
+    end
+end
+
+-- 加载二维码扫描列表
+function loadBarcodeListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 50)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local listItemBg = Sprite:findChild(item, 'listItemBg')
+    Sprite:setRect(listItemBg, 0, 0, 480, 50)
+    if index % 2 > 0 then
+        Sprite:setProperty(listItemBg, 'visible', 0)
+    else
+        Sprite:setProperty(listItemBg, 'src', 'file://image/item_bg_m.png')
+    end
+    local ewm = g_ewms[index + 1]
+    -- 显示二维码输入框
+	local barcodeTitleName = Sprite:findChild(item, 'barcodeTitleName')
+    local SaveFlag = Sprite:findChild(item, 'SaveFlag')
+	Sprite:setProperty(barcodeTitleName, 'text', ewm.devicename)
+    -- 检查是否已经扫描
+    if ewm.status == '1' then
+        -- 已经扫描
+        Sprite:setProperty(SaveFlag, 'src', "file://image/ico_y.png")
+        Sprite:setProperty(barcodeTitleName, 'color', '#2498ff')
+    else
+        -- 未扫描
+        Sprite:setProperty(SaveFlag, 'src', "")
+         Sprite:setProperty(barcodeTitleName, 'color', '#ff0000')
+    end
+    -- 保存列表编号
+    Sprite:setProperty(item, "data", index + 1)
+end
+
+-- 跳转到综合覆盖巡检提交页面
+function itemOnSelect(sprite)
+    local barcodeResult = Sprite:findChild(sprite, 'barcodeResult')
+    if Sprite:getText(barcodeResult) ~= '' then 
+        local regHandle = Reg:create('xunjianzhixiang')
+        Reg:remove(regHandle, 'ewm')
+        Reg:setString(regHandle, 'ewm', Sprite:getText(barcodeResult))
+        Scene:setReturn(Alias.m_xunjianewmlist, Alias.m_xunjianewmtijiao)
+        Scene:go(Alias.m_xunjianewmtijiao)
+    else
+        Dialog:show('提示','请先扫描二维码！','ok')
+    end
+
+    
+end
+
+-----------------------服务端交互函数列表---------------------------------------
+-- 获取当前的经纬度，并上报
+function reportCurrentLoc(sprite)
+    Log:write('reportCurrentLoc()')
+    local observer = Plugin:getObserver()
+    Map:getCurPosition(observer, 1000)
+    Loading:show()
+end
+
+-- 请求待扫描的二维码资源
+function requestBarcodeResource()
+    if g_inFlag == '1' then 
+        local usercode = Config:get('username')
+    	local param = 'usercode='..usercode..'&pagesize=100&cmd=wlbxunjianEwm&code='..g_resultId..'&resourceId='..g_stationId..'&page=1'
+        local requestURL = getUrl()..'nbspweb/webservice/wplanpatrol!doWebservice.action?'..param
+        Log:write('the request url is '..requestURL)
+        Http:request('ewm_code', requestURL, 107, {useCache = false})
+        Loading:show()
+    end 
+end
+
+-- 进站出站标签页操作
+function tabOnSelect(sprite)
+    local dataInfo = Sprite:getData(sprite)
+    local tab1 = Sprite:findChild(rootSprite, 'btnTab1')
+    local tab2 = Sprite:findChild(rootSprite, 'btnTab2')
+    if dataInfo=='01' then
+        --进站请求
+        inRequest()
+    elseif dataInfo == '02' then
+        -- 确认是否已经进站
+        if g_inFlag ~= '1' then
+            Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_n.png')
+            Dialog:show('提示','请先执行进站操作！','ok')
+            return
+        else
+            --出站请求
+            outRequest()
+        end
+    end
+end
+
+-- 进站请求
+function inRequest()
+    local url = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
+    local username = Config:get('username')
+    local param = '&usercode='..username..'&code='..g_planId..'&resourceId='..g_stationId
+    Log:write("param = ", param)
+    Http:request('Indata', url, 105, {useCache = false, method = 'post', postData='cmd=wlbxunjianStart'..param})
+    Loading:show()
+end
+
+-- 进站响应处理
+function InHandle(time)
+    local tabNode = Sprite:findChild(rootSprite,"tabNode")
+    local btnTab1 = Sprite:findChild(tabNode,"btnTab1")
+    Sprite:setProperty(Sprite:findChild(btnTab1, 'tabBg'), 'src', 'file://image/tab_s_new.png')
+    Sprite:setProperty(Sprite:findChild(btnTab1, 'clockImg'), 'visible', 'true')
+    local labeltab = Sprite:findChild(btnTab1,"labeltab")
+    Sprite:setProperty(labeltab,"font-size","18")
+    Sprite:setProperty(labeltab,"text",time.."进站")
+    Sprite:setProperty(btnTab1,"enable","false")
+    g_inFlag = '1'
+        
+    -- 隐藏提示2
+    local tipNode2 = Sprite:findChild(rootSprite, 'tipNode2')
+    Sprite:setProperty(tipNode2, 'visible', 'false')
+    Sprite:setProperty(tipNode2, 'enable', 'false')
+    
+    -- 请求二维码资源列表
+    requestBarcodeResource()
+end
+
+-- 出站请求
+function outRequest()
+    -- 对用户输入合法性进行判断
+    -- 返回非0时，检查失败，无法出站
+    if checkUserInput() ~= 0 then
+        Dialog:show(rootSprite, '二维码未扫描完成！', 'ok')
+        return
+    end
+    -- 请求出站
+    local tabNode = Sprite:findChild(rootSprite,"tabNode")
+    local btnTab2 = Sprite:findChild(tabNode,"btnTab2")
+    local url = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
+    local username = Config:get('username')
+    local param = '&usercode='..username..'&code='..g_planId..'&resourceId='..g_stationId
+    Http:request('Outdata', url, 106, {useCache = false, method = 'post', postData='cmd=wlbxunjianEnd'..param})
+    Loading:show(rootSprite)
+end
+
+-- 出站响应处理
+function OutHandle(time)
+    local tabNode = Sprite:findChild(rootSprite,"tabNode")
+    local btnTab2 = Sprite:findChild(tabNode,"btnTab2")
+    Sprite:setProperty(Sprite:findChild(btnTab2, 'tabBg'), 'src', 'file://image/tab_s_new.png')
+    Sprite:setProperty(Sprite:findChild(btnTab2, 'clockImg'), 'visible', 'true')
+    local labeltab = Sprite:findChild(btnTab2,"labeltab")
+    Sprite:setProperty(labeltab,"font-size","18")
+    Sprite:setProperty(labeltab,"text",time.."离站")
+    Sprite:setProperty(btnTab2,"enable","false")
+    g_outFlag = '1'
+end
+
+-- 检查用户输入，成功返回0，否则返回1
+function checkUserInput()
+    -- 获取二维码ListView的Sprite
+    local ewmListView = Sprite:findChild(rootSprite,'ewmListView')
+    local ewmListViewCount = ListView:getItemCount(ewmListView)
+    -- 标记是否扫描完成
+    local bFinished = 0
+    for i=1, ewmListViewCount do 
+        local ewmItemNode = ListView:getItem(ewmListView, i-1)
+        local barcodeResult = Sprite:findChild(ewmItemNode, 'barcodeResult')
+        if Sprite:getText(barcodeResult) == '' then 
+            bFinished = 1
+        end
+    end
+    return bFinished
+end
+
+---------------------------------二维码相关函数---------------------------------
+-- 进行二维码扫描
+function doBarcodeSanner(sprite)
+	-- 获取当前的二维码下标
+	g_curItem = Sprite:getParent(Sprite:getParent(sprite))
+    -- 开始扫描
+	local observer = Plugin:getObserver()
+	local ret = BarCode:startScanner(observer, 108)
+	if ret == 0 then
+		Dialog:show("", '开启二维码扫描失败!', 'ok')
+		return
+	else
+		Log:write('开启二维码成功')
+	end
+end
+
+-- 获取二维码后的处理
+-- @param code - 二维码扫描结果
+function doBarcodeRespProc(code)
+	-- 显示二维码扫描结果
+    local index = tonumber(Sprite:getData(g_curItem))
+	local ewm = g_ewms[index].ewm
+	local resourceId = g_ewms[index].id
+	local barcodeResult = Sprite:findChild(g_curItem, 'barcodeResult')
+	
+	-- 提交结果
+	if ewm == code then
+        Sprite:setProperty(barcodeResult, 'text', code)
+		local param = 'cmd=wlbxunjianEwmSave'..'&code='..g_resultId..'&resourceId='..resourceId..'&ewm='..ewm
+		local requestURL = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', param)
+		Http:request('Submitdata', requestURL, 103, {useCache = false})
+	else
+		Dialog:show("", '二维码扫描结果与设备不匹配!', 'ok')
+		return
+	end
+end
+
+]]>
+</root>

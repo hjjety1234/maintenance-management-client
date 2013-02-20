@@ -111,5 +111,8 @@ Alias = {
     m_password = 'MODULE:\\com_wondertek_dw\\m_password.wdml',     --修改密码
     m_system = 'MODULE:\\com_wondertek_dw\\m_system.wdml',     --新系统设置
     
+    m_xunjianewmlist = "MODULE:\\com_wondertek_dw\\m_xunjianewmlist.wdml",      -- 综合覆盖巡检二维码列表
+    m_xunjianewmtijiao = "MODULE:\\com_wondertek_dw\\m_xunjianewmtijiao.wdml",  -- 综合覆盖巡检巡检项提交
+    
 }
 
