@@ -49,7 +49,7 @@
                 <label name="label1" rect="0,0,150,50" border="false" text="工单编号："
                     h-align="center" v-align="center" color="#0062ab" font-size="24" font-family="微软雅黑"
                     extendstyle="1111" />
-                <scrolltext name="lblcode" v-align="center" font-size="24" h-align="left"
+                <scrolltext name="ordernum" v-align="center" font-size="24" h-align="left"
                     rect="150,0,292,50" text="" color="#303030" extendstyle="1111" scroll="true" step="2"  />
             </node>
             <node name="titlenode" rect="0,120,480,50" extendstyle="1111">
@@ -57,7 +57,7 @@
                 <label name="label1" rect="0,0,150,50" border="false" text="工单标题："
                     h-align="center" v-align="center" color="#0062ab" font-size="24"
                     extendstyle="1111" />
-                <label name="lblcode" v-align="center" h-align="left"
+                <label name="ordertitle" v-align="center" h-align="left"
                     font-size="24" rect="150,0,292,50" text="" color="#303030"
                     extendstyle="1111" />
             </node>
@@ -65,7 +65,7 @@
                 <label name="label1" rect="0,0,150,50" border="false" text="工单类型："
                     h-align="center" v-align="center" color="#0062ab" font-size="24"
                     extendstyle="1111" />
-                <label name="lblcode" v-align="center" h-align="left"
+                <label name="ordertype" v-align="center" h-align="left"
                     font-size="24" rect="150,0,292,50" text="" color="#303030"
                     extendstyle="1111" />
             </node>
@@ -74,7 +74,7 @@
                 <label name="label1" rect="0,0,150,50" border="false" text="发  起  人："
                     h-align="center" v-align="center" color="#0062ab" font-size="24"
                     extendstyle="1111" />
-                <label name="lblcode" v-align="center" h-align="left"
+                <label name="creatername" v-align="center" h-align="left"
                     font-size="24" rect="150,0,292,50" text="" color="#303030"
                     extendstyle="1111" />
             </node>
@@ -82,7 +82,7 @@
                 <label name="label1" rect="0,0,150,50" border="false" text="派单时间："
                     h-align="center" v-align="center" color="#0062ab" font-size="24"
                     extendstyle="1111" />
-                <label name="lblcode" v-align="center" h-align="left"
+                <label name="createdatedis" v-align="center" h-align="left"
                     font-size="24" rect="150,0,292,50" text="" color="#303030"
                     extendstyle="1111" />
             </node>
@@ -91,7 +91,7 @@
                 <label name="label1" rect="0,0,150,50" border="false" text="处理时限："
                     h-align="center" v-align="center" color="#0062ab" font-size="24"
                     extendstyle="1111" />
-                <label name="lblcode" v-align="center" h-align="left"
+                <label name="taskdate" v-align="center" h-align="left"
                     font-size="24" rect="150,0,292,50" text="" color="#303030"
                     extendstyle="1111" />
             </node>
@@ -99,7 +99,7 @@
                 <label name="label1" rect="0,0,150,50" border="false" text="任务内容："
                     h-align="center" v-align="center" color="#0062ab" font-size="24"
                     extendstyle="1111" />
-                    <scrolltext name="hideLabel" v-align="center" h-align="left"
+                    <scrolltext name="taskcontent" v-align="center" h-align="left"
                     font-size="24" rect="150,0,292,50" text="" color="#303030"
                     extendstyle="1111" scroll="true" step="2"/>
             </node>
@@ -132,13 +132,11 @@
 require 'com_wondertek_dw.common.framework'
 local rootSprite
 local errorListTotalHeight = 0
-regHandle=Reg:create('daiban')
 local id
 local taskcode
+local taskname
 local pid
 local step
-local stepdata
-local flag
 local data = {}
 
 ---------------------------------------callbacks--------------------------------
@@ -150,17 +148,24 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        Log:write('11111111111111111111111111111111111')
-        id= Reg:getString(regHandle,'id')
-        Log:write('2222222222222222222222222222222222')
-        taskcode= Reg:getString(regHandle,'taskcode')
-        Log:write('33333333333333333333333333333333333')
-        pid= Reg:getString(regHandle,'pid')
-        Log:write('44444444444444444444444444444444444444')
-        stepdata = Reg:getString(regHandle,'stepdata')
-        flag = Reg:getString(regHandle,'flag')
-        Log:write('555555555555555555555555555555555555')
-        loadRequest()
+        regHandle=Reg:create('daiban')
+        id= Reg:getString(regHandle,'id') --流程流水号
+        taskcode= Reg:getString(regHandle,'taskcode') --工单编号
+        pid= Reg:getString(regHandle,'pid') --流程号
+        taskname = Reg:getString(regHandle,'taskName') --工单标题
+        local taskTypeDis = Reg:getString(regHandle,'taskTypeDis') --工单类型
+        local creatername = Reg:getString(regHandle, "creatername") --发起人
+        local createdatedis = Reg:getString(regHandle, "createdatedis") --派发时间
+        local taskdate = Reg:getString(regHandle, "taskdate") --处理时限
+        local taskDetail = Reg:getString(regHandle,'taskDetail') --任务内容 
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'ordernum'),'text',taskcode)  
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'ordertitle'),'text',taskname) 
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'ordertype'),'text',taskTypeDis)
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'creatername'),'text',creatername)
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'createdatedis'),'text',createdatedis) 
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'taskdate'),'text',taskdate)  
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'taskcontent'),'text',taskDetail)  
+        -- loadRequest()
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -234,15 +239,15 @@ function fillContent()
 end
 
 function checkFlow(sprite)
-local titlenode= Sprite:findChild(rootSprite, 'titlenode')
-local titlename = Sprite:getText(Sprite:findChild(titlenode, 'lblcode'))
-   regHandle=Reg:create('dataflow')
-   Reg:setString(regHandle,'id',id)
-   Reg:setString(regHandle,'pid',pid)
-   Reg:setString(regHandle,'taskcode',taskcode)  
-   Reg:setString(regHandle,'titlename',titlename)     
-   Scene:setReturn(Alias.m_yibandetail, Alias.m_gongdanliucheng)
-   Scene:go(Alias.m_gongdanliucheng)
+    local titlenode= Sprite:findChild(rootSprite, 'titlenode')
+    local titlename = Sprite:getText(Sprite:findChild(titlenode, 'lblcode'))
+    regHandle=Reg:create('dataflow')
+    Reg:setString(regHandle,'id',id)
+    Reg:setString(regHandle,'pid',pid)
+    Reg:setString(regHandle,'taskcode',taskcode)  
+    Reg:setString(regHandle,'titlename',taskname)     
+    Scene:setReturn(Alias.m_yibandetail, Alias.m_gongdanliucheng)
+    Scene:go(Alias.m_gongdanliucheng)
    
 end
 
