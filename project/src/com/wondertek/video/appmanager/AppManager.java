@@ -260,52 +260,52 @@ public class AppManager {
 		StringBuffer packageName = new StringBuffer();
 		List<String> Param = new ArrayList<String>();
 		AnalyAppString( name, packageName, Param );
-	
+		
+		Intent intent = new Intent();
 		String activityName = null;
-		PackageManager pm = VenusActivity.appActivity.getPackageManager();
-		try {
-			// Intent intent = pm.getLaunchIntentForPackage(name);
-			Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-			List<ResolveInfo> resolveInfos = pm.queryIntentActivities(
-					mainIntent, PackageManager.GET_INTENT_FILTERS);
-			for (ResolveInfo reInfo : resolveInfos) {
-				if (packageName.toString().equals(reInfo.activityInfo.packageName)) {
-					activityName = reInfo.activityInfo.name;
-					break;
+		if (Param.size() > 0) {
+			Bundle bundle = new Bundle();
+			for (int i = 0; i < Param.size(); i++) {
+				String strParam = Param.get(i);
+				String[] keyValue = strParam.split("=");
+				if (i == 0 && keyValue[0].equals("activity")) {
+					activityName = keyValue[1];
+				} else {
+					bundle.putString(keyValue[0], keyValue[1]);
 				}
 			}
-
-            if (activityName != null) {
-                Intent intent = new Intent();
-                ComponentName component = new ComponentName(
-                                packageName.toString(), activityName);
-                int nCount = Param.size();
-                if (0 != nCount) {
-                        Bundle param = new Bundle();
-                        for (int i = 0; i < nCount; i++) {
-                                String strParam = Param.get(i);
-                                String[] keyValue = strParam.split("=");
-                                if (2 == keyValue.length) {
-                                        if ("SIG".equals(keyValue[0]) && "com.jifenkaahdx".equals(packageName.toString())) {
-                                                keyValue[1] = AES.parseByte2HexStr(AES.encrypt(keyValue[1], AES_PASSWORD));
-                                        }
-                                        param.putString(keyValue[0], keyValue[1]);
-                                }
-                        }
-                        intent.putExtras(param);
-                }
-
-                intent.setComponent(component);
-                VenusActivity.appActivity.startActivity(intent);
-                return true;
-        } else {
-                return false;
-        }
-		} catch (Exception e) {
-			Util.Trace("[start] error: package no found");
+			intent.putExtras(bundle);
 		}
-		return false;
+	
+		if (activityName == null) {
+			PackageManager pm = VenusActivity.appActivity.getPackageManager();
+			try {
+				// Intent intent = pm.getLaunchIntentForPackage(name);
+				Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+				List<ResolveInfo> resolveInfos = pm.queryIntentActivities(
+						mainIntent, PackageManager.GET_INTENT_FILTERS);
+				for (ResolveInfo reInfo : resolveInfos) {
+					if (packageName.toString().equals(reInfo.activityInfo.packageName)) {
+						activityName = reInfo.activityInfo.name;
+						break;
+					}
+				}
+			} catch (Exception e) {
+				Util.Trace("[start] error: package no found");
+				e.printStackTrace();
+			}
+		}
 
+        if (activityName != null) {
+            ComponentName component = new ComponentName(
+                            packageName.toString(), activityName);
+
+            intent.setComponent(component);
+            VenusActivity.appActivity.startActivity(intent);
+            return true;
+        } else {
+            return false;
+        }
 	}
 
 	public boolean UnInstallApp(String packageName) {
