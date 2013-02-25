@@ -117,6 +117,8 @@ Alias = {
     
     m_xunjianewmlist = "MODULE:\\com_wondertek_dw\\m_xunjianewmlist.wdml",      -- 综合覆盖巡检二维码列表
     m_xunjianewmtijiao = "MODULE:\\com_wondertek_dw\\m_xunjianewmtijiao.wdml",  -- 综合覆盖巡检巡检项提交
+
+    m_peocar = "MODULE:\\com_wondertek_dw\\m_peocar.wdml",  -- 人车统计
     
 }
 
