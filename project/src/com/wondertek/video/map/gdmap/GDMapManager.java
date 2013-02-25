@@ -163,10 +163,10 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 		mMapView = new MapView(mContext, GDMapConstants.GDMAP_API_KEYS);
 		
 		// 修改栅格地图地址为省内GIS平台服务
-		ServerUrlSetting serverUrlSetting = new ServerUrlSetting();
-		serverUrlSetting.strTileUrl  = "http://221.130.163.121:8088";
-		//serverUrlSetting.strPoiSearchUrl = "http://221.130.163.121:7001/";
-		mMapView.setServerUrl(serverUrlSetting);
+		// ServerUrlSetting serverUrlSetting = new ServerUrlSetting();
+		// serverUrlSetting.strTileUrl  = "http://221.130.163.121:8088";
+		// serverUrlSetting.strPoiSearchUrl = "http://221.130.163.121:7001/";
+		// mMapView.setServerUrl(serverUrlSetting);
 		
 		mMapView.setLayoutParams(new AbsoluteLayout.LayoutParams(0,0,0,0));
 		mMapView.setBuiltInZoomControls(true);
