@@ -42,6 +42,10 @@ Alias = {
     m_yinhuanList = 'MODULE:\\com_wondertek_dw\\m_yinhuanList.wdml', -- 隐患列表
     m_yinhuanshangchuan = 'MODULE:\\com_wondertek_dw\\m_yinhuanshangchuan.wdml', -- 隐患上报
     m_yinhuanDetail = 'MODULE:\\com_wondertek_dw\\m_yinhuanDetail.wdml', -- 隐患详情
+    m_yinhuangongdanlist = 'MODULE:\\com_wondertek_dw\\m_yinhuangongdanlist.wdml', -- 隐患工单下隐患列表 
+    m_dangerOrderDetail = 'MODULE:\\com_wondertek_dw\\m_dangerOrderDetail.wdml', -- 隐患工单详情界面
+    m_dangerdeal = 'MODULE:\\com_wondertek_dw\\m_dangerdeal.wdml', -- 隐患处理界面
+    m_dangerorignImg = 'MODULE:\\com_wondertek_dw\\m_dangerorignImg.wdml', -- 隐患工单拍照查看原图
     m_cardispatch = 'MODULE:\\com_wondertek_dw\\m_carDispatch.wdml', -- 车辆申请
     m_cheliangxiangqing = 'MODULE:\\com_wondertek_dw\\m_cheliangxiangqing.wdml',--车辆详情
     m_cheliangguanli = 'MODULE:\\com_wondertek_dw\\m_cheliangguanli.wdml', -- 车辆管理
@@ -110,6 +114,11 @@ Alias = {
     m_about = 'MODULE:\\com_wondertek_dw\\m_about.wdml',     --关于
     m_password = 'MODULE:\\com_wondertek_dw\\m_password.wdml',     --修改密码
     m_system = 'MODULE:\\com_wondertek_dw\\m_system.wdml',     --新系统设置
+    
+    m_xunjianewmlist = "MODULE:\\com_wondertek_dw\\m_xunjianewmlist.wdml",      -- 综合覆盖巡检二维码列表
+    m_xunjianewmtijiao = "MODULE:\\com_wondertek_dw\\m_xunjianewmtijiao.wdml",  -- 综合覆盖巡检巡检项提交
+
+    m_peocar = "MODULE:\\com_wondertek_dw\\m_peocar.wdml",  -- 人车统计
     
 }
 

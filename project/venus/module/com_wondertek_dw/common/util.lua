@@ -92,7 +92,7 @@ function getCurDateAndTime()
 end
 --取系统日期时间，少一天的误差
 function getCurDateAndTimeAddOneDay()
-    local now = os.date("*t",os.time()+86400)
+    local now = os.date("*t",os.time())
     local year = now['year']
     local month = now['month']
     local day = now['day']

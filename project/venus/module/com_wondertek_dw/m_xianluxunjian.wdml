@@ -190,7 +190,7 @@ function bodyOnPluginEvent(msg,param)
             local phone = Config:get('xlSmsNo')--'10658452'
             local tabhis = {smscontent}
             table.insert(tab,1,getCurrentTimeandDate()..'上报巡检点成功')
-            if Util:sendSMS(phone, smscontent) then
+            if Util:sendSMS(phone, smscontent, true) then
                 Sprite:setProperty(statusBarText, 'text', '巡检信息上报成功'..latitudeValue..','..longitudeValue)
                 local tabhis = {os.date()..'上报成功'}
                 upRecordtoServer()
@@ -410,7 +410,7 @@ function _requestNearbyStationByRadius()
         local tabhis = {smscontent}
         table.insert(tab,1,getCurrentTimeandDate()..'上报巡检点成功')
         
-        if Util:sendSMS(phone, smscontent) then
+        if Util:sendSMS(phone, smscontent,true) then
             Sprite:setProperty(statusBarText, 'text', '巡检信息上报成功'..latitudeValue..','..longitudeValue)
 			local tabhis = {os.date()..'上报成功'}
 		--	table.insert(tab,tabhis)
@@ -494,7 +494,7 @@ function loadListItem(list, item, index)
 end
 --巡检时间戳
 function getCurrentTimeStamp()
-    local now = os.date("*t",os.time()+86400-28800)
+    local now = os.date("*t",os.time()-28800)
     local year = string.sub(now['year'],3,4)
     local month = now['month']
     local day = now['day']
@@ -505,7 +505,7 @@ function getCurrentTimeStamp()
     return string.format('%02s%02s%02s%02s%02s%02s', year, month, day, hour, minute, sec)
 end
 function getCurrentTimeandDate()
-    local now = os.date("*t",os.time()+86400)
+    local now = os.date("*t",os.time())
     local year = now['year']
     local month = now['month']
     local day = now['day']

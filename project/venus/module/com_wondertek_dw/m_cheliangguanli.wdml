@@ -394,6 +394,8 @@ function loadListItem(list, item, index)
     local orgName = value.orgname
     local carNumber = value.carno
     local carTypeValue = value.cartype
+    local usestate = value.usestate
+    Log:write('返回的数据',value)
     -- 显示到界面
     local idSprite = Sprite:findChild(item, 'id')
     local carNo = Sprite:findChild(item, 'carNo')
@@ -404,11 +406,21 @@ function loadListItem(list, item, index)
     Sprite:setProperty(carNo, 'text', carNumber)
     Sprite:setProperty(companyName, 'text', orgName)
     Sprite:setProperty(carType, 'text', carTypeValue)
-    if carTypeValue=='货车' then
-    Sprite:setProperty(Sprite:findChild(item, 'cheliang_im'), 'src', 'file://image/huoche.png')
-    elseif carTypeValue=='工程车' then
-    Sprite:setProperty(Sprite:findChild(item, 'cheliang_im'), 'src', 'file://image/gongchengche.png')
-    else
+    if carTypeValue == '货车' then
+        Sprite:setProperty(Sprite:findChild(item, 'cheliang_im'), 'src', 'file://image/huoche.png')
+            if usestate ~= '空闲' then 
+                Sprite:setProperty(Sprite:findChild(item, 'cheliang_im'), 'src', 'file://image/huoche_use.png')
+            end
+    elseif carTypeValue == '工程车' then
+        Sprite:setProperty(Sprite:findChild(item, 'cheliang_im'), 'src', 'file://image/gongchengche.png')
+            if usestate ~= '空闲' then 
+                Sprite:setProperty(Sprite:findChild(item, 'cheliang_im'), 'src', 'file://image/gongchengche_use.png')
+            end
+    elseif carTypeValue == '桑塔纳' then
+        Sprite:setProperty(Sprite:findChild(item, 'cheliang_im'), 'src', 'file://image/xiaojiaoche.png')
+            if usestate ~= '空闲' then 
+                Sprite:setProperty(Sprite:findChild(item, 'cheliang_im'), 'src', 'file://image/xiaojiaoche_use.png')
+            end
     end
 end
 
@@ -484,7 +496,7 @@ function getCarFlow()
     local requestParam = string.format('nbspweb/webservice/car!doWebservice.action?cmd=wlbcarflow&usercode=%s&page=1&pagesize=10', Config:get('username'))
     local requestURL = getUrl()..requestParam
     Http:request('car_flow', requestURL, 103)
-    Log:write('requestURL',requestURL)
+    Log:write('请求申请列表',requestURL)
     Loading:show()
 end
 
