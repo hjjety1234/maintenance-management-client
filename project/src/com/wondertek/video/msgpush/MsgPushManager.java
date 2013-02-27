@@ -2,10 +2,12 @@ package com.wondertek.video.msgpush;
 
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusApplication;
+import com.wondertek.video.msgpush.mqtt.MqttMsgPush;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
+import android.util.Log;
 
 /**
  * Manage Message Push
@@ -13,9 +15,11 @@ import android.os.Handler;
  *
  */
 public class MsgPushManager {
+	private static final String TAG = "MsgPushManager";
     private static final int MSG_PUSH_ANDROIDPN = 0x1000;
     private static final int MSG_PUSH_DEFINITION = 0x1002;
-    private static final int MSG_PUSH_TYPE = MSG_PUSH_DEFINITION;
+    private static final int MSG_PUSH_MQTT = 0x1003;
+    private static final int MSG_PUSH_TYPE = MSG_PUSH_MQTT;
     public static final String MSG_PUSH_PREFS = "MsgPushSharePrefs";
     
     private static MsgPushManager instance = null;
@@ -34,6 +38,9 @@ public class MsgPushManager {
 				break;
 			case MSG_PUSH_DEFINITION :
 				mMsgPush = new DefinedBySelfMsgPush(mContext);
+				break;
+			case MSG_PUSH_MQTT:
+				mMsgPush = new MqttMsgPush(mContext);
 				break;
 			default :
 				mMsgPush = null;
@@ -60,6 +67,7 @@ public class MsgPushManager {
 	}
 	
 	public void javaSetServiceStartOrStop(boolean isStart) {
+		Log.d(TAG, ">>>javaSetServiceStartOrStop<<<");
 		if (mMsgPush != null) {
 			mMsgPush.setServiceEnable(isStart);
 		}
