@@ -85,12 +85,21 @@
 
 require 'com_wondertek_dw.common.framework'
 require 'framework.umsagent'
+require 'framework.msgpush'
+require 'framework.appmanager'
 local rootSprite
 
-local g_packageUrl                  -- 客户端升级包url地址
+local g_packageUrl = nil            -- 客户端升级包url地址
+local g_patchUrl = nil              -- 补丁包下载url地址
+
+local g_localpath = nil             -- 下载apk路径
+local g_localPatchPath = nil        -- 下载patch路径
+local g_localPatchResult = nil      -- 补丁更新后的文件路径
+
+local g_updateMethod = 0            -- 更新方法：0为全新升级，1为差分升级
+
 local g_downloadTime = 0            -- 记录下载所花的时间
 local g_progressWidth = 154         -- 进度条长度
-local g_localpath = nil             -- 下载apk路径
 
 
 ---------------------------------------回调函数列表--------------------------------
@@ -99,6 +108,16 @@ function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     connectToWAP()
     UmsAgent:postClientData()
+
+    -- 设置消息推送
+    MsgPush:bindHostIp('120.209.131.150') 
+    Log:write("bindHostIp()")
+    MsgPush:setListener(Sprite:getCurScene(), 1001) 
+    Log:write("setListener()")
+    local appKey = UmsAgent:getAppKey()
+    MsgPush:setApiKey(appKey)
+    MsgPush:setServiceStatus(1)
+    Log:write("setServiceStatus()")
 end
 
 --  root节点消息方法
@@ -129,29 +148,27 @@ function bodyOnSpriteEvent(msg, param)
 end
 
 --  插件消息方法
-function bodyOnPluginEvent(msg)
+function bodyOnPluginEvent(msg, param)
     if msg == 101 then
     elseif msg == 102 then --  版本检测
         Loading:close()
-         local checkversionData = Http:jsonDecode('index_checkversion')
+        local checkversionData = Http:jsonDecode('index_checkversion')
+        Log:write("version_data:", checkversionData)
         if checkversionData and checkversionData['version'] then
             g_packageUrl = checkversionData['version']['url']
+            g_patchUrl = checkversionData['version']['patchUrl']
             if tonumber(checkversionData['version']['isNeedUpdate']) == 0 then  -- 不需要升级
-                 goLogin()
+                goLogin()
             elseif tonumber(checkversionData['version']['isNeedUpdate']) == 1 then -- 提示升级
 		        local update = Sprite:findChild(rootSprite,'update')
 		        Sprite:setProperty(update,'text',checkversionData.version.releaseLog)
-		        Log:write('index_checkversion', checkversionData)
                 local mainNode = Sprite:findChild(rootSprite, 'mainNode')
                 local upgradeNode = Sprite:findChild(rootSprite, 'upgradeNode')
-                --Sprite:setProperty(mainNode,'visible','true')
-                -- Sprite:setProperty(mainNode,'enable','false')
                 Sprite:setProperty(upgradeNode,'visible','true')
                 Sprite:setProperty(upgradeNode,'enable','true')
             elseif tonumber(checkversionData['version']['isNeedUpdate']) == 2 then -- 强制升级
                 local update = Sprite:findChild(rootSprite,'update')
                 Sprite:setProperty(update,'text',checkversionData.version.releaseLog)
-                Log:write('index_checkversion', checkversionData)
                 downloadPackage()
                 return
             else
@@ -164,6 +181,15 @@ function bodyOnPluginEvent(msg)
         local scrollBarNode = Sprite:findChild(rootSprite, 'scrollBarNode')
         Sprite:setVisible(scrollBarNode, 0)
         Sprite:setEnable(scrollBarNode, 0)
+    elseif msg == 1001 then
+        local title = Param:getString(param, 0)
+        local msg = Param:getString(param, 1)
+        local uri = Param:getString(param, 2)
+        Log:write("消息推送: title="..title)
+        Log:write("msg="..msg)
+        Log:write("url="..msg)
+        Scene:setReturn(Alias.index, Alias.m_login)
+        Scene:go(Alias.m_login)
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -288,7 +314,27 @@ function downloadPackage()
     -- 开始下载
     require('framework.download')
     getDownloadPath()
-    Download:append(g_localpath, 'intallPackageName', g_packageUrl, true)
+    if IO:fileExist(g_localpath) == true and  
+        g_patchUrl ~= nil and g_patchUrl ~= "" then 
+        -- 设置升级方式为差分升级
+        -- 原安装文件不存在，补丁Url缺失，
+        Log:write("采用差分升级方式")
+        g_updateMethod = 1   
+        if IO:fileExist(g_localPatchPath) == true then 
+            IO:fileRemove(g_localPatchPath)
+            Log:write("差分升级：删除旧的补丁文件")
+        end
+        Download:append(g_localPatchPath, 'intallPackageName', g_patchUrl, true)
+    else
+        -- 设置升级方式为全新升级
+        Log:write("采用全新升级方式（可能原因：原安装文件不存在或校验失败，补丁Url缺失）")
+        g_updateMethod = 0 
+        if IO:fileExist(g_localpath) == true then 
+            IO:fileRemove(g_localpath)
+            Log:write("全新升级：删除旧的安装文件")
+        end  
+        Download:append(g_localpath, 'intallPackageName', g_packageUrl, true)
+    end
     onGetDownloadStatus()
 end
 
@@ -326,10 +372,28 @@ function onGetDownloadStatus()
                 local x, y, _, h = Sprite:getRect(progressImg)
                 Sprite:setRect(progressImg, x, y, g_progressWidth * percent / 100, h)
                 Http:stopNetwork()
-                -- 安装退出
-                Util:installApp(g_localpath)
-                -- 安装成功，重启时引擎将干掉module
-                -- 清除cache
+                -- 下载完成
+                if g_updateMethod == 0 then 
+                    Util:installApp(g_localpath)
+                else
+                    -- 补丁升级
+                    Sprite:setProperty(noticeLbl, 'text', '正在进行补丁合成...')
+                    AppManager:applyPatchToOldApk(g_localpath, g_localPatchResult, 
+                        g_localPatchPath)
+                    -- 删除旧的安装文件
+                    if IO:fileExist(g_localpath) == true then 
+                        IO:fileRemove(g_localpath)
+                        Log:write("删除旧的安装文件成功")
+                    end  
+                    -- 重命名新的安装文件
+                    if IO:fileExist(g_localPatchResult) == true then 
+                        IO:fileRename(g_localPatchResult, g_localpath)
+                        Log:write("重命名新的安装文件")
+                    end
+                    -- 安装更新
+                    Util:installApp(g_localpath)
+                end
+                -- 安装成功，重启时引擎将干掉module，清除cache
                 IO:dirRemove('CACHE:\\com_wondertek_dw', 1)
                 IO:dirCreate('CACHE:\\com_wondertek_dw')
                 IO:dirCreate('CACHE:\\com_wondertek_dw\\image')
@@ -355,13 +419,14 @@ function getDownloadPath()
         IO:dirCreate(g_localpath)
     end
     -- 如果apk已经存在，删除之
+    g_localPatchPath = g_localpath.."/Venus_DW.patch"
+    g_localPatchResult = g_localpath.."/Venus_DW_NEW.patch"
     g_localpath = g_localpath.."/Venus_DW.apk"
+    Log:write("getDownloadPath: g_localPatchPath="..g_localPatchPath)
     Log:write("getDownloadPath: g_localpath="..g_localpath)
-    if IO:fileExist(g_localpath) == true then 
-        IO:fileRemove(g_localpath)
-    end
     -- 返回apk本地路径
     return g_localpath
 end
+
 ]]>
 </root>
