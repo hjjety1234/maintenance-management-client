@@ -46,6 +46,10 @@ public class AppManager {
 	
 	private static final String AES_PASSWORD = "wondertek";
 	
+	static {
+		System.loadLibrary("Bsdiff");
+	}
+	
 	enum EFile_Type{
 		FIEL_TYPE_UNKOWN,
 		FILE_TYPE_HTML,
@@ -676,7 +680,7 @@ public class AppManager {
         final PackageManager packageManager = VenusActivity.appActivity.getPackageManager();
         List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.GET_ACTIVITIES);
         if (list.size() > 0) {
-        	VenusActivity.appActivity.startActivity(Intent.createChooser(intent, "选择应用"));
+        	VenusActivity.appActivity.startActivity(Intent.createChooser(intent, "选锟斤拷应锟斤拷"));
         	return true;
         } else {
         	return false;
