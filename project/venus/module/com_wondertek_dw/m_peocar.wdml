@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: hewu <hewu2008@gmail.com>
+ == ============================================================================
+ == | Desc: 2012/12/22 调用高德的地图接口，实现站点导航
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <!-- 主节点  -->
+        <node name="mainNode" rect="0,0,480,800" enable="true" 
+            active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置标题 -->
+            <node name="baseSprite" rect="0,0,480,160" extendstyle="1111">
+                    <image rect="0,0,480,800" src="file://image/backgroundImg.png" style="autosize"
+                       extendstyle="1111" />
+                <node rect="0,0,480,66" name="NodeTitle" extendstyle="1111">
+                    <image name="titleBg" rect="0,0,480,66" src="file://image/title_bg_new.png"
+                        extendstyle="1111" style="autosize" />
+
+                    <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
+                        OnSelect="doBack" extendstyle="1111">
+                        <image name="normal" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                             extendstyle="1111" />
+                        <image name="sel" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                             extendstyle="1111" />
+                    </button>  
+                    <scrolltext name="title" rect="105,5,280,40" text="人车统计" font-family='微软雅黑'
+                        extendstyle="1111" font-size="36" h-align="center" v-align="center"
+                        color="#ffffff" scroll="true"  step="2" />
+                </node>
+            </node>
+
+            <!-- 统计标签 -->
+            <node name="baseSprite" rect="0,66,480,49" extendstyle="1111">
+                <image  rect="0,0,480,49" src="file://image/city_tab.png"
+                         extendstyle="1111" style='autosize'/>
+                <!--按地市-->
+                <button name="cityBtn" rect="0,0,120,66" 
+                    OnSelect="cityOn" extendstyle="1111" data='wlbcitycount'>
+                    <image name='cityImg' rect="0,0,120,49" src="file://image/city_on.png"
+                         extendstyle="1111" style='autosize'/>
+                    <label name="cityTxt" rect="0,0,120,49" text="按地市" font-family='微软雅黑'
+                        extendstyle="1111" font-size="23" h-align="center" v-align="center"
+                        color="#0062ab" />
+                </button> 
+                <!--按代维公司-->
+                <button name="companyBtn" rect="120,0,120,66" 
+                    OnSelect="companyOn" extendstyle="1111" data='wlbcompanycount' >
+                    <image name='cityImg' rect="0,0,120,49" src="" 
+                         extendstyle="1111" style='autosize'/>
+                    <label name="cityTxt" rect="0,0,120,49" text="按代维公司" font-family='微软雅黑'
+                        extendstyle="1111" font-size="23" h-align="center" v-align="center"
+                        color="#5a5a5a" />
+                </button>
+                <!--按专业-->
+                <button name="majorBtn" rect="240,0,120,66" 
+                    OnSelect="majorOn" extendstyle="1111" data='wlbmajorcount'>
+                    <image name='cityImg' rect="0,0,120,49" src=""
+                         extendstyle="1111" style='autosize'/>
+                    <label name="cityTxt" rect="0,0,120,49" text="按专业" font-family='微软雅黑'
+                        extendstyle="1111" font-size="23" h-align="center" v-align="center"
+                        color="#5a5a5a" />
+                </button>
+                <!--缺配统计-->
+                <button name="lackBtn" rect="360,0,120,66" 
+                    OnSelect="lackOn" extendstyle="1111" data='wlblackcount'>
+                    <image name='cityImg' rect="0,0,120,49" src=""
+                         extendstyle="1111" style='autosize'/>
+                    <label name="cityTxt" rect="0,0,120,49" text="缺配统计" font-family='微软雅黑'
+                        extendstyle="1111" font-size="23" h-align="center" v-align="center"
+                        color="#5a5a5a" />
+                </button>
+            </node>
+            <!-- 主体可滑动部分  -->
+
+            <panorama name="panorama" rect="0,125,480,750" foreground="" alpha="255">
+                <panoramaitem name="item1" rect="0,0,480,750" 
+                    extendstyle="1111" data="01">
+                    <image rect="10,0,460,12" src="file://image/content_top.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="10,12,460,640" src="file://image/content_center.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="10,652,460,12" src="file://image/content_bottom.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="420,25,11,11" src="file://image/box_on.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="440,25,11,11" src="file://image/box.png"
+                            style="autosize" extendstyle="1111" />   
+                    <!--列表信息-->
+                    <node name="listNode1" rect="0,56,480,500" extendstyle="1111">
+                        <listview name="sampleList" rect="0,40,480,560" extendstyle="1111" auto-scroll='true' limit='true' />
+                        <image name='selectImg' rect="21,0,438,1" src="file://image/xianluzancun_line.png" 
+                                 extendstyle="1111" style='autosize'/>
+                        <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
+                            extendstyle="1111" style='autosize' >
+                            <label name='dimension' rect="20,5,100,25" text="地市" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                            <label name='dimension1'rect="85,5,150,25" text="代维人员数量" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                            <label name='dimension2' rect="215,5,150,25" text="代维车辆数量" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                            <label name='dimension3' rect="340,5,150,25" text="人车配比" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                        </image>
+                    </node> 
+                    <!-- 列表项(按地市)  -->
+                    <node name="listItem" rect="0,0,480,80" border="false"
+                        visible="false" enable="false" active="false" extendstyle="1111">
+                            <image name="listItem_bg" rect="31,0,418,38" src=""
+                            extendstyle="1111" style='autosize' />
+                            <label name='cityName' rect="45,5,80,25" text="地市" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="left" v-align="center"
+                                    color="#5a5a5a" />
+                            <label name='peopleNum' rect="120,5,80,25" text="100" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                            <label name='carNum' rect="250,5,80,25" text="100" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                            <label name='radio' rect="360,5,80,25" text="1:30" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                    </node>
+                    <!-- 列表项(按代维公司)  -->
+                    <node name="listItem1" rect="0,0,480,80" border="false"
+                        visible="false" enable="false" active="false" extendstyle="1111">
+                            <image name="listItem_bg" rect="31,0,418,38" src=""
+                            extendstyle="1111" style='autosize' />
+                            <scrolltext name='cityName1' rect="35,5,90,25" text="地市" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="left" v-align="center"
+                                    color="#5a5a5a" step="2" scroll="true"/>
+                            <label name='peopleNum1' rect="140,5,80,25" text="100" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                            <label name='carNum1' rect="270,5,80,25" text="100" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                            <label name='radio1' rect="380,5,80,25" text="1:30" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                    </node>
+                    <!-- 列表项(按专业)  -->
+                    <node name="listItem2" rect="0,0,480,80" border="false"
+                        visible="false" enable="false" active="false" extendstyle="1111">
+                            <image name="listItem_bg" rect="31,0,418,38" src=""
+                            extendstyle="1111" style='autosize' />
+                            <scrolltext name='cityName2' rect="45,5,80,25" text="地市" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="left" v-align="center"
+                                    color="#5a5a5a" step="2" scroll="true"/>
+                            <label name='peopleNum2' rect="130,5,80,25" text="100" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                            <label name='carNum2' rect="260,5,80,25" text="100" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                            <label name='radio2' rect="370,5,80,25" text="1:30" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                    </node>
+                    <!-- 列表项(缺配统计)  -->
+                    <node name="listItem3" rect="0,0,480,80" border="false"
+                        visible="false" enable="false" active="false" extendstyle="1111">
+                            <image name="listItem_bg" rect="31,0,418,38" src=""
+                            extendstyle="1111" style='autosize' />
+                            <scrolltext name='cityName3' rect="45,5,80,25" text="地市" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="left" v-align="center"
+                                    color="#5a5a5a" step="2" scroll="true"/>
+                            <label name='peopleNum3' rect="110,5,80,25" text="100" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                            <label name='carNum3' rect="240,5,80,25" text="100" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                            <label name='radio3' rect="360,5,80,25" text="1:30" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                    </node>
+                    <!-- 弹出或收起专业框  -->
+                    <node name='selectMajor' rect="0,0,480,56" extendstyle="1111" >
+                        <button name="selectBtn" rect="0,0,200,40" 
+                            OnSelect="selectOn" extendstyle="1111"  data='01'>
+                            <image name='selectImg' rect="120,25,12,8" src="file://image/triangle.png" 
+                                 extendstyle="1111" style='autosize'/>
+                            <label name='selectName' rect="0,0,140,49" text="全部" font-family='微软雅黑'
+                                extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                                color="#0062ab" />
+                        </button>
+                        <!-- 选择专业按钮  -->
+                        <node name='selectNode' rect="0,0,480,300" extendstyle="1111" visible='false' 
+                            enable='false'>
+                            <image  rect="45,47,12,8" src="file://image/triangle_on.png" 
+                                 extendstyle="1111" style='autosize'/>
+                            <image  rect="25,55,437,82" src="file://image/select_major.png" 
+                                 extendstyle="1111" style='autosize'/>
+                            <!-- 全部  -->     
+                            <button name="all" rect="25,55,100,40" 
+                                OnSelect="allOn" extendstyle="1111" data=''>
+                                <label name='majorName' rect="10,0,140,49" text="全部" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#ffffff" />
+                            </button>
+                            <!-- 基站  -->     
+                            <button name="station" rect="135,55,100,40" 
+                                OnSelect="allOn" extendstyle="1111" data='C31'>
+                                <label name='majorName' rect="0,0,140,49" text="基站" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#ffffff" />
+                            </button>
+                            <!-- 传输线路  -->     
+                            <button name="line" rect="225,55,100,40" 
+                                OnSelect="allOn" extendstyle="1111" data='C30'>
+                                <label name='majorName' rect="10,0,140,49" text="传输线路" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#ffffff" />
+                            </button>
+                            <!-- 综合覆盖  -->     
+                            <button name="complex" rect="335,55,100,40" 
+                                OnSelect="allOn" extendstyle="1111" data='C32'>
+                                <label name='majorName' rect="10,0,140,49" text="综合覆盖" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#ffffff" />
+                            </button>
+                            <!-- 集客专线  -->     
+                            <button name="group" rect="35,85,100,40" 
+                                OnSelect="allOn" extendstyle="1111" data='C34'>
+                                <label name='majorName' rect="0,0,140,49" text="集客专线" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#ffffff" />
+                            </button>
+                            <!-- 家庭宽带  -->     
+                            <button name="home" rect="135,85,100,40" 
+                                OnSelect="allOn" extendstyle="1111" data='C37'>
+                                <label name='majorName' rect="0,0,140,49" text="家庭宽带" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#ffffff" />
+                            </button>
+                            <!-- 铁塔  -->     
+                            <button name="tower" rect="225,85,100,40" 
+                                OnSelect="allOn" extendstyle="1111" data='C33'>
+                                <label name='majorName' rect="10,0,140,49" text="铁塔" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#ffffff" />
+                            </button>
+                        </node>
+                    </node>
+                </panoramaitem>
+                <panoramaitem name="item2" rect="0,0,480,750" 
+                     extendstyle="1111" data="02">
+                    <!-- 报表标题  -->
+                    <node rect="0,0,480,56" extendstyle="1111">
+                        <image name="search_bg" rect="0,0,480,56" src="file://image/search_bg_new.png"
+                            style="autosize" extendstyle="1111" />
+                        <label  rect="0,0,120,56" text="地市" color="#0" v-align="center"  
+                            h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                        <label rect="120,0,120,56" text="综合覆盖" color="#0" v-align="center"  
+                            h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                        <label rect="240,0,120,56" text="传输" color="#0" v-align="center"  
+                            h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                        <label rect="360,0,120,56" text="集客家客" color="#0" v-align="center"  
+                            h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    </node>
+                    <!--列表信息--> 
+                    <node name="listNode2" rect="0,56,480,700" extendstyle="1111">
+                        <listview name="sampleList2" rect="0,0,480,700" extendstyle="1111" />
+                    </node>
+                </panoramaitem>
+            </panorama>
+
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+local rootSprite
+local companyBtn,cityBtn,majorBtn,lackBtn --统计标签节点
+local city_data,company_data,major_data,lack_data --代表解析jeson数据后的参数
+local majorData = '' ---选择专业后传递button的data属性
+local selectData = 'wlbcitycount'  --选择页签data属性,默认为按地市统计
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    --设置标签节点
+    companyBtn = Sprite:findChild(rootSprite,'companyBtn')
+    cityBtn    = Sprite:findChild(rootSprite,'cityBtn')
+    majorBtn   = Sprite:findChild(rootSprite,'majorBtn')
+    lackBtn    = Sprite:findChild(rootSprite,'lackBtn')
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+       --初始化加载按地市统计数据
+       request(majorData)
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then--按地市数据处理  
+        city_data = Http:jsonDecode('city_data')
+        local listView = Sprite:findChild(rootSprite, 'sampleList')
+        Log:write('city_data',city_data)
+        ListView:removeAllItems(listView)
+        -- 加载列表项
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 16, 'loadListItem')
+        ListView:adjust(listView)
+        Loading:close()
+    elseif msg == 102 then--按代维公司数据处理 
+        company_data = Http:jsonDecode('company_data')
+        local listView = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(listView)
+        -- 加载列表项
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem1'), 16, 'loadListItem1')
+        ListView:adjust(listView)
+        Loading:close()
+    elseif msg == 103 then--按代维公司数据处理 
+        major_data = Http:jsonDecode('major_data')
+        local listView = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(listView)
+        -- 加载列表项
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem2'), 6, 'loadListItem2')
+        ListView:adjust(listView)
+        Loading:close()
+    elseif msg == 104 then--缺配统计数据处理 
+        lack_data = Http:jsonDecode('lack_data')
+        Log:write('lack_data', lack_data)
+        local listView = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(listView)
+        -- 加载列表项
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem3'), 16, 'loadListItem3')
+        ListView:adjust(listView)
+        Loading:close()
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+       Scene:back()
+    end
+end
+
+-- 返回上一个页面
+function doBack()
+    Scene:back()
+end
+
+-------点击按地市统计标签
+function cityOn(sprite)
+    function_name(cityBtn,companyBtn,majorBtn,lackBtn)
+    local dimension = Sprite:findChild(rootSprite,'dimension')
+    local dimension1 = Sprite:findChild(rootSprite,'dimension1')
+    local dimension2 = Sprite:findChild(rootSprite,'dimension2')
+    local dimension3 = Sprite:findChild(rootSprite,'dimension3')
+    Sprite:setProperty(dimension,'text','地市')
+    Sprite:setProperty(dimension1,'text','代维人员数量')
+    Sprite:setProperty(dimension2,'text','代维车辆数量')
+    Sprite:setProperty(dimension3,'text','人车配比')
+    Sprite:setProperty(dimension,'rect','20,5,100,25')
+    Sprite:setProperty(dimension1,'rect','85,5,150,25')
+    selectData = Sprite:getData(sprite)
+    --显示选择专业框
+    local selectMajor = Sprite:findChild(rootSprite,'selectMajor')
+    Sprite:setProperty(selectMajor,'visible','true')
+    Sprite:setProperty(selectMajor,'enable','true')
+    --隐藏选择专业弹出框，从别的页签跳转来时
+    local selectNode = Sprite:findChild(rootSprite,'selectNode')
+    Sprite:setProperty(selectNode,'visible','false')
+    Sprite:setProperty(selectNode,'enable','false')
+    request(majorData)
+end
+-------点击按代维公司统计标签
+function companyOn(sprite)
+    function_name(companyBtn,cityBtn,majorBtn,lackBtn)
+    local dimension = Sprite:findChild(rootSprite,'dimension')
+    local dimension1 = Sprite:findChild(rootSprite,'dimension1')
+    local dimension2 = Sprite:findChild(rootSprite,'dimension2')
+    local dimension3 = Sprite:findChild(rootSprite,'dimension3')
+    Sprite:setProperty(dimension,'text','代维公司')
+    Sprite:setProperty(dimension1,'text','代维人员数量')
+    Sprite:setProperty(dimension2,'text','代维车辆数量')
+    Sprite:setProperty(dimension3,'text','人车配比')
+    Sprite:setProperty(dimension,'rect','10,5,100,25')
+    Sprite:setProperty(dimension1,'rect','95,5,150,25')
+    selectData = Sprite:getData(sprite)
+    --显示选择专业框
+    local selectMajor = Sprite:findChild(rootSprite,'selectMajor')
+    Sprite:setProperty(selectMajor,'visible','true')
+    Sprite:setProperty(selectMajor,'enable','true')
+    --隐藏选择专业弹出框，从别的页签跳转来时
+    local selectNode = Sprite:findChild(rootSprite,'selectNode')
+    Sprite:setProperty(selectNode,'visible','false')
+    Sprite:setProperty(selectNode,'enable','false')
+    request1(majorData)
+end
+-------点击按专业统计标签
+function majorOn(sprite)
+    function_name(majorBtn,companyBtn,cityBtn,lackBtn)
+    local dimension = Sprite:findChild(rootSprite,'dimension')
+    local dimension1 = Sprite:findChild(rootSprite,'dimension1')
+    local dimension2 = Sprite:findChild(rootSprite,'dimension2')
+    local dimension3 = Sprite:findChild(rootSprite,'dimension3')
+    Sprite:setProperty(dimension,'text','专业')
+    Sprite:setProperty(dimension1,'text','代维人员数量')
+    Sprite:setProperty(dimension2,'text','代维车辆数量')
+    Sprite:setProperty(dimension3,'text','人车配比')
+    Sprite:setProperty(dimension,'rect','20,5,100,25')
+    selectData = Sprite:getData(sprite)
+    --隐藏选择专业框
+    local selectMajor = Sprite:findChild(rootSprite,'selectMajor')
+    Sprite:setProperty(selectMajor,'visible','false')
+    Sprite:setProperty(selectMajor,'enable','false')
+    request2()
+end
+-------点击缺配统计标签
+function lackOn(sprite)
+    function_name(lackBtn,companyBtn,cityBtn,majorBtn)
+    --改变标题名称
+    local dimension = Sprite:findChild(rootSprite,'dimension')
+    local dimension1 = Sprite:findChild(rootSprite,'dimension1')
+    local dimension2 = Sprite:findChild(rootSprite,'dimension2')
+    local dimension3 = Sprite:findChild(rootSprite,'dimension3')
+    Sprite:setProperty(dimension,'text','地市')
+    Sprite:setProperty(dimension1,'text','代维公司')
+    Sprite:setProperty(dimension2,'text','缺配人员')
+    Sprite:setProperty(dimension3,'text','缺配车辆')
+    Sprite:setProperty(dimension,'rect','20,5,100,25')
+    selectData = Sprite:getData(sprite)
+    --隐藏选择专业框
+    local selectMajor = Sprite:findChild(rootSprite,'selectMajor')
+    Sprite:setProperty(selectMajor,'visible','false')
+    Sprite:setProperty(selectMajor,'enable','false')
+    request3()
+end
+--设置页签来回跳转的显示状态
+function function_name(b1,b2,b3,b4)
+    Sprite:setProperty(b2,'enable','true')
+    Sprite:setProperty(b3,'enable','true')
+    Sprite:setProperty(b4,'enable','true')
+    local cityImg1 = Sprite:findChild(b1,'cityImg')
+    local cityImg2 = Sprite:findChild(b2,'cityImg')
+    local cityImg3 = Sprite:findChild(b3,'cityImg')
+    local cityImg4 = Sprite:findChild(b4,'cityImg')
+    local cityTxt1 = Sprite:findChild(b1,'cityTxt')
+    local cityTxt2 = Sprite:findChild(b2,'cityTxt')
+    local cityTxt3 = Sprite:findChild(b3,'cityTxt')
+    local cityTxt4 = Sprite:findChild(b4,'cityTxt')
+    Sprite:setProperty(cityImg1,'src','file://image/city_on.png')
+    Sprite:setProperty(cityImg2,'src','file://image/city_tab.png')
+    Sprite:setProperty(cityImg3,'src','file://image/city_tab.png')
+    Sprite:setProperty(cityImg4,'src','file://image/city_tab.png')
+    Sprite:setProperty(cityTxt1,'color','#0062ab')
+    Sprite:setProperty(cityTxt2,'color','#5a5a5a')
+    Sprite:setProperty(cityTxt3,'color','#5a5a5a')
+    Sprite:setProperty(cityTxt4,'color','#5a5a5a')
+    --设置当前不可点击
+    Sprite:setProperty(b1,'enable','false')
+end
+----弹出或收起选择专业框
+function selectOn()
+    local selectBtn = Sprite:findChild(rootSprite,'selectBtn')
+    local selectNode = Sprite:findChild(rootSprite,'selectNode')
+    local data = Sprite:getData(selectBtn)
+    if data == '01' then 
+        Sprite:setProperty(selectNode,'visible','true')
+        Sprite:setProperty(selectNode,'enable','true')
+        Sprite:setProperty(selectBtn,'data','02')
+    elseif data == '02' then 
+        Sprite:setProperty(selectNode,'visible','false')
+        Sprite:setProperty(selectNode,'enable','false')
+        Sprite:setProperty(selectBtn,'data','01')
+    end 
+end
+--选择专业按钮
+function allOn(sprite)
+    majorData = Sprite:getData(sprite)
+    local majorName = Sprite:getText(Sprite:findChild(sprite,'majorName'))
+    local selectName = Sprite:findChild(rootSprite,'selectName')
+    Sprite:setProperty(selectName,'text',majorName)
+    local selectBtn = Sprite:findChild(rootSprite,'selectBtn')
+    local selectNode = Sprite:findChild(rootSprite,'selectNode')
+    Sprite:setProperty(selectNode,'visible','false')
+    Sprite:setProperty(selectNode,'enable','false')
+    Sprite:setProperty(selectBtn,'data','01')
+    if selectData == 'wlbcitycount' then 
+    request(majorData)
+    elseif selectData =='wlbcompanycount' then 
+    request1(majorData)
+    end
+end
+--获取统计数据返回地址（按地市）
+function request(majorData)
+    local param = 'cmd=wlbcitycount&major='..majorData..'&page=1&pagesize=100&usercode='..Config:get('username')
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Log:write('reqURL',reqURL)
+    Http:request('city_data', reqURL, 101, {useCache = false})
+end
+--获取统计数据返回地址（按代维公司）
+function request1(majorData)
+    local param = 'cmd=wlbcompanycount&major='..majorData..'&page=1&pagesize=100&usercode='..Config:get('username')
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Log:write('reqURL',reqURL)
+    Http:request('company_data', reqURL, 102, {useCache = false})
+end
+--获取统计数据返回地址（按专业）
+function request2()
+    local param = 'cmd=wlbmajorcount&page=1&pagesize=100&usercode='..Config:get('username')
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Log:write('reqURL',reqURL)
+    Http:request('major_data', reqURL, 103, {useCache = false})
+end
+--获取统计数据返回地址（缺配统计）
+function request3()
+    local param = 'cmd=wlblackcount&page=1&pagesize=100&usercode='..Config:get('username')
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Log:write('reqURL',reqURL)
+    Http:request('lack_data', reqURL, 104, {useCache = false})
+end
+--加载按地市统计数据
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 40)
+    local listItem_bg = Sprite:findChild(item, 'listItem_bg')
+    if index % 2 > 0 then
+       Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
+    end
+    -- 读取返回的数据
+    local cityName = Sprite:findChild(item,'cityName')
+    local peopleNum = Sprite:findChild(item,'peopleNum')
+    local carNum = Sprite:findChild(item,'carNum')
+    local radio = Sprite:findChild(item,'radio')
+    Log:write('city_data.value[index].city',city_data.value[index].city)
+    Sprite:setProperty(cityName,'text',city_data.value[index].city)
+    Sprite:setProperty(peopleNum,'text',city_data.value[index].people)
+    Sprite:setProperty(carNum,'text',city_data.value[index].car)
+    Sprite:setProperty(radio,'text',city_data.value[index].ratio)
+end
+--加载按代维公司统计数据
+function loadListItem1(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 40)
+    local listItem_bg = Sprite:findChild(item, 'listItem_bg')
+    if index % 2 > 0 then
+       Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
+    end
+    -- 读取返回的数据
+    local cityName1 = Sprite:findChild(item,'cityName1')
+    local peopleNum1 = Sprite:findChild(item,'peopleNum1')
+    local carNum1 = Sprite:findChild(item,'carNum1')
+    local radio1 = Sprite:findChild(item,'radio1')
+    Sprite:setProperty(cityName1,'text',company_data.value[index].company)
+    Sprite:setProperty(peopleNum1,'text',company_data.value[index].people)
+    Sprite:setProperty(carNum1,'text',company_data.value[index].car)
+    Sprite:setProperty(radio1,'text',company_data.value[index].ratio)
+end
+--加载按专业统计数据
+function loadListItem2(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 40)
+    local listItem_bg = Sprite:findChild(item, 'listItem_bg')
+    if index % 2 > 0 then
+       Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
+    end
+    -- 读取返回的数据
+    local cityName2 = Sprite:findChild(item,'cityName2')
+    local peopleNum2 = Sprite:findChild(item,'peopleNum2')
+    local carNum2 = Sprite:findChild(item,'carNum2')
+    local radio2 = Sprite:findChild(item,'radio2')
+    Sprite:setProperty(cityName2,'text',major_data.value[index].major)
+    Sprite:setProperty(peopleNum2,'text',major_data.value[index].people)
+    Sprite:setProperty(carNum2,'text',major_data.value[index].car)
+    Sprite:setProperty(radio2,'text',major_data.value[index].ratio)
+end
+--加载缺配统计数据
+function loadListItem3(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 40)
+    local listItem_bg = Sprite:findChild(item, 'listItem_bg')
+    if index % 2 > 0 then
+       Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
+    end
+    -- 读取返回的数据
+    local cityName3 = Sprite:findChild(item,'cityName3')
+    local peopleNum3 = Sprite:findChild(item,'peopleNum3')
+    local carNum3 = Sprite:findChild(item,'carNum3')
+    local radio3 = Sprite:findChild(item,'radio3')
+    Sprite:setProperty(cityName3,'text',lack_data.value[index].city)
+    Sprite:setProperty(peopleNum3,'text',lack_data.value[index].company)
+    Sprite:setProperty(carNum3,'text',lack_data.value[index].car)
+    Sprite:setProperty(radio3,'text',lack_data.value[index].people)
+end
+]]>
+</root>
