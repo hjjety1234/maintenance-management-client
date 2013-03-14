@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: jiangfeng <jiangfengsgs@ahmobile.com>
+ == ============================================================================
+ == | Desc: 2012/3/11 资源统计
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <!-- 主节点  -->
+        <node name="mainNode" rect="0,0,480,800" enable="true" 
+            active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置标题 -->
+            <node name="baseSprite" rect="0,0,480,160" extendstyle="1111">
+                <image rect="0,0,480,800" src="file://image/backgroundImg.png" style="autosize"
+                       extendstyle="1111" />
+                <node rect="0,0,480,66" name="NodeTitle" extendstyle="1111">
+                    <image name="titleBg" rect="0,0,480,66" src="file://image/title_bg_new.png"
+                        extendstyle="1111" style="autosize" />
+                    <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
+                        OnSelect="doBack" extendstyle="1111">
+                        <image name="normal" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                             extendstyle="1111" />
+                        <image name="sel" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                             extendstyle="1111" />
+                    </button>  
+                    <scrolltext name="title" rect="105,5,280,40" text="资源统计" font-family='微软雅黑'
+                        extendstyle="1111" font-size="36" h-align="center" v-align="center"
+                        color="#ffffff" scroll="true"  step="2" />
+                </node>
+            </node>
+            <!-- 选择专业按钮  -->
+            <node name='selectNode' rect="0,80,480,300" extendstyle="1111" visible='true' 
+                enable='true'>
+                <!-- 基站  -->     
+                <button name="station" rect="10,0,88,40" src='file://image/major_on.png'
+                    extendstyle="1111" OnSelect="stationOn" data='C31' style='autosize'>
+                    <label name='majorName' rect="0,0,88,40" text="基站" font-family='微软雅黑'
+                        extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                        color="#ffffff" />
+                </button>
+                <!-- 传输线路  -->     
+                <button name="line" rect="103,0,88,40" src='file://image/major.png'
+                    OnSelect="lineOn" extendstyle="1111" data='C30' style='autosize'>
+                    <label name='majorName' rect="0,0,88,40" text="线路" font-family='微软雅黑'
+                        extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                        color="#ffffff" />
+                </button>
+                <!-- 直放站  -->     
+                <button name="repeater" rect="196,0,88,40" src='file://image/major.png'
+                    OnSelect="repeaterOn" extendstyle="1111" data='C32' style='autosize'>
+                    <label name='majorName' rect="0,0,88,40" text="直放站" font-family='微软雅黑'
+                        extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                        color="#ffffff" />
+                </button>
+                <!-- WLAN  -->     
+                <button name="wlan" rect="289,0,88,40" src='file://image/major.png' 
+                    OnSelect="wlanOn" extendstyle="1111" data='C38' style='autosize'>
+                    <label name='majorName' rect="0,0,88,40" text="WLAN" font-family='微软雅黑'
+                        extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                        color="#ffffff" />
+                </button>
+                <!-- 铁塔  -->     
+                <button name="tower" rect="382,0,88,40" src='file://image/major.png'  
+                    OnSelect="towerOn" extendstyle="1111" data='C33' style='autosize'>
+                    <label name='majorName' rect="0,0,88,40" text="铁塔" font-family='微软雅黑'
+                        extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                        color="#ffffff" />
+                </button>
+                <!-- 集客  -->     
+                <button name="group" rect="10,50,88,40" src='file://image/major.png'
+                    OnSelect="groupOn" extendstyle="1111" data='C34' style='autosize'>
+                    <label name='majorName' rect="0,0,88,40" text="集客" font-family='微软雅黑'
+                        extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                        color="#ffffff" />
+                </button>
+                <!-- 家庭宽带  -->     
+                <button name="home" rect="103,50,88,40" src='file://image/major.png'
+                    OnSelect="homeOn" extendstyle="1111" data='C37' style='autosize'>
+                    <label name='majorName' rect="0,0,88,40" text="家客" font-family='微软雅黑'
+                        extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                        color="#ffffff" />
+                </button>
+            </node>
+            <!-- 主体可滑动部分  -->
+            <panorama name="panorama" rect="0,185,480,695" foreground="" alpha="255" style='circle'>
+                <panoramaitem name="item1" rect="0,0,480,750" 
+                    extendstyle="1111" data="01">
+                    <image rect="10,0,460,12" src="file://image/content_top.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="10,12,460,590" src="file://image/content_center.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="10,600,460,12" src="file://image/content_bottom.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="398,25,11,11" src="file://image/box_on.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="420,25,11,11" src="file://image/box.png"
+                            style="autosize" extendstyle="1111" />   
+                    <image rect="440,25,11,11" src="file://image/box.png"
+                            style="autosize" extendstyle="1111" /> 
+                    <!--列表信息-->
+                    <node name="listNode1" rect="0,56,480,500" extendstyle="1111">
+                        <listview name="sampleList" rect="0,40,480,560" extendstyle="1111" auto-scroll='true' limit='true' />
+                        <image name='selectImg' rect="21,0,438,1" src="file://image/xianluzancun_line.png" 
+                                 extendstyle="1111" style='autosize'/>
+                        <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
+                            extendstyle="1111" style='autosize' >
+                            <label name='dimension' rect="-10,5,100,25" text="地市" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                                    color="#e33a10" />
+                            <label rect="110,5,150,25" text="基站总数" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                            <label  rect="220,5,150,25" text="代维数量" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                            <label  rect="328,5,150,25" text="代维比例" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                        </image>
+                    </node> 
+                    <!-- 列表项(按地市)  -->
+                    <node name="listItem" rect="0,0,480,80" border="false"
+                        visible="false" enable="false" active="false" extendstyle="1111">
+                            <image name="listItem_bg" rect="31,0,418,38" src=""
+                            extendstyle="1111" style='autosize' />
+                            <label name='cityName' rect="45,5,80,25" text="地市" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="left" v-align="center"
+                                    color="#5a5a5a" />
+                            <label name='peopleNum' rect="130,5,80,25" text="100" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                            <label name='carNum' rect="250,5,80,25" text="100" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                            <label name='radio' rect="360,5,80,25" text="1:30" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                    </node>
+                    <!-- 统计标签 -->
+                    <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+                        <!--按地市-->
+                        <button name="cityBtn" rect="0,0,120,66" 
+                            OnSelect="cityOn" extendstyle="1111" data='wlbcitycount'>
+                            <image name='cityImg' rect="30,10,95,37" src="file://image/city_bg.png"
+                                 extendstyle="1111" style='autosize'/>
+                            <label name="cityTxt" rect="30,5,95,37" text="按地市" font-family='微软雅黑'
+                                extendstyle="1111" font-size="23" h-align="center" v-align="center"
+                                color="#ffffff" />
+                        </button> 
+                        <!--按代维公司-->
+                        <button name="companyBtn" rect="120,0,120,66" 
+                            OnSelect="companyOn" extendstyle="1111" data='wlbcompanycount' >
+                            <image name='companyImg' rect="30,10,95,37" src="" 
+                                 extendstyle="1111" style='autosize'/>
+                            <label name="companyTxt" rect="30,5,95,37" text="按代维" font-family='微软雅黑'
+                                extendstyle="1111" font-size="23" h-align="center" v-align="center"
+                                color="#5a5a5a" />
+                        </button>
+                    </node>
+                </panoramaitem>
+                <panoramaitem name="item2" rect="0,0,480,750" 
+                     extendstyle="1111" data="02">
+                    <image rect="10,0,460,12" src="file://image/content_top.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="10,12,460,590" src="file://image/content_center.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="10,600,460,12" src="file://image/content_bottom.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="398,25,11,11" src="file://image/box.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="420,25,11,11" src="file://image/box_on.png"
+                            style="autosize" extendstyle="1111" />   
+                    <image rect="440,25,11,11" src="file://image/box.png"
+                            style="autosize" extendstyle="1111" />  
+                    <!--列表信息-->
+                    <node name="listNode1" rect="0,56,480,500" extendstyle="1111">
+                        <listview name="sampleList" rect="0,40,480,560" extendstyle="1111" auto-scroll='true' limit='true' />
+                        <image name='selectImg' rect="21,0,438,1" src="file://image/xianluzancun_line.png" 
+                                 extendstyle="1111" style='autosize'/>
+                        <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
+                            extendstyle="1111" style='autosize' >
+                            <label name='dimension1' rect="20,5,100,25" text="地市" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                            <label rect="105,5,150,25" text="VVIP基站" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                            <label rect="220,5,150,25" text="VIP基站" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                            <label rect="328,5,150,25" text="普通基站" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                        </image>
+                    </node> 
+                </panoramaitem>
+                <panoramaitem name="item3" rect="0,0,480,750" 
+                     extendstyle="1111" data="02">
+                    <image rect="10,0,460,12" src="file://image/content_top.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="10,12,460,590" src="file://image/content_center.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="10,600,460,12" src="file://image/content_bottom.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="398,25,11,11" src="file://image/box.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="420,25,11,11" src="file://image/box.png"
+                            style="autosize" extendstyle="1111" />   
+                    <image rect="440,25,11,11" src="file://image/box_on.png"
+                            style="autosize" extendstyle="1111" />  
+                    <!--列表信息-->
+                    <node name="listNode1" rect="0,56,480,500" extendstyle="1111">
+                        <listview name="sampleList" rect="0,40,480,560" extendstyle="1111" auto-scroll='true' limit='true' />
+                        <image name='selectImg' rect="21,0,438,1" src="file://image/xianluzancun_line.png" 
+                                 extendstyle="1111" style='autosize'/>
+                        <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
+                            extendstyle="1111" style='autosize' >
+                            <label name='dimension2' rect="20,5,100,25" text="地市" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                            <label  rect="110,5,150,25" text="宏基站" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                            <label  rect="215,5,150,25" text="共址基站" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                            <label  rect="328,5,150,25" text="拉远基站" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                        </image>
+                    </node> 
+                </panoramaitem>
+            </panorama>
+
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+local rootSprite
+local city_data
+local majorData = '' ---选择专业后传递button的data属性
+local selectData = 'wlbcitycount'  --选择页签data属性,默认为按地市统计
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+       --初始化加载按地市统计数据
+       request(majorData)
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then--按地市数据处理  
+        city_data = Http:jsonDecode('city_data')
+        local listView = Sprite:findChild(rootSprite, 'sampleList')
+        Log:write('city_data',city_data)
+        ListView:removeAllItems(listView)
+        -- 加载列表项
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 16, 'loadListItem')
+        ListView:adjust(listView)
+        Loading:close()
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+       Scene:back()
+    end
+end
+
+-- 返回上一个页面
+function doBack()
+    Scene:back()
+end
+
+-------点击按地市统计标签
+function cityOn(sprite)
+    selectData = Sprite:getData(sprite)
+    --设置两个button背景色和字体
+    local cityImg = Sprite:findChild(rootSprite,'cityImg')
+    local companyImg = Sprite:findChild(rootSprite,'companyImg')
+    local cityTxt = Sprite:findChild(rootSprite,'cityTxt')
+    local companyTxt = Sprite:findChild(rootSprite,'companyTxt')
+    Sprite:setProperty(cityImg,'src','file://image/city_bg.png')
+    Sprite:setProperty(companyImg,'src','file://image/content_center.png')
+    Sprite:setProperty(cityTxt,'color','#ffffff')
+    Sprite:setProperty(companyTxt,'color','#5a5a5a')
+    ---设置列表项名称
+    local dimension = Sprite:findChild(rootSprite,'dimension')
+    local dimension1 = Sprite:findChild(rootSprite,'dimension1')
+    local dimension2 = Sprite:findChild(rootSprite,'dimension2')
+    Sprite:setProperty(dimension,'text','地市')
+    Sprite:setProperty(dimension1,'text','地市')
+    Sprite:setProperty(dimension2,'text','地市')
+end
+-------点击按代维公司统计标签
+function companyOn(sprite)
+    selectData = Sprite:getData(sprite)
+    --设置两个button背景色和字体
+    local cityImg = Sprite:findChild(rootSprite,'cityImg')
+    local companyImg = Sprite:findChild(rootSprite,'companyImg')
+    local cityTxt = Sprite:findChild(rootSprite,'cityTxt')
+    local companyTxt = Sprite:findChild(rootSprite,'companyTxt')
+    Sprite:setProperty(cityImg,'src','file://image/content_center.png')
+    Sprite:setProperty(companyImg,'src','file://image/city_bg.png')
+    Sprite:setProperty(cityTxt,'color','#5a5a5a')
+    Sprite:setProperty(companyTxt,'color','#ffffff') 
+    ---设置列表项名称
+    local dimension = Sprite:findChild(rootSprite,'dimension')
+    local dimension1 = Sprite:findChild(rootSprite,'dimension1')
+    local dimension2 = Sprite:findChild(rootSprite,'dimension2')
+    Sprite:setProperty(dimension,'text','代维')
+    Sprite:setProperty(dimension1,'text','代维')
+    Sprite:setProperty(dimension2,'text','代维')
+end
+
+
+--获取统计数据返回地址（按地市）
+function request(majorData)
+    local param = 'cmd=wlbcitycount&major='..majorData..'&page=1&pagesize=100&usercode='..Config:get('username')
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Log:write('reqURL',reqURL)
+    Http:request('city_data', reqURL, 101, {useCache = false})
+end
+--加载按地市统计数据
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 40)
+    local listItem_bg = Sprite:findChild(item, 'listItem_bg')
+    if index % 2 > 0 then
+       Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
+    end
+    -- 读取返回的数据
+    local cityName = Sprite:findChild(item,'cityName')
+    local peopleNum = Sprite:findChild(item,'peopleNum')
+    local carNum = Sprite:findChild(item,'carNum')
+    local radio = Sprite:findChild(item,'radio')
+    Log:write('city_data.value[index].city',city_data.value[index].city)
+    Sprite:setProperty(cityName,'text',city_data.value[index].city)
+    Sprite:setProperty(peopleNum,'text',city_data.value[index].people)
+    Sprite:setProperty(carNum,'text',city_data.value[index].car)
+    Sprite:setProperty(radio,'text',city_data.value[index].ratio)
+end
+----选择专业按钮
+function lineOn(sprite)
+    Scene:go(Alias.m_resource_line)
+end
+function repeaterOn(sprite)
+    Scene:go(Alias.m_resource_repeater)
+end
+function wlanOn(sprite)
+    Scene:go(Alias.m_resource_wlan)
+end
+function towerOn(sprite)
+    Scene:go(Alias.m_resource_tower)
+end
+function groupOn(sprite)
+    Scene:go(Alias.m_resource_group)
+end
+function homeOn(sprite)
+    Scene:go(Alias.m_resource_home)
+end
+]]>
+</root>
