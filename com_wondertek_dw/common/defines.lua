@@ -119,6 +119,14 @@ Alias = {
     m_xunjianewmtijiao = "MODULE:\\com_wondertek_dw\\m_xunjianewmtijiao.wdml",  -- 综合覆盖巡检巡检项提交
 
     m_peocar = "MODULE:\\com_wondertek_dw\\m_peocar.wdml",  -- 人车统计
+    m_resource = "MODULE:\\com_wondertek_dw\\m_resource.wdml",  -- 资源统计
+    m_resource_line = "MODULE:\\com_wondertek_dw\\m_resource_line.wdml",  -- 传输线路统计
+    m_resource_repeater = "MODULE:\\com_wondertek_dw\\m_resource_repeater.wdml",  -- 直放站统计
+    m_resource_wlan = "MODULE:\\com_wondertek_dw\\m_resource_wlan.wdml",  -- WLAN统计
+    m_resource_tower = "MODULE:\\com_wondertek_dw\\m_resource_tower.wdml",  -- 铁塔统计
+    m_resource_group = "MODULE:\\com_wondertek_dw\\m_resource_group.wdml",  -- 集客统计
+    m_resource_home = "MODULE:\\com_wondertek_dw\\m_resource_home.wdml",  -- 家庭宽带统计
+    m_quality = "MODULE:\\com_wondertek_dw\\m_quality.wdml",  -- 质量指标统计
     
 }
 
