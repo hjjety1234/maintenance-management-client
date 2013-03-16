@@ -131,6 +131,7 @@ Alias = {
     m_qualityZonghefugai = "MODULE:\\com_wondertek_dw\\m_qualityZonghefugai.wdml",  -- 质量指标（综合覆盖）统计 
     m_qualityJike = "MODULE:\\com_wondertek_dw\\m_qualityJike.wdml",  -- 质量指标（集客）统计
     m_qualityJiake = "MODULE:\\com_wondertek_dw\\m_qualityJiake.wdml",  -- 质量指标（家客）统计
-    m_qualityTower = "MODULE:\\com_wondertek_dw\\m_qualityTower.wdml",  -- 质量指标（铁塔）统计   
+    m_qualityTower = "MODULE:\\com_wondertek_dw\\m_qualityTower.wdml",  -- 质量指标（铁塔）统计
+    m_cost = "MODULE:\\com_wondertek_dw\\m_cost.wdml",  -- 费用统计      
 }
 
