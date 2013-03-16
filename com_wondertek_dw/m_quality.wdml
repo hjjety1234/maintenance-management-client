@@ -41,7 +41,7 @@
                 enable='true'>
                 <!-- 基站  -->     
                 <button name="station" rect="10,0,88,40" src='file://image/major_on.png'
-                    extendstyle="1111" OnSelect="stationOn" data='C31' style='autosize'>
+                    extendstyle="1111" data='C31' style='autosize'>
                     <label name='majorName' rect="0,0,88,40" text="基站" font-family='微软雅黑'
                         extendstyle="1111" font-size="22" h-align="center" v-align="center"
                         color="#ffffff" />
@@ -98,7 +98,7 @@
                             style="autosize" extendstyle="1111" /> 
                     <!--列表信息-->
                     <node name="listNode1" rect="0,56,480,500" extendstyle="1111">
-                        <listview name="sampleList" rect="0,40,480,560" extendstyle="1111" auto-scroll='true' limit='true' />
+                        <listview name="sampleList1" rect="0,40,480,560" extendstyle="1111" auto-scroll='true' limit='true' />
                         <image name='selectImg' rect="21,0,438,1" src="file://image/xianluzancun_line.png" 
                                  extendstyle="1111" style='autosize'/>
                         <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
@@ -115,17 +115,17 @@
                         </image>
                     </node> 
                     <!-- 列表项(按地市)  -->
-                    <node name="listItem" rect="0,0,480,80" border="false"
+                    <node name="listItem1" rect="0,0,480,80" border="false"
                         visible="false" enable="false" active="false" extendstyle="1111">
                             <image name="listItem_bg" rect="31,0,418,38" src=""
                             extendstyle="1111" style='autosize' />
                             <label name='cityName' rect="45,5,80,25" text="地市" font-family='微软雅黑'
                                     extendstyle="1111" font-size="20" h-align="left" v-align="center"
                                     color="#5a5a5a" />
-                            <label name='peopleNum' rect="160,5,80,25" text="100" font-family='微软雅黑'
+                            <label name='residential' rect="160,5,80,25" text="100" font-family='微软雅黑'
                                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
                                     color="#5a5a5a" />
-                            <label name='carNum' rect="320,5,80,25" text="100" font-family='微软雅黑'
+                            <label name='electricity' rect="320,5,80,25" text="100" font-family='微软雅黑'
                                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
                                     color="#5a5a5a" />
                     </node>
@@ -133,7 +133,7 @@
                     <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
                         <!--按地市-->
                         <button name="cityBtn" rect="0,0,120,66" 
-                            OnSelect="cityOn" extendstyle="1111" data='wlbcitycount'>
+                            OnSelect="cityOn" extendstyle="1111" data='wlbcityquality'>
                             <image name='cityImg' rect="30,10,95,37" src="file://image/city_bg.png"
                                  extendstyle="1111" style='autosize'/>
                             <label name="cityTxt" rect="30,5,95,37" text="按地市" font-family='微软雅黑'
@@ -142,7 +142,7 @@
                         </button> 
                         <!--按代维公司-->
                         <button name="companyBtn" rect="120,0,120,66" 
-                            OnSelect="companyOn" extendstyle="1111" data='wlbcompanycount' >
+                            OnSelect="companyOn" extendstyle="1111" data='wlbcompanyquality' >
                             <image name='companyImg' rect="30,10,95,37" src="" 
                                  extendstyle="1111" style='autosize'/>
                             <label name="companyTxt" rect="30,5,95,37" text="按代维" font-family='微软雅黑'
@@ -165,7 +165,7 @@
                             style="autosize" extendstyle="1111" />  
                     <!--列表信息-->
                     <node name="listNode1" rect="0,56,480,500" extendstyle="1111">
-                        <listview name="sampleList" rect="0,40,480,560" extendstyle="1111" auto-scroll='true' limit='true' />
+                        <listview name="sampleList2" rect="0,40,480,560" extendstyle="1111" auto-scroll='true' limit='true' />
                         <image name='selectImg' rect="21,0,438,1" src="file://image/xianluzancun_line.png" 
                                  extendstyle="1111" style='autosize'/>
                         <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
@@ -181,6 +181,22 @@
                                     color="#e33a10" />
                         </image>
                     </node> 
+                    <!-- 列表项(按地市)  -->
+                    <node name="listItem2" rect="0,0,480,80" border="false"
+                        visible="false" enable="false" active="false" extendstyle="1111">
+                            <image name="listItem_bg" rect="31,0,418,38" src=""
+                            extendstyle="1111" style='autosize' />
+                            <label name='cityName' rect="45,5,80,25" text="地市" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="left" v-align="center"
+                                    color="#5a5a5a" />
+                            <label name='fault' rect="160,5,80,25" text="100" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                            <label name='inspection' rect="320,5,80,25" text="100" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                    </node>
+
                 </panoramaitem>
             </panorama>
 
@@ -191,8 +207,7 @@
 require 'com_wondertek_dw.common.framework'
 local rootSprite
 local city_data
-local majorData = '' ---选择专业后传递button的data属性
-local selectData = 'wlbcitycount'  --选择页签data属性,默认为按地市统计
+local selectData = 'wlbcityquality'  --选择页签data属性,默认为按地市统计
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -212,12 +227,19 @@ end
 function bodyOnPluginEvent(msg, param)
     if msg == 101 then--按地市数据处理  
         city_data = Http:jsonDecode('city_data')
-        local listView = Sprite:findChild(rootSprite, 'sampleList')
+        local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+        local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
+        local len = city_data.total
         Log:write('city_data',city_data)
-        ListView:removeAllItems(listView)
+        Log:write('数据记录综述：',len)   
+        ListView:removeAllItems(listView1)
+        ListView:removeAllItems(listView2)
         -- 加载列表项
-        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 16, 'loadListItem')
-        ListView:adjust(listView)
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+        ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
+        ListView:adjust(listView1)
+        ListView:adjust(listView2)
+
         Loading:close()
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
@@ -259,6 +281,7 @@ function cityOn(sprite)
     Sprite:setProperty(dimension,'text','地市')
     Sprite:setProperty(dimension1,'text','地市')
     Sprite:setProperty(dimension2,'text','地市')
+    request()
 end
 -------点击按代维公司统计标签
 function companyOn(sprite)
@@ -279,12 +302,13 @@ function companyOn(sprite)
     Sprite:setProperty(dimension,'text','代维')
     Sprite:setProperty(dimension1,'text','代维')
     Sprite:setProperty(dimension2,'text','代维')
+    request()
 end
 
 
 --获取统计数据返回地址（按地市）
 function request(majorData)
-    local param = 'cmd=wlbcitycount&major='..majorData..'&page=1&pagesize=100&usercode='..Config:get('username')
+    local param = 'cmd='..selectData..'&major=C31&page=1&pagesize=100&usercode='..Config:get('username')
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write('reqURL',reqURL)
     Http:request('city_data', reqURL, 101, {useCache = false})
@@ -297,19 +321,23 @@ function loadListItem(list, item, index)
        Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
     end
     -- 读取返回的数据
-    local cityName = Sprite:findChild(item,'cityName')
-    local peopleNum = Sprite:findChild(item,'peopleNum')
-    local carNum = Sprite:findChild(item,'carNum')
-    local radio = Sprite:findChild(item,'radio')
-    Log:write('city_data.value[index].city',city_data.value[index].city)
-    Sprite:setProperty(cityName,'text',city_data.value[index].city)
-    Sprite:setProperty(peopleNum,'text',city_data.value[index].people)
-    Sprite:setProperty(carNum,'text',city_data.value[index].car)
-    Sprite:setProperty(radio,'text',city_data.value[index].ratio)
+    local cityDataValue = city_data.value
+    local cityName = Sprite:findChild(item,'cityName')          --地市
+    local residential = Sprite:findChild(item,'residential')    --小区完好率
+    local electricity = Sprite:findChild(item,'electricity')    --发电及时率
+    local fault = Sprite:findChild(item,'fault')                --故障处理及时率  
+    local inspection = Sprite:findChild(item,'inspection')      --巡检率
+    Sprite:setProperty(cityName,'text',cityDataValue[index].dimension)
+    Sprite:setProperty(residential,'text',cityDataValue[index].residential)
+    Sprite:setProperty(electricity,'text',cityDataValue[index].electricity)
+    Sprite:setProperty(fault,'text',cityDataValue[index].fault)
+    Sprite:setProperty(inspection,'text',cityDataValue[index].inspection)
 end
 ----选择专业按钮
 function lineOn(sprite)
-    Scene:go(Alias.m_resource_line)
+    local majorData1 = Sprite:getData(sprite)
+    Log:write("线路中存储的data值：",majorData1)
+    Scene:go(Alias.m_resource_line..'?majorData='..majorData1)
 end
 function repeaterOn(sprite)
     Scene:go(Alias.m_resource_repeater)
