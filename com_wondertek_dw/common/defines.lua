@@ -126,7 +126,11 @@ Alias = {
     m_resource_tower = "MODULE:\\com_wondertek_dw\\m_resource_tower.wdml",  -- 铁塔统计
     m_resource_group = "MODULE:\\com_wondertek_dw\\m_resource_group.wdml",  -- 集客统计
     m_resource_home = "MODULE:\\com_wondertek_dw\\m_resource_home.wdml",  -- 家庭宽带统计
-    m_quality = "MODULE:\\com_wondertek_dw\\m_quality.wdml",  -- 质量指标统计
-    
+    m_quality = "MODULE:\\com_wondertek_dw\\m_quality.wdml",  -- 质量指标（基站）统计
+    m_qualityLine = "MODULE:\\com_wondertek_dw\\m_qualityLine.wdml",  -- 质量指标（线路）统计 
+    m_qualityZonghefugai = "MODULE:\\com_wondertek_dw\\m_qualityZonghefugai.wdml",  -- 质量指标（综合覆盖）统计 
+    m_qualityJike = "MODULE:\\com_wondertek_dw\\m_qualityJike.wdml",  -- 质量指标（集客）统计
+    m_qualityJiake = "MODULE:\\com_wondertek_dw\\m_qualityJiake.wdml",  -- 质量指标（家客）统计
+    m_qualityTower = "MODULE:\\com_wondertek_dw\\m_qualityTower.wdml",  -- 质量指标（铁塔）统计   
 }
 
