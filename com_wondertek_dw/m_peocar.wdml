@@ -295,33 +295,38 @@ function bodyOnPluginEvent(msg, param)
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         Log:write('city_data',city_data)
         ListView:removeAllItems(listView)
+        local len = getJsonArrayCount(city_data.value)
         -- 加载列表项
-        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 16, 'loadListItem')
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
         ListView:adjust(listView)
         Loading:close()
     elseif msg == 102 then--按代维公司数据处理 
         company_data = Http:jsonDecode('company_data')
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         ListView:removeAllItems(listView)
+        local len = getJsonArrayCount(company_data.value)
         -- 加载列表项
-        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem1'), 16, 'loadListItem1')
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem1')
         ListView:adjust(listView)
         Loading:close()
     elseif msg == 103 then--按代维公司数据处理 
         major_data = Http:jsonDecode('major_data')
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         ListView:removeAllItems(listView)
+        local len = getJsonArrayCount(major_data.value)
+        Log:write('专业',len)
         -- 加载列表项
-        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem2'), 6, 'loadListItem2')
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem2')
         ListView:adjust(listView)
         Loading:close()
     elseif msg == 104 then--缺配统计数据处理 
         lack_data = Http:jsonDecode('lack_data')
         Log:write('lack_data', lack_data)
         local listView = Sprite:findChild(rootSprite, 'sampleList')
+        local len = getJsonArrayCount(lack_data.value)
         ListView:removeAllItems(listView)
         -- 加载列表项
-        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem3'), 16, 'loadListItem3')
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem3'), len, 'loadListItem3')
         ListView:adjust(listView)
         Loading:close()
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
