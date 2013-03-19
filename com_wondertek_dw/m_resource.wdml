@@ -26,9 +26,9 @@
                         extendstyle="1111" style="autosize" />
                     <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
                         OnSelect="doBack" extendstyle="1111">
-                        <image name="normal" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                        <image name="normal" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
-                        <image name="sel" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                        <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
                     </button>  
                     <scrolltext name="title" rect="105,5,280,40" text="资源统计" font-family='微软雅黑'
@@ -41,7 +41,7 @@
                 enable='true'>
                 <!-- 基站  -->     
                 <button name="station" rect="10,0,88,40" src='file://image/major_on.png'
-                    extendstyle="1111" OnSelect="stationOn" data='C31' style='autosize'>
+                    extendstyle="1111"  data='C31' style='autosize'>
                     <label name='majorName' rect="0,0,88,40" text="基站" font-family='微软雅黑'
                         extendstyle="1111" font-size="22" h-align="center" v-align="center"
                         color="#ffffff" />
@@ -307,10 +307,9 @@ function bodyOnPluginEvent(msg, param)
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
         local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
         local len = getJsonArrayCount(city_data.value)
-        Log:write('city_data',city_data)
-        ListView:removeAllItems(listView)
-        ListView:removeAllItems(listView1)
-        ListView:removeAllItems(listView2)
+        ListView:removeAllItems(listView,1,1)
+        ListView:removeAllItems(listView1,1,1)
+        ListView:removeAllItems(listView2,1,1)
         -- 加载列表项
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
         ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
@@ -343,7 +342,6 @@ end
 -------点击按地市统计标签
 function cityOn(sprite)
     dimension = Sprite:getData(sprite)
-    Log:write('dimension',dimension)
     --设置两个button背景色和字体
     local cityImg = Sprite:findChild(rootSprite,'cityImg')
     local companyImg = Sprite:findChild(rootSprite,'companyImg')
@@ -360,7 +358,7 @@ function cityOn(sprite)
     Sprite:setProperty(dimension,'text','地市')
     Sprite:setProperty(dimension1,'text','地市')
     Sprite:setProperty(dimension2,'text','地市')
-    request(dimension)
+    request()
 end
 -------点击按代维公司统计标签
 function companyOn(sprite)
@@ -390,12 +388,10 @@ end
 function request()
     local param = 'cmd=wlbstationresources'..'&dimension='..dimension..'&page=1&pagesize=100&usercode='..Config:get('username')
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
-    Log:write('reqURL',reqURL)
     Http:request('city_data', reqURL, 101, {useCache = false})
 end
 --加载按地市统计数据
 function loadListItem(list, item, index)
-    Log:write('测试',city_data)
     Sprite:setRect(item, 0, 0, 480, 40)
     local listItem_bg = Sprite:findChild(item, 'listItem_bg')
     if index % 2 > 0 then
