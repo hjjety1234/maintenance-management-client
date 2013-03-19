@@ -26,9 +26,9 @@
                         extendstyle="1111" style="autosize" />
                     <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
                         OnSelect="doBack" extendstyle="1111">
-                        <image name="normal" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                        <image name="normal" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
-                        <image name="sel" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                        <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
                     </button>  
                     <scrolltext name="title" rect="105,5,280,40" text="资源统计" font-family='微软雅黑'
@@ -247,7 +247,6 @@ function bodyOnPluginEvent(msg, param)
         city_data = Http:jsonDecode('city_data')
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-        --Log:write('city_data',city_data)
         local len = getJsonArrayCount(city_data.value)
         ListView:removeAllItems(listView)
         ListView:removeAllItems(listView1)
@@ -281,7 +280,6 @@ end
 -------点击按地市统计标签
 function cityOn(sprite)
     dimension = Sprite:getData(sprite)
-    Log:write('dimension',dimension)
     --设置两个button背景色和字体
     local cityImg = Sprite:findChild(rootSprite,'cityImg')
     local companyImg = Sprite:findChild(rootSprite,'companyImg')
@@ -301,7 +299,6 @@ end
 -------点击按代维公司统计标签
 function companyOn(sprite)
      dimension = Sprite:getData(sprite)
-    Log:write('dimension',dimension)
     --设置两个button背景色和字体
     local cityImg = Sprite:findChild(rootSprite,'cityImg')
     local companyImg = Sprite:findChild(rootSprite,'companyImg')
@@ -322,7 +319,6 @@ end
 function request()
     local param = 'cmd=wlbwlanresources&dimension='..dimension..'&page=1&pagesize=100&usercode='..Config:get('username')
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
-    Log:write('reqURL',reqURL)
     Http:request('city_data', reqURL, 101, {useCache = false})
 end
 --加载按地市统计数据
@@ -341,7 +337,6 @@ function loadListItem(list, item, index)
     local classa = Sprite:findChild(item,'classa')
     local classb = Sprite:findChild(item,'classb')
     local classc = Sprite:findChild(item,'classc')
-    Log:write('==========city_data.value[index].ratio======================',city_data.value[index].ratio)
     Sprite:setProperty(dimension,'text',city_data.value[index].dimension)
     Sprite:setProperty(dimension1,'text',city_data.value[index].dimension)
     Sprite:setProperty(wlan,'text',city_data.value[index].wlan)
