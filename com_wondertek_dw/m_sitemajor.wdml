@@ -152,7 +152,6 @@ function bodyBuildChildrenFinished(sprite)
     --获取站点编号和名称
     itemname= Reg:getString(regHandle,'itemname')---站点名称
     stationid= Reg:getString(regHandle,'stationid')---站点编号
-    Log:write('jf',stationid)
     local content= Sprite:findChild(rootSprite,'content')
     Sprite:setProperty(content,'text',itemname)
     --根据站点编号获取模板
@@ -185,14 +184,11 @@ function bodyOnPluginEvent(msg)
 	Loading:close()
     if msg == 101 then
     major_data = Http:jsonDecode('muban_data')
-    Log:write('major_data',major_data)
     --若只有一个专业则不显示全选
-    Log:write('#major_data.value',#major_data.value)
     if major_data.value == nil or  major_data.value == '' then 
         Dialog:show('','服务端无数据','ok')
     end
     num = #(major_data.value[0].contractor)+1
-    Log:write('123',num)
     if num==1  then
         local allBtn =  Sprite:findChild(rootSprite,'allBtn')
         Sprite:setProperty(allBtn,'visible','false')
@@ -347,9 +343,7 @@ data6 = Sprite:getData(allBtn)
 end
 ---------------------------------------获取模板数据--------------------------------
 function request(stationid)
-        Log:write('1111111111111111111111111111111111',stationid)
         local param ='&pagesize=20&page=1&stationid='..stationid
-        Log:write('4444444444444444',param)
         local reqURL = getWholeUrl('nbspweb/webservice/assessment!doWebservice.action')
         Http:request('muban_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbsitechecktemplate'..param})
         Loading:show(rootSprite)
@@ -362,7 +356,6 @@ local tietaBtn =  Sprite:findChild(rootSprite,'tietaBtn')
 local zongheBtn =  Sprite:findChild(rootSprite,'zongheBtn')
 local jikeBtn =  Sprite:findChild(rootSprite,'jikeBtn')
 local xianluBtn =  Sprite:findChild(rootSprite,'xianluBtn')
-    Log:write('666666666666',major)
     if major=='C31' then
         Sprite:setProperty(jizhanBtn,'visible','true')
         Sprite:setProperty(jizhanBtn,'enable','true')
@@ -408,7 +401,6 @@ function nextOn(sprite)
         return
     end
     -- 获取服务端返回的专业
-    Log:write('major_data：', major_data)
     local value = major_data.value
     local contractor = value[0].contractor
     local template = value[0].template
@@ -425,7 +417,6 @@ function nextOn(sprite)
     -- 保存用户选择的数据
     local userSelect = {}
     local idSelect = {}
-    Log:write('data1', data1)
     local m = 0
     if data1 == '2' then 
         for j = 0, getJsonArrayCount(contractor) - 1 do
@@ -502,9 +493,6 @@ function nextOn(sprite)
         Dialog:show('', '请选择一个专业！', 'ok')
         return
     end
-
-    Log:write('nextOn: userSelect', userSelect)
-    Log:write('nextOn: idSelect', idSelect)
     -- 计算已经选择的专业
     regHandle = Reg:create('major_data')
     Reg:clear(regHandle)

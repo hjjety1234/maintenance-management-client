@@ -289,7 +289,6 @@ function bodyOnPluginEvent(msg, param)
     if msg == 101 then--按地市数据处理  
         city_data = Http:jsonDecode('city_data')
         local listView = Sprite:findChild(rootSprite, 'sampleList')
-        Log:write('city_data',city_data)
         ListView:removeAllItems(listView)
         local len = getJsonArrayCount(city_data.value)
         -- 加载列表项
@@ -310,14 +309,12 @@ function bodyOnPluginEvent(msg, param)
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         ListView:removeAllItems(listView)
         local len = getJsonArrayCount(major_data.value)
-        Log:write('专业',len)
         -- 加载列表项
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem2')
         ListView:adjust(listView)
         Loading:close()
     elseif msg == 104 then--缺配统计数据处理 
         lack_data = Http:jsonDecode('lack_data')
-        Log:write('lack_data', lack_data)
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         local len = getJsonArrayCount(lack_data.value)
         ListView:removeAllItems(listView)
@@ -497,28 +494,24 @@ end
 function request(majorData)
     local param = 'cmd=wlbcitycount&major='..majorData..'&page=1&pagesize=100&usercode='..Config:get('username')
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
-    Log:write('reqURL',reqURL)
     Http:request('city_data', reqURL, 101, {useCache = false})
 end
 --获取统计数据返回地址（按代维公司）
 function request1(majorData)
     local param = 'cmd=wlbcompanycount&major='..majorData..'&page=1&pagesize=100&usercode='..Config:get('username')
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
-    Log:write('reqURL',reqURL)
     Http:request('company_data', reqURL, 102, {useCache = false})
 end
 --获取统计数据返回地址（按专业）
 function request2()
     local param = 'cmd=wlbmajorcount&page=1&pagesize=100&usercode='..Config:get('username')
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
-    Log:write('reqURL',reqURL)
     Http:request('major_data', reqURL, 103, {useCache = false})
 end
 --获取统计数据返回地址（缺配统计）
 function request3()
     local param = 'cmd=wlblackcount&page=1&pagesize=100&usercode='..Config:get('username')
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
-    Log:write('reqURL',reqURL)
     Http:request('lack_data', reqURL, 104, {useCache = false})
 end
 --加载按地市统计数据
@@ -533,7 +526,6 @@ function loadListItem(list, item, index)
     local peopleNum = Sprite:findChild(item,'peopleNum')
     local carNum = Sprite:findChild(item,'carNum')
     local radio = Sprite:findChild(item,'radio')
-    Log:write('city_data.value[index].city',city_data.value[index].city)
     Sprite:setProperty(cityName,'text',city_data.value[index].city)
     Sprite:setProperty(peopleNum,'text',city_data.value[index].people)
     Sprite:setProperty(carNum,'text',city_data.value[index].car)
