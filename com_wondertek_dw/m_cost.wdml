@@ -133,6 +133,16 @@
                                     extendstyle="1111" font-size="24" h-align="center" v-align="center"
                                     color="#e33a10" />
                         </image>
+                         <button name="dwseqBtn" rect="140,15,160,30" normal="normal" sel="sel"
+                             OnSelect="dwSeqOnSelect" extendstyle="1111"  data="0" >
+                              <image name="triangledw" rect="140,11,12,8" src="file://image/triangle_down.png"
+                             extendstyle="1111" />
+                        </button>
+                        <button name="kfseqBtn" rect="310,15,140,30" normal="normal" sel="sel"
+                             OnSelect="kfSeqOnSelect" extendstyle="1111"  data="0" >
+                              <image name="trianglekf" rect="110,11,12,8" src="file://image/triangle_down.png"
+                             extendstyle="1111" />
+                        </button>
                     </node>
              
                     <!-- 列表项(按地市)  -->
@@ -670,6 +680,74 @@ function loadListItem(list, item, index)
     Sprite:setProperty(cityName,'text',city_data.value[index].dimension)
     Sprite:setProperty(costName,'text',city_data.value[index].cost)
     Sprite:setProperty(deductedName,'text',city_data.value[index].deducted)
+end
+
+--代维费用排序
+function dwSeqOnSelect(sprite)
+    local data = Sprite:getData(sprite)
+    local len = city_data.total
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+        city_data.value = sortTable(city_data.value, 'cost', true)
+        local listView = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(listView,1,1)
+        -- 加载列表项
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+        ListView:adjust(listView)
+    else
+        local DW = Sprite:findChild(rootSprite,'triangledw')
+        if  Sprite:getProperty(DW,'src') == "file://image/triangle_down.png" then
+            Sprite:setProperty(DW,'src','file://image/triangle_up.png')
+            city_data.value = sortTable(city_data.value, 'cost', false)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+            ListView:adjust(listView)
+        else
+            Sprite:setProperty(DW,'src','file://image/triangle_down.png')
+            city_data.value = sortTable(city_data.value, 'cost', true)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+            ListView:adjust(listView)
+        end
+    end
+end
+
+--扣罚比例排序
+function kfSeqOnSelect(sprite)
+    local data = Sprite:getData(sprite)
+    local len = city_data.total
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+        city_data.value = sortTable(city_data.value, 'deducted', true)
+        local listView = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(listView,1,1)
+        -- 加载列表项
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+        ListView:adjust(listView)
+    else
+        local kf = Sprite:findChild(rootSprite,'trianglekf')
+        if  Sprite:getProperty(kf,'src') == "file://image/triangle_down.png" then
+            Sprite:setProperty(kf,'src','file://image/triangle_up.png')
+            city_data.value = sortTable(city_data.value, 'deducted', false)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+            ListView:adjust(listView)
+        else
+            Sprite:setProperty(kf,'src','file://image/triangle_down.png')
+            city_data.value = sortTable(city_data.value, 'deducted', true)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+            ListView:adjust(listView)
+        end
+    end
 end
     ]]>
 </root>

@@ -108,7 +108,7 @@
                         </image>
 
                         <button name="xjBtn" rect="280,15,140,30" normal="normal" sel="sel"
-                             OnSelect="xjSeq" extendstyle="1111"  data="0">
+                             OnSelect="xjSeqOnselect" extendstyle="1111"  data="0">
                               <image name="triangleXJ" rect="90,11,12,8" src="file://image/triangle_down.png"
                              extendstyle="1111" />
                         </button>
@@ -285,6 +285,40 @@ function repeaterOn(sprite)
 end
 function groupOn(sprite)
     Scene:go(Alias.m_qualityJike)
+end
+
+--巡检率排序
+function xjSeqOnselect(sprite)
+    local data = Sprite:getData(sprite)
+    local len = city_data.total
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+        city_data.value = sortTable(city_data.value, 'xjl', true)
+        local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+        ListView:removeAllItems(listView1,1,1)
+        -- 加载列表项
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+        ListView:adjust(listView1)
+    else
+        local XJ = Sprite:findChild(rootSprite,'triangleXJ')
+        if  Sprite:getProperty(XJ,'src') == "file://image/triangle_down.png" then
+            Sprite:setProperty(XJ,'src','file://image/triangle_up.png')
+            city_data.value = sortTable(city_data.value, 'xjl', false)
+            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+            ListView:removeAllItems(listView1,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+            ListView:adjust(listView1)
+        else
+            Sprite:setProperty(XJ,'src','file://image/triangle_down.png')
+            city_data.value = sortTable(city_data.value, 'xjl', true)
+            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+            ListView:removeAllItems(listView1,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+            ListView:adjust(listView1)
+        end
+    end
 end
 ]]>
 </root>
