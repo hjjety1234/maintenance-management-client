@@ -113,6 +113,16 @@
                                     extendstyle="1111" font-size="22" h-align="center" v-align="center"
                                     color="#e33a10"/>
                         </image>
+                        <button name="byseqBtn" rect="120,15,160,30" normal="normal" sel="sel"
+                             OnSelect="bySeqOnSelect" extendstyle="1111"  data="0" >
+                              <image name="triangleBY" rect="140,11,12,8" src="file://image/triangle_down.png"
+                             extendstyle="1111" />
+                        </button>
+                        <button name="zaseqBtn" rect="300,15,140,30" normal="normal" sel="sel"
+                             OnSelect="zaSeqOnSelect" extendstyle="1111"  data="0" >
+                              <image name="triangleZA" rect="100,11,12,8" src="file://image/triangle_down.png"
+                             extendstyle="1111" />
+                        </button>
                     </node> 
                     <!-- 列表项(按地市)  -->
                     <node name="listItem1" rect="0,0,480,80" border="false"
@@ -181,6 +191,16 @@
                                     extendstyle="1111" font-size="22" h-align="center" v-align="center"
                                     color="#e33a10" />
                         </image>
+                         <button name="zajishiseqBtn" rect="130,15,160,30" normal="normal" sel="sel"
+                             OnSelect="zajishiSeqOnSelect" extendstyle="1111"  data="0" >
+                              <image name="trianglezajishi" rect="140,11,12,8" src="file://image/triangle_down.png"
+                             extendstyle="1111" />
+                        </button>
+                        <button name="xjseqBtn" rect="300,15,140,30" normal="normal" sel="sel"
+                             OnSelect="xjSeqOnSelect" extendstyle="1111"  data="0">
+                              <image name="trianglexj" rect="90,11,12,8" src="file://image/triangle_down.png"
+                             extendstyle="1111" />
+                        </button>
                     </node> 
                     <!-- 列表项(按地市)  -->
                     <node name="listItem2" rect="0,0,480,80" border="false"
@@ -350,6 +370,142 @@ function repeaterOn(sprite)
 end
 function groupOn(sprite)
     Scene:go(Alias.m_qualityJike)
+end
+
+--本月故障次数排序
+function bySeqOnSelect(sprite)
+local data = Sprite:getData(sprite)
+    local len = city_data.total
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+        city_data.value = sortTable(city_data.value, 'byjkzacs', true)
+        local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+        ListView:removeAllItems(listView,1,1)
+        -- 加载列表项
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+        ListView:adjust(listView1)
+    else
+        local BY = Sprite:findChild(rootSprite,'triangleBY')
+        if  Sprite:getProperty(BY,'src') == "file://image/triangle_down.png" then
+            Sprite:setProperty(BY,'src','file://image/triangle_up.png')
+            city_data.value = sortTable(city_data.value, 'byjkzacs', false)
+            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+            ListView:removeAllItems(listView1,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+            ListView:adjust(listView1)
+        else
+            Sprite:setProperty(BY,'src','file://image/triangle_down.png')
+            city_data.value = sortTable(city_data.value, 'byjkzacs', true)
+            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+            ListView:removeAllItems(listView1,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+            ListView:adjust(listView1)
+        end
+    end
+end
+--故障率排序
+function zaSeqOnSelect(sprite)
+local data = Sprite:getData(sprite)
+    local len = city_data.total
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+        city_data.value = sortTable(city_data.value, 'zal', true)
+        local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+        ListView:removeAllItems(listView,1,1)
+        -- 加载列表项
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+        ListView:adjust(listView1)
+    else
+        local ZA = Sprite:findChild(rootSprite,'triangleZA')
+        if  Sprite:getProperty(ZA,'src') == "file://image/triangle_down.png" then
+            Sprite:setProperty(ZA,'src','file://image/triangle_up.png')
+            city_data.value = sortTable(city_data.value, 'zal', false)
+            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+            ListView:removeAllItems(listView1,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+            ListView:adjust(listView1)
+        else
+            Sprite:setProperty(ZA,'src','file://image/triangle_down.png')
+            city_data.value = sortTable(city_data.value, 'zal', true)
+            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+            ListView:removeAllItems(listView1,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+            ListView:adjust(listView1)
+        end
+    end
+end
+
+
+--障碍处理及时率排序
+function zajishiSeqOnSelect(sprite)
+    local data = Sprite:getData(sprite)
+    local len = city_data.total
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+        city_data.value = sortTable(city_data.value, 'zacljsl', true)
+        local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
+        ListView:removeAllItems(listView2,1,1)
+        -- 加载列表项
+        ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
+        ListView:adjust(listView2)
+    else
+        local zajishi = Sprite:findChild(rootSprite,'trianglezajishi')
+        if  Sprite:getProperty(zajishi,'src') == "file://image/triangle_down.png" then
+            Sprite:setProperty(zajishi,'src','file://image/triangle_up.png')
+            city_data.value = sortTable(city_data.value, 'zacljsl', false)
+            local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
+            ListView:removeAllItems(listView2,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
+            ListView:adjust(listView2)
+        else
+            Sprite:setProperty(zajishi,'src','file://image/triangle_down.png')
+            city_data.value = sortTable(city_data.value, 'zacljsl', true)
+            local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
+            ListView:removeAllItems(listView2,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
+            ListView:adjust(listView2)
+        end
+    end
+end
+
+--巡检率排序
+function xjSeqOnSelect(sprite)
+    local data = Sprite:getData(sprite)
+    local len = city_data.total
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+        city_data.value = sortTable(city_data.value, 'xjl', true)
+        local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
+        ListView:removeAllItems(listView2,1,1)
+        -- 加载列表项
+        ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
+        ListView:adjust(listView2)
+    else
+        local XJ = Sprite:findChild(rootSprite,'trianglexj')
+        if  Sprite:getProperty(XJ,'src') == "file://image/triangle_down.png" then
+            Sprite:setProperty(XJ,'src','file://image/triangle_up.png')
+            city_data.value = sortTable(city_data.value, 'xjl', false)
+            local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
+            ListView:removeAllItems(listView2,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
+            ListView:adjust(listView2)
+        else
+            Sprite:setProperty(XJ,'src','file://image/triangle_down.png')
+            city_data.value = sortTable(city_data.value, 'xjl', true)
+            local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
+            ListView:removeAllItems(listView2,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
+            ListView:adjust(listView2)
+        end
+    end
 end
 ]]>
 </root>
