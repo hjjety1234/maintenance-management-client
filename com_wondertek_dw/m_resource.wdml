@@ -106,8 +106,8 @@
                     <image rect="440,25,11,11" src="file://image/box.png"
                             style="autosize" extendstyle="1111" /> 
                     <!--列表信息-->
-                    <node name="listNode1" rect="0,56,480,500" extendstyle="1111">
-                        <listview name="sampleList" rect="0,40,480,560" extendstyle="1111" auto-scroll='true' limit='true' />
+                    <node name="listNode1" rect="0,56,480,600" extendstyle="1111">
+                        <listview name="sampleList" rect="0,47,480,510" extendstyle="1111" auto-scroll='true' limit='false' border="0"/>
                         <image name='selectImg' rect="21,0,438,1" src="file://image/xianluzancun_line.png" 
                                  extendstyle="1111" style='autosize'/>
                         <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
@@ -125,6 +125,9 @@
                                     extendstyle="1111" font-size="22" h-align="left" v-align="center"
                                     color="#e33a10" />
                         </image>
+                        <button name="paixu" data="0" rect="210,25,12,8" src="file://image/triangle_down.png" style="autosize" OnSelect="paixuJZ"></button>
+                        <button name="paixu1" data="0" rect="320,25,12,8" src="file://image/triangle_down.png" style="autosize" OnSelect="paixuDS"></button>
+                        <button name="paixu2" data="0" rect="426,25,12,8" src="file://image/triangle_down.png" style="autosize" OnSelect="paixuDB"></button>
                     </node> 
                     <!-- 列表项(按地市/按代维公司)  -->
                     <node name="listItem" rect="0,0,480,80" border="false"
@@ -181,8 +184,8 @@
                     <image rect="440,25,11,11" src="file://image/box.png"
                             style="autosize" extendstyle="1111" />  
                     <!--列表信息-->
-                    <node name="listNode1" rect="0,56,480,500" extendstyle="1111">
-                        <listview name="sampleList1" rect="0,40,480,560" extendstyle="1111" auto-scroll='true' limit='true' />
+                    <node name="listNode1" rect="0,56,480,600" extendstyle="1111">
+                        <listview name="sampleList1" rect="0,47,480,510" extendstyle="1111" auto-scroll='true' limit='false' />
                         <image name='selectImg' rect="21,0,438,1" src="file://image/xianluzancun_line.png" 
                                  extendstyle="1111" style='autosize'/>
                         <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
@@ -200,6 +203,9 @@
                                     extendstyle="1111" font-size="22" h-align="left" v-align="center"
                                     color="#e33a10" />
                         </image>
+                        <button name="paixu3" data="0" rect="210,25,12,8" src="file://image/triangle_down.png" style="autosize" OnSelect="paixuVV"></button>
+                        <button name="paixu4" data="0" rect="315,25,12,8" src="file://image/triangle_down.png" style="autosize" OnSelect="paixuVP"></button>
+                        <button name="paixu5" data="0" rect="426,25,12,8" src="file://image/triangle_down.png" style="autosize" OnSelect="paixuPJ"></button>
                     </node> 
                     <!-- 列表项(按地市/按代维公司)  -->
                     <node name="listItem1" rect="0,0,480,80" border="false"
@@ -235,8 +241,8 @@
                     <image rect="440,25,11,11" src="file://image/box_on.png"
                             style="autosize" extendstyle="1111" />  
                     <!--列表信息-->
-                    <node name="listNode1" rect="0,56,480,500" extendstyle="1111">
-                        <listview name="sampleList2" rect="0,40,480,560" extendstyle="1111" auto-scroll='true' limit='true' />
+                    <node name="listNode1" rect="0,56,480,600" extendstyle="1111">
+                        <listview name="sampleList2" rect="0,47,480,510" extendstyle="1111" auto-scroll='true' limit='false' />
                         <image name='selectImg' rect="21,0,438,1" src="file://image/xianluzancun_line.png" 
                                  extendstyle="1111" style='autosize'/>
                         <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
@@ -254,6 +260,9 @@
                                     extendstyle="1111" font-size="22" h-align="left" v-align="center"
                                     color="#e33a10" />
                         </image>
+                        <button name="paixu6" data="0" rect="195,25,12,8" src="file://image/triangle_down.png" style="autosize" OnSelect="paixuHJ"></button>
+                        <button name="paixu7" data="0" rect="315,25,12,8" src="file://image/triangle_down.png" style="autosize" OnSelect="paixuGZ"></button>
+                        <button name="paixu8" data="0" rect="426,25,12,8" src="file://image/triangle_down.png" style="autosize" OnSelect="paixuLY"></button>
                     </node>
                     <!-- 列表项(按地市/按代维公司)  -->
                     <node name="listItem2" rect="0,0,480,80" border="false"
@@ -306,7 +315,7 @@ function bodyOnPluginEvent(msg, param)
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
         local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
-        local len = getJsonArrayCount(city_data.value)
+        local len = city_data.total
         ListView:removeAllItems(listView,1,1)
         ListView:removeAllItems(listView1,1,1)
         ListView:removeAllItems(listView2,1,1)
@@ -442,6 +451,208 @@ function groupOn(sprite)
 end
 function homeOn(sprite)
     Scene:go(Alias.m_resource_home)
+end
+--基站排序
+function paixuJZ(sprite,list, item, index)
+    -- body
+    local data = Sprite:getData(sprite)
+    local len = city_data.total
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+        city_data.value = sortTable(city_data.value, 'station', true)
+        local listView = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(listView,1,1)
+        -- 加载列表项
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+        ListView:adjust(listView)
+    elseif data ~= "0" then
+        local paixu = Sprite:findChild(rootSprite,'paixu')
+        local paixusrc = Sprite:getProperty(paixu,'src')
+        if paixusrc == "file://image/triangle_down.png" then
+            Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
+            city_data.value = sortTable(city_data.value, 'station', false)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+            ListView:adjust(listView)
+        else
+            Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
+            city_data.value = sortTable(city_data.value, 'station', true)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+            ListView:adjust(listView)
+        end
+    end
+end
+--代维数量排序
+function paixuDS(sprite)
+    -- body
+    local data = Sprite:getData(sprite)
+    local len = city_data.total
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+        city_data.value = sortTable(city_data.value, 'maintenance', true)
+        local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+        ListView:removeAllItems(listView1,1,1)
+        Log:write("kkkkkkkkkkkk")
+        -- 加载列表项
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+        ListView:adjust(listView1)
+    elseif data ~= "0" then
+        local paixu = Sprite:findChild(rootSprite,'paixu1')
+        local paixusrc = Sprite:getProperty(paixu,'src')
+        if paixusrc == "file://image/triangle_down.png" then
+            Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
+            city_data.value = sortTable(city_data.value, 'maintenance', false)
+            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+            ListView:removeAllItems(listView1,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+            ListView:adjust(listView1)
+        else
+            Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
+            city_data.value = sortTable(city_data.value, 'maintenance', true)
+            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+            ListView:removeAllItems(listView1,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+            ListView:adjust(listView1)
+        end
+    end
+end
+--代维比例排序
+function paixuDB(sprite)
+    -- body
+    local data = Sprite:getData(sprite)
+    local len = city_data.total
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+        city_data.value = sortTable(city_data.value, 'ratio', true)
+        local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
+        ListView:removeAllItems(listView2,1,1)
+        -- 加载列表项
+        ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
+        ListView:adjust(listView2)
+    elseif data ~= "0" then
+        local paixu = Sprite:findChild(rootSprite,'paixu2')
+        local paixusrc = Sprite:getProperty(paixu,'src')
+        if paixusrc == "file://image/triangle_down.png" then
+            Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
+            city_data.value = sortTable(city_data.value, 'ratio', false)
+            local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
+            ListView:removeAllItems(listView2,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
+            ListView:adjust(listView2)
+        else
+            Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
+            city_data.value = sortTable(city_data.value, 'ratio', true)
+            local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
+            ListView:removeAllItems(listView2,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
+            ListView:adjust(listView2)
+        end
+    end
+end
+--VVIP基站排序
+function paixuVV(sprite)
+    -- body
+    local data = Sprite:getData(sprite)
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+    elseif data ~= "0" then
+        local paixu = Sprite:findChild(rootSprite,'paixu3')
+        local paixusrc = Sprite:getProperty(paixu,'src')
+        if paixusrc == "file://image/triangle_down.png" then
+            Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
+        else
+            Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
+        end
+    end
+end
+--VIP基站排序
+function paixuVP(sprite)
+    -- body
+    local data = Sprite:getData(sprite)
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+    elseif data ~= "0" then
+        local paixu = Sprite:findChild(rootSprite,'paixu4')
+        local paixusrc = Sprite:getProperty(paixu,'src')
+        if paixusrc == "file://image/triangle_down.png" then
+            Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
+        else
+            Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
+        end
+    end
+end
+--普通基站排序
+function paixuPJ(sprite)
+    -- body
+    local data = Sprite:getData(sprite)
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+    elseif data ~= "0" then
+        local paixu = Sprite:findChild(rootSprite,'paixu5')
+        local paixusrc = Sprite:getProperty(paixu,'src')
+        if paixusrc == "file://image/triangle_down.png" then
+            Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
+        else
+            Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
+        end
+    end
+end
+--宏基站排序
+function paixuHJ(sprite)
+    -- body
+    local data = Sprite:getData(sprite)
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+    elseif data ~= "0" then
+        local paixu = Sprite:findChild(rootSprite,'paixu6')
+        local paixusrc = Sprite:getProperty(paixu,'src')
+        if paixusrc == "file://image/triangle_down.png" then
+            Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
+        else
+            Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
+        end
+    end
+end
+--共址基站排序
+function paixuGZ(sprite)
+    -- body
+    local data = Sprite:getData(sprite)
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+    elseif data ~= "0" then
+        local paixu = Sprite:findChild(rootSprite,'paixu7')
+        local paixusrc = Sprite:getProperty(paixu,'src')
+        if paixusrc == "file://image/triangle_down.png" then
+            Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
+        else
+            Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
+        end
+    end
+end
+--拉远基站排序
+function paixuLY(sprite)
+    -- body
+    local data = Sprite:getData(sprite)
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+    elseif data ~= "0" then
+        local paixu = Sprite:findChild(rootSprite,'paixu8')
+        local paixusrc = Sprite:getProperty(paixu,'src')
+        if paixusrc == "file://image/triangle_down.png" then
+            Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
+        else
+            Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
+        end
+    end
 end
 ]]>
 </root>
