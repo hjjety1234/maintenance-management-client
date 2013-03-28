@@ -364,3 +364,32 @@ function writeTable2File(tbl, filePath)
     -- 写入TABLE字符串
     IO:fileWrite(filePath, tblStr)
 end
+-- 对table进行排序
+-- @param tbl 待排序的table
+-- @param index 下标或列名
+-- @param bDesc true 降序, false 升序
+function sortTable(tbl, index, bDesc)
+    local sortFunc = nil
+    local bExists = false
+    if (tbl[0] ~= nil) then 
+        table.insert(tbl, 1, tbl[0])
+        tbl[0] = nil
+        bExists =  true
+    end
+    if bDesc ==  true then 
+        sortFunc = function(a, b)  return a[index] > b[index] end
+    else
+        sortFunc = function(a, b)  return a[index] < b[index] end
+    end
+    table.sort(tbl, sortFunc)
+
+    if bExists == true then 
+        local result = {}
+        for i, v in ipairs(tbl) do 
+            table.insert(result, i-1, v)
+        end
+        return result
+    else
+        return tbl
+    end
+end
