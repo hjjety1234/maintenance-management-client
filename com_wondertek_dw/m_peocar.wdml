@@ -278,6 +278,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        Loading:show(rootSprite)
        --初始化加载按地市统计数据
        request(majorData)
     elseif msg == MSG_DEACTIVATE then
@@ -287,6 +288,7 @@ end
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg, param)
     if msg == 101 then--按地市数据处理  
+        Loading:show(rootSprite)
         city_data = Http:jsonDecode('city_data')
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         ListView:removeAllItems(listView)
@@ -295,7 +297,8 @@ function bodyOnPluginEvent(msg, param)
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
         ListView:adjust(listView)
         Loading:close()
-    elseif msg == 102 then--按代维公司数据处理 
+    elseif msg == 102 then--按代维公司数据处理
+        Loading:show(rootSprite) 
         company_data = Http:jsonDecode('company_data')
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         ListView:removeAllItems(listView)
@@ -305,6 +308,7 @@ function bodyOnPluginEvent(msg, param)
         ListView:adjust(listView)
         Loading:close()
     elseif msg == 103 then--按代维公司数据处理 
+        Loading:show(rootSprite)
         major_data = Http:jsonDecode('major_data')
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         ListView:removeAllItems(listView)
@@ -314,6 +318,7 @@ function bodyOnPluginEvent(msg, param)
         ListView:adjust(listView)
         Loading:close()
     elseif msg == 104 then--缺配统计数据处理 
+        Loading:show(rootSprite)
         lack_data = Http:jsonDecode('lack_data')
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         local len = getJsonArrayCount(lack_data.value)
