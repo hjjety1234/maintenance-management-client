@@ -156,6 +156,7 @@ local selectData = 'wlbcityquality'  --选择页签data属性,默认为按地市
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    Loading:show(rootSprite)
 end
 
 -- @brief root节点消息方法
@@ -170,6 +171,7 @@ end
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg, param)
     if msg == 101 then--按地市数据处理  
+         if Loading:isShow() then Loading:close() end 
         city_data = Http:jsonDecode('city_data')
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
         local len = city_data.total

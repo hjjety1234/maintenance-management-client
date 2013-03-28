@@ -253,6 +253,7 @@ function bodyBuildChildrenFinished(sprite)
     yuelabel2 = Sprite:findChild(rootSprite,"yuelabel2")
     nianlabel1 = Sprite:findChild(rootSprite,"nianlabel1")
     nianlabel2 = Sprite:findChild(rootSprite,"nianlabel2")
+     Loading:show(rootSprite)
 end
 
 -- @brief root节点消息方法
@@ -267,6 +268,7 @@ end
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
     if msg == 101 then
+        if Loading:isShow() then Loading:close() end
         city_data = Http:jsonDecode('city_data')
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         local len = getJsonArrayCount(city_data.value)
