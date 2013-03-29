@@ -135,12 +135,12 @@
                         </image>
                          <button name="dwseqBtn" rect="160,15,170,30" normal="normal" sel="sel"
                              OnSelect="dwSeqOnSelect" extendstyle="1111"  data="0" >
-                              <image name="triangledw" rect="130,11,12,8" src="file://image/triangle_down.png"
+                              <image name="triangledw" rect="130,7,20,12" src="file://image/triangle_down.png"
                              style="autosize"  extendstyle="1111" />
                         </button>
                         <button name="kfseqBtn" rect="300,15,140,30" normal="normal" sel="sel"
                              OnSelect="kfSeqOnSelect" extendstyle="1111"  data="0">
-                              <image name="trianglekf" rect="110,11,12,8" src="file://image/triangle_down.png"
+                              <image name="trianglekf" rect="110,7,20,12" src="file://image/triangle_down.png"
                              style="autosize"  extendstyle="1111" />
                         </button>
                     </node>
@@ -162,7 +162,7 @@
                              <!-- 扣罚弹出框  -->
                              <button name="KFBtn" rect="400,10,41,29" normal="src:file://image/costkf_d.png;style:sudoku-auto;sudoku:10,0,40,0;"
                                 sel="src:file://image/costkf_s.png;style:sudoku-auto;sudoku:10,0,40,0;"
-                                OnSelect="KFOnSelect" extendstyle="1111"  data="0" border="1">
+                                OnSelect="KFOnSelect" extendstyle="1111" visible="0" enable="0">
                              </button>
                     </node>
                     <!-- 弹出或收起专业框  -->
@@ -305,6 +305,7 @@ function bodyOnPluginEvent(msg)
     if msg == 101 then
         if Loading:isShow() then Loading:close() end
         city_data = Http:jsonDecode('city_data')
+        Log:write("===++++city_data++++=====",city_data)
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         local len = getJsonArrayCount(city_data.value)
         ListView:removeAllItems(listView,1,1)
@@ -705,6 +706,13 @@ function loadListItem(list, item, index)
     Sprite:setProperty(cityName,'text',city_data.value[index].dimension)
     Sprite:setProperty(costName,'text',city_data.value[index].cost)
     Sprite:setProperty(deductedName,'text',city_data.value[index].deducted)
+    if city_data.value[index].deducted > '0%' then
+        Sprite:setVisible(Sprite:findChild(rootSprite,"KFBtn"),1)
+        Sprite:setEnable(Sprite:findChild(rootSprite,"KFBtn"), 1)
+    else
+        Sprite:setVisible(Sprite:findChild(rootSprite,"KFBtn"),0)
+        Sprite:setEnable(Sprite:findChild(rootSprite,"KFBtn"), 0)
+    end
 end
 
 function loadListItem1(list, item, index)
@@ -715,7 +723,7 @@ function loadListItem1(list, item, index)
     local kfDetailsLab = Sprite:findChild(item,'kfDetails')
     local kfNumLab = Sprite:findChild(item,'kfNum')
     local kfTimeLab = Sprite:findChild(item,'kfTime')
-    Sprite:setProperty(num,'text',"1")
+    Sprite:setProperty(num,'text',tostring(index+1)..'、')
     Sprite:setProperty(kfDetailsLab,'text',"基站接地不规范")
     Sprite:setProperty(kfNumLab,'text',"-100")
     Sprite:setProperty(kfTimeLab,'text',"2012-12-20")
@@ -791,9 +799,8 @@ end
 
 --扣罚详情查看
 function KFOnSelect(sprite)
-  
-    setAllShoworHide(Sprite:findChild(rootSprite, 'selectKFNode'), 1)
-    
+   setAllShoworHide(Sprite:findChild(rootSprite, 'selectKFNode'), 1)
+
 end
 function hideKFNodeSelected(sprite)
    setAllShoworHide(Sprite:findChild(rootSprite, 'selectKFNode'), 0)
