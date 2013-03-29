@@ -123,25 +123,25 @@
                         <listview name="sampleList" rect="0,40,480,510" extendstyle="1111" auto-scroll='true' limit='true' />
                         <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
                             extendstyle="1111" style='autosize' >
-                            <label name='dimension' rect="25,5,139,25" text="地市" font-family='微软雅黑'
-                                    extendstyle="1111" font-size="24" h-align="left" v-align="center"
+                            <label name='dimension' rect="25,5,140,25" text="地市" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
                                     color="#e33a10" />
-                            <label name='dimension1'rect="139,5,139,25" text="代维费用" font-family='微软雅黑'
-                                    extendstyle="1111" font-size="24" h-align="center" v-align="center"
+                            <label name='dimension1'rect="165,5,120,25" text="代维费用" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
                                     color="#e33a10" />
-                            <label name='dimension2' rect="278,5,139,25" text="扣罚比例" font-family='微软雅黑'
-                                    extendstyle="1111" font-size="24" h-align="center" v-align="center"
+                            <label name='dimension2' rect="285,5,120,25" text="扣罚比例" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
                                     color="#e33a10" />
                         </image>
-                         <button name="dwseqBtn" rect="140,15,160,30" normal="normal" sel="sel"
+                         <button name="dwseqBtn" rect="160,15,170,30" normal="normal" sel="sel"
                              OnSelect="dwSeqOnSelect" extendstyle="1111"  data="0" >
-                              <image name="triangledw" rect="140,11,12,8" src="file://image/triangle_down.png"
-                             extendstyle="1111" />
+                              <image name="triangledw" rect="130,11,12,8" src="file://image/triangle_down.png"
+                             style="autosize"  extendstyle="1111" />
                         </button>
-                        <button name="kfseqBtn" rect="310,15,140,30" normal="normal" sel="sel"
-                             OnSelect="kfSeqOnSelect" extendstyle="1111"  data="0" >
+                        <button name="kfseqBtn" rect="300,15,140,30" normal="normal" sel="sel"
+                             OnSelect="kfSeqOnSelect" extendstyle="1111"  data="0">
                               <image name="trianglekf" rect="110,11,12,8" src="file://image/triangle_down.png"
-                             extendstyle="1111" />
+                             style="autosize"  extendstyle="1111" />
                         </button>
                     </node>
              
@@ -153,12 +153,17 @@
                             <scrolltext name='cityName' rect="50,5,150,25" text="地市" font-family='微软雅黑'
                                     extendstyle="1111" font-size="20" h-align="left" v-align="center"
                                     color="#5a5a5a" step="2" scroll="true"/>
-                            <label name='costName' rect="190,5,80,25" text="100" font-family='微软雅黑'
+                            <label name='costName' rect="200,5,100,25" text="100" font-family='微软雅黑'
                                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
                                     color="#5a5a5a" />
-                            <label name='deductedName' rect="342,5,80,25" text="100" font-family='微软雅黑'
+                            <label name='deductedName' rect="300,5,100,25" text="100" font-family='微软雅黑'
                                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
                                     color="#5a5a5a" />
+                             <!-- 扣罚弹出框  -->
+                             <button name="KFBtn" rect="400,10,41,29" normal="src:file://image/costkf_d.png;style:sudoku-auto;sudoku:10,0,40,0;"
+                                sel="src:file://image/costkf_s.png;style:sudoku-auto;sudoku:10,0,40,0;"
+                                OnSelect="KFOnSelect" extendstyle="1111"  data="0" border="1">
+                             </button>
                     </node>
                     <!-- 弹出或收起专业框  -->
                     <node name='selectMajor' rect="0,0,480,76" extendstyle="1111" >
@@ -227,10 +232,26 @@
                                     color="#ffffff" />
                             </button>
                         </node>
-                    </node> 
+                    </node>
+                    
                 </panoramaitem>
             </panorama>
-
+            <!-- 弹出或收起扣罚详情框  -->
+            <node name='selectKFNode' rect="0,0,480,800" extendstyle="1111" visible="false" enable="false">
+                <button name="button" rect="0,0,480,800" border="false" text="" OnSelect="hideKFNodeSelected"></button>
+                <image  rect="50,350,380,200" src="file://image/select_major.png" extendstyle="1111" style='autosize'/>
+                <listview name="sampleList1" rect="60,360,360,170" extendstyle="1111" auto-scroll='true' limit='true' />
+            </node>
+            <node name="listitem1" visible="false" enable="false" active="false" extendstyle="1111" rect="0,0,360,60">
+                <label name='num' rect="0,5,40,50" text="铁塔" font-family='微软雅黑'
+                     extendstyle="1111" font-size="22" h-align="center" v-align="center" color="#ffffff" />
+                <scrolltext name='kfDetails' rect="40,5,130,50" text="地市" font-family='微软雅黑'extendstyle="1111" font-size="22" h-align="center" v-align="center" color="#ffffff" step="2" scroll="true"/>
+                     extendstyle="1111" font-size="22" h-align="center" v-align="center" color="#ffffff" />
+                <label name='kfNum' rect="170,5,60,50" text="-100" font-family='微软雅黑'
+                     extendstyle="1111" font-size="22" h-align="center" v-align="center" color="#ffffff" />
+                <label name='kfTime' rect="230,5,120,50" text="2012-06-13" font-family='微软雅黑'
+                     extendstyle="1111" font-size="22" h-align="center" v-align="center" color="#ffffff" />
+            </node>
         </node>
     </body>
     <![CDATA[
@@ -249,7 +270,7 @@ local nianlabel2
 local majorData='' --专业编号
 local cmd='wlbcitycost' --接口标示
 local city_data --jeason数据
-
+local listView1
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -264,6 +285,10 @@ function bodyBuildChildrenFinished(sprite)
     nianlabel1 = Sprite:findChild(rootSprite,"nianlabel1")
     nianlabel2 = Sprite:findChild(rootSprite,"nianlabel2")
     Loading:show(rootSprite)
+
+    listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+    ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listitem1'), 6, 'loadListItem1')
+    ListView:adjust(listView1)
 end
 
 -- @brief root节点消息方法
@@ -682,6 +707,20 @@ function loadListItem(list, item, index)
     Sprite:setProperty(deductedName,'text',city_data.value[index].deducted)
 end
 
+function loadListItem1(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 60)
+    
+    -- 读取返回的数据
+    local num=Sprite:findChild(item,'num')
+    local kfDetailsLab = Sprite:findChild(item,'kfDetails')
+    local kfNumLab = Sprite:findChild(item,'kfNum')
+    local kfTimeLab = Sprite:findChild(item,'kfTime')
+    Sprite:setProperty(num,'text',"1")
+    Sprite:setProperty(kfDetailsLab,'text',"基站接地不规范")
+    Sprite:setProperty(kfNumLab,'text',"-100")
+    Sprite:setProperty(kfTimeLab,'text',"2012-12-20")
+end
+
 --代维费用排序
 function dwSeqOnSelect(sprite)
     local data = Sprite:getData(sprite)
@@ -748,6 +787,16 @@ function kfSeqOnSelect(sprite)
             ListView:adjust(listView)
         end
     end
+end
+
+--扣罚详情查看
+function KFOnSelect(sprite)
+  
+    setAllShoworHide(Sprite:findChild(rootSprite, 'selectKFNode'), 1)
+    
+end
+function hideKFNodeSelected(sprite)
+   setAllShoworHide(Sprite:findChild(rootSprite, 'selectKFNode'), 0)
 end
     ]]>
 </root>
