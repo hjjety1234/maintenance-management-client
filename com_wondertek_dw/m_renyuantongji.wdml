@@ -272,7 +272,7 @@
                         OnSelect="OnstaffRatioBtn" extendstyle="1111">
                         <label rect="10,0,80,45" text="流失率：" color="#00549f" v-align="center"  
                             h-align="left" font-family="微软雅黑" font-size="22" extendstyle="1111" />
-                        <label name="turnOverRate" rect="80,0,110,45" text="" color="#303030" v-align="center"  
+                        <label name="turnOverRate" rect="90,0,110,45" text="" color="#303030" v-align="center"  
                             h-align="left" font-family="微软雅黑" font-size="22" extendstyle="1111" >
                         </label>
                     </button>
@@ -443,13 +443,13 @@ function doRegionClick(sprite)
     -- 人员配比
     local staffRatio = Sprite:findChild(rootSprite, 'staffRatio')
     if city.staffRatio ~= '' then 
-        Sprite:setProperty(staffRatio, 'text', city.staffratio..'%')
+        Sprite:setProperty(staffRatio, 'text', city.staffratio)
     else
         Sprite:setProperty(staffRatio, 'text', '')
     end
     -- 人员流失率
     local turnOverRate = Sprite:findChild(rootSprite, 'turnOverRate')
-    Sprite:setProperty(turnOverRate, 'text', city.turnoverrate ..'%')
+    Sprite:setProperty(turnOverRate, 'text', city.turnoverrate)
     
     -- 根据代维车辆数量，显示一定数量的旗帜
     local nCmpNum = tonumber(city.carnum)
@@ -501,17 +501,17 @@ function doRegionClick(sprite)
     local x, y, w, h = Sprite:getRect(staffNum)
     Sprite:setRect(staffNum, sx + sw, y, w, h)
 
-    -- 隐藏所有的城市图片
-    for i=0,#renyuandata.value[0].data do
-        local cityImage = Sprite:findChild(rootSprite, city.dimension)
-        Sprite:setProperty(cityImage, 'visible', 'false')
-    end
-    
     -- 显示弹出提示
     local cityNode = Sprite:findChild(rootSprite, 'cityNode')
     Sprite:setProperty(cityNode, 'visible', 'true')
     --Sprite:setProperty(cityNode, 'enable', 'true')
 
+    -- 隐藏所有的城市图片
+    for i=0,#renyuandata.value[0].data do
+        local cityImage = Sprite:findChild(rootSprite, renyuandata.value[0].data[i].dimension)
+        Sprite:setProperty(cityImage, 'visible', 'false')
+    end
+    
     -- 突出显示当前选择的地市
     local cityImage = Sprite:findChild(rootSprite, city.dimension)
     Sprite:setProperty(cityImage, 'visible', 'true')
@@ -535,7 +535,7 @@ function OnSelectShowMap(sprite)
     -- 人员配比
     local staffRatio = Sprite:findChild(rootSprite, 'staffRatio')
     if cityalldata.staffRatio ~= '' then 
-        Sprite:setProperty(staffRatio, 'text', cityalldata.ratio..'%')
+        Sprite:setProperty(staffRatio, 'text', cityalldata.ratio)
     else
         Sprite:setProperty(staffRatio, 'text', '')
     end
