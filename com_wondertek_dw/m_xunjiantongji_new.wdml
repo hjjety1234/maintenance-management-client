@@ -32,7 +32,7 @@
                         <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
                     </button>  
-                    <scrolltext name="title" rect="105,5,280,40" text="考核统计" font-family='微软雅黑'
+                    <scrolltext name="title" rect="105,5,280,40" text="巡检统计" font-family='微软雅黑'
                         extendstyle="1111" font-size="36" h-align="center" v-align="center"
                         color="#ffffff" scroll="true"  step="2" />
                 </node>
@@ -113,7 +113,7 @@
                     <label name="monthLabel" rect="250,0,25,31" text="2" 
                         font-family="微软雅黑" font-size="24" h-align="center" 
                         v-align="center" color="#ffffff" style="autosize" extendstyle="0010"/> 
-                    <label rect="275,0,20,31" text="月" font-family="微软雅黑" 
+                    <label rect="265,0,60,31" text="季度" font-family="微软雅黑" 
                         font-size="24" h-align="center" v-align="center" 
                         color="#ffffff" style="autosize" extendstyle="0010"/>
                 </node>
@@ -288,9 +288,12 @@ function setDefaultMonth()
     local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
     local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
     Sprite:setProperty(yearLabel, "text", 
-        os.date("*t",os.time() + 86400)["year"])      
-    Sprite:setProperty(monthLabel, "text", 
-        os.date("*t",os.time() + 86400)["month"])
+        os.date("*t",os.time() + 86400)["year"]) 
+    local month = os.date("*t",os.time() + 86400)["month"]
+    Log:write('month',month)
+    if  month==3 then        
+        Sprite:setProperty(monthLabel, "text", '1')
+    end
 end
 
 -- 上个月份
@@ -301,7 +304,7 @@ function prevMonthOnSelect(sprite)
     local month = tonumber(Sprite:getText(monthLabel))
     if month == 1 then 
         year = year - 1 
-        month = 12
+        month = 4
     else
         month = month - 1
     end
@@ -316,7 +319,7 @@ function nextMonthOnSelect(sprite)
     local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
     local year = tonumber(Sprite:getText(yearLabel))
     local month = tonumber(Sprite:getText(monthLabel))
-    if month == 12 then 
+    if month == 4 then 
         year = year + 1 
         month = 1
     else

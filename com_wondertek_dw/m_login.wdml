@@ -142,7 +142,8 @@ function bodyOnPluginEvent(msg)
         local loginData = Http:jsonDecode('login_istrue')
         Log:write('+++++++++++++++++',loginData)
         local result=loginData['code']
-        local role = loginData['mobilerole']
+        local role = loginData.value[0].rolecode
+        Log:write('role----',role)
         if result=='0' then
             Config:set('realname', loginData.userName)
             Config:set('tasknum', loginData.taskNum)
@@ -151,16 +152,14 @@ function bodyOnPluginEvent(msg)
             Log:write('xianlu flag is -->'..user_name)
             if xlFlag == '1' then
                 Scene:go(Alias.home_xianlu)
-            elseif user_name == 'adminsf' then 
-                Scene:go(Alias.home_sheng)
-            elseif role=='01' or role=='02' or role=='03' or role=='04' or role=='05' 
-                or role=='06' or role=='07' or role=='08'  then 
-                Scene:go(Alias.home_sheng) 
-            elseif user_name == 'qianshan' then 
-            	Scene:go(Alias.home_new)
-            elseif user_name == 'fanbingheng' or user_name == 'zhangxiangjun'
-                or user_name == 'hanlu'  then
-           		Scene:go(Alias.home_sheng)       
+            elseif role=='MM000' or role=='MM001' or role=='MM002' then 
+                Scene:go(Alias.home_city_manager) 
+            elseif role=='MM003' or role=='MM004'  then 
+                Scene:go(Alias.home_sheng_manager)
+            elseif role=='MM005' or role=='MM006'  then 
+                Scene:go(Alias.home_city)  
+            elseif role=='MM007' or role=='MM008'  then 
+                Scene:go(Alias.home_city_manager)  
 			else
 				Scene:go(Alias.home_new)
            	end
