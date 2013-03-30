@@ -90,6 +90,8 @@
                     style="autosize" extendstyle="1111" />
                 <image rect="10,12,460,586" src="file://image/content_center.png"
                     style="autosize" extendstyle="1111" />
+                <image rect="10,596,460,12" src="file://image/content_bottom.png"
+                    style="autosize" extendstyle="1111" /> 
                 <!-- 选择月份 -->
                 <node name="MonthNode" rect="0,20,480,31" extendstyle="1111">
                     <button name="prevMonthBtn" rect="20,0,40,31" OnSelect="prevMonthOnSelect" 
@@ -118,12 +120,9 @@
                         color="#ffffff" style="autosize" extendstyle="0010"/>
                 </node>
                 <!--列表信息-->
-                <node name="listViewNode" rect="0,56,480,500" extendstyle="1111">
-                    <listview name="sampleList1" rect="0,40,480,490" extendstyle="1111" 
+                <node name="listViewNode" rect="0,56,480,510" extendstyle="1111">
+                    <listview name="sampleList1" rect="0,40,480,510" extendstyle="1111" 
                         auto-scroll='true' limit='true' />
-                    <image name='selectImg' rect="21,0,438,1" 
-                        src="file://image/xianluzancun_line.png" extendstyle="1111" 
-                        style='autosize'/>
                     <image name="listButtonImage" rect="31,9,418,38" 
                         src="file://image/ziyuan_bg.png"
                         extendstyle="1111" style='autosize' >
@@ -139,13 +138,11 @@
                     </image>
                     <button name="scoreSortBtn" rect="280,15,160,30" normal="normal" 
                         sel="sel" OnSelect="doScoreSort" extendstyle="1111" data="0">
-                        <image name="triangleFD" rect="140,11,20,12" 
+                        <image name="triangleFD" rect="140,7,20,12" 
                             src="file://image/triangle_down.png" style="autosize" 
                             extendstyle="1111" />
                     </button>
                 </node> 
-                <image rect="10,598,460,12" src="file://image/content_bottom.png"
-                    style="autosize" extendstyle="1111" /> 
             </node>
             <!-- 考核信息列表项模板 -->
             <node name="listItem1" rect="0,400,480,80" border="false"
@@ -162,7 +159,7 @@
                 <label name='score' rect="300,5,160,25" text="100" font-family='微软雅黑'
                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
                     color="#5a5a5a" />
-                <image name='faceName'  rect="410,8,30,30" src=""
+                <image name='faceName'  rect="410,5,30,30" src=""
                     style="autosize" extendstyle="1111" /> 
             </node>
         </node>
@@ -196,7 +193,7 @@ function bodyOnPluginEvent(msg, param)
     if msg == 101 then--按地市数据处理  
         if Loading:isShow() then Loading:close() end
         g_response = Http:jsonDecode('assessment')
-        Log:write('[bodyOnPluginEvent] g_response', g_response)
+        --Log:write('[bodyOnPluginEvent] g_response', g_response)
         if g_response == nil or g_response.total == nil or g_response.value == nil then 
             Dialog:show(rootSprite, '暂无考核数据!', 'ok')
             return
@@ -244,7 +241,7 @@ function loadListItem(list, item, index)
     Sprite:setProperty(dimension, 'text', value[index].dimension)
     Sprite:setProperty(company, 'text', value[index].company)
     Sprite:setProperty(score, 'text', value[index].score)
-    Log:write('----',faceName,value[index].score)
+    --Log:write('----',faceName,value[index].score)
     if  value[index].score>=95 then 
         Sprite:setProperty(faceName,'src','file://image/smileface.png')
     elseif value[index].score<90 then 
@@ -260,7 +257,7 @@ function doScoreSort(sprite)
         return
     end
     local len = g_response.total
-    Log:write("[doScoreSort] len: "..len)
+    --Log:write("[doScoreSort] len: "..len)
     if data == "0" then
         Sprite:setProperty(sprite,'data', "1")
         g_response.value = sortTable(g_response.value, 'score', true)
@@ -351,7 +348,7 @@ function OnMajorSelect(sprite)
     local data = Sprite:getData(sprite)
     Log:write("[OnMajorSelect] data: ", data)
     if data == nil then 
-        Log:write("[OnMajorSelect] data is nil.")
+       --Log :write("[OnMajorSelect] data is nil.")
         return
     end
     setMajorSelectOn(sprite)
@@ -398,7 +395,7 @@ function request(major)
     local param = string.format('cmd=wlbassessment&usercode=%s&date=%s&major=%s&page=1&pagesize=100', 
         Config:get('username'), month, major)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
-    Log:write("[request] reqURL: ", reqURL)
+    --Log:write("[request] reqURL: ", reqURL)
     Http:request('assessment', reqURL, 101, {useCache = false})
     Loading:show()
 end
