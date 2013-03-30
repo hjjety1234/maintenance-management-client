@@ -112,17 +112,17 @@
                         </image>
                         <button name="xqseqBtn" rect="110,15,160,30" normal="normal" sel="sel"
                              OnSelect="paixuJZ" extendstyle="1111"  data="0" >
-                              <image name="paixu" rect="100,11,12,8" src="file://image/triangle_down.png"
+                              <image name="paixu" rect="120,11,20,12" src="file://image/triangle_down.png"
                              extendstyle="1111" style="autosize" />
                         </button>
                         <button name="fdseqBtn" rect="245,15,150,30" normal="normal" sel="sel"
                              OnSelect="paixuDS" extendstyle="1111"  data="0" >
-                              <image name="paixu1" rect="80,11,12,8" src="file://image/triangle_down.png"
+                              <image name="paixu1" rect="100,11,20,12" src="file://image/triangle_down.png"
                              extendstyle="1111" style="autosize" />
                         </button>
                         <button name="fdseqBtn" rect="340,15,150,30" normal="normal" sel="sel"
                              OnSelect="paixuDB" extendstyle="1111"  data="0" >
-                              <image name="paixu2" rect="85,11,12,8" src="file://image/triangle_down.png"
+                              <image name="paixu2" rect="105,11,20,12" src="file://image/triangle_down.png"
                              extendstyle="1111" style="autosize" />
                         </button>
                     </node> 
@@ -375,8 +375,9 @@ function cityOn(sprite)
     Sprite:setProperty(dimension2,'text','代维车辆')
     Sprite:setProperty(dimension3,'text','人车配比')
     Sprite:setProperty(dimension,'rect','20,5,100,25')
-    Sprite:setProperty(dimension1,'rect','93,5,150,25')
+    Sprite:setProperty(dimension1,'rect','98,5,150,25')
     Sprite:setProperty(dimension2,'rect','220,5,150,25')
+    Sprite:setProperty(dimension3,'rect','330,5,150,25')
     selectData = Sprite:getData(sprite)
     --显示选择专业框
     local selectMajor = Sprite:findChild(rootSprite,'selectMajor')
@@ -406,7 +407,8 @@ function companyOn(sprite)
     Sprite:setProperty(dimension3,'text','人车配比')
     Sprite:setProperty(dimension,'rect','10,5,100,25')
     Sprite:setProperty(dimension1,'rect','115,5,150,25')
-    Sprite:setProperty(dimension2,'rect','230,5,150,25')
+    Sprite:setProperty(dimension2,'rect','227,5,150,25')
+    Sprite:setProperty(dimension3,'rect','330,5,150,25')
     selectData = Sprite:getData(sprite)
     --显示选择专业框
     local selectMajor = Sprite:findChild(rootSprite,'selectMajor')
@@ -436,7 +438,8 @@ function majorOn(sprite)
     Sprite:setProperty(dimension3,'text','人车配比')
     Sprite:setProperty(dimension,'rect','20,5,100,25')
     Sprite:setProperty(dimension1,'rect','115,5,150,25')
-    Sprite:setProperty(dimension2,'rect','230,5,150,25')
+    Sprite:setProperty(dimension2,'rect','227,5,150,25')
+    Sprite:setProperty(dimension3,'rect','330,5,150,25')
     selectData = Sprite:getData(sprite)
     --隐藏选择专业框
     local selectMajor = Sprite:findChild(rootSprite,'selectMajor')
@@ -625,35 +628,143 @@ function paixuJZ(sprite)
     -- body
     local data = Sprite:getData(sprite)
     local len = city_data.total
-    Log:write("len",len)
-    if data == "0" then
-        Log:write('ppppppppp')
-        Sprite:setProperty(sprite,'data',"1")
-        Log:write('+++++city_data.value++++++',city_data.value)
-        city_data.value = sortTable(city_data.value, 'people', true)
-        local listView = Sprite:findChild(rootSprite, 'sampleList')
-        ListView:removeAllItems(listView,1,1)
-        -- 加载列表项
-        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
-        ListView:adjust(listView)
-    else
-        local DW = Sprite:findChild(rootSprite,'paixu')
-        if  Sprite:getProperty(DW,'src') == "file://image/triangle_down.png" then
-            Sprite:setProperty(DW,'src','file://image/triangle_up.png')
-            city_data.value = sortTable(city_data.value, 'people', false)
-            local listView = Sprite:findChild(rootSprite, 'sampleList')
-            ListView:removeAllItems(listView,1,1)
-            -- 加载列表项
-            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
-            ListView:adjust(listView)
-        else
-            Sprite:setProperty(DW,'src','file://image/triangle_down.png')
+    local dimension = Sprite:findChild(rootSprite,'dimension')
+    local dimension2 = Sprite:findChild(rootSprite,'dimension2')
+    local citytype = Sprite:getText(dimension)
+    local citytype1 = Sprite:getText(dimension2)
+    Log:write(citytype)
+    if citytype == "地市" and citytype1 ~= "缺配人员" then
+        if data == "0" then
+            Log:write('ppppppppp')
+            Sprite:setProperty(sprite,'data',"1")
             city_data.value = sortTable(city_data.value, 'people', true)
             local listView = Sprite:findChild(rootSprite, 'sampleList')
             ListView:removeAllItems(listView,1,1)
             -- 加载列表项
-            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+                ListView:adjust(listView)
+        else
+            local DW = Sprite:findChild(rootSprite,'paixu')
+            if  Sprite:getProperty(DW,'src') == "file://image/triangle_down.png" then
+                Sprite:setProperty(DW,'src','file://image/triangle_up.png')
+                city_data.value = sortTable(city_data.value, 'people', false)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView,1,1)
+                -- 加载列表项
+                    ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+                    ListView:adjust(listView)
+            else
+                Sprite:setProperty(DW,'src','file://image/triangle_down.png')
+                city_data.value = sortTable(city_data.value, 'people', true)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView,1,1)
+                -- 加载列表项
+                    ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+                    ListView:adjust(listView)
+            end
+        end
+    end
+    if citytype == "代维公司" then
+        Log:write('daiwei')
+        if data == "0" then
+            Log:write('ppppppppp')
+            Sprite:setProperty(sprite,'data',"1")
+            company_data.value = sortTable(company_data.value, 'people', true)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView)
+            local len = getJsonArrayCount(company_data.value)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem1')
             ListView:adjust(listView)
+        else
+            local DW = Sprite:findChild(rootSprite,'paixu')
+            if  Sprite:getProperty(DW,'src') == "file://image/triangle_down.png" then
+                Sprite:setProperty(DW,'src','file://image/triangle_up.png')
+                company_data.value = sortTable(company_data.value, 'people', false)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(company_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem1')
+                ListView:adjust(listView)
+            else
+                Sprite:setProperty(DW,'src','file://image/triangle_down.png')
+                company_data.value = sortTable(company_data.value, 'people', true)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(company_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem1')
+                ListView:adjust(listView)
+            end
+        end
+    end
+    if citytype == "专业" then
+        if data == "0" then
+            Log:write('ppppppppp')
+            Sprite:setProperty(sprite,'data',"1")
+            major_data.value = sortTable(major_data.value, 'people', true)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView)
+            local len = getJsonArrayCount(major_data.value)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem2')
+            ListView:adjust(listView)
+        else
+            local DW = Sprite:findChild(rootSprite,'paixu')
+            if  Sprite:getProperty(DW,'src') == "file://image/triangle_down.png" then
+                Sprite:setProperty(DW,'src','file://image/triangle_up.png')
+                major_data.value = sortTable(major_data.value, 'people', false)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(major_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem2')
+                ListView:adjust(listView)
+            else
+                Sprite:setProperty(DW,'src','file://image/triangle_down.png')
+                major_data.value = sortTable(major_data.value, 'people', true)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(major_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem2')
+                ListView:adjust(listView)
+            end
+        end
+    end
+    if citytype1 == "缺配人员" and citytype == "地市" then
+        if data == "0" then
+            Log:write('quepei')
+            Sprite:setProperty(sprite,'data',"1")
+            lack_data.value = sortTable(lack_data.value, 'company', true)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView)
+            local len = getJsonArrayCount(lack_data.value)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem3'), len, 'loadListItem3')
+            ListView:adjust(listView)
+        else
+            local DW = Sprite:findChild(rootSprite,'paixu')
+            if  Sprite:getProperty(DW,'src') == "file://image/triangle_down.png" then
+                Sprite:setProperty(DW,'src','file://image/triangle_up.png')
+                lack_data.value = sortTable(lack_data.value, 'company', false)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(lack_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem3'), len, 'loadListItem3')
+                ListView:adjust(listView)
+            else
+                Sprite:setProperty(DW,'src','file://image/triangle_down.png')
+                lack_data.value = sortTable(lack_data.value, 'company', true)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(lack_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem3'), len, 'loadListItem3')
+                ListView:adjust(listView)
+            end
         end
     end
 end
@@ -662,38 +773,143 @@ function paixuDS(sprite)
     -- body
     local data = Sprite:getData(sprite)
     local len = city_data.total
-    if data == "0" then
-        city_data.value = sortTable(city_data.value, 'car', true)
-        local listView = Sprite:findChild(rootSprite, 'sampleList')
-        ListView:removeAllItems(listView,1,1)
-        local listView = Sprite:findChild(rootSprite, 'sampleList')
-        ListView:removeAllItems(listView,1,1)
-        Log:write("kkkkkkkkkkkk")
-        -- 加载列表项
-        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
-        ListView:adjust(listView)
-        Sprite:setProperty(sprite,'data',"1")
-        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
-        ListView:adjust(listView)
-    elseif data ~= "0" then
-        local paixu = Sprite:findChild(rootSprite,'paixu1')
-        local paixusrc = Sprite:getProperty(paixu,'src')
-        if paixusrc == "file://image/triangle_down.png" then
-            Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
-            city_data.value = sortTable(city_data.value, 'car', false)
-            local listView = Sprite:findChild(rootSprite, 'sampleList')
-            ListView:removeAllItems(listView,1,1)
-            -- 加载列表项
-            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
-            ListView:adjust(listView)
-        else
-            Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
+    local dimension = Sprite:findChild(rootSprite,'dimension')
+    local dimension2 = Sprite:findChild(rootSprite,'dimension2')
+    local citytype = Sprite:getText(dimension)
+    local citytype1 = Sprite:getText(dimension2)
+    Log:write(citytype)
+    if citytype == "地市" and citytype1 ~= "缺配人员" then
+        if data == "0" then
+            Log:write('ppppppppp')
+            Sprite:setProperty(sprite,'data',"1")
             city_data.value = sortTable(city_data.value, 'car', true)
             local listView = Sprite:findChild(rootSprite, 'sampleList')
             ListView:removeAllItems(listView,1,1)
             -- 加载列表项
-            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+                ListView:adjust(listView)
+        else
+            local DW = Sprite:findChild(rootSprite,'paixu1')
+            if  Sprite:getProperty(DW,'src') == "file://image/triangle_down.png" then
+                Sprite:setProperty(DW,'src','file://image/triangle_up.png')
+                city_data.value = sortTable(city_data.value, 'car', false)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView,1,1)
+                -- 加载列表项
+                    ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+                    ListView:adjust(listView)
+            else
+                Sprite:setProperty(DW,'src','file://image/triangle_down.png')
+                city_data.value = sortTable(city_data.value, 'car', true)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView,1,1)
+                -- 加载列表项
+                    ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+                    ListView:adjust(listView)
+            end
+        end
+    end
+    if citytype == "代维公司" then
+        Log:write('opopopopopopopopo')
+        if data == "0" then
+            Log:write('ppppppppp')
+            Sprite:setProperty(sprite,'data',"1")
+            company_data.value = sortTable(company_data.value, 'car', true)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView)
+            local len = getJsonArrayCount(company_data.value)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem1')
             ListView:adjust(listView)
+        else
+            local DW = Sprite:findChild(rootSprite,'paixu1')
+            if  Sprite:getProperty(DW,'src') == "file://image/triangle_down.png" then
+                Sprite:setProperty(DW,'src','file://image/triangle_up.png')
+                company_data.value = sortTable(company_data.value, 'car', false)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(company_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem1')
+                ListView:adjust(listView)
+            else
+                Sprite:setProperty(DW,'src','file://image/triangle_down.png')
+                company_data.value = sortTable(company_data.value, 'car', true)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(company_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem1')
+                ListView:adjust(listView)
+            end
+        end
+    end
+    if citytype == "专业" then
+        if data == "0" then
+            Log:write('ppppppppp')
+            Sprite:setProperty(sprite,'data',"1")
+            major_data.value = sortTable(major_data.value, 'car', true)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView)
+            local len = getJsonArrayCount(major_data.value)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem2')
+            ListView:adjust(listView)
+        else
+            local DW = Sprite:findChild(rootSprite,'paixu1')
+            if  Sprite:getProperty(DW,'src') == "file://image/triangle_down.png" then
+                Sprite:setProperty(DW,'src','file://image/triangle_up.png')
+                major_data.value = sortTable(major_data.value, 'car', false)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(major_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem2')
+                ListView:adjust(listView)
+            else
+                Sprite:setProperty(DW,'src','file://image/triangle_down.png')
+                major_data.value = sortTable(major_data.value, 'car', true)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(major_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem2')
+                ListView:adjust(listView)
+            end
+        end
+    end
+    if citytype1 == "缺配人员" and citytype == "地市" then
+        if data == "0" then
+            Log:write('iiiiiiiiiiiiiiiii')
+            Sprite:setProperty(sprite,'data',"1")
+            lack_data.value = sortTable(lack_data.value, 'car', true)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView)
+            local len = getJsonArrayCount(lack_data.value)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem3'), len, 'loadListItem3')
+            ListView:adjust(listView)
+        else
+            local DW = Sprite:findChild(rootSprite,'paixu1')
+            if  Sprite:getProperty(DW,'src') == "file://image/triangle_down.png" then
+                Sprite:setProperty(DW,'src','file://image/triangle_up.png')
+                lack_data.value = sortTable(lack_data.value, 'car', false)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(lack_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem3'), len, 'loadListItem3')
+                ListView:adjust(listView)
+            else
+                Sprite:setProperty(DW,'src','file://image/triangle_down.png')
+                lack_data.value = sortTable(lack_data.value, 'car', true)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(lack_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem3'), len, 'loadListItem3')
+                ListView:adjust(listView)
+            end
         end
     end
 end
@@ -702,33 +918,143 @@ function paixuDB(sprite)
     -- body
     local data = Sprite:getData(sprite)
     local len = city_data.total
-    if data == "0" then
-        Sprite:setProperty(sprite,'data',"1")
-        city_data.value = sortTable(city_data.value, 'ratio', true)
-        local listView = Sprite:findChild(rootSprite, 'sampleList')
-        ListView:removeAllItems(listView,1,1)
-        -- 加载列表项
-        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
-        ListView:adjust(listView)
-    elseif data ~= "0" then
-        local paixu = Sprite:findChild(rootSprite,'paixu2')
-        local paixusrc = Sprite:getProperty(paixu,'src')
-        if paixusrc == "file://image/triangle_down.png" then
-            Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
-            city_data.value = sortTable(city_data.value, 'ratio', false)
+    local dimension = Sprite:findChild(rootSprite,'dimension')
+    local dimension2 = Sprite:findChild(rootSprite,'dimension2')
+    local citytype = Sprite:getText(dimension)
+    local citytype1 = Sprite:getText(dimension2)
+    Log:write(citytype)
+    if citytype == "地市" and citytype1 ~= "缺配人员" then
+        if data == "0" then
+            Log:write('ppppppppp')
+            Sprite:setProperty(sprite,'data',"1")
+            city_data.value = sortTable(city_data.value, 'car', true)
             local listView = Sprite:findChild(rootSprite, 'sampleList')
             ListView:removeAllItems(listView,1,1)
             -- 加载列表项
-            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+                ListView:adjust(listView)
+        else
+            local DW = Sprite:findChild(rootSprite,'paixu2')
+            if  Sprite:getProperty(DW,'src') == "file://image/triangle_down.png" then
+                Sprite:setProperty(DW,'src','file://image/triangle_up.png')
+                city_data.value = sortTable(city_data.value, 'car', false)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView,1,1)
+                -- 加载列表项
+                    ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+                    ListView:adjust(listView)
+            else
+                Sprite:setProperty(DW,'src','file://image/triangle_down.png')
+                city_data.value = sortTable(city_data.value, 'car', true)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView,1,1)
+                -- 加载列表项
+                    ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+                    ListView:adjust(listView)
+            end
+        end
+    end
+    if citytype == "代维公司" then
+        Log:write('opopopopopopopopo')
+        if data == "0" then
+            Log:write('ppppppppp')
+            Sprite:setProperty(sprite,'data',"1")
+            company_data.value = sortTable(company_data.value, 'car', true)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView)
+            local len = getJsonArrayCount(company_data.value)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem1')
             ListView:adjust(listView)
         else
-            Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
-            city_data.value = sortTable(city_data.value, 'ratio', true)
+            local DW = Sprite:findChild(rootSprite,'paixu2')
+            if  Sprite:getProperty(DW,'src') == "file://image/triangle_down.png" then
+                Sprite:setProperty(DW,'src','file://image/triangle_up.png')
+                company_data.value = sortTable(company_data.value, 'car', false)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(company_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem1')
+                ListView:adjust(listView)
+            else
+                Sprite:setProperty(DW,'src','file://image/triangle_down.png')
+                company_data.value = sortTable(company_data.value, 'car', true)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(company_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem1')
+                ListView:adjust(listView)
+            end
+        end
+    end
+    if citytype == "专业" then
+        if data == "0" then
+            Log:write('ppppppppp')
+            Sprite:setProperty(sprite,'data',"1")
+            major_data.value = sortTable(major_data.value, 'car', true)
             local listView = Sprite:findChild(rootSprite, 'sampleList')
-            ListView:removeAllItems(listView,1,1)
+            ListView:removeAllItems(listView)
+            local len = getJsonArrayCount(major_data.value)
             -- 加载列表项
-            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem2')
             ListView:adjust(listView)
+        else
+            local DW = Sprite:findChild(rootSprite,'paixu2')
+            if  Sprite:getProperty(DW,'src') == "file://image/triangle_down.png" then
+                Sprite:setProperty(DW,'src','file://image/triangle_up.png')
+                major_data.value = sortTable(major_data.value, 'car', false)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(major_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem2')
+                ListView:adjust(listView)
+            else
+                Sprite:setProperty(DW,'src','file://image/triangle_down.png')
+                major_data.value = sortTable(major_data.value, 'car', true)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(major_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem2')
+                ListView:adjust(listView)
+            end
+        end
+    end
+    if citytype1 == "缺配人员" and citytype == "地市" then
+        if data == "0" then
+            Log:write('iiiiiiiiiiiiiiiii')
+            Sprite:setProperty(sprite,'data',"1")
+            lack_data.value = sortTable(lack_data.value, 'people', true)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView)
+            local len = getJsonArrayCount(lack_data.value)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem3'), len, 'loadListItem3')
+            ListView:adjust(listView)
+        else
+            local DW = Sprite:findChild(rootSprite,'paixu2')
+            if  Sprite:getProperty(DW,'src') == "file://image/triangle_down.png" then
+                Sprite:setProperty(DW,'src','file://image/triangle_up.png')
+                lack_data.value = sortTable(lack_data.value, 'people', false)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(lack_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem3'), len, 'loadListItem3')
+                ListView:adjust(listView)
+            else
+                Sprite:setProperty(DW,'src','file://image/triangle_down.png')
+                lack_data.value = sortTable(lack_data.value, 'people', true)
+                local listView = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(listView)
+                local len = getJsonArrayCount(lack_data.value)
+                -- 加载列表项
+                ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem3'), len, 'loadListItem3')
+                ListView:adjust(listView)
+            end
         end
     end
 end

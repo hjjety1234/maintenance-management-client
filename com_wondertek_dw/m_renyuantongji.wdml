@@ -259,7 +259,7 @@
                         OnSelect="OnstaffRatioBtn" extendstyle="1111">
                         <label rect="10,0,110,45" text="人员配比：" color="#00549f" v-align="center"  
                             h-align="right" font-family="微软雅黑" font-size="22" extendstyle="1111" />
-                        <label name="staffRatio" rect="130,0,110,45" text="" color="#303030" v-align="center"  
+                        <label name="staffRatio" rect="150,0,110,45" text="" color="#303030" v-align="center"  
                             h-align="left" font-family="微软雅黑" font-size="22" extendstyle="1111" >
                         </label>
                         <image rect="3,48,455,2" border="false" extendstyle="1111" 
@@ -272,7 +272,7 @@
                         OnSelect="OnstaffRatioBtn" extendstyle="1111">
                         <label rect="10,0,80,45" text="流失率：" color="#00549f" v-align="center"  
                             h-align="left" font-family="微软雅黑" font-size="22" extendstyle="1111" />
-                        <label name="turnOverRate" rect="140,0,110,45" text="" color="#303030" v-align="center"  
+                        <label name="turnOverRate" rect="130,0,110,45" text="" color="#303030" v-align="center"  
                             h-align="left" font-family="微软雅黑" font-size="22" extendstyle="1111" >
                         </label>
                     </button>
@@ -283,13 +283,13 @@
                         OnSelect="" extendstyle="1111">
                         <label rect="-10,-5,135,65" text="代维车辆：" color="#00549f" v-align="center"  
                             h-align="right" font-family="微软雅黑" font-size="22" extendstyle="1111" />
-                        <image name="flag1" rect="120,7,30,30" style="autosize" border="false" extendstyle="1111" 
+                        <image name="flag1" rect="120,9,30,30" style="autosize" border="false" extendstyle="1111" 
                             src="file://image/cars.png" visible="false"></image>
-                        <image name="flag2" rect="160,7,30,30" style="autosize" border="false" extendstyle="1111" 
+                        <image name="flag2" rect="160,9,30,30" style="autosize" border="false" extendstyle="1111" 
                             src="file://image/cars.png" visible="false"></image>
-                        <image name="flag3" rect="200,7,30,30" style="autosize" border="false" extendstyle="1111" 
+                        <image name="flag3" rect="200,9,30,30" style="autosize" border="false" extendstyle="1111" 
                             src="file://image/cars.png"  visible="false"></image>
-                        <image name="flag4" rect="240,7,30,30" style="autosize"  border="false" extendstyle="1111" 
+                        <image name="flag4" rect="240,9,30,30" style="autosize"  border="false" extendstyle="1111" 
                             src="file://image/cars.png"  visible="false"></image>
                         <label name="cmpNum" rect="205,5,190,40" text="" style="center" color="#303030" v-align="center"  
                             h-align="left" font-family="微软雅黑" font-size="22" extendstyle="1111" >
@@ -349,26 +349,6 @@ local textcontent = {}
 textcontent[1]="应配人数/实配人数*100%"
 textcontent[2]="本月离职人数/员工总数*100%"
 local renyuandata
-
-
-data = {{key="hefei",      name="合肥",   cmpNum="14",  staffNum="468",  staffRatio="93.2", turnOverRate="0.8"}, 
-        {key="bengbu",     name="蚌埠",   cmpNum="6",   staffNum="109",  staffRatio="111", turnOverRate="1.8"},
-        {key="wuhu",       name="芜湖",   cmpNum="8",   staffNum="130",  staffRatio="", turnOverRate="0"},
-        {key="maanshan",   name="马鞍山", cmpNum="3",   staffNum="113",  staffRatio="", turnOverRate="0"},
-        {key="bozhou",     name="亳州",   cmpNum="8",   staffNum="198",  staffRatio="", turnOverRate="0"},
-        {key="huaibei",    name="淮北",   cmpNum="5",   staffNum="114",  staffRatio="", turnOverRate="0"},
-        {key="suzhou",     name="宿州",   cmpNum="3",   staffNum="160",  staffRatio="" , turnOverRate="0"},
-        {key="fuyang",     name="阜阳",   cmpNum="5",   staffNum="237",  staffRatio="115", turnOverRate="0"},
-        {key="huainan",    name="淮南",   cmpNum="6",   staffNum="135",  staffRatio="", turnOverRate="0.7"},
-        {key="chuzhou",    name="滁州",   cmpNum="4",   staffNum="155",  staffRatio="115", turnOverRate="5.1"},
-        {key="liuan",      name="六安",   cmpNum="10",  staffNum="202",  staffRatio="103", turnOverRate="0.8"},
-        {key="anqing",     name="安庆",   cmpNum="14",  staffNum="225",  staffRatio="99.4", turnOverRate="0"},
-        {key="chizhou",    name="池州",   cmpNum="6",   staffNum="124",  staffRatio="", turnOverRate="0"},
-        {key="xuancheng",  name="宣城",   cmpNum="4",   staffNum="146",  staffRatio="102", turnOverRate="8.9"},
-        {key="huangshang", name="黄山",   cmpNum="4",   staffNum="252",  staffRatio="", turnOverRate="0"},
-        {key="tongling",   name="铜陵",   cmpNum="5",   staffNum="98",   staffRatio="96.4", turnOverRate="3"},
-        }
-
 ---------------------------------------回调函数--------------------------------
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -383,7 +363,7 @@ function bodyOnSpriteEvent(msg, param)
         local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode='..Config:get('username')
         local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
         Http:request('renyuandata', reqURL, 101, {useCache = false})
-        OnSelectShowMap()
+        
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
@@ -393,6 +373,7 @@ end
 function bodyOnPluginEvent(msg, param)
     if msg == 101 then
         renyuandata = Http:jsonDecode('renyuandata')
+        OnSelectShowMap()
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -529,6 +510,7 @@ function OnSelectShowMap(sprite)
     local cityNode = Sprite:findChild(rootSprite, 'cityNode')
     Sprite:setProperty(cityNode, 'visible', 'false') 
     local allData = Http:jsonDecode('renyuandata')
+    Log:write('+++++++++',allData)
     local cityalldata = allData.value[0]
     -- 显示当前地市的数据到界面下方的详情
     -- 人员配比
