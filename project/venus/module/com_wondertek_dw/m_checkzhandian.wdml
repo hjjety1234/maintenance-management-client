@@ -159,7 +159,6 @@ function bodyOnPluginEvent(msg, param)
   
   if msg == 1001 then
         resp = Http:jsonDecode('stationList')
-        Log:write('站点数据', resp)
         if resp.total=='0'then
         Dialog:show(rootSprite,'服务端无数据', 'ok')
         return
@@ -171,7 +170,6 @@ function bodyOnPluginEvent(msg, param)
         Loading:close()
   elseif msg == 1010 then
 	   local postDataString = Param:getString(param, 0)
-	   Log:write('postData is ----------->'..postDataString)
 	   local postData = Json:loadString2Table(postDataString)
 	   lat = tonumber(postData.latitude) / 1000000.0
        lon = tonumber(postData.longitude) / 1000000.0
@@ -192,7 +190,7 @@ end
 -- 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-        Scene:go(Alias.home_new)
+        Scene:back()
     end
 end
 
@@ -239,7 +237,6 @@ function getGPSDataByMap()
     Sprite:setProperty(statusBar, 'visible', 'true')
     Sprite:setProperty(statusBar, 'enable', 'true')
     local result = System:getGPSStatus()
-    Log:write("GPS状态 ---------->"..result)
     if result == -1 then
         Sprite:setProperty(statusBarText, 'text', '对不起，当前GPS不可用')
     elseif result == 0 then
@@ -276,7 +273,6 @@ function loadListItem(list, item, index)
     Sprite:setProperty(stationName,'text',resp.value[index].itemname)
     Sprite:setProperty(distanceName,'text',math.ceil (resp.value[index].distance)..'米')
     Sprite:setProperty(item, 'data', index)
-    Log:write('上次检查时间',resp.value[index].lastchecktime)
     ------查看历史图标
     local historyBtn = Sprite:findChild(item, 'historyBtn')
     if resp.value[index].lastchecktime==nil  then
@@ -306,11 +302,8 @@ function itemOnSelect(sprite)
     local tabNode = Sprite:getParent(sprite)
     index = tonumber(Sprite:getData(tabNode))
     regHandle=Reg:create('resp')
-    Log:write('resp.value[index]',resp.value[index])
     Reg:setString(regHandle, "stationid",resp.value[index].xtbh)
-    Log:write('站点编号：',stationid)
     Reg:setString(regHandle, "itemname",resp.value[index].itemname)
-    Log:write('代维公司名称：',itemname)
     Scene:setReturn(Alias.m_checkzhandian, Alias.m_sitemajor)
     Scene:go(Alias.m_sitemajor,true)
 end
@@ -318,10 +311,7 @@ end
 function  doHistory( sprite )
     local item = Sprite:getParent(sprite)
     local index = Sprite:getData(item)
-    Log:write('=====resp======', resp)
-    Log:write('=====index======', index)
     local itemValue = resp.value[tonumber(index)]
-    Log:write('doHistory(): itemValue', itemValue)
     local stationid = itemValue.xtbh  
     local stationname = itemValue.itemname
     local addr = itemValue.addr

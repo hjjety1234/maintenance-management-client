@@ -359,6 +359,24 @@ function bodyOnPluginEvent(msg, param)
                 end
             end
         end
+        -- 检查是否有暂存数据
+        local userInput = Patrol:getResUserInput(g_planId, g_stationId, g_resourceId)
+        if userInput ~= nil then 
+            Log:write("找到暂存数据，替代服务器返回的巡检项!")
+            g_items = userInput
+        else
+            Log:write("未找到暂存数据，构造空的用户数输入!")
+            for i=1, #g_items do 
+                for j=1, #g_items[i].subitems do
+                    -- 构造空的用户输入
+                    g_items[i].subitems[j].value = ""
+                    -- 构造空的异常描述和处理描述
+                    g_items[i].subitems[j].exceptionDetail="" 
+                    -- 构造空的照片列表
+                    g_items[i].subitems[j].imageArray = {}
+                end
+            end
+        end 
         -- 在界面上加载巡检项
         local mainListView = Sprite:findChild(rootSprite,'mainListView')
         local mainItemNode = Sprite:findChild(rootSprite,'mainItemNode')
@@ -509,10 +527,10 @@ end
 -- 返回上一个页面，如果有暂存数据，需要暂存
 function doBackWithSave()
     if Loading:isShow() then Loading:close() end
-    -- if isTableEmpty(g_items) == false then 
-        -- Patrol:save(g_planId, g_stationId, g_items)
-    -- end
-    Scene:back(true)
+    if isTableEmpty(g_items) == false then 
+        Patrol:resSave(g_planId, g_stationId, g_resourceId, g_items)
+    end
+    Scene:back()
 end
 
 -- 直接返回上一个页面，无暂存
@@ -531,7 +549,7 @@ end
 
 -- 确认是否返回
 function doBackDialog()
-    Dialog:show('提示','您即将离开巡检页面,是否继续？','ok_cancel','doBack')
+    Dialog:show('提示','您即将离开巡检页面,是否继续？','ok_cancel','doBackWithSave')
 end
 
 ---------------------------------------界面初始化函数列表--------------------------
@@ -610,22 +628,22 @@ function loadSubListItem(list, item, index)
         local errorTitleName = Sprite:findChild(errorTitleNode1, 'errorTitleName')
         Sprite:setProperty(errorTitleName, 'text', subitem.subitemName)
         -- 显示暂存的数据
-        -- local errorTypeName =  Sprite:findChild(errorTitleNode1, 'errorTypeName')
-        -- Sprite:setProperty(errorTypeName, 'text', subitem.value)
+        local errorTypeName =  Sprite:findChild(errorTitleNode1, 'errorTypeName')
+        Sprite:setProperty(errorTypeName, 'text', subitem.value)
     elseif subitem.inputType == 'NUM' then
         setAllShoworHide(errorTitleNode2, 1)
         local errorTitleName = Sprite:findChild(errorTitleNode2, 'errorTitleName')
         Sprite:setProperty(errorTitleName, 'text', subitem.subitemName)
         -- 显示暂存的数据
-        -- local editInput =  Sprite:findChild(errorTitleNode2, 'editInput')
-        -- Sprite:setProperty(editInput, 'text', subitem.value)
+        local editInput =  Sprite:findChild(errorTitleNode2, 'editInput')
+        Sprite:setProperty(editInput, 'text', subitem.value)
     elseif subitem.inputType == 'TEXT' then
         setAllShoworHide(errorTitleNode3, 1)
         local errorTitleName = Sprite:findChild(errorTitleNode3, 'errorTitleName')
         Sprite:setProperty(errorTitleName, 'text', subitem.subitemName)
          -- 显示暂存的数据
-        -- local editInput =  Sprite:findChild(errorTitleNode3, 'editInput')
-        -- Sprite:setProperty(editInput, 'text', subitem.value)
+        local editInput =  Sprite:findChild(errorTitleNode3, 'editInput')
+        Sprite:setProperty(editInput, 'text', subitem.value)
     else
         return
     end
@@ -993,7 +1011,7 @@ function doUpload(sprite)
         return
     end
     -- 如果有暂存数据，需要先删除
-    -- Patrol:delete(g_planId, g_stationId)
+    Patrol:resDelete(g_planId, g_stationId, g_resourceId)
 
     -- 检查是否已经出站
     -- if g_outFlag ~= '1' then 
@@ -1138,17 +1156,14 @@ function doSave(sprite)
             return
         end
     end
-    -- if g_inFlag ~= '1' or g_resultId == nil then
-    --     Dialog:show(rootSprite, '请先执行进站操作，否则无法记录巡检结果！', 'ok')
-    -- else
     -- 取巡检子项ID
     local subitemId = g_items[g_curItemIndex].subitems[g_curSubItemIndex].id
     if subitemId == '' or subitemId == nil  then
         Dialog:show(rootSprite, '巡检子项编号为空，请联系系统管理员！', 'ok')
     else
         -- 更新用户输入
-        -- g_items[g_curItemIndex].subitems[g_curSubItemIndex].value = patrolResult
-        -- g_items[g_curItemIndex].subitems[g_curSubItemIndex].exceptionDetail = ""
+        g_items[g_curItemIndex].subitems[g_curSubItemIndex].value = patrolResult
+        g_items[g_curItemIndex].subitems[g_curSubItemIndex].exceptionDetail = ""
         local url = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
         local username = Config:get('username')
         local param = '&usercode='..username..'&resultId='..g_resultId..'&subitemId='..subitemId..'&patrolResult='..patrolResult..'&exception='..'&dealDetail=&rfid='..g_ewm
@@ -1156,7 +1171,7 @@ function doSave(sprite)
         Http:request('Submitdata', url, 103, {useCache = false, method = 'post', postData='cmd=wlbxunjianDealrfid'..param})
         
         -- 暂存用户输入
-        -- Patrol:save(g_planId, g_stationId, g_items)
+        Patrol:resSave(g_planId, g_stationId, g_resourceId, g_items)
 
         if g_items[g_curItemIndex].subitems[g_curSubItemIndex].inputType == 'CHOOSE' then
             setAllShoworHide(Sprite:findChild(g_curSubItem, 'SaveFlag'), 1)
@@ -1167,7 +1182,6 @@ function doSave(sprite)
             Sprite:setProperty(Sprite:findChild(titleNode,'SaveFlag'), 'data', '1')   
         end
     end
-    -- end
 end
 
 -- 显示或隐藏异常输入框
@@ -1304,8 +1318,8 @@ function ErrorSave(sprite)
         Dialog:show(rootSprite, '异常描述和处理描述不能为空！', 'ok')  
     else
         -- 更新用户输入
-        -- g_items[g_curItemIndex].subitems[g_curSubItemIndex].value = patrolResult
-        -- g_items[g_curItemIndex].subitems[g_curSubItemIndex].exceptionDetail = exception..";"..dealdetail
+        g_items[g_curItemIndex].subitems[g_curSubItemIndex].value = patrolResult
+        g_items[g_curItemIndex].subitems[g_curSubItemIndex].exceptionDetail = exception..";"..dealdetail
 
         local url = getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
         local username = Config:get('username')
@@ -1313,7 +1327,7 @@ function ErrorSave(sprite)
         Log:write("info: ErrorSave() param = ", param)
         
         -- 暂存用户输入
-        -- Patrol:save(g_planId, g_stationId, g_items)
+        Patrol:resSave(g_planId, g_stationId, g_resourceId, g_items)
 
         -- 请求服务器
         Http:request('Submitdata', url, 103, {useCache = false, method = 'post', postData='cmd=wlbxunjianDealrfid'..param})

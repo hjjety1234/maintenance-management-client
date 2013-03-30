@@ -113,26 +113,26 @@
             </node>
             
             <!--  二维码扫描模板  -->
-            <node name="ewmItemNode" rect="0,0,480,50" enable="false" active="false"
+            <node name="ewmItemNode" rect="0,0,480,100" enable="false" active="false"
                 visible="false" extendstyle="1111" data="">   
-                <image name="listItemBg" rect="0,0,480,50" src="file://image/item_bg_m.png" 
-                    style="autosize" extendstyle="1111" />
-                <button name="btnname" rect="0,0,480,50" OnSelect="itemOnSelect" 
+                <button name="btnname" rect="0,0,480,100" OnSelect="itemOnSelect" 
                     extendstyle="1111" data="">
-                    <image name="SaveFlag" rect="5,7,30,30" src=""
+                    <image name="listItemBg" rect="0,0,480,100" src="file://image/item_bg_m.png.png" 
+                        style="autosize" sudoku="15,15,15,15" extendstyle="1111" />
+                    <image name="SaveFlag" rect="5,5,30,30" src=""
                         style="autosize" extendstyle="1111"  visible="true" data="0"/>
-                    <scrolltext name="barcodeTitleName" rect="40,0,160,50"
-    	                extendstyle="1111" font-size="24" h-align="left" v-align="center"
+                    <scrolltext name="barcodeTitleName" rect="45,0,330,45"
+    	                extendstyle="1111" font-size="24" h-align="left" v-align="bottom"
     	                color="#0" scroll="true" step="2" />
-                    <image rect="210,0,200,50" src="file://image/input.png"
+                    <image rect="40,50,340,45" src="file://image/input.png"
                         style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
-                    <scrolltext name="barcodeResult" rect="215,13,190,45" style="autosize" 
+                    <scrolltext name="barcodeResult" rect="45,50,330,45" style="autosize" 
                         extendstyle="1111" font-size="18" text="" scroll="true" data='1' />
-                    <button name="barcodeScanBtn" rect="220,2,255,45" OnSelect="doBarcodeSanner" 
+                    <button name="barcodeScanBtn" rect="380,0,100,100" OnSelect="doBarcodeSanner" 
                         extendstyle="1111">
-                        <image rect="200,0,55,45" src="file://image/button1_normal.png"
+                        <image rect="5,10,90,80" src="file://image/button1_normal.png"
                             style="autosize" extendstyle="1111" />
-                        <label rect="200,0,55,45" text="扫描" color="#ffffff"
+                        <label rect="5,10,90,80" text="扫描" color="#ffffff"
                             extendstyle="1111" style="autosize" h-align="center" v-align="center"
                             font-size="15" />
                    </button>
@@ -244,6 +244,7 @@ function bodyOnPluginEvent(msg, param)
         -- 解析返回的二维码列表
         g_ewms = {}
         for i=0, getJsonArrayCount(data.value) - 1 do
+            -- 检查二维码是否已经逻辑删除
             table.insert(g_ewms, data.value[i])
         end
         Log:write('g_ewms:', g_ewms)
@@ -350,10 +351,10 @@ end
 
 -- 加载二维码扫描列表
 function loadBarcodeListItem(list, item, index)
-    Sprite:setRect(item, 0, 0, 480, 50)
+    Sprite:setRect(item, 0, 0, 480, 100)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local listItemBg = Sprite:findChild(item, 'listItemBg')
-    Sprite:setRect(listItemBg, 0, 0, 480, 50)
+    Sprite:setRect(listItemBg, 0, 0, 480, 100)
     if index % 2 > 0 then
         Sprite:setProperty(listItemBg, 'visible', 0)
     else

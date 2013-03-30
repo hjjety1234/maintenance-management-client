@@ -142,6 +142,10 @@ function bodyOnPluginEvent(msg)
         local loginData = Http:jsonDecode('login_istrue')
         Log:write('+++++++++++++++++',loginData)
         local result=loginData['code']
+        local role = loginData.value[0].rolecode
+        local username = loginData.value[0].userid
+        Log:write('username',username)
+        Log:write('role----',role)
         if result=='0' then
             Config:set('realname', loginData.userName)
             Config:set('tasknum', loginData.taskNum)
@@ -150,21 +154,27 @@ function bodyOnPluginEvent(msg)
             Log:write('xianlu flag is -->'..user_name)
             if xlFlag == '1' then
                 Scene:go(Alias.home_xianlu)
-            elseif user_name == 'qianshan' then 
-            	Scene:go(Alias.home_new)
-            elseif user_name == 'fanbingheng' or user_name == 'zhangxiangjun'
-                or user_name == 'hanlu'  then
-           		Scene:go(Alias.home_sheng)  
-            elseif user_name == 'tangjizhi' or user_name == 'likunzi' or user_name == 'liutingliang' then
-                Scene:go(Alias.home_jzgly)
-            elseif user_name == 'sunjun' then
-                Scene:go(Alias.home_xlgly) 
-            elseif user_name == 'mengzhenyu' then
-                Scene:go(Alias.home_jkgly)   
-            elseif user_name == 'xufan' then
-                Scene:go(Alias.home_jiakgly)        
+            elseif role=='MM000' or role=='MM001' or role=='MM002' then 
+                Scene:go(Alias.home_sheng) 
+            elseif role=='MM003' or role=='MM004'  then 
+                Scene:go(Alias.home_sheng_manager)
+            elseif role=='MM005' or role=='MM006'  then 
+                Scene:go(Alias.home_city)  
+            elseif role=='MM007' or role=='MM008'  then 
+                Scene:go(Alias.home_city_manager)  
+            elseif username == 'fanbingheng' or username == 'zhangxiangjun'
+                or username == 'hanlu' then 
+                 Scene:go(Alias.home_sheng) 
+            elseif username == 'liutingliang' or username == 'tangjizhi'
+                or username == 'sunjun' or username == 'likunzi'
+                or username == 'xufan' then 
+                Scene:go(Alias.home_sheng_manager)
+            elseif username == 'chenxiaofeng' then 
+                Scene:go(Alias.home_city) 
+            elseif username == 'liuguoli' or username == 'huotingrui' then 
+                Scene:go(Alias.home_city_manager)  
 			else
-				Scene:go(Alias.home_new)
+				Scene:go(Alias.home_sheng)
            	end
         else
             Dialog:show('登陆提醒', '账户密码错误！', 'ok')

@@ -9,6 +9,7 @@
  == ============================================================================
  == | Desc: 登陆（入口）页
  == | 2012/12/11 添加自动升级功能
+ == | 2013/03/15 新增增量升级功能
  == ============================================================================
 -->
 <root>
@@ -48,7 +49,7 @@
 			    text="" v-align="center" h-align="center" color="#ffffff" 
 			    extendstyle="1111" />
 
-            <!-- 升级框  -->
+            <!-- 普通升级框  -->
             <node name="upgradeNode" rect="0,0,480,800"  visible="false" enable="false" style='autosize'>
                 <shadow rect="0,0,480,800" color="#333333" alpha="125"/>
                 <image rect="66,215,368,68" src="file://image/top.png"  style="autosize" extendstyle="0010" >
@@ -79,6 +80,66 @@
                 </button>
                 <image rect="66,578,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
             </node>
+
+            <!-- 增量升级框 -->
+            <node name="diffUpdateNode" rect="0,0,480,800"  visible="false" enable="false" 
+                extendstyle="1111" style='autosize'>
+                <shadow rect="0,0,480,800" color="#333333" extendstyle="1111" alpha="125"/>
+                <image rect="66,215,368,50" src="file://image/top.png"  style="autosize" extendstyle="1111" >
+                    <label rect="20,20,240,30" border="false" color="#FFFFFF" style="autosize"
+                    text="版本更新" h-align="left" v-align="top" font-family="微软雅黑" font-size="24"/>
+                </image>
+                <!-- 对话框背景 -->
+                <image rect="66,264,368,200" src="file://image/center.png"  
+                    style="autosize" extendstyle="1111" border="false" >
+                </image>
+                <!-- 当前APP版本信息 -->
+                <image rect="80,270,40,40" border="false" src="file://image/app_icon.png" 
+                    style="autosize" extendstyle="1111" visible="true">
+                </image>
+                <label name="appName" rect="130,270,50,25" text="代维" 
+                    font-family="微软雅黑" font-size="22" color="#0" 
+                    v-align="center" h-align="left" extendstyle="1111" />
+                <label name="appVersion" rect="130,295,50,15" text="" 
+                    font-family="微软雅黑" font-size="18" color="#0" 
+                    v-align="center" h-align="left" extendstyle="1111" />
+                <!-- 升级信息 -->
+                <label name="pkgSize" rect="180,270,120,25" text="" 
+                    font-family="微软雅黑" font-size="22" color="#0" 
+                    v-align="center" h-align="center" extendstyle="1111" />
+                <shadow rect="200,284,80,2" border="false" 
+                    color="#0" extendstyle="1111" visible="true">
+                </shadow>
+                <label name="patchSize" rect="180,295,120,15" text="" 
+                    font-family="微软雅黑" font-size="16" color="#92D148" 
+                    v-align="center" h-align="center" extendstyle="1111" />
+                <!-- 升级操作 -->
+                <button rect="310,270,50,40" border="false"  enable='true'
+                    extendstyle="1111" OnSelect="downloadPatch" style='autosize'>
+                    <image rect="0,7,50,30" src="file://image/btn_yes.png" style="autosize" 
+                        extendstyle="1111" >
+                    </image>
+                    <label rect="0,0,50,40" border="false" color="#ffffff" style="autosize"
+                        text="升级" h-align="center" v-align="center" 
+                        font-family="微软雅黑" font-size="22"/>
+                </button>
+                <!-- 取消升级 -->
+                <button rect="370,270,50,40" border="false"  enable='true'
+                    extendstyle="1111" OnSelect="goLogin" style='autosize'>
+                    <image rect="0,7,50,30" src="file://image/btn_no.png" style="autosize" 
+                        extendstyle="1111" >
+                    </image>
+                    <label rect="0,0,50,40" border="false" color="#ffffff" style="autosize"
+                        text="取消" h-align="center" v-align="center" 
+                        font-family="微软雅黑" font-size="22"/>
+                </button>
+                <textarea name='releaseLog' rect="80,320,340,145" step="1" loop='true' border="false" 
+                    color="#303030" style="autosize" text="" h-align="left" v-align="top" 
+                    font-family="微软雅黑" font-size="22" extendstyle="1111"/>
+                <!-- 对话框底部 -->
+                <image rect="66,462,368,21" src="file://image/bottom.png"  
+                    style="autosize" extendstyle="1111" border="false"/>
+            </node>
        	</node>
     </body>
     <![CDATA[
@@ -87,12 +148,15 @@ require 'com_wondertek_dw.common.framework'
 require 'framework.umsagent'
 require 'framework.msgpush'
 require 'framework.appmanager'
+require 'framework.download'
 local rootSprite
 
 local g_packageUrl = nil            -- 客户端升级包url地址
 local g_patchUrl = nil              -- 补丁包下载url地址
+local g_releaseLog = nil            -- 版本升级说明
 
 local g_localpath = nil             -- 下载apk路径
+local g_tempPath = nil              -- 临时下载目录
 local g_localPatchPath = nil        -- 下载patch路径
 local g_localPatchResult = nil      -- 补丁更新后的文件路径
 
@@ -125,9 +189,11 @@ function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then
         System:setFontSize()
 	    if SCREEN_WIDTH >= 700 then
-	        System:changeSkin('MODULE:\\com_wondertek_dw/image/skin/skin.dat', 'MODULE:\\com_wondertek_dw/image/skin/')
+	        System:changeSkin('MODULE:\\com_wondertek_dw/image/skin/skin.dat', 
+	        'MODULE:\\com_wondertek_dw/image/skin/')
 	    else
-	        System:changeSkin('MODULE:\\com_wondertek_dw/image/skin/skin1.dat', 'MODULE:\\com_wondertek_dw/image/skin/')
+	        System:changeSkin('MODULE:\\com_wondertek_dw/image/skin/skin1.dat', 
+	        'MODULE:\\com_wondertek_dw/image/skin/')
 	    end
 	    Log:write('123',SCREEN_WIDTH)
 	    checkClientVersion()
@@ -160,12 +226,8 @@ function bodyOnPluginEvent(msg, param)
             if tonumber(checkversionData['version']['isNeedUpdate']) == 0 then  -- 不需要升级
                 goLogin()
             elseif tonumber(checkversionData['version']['isNeedUpdate']) == 1 then -- 提示升级
-		        local update = Sprite:findChild(rootSprite,'update')
-		        Sprite:setProperty(update,'text',checkversionData.version.releaseLog)
-                local mainNode = Sprite:findChild(rootSprite, 'mainNode')
-                local upgradeNode = Sprite:findChild(rootSprite, 'upgradeNode')
-                Sprite:setProperty(upgradeNode,'visible','true')
-                Sprite:setProperty(upgradeNode,'enable','true')
+                g_releaseLog = checkversionData.version.releaseLog
+                doUpgrade(checkversionData.version.md5sum)
             elseif tonumber(checkversionData['version']['isNeedUpdate']) == 2 then -- 强制升级
                 local update = Sprite:findChild(rootSprite,'update')
                 Sprite:setProperty(update,'text',checkversionData.version.releaseLog)
@@ -287,6 +349,104 @@ function checkClientVersion()
     Http:request('index_checkversion', requestURL, 102, {useCache = false})
 end
 
+-- 根据增量升级的条件，进行全新升级或增量升级
+function doUpgrade(md5sum)
+    Log:write("存在升级信息，开始升级...")
+    local bDiffUpdate = true
+    getDownloadPath()
+    -- g_patchUrl = "http://120.209.131.146/patch_dir/Venus_DW.patch"
+    -- 检查差分包的URL地址
+    if g_patchUrl == nil or g_patchUrl == "" then 
+        Log:write("差分包的URL地址为空！")
+        bDiffUpdate = false
+    end
+    -- 检查本地旧本地文件是否存在 
+    if IO:fileExist(g_localpath) == false then
+        Log:write("本地文件不存在！")
+        bDiffUpdate =  false
+    end
+    -- 开始升级
+    if bDiffUpdate == true then
+        Log:write("显示增量升级对话框")
+        local packagesize = getHttpFileSize(g_packageUrl, g_tempPath.."/Venus_DW.apk")
+        local patchsize = getHttpFileSize(g_patchUrl, g_tempPath.."/Venus_DW.patch")
+        -- 显示差分升级对话框
+        local appVersion = Sprite:findChild(rootSprite, 'appVersion')
+        Sprite:setProperty(appVersion, 'text', 'v'..Config:get("app_version"))
+        local releaseLog = Sprite:findChild(rootSprite, 'releaseLog')
+        Sprite:setProperty(releaseLog, 'text', g_releaseLog)
+        local pkgSize = Sprite:findChild(rootSprite, 'pkgSize')
+        Sprite:setProperty(pkgSize, 'text', packagesize)
+        local patchSizeLabel = Sprite:findChild(rootSprite, 'patchSize')
+        Sprite:setProperty(patchSizeLabel, 'text', "仅需"..patchsize)
+        local diffUpdateNode = Sprite:findChild(rootSprite, 'diffUpdateNode')
+        Sprite:setProperty(diffUpdateNode, 'visible', 'true')
+        Sprite:setProperty(diffUpdateNode, 'enable', 'true')
+    else
+         Log:write("显示全新升级对话框")
+        local update = Sprite:findChild(rootSprite, 'update')
+        Sprite:setProperty(update, 'text', g_releaseLog)
+        local mainNode = Sprite:findChild(rootSprite, 'mainNode')
+        local upgradeNode = Sprite:findChild(rootSprite, 'upgradeNode')
+        Sprite:setProperty(upgradeNode,'visible','true')
+        Sprite:setProperty(upgradeNode,'enable','true')
+    end
+end
+
+-- 获取http文件大小, 需要先下载到本地
+function getHttpFileSize(url, localPath)
+    __remove_all_download()
+    if IO:fileExist(localPath) ==  true then 
+        IO:fileRemove(localPath)
+    end
+    if url == nil or url == "" then 
+        Log:write("getHttpFileSize: url 地址为空")
+        return getReadableSize(0)
+    end
+    Download:append(localPath, 'packagesize', url, true)
+    local count = Download:getCount(true)
+    for i=1, count do 
+        for j=1, 1000 do -- 尝试取1000次
+            local task = Download:getStatus(i, true)
+            Log:write("task", task)
+            if task.title == 'packagesize' and task.maxsize ~= 0 then
+                local maxsize = task.maxsize
+                __remove_all_download()
+                return getReadableSize(maxsize)
+            elseif task.title == "packagesize" then 
+                Download:start(i, true)
+            end
+        end
+    end
+    __remove_all_download()
+    return getReadableSize(0)
+end
+
+-- 格式化文件大小，转换为可读的格式
+function getReadableSize(size)
+    Log:write("当前文件大小:"..size)
+    local strFileSize = "0B"
+    if size < 1024 then 
+        strFileSize = tostring(size).."B"
+    elseif size / 1024 < 1024 then 
+        strFileSize = string.format("%.2fKB", size / 1024)
+    elseif size / 1048576 < 1024 then 
+        strFileSize = string.format("%.2fMB", size / 1048576)
+    else
+        strFileSize = string.format("%.2fGB", size / 1073741824)
+    end
+    return strFileSize
+end
+
+-- 清空下载队列
+function __remove_all_download()
+    -- 删除以前的下载信息
+    local count = Download:getCount(true)
+    for i = 1, count do
+       Download:delete(i, true, true) 
+    end
+end
+
 --  下载升级安装包
 function downloadPackage()
     local upgradeNode = Sprite:findChild(rootSprite, "upgradeNode")
@@ -312,29 +472,49 @@ function downloadPackage()
     local progress = Sprite:findChild(downloadingNode, 'progressImg')
     local startX,startY,_,startH = Sprite:getRect(progress)
     -- 开始下载
-    require('framework.download')
-    getDownloadPath()
-    if IO:fileExist(g_localpath) == true and  
-        g_patchUrl ~= nil and g_patchUrl ~= "" then 
-        -- 设置升级方式为差分升级
-        -- 原安装文件不存在，补丁Url缺失，
-        Log:write("采用差分升级方式")
-        g_updateMethod = 1   
-        if IO:fileExist(g_localPatchPath) == true then 
-            IO:fileRemove(g_localPatchPath)
-            Log:write("差分升级：删除旧的补丁文件")
-        end
-        Download:append(g_localPatchPath, 'intallPackageName', g_patchUrl, true)
-    else
-        -- 设置升级方式为全新升级
-        Log:write("采用全新升级方式（可能原因：原安装文件不存在或校验失败，补丁Url缺失）")
-        g_updateMethod = 0 
-        if IO:fileExist(g_localpath) == true then 
-            IO:fileRemove(g_localpath)
-            Log:write("全新升级：删除旧的安装文件")
-        end  
-        Download:append(g_localpath, 'intallPackageName', g_packageUrl, true)
+    -- 设置升级方式为全新升级
+    Log:write("采用全新升级方式")
+    g_updateMethod = 0 
+    if IO:fileExist(g_localpath) == true then 
+        IO:fileRemove(g_localpath)
+        Log:write("全新升级：删除旧的安装文件")
+    end  
+    Download:append(g_localpath, 'intallPackageName', g_packageUrl, true)
+    onGetDownloadStatus()
+end
+
+-- 下载差分升级包
+function downloadPatch()
+    local diffUpdateNode = Sprite:findChild(rootSprite, "diffUpdateNode")
+    Sprite:setProperty(diffUpdateNode, "enable", "false")
+    Sprite:setProperty(diffUpdateNode, "visible", "false")
+    if not g_patchUrl or '' == g_patchUrl then
+        Dialog:show('', '增量补丁包下载地址为空，版本升级失败！【确定】继续进入，【取消】退出客户端！', 
+            'ok_cancel', 'goLogin', 'doExit')
+        return
     end
+    local noticeLblSprite = Sprite:findChild(rootSprite, "noticeLbl")
+    Sprite:setProperty(noticeLblSprite, "text", "增量升级中...")
+    -- 删除缓存
+    IO:dirRemove('CACHE:\\com_wondertek_dw', 1)
+    -- 隐藏登录和版本检查进度条
+    local scrollBarNode = Sprite:findChild(rootSprite, 'scrollBarNode')
+    Sprite:setVisible(scrollBarNode, 0)
+    Sprite:setEnable(scrollBarNode, 0)
+     -- 显示下载进度
+    local downloadingNode = Sprite:findChild(rootSprite, 'downloadingNode')
+    Sprite:setVisible(downloadingNode, 1)
+    Sprite:setEnable(downloadingNode, 1)
+    local progress = Sprite:findChild(downloadingNode, 'progressImg')
+    local startX,startY,_,startH = Sprite:getRect(progress)
+    -- 开始下载
+    Log:write("采用增量升级方式")
+    g_updateMethod = 1   
+    if IO:fileExist(g_localPatchPath) == true then 
+        IO:fileRemove(g_localPatchPath)
+        Log:write("增量升级：删除旧的补丁文件")
+    end
+    Download:append(g_localPatchPath, 'intallPackageName', g_patchUrl, true)
     onGetDownloadStatus()
 end
 
@@ -413,14 +593,18 @@ function getDownloadPath()
         downloadPath = System:getFlashCardName(0)
     end
     g_localpath = downloadPath.."download"
+    g_tempPath = downloadPath.."temp"
     Log:write("getDownloadPath: localDir="..g_localpath)
     -- 如果路径不存在，创建下载目录
     if IO:dirExist(g_localpath) == false then 
         IO:dirCreate(g_localpath)
     end
+     if IO:dirExist(g_tempPath) == false then 
+        IO:dirCreate(g_tempPath)
+    end
     -- 如果apk已经存在，删除之
     g_localPatchPath = g_localpath.."/Venus_DW.patch"
-    g_localPatchResult = g_localpath.."/Venus_DW_NEW.patch"
+    g_localPatchResult = g_localpath.."/Venus_DW_New.apk"
     g_localpath = g_localpath.."/Venus_DW.apk"
     Log:write("getDownloadPath: g_localPatchPath="..g_localPatchPath)
     Log:write("getDownloadPath: g_localpath="..g_localpath)
