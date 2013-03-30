@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2013, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: jiangfeng <jiangfengsgs@ahmobile.com>
+ == | Revised: hewu <hewu2008@gmail.com>
+ == ============================================================================
+ == | Desc: 2012/3/29 考核统计
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <!-- 主节点  -->
+        <node name="mainNode" rect="0,0,480,800" enable="true" 
+            active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image rect="0,0,480,800" src="file://image/backgroundImg.png" style="autosize"
+                extendstyle="1111" />
+            <!-- 设置标题 -->
+            <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+                <node rect="0,0,480,66" name="NodeTitle" extendstyle="1111">
+                    <image name="titleBg" rect="0,0,480,66" src="file://image/title_bg_new.png"
+                        extendstyle="1111" style="autosize" />
+                    <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
+                        OnSelect="doBack" extendstyle="1111">
+                        <image name="normal" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
+                             extendstyle="1111" />
+                        <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
+                             extendstyle="1111" />
+                    </button>  
+                    <scrolltext name="title" rect="105,5,280,40" text="考核统计" font-family='微软雅黑'
+                        extendstyle="1111" font-size="36" h-align="center" v-align="center"
+                        color="#ffffff" scroll="true"  step="2" />
+                </node>
+            </node>
+            <!-- 选择专业按钮  -->
+            <node name='selectNode' rect="0,80,480,100" extendstyle="1111" visible='true' 
+                enable='true'>
+                <!-- 基站 C31-->     
+                <button name="station" rect="10,0,88,40" src='file://image/major_on.png'
+                    OnSelect="OnMajorSelect" extendstyle="1111" data='C31' style='autosize'>
+                    <label name='majorName' rect="0,0,88,40" text="基站" font-family='微软雅黑'
+                        extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                        color="#ffffff" />
+                </button>
+                <!-- 传输线路 C30-->     
+                <button name="line" rect="103,0,88,40" src='file://image/major.png'
+                    OnSelect="OnMajorSelect" extendstyle="1111" data='C30' style='autosize'>
+                    <label name='majorName' rect="0,0,88,40" text="线路" font-family='微软雅黑'
+                        extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                        color="#ffffff" />
+                </button>
+                <!-- 综合覆盖 C32-->     
+                <button name="repeater" rect="196,0,88,40" src='file://image/major.png'
+                    OnSelect="OnMajorSelect" extendstyle="1111" data='C32' style='autosize'>
+                    <label name='majorName' rect="0,0,88,40" text="综合覆盖" font-family='微软雅黑'
+                        extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                        color="#ffffff" />
+                </button>
+                <!-- 集客 C34-->     
+                <button name="group" rect="289,0,88,40" src='file://image/major.png' 
+                    OnSelect="OnMajorSelect" extendstyle="1111" data='C34' style='autosize'>
+                    <label name='majorName' rect="0,0,88,40" text="集客" font-family='微软雅黑'
+                        extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                        color="#ffffff" />
+                </button>
+                <!-- 家客 C37-->     
+                <button name="home" rect="382,0,88,40" src='file://image/major.png'
+                    OnSelect="OnMajorSelect" extendstyle="1111" data='C37' style='autosize'>
+                    <label name='majorName' rect="0,0,88,40" text="家客" font-family='微软雅黑'
+                        extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                        color="#ffffff" />
+                </button>
+                <!-- 铁塔 C33-->     
+                <button name="tower" rect="10,50,88,40" src='file://image/major.png'
+                    OnSelect="OnMajorSelect" extendstyle="1111" data='C33' style='autosize'>
+                    <label name='majorName' rect="0,0,88,40" text="铁塔" font-family='微软雅黑'
+                        extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                        color="#ffffff" />
+                </button>
+            </node>
+            <!-- 考核信息列表  -->
+            <node name="InfoNode" rect="0,185,480,610" extendstyle="1111">
+                <!-- 背景图片 -->
+                <image rect="10,0,460,12" src="file://image/content_top.png"
+                    style="autosize" extendstyle="1111" />
+                <image rect="10,12,460,586" src="file://image/content_center.png"
+                    style="autosize" extendstyle="1111" />
+                <!-- 选择月份 -->
+                <node name="MonthNode" rect="0,20,480,31" extendstyle="1111">
+                    <button name="prevMonthBtn" rect="20,0,40,31" OnSelect="prevMonthOnSelect" 
+                        style="autosize" extendstyle="1111" >
+                        <image name="normal" rect="0,0,40,31" src="file://image/t5.png" 
+                            style="autosize" extendstyle="0010"/>                  
+                    </button>
+                    <button name="nextMonthBtn" rect="414,0,40,31" OnSelect="nextMonthOnSelect" 
+                        style="autosize" extendstyle="1111">
+                        <image name="normal" rect="0,0,40,31" src="file://image/t6.png" 
+                            style="autosize" extendstyle="0010"/>                  
+                    </button>
+                    <image name='rightImg' rect="61,0,354,31" src="file://image/t7.png" 
+                        extendstyle="1111" style='autosize'/>
+                    <label name="yearLabel" rect="175,0,55,31" text="2012" 
+                        font-family="微软雅黑" font-size="24" h-align="center" 
+                        v-align="center" color="#ffffff" style="autosize" extendstyle="0010"/> 
+                    <label rect="230,0,20,31" text="年" font-family="微软雅黑" 
+                        font-size="24" h-align="center" v-align="center" 
+                        color="#ffffff" style="autosize" extendstyle="0010"/> 
+                    <label name="monthLabel" rect="250,0,25,31" text="2" 
+                        font-family="微软雅黑" font-size="24" h-align="center" 
+                        v-align="center" color="#ffffff" style="autosize" extendstyle="0010"/> 
+                    <label rect="275,0,20,31" text="月" font-family="微软雅黑" 
+                        font-size="24" h-align="center" v-align="center" 
+                        color="#ffffff" style="autosize" extendstyle="0010"/>
+                </node>
+                <!--列表信息-->
+                <node name="listViewNode" rect="0,56,480,500" extendstyle="1111">
+                    <listview name="sampleList1" rect="0,40,480,490" extendstyle="1111" 
+                        auto-scroll='true' limit='true' />
+                    <image name='selectImg' rect="21,0,438,1" 
+                        src="file://image/xianluzancun_line.png" extendstyle="1111" 
+                        style='autosize'/>
+                    <image name="listButtonImage" rect="31,9,418,38" 
+                        src="file://image/ziyuan_bg.png"
+                        extendstyle="1111" style='autosize' >
+                        <label rect="0,5,90,25" text="地市" font-family='微软雅黑'
+                            extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                            color="#e33a10" />
+                        <label rect="90,5,160,25" text="代维公司" font-family='微软雅黑'
+                            extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                            color="#e33a10" />
+                        <label rect="265,5,160,25" text="考核得分" font-family='微软雅黑'
+                            extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                            color="#e33a10" />
+                    </image>
+                    <button name="scoreSortBtn" rect="280,15,160,30" normal="normal" 
+                        sel="sel" OnSelect="doScoreSort" extendstyle="1111" data="0">
+                        <image name="triangleFD" rect="140,11,20,12" 
+                            src="file://image/triangle_down.png" style="autosize" 
+                            extendstyle="1111" />
+                    </button>
+                </node> 
+                <image rect="10,598,460,12" src="file://image/content_bottom.png"
+                    style="autosize" extendstyle="1111" /> 
+            </node>
+            <!-- 考核信息列表项模板 -->
+            <node name="listItem1" rect="0,400,480,80" border="false"
+                visible="false" enable="false" active="false" extendstyle="1111">
+                <image name="listItem_bg" rect="31,0,418,38" src=""
+                    extendstyle="1111" style='autosize' />
+                <scrolltext name="dimension" rect="45,5,90,25" text="" color="#303030" 
+                    font-family='微软雅黑' font-size="20" scroll="true" h-align="left"
+                    v-align="center" style="autosize" extendstyle="1111" >
+                </scrolltext> 
+                <label name='company' rect="140,5,180,25" text="100" font-family='微软雅黑'
+                    extendstyle="1111" font-size="20" h-align="left" v-align="center"
+                    color="#5a5a5a" />
+                <label name='score' rect="300,5,160,25" text="100" font-family='微软雅黑'
+                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                    color="#5a5a5a" />
+                <image name='faceName'  rect="410,8,30,30" src=""
+                    style="autosize" extendstyle="1111" /> 
+            </node>
+        </node>
+    </body>
+<![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+
+local rootSprite
+local g_response = nil
+local g_major = nil
+
+---------------------------------------回调函数列表--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    g_major = "C31"
+    setDefaultMonth()
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        request(g_major)
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then--按地市数据处理  
+        if Loading:isShow() then Loading:close() end
+        g_response = Http:jsonDecode('assessment')
+        Log:write('[bodyOnPluginEvent] g_response', g_response)
+        if g_response == nil or g_response.total == nil or g_response.value == nil then 
+            Dialog:show(rootSprite, '暂无考核数据!', 'ok')
+            return
+        end
+        local len = g_response.total
+        local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+        ListView:removeAllItems(listView1, 1, 1)
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+            len, 'loadListItem')
+        ListView:adjust(listView1)
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+       Scene:back()
+    end
+end
+
+-- 返回上一个页面
+function doBack()
+    Scene:back()
+end
+
+-- 加载统计数据
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 40)
+    local listItem_bg = Sprite:findChild(item, 'listItem_bg')
+    if index % 2 > 0 then
+       Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
+    end
+    -- 读取返回的数据
+    local value = g_response.value
+    local dimension = Sprite:findChild(item,'dimension')         -- 地市
+    local company = Sprite:findChild(item,'company')        -- 代维公司
+    local score = Sprite:findChild(item,'score')          -- 得分
+    local faceName = Sprite:findChild(item,'faceName')          -- 笑脸、哭脸
+    Sprite:setProperty(dimension, 'text', value[index].dimension)
+    Sprite:setProperty(company, 'text', value[index].company)
+    Sprite:setProperty(score, 'text', value[index].score)
+    Log:write('----',faceName,value[index].score)
+    if  value[index].score>=95 then 
+        Sprite:setProperty(faceName,'src','file://image/smileface.png')
+    elseif value[index].score<90 then 
+        Sprite:setProperty(faceName,'src','file://image/cryface.png')
+    end
+end
+
+-- 考核得分排序
+function doScoreSort(sprite)
+    local data = Sprite:getData(sprite)
+    if g_response == nil or g_response.total == nil or g_response.value == nil then 
+        Dialog:show(rootSprite, '暂无考核数据!', 'ok')
+        return
+    end
+    local len = g_response.total
+    Log:write("[doScoreSort] len: "..len)
+    if data == "0" then
+        Sprite:setProperty(sprite,'data', "1")
+        g_response.value = sortTable(g_response.value, 'score', true)
+        local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+        ListView:removeAllItems(listView1, 1, 1)
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+            len, 'loadListItem')
+        ListView:adjust(listView1)
+    else
+        local FD = Sprite:findChild(rootSprite,'triangleFD')
+        if  Sprite:getProperty(FD,'src') == "file://image/triangle_down.png" then
+            Sprite:setProperty(FD,'src','file://image/triangle_up.png')
+            g_response.value = sortTable(g_response.value, 'score', false)
+            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+            ListView:removeAllItems(listView1, 1, 1)
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+                len, 'loadListItem')
+            ListView:adjust(listView1)
+        else
+            Sprite:setProperty(FD,'src','file://image/triangle_down.png')
+            g_response.value = sortTable(g_response.value, 'score', true)
+            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+            ListView:removeAllItems(listView1, 1, 1)
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+                len, 'loadListItem')
+            ListView:adjust(listView1)
+        end
+    end
+end
+
+---------------------------------------月份相关函数--------------------------------
+-- 设置默认的月份
+function setDefaultMonth()
+    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
+    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
+    Sprite:setProperty(yearLabel, "text", 
+        os.date("*t",os.time() + 86400)["year"])      
+    Sprite:setProperty(monthLabel, "text", 
+        os.date("*t",os.time() + 86400)["month"])
+end
+
+-- 上个月份
+function prevMonthOnSelect(sprite)
+    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
+    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
+    local year = tonumber(Sprite:getText(yearLabel))
+    local month = tonumber(Sprite:getText(monthLabel))
+    if month == 1 then 
+        year = year - 1 
+        month = 12
+    else
+        month = month - 1
+    end
+    Sprite:setProperty(yearLabel, "text", tostring(year))
+    Sprite:setProperty(monthLabel, "text", tostring(month))
+    request(g_major)
+end
+
+-- 下个月份
+function nextMonthOnSelect(sprite)
+    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
+    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
+    local year = tonumber(Sprite:getText(yearLabel))
+    local month = tonumber(Sprite:getText(monthLabel))
+    if month == 12 then 
+        year = year + 1 
+        month = 1
+    else
+        month = month + 1
+    end
+    Sprite:setProperty(yearLabel, "text", tostring(year))
+    Sprite:setProperty(monthLabel, "text", tostring(month))
+    request(g_major)
+end
+
+-- 获取当前选择的月份
+function getSelectedMonth()
+    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
+    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
+    local year = Sprite:getText(yearLabel)
+    local month = Sprite:getText(monthLabel)
+    return year.."-"..month
+end
+
+---------------------------------------服务端请求函数--------------------------------
+-- 选择专业消息处理
+function OnMajorSelect(sprite)
+    local data = Sprite:getData(sprite)
+    Log:write("[OnMajorSelect] data: ", data)
+    if data == nil then 
+        Log:write("[OnMajorSelect] data is nil.")
+        return
+    end
+    setMajorSelectOn(sprite)
+    g_major = data
+    if data == "C30" then -- 线路
+        request(data)
+    elseif data == "C31" then -- 基站
+        request(data)
+    elseif data == "C32" then -- 综合覆盖
+        request(data)
+    elseif data == "C33" then -- 铁塔
+        request(data)
+    elseif data == "C34" then -- 集客
+        request(data)
+    elseif data == "C37" then -- 家客
+        request(data)
+    else
+        Log:write("[OnMajorSelect] 未知专业类型.")
+    end
+end
+
+-- 设置专业为选中状态
+function setMajorSelectOn(sprite)
+    local station = Sprite:findChild(rootSprite, "station")
+    local line = Sprite:findChild(rootSprite, "line")
+    local repeater = Sprite:findChild(rootSprite, "repeater")
+    local group = Sprite:findChild(rootSprite, "group")
+    local home = Sprite:findChild(rootSprite, "home")
+    local tower = Sprite:findChild(rootSprite, "tower")
+
+    Sprite:setProperty(station, 'src', 'file://image/major.png')
+    Sprite:setProperty(line, 'src', 'file://image/major.png')
+    Sprite:setProperty(repeater, 'src', 'file://image/major.png')
+    Sprite:setProperty(group, 'src', 'file://image/major.png')
+    Sprite:setProperty(home, 'src', 'file://image/major.png')
+    Sprite:setProperty(tower, 'src', 'file://image/major.png')
+
+    Sprite:setProperty(sprite, 'src', 'file://image/major_on.png')
+end
+
+-- 请求统计数据
+function request(major)
+    local month = getSelectedMonth()
+    local param = string.format('cmd=wlbassessment&usercode=%s&date=%s&major=%s&page=1&pagesize=100', 
+        Config:get('username'), month, major)
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Log:write("[request] reqURL: ", reqURL)
+    Http:request('assessment', reqURL, 101, {useCache = false})
+    Loading:show()
+end
+
+]]>
+</root>
