@@ -150,13 +150,13 @@
                         visible="false" enable="false" active="false" extendstyle="1111">
                             <image name="listItem_bg" rect="31,0,418,38" src=""
                             extendstyle="1111" style='autosize' />
-                            <scrolltext name='cityName' rect="50,5,150,25" text="地市" font-family='微软雅黑'
+                            <scrolltext name='cityName' rect="50,5,130,25" text="地市" font-family='微软雅黑'
                                     extendstyle="1111" font-size="20" h-align="left" v-align="center"
-                                    color="#5a5a5a" step="2" scroll="true"/>
+                                    color="#5a5a5a" step="2" scroll="true" />
+                            <image name="KFPic" rect="184,12,16,15" src="" style="autosize"  extendstyle="1111"/>
                             <label name='costName' rect="200,5,90,25" text="100" font-family='微软雅黑'
                                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
                                     color="#5a5a5a" />
-                            <image name="KFPic" rect="290,7,16,15" src="" style="autosize"  extendstyle="1111" />
                             <label name='deductedName' rect="310,5,90,25" text="100" font-family='微软雅黑'
                                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
                                     color="#5a5a5a" />
@@ -275,6 +275,7 @@ local listView1
 local max
 local sec
 local third
+local KFNum
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -290,9 +291,6 @@ function bodyBuildChildrenFinished(sprite)
     nianlabel2 = Sprite:findChild(rootSprite,"nianlabel2")
     Loading:show(rootSprite)
 
-    listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-    ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listitem1'), 6, 'loadListItem1')
-    ListView:adjust(listView1)
 end
 
 -- @brief root节点消息方法
@@ -309,20 +307,23 @@ function bodyOnPluginEvent(msg)
     if msg == 101 then
         if Loading:isShow() then Loading:close() end
         city_data = Http:jsonDecode('city_data')
-        Log:write("===++++city_data++++=====",city_data)
+     
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         local len = getJsonArrayCount(city_data.value)
-        Log:write("===++++city_data.value++++=====",city_data.value)
+       
         ListView:removeAllItems(listView,1,1)
         -- 加载列表项
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
         ListView:adjust(listView)
         Loading:close()
-        city_data.value1 = sortTable(city_data.value, 'deducted', true)
+        city_data.value1 = sortTable(city_data.value, 'cost', true)
+        Log:write("===++++city_data++++=====", city_data.value1)
         max=city_data.value1[0].cost
         sec=city_data.value1[1].cost
-         third=city_data.value1[2].cost
-        Log:write("===++++city_data.value11111++++=====",city_data.value1)
+        third=city_data.value1[2].cost
+        Log:write("===maxmaxmax++++=====",max)
+        Log:write("===secsecsec++++=====",sec)
+        Log:write("=== third third third++++=====", third)
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -713,26 +714,39 @@ function loadListItem(list, item, index)
     local cityName = Sprite:findChild(item,'cityName')
     local costName = Sprite:findChild(item,'costName')
     local deductedName = Sprite:findChild(item,'deductedName')
+    local deductedButton = Sprite:findChild(item,'KFBtn')
     local KFPic = Sprite:findChild(item,'KFPic')
+    if city_data.value[index].dimension then
     Sprite:setProperty(cityName,'text',city_data.value[index].dimension)
+    end 
+    if city_data.value[index].cost then
     Sprite:setProperty(costName,'text',city_data.value[index].cost)
+    end
+    if city_data.value[index].deducted then
     Sprite:setProperty(deductedName,'text',city_data.value[index].deducted)
-    if city_data.value[index].deducted == '0%' then
+    end
+    Sprite:setProperty(deductedButton,'data',index)
+
+    
+    if city_data.value[index].deducted > '0%' then
         Sprite:setVisible(Sprite:findChild(rootSprite,"KFBtn"),1)
         Sprite:setEnable(Sprite:findChild(rootSprite,"KFBtn"), 1)
     else
         Sprite:setVisible(Sprite:findChild(rootSprite,"KFBtn"),0)
         Sprite:setEnable(Sprite:findChild(rootSprite,"KFBtn"), 0)
     end
-    if city_data.value[index].cost==max then
-        Sprite:setProperty(KFPic,src,'file://image/d1.png')
-    elseif city_data.value[index].cost==sec then
-        Sprite:setProperty(KFPic,src,'file://image/d2.png')
-    elseif city_data.value[index].cost==third then
-        Sprite:setProperty(KFPic,src,'file://image/d3.png')
-    else 
-        Sprite:setProperty(KFPic,src,'')
+    if tonumber(city_data.value[index].cost) == max then
+         Sprite:setProperty(KFPic, 'src', 'file://image/d1.png')
+    elseif tonumber(city_data.value[index].cost) == sec then
+        Sprite:setProperty(KFPic, 'src', 'file://image/d2.png')
+
+    elseif tonumber(city_data.value[index].cost) == third then
+         Sprite:setProperty(KFPic, 'src', 'file://image/d3.png')
+    elseif max==sec then
+        Sprite:setProperty(KFPic, 'src', '')
+
     end
+   
 end
 
 function loadListItem1(list, item, index)
@@ -744,9 +758,14 @@ function loadListItem1(list, item, index)
     local kfNumLab = Sprite:findChild(item,'kfNum')
     local kfTimeLab = Sprite:findChild(item,'kfTime')
     Sprite:setProperty(num,'text',tostring(index+1)..'、')
-    Sprite:setProperty(kfDetailsLab,'text',"基站接地不规范")
-    Sprite:setProperty(kfNumLab,'text',"-100")
-    Sprite:setProperty(kfTimeLab,'text',"2012-12-20")
+    Log:write("点击的是哪个222")
+    --Sprite:setProperty(kfDetailsLab,'text',"基站接地不规范")
+    --Sprite:setProperty(kfNumLab,'text',"-100")
+    --Sprite:setProperty(kfTimeLab,'text',"2012-12-20")
+    Sprite:setProperty(kfDetailsLab,'text',city_data.value[KFNum].data["reason"])
+    Sprite:setProperty(kfNumLab,'text',city_data.value[KFNum].data["amount"])
+    Sprite:setProperty(kfTimeLab,'text',city_data.value[KFNum].data["time"])
+    
 end
 
 --代维费用排序
@@ -820,6 +839,12 @@ end
 --扣罚详情查看
 function KFOnSelect(sprite)
    setAllShoworHide(Sprite:findChild(rootSprite, 'selectKFNode'), 1)
+   KFNum=Sprite:getData(sprite)
+   Log:write("点击的是哪个1111",KFNum)
+   listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+  Log:write("点击的是哪个we212121",#city_data.value[KFNum].data+1)
+   ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listitem1'), #city_data.value[KFNum].data+1, 'loadListItem1')
+   ListView:adjust(listView1)
 end
 function hideKFNodeSelected(sprite)
    setAllShoworHide(Sprite:findChild(rootSprite, 'selectKFNode'), 0)
