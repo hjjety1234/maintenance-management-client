@@ -143,6 +143,8 @@ function bodyOnPluginEvent(msg)
         Log:write('+++++++++++++++++',loginData)
         local result=loginData['code']
         local role = loginData.value[0].rolecode
+        local username = loginData.value[0].userid
+        Log:write('username',username)
         Log:write('role----',role)
         if result=='0' then
             Config:set('realname', loginData.userName)
@@ -159,6 +161,17 @@ function bodyOnPluginEvent(msg)
             elseif role=='MM005' or role=='MM006'  then 
                 Scene:go(Alias.home_city)  
             elseif role=='MM007' or role=='MM008'  then 
+                Scene:go(Alias.home_city_manager)  
+            elseif username == 'fanbingheng' or username == 'zhangxiangjun'
+                or username == 'hanlu' then 
+                 Scene:go(Alias.home_sheng) 
+            elseif username == 'liutingliang' or username == 'tangjizhi'
+                or username == 'sunjun' or username == 'likunzi'
+                or username == 'xufan' then 
+                Scene:go(Alias.home_sheng_manager)
+            elseif username == 'chenxiaofeng' then 
+                Scene:go(Alias.home_city) 
+            elseif username == 'liuguoli' or username == 'huotingrui' then 
                 Scene:go(Alias.home_city_manager)  
 			else
 				Scene:go(Alias.home_sheng)

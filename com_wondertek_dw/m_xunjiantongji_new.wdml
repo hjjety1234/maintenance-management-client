@@ -119,7 +119,7 @@
                 </node>
                 <!--列表信息-->
                 <node name="listViewNode" rect="0,56,480,500" extendstyle="1111">
-                    <listview name="sampleList1" rect="0,40,480,500" extendstyle="1111" 
+                    <listview name="sampleList1" rect="0,40,480,490" extendstyle="1111" 
                         auto-scroll='true' limit='true' />
                     <image name='selectImg' rect="21,0,438,1" 
                         src="file://image/xianluzancun_line.png" extendstyle="1111" 
@@ -183,6 +183,8 @@
                 <label name='ratio' rect="300,5,160,25" text="100" font-family='微软雅黑'
                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
                     color="#5a5a5a" />
+                <image name='faceName'  rect="410,8,30,30" src=""
+                    style="autosize" extendstyle="1111" /> 
             </node>
         </node>
     </body>
@@ -264,6 +266,35 @@ function loadListItem(list, item, index)
     Sprite:setProperty(plan, 'text', value[index].plan)
     Sprite:setProperty(complete, 'text', value[index].complete)
     Sprite:setProperty(ratio, 'text', value[index].ratio)
+    -- 前三名显示笑脸，后三名显示哭脸
+    showRank1(item, index)
+end
+-- 对前三名显示笑脸，后三名显示哭脸
+function showRank1(item, index)
+    -- 获取当前巡检率的值
+    local ratio = g_response.value[index].ratio
+    if ratio=='' or ratio==nil  then 
+        ratio=0
+    end 
+    --Log:write('当前巡检率的值',ratio)
+    -- 统计巡检率的排名
+    local rank = 1
+    for i=0,g_response.total-1 do
+        local compare = g_response.value[i].ratio
+        --Log:write('compare',compare)
+        if ratio < compare then 
+            rank =  rank + 1
+        end 
+    end 
+    --Log:write('排名',rank)
+    -- 获取笑脸和哭脸的Sprite
+    local faceName = Sprite:findChild(item, 'faceName')
+    
+    if rank <= 3 and ratio~='0%'  then
+        Sprite:setProperty(faceName, 'src', 'file://image/smileface.png')
+    elseif g_response.total - rank <= 3 or ratio=='0%' then
+        Sprite:setProperty(faceName, 'src', 'file://image/cryface.png')
+    end
 end
 -- 计划巡检站点排序
 function doPlanSort(sprite)
@@ -273,7 +304,6 @@ function doPlanSort(sprite)
         return
     end
     local len = g_response.total
-    Log:write("[doScoreSort] len: "..len)
     if data == "0" then
         Sprite:setProperty(sprite,'data', "1")
         g_response.value = sortTable(g_response.value, 'plan', true)
@@ -282,7 +312,7 @@ function doPlanSort(sprite)
         ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
             len, 'loadListItem')
         ListView:adjust(listView1)
-        Log:write("[doScoreSort] len: "..len)
+        Log:write('g_response.value',g_response.value)
     else
         local FD = Sprite:findChild(rootSprite,'triangleFD2')
         if  Sprite:getProperty(FD,'src') == "file://image/triangle_down.png" then
@@ -293,6 +323,7 @@ function doPlanSort(sprite)
             ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
                 len, 'loadListItem')
             ListView:adjust(listView1)
+            Log:write('g_response.value',g_response.value)
         else
             Sprite:setProperty(FD,'src','file://image/triangle_down.png')
             g_response.value = sortTable(g_response.value, 'plan', true)
@@ -301,6 +332,7 @@ function doPlanSort(sprite)
             ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
                 len, 'loadListItem')
             ListView:adjust(listView1)
+            Log:write('g_response.value',g_response.value)
         end
     end
 end

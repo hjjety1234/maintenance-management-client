@@ -162,6 +162,8 @@
                 <label name='score' rect="300,5,160,25" text="100" font-family='微软雅黑'
                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
                     color="#5a5a5a" />
+                <image name='faceName'  rect="410,8,30,30" src=""
+                    style="autosize" extendstyle="1111" /> 
             </node>
         </node>
     </body>
@@ -238,9 +240,16 @@ function loadListItem(list, item, index)
     local dimension = Sprite:findChild(item,'dimension')         -- 地市
     local company = Sprite:findChild(item,'company')        -- 代维公司
     local score = Sprite:findChild(item,'score')          -- 得分
+    local faceName = Sprite:findChild(item,'faceName')          -- 笑脸、哭脸
     Sprite:setProperty(dimension, 'text', value[index].dimension)
     Sprite:setProperty(company, 'text', value[index].company)
     Sprite:setProperty(score, 'text', value[index].score)
+    Log:write('----',faceName,value[index].score)
+    if  value[index].score>=95 then 
+        Sprite:setProperty(faceName,'src','file://image/smileface.png')
+    elseif value[index].score<90 then 
+        Sprite:setProperty(faceName,'src','file://image/cryface.png')
+    end
 end
 
 -- 考核得分排序
