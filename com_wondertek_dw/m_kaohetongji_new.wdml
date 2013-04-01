@@ -193,16 +193,17 @@ function bodyOnPluginEvent(msg, param)
     if msg == 101 then--按地市数据处理  
         if Loading:isShow() then Loading:close() end
         g_response = Http:jsonDecode('assessment')
+        Log:write('111111111',g_response)
         --Log:write('[bodyOnPluginEvent] g_response', g_response)
         if g_response == nil or g_response.total == nil or g_response.value == nil then 
             Dialog:show(rootSprite, '暂无考核数据!', 'ok')
             return
         end
-        local len = g_response.total
-        local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-        ListView:removeAllItems(listView1, 1, 1)
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
-            len, 'loadListItem')
+        local len = #g_response.value+1
+        Log:write('=====len===',len)
+        local listView1 = Sprite:findChild(rootSprite,'sampleList1')
+        ListView:removeAllItems(listView1,1,1)
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
         ListView:adjust(listView1)
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
@@ -255,7 +256,7 @@ function doScoreSort(sprite)
         Dialog:show(rootSprite, '暂无考核数据!', 'ok')
         return
     end
-    local len = g_response.total
+    local len = #g_response.value+1
     --Log:write("[doScoreSort] len: "..len)
     if data == "0" then
         Sprite:setProperty(sprite,'data', "1")
