@@ -219,7 +219,7 @@ function bodyOnPluginEvent(msg, param)
         g_response = Http:jsonDecode('patrol')
         --Log:write('[bodyOnPluginEvent] g_response', g_response)
         if g_response == nil or g_response.total == nil or g_response.value == nil then 
-            Dialog:show(rootSprite, '暂无考核数据!', 'ok')
+            Dialog:show('', '暂无巡检数据!', 'ok')
             return
         end
         local len = g_response.total
@@ -266,6 +266,9 @@ function loadListItem(list, item, index)
     Sprite:setProperty(plan, 'text', value[index].plan)
     Sprite:setProperty(complete, 'text', value[index].complete)
     Sprite:setProperty(ratio, 'text', value[index].ratio)
+    if value[index].plan<=value[index].complete and value[index].plan~=0 then 
+        Sprite:setProperty(ratio, 'text', '100%')
+    end
     -- 前三名显示笑脸，后三名显示哭脸
     showRank1(item, index)
 end
@@ -275,8 +278,9 @@ function showRank1(item, index)
     local ratio = g_response.value[index].ratio
     if ratio=='' or ratio==nil  then 
         ratio=0
-    end 
-    --Log:write('当前巡检率的值',ratio)
+    end
+
+    Log:write('当前巡检率的值',ratio)
     -- 统计巡检率的排名
     local rank = 1
     for i=0,g_response.total-1 do
@@ -285,8 +289,9 @@ function showRank1(item, index)
         if ratio < compare then 
             rank =  rank + 1
         end 
+            --Log:write('排名',rank)
     end 
-    --Log:write('排名',rank)
+
     -- 获取笑脸和哭脸的Sprite
     local faceName = Sprite:findChild(item, 'faceName')
     
@@ -295,12 +300,15 @@ function showRank1(item, index)
     elseif g_response.total - rank <= 3 or ratio=='0%' then
         Sprite:setProperty(faceName, 'src', 'file://image/cryface.png')
     end
+    if  ratio>='100%' then 
+        Sprite:setProperty(faceName, 'src', 'file://image/smileface.png')
+    end
 end
 -- 计划巡检站点排序
 function doPlanSort(sprite)
     local data = Sprite:getData(sprite)
     if g_response == nil or g_response.total == nil or g_response.value == nil then 
-        Dialog:show(rootSprite, '暂无考核数据!', 'ok')
+        Dialog:show('', '暂无巡检数据!', 'ok')
         return
     end
     local len = g_response.total
@@ -340,7 +348,7 @@ end
 function doCompleteSort(sprite)
     local data = Sprite:getData(sprite)
     if g_response == nil or g_response.total == nil or g_response.value == nil then 
-        Dialog:show(rootSprite, '暂无考核数据!', 'ok')
+        Dialog:show('', '暂无巡检数据!', 'ok')
         return
     end
     local len = g_response.total
@@ -381,7 +389,7 @@ end
 function doScoreSort(sprite)
     local data = Sprite:getData(sprite)
     if g_response == nil or g_response.total == nil or g_response.value == nil then 
-        Dialog:show(rootSprite, '暂无考核数据!', 'ok')
+        Dialog:show('', '暂无巡检数据!', 'ok')
         return
     end
     local len = g_response.total

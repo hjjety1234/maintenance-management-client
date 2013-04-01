@@ -148,6 +148,7 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.map'
 require 'framework.umsagent'
 
 local rootSprite
@@ -160,6 +161,7 @@ local longitude = 0
 local latitude = 0
 local time 
 local posValue
+local g_beat = 0
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -182,9 +184,9 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         -- 客户端心跳功能
-        doLocation()
+        -- doLocation()
         -- 客户端心跳功能END
-
+        Timer:set(333, 1000, 'heartBeatFuc')
         UmsAgent:OnActivate(string.match(Alias.home_new, 'MODULE:\\(.*)'), '巡检员首页')
         updateDaibanNum()
     elseif msg == MSG_DEACTIVATE then
@@ -239,6 +241,27 @@ function bodyOnPluginEvent(msg, param)
             Config:set("longitude", postData.longitude)
         end
         -- postData为Json数据({"latitude":"31250614","longitude":"121600975"})
+    elseif msg == 1100 then
+        local imei = System:getMachineInfo(4) 
+        if imei == nil then 
+            imei = "" 
+            Log:write("[msg 1100] imei is null!")
+            return
+        end
+        Log:write('[msg 1100] imei = '..imei)
+        local postDataString = Param:getString(param, 0)
+        Log:write('[msg 1100] postData = '..postDataString)
+        local postData = Json:loadString2Table(postDataString)
+        local latitudeValue = tonumber(postData.latitude) / 1000000.0
+        local longitudeValue = tonumber(postData.longitude) / 1000000.0
+        local time = getCurDateAndTimeAddOneDay()
+        local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
+        local param = string.format('usercode=%s&lon=%f&lat=%f&gpstime=%s&cmd=%s&simid=%s', 
+                usercode, longitudeValue, latitudeValue, time, 'wlbheartbeat', imei)
+        Log:write("[msg 1100] param", param)
+        local reqURL = getUrl()..'nbspweb/webservice/common!doWebservice.action'
+        Log:write("reqURL="..reqURL)
+        Http:request('heartBeatTag', reqURL, 103, {useCache = false, method='post',postData = param})
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -366,6 +389,7 @@ function doLocation()
         Timer:set(222, 1000, 'getLoctude')
     end  
  end
+
 -- 调gps函数
 function getLoctude()
     Log:write("测试进入getLoctude函数")
@@ -394,18 +418,14 @@ function getLoctude()
         timerNum = 10
     end
 end
+
 -- 心跳函数
 function heartBeatFuc()
-    local imei = System:getMachineInfo(4) 
-        if imei == nil then 
-            imei = "" 
-        end
-        Log:write('loginOnSelect: imei = '..imei)
-        local dataString = string.format('usercode=%s&lon=%s&lat=%s&gpstime=%s&cmd=%s&simid=%s', 
-            usercode, posValue, 'wlbheartbeat', imei)
-        local reqURL = getUrl()..'nbspweb/webservice/common!doWebservice.action?'..dataString
-        Http:request('heartBeatTag', reqURL, 103, {useCache=false})
-        Loading:show(rootSprite) 
+    Log:write("g_beat="..g_beat)
+    g_beat = g_beat + 1
+    Timer:set(333, 15000, 'heartBeatFuc')
+    local observer = Plugin:getObserver()
+    Map:getCurPosition(observer, 1100)
 end 
 
     ]]>

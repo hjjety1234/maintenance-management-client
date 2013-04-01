@@ -83,7 +83,7 @@
                         --综合覆盖
                         <button name="zongheBtn" rect="140,60,66,66" data="1" visible='false' enable='false'
                          OnSelect="zongheOn" extendstyle="1111">
-                           <image name="zongheImg" rect="15,8,66,66" src="file://image/site_zonghe.png" style='autosize'
+                           <image name="zongheImg" rect="15,8,75,75" src="file://image/site_zonghe.png" 
                            extendstyle="1111" />
                         </button>
                         --集客家客
@@ -184,6 +184,7 @@ function bodyOnPluginEvent(msg)
 	Loading:close()
     if msg == 101 then
     major_data = Http:jsonDecode('muban_data')
+    Log:write("[msg 101] major_data", major_data)
     --若只有一个专业则不显示全选
     if major_data.value == nil or  major_data.value == '' then 
         Dialog:show('','服务端无数据','ok')
@@ -345,6 +346,8 @@ end
 function request(stationid)
         local param ='&pagesize=20&page=1&stationid='..stationid
         local reqURL = getWholeUrl('nbspweb/webservice/assessment!doWebservice.action')
+        Log:write("[request] reqURL:", reqURL)
+        Log:write("[request] param:", param)
         Http:request('muban_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbsitechecktemplate'..param})
         Loading:show(rootSprite)
 end
