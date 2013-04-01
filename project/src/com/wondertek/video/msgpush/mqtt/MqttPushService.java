@@ -26,7 +26,6 @@ import com.ibm.mqtt.MqttPersistence;
 import com.ibm.mqtt.MqttSimpleCallback;
 import com.wondertek.ict4.R;
 import com.wondertek.video.msgpush.NotificationDetailsActivity;
-import com.wondertek.video.msgpush.implbyself.Constants;
 
 /* 
  * PushService that does all of the work.
@@ -35,36 +34,43 @@ import com.wondertek.video.msgpush.implbyself.Constants;
  */
 public class MqttPushService extends Service
 {
+	private static Context mContext;
+	
 	// this is the log tag
 	public static final String		TAG = "MqttPushService";
 
 	// the IP address, where your MQTT broker is running.
 	public static final String		MQTT_HOST = "MQTT_HOST";
+	
 	// the port at which the broker is running. 
 	public static final String				MQTT_BROKER_PORT_NUM      = "MQTT_BROKER_PORT_NUM"; //1883;
+	
 	// Let's not use the MQTT persistence.
 	private static MqttPersistence	MQTT_PERSISTENCE          = null;
-	// We don't need to remember any state between the connections, so we use a clean start. 是否接收历史消息
+	
+	// We don't need to remember any state between the connections, so we use a clean start. 
 	private static boolean			MQTT_CLEAN_START          = true;
+	
 	// Let's set the internal keep alive for MQTT to 15 mins. I haven't tested this value much. It could probably be increased.
-    //how often should the app ping the server to keep the connection alive?
-	// 保持长连接的检测频率
-	//   too frequently - and you waste battery life
-	//   too infrequently - and you wont notice if you lose your connection
-	//					   until the next unsuccessfull attempt to ping
+    // how often should the app ping the server to keep the connection alive?
+	// too frequently - and you waste battery life
+	// too infrequently - and you wont notice if you lose your connection
+	// until the next unsuccessfull attempt to ping
 	//
-	//   it's a trade-off between how time-sensitive the data is that your
-	//	  app is handling, vs the acceptable impact on battery life
+	// it's a trade-off between how time-sensitive the data is that your
+	// app is handling, vs the acceptable impact on battery life
 	//
-	//   it is perhaps also worth bearing in mind the network's support for
-	//	 long running, idle connections. Ideally, to keep a connection open
-	//	 you want to use a keep alive value that is less than the period of
-	//	 time after which a network operator will kill an idle connection
+	// it is perhaps also worth bearing in mind the network's support for
+	// long running, idle connections. Ideally, to keep a connection open
+	// you want to use a keep alive value that is less than the period of
+	//time after which a network operator will kill an idle connection
 	private static short			MQTT_KEEP_ALIVE           = 60 * 5;
+	
 	// Set quality of services to 0 (at most once delivery), since we don't want push notifications 
 	// arrive more than once. However, this means that some messages might get lost (delivery is not guaranteed)
 	private static int[]			MQTT_QUALITIES_OF_SERVICE = { 0 } ;
 	private static int				MQTT_QUALITY_OF_SERVICE   = 0;
+	
 	// The broker should not retain any messages.
 	private static boolean			MQTT_RETAINED_PUBLISH     = false;
 		
@@ -85,6 +91,7 @@ public class MqttPushService extends Service
 	
 	// Connectivity manager to determining, when the phone loses connection
 	private ConnectivityManager		mConnMan;
+	
 	// Notification manager to displaying arrived push notifications 
 	private NotificationManager		mNotifMan;
 
@@ -100,10 +107,13 @@ public class MqttPushService extends Service
 
 	// Preferences instance 
 	private SharedPreferences 		mPrefs;
+	
 	// We store in the preferences, whether or not the service has been started
 	public static final String		PREF_STARTED = "isStarted";
+	
 	// We also store the deviceID (target)
 	public static final String		PREF_DEVICE_ID = "deviceID";
+	
 	// We store the last retry interval
 	public static final String		PREF_RETRY = "retryInterval";
 
@@ -119,6 +129,7 @@ public class MqttPushService extends Service
 
 	// Static method to start the service
 	public static void actionStart(Context ctx) {
+		mContext = ctx;
 		Intent i = new Intent(ctx, MqttPushService.class);
 		i.setAction(ACTION_START);
 		ctx.startService(i);
@@ -126,6 +137,7 @@ public class MqttPushService extends Service
 
 	// Static method to stop the service
 	public static void actionStop(Context ctx) {
+		mContext = ctx;
 		Intent i = new Intent(ctx, MqttPushService.class);
 		i.setAction(ACTION_STOP);
 		ctx.startService(i);
@@ -133,6 +145,7 @@ public class MqttPushService extends Service
 	
 	// Static method to send a keep alive message
 	public static void actionPing(Context ctx) {
+		mContext = ctx;
 		Intent i = new Intent(ctx, MqttPushService.class);
 		i.setAction(ACTION_KEEPALIVE);
 		ctx.startService(i);
@@ -531,8 +544,8 @@ public class MqttPushService extends Service
 				log("Connection error" + "No connection");	
 			} else {		
 				String appkey = mPrefs.getString(APPKEY, "");
-				String msisdn = mPrefs.getString(PREF_DEVICE_ID, "");
-				String[] topics = new String[]{"webcloud",appkey,msisdn};
+				String imei = mPrefs.getString(PREF_DEVICE_ID, "");
+				String[] topics = new String[]{"webcloud", appkey, appkey + "/" + imei};
 				
 				int defQos = mPrefs.getInt(QUALITIES_OF_SERVICE, 0);
 				int[] qos = {defQos};
