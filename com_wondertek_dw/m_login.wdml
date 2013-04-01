@@ -144,6 +144,7 @@ function bodyOnPluginEvent(msg)
         local result=loginData['code']
         local role = loginData.value[0].rolecode
         local username = loginData.value[0].userid
+            Config:set('username',username)
         Log:write('username',username)
         Log:write('role----',role)
         if result=='0' then
@@ -173,8 +174,12 @@ function bodyOnPluginEvent(msg)
                 Scene:go(Alias.home_city) 
             elseif username == 'liuguoli' or username == 'huotingrui' then 
                 Scene:go(Alias.home_city_manager)  
+            elseif username == 'syd' then 
+                Scene:go(Alias.home_sheng)  
+            elseif username == 'aqyd' then 
+                Scene:go(Alias.home_city)  
 			else
-				Scene:go(Alias.home_sheng)
+				Scene:go(Alias.home_new)
            	end
         else
             Dialog:show('登陆提醒', '账户密码错误！', 'ok')

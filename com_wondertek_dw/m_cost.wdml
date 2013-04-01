@@ -307,6 +307,10 @@ function bodyOnPluginEvent(msg)
     if msg == 101 then
         if Loading:isShow() then Loading:close() end
         city_data = Http:jsonDecode('city_data')
+        if  city_data.total == '0' or city_data == nil  or city_data.value == nil then 
+            Dialog:show('', '暂无费用数据!', 'ok')
+            return
+        end
      
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         local len = getJsonArrayCount(city_data.value)
@@ -316,14 +320,14 @@ function bodyOnPluginEvent(msg)
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
         ListView:adjust(listView)
         Loading:close()
-        city_data.value1 = sortTable(city_data.value, 'cost', true)
+        --[[city_data.value1 = sortTable(city_data.value, 'cost', true)
         Log:write("===++++city_data++++=====", city_data.value1)
         max=city_data.value1[0].cost
         sec=city_data.value1[1].cost
         third=city_data.value1[2].cost
         Log:write("===maxmaxmax++++=====",max)
         Log:write("===secsecsec++++=====",sec)
-        Log:write("=== third third third++++=====", third)
+        Log:write("=== third third third++++=====", third)--]]
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -698,7 +702,7 @@ function request()
     local starttime=startyear..'-'..startmonth..'-'..startday
     local endtime=endyear..'-'..endmonth..'-'..endday
     Log:write('starttime',starttime,endtime)
-    local param = 'cmd='..cmd..'&starttime='..starttime..'&endtime='..endtime..'&major='..majorData..'&page=1&pagesize=100&usercode='..Config:get('username')
+    local param = 'cmd='..cmd..'&starttime='..starttime..'&endtime='..endtime..'&major='..majorData..'&page=1&pagesize=300&usercode='..Config:get('username')
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write('reqURL',reqURL) 
     Http:request('city_data', reqURL, 101, {useCache = false})
@@ -716,39 +720,55 @@ function loadListItem(list, item, index)
     local deductedName = Sprite:findChild(item,'deductedName')
     local deductedButton = Sprite:findChild(item,'KFBtn')
     local KFPic = Sprite:findChild(item,'KFPic')
-    if city_data.value[index].dimension then
     Sprite:setProperty(cityName,'text',city_data.value[index].dimension)
-    end 
-    if city_data.value[index].cost then
     Sprite:setProperty(costName,'text',city_data.value[index].cost)
-    end
-    if city_data.value[index].deducted then
     Sprite:setProperty(deductedName,'text',city_data.value[index].deducted)
-    end
     Sprite:setProperty(deductedButton,'data',index)
 
     
-    if city_data.value[index].deducted > '0%' then
+    --[[if city_data.value[index].deducted > '0%' then
         Sprite:setVisible(Sprite:findChild(rootSprite,"KFBtn"),1)
         Sprite:setEnable(Sprite:findChild(rootSprite,"KFBtn"), 1)
     else
         Sprite:setVisible(Sprite:findChild(rootSprite,"KFBtn"),0)
         Sprite:setEnable(Sprite:findChild(rootSprite,"KFBtn"), 0)
-    end
-    if tonumber(city_data.value[index].cost) == max then
-         Sprite:setProperty(KFPic, 'src', 'file://image/d1.png')
-    elseif tonumber(city_data.value[index].cost) == sec then
-        Sprite:setProperty(KFPic, 'src', 'file://image/d2.png')
-
-    elseif tonumber(city_data.value[index].cost) == third then
-         Sprite:setProperty(KFPic, 'src', 'file://image/d3.png')
-    elseif max==sec then
-        Sprite:setProperty(KFPic, 'src', '')
-
-    end
-   
+    end--]]
+    -- 前三名显示笑脸，后三名显示哭脸
+    showRank1(item, index)
 end
+-- 对前三名显示笑脸，后三名显示哭脸
+function showRank1(item, index)
+    -- 获取当前巡检率的值
+    local ratio = city_data.value[index].cost
+    --Log:write('city_data.value',city_data.value)
+    if ratio=='' or ratio==nil  then 
+        ratio=0
+    end 
+    --Log:write('+++++ratio',ratio)
+    --Log:write('当前费用的值',ratio)
+    -- 统计费用的排名
+    local rank = 1
 
+    for i=0,city_data.total-1 do
+        local compare = city_data.value[i].cost
+        if compare=='' or compare==nil  then 
+        compare=0
+        end 
+        if ratio < compare then 
+            rank =  rank + 1
+        end 
+    end 
+    Log:write('ratio',ratio,rank)
+    -- 获取金钱图标的Sprite
+    local KFPic = Sprite:findChild(item, 'KFPic')
+    if rank == 1 and ratio~=0   then
+        Sprite:setProperty(KFPic, 'src', 'file://image/d1.png')
+    elseif rank == 2 and ratio~=0  then
+        Sprite:setProperty(KFPic, 'src', 'file://image/d2.png')
+    elseif rank == 3 and ratio~=0  then
+        Sprite:setProperty(KFPic, 'src', 'file://image/d3.png')--]]
+    end
+end
 function loadListItem1(list, item, index)
     Sprite:setRect(item, 0, 0, 480, 60)
     
@@ -772,9 +792,11 @@ end
 function dwSeqOnSelect(sprite)
     local data = Sprite:getData(sprite)
     local len = city_data.total
+    Log:write('--------len--',len)
     if data == "0" then
         Sprite:setProperty(sprite,'data',"1")
         city_data.value = sortTable(city_data.value, 'cost', true)
+        Log:write('--------city_data.value--',city_data.value)
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         ListView:removeAllItems(listView,1,1)
         -- 加载列表项
@@ -804,6 +826,10 @@ end
 
 --扣罚比例排序
 function kfSeqOnSelect(sprite)
+    if city_data == nil  or city_data.value == nil then 
+        Dialog:show('', '暂无费用数据!', 'ok')
+        return
+    end
     local data = Sprite:getData(sprite)
     local len = city_data.total
     if data == "0" then
