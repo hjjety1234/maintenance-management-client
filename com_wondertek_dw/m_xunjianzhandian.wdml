@@ -368,9 +368,9 @@ end
 function gotoXunjianmingDetail(sprite)
     local itemValue = respValue[longClickItemIndex]
     local reg = Reg:create(Reg.com_wondertek_dw.xunjianzhandianDetail)
-    Reg:setString(reg, 'stationId', itemValue.stationId)
-    Reg:setString(reg, 'stationName', itemValue.stationName)
-    Reg:setString(reg, 'isPatroled', itemValue.isPatroled)
+    Reg:setString(reg, 'stationId', itemValue.stationid)
+    Reg:setString(reg, 'stationName', itemValue.stationname)
+    Reg:setString(reg, 'isPatroled', itemValue.ispatroled)
     Reg:setString(reg, 'distance', itemValue.distance)
 
     setDetailNodeEnable(0)
@@ -461,9 +461,9 @@ function loadListItem(list, item, index)
         Log:write('列表项数据为空',index)
         return
     end
-    local stationId = itemValue.stationId
-    local stationNameText = itemValue.stationName
-    local isPatroled = itemValue.isPatroled
+    local stationId = itemValue.stationid
+    local stationNameText = itemValue.stationname
+    local isPatroled = itemValue.ispatroled
     local stationGPS = ''--如果经纬度为空会报.lon为nil的异常，请何总修改下。@zhouyu  itemValue.lat..','..itemValue.lon..' '
     local distance = string.format('%d', itemValue.distance)
     
@@ -634,6 +634,7 @@ function request(condition, curLoc, value, page, msgno)
 	-- 构造请求参数
 	local requestParam = string.format('cmd=wlbxunjianResSearch&usercode=%s&planId=%s&condition=%s&curLoc=%s&value=%s&page=%s&pagesize=5', 
 	                       Config:get('username'), planId, condition, curLoc, value, page)
+    Log:write("[request] param: ", requestParam)
 	local requestURL = getUrl()..'nbspweb/webservice/resource!doWebservice.action'
 	
 	-- 请求http
