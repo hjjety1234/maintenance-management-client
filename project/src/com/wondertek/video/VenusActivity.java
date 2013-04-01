@@ -115,7 +115,6 @@ import android.widget.TextView;
 
 import com.wondertek.video.alarm.AlarmObserver;
 import com.wondertek.video.appmanager.AppManager;
-import com.wondertek.video.arplugin.ArPluginMgr;
 import com.wondertek.video.browser.SysBrowserObserver;
 import com.wondertek.video.calendar.CalendarObserver;
 import com.wondertek.video.call.CallObserver;
@@ -310,7 +309,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public MediaRecorder mRecorder = null;
 	
 	//ArPlugin
-	public ArPluginMgr arPluginMgr = null;
+	// public ArPluginMgr arPluginMgr = null;
     
 	public VenusActivity(Activity appActivity) {
 		VenusActivity.appActivity = appActivity;
@@ -940,10 +939,10 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			al.addView(mapPluginMgr.getMapView());
 		}
         
-		if (arPluginMgr == null) {
-			arPluginMgr = new ArPluginMgr(appActivity);
-		}
-		
+//		if (arPluginMgr == null) {
+//			arPluginMgr = new ArPluginMgr(appActivity);
+//		}
+//		
 		sysState = SYS_STATE_RUN;
 	}
 	
