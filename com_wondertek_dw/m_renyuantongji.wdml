@@ -306,13 +306,13 @@
                             h-align="right" font-family="微软雅黑" font-size="22" extendstyle="1111" />
                         <image name="staff1" rect="120,10,70,70" border="false" extendstyle="1111" 
                             src="file://image/base_person.png"  visible="false"></image>
-                        <image name="staff2" rect="145,10,70,70" border="false" extendstyle="1111" 
+                        <image name="staff2" rect="160,10,70,70" border="false" extendstyle="1111" 
                             src="file://image/base_person.png"  visible="false"></image>
-                        <image name="staff3" rect="175,10,70,70" border="false" extendstyle="1111" 
+                        <image name="staff3" rect="200,10,70,70" border="false" extendstyle="1111" 
                             src="file://image/base_person.png"  visible="false"></image>
-                        <image name="staff4" rect="205,10,70,70" border="false" extendstyle="1111" 
+                        <image name="staff4" rect="240,10,70,70" border="false" extendstyle="1111" 
                             src="file://image/base_person.png"  visible="false"></image>
-                        <label name="staffNum" rect="275,5,190,40" text="" color="#303030" v-align="center"  
+                        <label name="staffNum" rect="280,5,190,40" text="" color="#303030" v-align="center"  
                             h-align="left" font-family="微软雅黑" font-size="22" extendstyle="1111" >
                         </label>
                         <image rect="3,48,455,2" border="false" extendstyle="1111" 
@@ -330,7 +330,7 @@
                        src="file://image/staff.png"  visible="false"></image>
                      <image name="staff4" rect="240,10,70,70" border="false" extendstyle="1111" 
                        src="file://image/staff.png"  visible="false"></image>
-                    <label name="staffNum" rect="280,0,170,40" text="" color="#999999" v-align="center"  
+                    <label name="staffNum" rect="280,0,190,40" text="" color="#999999" v-align="center"  
                        h-align="left" font-family="微软雅黑" font-size="22" extendstyle="1111" >
                     </label>
                     <image rect="3,48,455,2" border="false" extendstyle="1111" 
@@ -451,9 +451,9 @@ function doRegionClick(sprite)
     Log:write('fx,fy,fw,fh', fx, fy, fw, fh)
     local x, y, w, h = Sprite:getRect(cmpNum)
     Log:write('x,y,w,h', x, y, w, h)
-    Sprite:setRect(cmpNum, fx + fw+10, y, w, h)
+    Sprite:setRect(cmpNum, fx + fw+45, y, w, h)
     if nCmpNum == 0 then
-        Sprite:setRect(cmpNum,160,7,30,30)
+        Sprite:setRect(cmpNum,160,7,190,40)
     end
     -- 根据人数，显示一定的数量的人型图标
     local nStaff = tonumber(city.staffnum)
@@ -475,9 +475,9 @@ function doRegionClick(sprite)
     -- 根据当前的人型图标数，调整代维单位数量位置
     local sx, sy, sw, sh = Sprite:getRect(Sprite:findChild(rootSprite, 'staff'..staffCount))
     local x, y, w, h = Sprite:getRect(staffNum)
-    Sprite:setRect(staffNum, sx + sw+10, y, w, h)
+    Sprite:setRect(staffNum, sx + sw, y, w, h)
     if nStaff == 0 then
-        Sprite:setRect(staffNum,155,7,30,30)
+        Sprite:setRect(staffNum,155,7,190,40)
     end
     -- 显示弹出提示
     local cityNode = Sprite:findChild(rootSprite, 'cityNode')
@@ -528,9 +528,7 @@ function OnSelectShowMap(sprite)
     local nCmpNum = tonumber(cityalldata.allcar)
     local flagCount = math.floor(nCmpNum / 4)
     if flagCount > 4 then 
-        flagCount = 4 
-    elseif flagCount < 1 then 
-        flagCount = 1 
+       flagCount = 4 
     end
     for i=1,4 do 
         local flag = Sprite:findChild(rootSprite, 'flag'..i)
@@ -547,10 +545,9 @@ function OnSelectShowMap(sprite)
     local fx, fy, fw, fh = Sprite:getRect(Sprite:findChild(rootSprite, 'flag'..flagCount))
     Log:write('fx,fy,fw,fh', fx, fy, fw, fh)
     local x, y, w, h = Sprite:getRect(cmpNum)
-    Log:write('x,y,w,h', x, y, w, h)
-    Sprite:setRect(cmpNum, fx + fw+10, y, w, h)
+    Sprite:setRect(cmpNum, fx + fw+45, y, w, h)
     if nCmpNum == 0 then
-        Sprite:setRect(cmpNum,160,7,30,30)
+        Sprite:setRect(cmpNum,160,7,190,40)
     end
     -- 根据人数，显示一定的数量的人型图标
     local nStaff = tonumber(cityalldata.allstaff)
@@ -558,8 +555,6 @@ function OnSelectShowMap(sprite)
     local staffCount = math.floor(nStaff / 100)
     if staffCount > 4 then
         staffCount = 4
-    elseif staffCount < 1 then 
-        staffCount = 1
     end 
     for i=1,4 do 
         local staff = Sprite:findChild(rootSprite, 'staff'..i)
@@ -577,7 +572,7 @@ function OnSelectShowMap(sprite)
     local x, y, w, h = Sprite:getRect(staffNum)
     Sprite:setRect(staffNum, sx + sw, y, w, h)
     if nStaff == 0 then
-        Sprite:setRect(staffNum,155,7,30,30)
+        Sprite:setRect(staffNum,155,7,190,40)
     end
     UmsAgent:onLoadFinish()
 end
