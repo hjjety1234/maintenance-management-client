@@ -145,6 +145,11 @@ function bodyOnPluginEvent(msg)
         local role = loginData.value[0].rolecode
         local username = loginData.value[0].userid
             Config:set('username',username)
+        if(loginData['simid'] ~= nil) then
+            Config:set('simid',loginData['simid'])
+        else
+            Config:set('simid','-1')
+        end
         Log:write('username',username)
         Log:write('role----',role)
         if result=='0' then
@@ -222,7 +227,7 @@ function loginOnSelect(sprite)
     local username=Sprite:getText(Sprite:findChild(rootSprite, 'username'))
     local password=Sprite:getText(Sprite:findChild(rootSprite, 'password'))
     local imei = System:getMachineInfo(4) 
-    if imei == nil then imei = "" end
+    if imei == nil then imei = "860173012418210" end
     Log:write('loginOnSelect: imei = '..imei)
     user_name=username
     if(username=='') then
