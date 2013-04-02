@@ -199,9 +199,13 @@ function bodyBuildChildrenFinished(sprite)
     Log:write('major=',major)      
     -----加载巡检子项 
     if major == 'C31'  then
-      majorid = '000000005015'
+        majorid = '000000023633'
     elseif  major == 'C33'  then 
-        majorid = '000000001036'
+        majorid = '000000023688'
+    elseif  major == 'C32'  then 
+        majorid = '000000023705'
+    elseif  major == 'C34'  then 
+        majorid = '000000023732'
     end
     Log:write('详情id:',majorid)   
 
@@ -235,8 +239,8 @@ function bodyOnPluginEvent(msg)
 	elseif msg > MSG_NETWORK_ERROR then -- 请求超时
 			Log:write('请求超时')
     elseif  msg==102 then
-        Log:write('msg 102')
         local data = Http:jsonDecode('sub_items_detail')
+        Log:write('---------data',data)
         -- 服务端返回数据合法性检查
         if not data or type(data) ~= 'table' then
             Dialog:show(rootSprite, '获取巡检子项失败，服务端返回数据格式错误', 'ok')
@@ -370,7 +374,7 @@ function loadSubListItem(list, item, index)
     local editNorm = Sprite:findChild(item, 'editNorm') 
     local hideLabel = Sprite:findChild(item, 'hideLabel')
     local curSubItemIndex = index + 1
-    Sprite:setProperty(itemName,'text',g_items[g_curItemIndex][curSubItemIndex].demandDesc)
+    Sprite:setProperty(itemName,'text',g_items[g_curItemIndex][curSubItemIndex].demanddesc)
     local count = getJsonArrayCount(data_history.value) 
     --Sprite:setProperty(editName,'text','')
     --Sprite:setProperty(editNorm,'text','')

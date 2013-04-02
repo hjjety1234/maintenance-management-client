@@ -363,9 +363,9 @@ end
 -- 请求巡检子项
 function requestSubItems()
     local username = Config:get('username')
-    local param = 'nbspweb/webservice/assessment!doWebservice.action?usercode='..username..'&pagesize=200&page=1&'..'&code='..major
+    local param = 'nbspweb/webservice/assessment!doWebservice.action?cmd=wlbitemcheck&usercode='..username..'&pagesize=200&page=1&'..'&code='..major
     local requestURL = getUrl()..param
-    Http:request('sub_items_detail', requestURL, 102, {useCache = false, method = 'post', postData='cmd=wlbitemcheck'})
+    Http:request('sub_items_detail', requestURL, 102, {useCache = false, method = 'post'})
     Loading:show()
     Log:write('requestURL:',requestURL)
 end
@@ -411,7 +411,7 @@ function loadSubListItem(list, item, index)
     local itemName = Sprite:findChild(item, 'itemName')
     local normButton=Sprite:findChild(item, 'normButton')
     curSubItemIndex = index + 1
-    Sprite:setProperty(itemName,'text',g_items[g_curItemIndex][curSubItemIndex].demandDesc)
+    Sprite:setProperty(itemName,'text',g_items[g_curItemIndex][curSubItemIndex].demanddesc)
     Sprite:setProperty(normButton,'data',g_items[g_curItemIndex][curSubItemIndex].evaluationcriterion)
     --Log:write('editNorm',g_items[g_curItemIndex][curSubItemIndex])
 
