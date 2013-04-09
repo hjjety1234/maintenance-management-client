@@ -274,6 +274,7 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.umsagent'
 local rootSprite
 local companyBtn,cityBtn,majorBtn,lackBtn --统计标签节点
 local city_data,company_data,major_data,lack_data --代表解析jeson数据后的参数
@@ -293,16 +294,20 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+       UmsAgent:OnActivate(string.match(Alias.m_peocar, 'MODULE:\\(.*)'), "人车统计")
+       UmsAgent:onLoadStart()
         Loading:show(rootSprite)
        --初始化加载按地市统计数据
        request(majorData)
     elseif msg == MSG_DEACTIVATE then
+       UmsAgent:OnDeactivate()
     end
 end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg, param)
-    if msg == 101 then--按地市数据处理  
+    if msg == 101 then--按地市数据处理
+        UmsAgent:onLoadFinish()   
         Loading:show(rootSprite)
         city_data = Http:jsonDecode('city_data')
         local listView = Sprite:findChild(rootSprite, 'sampleList')

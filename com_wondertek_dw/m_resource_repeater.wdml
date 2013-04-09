@@ -253,6 +253,7 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.umsagent'
 local rootSprite
 local city_data
 local dimension = 'city' --初始按地市维度
@@ -265,15 +266,19 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+       UmsAgent:OnActivate(string.match(Alias.m_resource_repeater, 'MODULE:\\(.*)'), "资源统计-直放站")
+       UmsAgent:onLoadStart()
        --初始化加载按地市统计数据
        request()
     elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
     end
 end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg, param)
-    if msg == 101 then--按地市数据处理  
+    if msg == 101 then--按地市数据处理
+        UmsAgent:onLoadFinish()   
         city_data = Http:jsonDecode('city_data')
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
@@ -373,7 +378,7 @@ function loadListItem(list, item, index)
     Sprite:setProperty(dimension1,'text',city_data.value[index].dimension)
     Sprite:setProperty(repeater,'text',city_data.value[index].repeater)
     Sprite:setProperty(maintenance,'text',city_data.value[index].maintenance)
-    Sprite:setProperty(radio,'text',city_data.value[index].ratio)
+    Sprite:setProperty(radio,'text',city_data.value[index].ratio..'%')
     Sprite:setProperty(classa,'text',city_data.value[index].classa)
     Sprite:setProperty(classb,'text',city_data.value[index].classb)
     Sprite:setProperty(classc,'text',city_data.value[index].classc)

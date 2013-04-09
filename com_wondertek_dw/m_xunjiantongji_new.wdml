@@ -191,6 +191,7 @@
 <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.umsagent'
 
 local rootSprite
 local g_response = nil
@@ -207,14 +208,18 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        UmsAgent:OnActivate(string.match(Alias.m_xunjiantongji_new, 'MODULE:\\(.*)'), "巡检统计")
+        UmsAgent:onLoadStart()
         request(g_major)
     elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
     end
 end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg, param)
-    if msg == 101 then--按地市数据处理  
+    if msg == 101 then--按地市数据处理 
+        UmsAgent:onLoadFinish()  
         if Loading:isShow() then Loading:close() end
         g_response = Http:jsonDecode('patrol')
         --Log:write('[bodyOnPluginEvent] g_response', g_response)

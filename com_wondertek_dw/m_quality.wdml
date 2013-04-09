@@ -230,6 +230,7 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.umsagent'
 local rootSprite
 local city_data
 local selectData = 'wlbcityquality'  --选择页签data属性,默认为按地市统计
@@ -244,16 +245,20 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+       UmsAgent:OnActivate(string.match(Alias.m_quality, 'MODULE:\\(.*)'), "质量指标-基站")
+       UmsAgent:onLoadStart()
        --初始化加载按地市统计数据
        Loading:show(rootSprite)
        request()
     elseif msg == MSG_DEACTIVATE then
+       UmsAgent:OnDeactivate()
     end
 end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg, param)
-    if msg == 101 then--按地市数据处理  
+    if msg == 101 then--按地市数据处理 
+        UmsAgent:onLoadFinish() 
         if Loading:isShow() then Loading:close() end
         city_data = Http:jsonDecode('city_data')
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
