@@ -227,6 +227,7 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.umsagent'
 local rootSprite
 local city_data
 local selectData = 'wlbcityquality'  --选择页签data属性,默认为按地市统计
@@ -240,16 +241,20 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+       UmsAgent:OnActivate(string.match(Alias.m_qualityJiake, 'MODULE:\\(.*)'), "质量指标-家客")
+       UmsAgent:onLoadStart()
        --初始化加载按地市统计数据
        Loading:show(rootSprite)
        request()
     elseif msg == MSG_DEACTIVATE then
+       UmsAgent:OnDeactivate()
     end
 end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg, param)
-    if msg == 101 then--按地市数据处理  
+    if msg == 101 then--按地市数据处理
+        UmsAgent:onLoadFinish() 
         if Loading:isShow() then Loading:close() end
         city_data = Http:jsonDecode('city_data')
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
@@ -330,7 +335,7 @@ end
 
 --获取统计数据返回地址（按地市）
 function request()
-    local param = 'cmd='..selectData..'&major=C37&page=1&pagesize=100&usercode='..Config:get('username')
+    local param = 'cmd='..selectData..'&major=C37&page=1&pagesize=100&usercode='..Config:get('username').."&date="
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write('reqURL',reqURL)
     Http:request('city_data', reqURL, 101, {useCache = false})
@@ -351,9 +356,9 @@ function loadListItem(list, item, index)
     local xjl = Sprite:findChild(item,'xjl')                      --巡检率
     Sprite:setProperty(cityName,'text',cityDataValue[index].dimension)
     Sprite:setProperty(byjkzacs,'text',cityDataValue[index].byjkzacs)
-    Sprite:setProperty(zal,'text',cityDataValue[index].zal)
-    Sprite:setProperty(zacljsl,'text',cityDataValue[index].zacljsl)
-    Sprite:setProperty(xjl,'text',cityDataValue[index].xjl)
+    Sprite:setProperty(zal,'text',cityDataValue[index].zal.."%")
+    Sprite:setProperty(zacljsl,'text',cityDataValue[index].zacljsl.."%")
+    Sprite:setProperty(xjl,'text',cityDataValue[index].xjl.."%")
 end
 ----选择专业按钮
 function stationOn(sprite)

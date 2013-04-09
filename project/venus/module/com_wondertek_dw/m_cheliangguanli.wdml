@@ -200,6 +200,7 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
     UmsAgent:OnActivate(string.match(Alias.m_cheliangguanli, 'MODULE:\\(.*)'), '车辆管理首页')
+    UmsAgent:onLoadStart()
         if bIsFirst == true then 
             getCarList()
             bIsFirst = false
@@ -213,7 +214,7 @@ end
 function bodyOnPluginEvent(msg)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
-     UmsAgent:onLoadFinish()
+    UmsAgent:onLoadFinish()
         local resp = Http:jsonDecode('car_list')
         preRespValue=resp
         Log:write(resp.value)
@@ -432,7 +433,6 @@ function getCarList()
     local requestParam = string.format('nbspweb/webservice/car!doWebservice.action?cmd=wlballcarlist&usercode=%s&keyword=&page=%s&pagesize=10', Config:get('username'), page)
     local requestURL = getUrl()..requestParam
     Http:request('car_list', requestURL, 101)
-    UmsAgent:onLoadStart()
     Loading:show()
 end
 

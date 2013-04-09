@@ -230,6 +230,7 @@
     <![CDATA[
 
 require 'com_wondertek_dw.common.framework'
+require 'framework.umsagent'
 local rootSprite
 local city_data
 local selectData = 'wlbcityquality'  --选择页签data属性,默认为按地市统计
@@ -244,16 +245,20 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+       UmsAgent:OnActivate(string.match(Alias.m_quality, 'MODULE:\\(.*)'), "质量指标-基站")
+       UmsAgent:onLoadStart()
        --初始化加载按地市统计数据
        Loading:show(rootSprite)
        request()
     elseif msg == MSG_DEACTIVATE then
+       UmsAgent:OnDeactivate()
     end
 end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg, param)
-    if msg == 101 then--按地市数据处理  
+    if msg == 101 then--按地市数据处理 
+        UmsAgent:onLoadFinish() 
         if Loading:isShow() then Loading:close() end
         city_data = Http:jsonDecode('city_data')
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
@@ -339,12 +344,12 @@ end
 
 --获取统计数据返回地址（按地市）
 function request()
-    local param = 'cmd='..selectData..'&major=C31&page=1&pagesize=100&usercode='..Config:get('username')
+    local param = 'cmd='..selectData..'&major=C31&page=1&pagesize=100&usercode='..Config:get('username').."&date="
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Http:request('city_data', reqURL, 101, {useCache = false})
 end
 function requestsheng()
-    local param = 'cmd='..selectData..'&major=C31&page=1&pagesize=100&usercode='..Config:get('username')
+    local param = 'cmd='..selectData..'&major=C31&page=1&pagesize=100&usercode='..Config:get('username').."&date="
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Http:request('city_data', reqURL, 102, {useCache = false})
 end
@@ -363,10 +368,10 @@ function loadListItem(list, item, index)
     local fault = Sprite:findChild(item,'fault')                --故障处理及时率  
     local inspection = Sprite:findChild(item,'inspection')      --巡检率
     Sprite:setProperty(cityName,'text',cityDataValue[index].dimension)
-    Sprite:setProperty(residential,'text',cityDataValue[index].residential)
-    Sprite:setProperty(electricity,'text',cityDataValue[index].electricity)
-    Sprite:setProperty(fault,'text',cityDataValue[index].fault)
-    Sprite:setProperty(inspection,'text',cityDataValue[index].inspection)
+    Sprite:setProperty(residential,'text',cityDataValue[index].residential.."%")
+    Sprite:setProperty(electricity,'text',cityDataValue[index].electricity.."%")
+    Sprite:setProperty(fault,'text',cityDataValue[index].fault.."%")
+    Sprite:setProperty(inspection,'text',cityDataValue[index].inspection.."%")
 end
 ----选择专业按钮
 function lineOn(sprite)
@@ -392,7 +397,7 @@ function xqSeqOnselect(sprite)
         Sprite:setProperty(sprite,'data',"1")
         city_data.value = sortTable(city_data.value, 'residential', true)
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-        ListView:removeAllItems(listView,1,1)
+        ListView:removeAllItems(listView1,1,1)
         -- 加载列表项
         ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
         ListView:adjust(listView1)
@@ -425,7 +430,7 @@ function fdSeqOnselect(sprite)
         Sprite:setProperty(sprite,'data',"1")
         city_data.value = sortTable(city_data.value, 'electricity', true)
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-        ListView:removeAllItems(listView,1,1)
+        ListView:removeAllItems(listView1,1,1)
         -- 加载列表项
         ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
         ListView:adjust(listView1)
@@ -471,7 +476,7 @@ function gzSeqOnselect(sprite)
             ListView:removeAllItems(listView2,1,1)
             -- 加载列表项
             ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
-            ListView:adjust(listView1)
+            ListView:adjust(listView2)
         else
             Sprite:setProperty(GZ,'src','file://image/triangle_down.png')
             city_data.value = sortTable(city_data.value, 'fault', true)
@@ -504,7 +509,7 @@ function xjSeqOnselect(sprite)
             ListView:removeAllItems(listView2,1,1)
             -- 加载列表项
             ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
-            ListView:adjust(listView1)
+            ListView:adjust(listView2)
         else
             Sprite:setProperty(XJ,'src','file://image/triangle_down.png')
             city_data.value = sortTable(city_data.value, 'inspection', true)

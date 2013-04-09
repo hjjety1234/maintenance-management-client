@@ -150,6 +150,7 @@
 require 'com_wondertek_dw.common.framework'
 require 'framework.map'
 require 'framework.umsagent'
+require 'framework.appmanager'
 
 local rootSprite
 local observer
@@ -257,7 +258,7 @@ function bodyOnPluginEvent(msg, param)
         local time = getCurDateAndTimeAddOneDay()
         local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
         local param = string.format('usercode=%s&lon=%f&lat=%f&gpstime=%s&cmd=%s&simid=%s', 
-                usercode, longitudeValue, latitudeValue, time, 'wlbheartbeat', imei)
+                usercode, longitudeValue, latitudeValue, time, 'wlbheartbeat', Config:get('simid'))
         Log:write("[msg 1100] param", param)
         local reqURL = getUrl()..'nbspweb/webservice/common!doWebservice.action'
         Log:write("reqURL="..reqURL)
@@ -334,8 +335,33 @@ function ButtonOnSelect(sprite)
         Scene:setReturn(Alias.home_new, Alias.m_cheliangguanli)
         Scene:go(Alias.m_cheliangguanli)
     elseif dataInfo == '06' then
+        --[[
         Scene:setReturn(Alias.home_new, Alias.m_search)
         Scene:go(Alias.m_search)
+        ]]
+        --修改为启动综资app
+        local appId = 'cn.com.gxlu'
+        local app = AppManager:getInfoById(appId)
+        if(app == '' or app == nil) then
+            --启动浏览器下载
+            Util:openURL('http://211.138.184.250:9001/soft/AndreoGis.apk') 
+        else
+            --启动综合资管App
+            --Config:set('region',loginData.value[0].regionname)
+            --Config:set('orgname',loginData.value[0].orgname)
+            local region = Config:get('region')
+            local orgname = Config:get('orgname')
+            local username = Config:get('username')
+            local realname = Config:get('realname')
+            local appInfo = appId ..'?activity=cn.com.gxlu.dwcheck.OrderListViewActivity'
+            appInfo = appInfo..'&companyname='..orgname..'&useraccount='..username..'&username='..realname..'&areaname='..region
+            Log:write('the app info is ',appInfo)
+            local ret = AppManager:runApp(appInfo);
+            if(ret == 0) then
+                Dialog:show('提示','启动网络资源管理系统失败','ok')
+            else
+            end
+        end
     elseif dataInfo == '07' then
              Log:write('111',11111)
         Scene:setReturn(Alias.home_new, Alias.m_tongxunlu)

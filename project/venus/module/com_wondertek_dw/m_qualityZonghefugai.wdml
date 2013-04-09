@@ -393,7 +393,7 @@ end
 
 --获取统计数据返回地址（按地市）
 function request()
-    local param = 'cmd='..selectData..'&major=C32&page=1&pagesize=100&usercode='..Config:get('username')
+    local param = 'cmd='..selectData..'&major=C32&page=1&pagesize=100&usercode='..Config:get('username').."&date="
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write('reqURL',reqURL)
     Http:request('city_data', reqURL, 101, {useCache = false})
@@ -414,11 +414,11 @@ function loadListItem(list, item, index)
     local gzcljsl = Sprite:findChild(item,'gzcljsl')        --故障处理及时率
     local xjl = Sprite:findChild(item,'xjl')                --巡检率
     Sprite:setProperty(cityName,'text',cityDataValue[index].dimension)
-    Sprite:setProperty(gsm,'text',cityDataValue[index].gsm)
-    Sprite:setProperty(td,'text',cityDataValue[index].td)
-    Sprite:setProperty(wlanap,'text',cityDataValue[index].wlanap)
-    Sprite:setProperty(gzcljsl,'text',cityDataValue[index].gzcljsl)
-    Sprite:setProperty(xjl,'text',cityDataValue[index].xjl)
+    Sprite:setProperty(gsm,'text',cityDataValue[index].gsm.."%")
+    Sprite:setProperty(td,'text',cityDataValue[index].td.."%")
+    Sprite:setProperty(wlanap,'text',cityDataValue[index].wlanap.."%")
+    Sprite:setProperty(gzcljsl,'text',cityDataValue[index].gzcljsl.."%")
+    Sprite:setProperty(xjl,'text',cityDataValue[index].xjl.."%")
 end
 ----选择专业按钮
 function stationOn(sprite)
@@ -523,7 +523,7 @@ function APSeqOnSelect(sprite)
             Sprite:setProperty(AP,'src','file://image/triangle_up.png')
             city_data.value = sortTable(city_data.value, 'wlanap', false)
             local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
-            ListView:removeAllItems(listView1,1,1)
+            ListView:removeAllItems(listView2,1,1)
             -- 加载列表项
             ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
             ListView:adjust(listView2)
@@ -556,7 +556,7 @@ function gzSeqOnSelect(sprite)
             Sprite:setProperty(GZ,'src','file://image/triangle_up.png')
             city_data.value = sortTable(city_data.value, 'gzcljsl', false)
             local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
-            ListView:removeAllItems(listView1,1,1)
+            ListView:removeAllItems(listView2,1,1)
             -- 加载列表项
             ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
             ListView:adjust(listView2)
@@ -614,7 +614,7 @@ function xjSeqOnSelect(sprite)
         Sprite:setProperty(sprite,'data',"1")
         city_data.value = sortTable(city_data.value, 'xjl', true)
         local listView3 = Sprite:findChild(rootSprite, 'sampleList3')
-        ListView:removeAllItems(listView2,1,1)
+        ListView:removeAllItems(listView3,1,1)
         -- 加载列表项
         ListView:loadItem(listView3, Sprite:findChild(rootSprite, 'listItem3'), len, 'loadListItem')
         ListView:adjust(listView3)
