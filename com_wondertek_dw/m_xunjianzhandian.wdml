@@ -465,6 +465,7 @@ function loadListItem(list, item, index)
     local stationNameText = itemValue.stationname
     local isPatroled = itemValue.ispatroled
     local stationGPS = ''--如果经纬度为空会报.lon为nil的异常，请何总修改下。@zhouyu  itemValue.lat..','..itemValue.lon..' '
+    itemValue.distance = math.floor(itemValue.distance / 100 + 1) * 100
     local distance = string.format('%d', itemValue.distance)
     
     -- 设置列表项的值
@@ -495,7 +496,7 @@ function loadListItem(list, item, index)
     -- 是否显示站点距离
     if stationDistanceVisible == true then
         Sprite:setProperty(stationDistance, 'visible', 'true')
-        Sprite:setProperty(stationDistance, "text", '距离:'..distance..'米')
+        Sprite:setProperty(stationDistance, "text", '距离:'..distance..'米以内')
     else
         Sprite:setProperty(stationDistance, 'visible', 'false')
     end
