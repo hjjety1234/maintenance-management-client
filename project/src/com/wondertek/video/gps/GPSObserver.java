@@ -91,10 +91,10 @@ public class GPSObserver {
 	{
 		if(isGPSEnable())
 			if(!mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
-				if (Build.VERSION.SDK_INT >= 4.0) {
-					Log.d(TAG, "openGPS call buildAlertMessageNoGps");
-					buildAlertMessageNoGps();
-				}
+//				if (Build.VERSION.SDK_INT >= 4.0) {
+//					Log.d(TAG, "openGPS call buildAlertMessageNoGps");
+//					buildAlertMessageNoGps();
+//				}
 				toggleGPS();		
 			}
 	}
