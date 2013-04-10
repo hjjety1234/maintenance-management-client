@@ -140,6 +140,11 @@ function bodyOnPluginEvent(msg)
     if msg == 101 then
         UmsAgent:onLoadFinish()
         local loginData = Http:jsonDecode('login_istrue')
+        if loginData == nil then 
+            Dialog:show(rootSprite, "对不起，服务器返回异常!", "ok")
+            Log:write("loginData is null")
+            return
+        end
         Log:write('+++++++++++++++++',loginData)
         local result=loginData['code']
         local role = loginData.value[0].rolecode
