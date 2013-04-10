@@ -272,7 +272,7 @@
                         OnSelect="OnstaffRatioBtn" extendstyle="1111">
                         <label rect="10,0,80,45" text="流失率：" color="#00549f" v-align="center"  
                             h-align="left" font-family="微软雅黑" font-size="22" extendstyle="1111" />
-                        <label name="turnOverRate" rect="130,0,110,45" text="" color="#303030" v-align="center"  
+                        <label name="turnOverRate" rect="100,0,110,45" text="" color="#303030" v-align="center"  
                             h-align="left" font-family="微软雅黑" font-size="22" extendstyle="1111" >
                         </label>
                     </button>
@@ -361,6 +361,7 @@ function bodyOnSpriteEvent(msg, param)
         UmsAgent:OnActivate(string.match(Alias.m_renyuantongji, 'MODULE:\\(.*)'), "人员统计")
         local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode='..Config:get('username').."&date="
         local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+        Log:write('人员reqURL',reqURL)
         Http:request('renyuandata', reqURL, 101, {useCache = false})
         
     elseif msg == MSG_DEACTIVATE then
@@ -429,9 +430,18 @@ function doRegionClick(sprite)
     
     -- 根据代维车辆数量，显示一定数量的旗帜
     local nCmpNum = tonumber(city.carnum)
-    local flagCount = math.floor(nCmpNum / 4)
-    if flagCount > 4 then 
-        flagCount = 4 
+    Log:write('nCmpNum',nCmpNum)
+    local flagCount
+    if nCmpNum >= 100 then 
+        flagCount = 4
+    elseif nCmpNum ==  0 then 
+        flagCount = 0    
+    elseif nCmpNum>=60 and nCmpNum<100  then 
+        flagCount = 3
+    elseif nCmpNum>=20 and nCmpNum<60  then 
+        flagCount = 2
+    elseif nCmpNum<=20 then 
+        flagCount = 1   
     end
     for i=1,4 do 
         local flag = Sprite:findChild(rootSprite, 'flag'..i)
@@ -456,6 +466,10 @@ function doRegionClick(sprite)
     local staffCount = math.floor(nStaff / 100)
     if staffCount > 4 then
         staffCount = 4
+    elseif nStaff == 0 then 
+        staffCount = 0
+    elseif staffCount <= 1 then 
+        staffCount = 1
     end 
     for i=1,4 do 
         local staff = Sprite:findChild(rootSprite, 'staff'..i)
@@ -504,13 +518,13 @@ function OnSelectShowMap(sprite)
     Sprite:setProperty(titlename,'text','人员统计(全省)')
     local cityNode = Sprite:findChild(rootSprite, 'cityNode')
     Sprite:setProperty(cityNode, 'visible', 'false') 
-    local allData = Http:jsonDecode('renyuandata')
-    local cityalldata = allData.value[0]
+    local cityalldata = renyuandata.value[0]
+    Log:write('人员data',cityalldata)
     -- 显示当前地市的数据到界面下方的详情
     -- 人员配比
     local staffRatio = Sprite:findChild(rootSprite, 'staffRatio')
     if cityalldata.staffRatio ~= '' then 
-        Sprite:setProperty(staffRatio, 'text', cityalldata.ratio)
+        Sprite:setProperty(staffRatio, 'text', cityalldata.allratio)
     else
         Sprite:setProperty(staffRatio, 'text', '')
     end
