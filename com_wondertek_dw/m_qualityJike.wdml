@@ -97,8 +97,8 @@
                     <image rect="440,25,11,11" src="file://image/box.png"
                             style="autosize" extendstyle="1111" /> 
                     <!--列表信息-->
-                    <node name="listNode1" rect="0,56,480,500" extendstyle="1111">
-                        <listview name="sampleList1" rect="0,40,480,560" extendstyle="1111" auto-scroll='true' limit='true' />
+                    <node name="listNode1" rect="0,56,480,560" extendstyle="1111">
+                        <listview name="sampleList1" rect="0,40,480,520" extendstyle="1111" auto-scroll='true' limit='true' />
                         <image name='selectImg' rect="21,0,438,1" src="file://image/xianluzancun_line.png" 
                                  extendstyle="1111" style='autosize'/>
                         <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
@@ -175,8 +175,8 @@
                     <image rect="440,25,11,11" src="file://image/box_on.png"
                             style="autosize" extendstyle="1111" />  
                     <!--列表信息-->
-                    <node name="listNode2" rect="0,56,480,500" extendstyle="1111">
-                        <listview name="sampleList2" rect="0,40,480,560" extendstyle="1111" auto-scroll='true' limit='true' />
+                    <node name="listNode2" rect="0,56,480,560" extendstyle="1111">
+                        <listview name="sampleList2" rect="0,40,480,520" extendstyle="1111" auto-scroll='true' limit='true' />
                         <image name='selectImg' rect="21,0,438,1" src="file://image/xianluzancun_line.png" 
                                  extendstyle="1111" style='autosize'/>
                         <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
@@ -335,7 +335,7 @@ end
 
 --获取统计数据返回地址（按地市）
 function request()
-    local param = 'cmd='..selectData..'&major=C34&page=1&pagesize=100&usercode='..Config:get('username').."&date="
+    local param = 'cmd='..selectData..'&major=C34&page=1&pagesize=100&usercode='..Config:get('username')
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
  
     Http:request('city_data', reqURL, 101, {useCache = false})
@@ -356,9 +356,9 @@ function loadListItem(list, item, index)
     local xjl = Sprite:findChild(item,'xjl')                      --巡检率
     Sprite:setProperty(cityName,'text',cityDataValue[index].dimension)
     Sprite:setProperty(byzacs,'text',cityDataValue[index].byzacs)
-    Sprite:setProperty(zal,'text',cityDataValue[index].zal.."%")
-    Sprite:setProperty(zacljsl,'text',cityDataValue[index].zacljsl.."%")
-    Sprite:setProperty(xjl,'text',cityDataValue[index].xjl.."%")
+    Sprite:setProperty(zal,'text',cityDataValue[index].zal)
+    Sprite:setProperty(zacljsl,'text',cityDataValue[index].zacljsl)
+    Sprite:setProperty(xjl,'text',cityDataValue[index].xjl)
 end
 ----选择专业按钮
 function stationOn(sprite)
@@ -385,7 +385,7 @@ local data = Sprite:getData(sprite)
         Sprite:setProperty(sprite,'data',"1")
         city_data.value = sortTable(city_data.value, 'byzacs', true)
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-        ListView:removeAllItems(listView1,1,1)
+        ListView:removeAllItems(listView,1,1)
         -- 加载列表项
         ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
         ListView:adjust(listView1)
