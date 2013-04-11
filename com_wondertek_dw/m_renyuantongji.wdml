@@ -364,7 +364,7 @@ function bodyOnSpriteEvent(msg, param)
         local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
         Log:write('人员reqURL',reqURL)
         Http:request('renyuandata', reqURL, 101, {useCache = false})
-        
+        Loading:show()
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
@@ -373,6 +373,7 @@ end
 -- 插件消息方法
 function bodyOnPluginEvent(msg, param)
     if msg == 101 then
+        Loading:close()
         UmsAgent:onLoadFinish()
         renyuandata = Http:jsonDecode('renyuandata')
         OnSelectShowMap()
