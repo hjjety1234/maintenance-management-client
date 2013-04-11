@@ -285,7 +285,7 @@ function showRank1(item, index)
         ratio=0
     end
 
-    Log:write('当前巡检率的值',ratio)
+    --Log:write('当前巡检率的值',ratio)
     -- 统计巡检率的排名
     local rank = 1
     for i=0,g_response.total-1 do
@@ -300,9 +300,9 @@ function showRank1(item, index)
     -- 获取笑脸和哭脸的Sprite
     local faceName = Sprite:findChild(item, 'faceName')
     
-    if rank <= 3 and ratio~='0%'  then
+    if rank <= 3 and ratio~=0  then
         Sprite:setProperty(faceName, 'src', 'file://image/smileface.png')
-    elseif g_response.total - rank <= 3 or ratio=='0%' then
+    elseif g_response.total - rank <= 3 or ratio==0 then
         Sprite:setProperty(faceName, 'src', 'file://image/cryface.png')
     end
     if ratio >= 100 then 
@@ -440,7 +440,7 @@ function setDefaultMonth()
     Sprite:setProperty(yearLabel, "text", 
         os.date("*t",os.time() + 86400)["year"]) 
     local month = os.date("*t",os.time() + 86400)["month"]
-    Log:write('month',month)
+    --Log:write('month',month)
     if  month==3 or month==2 or month==1 then        
         Sprite:setProperty(monthLabel, "text", '1')
     elseif month==4 or month==5 or month==6 then        
@@ -501,7 +501,7 @@ function OnMajorSelect(sprite)
     local data = Sprite:getData(sprite)
     Log:write("[OnMajorSelect] data: ", data)
     if data == nil then 
-        Log:write("[OnMajorSelect] data is nil.")
+        --Log:write("[OnMajorSelect] data is nil.")
         return
     end
     setMajorSelectOn(sprite)

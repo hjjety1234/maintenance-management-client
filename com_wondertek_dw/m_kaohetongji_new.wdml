@@ -185,6 +185,7 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_kaohetongji_new, 'MODULE:\\(.*)'), "考核统计")
+        UmsAgent:onLoadStart()
         request(g_major)
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
@@ -197,14 +198,14 @@ function bodyOnPluginEvent(msg, param)
         UmsAgent:onLoadFinish()
         if Loading:isShow() then Loading:close() end
         g_response = Http:jsonDecode('assessment')
-        Log:write('111111111',g_response)
+        --Log:write('111111111',g_response)
         --Log:write('[bodyOnPluginEvent] g_response', g_response)
         if g_response == nil or g_response.total == nil or g_response.value == nil then 
             Dialog:show(rootSprite, '暂无考核数据!', 'ok')
             return
         end
         local len = #g_response.value+1
-        Log:write('=====len===',len)
+        --Log:write('=====len===',len)
         local listView1 = Sprite:findChild(rootSprite,'sampleList1')
         ListView:removeAllItems(listView1,1,1)
         ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
@@ -361,7 +362,6 @@ end
 ---------------------------------------服务端请求函数--------------------------------
 -- 选择专业消息处理
 function OnMajorSelect(sprite)
-    UmsAgent:onLoadStart()
     local data = Sprite:getData(sprite)
     Log:write("[OnMajorSelect] data: ", data)
     if data == nil then 

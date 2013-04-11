@@ -359,6 +359,7 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_renyuantongji, 'MODULE:\\(.*)'), "人员统计")
+        UmsAgent:onLoadStart()
         local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode='..Config:get('username').."&date="
         local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
         Log:write('人员reqURL',reqURL)
@@ -372,6 +373,7 @@ end
 -- 插件消息方法
 function bodyOnPluginEvent(msg, param)
     if msg == 101 then
+        UmsAgent:onLoadFinish()
         renyuandata = Http:jsonDecode('renyuandata')
         OnSelectShowMap()
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
@@ -398,7 +400,6 @@ end
 
 ----------------------------------服务端交互函数列表---------------------------------
 function doRegionClick(sprite)
-    UmsAgent:onLoadStart()
     -- 获取当前被选地市的数据
     local name = Sprite:getData(sprite)
     local titlename = Sprite:findChild(rootSprite,'titlename')
@@ -519,7 +520,7 @@ function OnSelectShowMap(sprite)
     local cityNode = Sprite:findChild(rootSprite, 'cityNode')
     Sprite:setProperty(cityNode, 'visible', 'false') 
     local cityalldata = renyuandata.value[0]
-    Log:write('人员data',cityalldata)
+    --Log:write('人员data',cityalldata)
     -- 显示当前地市的数据到界面下方的详情
     -- 人员配比
     local staffRatio = Sprite:findChild(rootSprite, 'staffRatio')
@@ -580,7 +581,6 @@ function OnSelectShowMap(sprite)
     if nStaff == 0 then
         Sprite:setRect(staffNum,155,7,190,40)
     end
-    UmsAgent:onLoadFinish()
 end
 
 function OnstaffRatioBtn(sprite)
