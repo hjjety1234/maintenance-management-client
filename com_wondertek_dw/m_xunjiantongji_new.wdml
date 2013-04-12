@@ -272,7 +272,7 @@ function loadListItem(list, item, index)
     Sprite:setProperty(complete, 'text', value[index].complete)
     Sprite:setProperty(ratio, 'text', value[index].ratio.."%")
     if value[index].plan<=value[index].complete and value[index].plan~=0 then 
-        Sprite:setProperty(ratio, 'text', '100%')
+      Sprite:setProperty(ratio, 'text', '100%')
     end
     -- 前三名显示笑脸，后三名显示哭脸
     showRank1(item, index)
@@ -363,10 +363,9 @@ function doCompleteSort(sprite)
         g_response.value = sortTable(g_response.value, 'complete', true)
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
         ListView:removeAllItems(listView1, 1, 1)
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
-            len, 'loadListItem')
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
         ListView:adjust(listView1)
-        --Log:write("[doScoreSort] len: "..len)
+       
     else
         local FD = Sprite:findChild(rootSprite,'triangleFD1')
         if  Sprite:getProperty(FD,'src') == "file://image/triangle_down.png" then
@@ -377,7 +376,7 @@ function doCompleteSort(sprite)
             ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
                 len, 'loadListItem')
             ListView:adjust(listView1)
-            --Log:write("[doScoreSort] len: "..len)
+           
         else
             Sprite:setProperty(FD,'src','file://image/triangle_down.png')
             g_response.value = sortTable(g_response.value, 'complete', true)
@@ -402,6 +401,7 @@ function doScoreSort(sprite)
     if data == "0" then
         Sprite:setProperty(sprite,'data', "1")
         g_response.value = sortTable(g_response.value, 'ratio', true)
+        Log:write("正序",g_response.value)
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
         ListView:removeAllItems(listView1, 1, 1)
         ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
@@ -413,6 +413,7 @@ function doScoreSort(sprite)
         if  Sprite:getProperty(FD,'src') == "file://image/triangle_down.png" then
             Sprite:setProperty(FD,'src','file://image/triangle_up.png')
             g_response.value = sortTable(g_response.value, 'ratio', false)
+            Log:write("正序",g_response.value)
             local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
             ListView:removeAllItems(listView1, 1, 1)
             ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
