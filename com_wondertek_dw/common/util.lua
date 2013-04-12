@@ -377,9 +377,9 @@ function sortTable(tbl, index, bDesc)
         bExists =  true
     end
     if bDesc ==  true then 
-        sortFunc = function(a, b)  return a[index] > b[index] end
+        sortFunc = function(a, b)  return tonumber(a[index]) > tonumber(b[index]) end
     else
-        sortFunc = function(a, b)  return a[index] < b[index] end
+        sortFunc = function(a, b)  return tonumber(a[index]) < tonumber(b[index]) end
     end
     table.sort(tbl, sortFunc)
 
