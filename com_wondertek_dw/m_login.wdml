@@ -106,7 +106,7 @@ require 'framework.umsagent'
 
 local rootSprite
 local user_name
-
+local loginData
 local g_exitFlag = false
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -135,29 +135,32 @@ end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
-    --Log:write('msg=================================',msg)
+    Log:write('msg=================================',msg)
     Loading:close()
     if msg == 101 then
         UmsAgent:onLoadFinish()
-        local loginData = Http:jsonDecode('login_istrue')
+        loginData = Http:jsonDecode('login_istrue')
+        Log:write('++++++++日志日志日志1111+++++++++',loginData)
         if loginData == nil then 
             Dialog:show("", "登录失败，服务器返回异常!", "ok")
             Log:write("loginData is null")
             return
         end
-        --Log:write('+++++++++++++++++',loginData)
-        local result=loginData['code']
-        local role = loginData.value[0].rolecode
-        local username = loginData.value[0].userid
+       
+        local result= loginData['code']
+        Log:write("===loginData['code']",result)
+        
+        
+         
+        if result== '0' then
+            local role = loginData.value[0].rolecode
+            local username = loginData.value[0].userid
             Config:set('username',username)
-        if(loginData['simid'] ~= nil) then
-            Config:set('simid',loginData['simid'])
-        else
+           if(loginData['simid'] ~= nil) then
+              Config:set('simid',loginData['simid'])
+            else
             Config:set('simid','-1')
-        end
-        --Log:write('username',username)
-        --Log:write('role----',role)
-        if result=='0' then
+           end
             Config:set('realname', loginData.userName)
             Config:set('tasknum', loginData.taskNum)
             --写入为综合资源管理系统需要的数据

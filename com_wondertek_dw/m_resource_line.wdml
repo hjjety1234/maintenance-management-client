@@ -577,18 +577,21 @@ function paixuJZ(sprite)
     local len = city_data.total
     if data == "0" then
         Sprite:setProperty(sprite,'data',"1")
+        Log:write("没序",city_data.value)
         city_data.value = sortTable(city_data.value, 'line', true)
+        Log:write("。。。序",city_data.value)
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         ListView:removeAllItems(listView,1,1)
         -- 加载列表项
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
         ListView:adjust(listView)
-    elseif data ~= "0" then
+    else
         local paixu = Sprite:findChild(rootSprite,'paixu')
         local paixusrc = Sprite:getProperty(paixu,'src')
         if paixusrc == "file://image/triangle_down.png" then
             Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
             city_data.value = sortTable(city_data.value, 'line', false)
+            Log:write("正序",city_data.value)
             local listView = Sprite:findChild(rootSprite, 'sampleList')
             ListView:removeAllItems(listView,1,1)
             -- 加载列表项
@@ -597,6 +600,7 @@ function paixuJZ(sprite)
         else
             Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
             city_data.value = sortTable(city_data.value, 'line', true)
+             Log:write("倒序",city_data.value)
             local listView = Sprite:findChild(rootSprite, 'sampleList')
             ListView:removeAllItems(listView,1,1)
             -- 加载列表项
