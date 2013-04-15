@@ -24,18 +24,14 @@
                     src="file://image/title_new.png" style="autosize" extendstyle="1111" />
                 <label rect="0,0,480,66" text="隐患上报" color="#ffffff" v-align="center"
                     h-align="center" font-size="30" extendstyle="1111" />
-                <button name="backBtn" rect="0,0,40,40" normal="normal" sel=""
+                <button name="backBtn" rect="0,0,66,66" 
                     OnSelect="isSave" extendstyle="1111">
-                    <image name="normal" rect="15,13,40,40" src="file://image/title_back_new.png"
-                        extendstyle="1111" />
-                    <image name="sel" rect="15,13,40,40" src="file://image/title_back_new.png"
+                    <image name="normal" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                         extendstyle="1111" />
                 </button>
-                <button name="btnForget" rect="400,0,40,40" color="#ffffff"
-                     OnSelect="submitOnSelect" normal="" sel="" extendstyle="1111">
-                    <image name="normal" rect="21,13,40,40" src="file://image/ico_submit.png"
-                        extendstyle="1111" />
-                    <image name="sel" rect="21,13,40,40" src="file://image/ico_submit.png"
+                <button name="btnForget" rect="400,0,75,75" color="#ffffff"
+                     OnSelect="submitOnSelect" extendstyle="1111">
+                    <image name="normal" rect="21,8,75,75" src="file://image/skin/ico_submit.png"
                         extendstyle="1111" />
                 </button>
             </node>
@@ -709,7 +705,7 @@ function doUpload()
 
     local url = getUrl()..'nbspweb/webservice/accident!doWebservice.action'
 
-    local param = '&usercode='.. Config:get('username')..'&deptPro=' .. typeValue ..  '&dangertype=' .. zhuanyeValue .. '&dangerlevel=' .. levelValue  .. '&dangercontent=' .. Sprite:getProperty(detail, 'text') .. '&userLongtitute=' .. Config:get("longitude") .. '&userLatitute=' ..  Config:get("latitude") .. '&name=' .. name .. '&positionRemark=' .. addr
+    local param = '&usercode='.. Config:get('username')..'&deptPro=' .. typeValue ..  '&dangertype=' .. zhuanyeValue .. '&dangerlevel=' .. levelValue  .. '&dangercontent=' .. Sprite:getProperty(detail, 'text') .. '&userLongtitute=' ..Config:get("longitude").. '&userLatitute=' .. Config:get("latitude").. '&name=' .. name .. '&positionRemark=' .. addr
     Log:write("-------------url------------", url .. '?cmd=wlbdangersign'..param)
     Loading:show(rootSprite)
     Http:request('upload_data', url, 103, {useCache = false, method = 'post', postData='cmd=wlbdangersign'..param})
@@ -737,7 +733,7 @@ end
 function requestPicUrl(imageUrl)
     local _,_,fileName = string.find(imageUrl, '([^/\\%.]+)%.?[^/\\]*$')
     local url = getWholeUrl('nbspweb/upload/UGC_GetUploadUrl.html', '')
-    local param = 'FILE_NAME=' .. fileName .. '&C_TYPE=' .. 'jpg' .. '&C_LEN=' .. IO:fileSize(imageUrl)
+    local param = '&FILE_NAME=' .. fileName .. '&C_TYPE=' .. 'jpg' .. '&C_LEN=' .. IO:fileSize(imageUrl)
     Log:write("-------------pic url upload------------", url .. param)
     Http:request('upload_url', url, 104, {useCache = false, method = 'post', postData= param})
 end
