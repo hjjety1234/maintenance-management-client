@@ -24,13 +24,11 @@
                     src="file://image/title_new.png" style="autosize" extendstyle="1111" />
                 <label rect="0,0,480,66" text="隐患上报" color="#ffffff" v-align="center"
                     h-align="center" font-size="30" extendstyle="1111" />
-                <button name="backBtn" rect="0,0,66,66" 
-                    OnSelect="isSave" extendstyle="1111">
+                <button name="backBtn" rect="0,0,66,66" OnSelect="isSave" extendstyle="1111" >
                     <image name="normal" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
-                        extendstyle="1111" />
+                        extendstyle="1111"/>
                 </button>
-                <button name="btnForget" rect="400,0,75,75" color="#ffffff"
-                     OnSelect="submitOnSelect" extendstyle="1111">
+                <button name="btnForget" rect="400,0,75,75" color="#ffffff" OnSelect="submitOnSelect" extendstyle="1111" >
                     <image name="normal" rect="21,8,75,75" src="file://image/skin/ico_submit.png"
                         extendstyle="1111" />
                 </button>
@@ -96,8 +94,25 @@
                             </scrolltext>
                         </button>
                     </node>
-                    <node name="baseSprite" rect="0,180,460,300" extendstyle="1111">
+                    <node name="baseSprite" rect="0,180,480,60" extendstyle="1111">
+                
+                        <label name="label1" rect="0,5,140,50" border="false" text="所属站点："
+                            h-align="right" v-align="center" color="#303030" font-size="24"
+                            extendstyle="1111" />
+                        <button name="zhandianBtn" rect="140,5,150,50" border="false"
+                            text="" color="#ffffff" OnSelect="zhandianOnSelect" extendstyle="1111">
+                            <image rect="0,5,150,40" src="file://image/select_bg.png"  style="sudoku-auto" 
+                                    sudoku="15,15,15,15" extendstyle="1111">                  
+                            </image>
+                            <scrolltext name="name" rect="5,5,123,35" text="" color="#303030" extendstyle="1111"
+                                style="autosize" scroll="true" h-align="left" v-align="center" font-size="24">
+                            </scrolltext>
+                        </button>
+                    </node>
+                    <node name="baseSprite" rect="0,240,460,300" extendstyle="1111">
                         <!--隐患地址-->
+                        <image name="listButtonImage" rect="0,0,480,60" src="file://image/item_bg.png"
+                           extendstyle="1111" style='autosize' />
                         <list-item rect="0,0,480,60" extendstyle="1111" border="false">
                             <label name="label1" rect="0,5,140,50" border="false" text="隐患位置："
                                    h-align="right" v-align="center" color="#303030" font-size="24"
@@ -109,15 +124,17 @@
                             </node> 
                         </list-item>
 			            <node name="detailSprite" rect="0,60,480,60" extendstyle="1111">
-			                <image name="listButtonImage" rect="0,0,480,60" src="file://image/item_bg.png"
-                                   extendstyle="1111" style='autosize' /> 
+			             
                             <label name="label1" rect="0,5,140,50" border="false" text="隐患详情："
                                     h-align="right" v-align="center" color="#303030" font-size="24"
                                     extendstyle="1111" /> 
 	                    </node>
 			            <node name="detailSprite1" rect="0,120,480,174" extendstyle="1111">	
-				                 <shadow rect="22,5,440,140" color="#ffffff" alpha="255"
+				                 <image name="listButtonImage" rect="0,0,480,174" src="file://image/item_bg.png"
+                           extendstyle="1111" style='autosize' />
+                                 <shadow rect="22,5,440,140" color="#ffffff" alpha="255"
                                         border='true' extendstyle="1111" />
+                               
                                  <edit name="detail" rect="30,10,425,125" font-size="24" OnTextChanged="editOnTextChanged"
                                        font-family='微软雅黑' text="" color="#303030" extendstyle="1111"
                                        line-height='25' multiline="true" style="autosize" h-align="left"
@@ -222,7 +239,8 @@
                 <listview name="listSelect" rect="66,268,368,216" auto-scroll="true" style="autosize"
                     auto-adjust="true" extendstyle="1111" />
                 <image rect="66,478,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
-            </node>  
+            </node>
+           
             <!-- 收藏菜单  -->
             <node name="ContextMenuNode" rect="0,720,480,80" border="false"
                 visible="false" enable="false" active="false" extendstyle="1111">
@@ -275,6 +293,7 @@ local selectData
 local zhuanyeValue = 0
 local typeValue = 0
 local levelValue = 0
+local zhandianValue =0
 local orderId
 local location = ''
 local upStatus = 0
@@ -285,7 +304,7 @@ local count
 local timerNum = 10
 local longitude = 0
 local latitude = 0
-
+local postData
 local isFavContextMenuVisible = false -- 收藏上下文菜单是否显示标志
 
 ---------------------------------------callbacks--------------------------------
@@ -336,7 +355,7 @@ function bodyOnPluginEvent(msg, param)
         Log:write("-------------location got1--------------")
         local postDataString = Param:getString(param, 0)
         Log:write("-------------location got2--------------", postDataString)
-        local postData = Json:loadString2Table(postDataString)
+        postData = Json:loadString2Table(postDataString)
         if postData.latitude ~= nil then
             Config:set("latitude", postData.latitude)
         end
@@ -373,11 +392,13 @@ function bodyOnPluginEvent(msg, param)
         if selectData.code == "0" then
             fillSelect()  
         end
+   
     elseif msg == 103 then
         local updateData = Http:jsonDecode('upload_data')
         Log:write("updateData:", updateData)
         if updateData.code ~= '0' then
             if Loading:isShow() then Loading:close() end
+           
             Dialog:show('提示',getErrorCode(updateData.code) .. ' ，是否暂存？','ok_cancel','doSave','doBack')
         else
             orderId = updateData.data
@@ -386,7 +407,7 @@ function bodyOnPluginEvent(msg, param)
         end
     elseif msg == 104 then
         local uploadData = Http:xmlDecode('upload_url', 'RESULT')
-        Log:write("网达中间件图片上传返回数据uploadData: ", updateData)
+        Log:write("网达中间件图片上传返回数据uploadData: ", uploadData)
         local url = uploadData.URL
         Log:write('网达中间件图片上传返回URL : ', url)
         local param = uploadData.PARAM
@@ -399,7 +420,7 @@ function bodyOnPluginEvent(msg, param)
         doRealUploadPic(url, param)
     elseif msg == 105 then
         local uploadData = Http:xmlDecode('upload_url', 'RESULT')
-        Log:write("网达中间件声音上传返回数据uploadData: ", updateData)
+        Log:write("网达中间件声音上传返回数据uploadData: ", uploadData)
         local url = uploadData.URL
         Log:write('网达中间件声音上传返回URL : ', url)
         local param = uploadData.PARAM
@@ -480,6 +501,9 @@ function loadSelectItem(list, item, index)
     elseif selectIndex == 3 then
         Sprite:setProperty(button, 'text', "      "..selectData.value[index].lable)
         Sprite:setProperty(button, 'data', selectData.value[index].codevalue)
+    elseif selectIndex == 4 then
+        Sprite:setProperty(button, 'text', "      "..selectData.value[index].itemname)
+        Sprite:setProperty(button, 'data', selectData.value[index].xtbh)
     end
 end
 
@@ -542,12 +566,29 @@ end
 function typeOnSelect(sprite)
     --@Log:write('tempid===', tempid)
     local xunjianData = Sprite:getData(sprite)
-    curXunjianBtn = sprite
+     curXunjianBtn = sprite
      --@Log:write('tempid===', tempid)
     selectIndex = 3
     local param = 'cmd=wlbzytypelist&usercode=' .. Config:get('username')
     local url = getWholeUrl('nbspweb/webservice/dic!doWebservice.action', param)
     Http:request('select', url, 102, {useCache = true, method = 'post'})
+    Loading:show(rootSprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
+end
+-- 所属站点选择
+function zhandianOnSelect(sprite)
+    --@Log:write('tempid===', tempid)
+    local zhandianData = Sprite:getData(sprite)
+    curXunjianBtn = sprite
+    selectIndex = 4
+   local latitudeValue = postData.latitude/ 1000000.0
+   local longitudeValue = postData.longitude / 1000000.0
+    Log:write("==========Jing为",latitudeValue)
+    Log:write("==========Jing为2222",longitudeValue)
+    local param = 'cmd=wlbjingwei&lon='..longitudeValue..'&lat='..latitudeValue..'&radius=10000'..'&page=1'
+    local url = getWholeUrl('nbspweb/webservice/assessment!doWebservice.action', param)
+    Http:request('select', url, 102, {useCache = true, method = 'post'})
+    Log:write("=====站点选择======",url)
     Loading:show(rootSprite)
     setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
 end
@@ -563,7 +604,7 @@ function xunjianGroupOnSelect(sprite)
     local zhuanyeBtn = Sprite:findChild(rootSprite, 'zhuanyeBtn')
     local typeBtn = Sprite:findChild(rootSprite, 'typeBtn')
     local levelBtn = Sprite:findChild(rootSprite, 'levelBtn')
-
+    local zhandianBtn = Sprite:findChild(rootSprite, 'zhandianBtn')
     if selectIndex == 1 then
         title = selectData.value[index].typeName
         zhuanyeValue = xunjianData
@@ -573,6 +614,9 @@ function xunjianGroupOnSelect(sprite)
     elseif selectIndex == 3 then
         title = selectData.value[index].lable
         typeValue = xunjianData
+    elseif selectIndex == 4 then
+        title = selectData.value[index].itemname
+        zhandianValue =xunjianData
     end
     Sprite:setProperty(curXunjianBtn, 'data', Sprite:getProperty(sprite, 'data'))
     Sprite:setProperty(xunjianText, 'text', title)
@@ -582,6 +626,7 @@ end
 function hideXunjianSelected(sprite)
     setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 0)
 end
+
 --传统方式定位
 
 --传统方式获取经纬度
@@ -669,6 +714,7 @@ function submitOnSelect(sprites)
     local zhuanyeBtnText = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'zhuanyeBtn'), 'name'), 'text')
     local typeBtnText = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'typeBtn'), 'name'), 'text')
     local levelBtnText = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'levelBtn'), 'name'), 'text')
+     local zhandianBtnText = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'zhandianBtn'), 'name'), 'text')
     local yinhuanLocNameText=Sprite:getProperty(Sprite:findChild(rootSprite, 'yinhuanLocName'), 'text')
     if yinhuanNameText and yinhuanNameText == '' then
         Dialog:show('提示', '对不起，隐患名称为空！', 'ok')
@@ -680,6 +726,8 @@ function submitOnSelect(sprites)
         Dialog:show('提示', '对不起，隐患级别为空！', 'ok')
     elseif yinhuanLocNameText and yinhuanLocNameText=='' then
         Dialog:show('提示', '对不起，隐患位置为空！', 'ok')
+    elseif zhandianBtnText and zhandianBtnText == '' then
+         Dialog:show('提示', '对不起，所属站点为空！', 'ok')
     else
         Dialog:show('提示','是否确定提交此隐患？','ok_cancel','doUpload')
     end
@@ -692,9 +740,8 @@ function doUpload()
     local detail = Sprite:findChild(rootSprite, 'detail')
     local name =  Sprite:getProperty(Sprite:findChild(rootSprite, 'yinhuanName'), 'text')
     local locInfo = Sprite:findChild(rootSprite, 'locInfo')
-    --改成手动填写 2012-10-19  余奇
-    --local addr = Sprite:getProperty(locInfo, 'text')
     local addr=Sprite:getProperty(Sprite:findChild(rootSprite, 'yinhuanLocName'), 'text')
+    local zhandianBtn = Sprite:findChild(rootSprite, 'zhandianBtn')
 
     if Config:get("latitude") == nil or Config:get("latitude") == '' then
         --Dialog:show('提示', '定位失败!', 'ok')
@@ -705,7 +752,7 @@ function doUpload()
 
     local url = getUrl()..'nbspweb/webservice/accident!doWebservice.action'
 
-    local param = '&usercode='.. Config:get('username')..'&deptPro=' .. typeValue ..  '&dangertype=' .. zhuanyeValue .. '&dangerlevel=' .. levelValue  .. '&dangercontent=' .. Sprite:getProperty(detail, 'text') .. '&userLongtitute=' ..Config:get("longitude").. '&userLatitute=' .. Config:get("latitude").. '&name=' .. name .. '&positionRemark=' .. addr
+    local param = '&usercode='.. Config:get('username')..'&deptPro=' .. typeValue ..  '&dangertype=' .. zhuanyeValue .. '&dangerlevel=' .. levelValue  .. '&dangercontent=' .. Sprite:getProperty(detail, 'text') .. '&userLongtitute=' ..Config:get("longitude").. '&userLatitute=' .. Config:get("latitude").. '&name=' .. name .. '&positionRemark=' .. addr..'&stationed='..zhandianValue
     Log:write("-------------url------------", url .. '?cmd=wlbdangersign'..param)
     Loading:show(rootSprite)
     Http:request('upload_data', url, 103, {useCache = false, method = 'post', postData='cmd=wlbdangersign'..param})
@@ -726,6 +773,7 @@ function getUploadUrl()
         end
     else
         -- 请求图片上传队列中的上传地址
+        Log:write("请求图片上传队列中的上传地址")
         requestPicUrl(imageArray[#imageArray])
     end
 end
@@ -744,6 +792,7 @@ function doRealUploadPic(url, param)
     Log:write("真正上传图片时需要的参数：",param..poststr)
     Upload:append(url, param .. poststr, imageArray[#imageArray], fileName .. '.jpg', 'test', 'jpg')
     table.remove(imageArray, #imageArray)
+    Log:write("图片上传队列",imageArray[#imageArray])
     if imageArray[#imageArray] and imageArray[#imageArray] ~= '' then
         requestPicUrl(imageArray[#imageArray])
     elseif #recordArray >= 1 then
@@ -753,8 +802,9 @@ function doRealUploadPic(url, param)
                 Log:write("测试是否进入此删除函数")
             end 
         end 
-        Log:write("recordArray中除去了没有录音的数组 = ",recordArray)
         requestRecordUrl(recordArray[#recordArray])
+        Log:write("recordArray中除去了没有录音的数组 = ",recordArray)
+        
     else
         if Loading:isShow() then Loading:close() end
         doDelSave(pYinhuanID)
@@ -821,6 +871,7 @@ function doSave()
     local zhuanyeBtn = Sprite:findChild(rootSprite, 'zhuanyeBtn')
     local typeBtn = Sprite:findChild(rootSprite, 'typeBtn')
     local levelBtn = Sprite:findChild(rootSprite, 'levelBtn')
+    local zhandianBtn =Sprite:findChild(rootSprite,'zhandianBtn')
     local detail = Sprite:findChild(rootSprite, 'detail')
     local name =  Sprite:getProperty(Sprite:findChild(rootSprite, 'yinhuanName'), 'text')
     local yinhuanLocName = Sprite:getProperty(Sprite:findChild(rootSprite,'yinhuanLocName'),'text')
@@ -845,7 +896,7 @@ function doSave()
         end
     end
 
-    local stringData = string.format('%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;', yinhuanID, Sprite:getProperty(Sprite:findChild(zhuanyeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(typeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(levelBtn, 'name'), 'text'), Sprite:getProperty(detail, 'text'), getCurDateAndTime(), name,zhuanyeValue,typeValue,levelValue,recordNames,location,yinhuanLocName,pics)
+    local stringData = string.format('%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;', yinhuanID, Sprite:getProperty(Sprite:findChild(zhuanyeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(typeBtn, 'name'), 'text'), Sprite:getProperty(Sprite:findChild(levelBtn, 'name'), 'text'), Sprite:getProperty(detail, 'text'), getCurDateAndTime(), name,zhuanyeValue,typeValue,levelValue,recordNames,location,yinhuanLocName,pics,Sprite:getProperty(Sprite:findChild(zhandianBtn, 'name'), 'text'),zhandianValue)
 
     for i=1, #imageArray do
         stringData = stringData .. imageArray[i]
@@ -969,6 +1020,7 @@ function doLoadSave(pYinhuanID)
     local zhuanyeBtn = Sprite:findChild(rootSprite, 'zhuanyeBtn')
     local typeBtn = Sprite:findChild(rootSprite, 'typeBtn')
     local levelBtn = Sprite:findChild(rootSprite, 'levelBtn')
+    local zhandianBtn =Sprite:findChild(rootSprite,'zhandianBtn')
     local detail = Sprite:findChild(rootSprite, 'detail')
     local yinhuanLocName = Sprite:findChild(rootSprite,'yinhuanLocName')
 
@@ -977,8 +1029,9 @@ function doLoadSave(pYinhuanID)
     Sprite:setProperty(Sprite:findChild(zhuanyeBtn, "name"), 'text', datas[2])
     Sprite:setProperty(Sprite:findChild(typeBtn, "name"), 'text', datas[3])
     Sprite:setProperty(Sprite:findChild(levelBtn, "name"), 'text', datas[4])
+     Sprite:setProperty(Sprite:findChild(zhandianBtn, "name"), 'text', datas[15])
     Sprite:setProperty(Sprite:findChild(rootSprite, "yinhuanName"), 'text', datas[7])
-
+    zhandianValue =datas[16]
     zhuanyeValue = datas[8]
     typeValue = datas[9]
     levelValue = datas[10]
