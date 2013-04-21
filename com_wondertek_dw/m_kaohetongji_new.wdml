@@ -195,6 +195,7 @@ local max3 = 0
 local min1 = 0
 local min2 = 0
 local min3 = 0
+local kaohedata='city'
 
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
@@ -295,11 +296,9 @@ function loadListItem(list, item, index)
     -- 读取返回的数据
     local value = g_response.value
     local dimension = Sprite:findChild(item,'dimension')         -- 地市
-    local company = Sprite:findChild(item,'company')        -- 代维公司
     local score = Sprite:findChild(item,'score')          -- 得分
     local faceName = Sprite:findChild(item,'faceName')          -- 笑脸、哭脸
     Sprite:setProperty(dimension, 'text', value[index].dimension)
-    Sprite:setProperty(company, 'text', value[index].company)
     Sprite:setProperty(score, 'text', value[index].score)
 
 end
@@ -458,8 +457,8 @@ end
 -- 请求统计数据
 function request(major)
     local month = getSelectedMonth()
-    local param = string.format('cmd=wlbassessment&usercode=%s&date=%s&major=%s&page=1&pagesize=100', 
-        Config:get('username'), month, major)
+    local param = string.format('cmd=wlbassessment&usercode=%s&date=%s&major=%s&page=1&pagesize=100&dimension=%s', 
+        Config:get('username'), month, major,kaohedata)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     --Log:write("[request] reqURL: ", reqURL)
     Http:request('assessment', reqURL, 101, {useCache = false})
@@ -467,7 +466,7 @@ function request(major)
 end
 --切换代维公司和市公司
 function cityOn(sprite)
-    dimension = Sprite:getData(sprite)
+    kaohedata = Sprite:getData(sprite)
     --设置两个button背景色和字体
     local cityImg = Sprite:findChild(rootSprite,'cityImg')
     local companyImg = Sprite:findChild(rootSprite,'companyImg')
@@ -477,10 +476,14 @@ function cityOn(sprite)
     Sprite:setProperty(companyImg,'src','file://image/content_center.png')
     Sprite:setProperty(cityTxt,'color','#ffffff')
     Sprite:setProperty(companyTxt,'color','#5a5a5a')
+    request(g_major)
+    Loading:show()
 end
 
 function companyOn(sprite)
-    dimension = Sprite:getData(sprite)
+
+    kaohedata = Sprite:getData(sprite)
+
     --Log:write('dimension',dimension)
     --设置两个button背景色和字体
     local cityImg = Sprite:findChild(rootSprite,'cityImg')
@@ -491,6 +494,9 @@ function companyOn(sprite)
     Sprite:setProperty(companyImg,'src','file://image/city_bg.png')
     Sprite:setProperty(cityTxt,'color','#5a5a5a')
     Sprite:setProperty(companyTxt,'color','#ffffff') 
+    Log:write('kaohedata',kaohedata)
+    request(g_major)
+    Loading:show()
 end
 
 ]]>
