@@ -358,7 +358,6 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_renyuantongji, 'MODULE:\\(.*)'), "人员统计")
-        UmsAgent:onLoadStart()
         local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode='..Config:get('username').."&date="
         local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
         Log:write('人员reqURL',reqURL)
@@ -371,8 +370,8 @@ end
 
 -- 插件消息方法
 function bodyOnPluginEvent(msg, param)
+    if Loading:isShow() then Loading:close() end 
     if msg == 101 then
-        Loading:close()
         UmsAgent:onLoadFinish()
         renyuandata = Http:jsonDecode('renyuandata')
         OnSelectShowMap()
@@ -399,6 +398,7 @@ function doBack()
 end
 
 ----------------------------------服务端交互函数列表---------------------------------
+-- @brief 区域点击按钮消息处理
 function doRegionClick(sprite)
     -- 获取当前被选地市的数据
     local name = Sprite:getData(sprite)
@@ -430,7 +430,7 @@ function OnSelectShowMap(sprite)
     Sprite:setProperty(cityNode, 'visible', 'false') 
     if renyuandata ~= nil and renyuandata.value ~= nil and renyuandata.value ~= "" then 
         local value = renyuandata.value[0]
-        showDetail("all", 16, value.allcar, value.allstaff)
+        showDetail("all", 10, value.allcar, value.allstaff)
     end
 end
 
