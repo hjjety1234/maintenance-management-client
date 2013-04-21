@@ -129,7 +129,7 @@
                     <image name="listButtonImage" rect="31,9,418,38" 
                         src="file://image/ziyuan_bg.png"
                         extendstyle="1111" style='autosize' >
-                        <label rect="0,5,70,25" text="地市" font-family='微软雅黑'
+                        <label rect="0,5,70,25" text="市公司" font-family='微软雅黑'
                             extendstyle="1111" font-size="22" h-align="center" v-align="center"
                             color="#e33a10" />
                         <label rect="60,5,160,25" text="计划站点" font-family='微软雅黑'
@@ -217,7 +217,7 @@ require 'framework.umsagent'
 local rootSprite
 local g_response = nil
 local g_major = nil
-local dimension= 'city'
+local xunjiandata= 'city'
 
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
@@ -293,7 +293,7 @@ function loadListItem(list, item, index)
     Sprite:setProperty(dimension, 'text', value[index].dimension)
     Sprite:setProperty(plan, 'text', value[index].plan)
     Sprite:setProperty(complete, 'text', value[index].complete)
-    Sprite:setProperty(ratio, 'text', ratioValue.."%")
+    Sprite:setProperty(ratio, 'text', string.format('%.1f',value[index].ratio).."%")
     if value[index].plan<=value[index].complete and value[index].plan~=0 then 
       Sprite:setProperty(ratio, 'text', '100.0%')
     end
@@ -569,8 +569,8 @@ end
 -- 请求统计数据
 function request(major)
     local month = getSelectedMonth()
-    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=%s&page=1&pagesize=100', 
-        Config:get('username'), month, major)
+    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=%s&page=1&pagesize=100&dimension=%s', 
+        Config:get('username'), month, major,xunjiandata)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     --Log:write("[request] reqURL: ", reqURL)
     Http:request('patrol', reqURL, 101, {useCache = false})
@@ -578,7 +578,7 @@ function request(major)
 end
 --切换代维公司和市公司
 function cityOn(sprite)
-    dimension = Sprite:getData(sprite)
+    xunjiandata = Sprite:getData(sprite)
     --设置两个button背景色和字体
     local cityImg = Sprite:findChild(rootSprite,'cityImg')
     local companyImg = Sprite:findChild(rootSprite,'companyImg')
@@ -588,10 +588,13 @@ function cityOn(sprite)
     Sprite:setProperty(companyImg,'src','file://image/content_center.png')
     Sprite:setProperty(cityTxt,'color','#ffffff')
     Sprite:setProperty(companyTxt,'color','#5a5a5a')
+    local cityName = Sprite:findChild(rootSprite,'cityName')
+    Sprite:setProperty(cityName,'text','市公司')
+    request(g_major)
 end
 
 function companyOn(sprite)
-    dimension = Sprite:getData(sprite)
+    xunjiandata = Sprite:getData(sprite)
     --Log:write('dimension',dimension)
     --设置两个button背景色和字体
     local cityImg = Sprite:findChild(rootSprite,'cityImg')
@@ -602,6 +605,9 @@ function companyOn(sprite)
     Sprite:setProperty(companyImg,'src','file://image/city_bg.png')
     Sprite:setProperty(cityTxt,'color','#5a5a5a')
     Sprite:setProperty(companyTxt,'color','#ffffff') 
+    local cityName = Sprite:findChild(rootSprite,'cityName')
+    Sprite:setProperty(cityName,'text','代维单位')
+    request(g_major)
 end
 
 ]]>
