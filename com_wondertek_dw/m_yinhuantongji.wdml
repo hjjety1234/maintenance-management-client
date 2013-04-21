@@ -47,7 +47,7 @@
                 <!-- 维度标签 -->
                 <node name="dimNode" rect="0,0,480,66" extendstyle="1111">
                     <!--按地市公司 -->
-                    <button name="cityBtn" rect="0,0,120,66" 
+                    <button name="cityBtn" rect="0,0,110,66" 
                         OnSelect="cityOn" extendstyle="1111" data='wlbcityquality'>
                         <image name='cityImg' rect="30,10,95,37" src="file://image/city_bg.png"
                             extendstyle="1111" style='autosize'/>
@@ -56,7 +56,7 @@
                             color="#ffffff" />
                     </button> 
                     <!--按代维公司 -->
-                    <button name="companyBtn" rect="120,0,120,66" 
+                    <button name="companyBtn" rect="110,0,110,66" 
                         OnSelect="companyOn" extendstyle="1111" data='wlbcompanyquality' >
                         <image name='companyImg' rect="30,10,95,37" src="" 
                              extendstyle="1111" style='autosize'/>
@@ -65,13 +65,30 @@
                             color="#5a5a5a" />
                     </button>
                     <!-- 按代维专业 -->
-                    <button name="majorBtn" rect="240,0,120,66" 
+                    <button name="majorBtn" rect="220,0,110,66" 
                         OnSelect="majorOn" extendstyle="1111" data='wlbcompanyquality' >
                         <image name='majorImg' rect="30,10,95,37" src="" 
                              extendstyle="1111" style='autosize'/>
                         <label name="majorTxt" rect="30,5,95,37" text="代维专业" font-family='微软雅黑'
                             extendstyle="1111" font-size="23" h-align="center" v-align="center"
                             color="#5a5a5a" />
+                    </button>
+                    <!--按月年两个维度-->
+                    <button name="dangyue" rect="355,0,45,35" 
+                        OnSelect="TimeOnSelect" extendstyle="1111"  data='01'>
+                        <image name='dangyueimg' rect="0,0,56,35" src="file://image/major_on.png" 
+                             extendstyle="1111" style='autosize'/>
+                        <label name='dangyuelabel' rect="0,0,56,30" text="当月" font-family='微软雅黑'
+                            extendstyle="1111" font-size="24" h-align="center" v-align="center"
+                            color="#ffffff" />
+                    </button>
+                    <button name="dangjidu" rect="407,0,45,35" 
+                        OnSelect="TimeOnSelect" extendstyle="1111"  data='02'>
+                        <image name='dangjiduimg' rect="0,0,56,35" src="file://image/major.png" 
+                             extendstyle="1111" style='autosize'/>
+                        <label name='jiduselectName' rect="0,0,56,30" text="当年" font-family='微软雅黑'
+                            extendstyle="1111" font-size="24" h-align="center" v-align="center"
+                            color="#ffffff" />
                     </button>
                 </node>
                 <!--列表信息-->
@@ -130,6 +147,7 @@ require 'framework.umsagent'
 local rootSprite
 local g_type = 0            -- 隐患统计类型
 local g_respValue = nil     -- 服务端返回数据
+local searchDate = 'year'   --默认按当年进行查询
 
 ---------------------------------------系统回调函数列表--------------------------------
 -- @brief root子节点创建完事件
@@ -340,11 +358,39 @@ function fdSeqOnselect(sprite)
     ListView:adjust(listView1)
 end
 
+--按当月或当年两个维度进行切换
+function TimeOnSelect(sprite)
+    local data = Sprite:getData(sprite)
+    Log:write('the data is ',data)
+    if data == '01' then    --按当月维度
+        searchDate = 'month'
+    else    --按年维度
+        searchDate = 'year'
+    end
+    request()
+end
+
+--切换月、年度选择的背景
+function chgDateButtonBg()
+    --file://image/major_on.png
+    Log:write('searchDate is ',searchDate)
+    local dangyue  = Sprite:findChild(rootSprite, 'dangyue')
+    local dangjidu = Sprite:findChild(rootSprite, 'dangjidu')
+    if searchDate == 'month' then
+        Sprite:setProperty(Sprite:findChild(dangyue,'dangyueimg'),'src','file://image/major_on.png')
+        Sprite:setProperty(Sprite:findChild(dangjidu,'dangjiduimg'),'src','file://image/major.png')
+    else
+        Sprite:setProperty(Sprite:findChild(dangyue,'dangyueimg'),'src','file://image/major.png')
+        Sprite:setProperty(Sprite:findChild(dangjidu,'dangjiduimg'),'src','file://image/major_on.png')
+    end
+end
+
 ---------------------------------------服务端交互函数列表-------------------------------- 
 -- @brief 获取统计数据
 function request()
-    local param = string.format("cmd=dangerreport&type=%d&page=1&pagesize=30&usercode=%s", 
-        g_type, Config:get('username'))
+    chgDateButtonBg()
+    local param = string.format("cmd=dangerreport&type=%d&page=1&pagesize=30&usercode=%s&date=%s", 
+        g_type, Config:get('username'),searchDate)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write("[request] 请求地址为: ", reqURL)
     Http:request('city_data', reqURL, 101, {useCache = false})
