@@ -93,8 +93,8 @@
                 <image rect="10,596,460,12" src="file://image/content_bottom.png"
                     style="autosize" extendstyle="1111" /> 
                 <!-- 选择月份 -->
-                <node name="MonthNode" rect="0,20,480,31" extendstyle="1111">
-                    <button name="prevMonthBtn" rect="20,0,40,31" OnSelect="prevMonthOnSelect" 
+                <node name="MonthNode" rect="0,15,480,31" extendstyle="1111">
+                    <button name="prevMonthBtn" rect="220,0,40,31" OnSelect="prevMonthOnSelect" 
                         style="autosize" extendstyle="1111" >
                         <image name="normal" rect="0,0,40,31" src="file://image/t5.png" 
                             style="autosize" extendstyle="0010"/>                  
@@ -104,19 +104,19 @@
                         <image name="normal" rect="0,0,40,31" src="file://image/t6.png" 
                             style="autosize" extendstyle="0010"/>                  
                     </button>
-                    <image name='rightImg' rect="61,0,354,31" src="file://image/t7.png" 
+                    <image name='rightImg' rect="260,0,154,31" src="file://image/t7.png" 
                         extendstyle="1111" style='autosize'/>
-                    <label name="yearLabel" rect="175,0,55,31" text="2012" 
-                        font-family="微软雅黑" font-size="24" h-align="center" 
+                    <label name="yearLabel" rect="265,0,55,31" text="2012" 
+                        font-family="微软雅黑" font-size="23" h-align="center" 
                         v-align="center" color="#ffffff" style="autosize" extendstyle="0010"/> 
-                    <label rect="230,0,20,31" text="年" font-family="微软雅黑" 
-                        font-size="24" h-align="center" v-align="center" 
+                    <label rect="320,0,20,31" text="年" font-family="微软雅黑" 
+                        font-size="23" h-align="center" v-align="center" 
                         color="#ffffff" style="autosize" extendstyle="0010"/> 
-                    <label name="monthLabel" rect="250,0,25,31" text="2" 
-                        font-family="微软雅黑" font-size="24" h-align="center" 
+                    <label name="monthLabel" rect="340,0,25,31" text="2" 
+                        font-family="微软雅黑" font-size="23" h-align="center" 
                         v-align="center" color="#ffffff" style="autosize" extendstyle="0010"/> 
-                    <label rect="265,0,60,31" text="季度" font-family="微软雅黑" 
-                        font-size="24" h-align="center" v-align="center" 
+                    <label rect="355,0,60,31" text="季度" font-family="微软雅黑" 
+                        font-size="23" h-align="center" v-align="center" 
                         color="#ffffff" style="autosize" extendstyle="0010"/>
                 </node>
                 <!--列表信息-->
@@ -186,6 +186,27 @@
                 <image name='faceName'  rect="410,5,30,30" src=""
                     style="autosize" extendstyle="1111" /> 
             </node>
+            <!-- 统计标签 -->
+            <node name="baseSprite" rect="0,190,480,66" extendstyle="1111">
+                <!--市公司-->
+                <button name="cityBtn" rect="0,0,120,66" 
+                    OnSelect="cityOn" extendstyle="1111" data='city'>
+                    <image name='cityImg' rect="30,10,75,37" src="file://image/city_bg.png"
+                         extendstyle="1111" style='autosize'/>
+                    <label name="cityTxt" rect="20,5,95,37" text="市公司" font-family='微软雅黑'
+                        extendstyle="1111" font-size="23" h-align="center" v-align="center"
+                        color="#ffffff" />
+                </button> 
+                <!--代维单位公司-->
+                <button name="companyBtn" rect="110,0,120,66" 
+                    OnSelect="companyOn" extendstyle="1111" data='company' >
+                    <image name='companyImg' rect="0,10,90,37" src="" 
+                         extendstyle="1111" style='autosize'/>
+                    <label name="companyTxt" rect="5,5,95,37" text="代维单位" font-family='微软雅黑'
+                        extendstyle="1111" font-size="23" h-align="left" v-align="center"
+                        color="#5a5a5a" />
+                </button>
+            </node>
         </node>
     </body>
 <![CDATA[
@@ -196,6 +217,7 @@ require 'framework.umsagent'
 local rootSprite
 local g_response = nil
 local g_major = nil
+local dimension= 'city'
 
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
@@ -552,6 +574,33 @@ function request(major)
     --Log:write("[request] reqURL: ", reqURL)
     Http:request('patrol', reqURL, 101, {useCache = false})
     Loading:show()
+end
+--切换代维公司和市公司
+function cityOn(sprite)
+    dimension = Sprite:getData(sprite)
+    --设置两个button背景色和字体
+    local cityImg = Sprite:findChild(rootSprite,'cityImg')
+    local companyImg = Sprite:findChild(rootSprite,'companyImg')
+    local cityTxt = Sprite:findChild(rootSprite,'cityTxt')
+    local companyTxt = Sprite:findChild(rootSprite,'companyTxt')
+    Sprite:setProperty(cityImg,'src','file://image/city_bg.png')
+    Sprite:setProperty(companyImg,'src','file://image/content_center.png')
+    Sprite:setProperty(cityTxt,'color','#ffffff')
+    Sprite:setProperty(companyTxt,'color','#5a5a5a')
+end
+
+function companyOn(sprite)
+    dimension = Sprite:getData(sprite)
+    --Log:write('dimension',dimension)
+    --设置两个button背景色和字体
+    local cityImg = Sprite:findChild(rootSprite,'cityImg')
+    local companyImg = Sprite:findChild(rootSprite,'companyImg')
+    local cityTxt = Sprite:findChild(rootSprite,'cityTxt')
+    local companyTxt = Sprite:findChild(rootSprite,'companyTxt')
+    Sprite:setProperty(cityImg,'src','file://image/content_center.png')
+    Sprite:setProperty(companyImg,'src','file://image/city_bg.png')
+    Sprite:setProperty(cityTxt,'color','#5a5a5a')
+    Sprite:setProperty(companyTxt,'color','#ffffff') 
 end
 
 ]]>

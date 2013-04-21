@@ -165,7 +165,7 @@
                         <!--代维单位公司-->
                         <button name="companyBtn" rect="120,0,120,66" 
                             OnSelect="companyOn" extendstyle="1111" data='company' >
-                            <image name='companyImg' rect="30,10,95,37" src="" 
+                            <image name='companyImg' rect="25,10,110,37" src="" 
                                  extendstyle="1111" style='autosize'/>
                             <label name="companyTxt" rect="30,5,95,37" text="代维单位" font-family='微软雅黑'
                                 extendstyle="1111" font-size="23" h-align="center" v-align="center"
@@ -260,25 +260,7 @@ function cityOn(sprite)
     Sprite:setProperty(dimension,'text','市公司')
     Sprite:setProperty(dimension1,'text','市公司')
     Sprite:setProperty(dimension2,'text','市公司')
-    --设置两列显示
-    local peopleNum = Sprite:findChild(rootSprite,'peopleNum')
-    local radio = Sprite:findChild(rootSprite,'radio')
-    local select1 = Sprite:findChild(rootSprite,'select1')
-    local select2 = Sprite:findChild(rootSprite,'select2')
-    local xqseqBtn = Sprite:findChild(rootSprite,'xqseqBtn')
-    local fdseqBtnDB = Sprite:findChild(rootSprite,'fdseqBtnDB')
-    Sprite:setVisible(peopleNum,1)
-    Sprite:setActive(peopleNum,1)
-    Sprite:setVisible(radio,1)
-    Sprite:setEnable(radio,1)
-    Sprite:setVisible(select1,1)
-    Sprite:setEnable(select1,1)
-    Sprite:setVisible(select2,1)
-    Sprite:setEnable(select2,1)
-    Sprite:setVisible(xqseqBtn,1)
-    Sprite:setEnable(xqseqBtn,1)
-    Sprite:setVisible(fdseqBtnDB,1)
-    Sprite:setEnable(fdseqBtnDB,1)
+
     request()
 end
 -------点击代维单位公司统计标签
@@ -301,25 +283,7 @@ function companyOn(sprite)
     Sprite:setProperty(dimension,'text','代维单位')
     Sprite:setProperty(dimension1,'text','代维单位')
     Sprite:setProperty(dimension2,'text','代维单位')
-    --设置两列不显示
-    local peopleNum = Sprite:findChild(rootSprite,'peopleNum')
-    local radio = Sprite:findChild(rootSprite,'radio')
-    local select1 = Sprite:findChild(rootSprite,'select1')
-    local select2 = Sprite:findChild(rootSprite,'select2')
-    local xqseqBtn = Sprite:findChild(rootSprite,'xqseqBtn')
-    local fdseqBtnDB = Sprite:findChild(rootSprite,'fdseqBtnDB')
-    Sprite:setVisible(peopleNum,0)
-    Sprite:setActive(peopleNum,0)
-    Sprite:setVisible(radio,0)
-    Sprite:setEnable(radio,0)
-    Sprite:setVisible(select1,0)
-    Sprite:setEnable(select1,0)
-    Sprite:setVisible(select2,0)
-    Sprite:setEnable(select2,0)
-    Sprite:setVisible(xqseqBtn,0)
-    Sprite:setEnable(xqseqBtn,0)
-    Sprite:setVisible(fdseqBtnDB,0)
-    Sprite:setEnable(fdseqBtnDB,0)
+
     request()
 end
 
@@ -353,16 +317,43 @@ function loadListItem(list, item, index)
     local remotestation = Sprite:findChild(item,'remotestation')
     Sprite:setProperty(cityName,'text',city_data.value[index].dimension)
     if(dimension == 'city') then
+        --设置两列显示
+        local dimension = Sprite:findChild(rootSprite,'dimension')
+        Sprite:setProperty(dimension,'rect','-10,5,90,25')
+        local select1 = Sprite:findChild(rootSprite,'select1')
+        local select2 = Sprite:findChild(rootSprite,'select2')
+        local xqseqBtn = Sprite:findChild(rootSprite,'xqseqBtn')
+        local fdseqBtnDB = Sprite:findChild(rootSprite,'fdseqBtnDB')
+        Sprite:setVisible(select1,1)
+        Sprite:setEnable(select1,1)
+        Sprite:setVisible(select2,1)
+        Sprite:setEnable(select2,1)
+        Sprite:setVisible(xqseqBtn,1)
+        Sprite:setEnable(xqseqBtn,1)
+        Sprite:setVisible(fdseqBtnDB,1)
+        Sprite:setEnable(fdseqBtnDB,1)
         Sprite:setProperty(peopleNum,'text',city_data.value[index].station)
-    else
-        Sprite:setProperty(peopleNum,'text','')
-    end
-    Sprite:setProperty(carNum,'text',city_data.value[index].maintenance)
-    if(dimension == 'city') then
         Sprite:setProperty(radio,'text',city_data.value[index].ratio..'%')
     else
+        --设置两列不显示
+        local dimension = Sprite:findChild(rootSprite,'dimension')
+        Sprite:setProperty(dimension,'rect','3,5,100,25')
+        local select1 = Sprite:findChild(rootSprite,'select1')
+        local select2 = Sprite:findChild(rootSprite,'select2')
+        local xqseqBtn = Sprite:findChild(rootSprite,'xqseqBtn')
+        local fdseqBtnDB = Sprite:findChild(rootSprite,'fdseqBtnDB')
+        Sprite:setVisible(select1,0)
+        Sprite:setEnable(select1,0)
+        Sprite:setVisible(select2,0)
+        Sprite:setEnable(select2,0)
+        Sprite:setVisible(xqseqBtn,0)
+        Sprite:setEnable(xqseqBtn,0)
+        Sprite:setVisible(fdseqBtnDB,0)
+        Sprite:setEnable(fdseqBtnDB,0)
+        Sprite:setProperty(peopleNum,'text','')
         Sprite:setProperty(radio,'text','')
     end
+    Sprite:setProperty(carNum,'text',city_data.value[index].maintenance)
     Sprite:setProperty(cityName1,'text',city_data.value[index].dimension)
     Sprite:setProperty(cityName2,'text',city_data.value[index].dimension)
     Sprite:setProperty(vvipstation,'text',city_data.value[index].vvipstation)
