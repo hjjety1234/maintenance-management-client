@@ -31,7 +31,7 @@
                         <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
                     </button>  
-                    <scrolltext name="title" rect="105,5,280,40" text="资源统计" font-family='微软雅黑'
+                    <scrolltext name="title" rect="105,5,280,40" text="资源代维" font-family='微软雅黑'
                         extendstyle="1111" font-size="36" h-align="center" v-align="center"
                         color="#ffffff" scroll="true"  step="2" />
                 </node>
@@ -61,7 +61,7 @@
                         color="#ffffff" />
                 </button>
                 <!-- WLAN  -->     
-                <button name="wlan" rect="289,0,88,40" src='file://image/major_on.png' 
+                <button name="wlan1" rect="289,0,88,40" src='file://image/major_on.png' 
                     extendstyle="1111" data='C38' style='autosize'>
                     <label name='majorName' rect="0,0,88,40" text="WLAN" font-family='微软雅黑'
                         extendstyle="1111" font-size="22" h-align="center" v-align="center"
@@ -108,13 +108,13 @@
                             <label name='cityName' rect="-10,5,90,25" text="市公司" font-family='微软雅黑'
                                     extendstyle="1111" font-size="22" h-align="center" v-align="center"
                                     color="#e33a10" />
-                            <label rect="100,5,150,25" text="AP总数" font-family='微软雅黑'
+                            <label name='change1' rect="100,5,150,25" text="AP总数" font-family='微软雅黑'
                                     extendstyle="1111" font-size="22" h-align="left" v-align="center"
                                     color="#e33a10" />
                             <label  rect="225,5,150,25" text="代维数量" font-family='微软雅黑'
                                     extendstyle="1111" font-size="22" h-align="left" v-align="center"
                                     color="#e33a10" />
-                            <label  rect="330,5,150,25" text="代维比例" font-family='微软雅黑'
+                            <label  name='change2' rect="330,5,150,25" text="代维比例" font-family='微软雅黑'
                                     extendstyle="1111" font-size="22" h-align="left" v-align="center"
                                     color="#e33a10" />
                         </image>
@@ -128,7 +128,7 @@
                               <image name="paixu1" rect="90,6,20,12" src="file://image/triangle_down.png"
                              extendstyle="1111" style="autosize" />
                         </button>
-                        <button name="fdseqBtn" rect="350,15,150,30" normal="normal" sel="sel"
+                        <button name="fdseqBtn1" rect="350,15,150,30" normal="normal" sel="sel"
                              OnSelect="paixuDB" extendstyle="1111"  data="0" >
                               <image name="paixu2" rect="98,6,20,12" src="file://image/triangle_down.png"
                              extendstyle="1111" style="autosize" />
@@ -192,7 +192,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-       UmsAgent:OnActivate(string.match(Alias.m_resource_wlan, 'MODULE:\\(.*)'), "资源统计-wlan")
+       UmsAgent:OnActivate(string.match(Alias.m_resource_wlan1, 'MODULE:\\(.*)'), "资源统计-wlan")
        UmsAgent:onLoadStart()
        --初始化加载按地市统计数据
        request()
@@ -255,6 +255,19 @@ function cityOn(sprite)
     local cityName1 = Sprite:findChild(rootSprite,'cityName1')
     Sprite:setProperty(cityName,'text','市公司')
     Sprite:setProperty(cityName1,'text','市公司')
+    --设置两列显示
+    local change1 = Sprite:findChild(rootSprite,'change1')
+    local change2 = Sprite:findChild(rootSprite,'change2')
+    local xqseqBtn = Sprite:findChild(rootSprite,'xqseqBtn')
+    local fdseqBtn1 = Sprite:findChild(rootSprite,'fdseqBtn1')
+    Sprite:setVisible(change1,1)
+    Sprite:setActive(change1,1)
+    Sprite:setVisible(change2,1)
+    Sprite:setEnable(change2,1)
+    Sprite:setVisible(xqseqBtn,1)
+    Sprite:setEnable(xqseqBtn,1)
+    Sprite:setVisible(fdseqBtn1,1)
+    Sprite:setEnable(fdseqBtn1,1)
     request(dimension)
 end
 -------点击按代维公司统计标签
@@ -274,6 +287,25 @@ function companyOn(sprite)
     local cityName1 = Sprite:findChild(rootSprite,'cityName1')
     Sprite:setProperty(cityName,'text','代维单位')
     Sprite:setProperty(cityName1,'text','代维单位')
+    --设置两列不显示
+    local change1 = Sprite:findChild(rootSprite,'change1')
+    local change2 = Sprite:findChild(rootSprite,'change2')
+    local xqseqBtn = Sprite:findChild(rootSprite,'xqseqBtn')
+    local fdseqBtn1 = Sprite:findChild(rootSprite,'fdseqBtn1')
+    local wlan = Sprite:findChild(rootSprite,'wlan')
+    local ratio = Sprite:findChild(rootSprite,'ratio')
+    Sprite:setVisible(change1,0)
+    Sprite:setActive(change1,0)
+    Sprite:setVisible(change2,0)
+    Sprite:setEnable(change2,0)
+    Sprite:setVisible(xqseqBtn,0)
+    Sprite:setEnable(xqseqBtn,0)
+    Sprite:setVisible(fdseqBtn1,0)
+    Sprite:setEnable(fdseqBtn1,0)
+    Sprite:setVisible(wlan,0)
+    Sprite:setEnable(wlan,0)
+    Sprite:setVisible(ratio,0)
+    Sprite:setEnable(ratio,0)
     request()
 end
 --获取统计数据返回地址（按地市）
@@ -291,7 +323,7 @@ function loadListItem(list, item, index)
        Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
     end
     -- 读取返回的数据
-    local dimension = Sprite:findChild(item,'dimension')
+    local dimensionData = Sprite:findChild(item,'dimension')
     local dimension1 = Sprite:findChild(item,'dimension1')
     local wlan = Sprite:findChild(item,'wlan')
     local maintenance = Sprite:findChild(item,'maintenance')
@@ -299,14 +331,19 @@ function loadListItem(list, item, index)
     local classa = Sprite:findChild(item,'classa')
     local classb = Sprite:findChild(item,'classb')
     local classc = Sprite:findChild(item,'classc')
-    Sprite:setProperty(dimension,'text',city_data.value[index].dimension)
+    Sprite:setProperty(dimensionData,'text',city_data.value[index].dimension)
     Sprite:setProperty(dimension1,'text',city_data.value[index].dimension)
-    Sprite:setProperty(wlan,'text',city_data.value[index].wlan)
     Sprite:setProperty(maintenance,'text',city_data.value[index].maintenance)
-    Sprite:setProperty(ratio,'text',city_data.value[index].ratio..'%')
     Sprite:setProperty(classa,'text',city_data.value[index].classa)
     Sprite:setProperty(classb,'text',city_data.value[index].classb)
     Sprite:setProperty(classc,'text',city_data.value[index].classc)
+    if dimension == 'city' then
+        Sprite:setProperty(wlan,'text',city_data.value[index].wlan)
+        Sprite:setProperty(ratio,'text',city_data.value[index].ratio..'%')
+    else
+        Sprite:setProperty(wlan,'text','') 
+        Sprite:setProperty(ratio,'text','')
+    end
 end
 --选择专业
 function lineOn(sprite)

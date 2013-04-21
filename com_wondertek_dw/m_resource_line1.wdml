@@ -31,7 +31,7 @@
                         <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
                     </button>  
-                    <scrolltext name="title" rect="105,5,280,40" text="资源统计" font-family='微软雅黑'
+                    <scrolltext name="title" rect="105,5,280,40" text="资源代维" font-family='微软雅黑'
                         extendstyle="1111" font-size="36" h-align="center" v-align="center"
                         color="#ffffff" scroll="true"  step="2" />
                 </node>
@@ -133,7 +133,7 @@
                              extendstyle="1111" style="autosize" />
                         </button>
                     </node> 
-                    <!-- 列表项(按地市)  -->
+                    <!-- 列表项(市公司)  -->
                     <node name="listItem" rect="0,0,480,80" border="false"
                         visible="false" enable="false" active="false" extendstyle="1111">
                             <image name="listItem_bg" rect="31,0,418,38" src=""
@@ -153,7 +153,7 @@
                     </node>
                     <!-- 统计标签 -->
                     <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
-                        <!--按地市-->
+                        <!--市公司-->
                         <button name="cityBtn" rect="0,0,120,66" 
                             OnSelect="cityOn" extendstyle="1111" data='city'>
                             <image name='cityImg' rect="30,10,95,37" src="file://image/city_bg.png"
@@ -162,7 +162,7 @@
                                 extendstyle="1111" font-size="23" h-align="center" v-align="center"
                                 color="#ffffff" />
                         </button> 
-                        <!--按代维公司-->
+                        <!--代维单位公司-->
                         <button name="companyBtn" rect="120,0,120,66" 
                             OnSelect="companyOn" extendstyle="1111" data='company' >
                             <image name='companyImg' rect="30,10,95,37" src="" 
@@ -182,7 +182,7 @@ require 'com_wondertek_dw.common.framework'
 require 'framework.umsagent'
 local rootSprite
 local city_data
-local dimension = 'city' --初始按地市维度
+local dimension = 'city' --初始市公司维度
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -194,7 +194,7 @@ function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
        UmsAgent:OnActivate(string.match(Alias.m_resource_line1, 'MODULE:\\(.*)'), "资源统计-线路")
        UmsAgent:onLoadStart()
-       --初始化加载按地市统计数据
+       --初始化加载市公司统计数据
        request()
     elseif msg == MSG_DEACTIVATE then
        UmsAgent:OnDeactivate()
@@ -203,7 +203,7 @@ end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg, param)
-    if msg == 101 then--按地市数据处理 
+    if msg == 101 then--市公司数据处理 
         UmsAgent:onLoadFinish()  
         city_data = Http:jsonDecode('city_data')
         local listView = Sprite:findChild(rootSprite, 'sampleList')
@@ -253,7 +253,7 @@ function doBack()
     Scene:back()
 end
 
--------点击按地市统计标签
+-------点击市公司统计标签
 function cityOn(sprite)
     dimension = Sprite:getData(sprite)
     --设置两个button背景色和字体
@@ -295,7 +295,7 @@ function cityOn(sprite)
     Sprite:setActive(radio,1)
     request(dimension)
 end
--------点击按代维公司统计标签
+-------点击代维单位公司统计标签
 function companyOn(sprite)
     dimension = Sprite:getData(sprite)
     --设置两个button背景色和字体
@@ -338,14 +338,14 @@ function companyOn(sprite)
     request()
 end
 
---获取统计数据返回地址（按地市）
+--获取统计数据返回地址（市公司）
 function request()
     Loading:show(rootSprite)
     local param = 'cmd=wlblineresources&dimension='..dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Http:request('city_data', reqURL, 101, {useCache = false})
 end
---加载按地市统计数据
+--加载市公司统计数据
 function loadListItem(list, item, index)
     Sprite:setRect(item, 0, 0, 480, 40)
     local listItem_bg = Sprite:findChild(item, 'listItem_bg')
