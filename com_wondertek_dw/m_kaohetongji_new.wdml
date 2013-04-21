@@ -172,6 +172,14 @@ require 'framework.umsagent'
 local rootSprite
 local g_response = nil
 local g_major = nil
+local max = 0
+local min = 0
+local max1 = 0
+local max2 = 0
+local max3 = 0
+local min1 = 0
+local min2 = 0
+local min3 = 0
 
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
@@ -204,7 +212,9 @@ function bodyOnPluginEvent(msg, param)
             Dialog:show(rootSprite, '暂无考核数据!', 'ok')
             return
         end
-        local len = #g_response.value+1
+        getMaxAndMin()
+        local len = #g_response.value + 1
+        Log:write('g_response_value is ',g_response.value)
         --Log:write('=====len===',len)
         local listView1 = Sprite:findChild(rootSprite,'sampleList1')
         ListView:removeAllItems(listView1,1,1)
@@ -216,6 +226,19 @@ function bodyOnPluginEvent(msg, param)
         Log:write('拨号失败')
     elseif msg > MSG_NETWORK_ERROR then -- 请求超时
         Log:write('请求超时')
+    end
+end
+
+--取得前三名最小值，后三名的最大值
+function getMaxAndMin()
+    local sortValue = sortTable(g_response.value, 'score', true)
+    local aCount = #sortValue-2
+    --取前三的最小值和后三的最大值
+    if getJsonArrayCount(sortValue)>0 then
+        max = sortValue[2].score
+        Log:write('the max value is ',max)
+        min = sortValue[aCount].score
+        Log:write('the min is ',min)
     end
 end
 
@@ -233,25 +256,28 @@ end
 
 -- 加载统计数据
 function loadListItem(list, item, index)
-    Sprite:setRect(item, 0, 0, 480, 40)
-    local listItem_bg = Sprite:findChild(item, 'listItem_bg')
-    if index % 2 > 0 then
-       Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
-    end
-    -- 读取返回的数据
-    local value = g_response.value
-    local dimension = Sprite:findChild(item,'dimension')         -- 地市
-    local company = Sprite:findChild(item,'company')        -- 代维公司
-    local score = Sprite:findChild(item,'score')          -- 得分
-    local faceName = Sprite:findChild(item,'faceName')          -- 笑脸、哭脸
-    Sprite:setProperty(dimension, 'text', value[index].dimension)
-    Sprite:setProperty(company, 'text', value[index].company)
-    Sprite:setProperty(score, 'text', value[index].score)
-    --Log:write('----',faceName,value[index].score)
-    if  value[index].score>=95 then 
-        Sprite:setProperty(faceName,'src','file://image/smileface.png')
-    elseif value[index].score<90 then 
-        Sprite:setProperty(faceName,'src','file://image/cryface.png')
+    if(index >0 ) then
+        Log:write('the index is ',index)
+        Sprite:setRect(item, 0, 0, 480, 40)
+        local listItem_bg = Sprite:findChild(item, 'listItem_bg')
+        if index % 2 == 0 then
+           Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
+        end
+        -- 读取返回的数据
+        local value = g_response.value
+        local dimension = Sprite:findChild(item,'dimension')         -- 地市
+        local company = Sprite:findChild(item,'company')        -- 代维公司
+        local score = Sprite:findChild(item,'score')          -- 得分
+        local faceName = Sprite:findChild(item,'faceName')          -- 笑脸、哭脸
+        Sprite:setProperty(dimension, 'text', value[index].dimension)
+        Sprite:setProperty(company, 'text', value[index].company)
+        Sprite:setProperty(score, 'text', value[index].score)
+        --Log:write('----',faceName,value[index].score)
+        if  value[index].score>=tonumber(max) then 
+            Sprite:setProperty(faceName,'src','file://image/smileface.png')
+        elseif value[index].score<=tonumber(min) then 
+            Sprite:setProperty(faceName,'src','file://image/cryface.png')
+        end
     end
 end
 -- 考核得分排序
