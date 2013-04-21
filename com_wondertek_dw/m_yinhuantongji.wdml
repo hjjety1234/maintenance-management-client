@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2013, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: hewu <hewu2008@gmail.com>
+ == ============================================================================
+ == | Desc: 2013/4/21 隐患统计
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <!-- 主节点  -->
+        <node name="mainNode" rect="0,0,480,800" enable="true" 
+            active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置标题 -->
+            <node name="baseSprite" rect="0,0,480,160" extendstyle="1111">
+                <image rect="0,0,480,800" src="file://image/backgroundImg.png" style="autosize"
+                       extendstyle="1111" />
+                <node rect="0,0,480,66" name="NodeTitle" extendstyle="1111">
+                    <image name="titleBg" rect="0,0,480,66" src="file://image/title_bg_new.png"
+                        extendstyle="1111" style="autosize" />
+                    <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
+                        OnSelect="doBack" extendstyle="1111">
+                        <image name="normal" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
+                            extendstyle="1111" />
+                        <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
+                             extendstyle="1111" />
+                    </button>  
+                    <scrolltext name="title" rect="105,5,280,40" text="隐患统计" font-family='微软雅黑'
+                        extendstyle="1111" font-size="36" h-align="center" v-align="center"
+                        color="#ffffff" scroll="true"  step="2" />
+                </node>
+            </node>
+            <!-- 主体内容部分  -->
+            <node name="bodyNode" rect="0,80,480,720" foreground="" alpha="255">
+	            <image rect="10,0,460,12" src="file://image/content_top.png"
+	                style="autosize" extendstyle="1111" />
+	            <image rect="10,12,460,680" src="file://image/content_center.png"
+	                style="autosize" extendstyle="1111" />
+	            <image rect="10,690,460,12" src="file://image/content_bottom.png"
+	                style="autosize" extendstyle="1111" />
+	            <image rect="420,25,11,11" src="file://image/box_on.png"
+	                style="autosize" extendstyle="1111" />   
+                <!-- 维度标签 -->
+                <node name="dimNode" rect="0,0,480,66" extendstyle="1111">
+                    <!--按地市公司 -->
+                    <button name="cityBtn" rect="0,0,120,66" 
+                        OnSelect="cityOn" extendstyle="1111" data='wlbcityquality'>
+                        <image name='cityImg' rect="30,10,95,37" src="file://image/city_bg.png"
+                            extendstyle="1111" style='autosize'/>
+                        <label name="cityTxt" rect="30,5,95,37" text="地市公司" font-family='微软雅黑'
+                            extendstyle="1111" font-size="23" h-align="center" v-align="center"
+                            color="#ffffff" />
+                    </button> 
+                    <!--按代维公司 -->
+                    <button name="companyBtn" rect="120,0,120,66" 
+                        OnSelect="companyOn" extendstyle="1111" data='wlbcompanyquality' >
+                        <image name='companyImg' rect="30,10,95,37" src="" 
+                             extendstyle="1111" style='autosize'/>
+                        <label name="companyTxt" rect="30,5,95,37" text="代维公司" font-family='微软雅黑'
+                            extendstyle="1111" font-size="23" h-align="center" v-align="center"
+                            color="#5a5a5a" />
+                    </button>
+                    <!-- 按代维专业 -->
+                    <button name="majorBtn" rect="240,0,120,66" 
+                        OnSelect="majorOn" extendstyle="1111" data='wlbcompanyquality' >
+                        <image name='majorImg' rect="30,10,95,37" src="" 
+                             extendstyle="1111" style='autosize'/>
+                        <label name="majorTxt" rect="30,5,95,37" text="代维专业" font-family='微软雅黑'
+                            extendstyle="1111" font-size="23" h-align="center" v-align="center"
+                            color="#5a5a5a" />
+                    </button>
+                </node>
+                <!--列表信息-->
+                <node name="listNode1" rect="0,56,480,640" extendstyle="1111">
+                    <listview name="sampleList1" rect="0,40,480,600" extendstyle="1111" auto-scroll='true' limit='true' />
+                    <image name='selectImg' rect="21,0,438,1" src="file://image/xianluzancun_line.png" 
+                        extendstyle="1111" style='autosize'/>
+                    <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
+                        extendstyle="1111" style='autosize' >
+                        <label name='dimension' rect="0,5,90,25" text="地市" font-family='微软雅黑'
+	                       extendstyle="1111" font-size="22" h-align="center" v-align="center"
+	                       color="#e33a10" />
+                        <label rect="90,5,160,25" text="上报隐患数" font-family='微软雅黑'
+                            extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                            color="#e33a10" />
+                        <label  rect="250,5,160,25" text="解决率" font-family='微软雅黑'
+                            extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                            color="#e33a10" />
+                    </image>
+                    <!-- 上报隐患数排序 -->
+                    <button name="xqseqBtn" rect="120,15,160,30" normal="normal" sel="sel"
+                        OnSelect="xqSeqOnselect" extendstyle="1111"  data="0" >
+                        <image name="triangleXQ" rect="140,7,20,12" src="file://image/triangle_down.png"
+                            style="autosize" extendstyle="1111" />
+                    </button>
+                    <!-- 解决率排序 -->
+                    <button name="fdseqBtn" rect="280,15,160,30" normal="normal" sel="sel"
+                        OnSelect="fdSeqOnselect" extendstyle="1111"  data="0"  >
+                        <image name="triangleFD" rect="140,7,20,12" src="file://image/triangle_down.png"
+                            style="autosize" extendstyle="1111" />
+                    </button>
+                </node> 
+                <!-- 列表项模板  -->
+                <node name="listItem1" rect="0,0,480,80" border="false"
+                    visible="false" enable="false" active="false" extendstyle="1111">
+                    <image name="listItem_bg" rect="31,0,418,38" src=""
+                        extendstyle="1111" style='autosize' />
+                    <scrolltext name="dimName" rect="45,5,90,25" text="" color="#303030" 
+	                   font-family='微软雅黑' font-size="20" scroll="true" h-align="left"
+	                   v-align="center" style="autosize" extendstyle="1111" >
+                    </scrolltext> 
+                    <label name='dangerCount' rect="120,5,160,25" text="100" font-family='微软雅黑'
+                        extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                        color="#5a5a5a" />
+                    <label name='dealDangerRatio' rect="280,5,160,25" text="100" font-family='微软雅黑'
+                        extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                        color="#5a5a5a" />
+                </node>
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+require 'framework.umsagent'
+local rootSprite
+local g_type = 0            -- 隐患统计类型
+local g_respValue = nil     -- 服务端返回数据
+
+---------------------------------------系统回调函数列表--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+       UmsAgent:OnActivate(string.match(Alias.m_yinhuantongji, 'MODULE:\\(.*)'), "隐患统计")
+       request()
+    elseif msg == MSG_DEACTIVATE then
+       UmsAgent:OnDeactivate()
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if Loading:isShow() then Loading:close() end
+    if msg == 101 then -- 按地市数据处理 
+        UmsAgent:onLoadFinish() 
+        local resp = Http:jsonDecode('city_data')
+        -- 服务端异常
+        if resp == nil or resp.code == nil then 
+            Dialog:show("", "服务器返回数据异常, 请检查服务是否可用或网络连接是否正常!", "ok")
+            return
+        end 
+        -- 解析返回值
+        if resp.code ~= "0" then 
+            Dialog:show("", getErrorCode(resp.code), "ok")
+            return
+        end 
+        -- 检查是否有数据
+        if resp.value == nil or getJsonArrayCount(resp.value) == 0 then 
+            Dialog:show("", "对不起，暂无数据！", "ok")
+            return
+        end 
+        -- 格式化数据
+        g_respValue = resp.value
+        Log:write("[g_respValue] : ", g_respValue)
+        for i=0, getJsonArrayCount(g_respValue) - 1 do 
+            g_respValue[i].dealdangercount = string.gsub(
+                g_respValue[i].dealdangercount, "%%", "")
+            g_respValue[i].dealdangercount = tonumber(
+                g_respValue[i].dealdangercount)
+        end
+        -- 加载统计数据
+        local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+        local len = getJsonArrayCount(resp.value)
+        ListView:removeAllItems(listView1)
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+            len, 'loadListItem')
+        ListView:adjust(listView1)
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+       Scene:back()
+    end
+end
+
+-- @brief 返回上一个页面
+function doBack()
+    Scene:back()
+end
+
+---------------------------------------界面相关函数列表-------------------------------- 
+--- @brief 点击按地市统计标签
+function cityOn(sprite)
+    Log:write("地市维度")
+    -- 地市为选中状态
+    local cityImg = Sprite:findChild(rootSprite,'cityImg')
+    local cityTxt = Sprite:findChild(rootSprite,'cityTxt')
+    Sprite:setProperty(cityImg,'src','file://image/city_bg.png')
+    Sprite:setProperty(cityTxt,'color','#ffffff')
+     -- 去代维公司选中状态
+    local companyImg = Sprite:findChild(rootSprite,'companyImg')
+    local companyTxt = Sprite:findChild(rootSprite,'companyTxt')
+    Sprite:setProperty(companyImg,'src','file://image/content_center.png')
+    Sprite:setProperty(companyTxt,'color','#5a5a5a')
+    -- 去专业为选中状态
+    local majorImg = Sprite:findChild(rootSprite,'majorImg')
+    local majorTxt = Sprite:findChild(rootSprite,'majorTxt')
+    Sprite:setProperty(majorImg,'src','file://image/content_center.png')
+    Sprite:setProperty(majorTxt,'color','#5a5a5a')
+    --- 设置列表项名称
+    local dimension = Sprite:findChild(rootSprite,'dimension')
+    Sprite:setProperty(dimension,'text','地市')
+    -- 刷新界面
+    g_type = 0
+    request()
+end
+
+-- @brief 点击按代维公司统计标签
+function companyOn(sprite)
+    Log:write("代维公司维度")
+     -- 代维公司选中状态
+    local companyImg = Sprite:findChild(rootSprite,'companyImg')
+    local companyTxt = Sprite:findChild(rootSprite,'companyTxt')
+    Sprite:setProperty(companyImg,'src','file://image/city_bg.png')
+    Sprite:setProperty(companyTxt,'color','#ffffff')
+    -- 去地市为选中状态
+    local cityImg = Sprite:findChild(rootSprite,'cityImg')
+    local cityTxt = Sprite:findChild(rootSprite,'cityTxt')
+    Sprite:setProperty(cityImg,'src','file://image/content_center.png')
+    Sprite:setProperty(cityTxt,'color','#5a5a5a')
+    -- 去专业为选中状态
+    local majorImg = Sprite:findChild(rootSprite,'majorImg')
+    local majorTxt = Sprite:findChild(rootSprite,'majorTxt')
+    Sprite:setProperty(majorImg,'src','file://image/content_center.png')
+    Sprite:setProperty(majorTxt,'color','#5a5a5a')
+    --- 设置列表项名称
+    local dimension = Sprite:findChild(rootSprite,'dimension')
+    Sprite:setProperty(dimension,'text','代维公司')
+    -- 刷新界面
+    g_type = 1
+    request()
+end
+
+-- @brief 点击代维专业统计标签
+function majorOn(sprite)
+    Log:write("专业维度")
+    -- 专业为选中状态
+    local majorImg = Sprite:findChild(rootSprite,'majorImg')
+    local majorTxt = Sprite:findChild(rootSprite,'majorTxt')
+    Sprite:setProperty(majorImg,'src','file://image/city_bg.png')
+    Sprite:setProperty(majorTxt,'color','#ffffff')
+     -- 代维公司选中状态
+    local companyImg = Sprite:findChild(rootSprite,'companyImg')
+    local companyTxt = Sprite:findChild(rootSprite,'companyTxt')
+    Sprite:setProperty(companyImg,'src','file://image/content_center.png')
+    Sprite:setProperty(companyTxt,'color','#5a5a5a')
+    -- 去地市为选中状态
+    local cityImg = Sprite:findChild(rootSprite,'cityImg')
+    local cityTxt = Sprite:findChild(rootSprite,'cityTxt')
+    Sprite:setProperty(cityImg,'src','file://image/content_center.png')
+    Sprite:setProperty(cityTxt,'color','#5a5a5a')
+    --- 设置列表项名称
+    local dimension = Sprite:findChild(rootSprite,'dimension')
+    Sprite:setProperty(dimension,'text','专业')
+    -- 刷新界面
+    g_type = 2
+    request()
+end
+
+-- @brief 加载统计数据
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 40)
+    local listItem_bg = Sprite:findChild(item, 'listItem_bg')
+    if index % 2 > 0 then
+       Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
+    end
+    -- 加载返回的数据
+    local dimName = Sprite:findChild(item,'dimName')                    -- 维度名称
+    local dangerCount = Sprite:findChild(item,'dangerCount')            -- 上报隐患数
+    local dealDangerRatio = Sprite:findChild(item,'dealDangerRatio')    -- 解决率
+    Sprite:setProperty(dimName,'text', g_respValue[index].name)
+    Sprite:setProperty(dangerCount,'text', g_respValue[index].dangercount)
+    Sprite:setProperty(dealDangerRatio,'text', 
+        g_respValue[index].dealdangercount.."%")
+end
+
+-- @brief 上报隐患数排序
+function xqSeqOnselect(sprite)
+    local len = getJsonArrayCount(g_respValue) 
+    local XQ = Sprite:findChild(rootSprite,'triangleXQ')
+    if  Sprite:getProperty(XQ,'src') == "file://image/triangle_down.png" then
+        Sprite:setProperty(XQ,'src','file://image/triangle_up.png')
+        g_respValue = sortTable(g_respValue, 'dangercount', false)
+    else
+        Sprite:setProperty(XQ,'src','file://image/triangle_down.png')
+        g_respValue = sortTable(g_respValue, 'dangercount', true)
+    end
+    local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+    -- 重新加载列表项
+    ListView:removeAllItems(listView1,1,1)
+    ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+        len, 'loadListItem')
+    ListView:adjust(listView1)
+end
+
+-- @brief 解决率排序
+function fdSeqOnselect(sprite)
+    local len = getJsonArrayCount(g_respValue) 
+    local XQ = Sprite:findChild(rootSprite,'triangleFD')
+    if  Sprite:getProperty(XQ,'src') == "file://image/triangle_down.png" then
+        Sprite:setProperty(XQ,'src','file://image/triangle_up.png')
+        g_respValue = sortTable(g_respValue, 'dealdangercount', false)
+    else
+        Sprite:setProperty(XQ,'src','file://image/triangle_down.png')
+        g_respValue = sortTable(g_respValue, 'dealdangercount', true)
+    end
+    local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+    -- 重新加载列表项
+    ListView:removeAllItems(listView1,1,1)
+    ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+        len, 'loadListItem')
+    ListView:adjust(listView1)
+end
+
+---------------------------------------服务端交互函数列表-------------------------------- 
+-- @brief 获取统计数据
+function request()
+    local param = string.format("cmd=dangerreport&type=%d&page=1&pagesize=30&usercode=%s", g_type, Config:get('username'))
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Log:write("[request] 请求地址为: ", reqURL)
+    Http:request('city_data', reqURL, 101, {useCache = false})
+    Loading:show(rootSprite)
+    UmsAgent:onLoadStart()
+end
+
+]]>
+</root>
