@@ -224,7 +224,8 @@ function bodyOnPluginEvent(msg, param)
         g_response = Http:jsonDecode('assessment')
         --Log:write('111111111',g_response)
         --Log:write('[bodyOnPluginEvent] g_response', g_response)
-        if g_response == nil or g_response.total == nil or g_response.value == nil then 
+        Log:write('the g_response total is ',g_response.total)
+        if g_response == nil or g_response.total == nil or g_response.value == nil or g_response.total == 0 then 
             Dialog:show(rootSprite, '暂无考核数据!', 'ok')
             return
         end
@@ -247,14 +248,18 @@ end
 
 --取得前三名最小值，后三名的最大值
 function getMaxAndMin()
-    local sortValue = sortTable(g_response.value, 'score', true)
-    local aCount = #sortValue-2
-    --取前三的最小值和后三的最大值
-    if getJsonArrayCount(sortValue)>0 then
-        max = sortValue[2].score
-        Log:write('the max value is ',max)
-        min = sortValue[aCount].score
-        Log:write('the min is ',min)
+    if(g_response.value ~= nil and g_response.value ~= '') then
+        local sortValue = sortTable(g_response.value, 'score', true)
+        local aCount = #sortValue-2
+        --取前三的最小值和后三的最大值
+        if getJsonArrayCount(sortValue)>3 then
+            max = sortValue[2].score
+            Log:write('the max value is ',max)
+            min = sortValue[aCount].score
+            Log:write('the min is ',min)
+        else
+
+        end
     end
 end
 
@@ -299,7 +304,7 @@ function loadListItem(list, item, index)
     local score = Sprite:findChild(item,'score')          -- 得分
     local faceName = Sprite:findChild(item,'faceName')          -- 笑脸、哭脸
     Sprite:setProperty(dimension, 'text', value[index].dimension)
-    Sprite:setProperty(score, 'text', value[index].score)
+    Sprite:setProperty(score, 'text', string.format('%.1f',value[index].score))
 
 end
 -- 考核得分排序
