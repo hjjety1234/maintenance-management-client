@@ -378,14 +378,12 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_renyuantongji, 'MODULE:\\(.*)'), "人员统计")
-        if renyuandata == nil then 
-	        UmsAgent:onLoadStart()
-	        local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode='..Config:get('username').."&date="
-	        local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
-	        Log:write('人员reqURL',reqURL)
-	        Http:request('renyuandata', reqURL, 101, {useCache = false})
-	        Loading:show()
-        end 
+        UmsAgent:onLoadStart()
+        local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode='..Config:get('username').."&date="
+        local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+        Log:write('人员reqURL',reqURL)
+        Http:request('renyuandata', reqURL, 101, {useCache = false})
+        Loading:show()
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
