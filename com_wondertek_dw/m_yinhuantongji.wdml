@@ -125,7 +125,7 @@
             </node>
         </node>
     </body>
-    <![CDATA[
+<![CDATA[
 
 require 'com_wondertek_dw.common.framework'
 require 'framework.umsagent'
@@ -142,7 +142,8 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-       UmsAgent:OnActivate(string.match(Alias.m_yinhuantongji, 'MODULE:\\(.*)'), "隐患统计")
+        UmsAgent:OnActivate(string.match(Alias.m_yinhuantongji, 
+            'MODULE:\\(.*)'), "隐患统计")
        request()
     elseif msg == MSG_DEACTIVATE then
        UmsAgent:OnDeactivate()
@@ -172,7 +173,7 @@ function bodyOnPluginEvent(msg, param)
         end 
         -- 格式化数据
         g_respValue = resp.value
-        Log:write("[g_respValue] : ", g_respValue)
+        -- Log:write("[g_respValue] : ", g_respValue)
         for i=0, getJsonArrayCount(g_respValue) - 1 do 
             g_respValue[i].dealdangercount = string.gsub(
                 g_respValue[i].dealdangercount, "%%", "")
@@ -344,7 +345,8 @@ end
 ---------------------------------------服务端交互函数列表-------------------------------- 
 -- @brief 获取统计数据
 function request()
-    local param = string.format("cmd=dangerreport&type=%d&page=1&pagesize=30&usercode=%s", g_type, Config:get('username'))
+    local param = string.format("cmd=dangerreport&type=%d&page=1&pagesize=30&usercode=%s", 
+        g_type, Config:get('username'))
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write("[request] 请求地址为: ", reqURL)
     Http:request('city_data', reqURL, 101, {useCache = false})
