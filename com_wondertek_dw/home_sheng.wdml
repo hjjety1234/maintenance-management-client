@@ -151,16 +151,6 @@ function bodyBuildChildrenFinished(sprite)
         Sprite:setProperty(fytj,'src','file://image/home_fytj1.png')
     end
 
-    loadRequest()
-    --observer = Plugin:getObserver()
-    --local regHandle = Reg:create(Regs.regName)
-    --mapViewPlugin = Reg:getInteger(regHandle, "map_handle")
-    --if mapViewPlugin == 0 then
-    -- mapViewPlugin = pluginCreate("MapView", "MapView")
-    -- Reg:setInteger(regHandle, "map_handle", mapViewPlugin)
-    --end
-    --pluginInvoke(mapViewPlugin, "getCurrentPosition", observer, 1000)
-    --Map:getCurPosition(observer, 1000)
 end
 
 function updateDaibanNum()
@@ -183,17 +173,6 @@ end
 function bodyOnPluginEvent(msg, param)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
-        data = Http:jsonDecode('daiban_data')
-        Log:write("data 101 = ", data)
-        if not data or type(data) ~= 'table' then
-            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
-            return
-        end
-        if data.code == '0' or data.code=='20' then
-            setDaibanNum(data.total)
-        else
-            --Dialog:show(rootSprite, '请求超时！请检查服务器地址和端口是否设置正确！', 'ok')
-        end
     elseif msg == 102 then
         local loginData = Http:jsonDecode('login_istrue')
         local result=loginData['code']
@@ -242,12 +221,6 @@ function doExitButtonOnClick(sprite)
     Dialog:show('','是否确定退出？','ok_cancel','doExit')
 end
 ---------------------------------------util functions---------------------------
-function loadRequest()
-    local username = Config:get('username')
-    local param = '&page=1'
-    local reqURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
-    Http:request('daiban_data', reqURL, 101, {useCache = false, method = 'post', postData='cmd=wlbtasklist'})
-end
 
 function setDaibanNum(num)
     local daibannode = Sprite:findChild(rootSprite, 'daibanNode')

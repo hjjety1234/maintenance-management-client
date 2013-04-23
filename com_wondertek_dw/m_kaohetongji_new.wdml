@@ -224,10 +224,9 @@ function bodyOnPluginEvent(msg, param)
         g_response = Http:jsonDecode('assessment')
         --Log:write('111111111',g_response)
         --Log:write('[bodyOnPluginEvent] g_response', g_response)
-        Log:write('the g_response total is ',g_response.total)
-        if g_response == nil or g_response.total == nil or g_response.value == nil or g_response.total == 0 then 
+        Log:write('the getJsonArrayCount(g_response.value) is ',getJsonArrayCount(g_response.value))
+        if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.code == '50' or getJsonArrayCount(g_response.value) == 0 then 
             Dialog:show(rootSprite, '暂无考核数据!', 'ok')
-            return
         end
         getMaxAndMin()
         local len = #g_response.value + 1
@@ -310,7 +309,7 @@ end
 -- 考核得分排序
 function doScoreSort(sprite)
     local data = Sprite:getData(sprite)
-    if g_response == nil or g_response.total == nil or g_response.value == nil then 
+    if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.value == nil then 
         Dialog:show(rootSprite, '暂无考核数据!', 'ok')
         return
     end

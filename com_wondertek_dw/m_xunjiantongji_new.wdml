@@ -245,11 +245,12 @@ function bodyOnPluginEvent(msg, param)
         if Loading:isShow() then Loading:close() end
         g_response = Http:jsonDecode('patrol')
         --Log:write('[bodyOnPluginEvent] g_response', g_response)
-        if g_response == nil or g_response.total == nil or g_response.value == nil then 
+        if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.value == nil then 
             Dialog:show('', '暂无巡检数据!', 'ok')
             return
         end
-        local len = g_response.total
+        local len = getJsonArrayCount(g_response.value)
+        Log:write('len+++++',len)
         g_response.value = sortTable(g_response.value, 'ratio', true)
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
         ListView:removeAllItems(listView1, 1, 1)
@@ -311,7 +312,7 @@ function showRank1(item, index)
     --Log:write('当前巡检率的值',ratio)
     -- 统计巡检率的排名
     local rank = 1
-    for i=0,g_response.total-1 do
+    for i=0,getJsonArrayCount(g_response.value)-1 do
         local compare = g_response.value[i].ratio
         --Log:write('compare',compare)
         if tonumber(ratio) < tonumber(compare) then 
@@ -325,7 +326,7 @@ function showRank1(item, index)
     
     if rank <= 3 and ratio~=0  then
         Sprite:setProperty(faceName, 'src', 'file://image/smileface.png')
-    elseif g_response.total - rank <= 3 or ratio==0 then
+    elseif getJsonArrayCount(g_response.value) - rank <= 3 or ratio==0 then
         Sprite:setProperty(faceName, 'src', 'file://image/cryface.png')
     end
     --[[if ratio >= 100.0 then 
@@ -335,11 +336,11 @@ end
 -- 计划巡检站点排序
 function doPlanSort(sprite)
     local data = Sprite:getData(sprite)
-    if g_response == nil or g_response.total == nil or g_response.value == nil then 
+    if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.value == nil then 
         Dialog:show('', '暂无巡检数据!', 'ok')
         return
     end
-    local len = g_response.total
+    local len = getJsonArrayCount(g_response.value)
     if data == "0" then
         Sprite:setProperty(sprite,'data', "1")
         g_response.value = sortTable(g_response.value, 'plan', true)
@@ -375,11 +376,11 @@ end
 -- 实际巡检站点排序
 function doCompleteSort(sprite)
     local data = Sprite:getData(sprite)
-    if g_response == nil or g_response.total == nil or g_response.value == nil then 
+    if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.value == nil then 
         Dialog:show('', '暂无巡检数据!', 'ok')
         return
     end
-    local len = g_response.total
+    local len = getJsonArrayCount(g_response.value)
     --Log:write("[doScoreSort] len: "..len)
     if data == "0" then
         Sprite:setProperty(sprite,'data', "1")
@@ -415,11 +416,11 @@ end
 -- 巡检率排序
 function doScoreSort(sprite)
     local data = Sprite:getData(sprite)
-    if g_response == nil or g_response.total == nil or g_response.value == nil then 
+    if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.value == nil then 
         Dialog:show('', '暂无巡检数据!', 'ok')
         return
     end
-    local len = g_response.total
+    local len = getJsonArrayCount(g_response.value)
     --Log:write("[doScoreSort] len: "..len)
     if data == "0" then
         Sprite:setProperty(sprite,'data', "1")
