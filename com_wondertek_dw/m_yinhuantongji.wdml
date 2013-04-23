@@ -36,8 +36,30 @@
                         color="#ffffff" scroll="true"  step="2" />
                 </node>
             </node>
+             <!-- 统计标签 -->
+            <node name="baseSprite" rect="0,66,480,49" extendstyle="1111">
+                <image  rect="0,0,480,49" src="file://image/city_tab.png"
+                         extendstyle="1111" style='autosize'/>
+               <!--按月年两个维度-->
+                    <button name="dangyue" rect="0,0,240,66" 
+                        OnSelect="monthOnSelect" extendstyle="1111"  data='01'>
+                        <image name='cityImg' rect="0,0,240,49" src="file://image/city_on.png"
+                         extendstyle="1111" style='autosize'/>
+                        <label name='dangyuelabel' rect="0,0,240,49" text="当月" font-family='微软雅黑'
+                            extendstyle="1111" font-size="28" h-align="center" v-align="center"  color="#0062ab"
+                             />
+                    </button>
+                    <button name="dangjidu" rect="240,0,240,66" 
+                        OnSelect="yearOnSelect" extendstyle="1111"  data='02'>
+                        <image name='cityImg' rect="0,0,240,49" src=""
+                         extendstyle="1111" style='autosize'/>
+                        <label name='dangyuelabel' rect="0,0,240,49" text="当年" font-family='微软雅黑'
+                            extendstyle="1111" font-size="28" h-align="center" v-align="center"  color="#5a5a5a"
+                             />
+                    </button>
+             </node> 
             <!-- 主体内容部分  -->
-            <node name="bodyNode" rect="0,80,480,720" foreground="" alpha="255">
+            <node name="bodyNode" rect="0,135,480,720" foreground="" alpha="255">
 	            <image rect="10,0,460,12" src="file://image/content_top.png"
 	                style="autosize" extendstyle="1111" />
 	            <image rect="10,12,460,680" src="file://image/content_center.png"
@@ -73,23 +95,7 @@
                             extendstyle="1111" font-size="20" h-align="center" v-align="center"
                             color="#5a5a5a" />
                     </button>
-                    <!--按月年两个维度-->
-                    <button name="dangyue" rect="355,0,45,35" 
-                        OnSelect="TimeOnSelect" extendstyle="1111"  data='01'>
-                        <image name='dangyueimg' rect="0,0,56,35" src="file://image/major_on.png" 
-                             extendstyle="1111" style='autosize'/>
-                        <label name='dangyuelabel' rect="0,0,56,30" text="月" font-family='微软雅黑'
-                            extendstyle="1111" font-size="24" h-align="center" v-align="center"
-                            color="#ffffff" />
-                    </button>
-                    <button name="dangjidu" rect="407,0,45,35" 
-                        OnSelect="TimeOnSelect" extendstyle="1111"  data='02'>
-                        <image name='dangjiduimg' rect="0,0,56,35" src="file://image/major.png" 
-                             extendstyle="1111" style='autosize'/>
-                        <label name='jiduselectName' rect="0,0,56,30" text="年" font-family='微软雅黑'
-                            extendstyle="1111" font-size="24" h-align="center" v-align="center"
-                            color="#ffffff" />
-                    </button>
+                    
                 </node>
                 <!--列表信息-->
                 <node name="listNode1" rect="0,56,480,640" extendstyle="1111">
@@ -148,11 +154,14 @@ local rootSprite
 local g_type = 0            -- 隐患统计类型
 local g_respValue = nil     -- 服务端返回数据
 local searchDate = 'year'   --默认按当年进行查询
-
+local dangyue
+local dangjidu 
 ---------------------------------------系统回调函数列表--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    dangyue = Sprite:findChild(rootSprite,'dangyue')
+    dangjidu = Sprite:findChild(rootSprite,'dangjidu')
 end
 
 -- @brief root节点消息方法
@@ -359,17 +368,35 @@ function fdSeqOnselect(sprite)
 end
 
 --按当月或当年两个维度进行切换
-function TimeOnSelect(sprite)
+function monthOnSelect(sprite)
+    Log:write("=========monthmonthmonth========")
+   
+    function_name(dangyue,dangjidu)
     local data = Sprite:getData(sprite)
-    Log:write('the data is ',data)
-    if data == '01' then    --按当月维度
-        searchDate = 'month'
-    else    --按年维度
-        searchDate = 'year'
-    end
+    searchDate = 'month'
     request()
 end
-
+function yearOnSelect(sprite)
+    Log:write("=========yearyearyear========")
+    
+    function_name(dangjidu,dangyue)
+    local data = Sprite:getData(sprite)
+    searchDate = 'year'
+    request()
+end
+function function_name(b1,b2)
+    Sprite:setProperty(b2,'enable','true')
+    local cityImg1 = Sprite:findChild(b1,'cityImg')
+    local cityImg2 = Sprite:findChild(b2,'cityImg')
+    local cityTxt1 = Sprite:findChild(b1,'dangyuelabel')
+    local cityTxt2 = Sprite:findChild(b2,'dangyuelabel')
+    Sprite:setProperty(cityImg1,'src','file://image/city_on.png')
+    Sprite:setProperty(cityImg2,'src','file://image/city_tab.png')
+    Sprite:setProperty(cityTxt1,'color','#0062ab')
+    Sprite:setProperty(cityTxt2,'color','#5a5a5a')
+    --设置当前不可点击
+    Sprite:setProperty(b1,'enable','false')
+end
 --切换月、年度选择的背景
 function chgDateButtonBg()
     --file://image/major_on.png

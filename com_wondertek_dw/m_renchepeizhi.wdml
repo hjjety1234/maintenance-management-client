@@ -36,24 +36,7 @@
                         extendstyle="1111" />
                 </button>
             </node>
-            <!-- 选择维度  -->
-            <node name='selectNode' rect="0,72,480,40" extendstyle="1111" visible='true' 
-                enable='true'>
-                <!-- 地市维度 -->     
-                <button name="citySelNode" rect="87,0,150,40" src='file://image/major.png'
-                    OnSelect="OnCitySelect" extendstyle="1111" data='0' style='autosize'>
-                    <label name='majorName' rect="0,0,150,40" text="市公司" font-family='微软雅黑'
-                        extendstyle="1111" font-size="22" h-align="center" v-align="center"
-                        color="#ffffff" />
-                </button>
-                <!-- 代维公司维度 -->     
-                <button name="companySelNode" rect="242,0,150,40" src='file://image/major_on.png'
-                    OnSelect="OnCompanySelect" extendstyle="1111" data='' style='autosize'>
-                    <label name='majorName' rect="0,0,150,40" text="代维公司" font-family='微软雅黑'
-                        extendstyle="1111" font-size="22" h-align="center" v-align="center"
-                        color="#ffffff" />
-                </button>
-            </node>
+            
     
             <!-- 空白部分点击消息处理  -->
             <button name="showmapBtn" rect="0,117,480,534" data="0,0,20,20" extendstyle="1111" 
@@ -66,11 +49,13 @@
                    style="autosize" extendstyle="1111"/>
                  <button name="btnHefei" rect="213,255,64,103" data="广东长实" extendstyle="1111" 
                     normal="" sel="" OnSelect="doRegionClick">
-                   <button rect="3,24,86,49" data="广东长实" extendstyle="1111" 
+                 <button rect="3,24,86,49" data="广东长实" extendstyle="1111" 
                         normal="" sel="" OnSelect="doRegionClick"></button>
                  </button>
                  <button rect="198,124,91,60" data="江苏邮电" extendstyle="1111" 
-                    normal="" sel="" OnSelect="doRegionClick"></button>
+                    normal="" sel="" OnSelect="doRegionClick">
+                
+                 </button>
                  <button rect="323,336,39,54" data="南京欣网视讯" extendstyle="1111" 
                     normal="" sel="" OnSelect="doRegionClick"></button>
                  <button rect="313,273,75,57" data="江苏邮电" extendstyle="1111" 
@@ -188,8 +173,8 @@
                             src="file://image/gongsi.png"  visible="false"></image>
                         <image name="house4" rect="270,9,30,30" style="autosize"  border="false" extendstyle="1111" 
                             src="file://image/gongsi.png"  visible="false"></image>
-                        <label name="cmpNum" rect="310,5,140,40" text="" color="#303030" v-align="center"  
-                            h-align="left" font-family="微软雅黑" font-size="22" extendstyle="1111" >
+                        <label name="cmpNum" rect="310,5,200,40" text="" color="#303030" v-align="center"  
+                            h-align="left" font-family="微软雅黑" font-size="22" extendstyle="1111">
                         </label>
                         <image rect="3,48,455,2" border="false" extendstyle="1111" 
                             src="file://image/underline.png" style="autosize"></image>
@@ -238,6 +223,9 @@
                     </button>
                 </node>
             </node>
+             <!-- 点击右按钮进入代维公司  -->
+            <button name="companySelBtn" rect="3,350,34,93" extendstyle="1111" src='file://image/left.png' OnSelect="OnCompanySelect">
+            </button>
         </node>
     </body>
 <![CDATA[
@@ -401,14 +389,14 @@ function showDetail(strName, strCmpNum, strCarNum, strStaffNum)
     if strName == "安徽中移" or strName == "安徽铁通" then 
         -- 显示代维单位名称
         local cmpName = Sprite:findChild(rootSprite, 'cmpName')
-        Sprite:setProperty(cmpName, 'text', "代维单位：")
+        Sprite:setProperty(cmpName, 'text', "代维区域：")
         local cmpNum = Sprite:findChild(rootSprite, 'cmpNum')
-        Sprite:setProperty(cmpNum, 'text', strName)
+        Sprite:setProperty(cmpNum, 'text', "全省")
         for i=1, 4 do 
             local house = Sprite:findChild(rootSprite, 'house'..i)
             Sprite:setProperty(house, 'visible', 'false')
         end
-        Sprite:setRect(cmpNum, 150, 5, 140, 40)
+        Sprite:setRect(cmpNum, 150, 5, 200, 40)
         local titlename = Sprite:findChild(rootSprite,'titlename')
 	    Sprite:setProperty(titlename,'text','人车配置(代维)')
 	    local cityNode = Sprite:findChild(rootSprite, 'cityNode')
@@ -416,14 +404,30 @@ function showDetail(strName, strCmpNum, strCarNum, strStaffNum)
     elseif strName ~= "all" then 
         -- 显示代维单位名称
         local cmpName = Sprite:findChild(rootSprite, 'cmpName')
-        Sprite:setProperty(cmpName, 'text', "代维单位：")
+        Sprite:setProperty(cmpName, 'text', "代维区域：")
         local cmpNum = Sprite:findChild(rootSprite, 'cmpNum')
-        Sprite:setProperty(cmpNum, 'text', strName)
+        --Sprite:setProperty(cmpNum, 'text', strName)
+        if strName=="广东长实" then
+          Sprite:setProperty(cmpNum, 'text', "合肥")  
+        elseif strName=="江苏邮电" then
+            Sprite:setProperty(cmpNum, 'text', "滁州 、蚌埠 、马鞍山")  
+       
+        elseif strName=="浙江和勤" then
+            Sprite:setProperty(cmpNum, 'text', "淮北 、淮南")
+        elseif strName=="安徽电信工程" then
+            Sprite:setProperty(cmpNum, 'text', "阜阳 、亳州")    
+        elseif strName=="华为" then
+            Sprite:setProperty(cmpNum, 'text', "六安 、黄山")  
+        elseif strName=="浙江邮电" then
+            Sprite:setProperty(cmpNum, 'text', "宿州 、安庆 、池州")  
+        elseif strName=="南京欣网视讯" then
+            Sprite:setProperty(cmpNum, 'text', "宣城 、芜湖 、铜陵")  
+        end 
         for i=1, 4 do 
             local house = Sprite:findChild(rootSprite, 'house'..i)
             Sprite:setProperty(house, 'visible', 'false')
         end
-        Sprite:setRect(cmpNum, 150, 5, 140, 40)
+        Sprite:setRect(cmpNum, 150, 5, 200, 40)
         -- 突出当前选择
         Log:write("突出显示："..strName)
         local cityNode = Sprite:findChild(rootSprite, 'cityNode')
@@ -457,6 +461,8 @@ end
 
 -- @brief 选择代维公司
 function OnCompanySelect(sprite)
+   
+    Scene:go(Alias.m_renyuantongji)
 end 
 
 ]]>
