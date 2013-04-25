@@ -148,6 +148,7 @@ function bodyOnPluginEvent(msg)
         end
        
         local result= loginData['code']
+        
         --Log:write("===loginData['code']",result)
         
         
@@ -156,11 +157,11 @@ function bodyOnPluginEvent(msg)
             local role = loginData.value[0].rolecode
             local username = loginData.value[0].userid
             Config:set('username',username)
-           if(loginData['simid'] ~= nil) then
+            if(loginData['simid'] ~= nil) then
               Config:set('simid',loginData['simid'])
             else
             Config:set('simid','-1')
-           end
+            end
             Config:set('realname', loginData.userName)
             Config:set('tasknum', loginData.taskNum)
             --写入为综合资源管理系统需要的数据
@@ -188,7 +189,7 @@ function bodyOnPluginEvent(msg)
                 Scene:go(Alias.home_sheng)
             elseif username == 'chenxiaofeng' then 
                 Scene:go(Alias.home_city) 
-            elseif username == 'liuguoli' or username == 'huotingrui' then 
+            elseif username == 'liuguoli' or username == 'huotingrui' or username == 'adminhs'then 
                 Scene:go(Alias.home_city_manager)  
             elseif username == 'syd' then 
                 Scene:go(Alias.home_sheng)  
@@ -247,7 +248,7 @@ function loginOnSelect(sprite)
             username, password,'wlblogin', imei)
 	    local reqURL = getUrl()..'nbspweb/webservice/user!doWebservice.action?'..dataString
 	    Http:request('login_istrue', reqURL, 101, {useCache=false})
-	    Loading:show(rootSprite) 
+	    Loading:show() 
     end
 end
 

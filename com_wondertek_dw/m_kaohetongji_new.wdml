@@ -226,7 +226,7 @@ function bodyOnPluginEvent(msg, param)
         --Log:write('[bodyOnPluginEvent] g_response', g_response)
         Log:write('the getJsonArrayCount(g_response.value) is ',getJsonArrayCount(g_response.value))
         if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.code == '50' or getJsonArrayCount(g_response.value) == 0 then 
-            Dialog:show(rootSprite, '暂无考核数据!', 'ok')
+            Dialog:show('', '暂无考核数据!', 'ok')
         end
         getMaxAndMin()
         local len = #g_response.value + 1
@@ -310,7 +310,7 @@ end
 function doScoreSort(sprite)
     local data = Sprite:getData(sprite)
     if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.value == nil then 
-        Dialog:show(rootSprite, '暂无考核数据!', 'ok')
+        Dialog:show('', '暂无考核数据!', 'ok')
         return
     end
     local len = #g_response.value+1
@@ -482,6 +482,7 @@ function cityOn(sprite)
     Sprite:setProperty(companyTxt,'color','#5a5a5a')
     local cityName = Sprite:findChild(rootSprite,'cityName')
     Sprite:setProperty(cityName,'text','市公司')
+    Sprite:setProperty(cityName,'rect','0,5,90,25')
     request(g_major)
     Loading:show()
 end
@@ -503,6 +504,7 @@ function companyOn(sprite)
     Log:write('kaohedata',kaohedata)
     local cityName = Sprite:findChild(rootSprite,'cityName')
     Sprite:setProperty(cityName,'text','代维单位')
+    Sprite:setProperty(cityName,'rect','10,5,90,25')
     request(g_major)
     Loading:show()
 end
