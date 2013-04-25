@@ -147,6 +147,10 @@ Alias = {
     m_resource_group1 = "MODULE:\\com_wondertek_dw\\m_resource_group1.wdml",  -- 集客统计
     m_resource_home1 = "MODULE:\\com_wondertek_dw\\m_resource_home1.wdml",  -- 家庭宽带统计          
     m_yinhuantongji = "MODULE:\\com_wondertek_dw\\m_yinhuantongji.wdml",  -- 隐患统计   
-    m_renchepeizhi = "MODULE:\\com_wondertek_dw\\m_renchepeizhi.wdml",  -- 人车配置     
+    m_renchepeizhi = "MODULE:\\com_wondertek_dw\\m_renchepeizhi.wdml",  -- 人车配置   
+
+
+    m_biaoganGuanLi =  "MODULE:\\com_wondertek_dw\\m_biaoganGuanLi.wdml",  -- 标杆管理
+    m_biaoganGuanLizq =  "MODULE:\\com_wondertek_dw\\m_biaoganGuanLizq.wdml",  -- 标杆管理
 }
 
