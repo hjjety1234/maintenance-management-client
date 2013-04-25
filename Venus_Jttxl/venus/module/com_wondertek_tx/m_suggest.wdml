@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置背景 -->
+            <image rect="0,80,480,720" src="file://image/jttxl/bj.png" style="autosize"
+               extendstyle="1111" />
+            <!-- 设置头部 -->
+            <node name="baseSprite" rect="0,0,480,80" extendstyle="1111">
+                 <image name="title" rect="0,0,480,80" border="false" src="file://image/jttxl/top.png" 
+                    style="autosize" extendstyle="1111">
+                    <label name="titleLabel" rect="0,0,480,80" text="意见反馈" color="#ffffff" v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="32px" extendstyle="1111" />
+                 </image>
+                 <!-- 返回 -->
+                <button rect="20,18,48,45" OnSelect="doBack" normal="src:file://image/jttxl/back_d.png;"
+                    sel="src:file://image/jttxl/back_s.png;" style="autosize" extendstyle="1111">
+                </button>
+            </node>
+            <!-- 设置主题 -->
+            <node name="suggestNode" rect="0,100,480,540" visible="true" enable="true" active="true"> 
+                <!-- 编辑框 -->  
+                <node rect="34,0,412,264" style="autosize" extendstyle="1111">
+                    <image rect="0,0,412,264" src="file://image/jttxl/xitongweihu_bj.png"
+                        style="autosize" extendstyle="1111">
+                    </image>
+                    <edit name="keywordEdit" rect="20,20,372,224" v-align="top" h-align="left"
+                        OnTextChanged="editOnTextChanged" text="" font-family="bold" font-size="22" 
+                        color="#000000" multiline="true" line-height='28' enable="true" 
+                        direction="vertical" extendstyle='1111'>
+                        <label name="hideLabel" rect="0,0,372,224"  h-align="left" v-align="top"  
+                            text="请输入您的意见" font-family="bold" font-size="22"  
+                            color="#aba8a8" style="autosize"  extendstyle="1111"/>
+                    </edit>
+                </node>
+                <!-- 发送 -->
+                <button name="sendBtn" rect="30,280,419,77" border="false" OnSelect="okOnClick"          
+                        normal="src:file://image/jttxl/fasong_d.png;style:sudoku-auto;sudoku:0,0,5,5;"
+                        sel="src:file://image/jttxl/fasong_s.png;style:sudoku-auto;sudoku:0,0,5,5;"
+                        extendstyle='1111'>
+                </button>
+
+                <!-- 严翔翔 维护电话 -->
+                <button rect="34,410,413,70" border="false" OnSelect="telOnSelect"          
+                        normal="src:file://image/jttxl/huise_d.png;style:sudoku-auto;sudoku:0,0,5,5;"
+                        sel="src:file://image/jttxl/huise_s.png;style:sudoku-auto;sudoku:0,0,5,5;"
+                        extendstyle='1111' data="1">
+
+                        <label rect="75, 0, 310, 70"  text="产品：13665690649（严翔翔）" font-family='bold' 
+                            color="#60696f" font-size="22" h-align="left" v-align="center"
+                            border="false" extendstyle="1111"/>
+                </button>
+
+                <!-- 周瑜 维护电话 -->
+                <button rect="34,500,413,70" border="false" OnSelect="telOnSelect"          
+                        normal="src:file://image/jttxl/huise_d.png;style:sudoku-auto;sudoku:0,0,5,5;"
+                        sel="src:file://image/jttxl/huise_s.png;style:sudoku-auto;sudoku:0,0,5,5;"
+                        extendstyle='1111' data="2">
+
+                        <label rect="75, 0, 300, 70"  text="开发：15156892727（周瑜）" font-family='bold' 
+                            color="#60696f" font-size="22" h-align="left" v-align="center"
+                            border="false" extendstyle="1111"/>
+                </button>
+               
+            </node>
+
+            <!-- 底部菜单  -->
+            <node name="listNode" rect="0,720,480,80" extendstyle="1111">
+                <image  rect="0,0,480,80" border="false" extendstyle="1111" 
+                src="file://image/book/list_bg.png"  style="autosize"/>
+                <!-- 搜索  -->
+                <button name='searchBtn' rect="15,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/lianxiren_d.png' OnSelect="doSearch"></button>
+                <!-- 联系人  -->
+                <button name='contactBtn' rect="125,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/zuijinglianxiren_d.png' OnSelect="doContact"></button>
+                <!-- 个人中心  -->
+                <button name='personBtn' rect="250,0,82,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/person_d.png' OnSelect="doPersonalCenter"></button>
+                <!-- 设置  -->
+                <button name='siteBtn' rect="385,0,48,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/site_s.png' OnSelect="doSetting"></button>
+            </node>
+
+        </node>
+    </body>
+    <![CDATA[
+
+require('com_wondertek_tx.common.framework')
+local rootSprite
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    local dealopinionEdit=Sprite:findChild(rootSprite,'keywordEdit')
+    Sprite:setProperty(dealopinionEdit,'text','')
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        Http:startNetwork()
+
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+        if Loading:isShow() then Loading:close() end
+        suggestData = Http:jsonDecode('suggestSubmmmit')
+        Log:write("意见提交",suggestData['result'])
+        if suggestData['success']== "true" then
+            Dialog:show('提示', '意见反馈成功！', 'ok', 'doBack')
+        else
+            Dialog:show('提示', '提交失败，请重试！', 'ok')
+        end
+
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+
+-- 返回上一个页面
+function doBack()
+    Scene:go(Alias.m_system, true)
+end
+
+-- 文本编辑
+function editOnTextChanged(sprite,ncount)
+    local hideLabel = Sprite:findChild(sprite, 'hideLabel')
+    if ncount > 0 then
+        setAllShoworHide(hideLabel, 0)
+    else
+        setAllShoworHide(hideLabel, 1)
+    end
+end
+
+-- 发送
+function okOnClick(sprite)
+    local employeeId = Config:get("employeeId")
+    -- local employeeId = "ff8080813decc76b013ded1c2f581b65"
+    local dealopinionEdit=Sprite:findChild(rootSprite,'keywordEdit')
+    if Sprite:getText(dealopinionEdit)==nil or Sprite:getText(dealopinionEdit)=='' then
+        Dialog:show('提示', '请输入意见！', 'ok')
+    else
+        local requestURL = Alias.url_server..'mobile/advise/add?employeeId='..employeeId..'&content='..Sprite:getText(dealopinionEdit)
+        Loading:show()
+        Http:request('suggestSubmmmit', requestURL, 101, {useCache=false})
+    end
+end
+
+-- 拨打电话
+function telOnSelect(sprite)
+    Log:write("进入拨打电话函数")
+    local data = Sprite:getData(sprite)
+    if data == "1" then
+        local mobile = 13665690649
+        Log:write("电话号码为：",mobile)
+        if Util:openCallDialog('callFinished',mobile, 0) then
+            Log:write('拨打打电话成功')
+        else
+            Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
+        end
+    elseif data == "2" then
+        local mobile = 15156892727
+        Log:write("电话号码为：",mobile)
+        if Util:openCallDialog('callFinished',mobile, 0) then
+            Log:write('拨打打电话成功')
+        else
+            Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
+        end
+    end  
+end
+
+-- 搜索
+function doSearch(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/lianxiren_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+    Scene:setReturn(Alias.m_suggest, Alias.m_recentContacter)
+    Scene:go(Alias.m_recentContacter, true)
+end
+
+-- 联系人列表
+function doContact(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/zuijinglianxiren_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+    Scene:setReturn(Alias.m_suggest, Alias.m_renyuantongji)
+    Scene:go(Alias.m_renyuantongji, true)
+end
+
+-- 个人信息中心
+function doPersonalCenter(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/person_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')   
+    Scene:setReturn(Alias.m_suggest, Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"))
+    Scene:go(Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"))
+end
+
+-- 设置
+function doSetting(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/site_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png') 
+    Scene:setReturn(Alias.m_suggest, Alias.m_system)
+    Scene:go(Alias.m_system, true)
+end
+
+
+    ]]>
+</root>

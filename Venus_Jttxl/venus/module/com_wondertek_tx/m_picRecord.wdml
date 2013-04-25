@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image rect="0,80,480,720" src="file://image/jttxl/bj.png" style="autosize" extendstyle="1111" />      
+            <!-- 设置头部 -->
+            <node name="baseSprite" rect="0,0,480,80" extendstyle="1111">
+                <image name="title" rect="0,0,480,80" border="false" src="file://image/jttxl/top.png" style="autosize" extendstyle="1111">
+                    <label name="titleLabel" rect="0,0,480,80" text="照片上传" color="#ffffff" v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="32px" extendstyle="1111" />
+                </image>
+                <!-- 返回 -->
+                <button rect="20,18,48,45" OnSelect="doBack" normal="normal"
+                    sel="sel" style="autosize" extendstyle="1111">
+                    <node name="normal" extendstyle="1111">
+                        <image rect="0,0,48,45" src="file://image/jttxl/back_d.png" style="autosize"
+                            extendstyle="1111" />
+                    </node>
+                    <node name="sel" extendstyle="1111">
+                        <image rect="0,0,48,45" src="file://image/jttxl/back_s.png" style="autosize" 
+                            extendstyle="1111" />
+                    </node>
+                </button>
+                <!-- 提交 -->
+                <button rect="400,0,90,80" OnSelect="doCommit" normal="normal"
+                    sel="sel" style="autosize" extendstyle="1111">
+                    <node name="normal" extendstyle="1111">
+                        <image rect="0,5,71,63" src="file://image/Confirm_d.png" style="autosize"
+                            extendstyle="1111" />
+                    </node>
+                    <node name="sel" extendstyle="1111">
+                        <image rect="0,5,71,63" src="file://image/Confirm_s.png" style="autosize" 
+                            extendstyle="1111" />
+                    </node>
+                </button>
+            </node>
+            <!-- 图片显示区域 -->
+            <button rect="0,90,480,700" OnSelect="startClipImg" OnDbClick="endClipImg" normal=""
+                sel="" style="autosize" extendstyle="1111">
+                <image-editor name="editClipImg" rect="0,0,480,700" visible="true" active="true" enable="true" 
+                    mushroom="false" src="" filter="normal" />   
+            </button>               
+        </node>
+    </body>
+    <![CDATA[
+
+require('com_wondertek_tx.common.framework')
+require 'framework.upload'
+local rootSprite
+
+local imageName
+local imageSrc
+local imageArray = {}
+local allimg=''
+local clipImgPath
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+      
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        local regHandle1=Reg:create('image_data')
+        imageName = Reg:getString(regHandle1, "imageName")
+        imageSrc = Reg:getString(regHandle1,'imageSrc')
+        Log:write('imageSrc = '..imageSrc)
+        clipImgPath = imageSrc
+        imageArray = Reg:getTable(regHandle1, "imageArray")
+        Log:write("imageArray = ",imageArray)
+        Sprite:setProperty(Sprite:findChild(rootSprite, "editClipImg"), "src", imageSrc) 
+        doAdjust() 
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+        local uploadData = Http:xmlDecode('upload_url', 'RESULT')
+        Log:write("网达中间件图片上传返回数据uploadData: ", updateData)
+        local url = uploadData.URL
+        Log:write('网达中间件图片上传返回URL : ', url)
+        local param = uploadData.PARAM
+        if param then
+            param = param .. '&'
+        else
+            param = ''
+        end
+        Log:write('网达中间件上传返回参数 : ', param)
+        local tmpSplitImage = Split(param,'&')
+        allimg=string.sub(tmpSplitImage[1],15,-1) 
+        doRealUploadPic(url, param)
+    elseif msg == 102 then   
+        local jsonDecodedPicUrl = Http:jsonDecode('picUrlTag')
+        Log:write("插入图片URL成功后的返回值：",jsonDecodedPicUrl)
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:go(Alias.m_myInfo.."?employeeId="..Config:get("employeeId"), true)
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+
+-- 返回按钮
+function doBack()
+    Scene:go(Alias.m_myInfo.."?employeeId="..Config:get("employeeId"), true)
+end
+
+--图片提交
+function doCommit()
+    Log:write("拍照图片提交！")
+    deleleUploadItems()
+    if #imageArray >= 1 then  
+        requestPicUrl(imageArray[#imageArray])
+    end
+
+end
+
+--照片位置调整
+function doAdjust()
+    local image = Sprite:findChild(rootSprite, 'editClipImg')
+    local w,h = Sprite:getProperty(image, 'src_size')
+    Log:write("w = "..w.."h = "..h)
+    if w == nil or h == nil then
+        Timer:set(1, 3000, 'doAdjust')
+    else
+        local x = 460 / w
+        w = 460
+        h = x * h
+        if h > 700 then
+            Log:write("图片转换成460尺寸后的，高度大于700的情况下")
+            Sprite:setRect(image, 10,0,w,h)
+        else
+            Log:write("图片转换成460尺寸后的，高度 小于700的情况下")
+            Sprite:setRect(image, 10,(700-h)/2,w,h)
+            Log:write("图片高度小于700情况下的起点纵坐标 = "..(700-h)/2)
+        end       
+    end
+end
+
+-- 删除上传项
+function deleleUploadItems()
+    local count = Upload:getCount()
+    for i=1,count do
+        Upload:delete(i)
+    end
+end
+
+-- 请求图片上传地址
+function requestPicUrl(imageUrl)  
+    local url =  Alias.url_server..'mobile/upload/UGC_GetUploadUrl?'
+    local param = 'FILE_NAME=' .. imageName .. 'ClipImg&C_TYPE=' .. 'jpg' .. '&C_LEN=' .. IO:fileSize(imageUrl)
+    Log:write("-------------pic url upload------------", url .. param)
+    Http:request('upload_url', url, 101, {useCache = false, method = 'post', postData= param})
+    Loading:show(rootSprite)
+end
+
+-- 上传图片到队列中
+function doRealUploadPic(url, param)
+    local poststr = 'id=&markid=&interfaceMainType=2&usercode=' .. Config:get('employeeId') .. '&uploadFileName=' .. imageName .. '.jpg'
+    Log:write("真正上传图片时需要的参数：",param..poststr)
+    Log:write("imageArray[#imageArray] : ",imageArray[#imageArray])
+    Log:write("imageName = ",imageName..'ClipImg')
+    Upload:append(url, param .. poststr, imageArray[#imageArray], imageName .. 'ClipImg.jpg', 'test', 'jpg')
+    table.remove(imageArray, #imageArray)
+    insertPicUrl()  
+    Config:set('personImgUrl', Config:get('employeeId')..','..clipImgPath)
+    Log:write(" personImgUrl = ",Config:get('personImgUrl'))
+    if Loading:isShow() then Loading:close() end
+    Dialog:show('提示', '已加入上传队列中！', 'ok', 'doBack')
+end
+
+-- 人员表中插入图片名称
+function insertPicUrl()
+    local requestURL = Alias.url_server..'mobile/UserInfo/uploadPic?employeeId='..Config:get("employeeId")..'&pictureName='..allimg
+    Log:write("插入人员表中图片URL:", requestURL)  
+    Http:request('picUrlTag', requestURL, 102,{useCache=false,method = 'post'}) 
+end
+
+-- 开始剪切图片
+function startClipImg(sprite)
+    for i=1,#imageArray do
+        table.remove(imageArray, i)
+        Log:write("测试删除图片数组中函数")
+    end 
+    Log:write("开始裁剪图片时, imageArray : ",imageArray)
+    local editClipImg = Sprite:findChild(sprite,'editClipImg')
+    ImageEditor:startClip(editClipImg) 
+end
+
+-- 结束剪切并保存图片
+function endClipImg(sprite)
+    Log:write("进入图片双击函数")
+    local editClipImg = Sprite:findChild(sprite,'editClipImg')
+    ImageEditor:endClip(editClipImg)
+    clipImgPath = getDownloadPath() .. 'image/'..imageName..'ClipImg.jpg' 
+    -- clipImgPath = 'WONDER:\\temp/' .. os.time() .. '.jpg'
+    Log:write("裁剪图片的文件名：",clipImgPath)
+    table.insert(imageArray, clipImgPath) 
+    local flag = ImageEditor:saveAsJpeg(editClipImg, clipImgPath)
+    Log:write("保存图片是否成功标识 成功:true 失败:false，  flag = ",flag)
+    Log:write("裁剪图片结束后, imageArray : ",imageArray)
+    Sprite:setProperty(editClipImg, 'src', clipImgPath)
+end
+
+-- 判断手机是否有存储卡
+function getDownloadPath()
+    local downloadPath = ''
+    local flashCard = System:getFlashCardName(1) -- 判断外置存储卡存在性
+    if flashCard and flashCard ~= '' then --存在外置存储卡
+        Log:write('Util:getDownloadPath  flashCard=================', flashCard)
+        downloadPath = flashCard
+    end
+    Log:write('Util:getDownloadPath=======================', downloadPath)
+    return downloadPath
+end
+
+    ]]>
+</root>

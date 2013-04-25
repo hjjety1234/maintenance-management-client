@@ -1,0 +1,1000 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置背景 -->
+            <image rect="0,0,480,800" src="file://image/jttxl/bj.png" style="autosize"
+               extendstyle="1111" />
+            <!-- 设置头部 -->
+            <node name="baseSprite" rect="0,0,480,80" extendstyle="1111">
+                 <image name="title" rect="0,0,480,80" border="false" src="file://image/jttxl/top.png" 
+                    style="autosize" extendstyle="1111">
+                    <label name="titleLabel" rect="0,0,480,80" text="联系人" color="#ffffff" v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="32px" extendstyle="1111" />
+                 </image>
+            </node>
+
+            <!-- 设置搜索框 -->
+            <node rect="0,80,480,90" extendstyle="1111">   
+                <image name="searchInput" rect="10,10,456,67" src="file://image/jttxl/search_bj.png"
+                    style='autosize' extendstyle="1111">
+                    <image rect="15,14,40,39" src="file://image/jttxl/search.png"
+                        style="autosize" extendstyle="1111"/>
+                </image>
+                <!-- 编辑文本框 -->
+                <edit name="keywordEdit" rect="70,10,340,70" h-align="left" v-align="center" 
+                    font-family="微软雅黑" color="#605e5e" font-size="24" text="搜索姓名、长号、短号" 
+                    OnSetFocus="editOnSetFocus" OnLostFocus="editOnLostFocus" OnTextChanged="editOnTextChanged" extendstyle='1111'>
+                </edit>
+                <!-- 搜索输入框置空按钮 -->  
+                <button rect="420,30,32,31" OnSelect="doCancel" normal="src:file://image/jttxl/close_d.png;"
+                    sel="src:file://image/jttxl/close_s.png;" style="autosize" extendstyle="1111">
+                </button>             
+            </node>
+
+            <!-- 最近联系人、常用联系人切换 -->
+            <node name="bottomBtn" rect="10,165,459,69" extendstyle="1111">
+                <image name = "bottomImg" rect="0,0,459,69" src="file://image/jttxl/paixu1.png"
+                    style="autosize" extendstyle="1111" />
+                <!-- 最近联系人 -->
+                <button name="recentContacterBtn" rect="0,0,230,69" OnSelect="recentOnSelect" 
+                    extendstyle="1111"> 
+                </button> 
+                <!-- 常用联系人 -->
+                <button name="commonContacterBtn" rect="230,0,230,69" OnSelect="commonOnSelect" 
+                    extendstyle="1111">
+                </button>
+            </node>
+
+            <!--列表信息-->
+            <node name="listNode" rect="0,240,480,480" extendstyle="1111">
+                <listview name="sampleList" rect="0,0,480,480" auto-adjust="true" OnTrail="listviewOnTrail" extendstyle="1111"/>
+            </node>
+
+            <!-- 最近联系人 列表项 -->
+            <node name="listitemNode" rect="0,0,480,85" visible="false" enable="false" active="false"
+                extendstyle="1111">        
+                <!-- 点击电话与短信之间部分 -->
+                <button  rect="110,0,375,85"  OnSelect="itemOnSelect" normal="normal"
+                    sel="sel" style="autosize" extendstyle="1111" data='0'> 
+                    <!-- 人员ID -->
+                    <label name="employeeId" text=""  visible="false" extendstyle="1111"/>
+                </button>
+
+                <!-- 电话图片 -->
+                <button name='telImg' rect="18,0,74,73"  OnSelect="telOnSelect" style="autosize"  
+                    normal="normal" sel="sel" extendstyle="1111">
+                    <!-- 正常时打电话图片 -->
+                    <node name="normal" extendstyle="1111">
+                        <image name="telImag_d" rect="0,0,74,73" src="file://image/jttxl/tel_d.png"
+                            style='autosize' extendstyle="1111"/>                         
+                    </node>
+                    <!-- 点击时打电话图片 -->
+                    <node name="sel" extendstyle="1111">
+                        <image name="telImag_s" rect="0,0,74,73" src="file://image/jttxl/tel_s.png"
+                            style='autosize' extendstyle="1111"/>              
+                    </node> 
+                </button>
+                <!-- 图片连接线 -->
+                <image name="jiange_line" rect="50,73,10,12" src="file://image/jttxl/jiange_line.png"
+                        style='autosize' extendstyle="1111"/>                
+                <node name="employeeLine" rect="110,5,375,40">
+                    <!-- 联系人姓名 -->
+                    <scrolltext  name="employeeName" rect="0, 0, 80, 35"  text="" font-family='微软雅黑' 
+                        scroll="true" color="#ffffff" font-size="24" h-align="left" v-align="center"
+                        border="false" style="autosize" extendstyle="1111">
+                    </scrolltext> 
+                    <!-- 来电次数 -->
+                    <node rect="80, 0, 60, 28">
+                        <!-- 次数 -->
+                        <label name="goComeNum" rect="0, 6,60, 28"  text="" font-family='微软雅黑' 
+                            color="#ffffff" font-size="18" h-align="left" v-align="center"
+                            border="false" extendstyle="1111"/>
+                    </node>
+                </node>
+                <node name="telephoneLine" rect="110,35,375,40">                           
+                    <!-- 电话号码 -->
+                    <label name="mobile" rect="0, 8, 115, 30"  text="" font-family="微软雅黑"  
+                        color="#aeb1b1" font-size="18" h-align="left" v-align="top"
+                        border="false" extendstyle="1111"/> 
+                    <!-- 来电时间 -->
+                    <label name="goComeTime" rect="200, 8, 50, 30"  text="" font-family="微软雅黑"  
+                        color="#aeb1b1" font-size="18" h-align="left" v-align="top"
+                        border="false" extendstyle="1111"/> 
+                    <!-- 来电/去电 -->
+                    <image name="goComeTel" rect="250, 11,15,17" src="file://image/jttxl/huchu.png"
+                            style='autosize' extendstyle="1111"/> 
+                </node>
+            </node>
+
+            <!-- 搜索 列表项 -->
+            <node name="listitemSearchNode" rect="0,0,480,85" visible="false" enable="false" active="false"
+                extendstyle="1111">        
+                <!-- 点击电话与短信之间部分 -->
+                <button  rect="110,0,375,85"  OnSelect="itemOnSelect" normal="normal"
+                    sel="sel" style="autosize" extendstyle="1111" data='1'> 
+                    <!-- 人员ID -->
+                    <label name="employeeId" text=""  visible="false" extendstyle="1111"/>
+                    <!-- 正常时组织机构图片 -->
+                    <node name="normal" extendstyle="1111">
+                        <image name="listButtonImage_d" rect="327,25,33,34" src="file://image/jttxl/more_d.png"
+                            style='autosize' extendstyle="1111"/>                         
+                    </node>
+                    <!-- 点击时组织机构图片 -->
+                    <node name="sel" extendstyle="1111">
+                        <image name="listButtonImage_s" rect="327,25,33,34" src="file://image/jttxl/more_s.png"
+                            style='autosize' extendstyle="1111"/>              
+                    </node> 
+                </button>
+                <!--发送短信 -->
+                <button name="smsNode" rect="385,25,43,36"  OnSelect="smsOnSelect" style="autosize"  
+                    normal="src:file://image/jttxl/sms_d.png;"
+                    sel="src:file://image/jttxl/sms_s.png;"
+                    extendstyle="1111" data="1">
+                </button>
+                <!-- 电话图片 -->
+                <button name='telImg' rect="18,0,74,73"  OnSelect="telOnSelect" style="autosize"  
+                    normal="normal" sel="sel" extendstyle="1111"> 
+                    <!-- 正常时打电话图片 -->
+                    <node name="normal" extendstyle="1111">
+                        <image name="telImag_d" rect="0,0,74,73" src="file://image/jttxl/tel_d.png"
+                            style='autosize' extendstyle="1111"/>                         
+                    </node>
+                    <!-- 点击时打电话图片 -->
+                    <node name="sel" extendstyle="1111">
+                        <image name="telImag_s" rect="0,0,74,73" src="file://image/jttxl/tel_s.png"
+                            style='autosize' extendstyle="1111"/>              
+                    </node>  
+                </button>
+                <!-- 图片连接线 -->
+                <image name="jiange_line" rect="50,73,10,12" src="file://image/jttxl/jiange_line.png"
+                    style='autosize' extendstyle="1111"/>
+                <node name="employeeLine" rect="110,5,375,40">
+                    <!-- 联系人姓名 -->
+                    <label name="employeeName" rect="0, 0, 140, 35"  text="" font-family='微软雅黑' 
+                        color="#00a2ff" font-size="24" h-align="left" v-align="center"
+                        border="false" extendstyle="1111"/>
+                    <!-- 一级部门 -->
+                    <scrolltext name="parentDeptName" rect="150, 0, 120, 30"  text="" font-family='微软雅黑' 
+                        scroll="true" color="#aba8a8" font-size="18" h-align="left" v-align="center"
+                        border="false" style="autosize" extendstyle="1111">
+                    </scrolltext>
+                </node>
+                <node name="telephoneLine" rect="110,35,375,40">                           
+                    <!-- 电话号码 -->
+                    <label name="mobile" rect="0, 8, 140, 30"  text="" font-family="微软雅黑"  
+                        color="#aba8a8" font-size="18" h-align="left" v-align="top"
+                        border="false" extendstyle="1111"/> 
+                    <!-- 联系人所在部门 -->
+                    <scrolltext name="departmentName" rect="150, 8, 120, 30" text="" font-family="微软雅黑"
+                        scroll="true" color="#aba8a8" font-size="18" h-align="left" v-align="top" 
+                        border="false" style="autosize" extendstyle="1111">
+                    </scrolltext>     
+                </node>
+            </node>
+            
+            <!-- 底部菜单  -->
+            <node rect="0,720,480,80" extendstyle="1111">
+                <image  rect="0,0,480,80" border="false" extendstyle="1111" 
+                src="file://image/book/list_bg.png"  style="autosize"/>
+                <!-- 联系人  -->
+                <button name='searchBtn' rect="15,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/lianxiren_s.png' OnSelect="doSearch"></button>
+                <!-- 组织导航  -->
+                <button name='contactBtn' rect="125,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/zuijinglianxiren_d.png' OnSelect="doContact"></button>
+                <!-- 个人中心  -->
+                <button name='personBtn' rect="250,0,82,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/person_d.png' OnSelect="doPersonalCenter"></button>
+                <!-- 设置  -->
+                <button name='siteBtn' rect="385,0,48,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/site_d.png' OnSelect="doSetting"></button>
+            </node>  
+
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_tx.common.framework'
+require 'framework.umsagent'
+require 'framework.sqlite'
+local url_updatedept = Alias.url_server..'mobile/orger/update?cmd=updatedept'
+local url_userversion = Alias.url_server..'mobile/UserInfo/getUserInfo?'
+local databaseName
+local department_version = 0
+local employee_version = 0
+local bRet, errMsg, retCountTable
+local userversiondata
+local rootSprite
+local databaseName
+local len
+local list
+local totalNum
+local editeKeyword
+local curpage = 1
+local pagesize = 7  
+local recentSearchFlag = 0
+local bRet, errMsg, retRecentUserTable, retCommonUserTable, retSysTable, retUserTable, retCountTable
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    list = Sprite:findChild(rootSprite, 'sampleList') 
+    createDatabase()
+    if Config:get('togohomeTag') == '1' then
+	    -- testdatabase()
+	    querySysConfig()
+	    updateDatabase() 
+    end
+    Config:set('togohomeTag','0')   
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        Http:startNetwork() 
+        checkClientVersion()
+        Log:write("judgeFlag = ", Config:get('judge_flag'))
+        if Config:get('judge_flag') == "0" then  
+            lookRecentUserData() 
+        elseif Config:get('judge_flag') == "1" then
+            Config:set('judge_flag', '0')
+        end   
+        UmsAgent:OnActivate(string.match(Alias.m_recentContacter, 'MODULE:\\(.*)'), "联系人")
+        Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_s.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+    elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+    elseif msg == 102 then -- 101请求的数据有更新
+        local departmentdata1 = Http:jsonDecode('departmentdata0')
+        local total = departmentdata1.total
+        Log:write('返回数据数量====='..total.." 更新组织结构==", departmentdata1) 
+        if tonumber(total) > 0 then
+            bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
+            Log:write("部门2添加事务开始:bRet = "..bRet.." errMsg ="..errMsg)
+            for i=0,total-1 do
+                Log:write("更新部门 "..bRet.." errMsg ="..errMsg)
+                local Valuedata = departmentdata1["value"][i]
+                local department_id = Valuedata.department_id
+                local department_name = Valuedata.department_name
+                local parent_department_id = Valuedata.parent_department_id
+                local department_level = Valuedata.department_level
+                local update_type = Valuedata.update_type
+                local department_firstword = Valuedata.department_firstword
+                if update_type == "0" then
+                    local sql = "insert into tb_c_department values ('"..department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."');"
+                    Log:write("部门新增语句:sql = "..sql) 
+                    bRet, errMsg = Sqlite:update(databaseName, sql)
+                    Log:write("部门1添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
+                elseif update_type == "1" then
+                    local sql = "delete  from tb_c_department where department_id= '"..department_id.."' ;"
+                    Log:write("部门新增语句1:sql = "..sql) 
+                    bRet, errMsg = Sqlite:update(databaseName, sql)
+                    Log:write("部门1添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
+                    sql = "insert into tb_c_department values ('"..department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."');"
+                    Log:write("部门新增语句1:sql = "..sql) 
+                    bRet, errMsg = Sqlite:update(databaseName, sql)
+                    Log:write("部门1添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
+                elseif update_type == "2" then
+                    local sql = "delete  from tb_c_department where department_id= '"..department_id.."' ;"
+                    Log:write("部门删除语句2:sql = "..sql) 
+                    bRet, errMsg = Sqlite:update(databaseName, sql)
+                    Log:write("部门1添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
+                end
+            end
+            bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
+            Log:write("部门2添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
+        end
+        Config:set('deptversion', departmentdata1.deptversion)
+        department_version = departmentdata1.deptversion
+        local paras = 'departmentIdStr=&userId='..Config:get('userId')..'&mobileRights='
+                    ..Config:get('mobileRights')..'&versionNum='..Config:get('userVersion')
+        Log:write('联系人URL = '..url_userversion..paras)
+        Http:request('userversiondata0', url_userversion..paras, 103, {useCache = false})
+    elseif msg == 103 then 
+        userversiondata = Http:jsonDecode('userversiondata0')
+        Log:write("数据记录是否发成改变判断标识 updateFlag ：", userversiondata.updateFlag)
+        --updateFlag: 1 服务端数据发生改变 ; 0 手机端与服务端数据一致
+        if userversiondata.updateFlag == '1' then
+            updateEmployeeData()
+        else
+            Log:write("联系人不需要更新= ")
+        end
+        local sql = "update tb_c_system set department_version = '"..department_version.."', employee_version = '"..employee_version.."', right_config = '"..Config:get('mobileRights').."'  where system_id = '001';"
+        Log:write('更新系统表语句==sql=='..sql)
+        bRet, errMsg = Sqlite:update(databaseName, sql)
+        Log:write("系统表插入结果:bRet = "..bRet.." errMsg ="..errMsg)
+        if Loading:isShow() then Loading:close() end
+    elseif msg == 104 then 
+        local checkversionData = Http:jsonDecode('index_checkversion')
+        Log:write('index_checkversion', checkversionData)
+        if checkversionData and checkversionData['version'] then
+            if tonumber(checkversionData['version']['isNeedUpdate']) == 1 then  -- 需要升级
+                Log:write("isNeedUpdate: ".."true")
+                Config:set("isNeedUpdate", "true")
+            end
+        end
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        doBack()
+    end
+end
+
+---------------------------------------util functions--------------------------
+
+-- 返回
+function doBack()
+    bRet = Sqlite:close('jttxlDatabase')
+    Log:write("数据库关闭："..bRet)
+    if (Config:get("isNeedUpdate") == "true") then 
+        Dialog:show('提示', '存在新版本，是否更新？', 'ok_cancel', 'doUpdate', "doExit")
+    else 
+        Dialog:show('提示', '是否确定退出？', 'ok_cancel', 'doExit')
+    end
+end
+
+-- @brief 跳转到升级页面
+function doUpdate()
+    Scene:go(Alias.m_update, true)
+end
+
+-- 最近联系人
+function recentOnSelect(sprite)
+    Log:write("最近联系人函数")  
+    local parentBtnNode = Sprite:getParent(sprite)
+    Sprite:setProperty(Sprite:findChild(parentBtnNode,'bottomImg'),'src','file://image/jttxl/paixu1.png')
+    lookRecentUserData()
+end
+
+-- 常用联系人
+function commonOnSelect(sprite)
+    Log:write("常用联系人函数")
+    local parentBtnNode = Sprite:getParent(sprite)
+    Sprite:setProperty(Sprite:findChild(parentBtnNode,'bottomImg'),'src','file://image/jttxl/paixu2.png')
+    lookCommonUserData()
+end
+
+-- 加载搜索联系人列表
+function loadUserData()
+    len = tonumber(getJsonArrayCount(retUserTable))-1;
+    Log:write("搜索联系人列表记录数目：",len)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitemSearchNode'), len, 'loadSearchListItem')
+    ListView:adjust(list)    
+end
+
+function loadSearchListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 85)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local employeeId = Sprite:findChild(item, 'employeeId')                 --人员ID
+    local employeeName = Sprite:findChild(item, 'employeeName')             --人员名称
+    local mobile = Sprite:findChild(item, 'mobile')                         --移动长号
+    local departmentName = Sprite:findChild(item, 'departmentName')         --部门名称 
+    local parentDeptName = Sprite:findChild(item, 'parentDeptName')         --一级部门
+    local telImg = Sprite:findChild(item,'telImg')                          --电话图片
+    local telImag_d = Sprite:findChild(item,'telImag_d')                    --正常 电话图片
+    local telImag_s = Sprite:findChild(item,'telImag_s')                    --点击 电话图片  
+    local jiangeline = Sprite:findChild(item, 'jiange_line')                --间隔线
+    local smsNode = Sprite:findChild(item, 'smsNode')                       --短信   
+    local listButtonImage_d = Sprite:findChild(item, 'listButtonImage_d')   --更多
+    local listButtonImage_s = Sprite:findChild(item, 'listButtonImage_s')
+    Sprite:setProperty(employeeId, 'text', retUserTable[index+1][1]) 
+    Sprite:setProperty(employeeName, 'text', retUserTable[index+1][2])
+    Sprite:setProperty(mobile, 'text', retUserTable[index+1][3]) 
+    Sprite:setProperty(departmentName, 'text', retUserTable[index+1][6])
+    Sprite:setProperty(parentDeptName, 'text', retUserTable[index+1][8])
+    local headshipLevel = retUserTable[index+1][9]  
+    if tonumber(headshipLevel) <= 7 then
+        Sprite:setRect(item, 0, 0, 480, 105)
+        Sprite:setRect(jiangeline, 50, 90, 10, 17)
+        Sprite:setRect(telImg, 10, 0, 90, 90)
+        Sprite:setRect(telImag_d, 0, 0, 90, 90)
+        Sprite:setRect(telImag_s, 0, 0, 90, 90)
+        Sprite:setRect(employeeName, 0, 0, 140, 30) 
+        Sprite:setRect(parentDeptName, 150, 0, 120, 30)   
+        Sprite:setRect(mobile, 0, 12, 140, 30)
+        Sprite:setRect(departmentName, 150, 12, 120, 30)
+        Sprite:setRect(smsNode, 385, 27, 43, 36)    
+        Sprite:setRect(listButtonImage_d, 327, 28, 33, 34)
+        Sprite:setRect(listButtonImage_s, 327, 28, 33, 34)
+
+
+        Sprite:setProperty(telImag_d,'src','file://image/jttxl/tel_big.png')
+        Sprite:setProperty(telImag_s,'src','file://image/jttxl/tel_big_s.png')
+        Sprite:setProperty(mobile,'font-size','22')
+        Sprite:setProperty(departmentName,'font-size','22')
+        Sprite:setProperty(parentDeptName,'font-size','22')
+        Sprite:setProperty(employeeName,'font-size','28')
+    end
+
+    local lastPageNum = math.floor(tonumber(totalNum)/pagesize)+1
+    if curpage == lastPageNum then
+        if index == len - 1 then
+            Sprite:setProperty(jiangeline, 'visible', 'false')       
+        end    
+    end            
+end
+
+-- 加载最近联系人列表
+function loadRecentUserData()
+    len = tonumber(getJsonArrayCount(retRecentUserTable))-1;
+    Log:write("查询最近联系人记录数目：",len)
+    ListView:removeAllItems(list,1)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitemNode'), len, 'loadRecentListItem')
+    ListView:adjust(list)    
+end
+
+function loadRecentListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 85)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local employeeId = Sprite:findChild(item, 'employeeId')                 --人员ID
+    local employeeName = Sprite:findChild(item, 'employeeName')             --人员名称 
+    local goComeNum = Sprite:findChild(item, 'goComeNum')                   --来去电次数
+    local mobile = Sprite:findChild(item, 'mobile')                         --移动长号       
+    local jiangeline = Sprite:findChild(item, 'jiange_line')                --间隔线  
+    local goComeTel = Sprite:findChild(item, 'goComeTel')                   --来去电图标
+    local goComeTime = Sprite:findChild(item, 'goComeTime')                 --来去电的末次时间
+    Sprite:setProperty(mobile, 'text', retRecentUserTable[index+1][1])                  
+    Sprite:setProperty(goComeNum, 'text', "("..retRecentUserTable[index+1][4]..")") 
+    Sprite:setProperty(employeeId, 'text', retRecentUserTable[index+1][5]) 
+    Sprite:setProperty(employeeName, 'text', retRecentUserTable[index+1][6])      
+    -- 呼入、呼出图标切换 
+    local goComeType = retRecentUserTable[index+1][3]
+    Log:write("最后一次呼入、呼出类别：",goComeType)
+    if goComeType == '0' then
+        Sprite:setProperty(goComeTel,'src','file://image/jttxl/huru.png')
+    else
+        Sprite:setProperty(goComeTel,'src','file://image/jttxl/huchu.png')
+    end 
+    -- 时间、日期转换 
+    local lastGoComeDate = retRecentUserTable[index+1][2]
+    Log:write("最后一次呼入、呼出时间：",lastGoComeDate)
+    local timeString=Split(lastGoComeDate," ") 
+    local timeDate=Split(timeString[1],"-")
+    local timeHour=Split(timeString[2],":")
+    local month=timeDate[2]
+    local day=timeDate[3]
+    local hour=timeHour[1]
+    local min=timeHour[2]
+    
+    Log:write("所取系统时间：",timeString[2])
+    Log:write("所取系统日期：",timeString[1])
+    Log:write("当前日期：",getCurDate())
+    if timeString[1] == getCurDate() then
+        Log:write("当天去时间：")
+        Sprite:setProperty(goComeTime, 'text', hour..":"..min)
+    else
+        Log:write("非当天时间,取日期")
+        Sprite:setProperty(goComeTime, 'text', month.."/"..day)
+    end  
+
+    if index == len - 1 then
+        Sprite:setProperty(jiangeline, 'visible', 'false')
+    end     
+end
+
+-- 加载更多联系人
+function loadCommonUserData()
+    len = tonumber(getJsonArrayCount(retCommonUserTable))-1;
+    Log:write("查询常用联系人记录数目：",len)
+    ListView:removeAllItems(list,1)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitemNode'), len, 'loadCommonListItem')
+    ListView:adjust(list)    
+end
+
+function loadCommonListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 85)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local employeeId = Sprite:findChild(item, 'employeeId')                 --人员ID
+    local employeeName = Sprite:findChild(item, 'employeeName')             --人员名称 
+    local goComeNum = Sprite:findChild(item, 'goComeNum')                   --来去电次数
+    local mobile = Sprite:findChild(item, 'mobile')                         --移动长号       
+    local jiangeline = Sprite:findChild(item, 'jiange_line')                --间隔线  
+    local goComeTel = Sprite:findChild(item, 'goComeTel')                   --来去电图标
+    local goComeTime = Sprite:findChild(item, 'goComeTime')                 --来去电的末次时间
+    Sprite:setProperty(mobile, 'text', retCommonUserTable[index+1][1])                  
+    Sprite:setProperty(goComeNum, 'text', "("..retCommonUserTable[index+1][4]..")") 
+    Sprite:setProperty(employeeId, 'text', retCommonUserTable[index+1][5]) 
+    Sprite:setProperty(employeeName, 'text', retCommonUserTable[index+1][6])      
+    -- 呼入、呼出图标切换 
+    local goComeType = retCommonUserTable[index+1][3]
+    Log:write("最后一次呼入、呼出类别：",goComeType)
+    if goComeType == '0' then
+        Sprite:setProperty(goComeTel,'src','file://image/jttxl/huru.png')
+    else
+        Sprite:setProperty(goComeTel,'src','file://image/jttxl/huchu.png')
+    end 
+    -- 时间、日期转换 
+    local lastGoComeDate = retCommonUserTable[index+1][2]
+    Log:write("最后一次呼入、呼出时间：",lastGoComeDate)
+    local timeString=Split(lastGoComeDate," ") 
+    local timeDate=Split(timeString[1],"-")
+    local timeHour=Split(timeString[2],":")
+    local month=timeDate[2]
+    local day=timeDate[3]
+    local hour=timeHour[1]
+    local min=timeHour[2]
+    
+    Log:write("所取系统时间：",timeString[2])
+    Log:write("所取系统日期：",timeString[1])
+    Log:write("当前日期：",getCurDate())
+    if timeString[1] == getCurDate() then
+        Log:write("当天去时间：")
+        Sprite:setProperty(goComeTime, 'text', hour..":"..min)
+    else
+        Log:write("非当天时间,取日期")
+        Sprite:setProperty(goComeTime, 'text', month.."/"..day)
+    end  
+
+    if index == len - 1 then
+        Sprite:setProperty(jiangeline, 'visible', 'false')
+    end 
+end
+
+-- 列表单击
+function itemOnSelect(sprite)
+    local judgeData = Sprite:getData(sprite)
+    local employeeId = Sprite:getText(Sprite:findChild(sprite,'employeeId')) 
+    if judgeData == '1' then       
+        Scene:setReturn(Alias.m_recentContacter, Alias.m_personalInfo .. '?employeeId=' .. employeeId..'&flag=2')
+        Scene:go(Alias.m_personalInfo .. '?employeeId=' .. employeeId..'&flag=2',true)
+    elseif judgeData == '0' then
+        Scene:setReturn(Alias.m_recentContacter, Alias.m_personalInfo .. '?employeeId=' .. employeeId..'&flag=3')
+        Scene:go(Alias.m_personalInfo .. '?employeeId=' .. employeeId..'&flag=3',true)
+    end
+end
+
+-- 搜索函数
+function doSearch(sprite)
+    Log:write("进入搜索函数，不做任何操作！")
+end
+
+-- 联系人
+function doContact(sprite) 
+    Sprite:setProperty(sprite,'src','file://image/book/zuijinglianxiren_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png') 
+    Scene:setReturn(Alias.m_recentContacter, Alias.m_renyuantongji)
+    Scene:go(Alias.m_renyuantongji, true)
+end
+
+-- 个人信息详情
+function doPersonalCenter(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/person_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')   
+    Scene:setReturn(Alias.m_recentContacter, Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"))
+    Scene:go(Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"), true)
+end
+
+-- 设置
+function doSetting(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/site_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png') 
+    Scene:setReturn(Alias.m_recentContacter, Alias.m_system)
+    Scene:go(Alias.m_system, true)
+end
+
+-- 搜索输入框置空
+function doCancel()
+    Sprite:setProperty(Sprite:findChild(rootSprite,'bottomImg'),'src','file://image/jttxl/paixu1.png')
+    recentSearchFlag = 0
+    Log:write("搜索文本框置空按钮")
+    local keywordEditNode = Sprite:findChild(rootSprite,'keywordEdit')
+    local bottomBtn = Sprite:findChild(rootSprite,'bottomBtn')
+    Sprite:setProperty(keywordEditNode, 'color', '#605e5e')
+    Sprite:setProperty(keywordEditNode, 'text', '搜索姓名、长号、短号')
+    ListView:removeAllItems(list,1)
+    setAllShoworHide(bottomBtn,'1')
+    local listNode = Sprite:findChild(rootSprite,'listNode')
+    Sprite:setRect(listNode, 0, 240, 480, 480)
+    Sprite:setRect(list, 0, 0, 480, 480)
+    lookRecentUserData()
+end
+
+--当未有任何输入时，初始化为提示
+function editOnTextChanged(sprite) 
+    recentSearchFlag = 1
+
+    local bottomBtn = Sprite:findChild(rootSprite,'bottomBtn')
+    local listNode = Sprite:findChild(rootSprite,'listNode')
+    Sprite:setRect(listNode, 0, 170, 480, 550)
+    Sprite:setRect(list, 0, 0, 480, 550)
+    setAllShoworHide(bottomBtn,'0')
+
+    Log:write("文本发生改变时触发") 
+    editeKeyword = Sprite:getProperty(sprite, 'text')
+    Log:write("editeKeyword ====== ",editeKeyword)
+    ListView:removeAllItems(list,1)
+    if editeKeyword ~= '' then    
+        curpage = 1
+        Log:write("搜索关键词="..editeKeyword)
+        searchUserCount()
+        searchUserData()
+        loadUserData() 
+    else
+        Sprite:setProperty(Sprite:findChild(rootSprite,'bottomImg'),'src','file://image/jttxl/paixu1.png')
+        local bottomBtn = Sprite:findChild(rootSprite,'bottomBtn')
+        ListView:removeAllItems(list,1)
+        setAllShoworHide(bottomBtn,'1')
+        local listNode = Sprite:findChild(rootSprite,'listNode')
+        Sprite:setRect(listNode, 0, 240, 480, 480)
+        Sprite:setRect(list, 0, 0, 480, 480)
+        lookRecentUserData()
+    end
+end 
+
+--获得焦点时
+function editOnSetFocus(sprite)
+    Log:write("获得焦点时触发")
+    local txt= Sprite:getProperty(sprite, 'text')
+    if txt=='搜索姓名、长号、短号' then
+        Sprite:setProperty(sprite, 'text', '')
+        Sprite:setProperty(sprite, 'color', '#605e5e')
+    end
+end 
+
+--释放焦点时
+function editOnLostFocus(sprite)
+    Log:write("释放焦点时触发")
+    local txt= Sprite:getProperty(sprite, 'text')
+    if txt=='' then
+        Sprite:setProperty(sprite, 'text', '搜索姓名、长号、短号')
+        Sprite:setProperty(sprite, 'color', '#605e5e')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'bottomImg'),'src','file://image/jttxl/paixu1.png')
+        local bottomBtn = Sprite:findChild(rootSprite,'bottomBtn')
+        setAllShoworHide(bottomBtn,'1')
+        local listNode = Sprite:findChild(rootSprite,'listNode')
+        Sprite:setRect(listNode, 0, 240, 480, 480)
+        Sprite:setRect(list, 0, 0, 480, 480)
+        lookRecentUserData()
+    end
+end
+
+-- 查询搜索数据条数
+function searchUserCount()
+    local sqlCount = "SELECT COUNT(emp.employee_id)"..
+                " FROM tb_c_employee emp,tb_c_department dept"..
+                " WHERE emp.department_id = dept.department_id"..
+                " AND (emp.mobile LIKE '%"..editeKeyword..
+                    "%' OR emp.employee_name LIKE '%"..editeKeyword..
+                    "%' OR emp.mobile_short LIKE '%"..editeKeyword..
+                    "%' OR emp.employee_firstword LIKE '"..editeKeyword..
+                    "%' OR emp.employee_fullword LIKE '"..editeKeyword.."%');"
+    bRet, retCountTable, errMsg = Sqlite:query(databaseName, sqlCount) 
+    totalNum = retCountTable[1][1]
+    Log:write("搜索联系人记录数目：totalNum = ", totalNum) 
+end
+
+-- 搜索联系人信息
+function searchUserData()
+    local fromIndex = (curpage - 1)*pagesize
+    local toIndex = pagesize
+    local sql = "SELECT emp.employee_id,"..
+                "emp.employee_name,"..
+                "emp.mobile,"..
+                "emp.mobile_short,"..
+                "dept.department_id,"..
+                "dept.department_name,"..
+                "emp.headship_name,"..
+                "emp.parent_department_name,"..
+                "emp.headship_level"..
+                " FROM tb_c_employee emp,tb_c_department dept"..
+                " WHERE emp.department_id = dept.department_id"..
+                " AND (emp.mobile LIKE '%"..editeKeyword..
+                    "%' OR emp.employee_name LIKE '%"..editeKeyword..
+                    "%' OR emp.mobile_short LIKE '%"..editeKeyword..
+                    "%' OR emp.employee_firstword LIKE '"..editeKeyword..
+                    "%' OR emp.employee_fullword LIKE '"..editeKeyword.."%')"..
+                " ORDER BY emp.headship_level ASC,emp.display_order ASC"..
+                " LIMIT "..fromIndex..","..toIndex..";" 
+    Log:write("搜索联系人SQL: ",sql)
+    bRet, retUserTable, errMsg = Sqlite:query(databaseName, sql) 
+    Log:write("搜索联系人记录：retUserTable = ", retUserTable)    
+end
+
+-- 滑动翻页
+function listviewOnTrail(sprite)
+    if recentSearchFlag == 1 then
+        curpage = curpage + 1 
+        Log:write("搜索记录总条数：  ",totalNum)
+        if (curpage-1)*pagesize < tonumber(totalNum) then
+            Log:write("已进入滑动翻页搜索函数")
+            searchUserData() 
+            loadUserData()        
+        end
+    else
+        Log:write("此时进入最近联系人、常用联系人界面")
+    end
+end
+
+-- 拨打电话
+function telOnSelect(sprite)
+    Log:write("进入拨打电话函数")
+    local parentNode = Sprite:getParent(sprite)
+    local mobile = Sprite:getText(Sprite:findChild(parentNode, "mobile"))
+    Log:write("电话号码为：",mobile)
+    if mobile ~= nil and mobile ~= '' then
+        if Util:openCallDialog('callFinished',mobile, 0) then
+            Log:write('拨打打电话成功')
+        else
+            Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
+        end
+    else
+        Dialog:show('提示', '电话号码为空！', 'ok')
+    end   
+end
+
+-- 发送短信
+function smsOnSelect(sprite)
+    Log:write("进入发短信函数")
+    local parentNode = Sprite:getParent(sprite)
+    local mobile = Sprite:getText(Sprite:findChild(parentNode, "mobile"))
+    Log:write("电话号码为：",mobile)
+    if mobile ~= nil and mobile ~= '' then
+        if Util:sendSMS(mobile,' ',false) then
+            Log:write('发送短信成功')
+        else
+            Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
+        end
+    else
+        Dialog:show('提示', '电话号码为空！', 'ok')
+    end
+end
+
+-- 最近联系人信息
+function lookRecentUserData()
+    recentSearchFlag = 0
+    local sqlQuery = "SELECT call.callhis_num,call.callhis_date,call.callhis_type,call.callhis_count,"
+                .."emp.employee_id,emp.employee_name,emp.department_name,emp.parent_department_name"
+                .." FROM tb_c_callhis call,tb_c_employee emp"
+                .." WHERE call.callhis_empid = emp.employee_id"
+                .." ORDER BY call.callhis_date desc"
+                .." LIMIT 0,30;"
+    Log:write("查询最近联系人列表 SQL =",sqlQuery)           
+    bRet, retRecentUserTable, errMsg = Sqlite:query(databaseName, sqlQuery) 
+    Log:write("最近联系人列表retRecentUserTable = ", retRecentUserTable) 
+    loadRecentUserData()
+end
+
+-- 常用联系人信息
+function lookCommonUserData()
+    recentSearchFlag = 0
+    local sqlQuery = "SELECT call.callhis_num,call.callhis_date,call.callhis_type,call.callhis_count,"
+                .."emp.employee_id,emp.employee_name,emp.department_name,emp.parent_department_name"
+                .." FROM tb_c_callhis call,tb_c_employee emp"
+                .." WHERE call.callhis_empid = emp.employee_id"
+                .." ORDER BY call.callhis_count desc"
+                .." LIMIT 0,30;"
+    Log:write("查询常用联系人列表 SQL =",sqlQuery)           
+    bRet, retCommonUserTable, errMsg = Sqlite:query(databaseName, sqlQuery) 
+    Log:write("常用联系人列表retCommonUserTable = ", retCommonUserTable) 
+    loadCommonUserData()
+end
+
+
+-- 存储卡路径
+function getDownloadPath()
+        local downloadPath = ''
+        local flashCard = System:getFlashCardName(1) -- 判断外置存储卡存在性
+        if flashCard and flashCard ~= '' then --存在外置存储卡
+            Log:write('Util:getDownloadPath  flashCard=================', flashCard)
+            downloadPath = flashCard
+        end
+        Log:write('Util:getDownloadPath=======================', downloadPath)
+        return downloadPath
+end
+
+function testdatabase()
+    databaseName = Config:get('databaseName')
+    local bRet, errMsg = Sqlite:open(databaseName)
+    Log:write("创建数据库jttxlDatabase结果:bRet = "..bRet.." errMsg ="..errMsg)
+    local sqlQuery = "SELECT department_id, department_name, department_level "
+                   .." FROM tb_c_department;"
+    Log:write("查询 SQL =", sqlQuery)           
+    bRet, retSysTable, errMsg = Sqlite:query(databaseName, sqlQuery) 
+    Log:write("==数据库表tb_c_department数量=="..getJsonArrayCount(retSysTable))
+    local sqlQuery = "SELECT employee_id, employee_name, department_name, versionNum "
+                   .." FROM tb_c_employee;"
+    Log:write("查询 SQL =", sqlQuery)           
+    bRet, retSysTable, errMsg = Sqlite:query(databaseName, sqlQuery) 
+    Log:write("==数据库表tb_c_employee数量=="..getJsonArrayCount(retSysTable))
+    local sqlQuery = "SELECT sys.register_flag,sys.department_version,sys.employee_version,"
+                   .."sys.user_id,sys.right_config,sys.employee_id,sys.employee_name,"
+                   .."sys.department_id,sys.department_name,sys.department_level "
+                   .." FROM tb_c_system sys;"
+    Log:write("查询系统配置表 SQL =",sqlQuery)           
+    bRet, retSysTable, errMsg = Sqlite:query(databaseName, sqlQuery) 
+    Log:write("==数据库表tb_c_system数据==", retSysTable)
+end
+
+-- 查询系统配置文件表
+function querySysConfig()
+    local sqlQuery = "SELECT sys.register_flag,sys.department_version,sys.employee_version,"
+                   .."sys.user_id,sys.right_config,sys.employee_id,sys.employee_name,"
+                   .."sys.department_id,sys.department_name,sys.department_level"
+                   .." FROM tb_c_system sys"
+                   .." WHERE sys.system_id='001';"
+    Log:write("查询系统配置表 SQL =",sqlQuery)           
+    bRet, retSysTable, errMsg = Sqlite:query(databaseName, sqlQuery) 
+
+    Log:write("系统配置表retSysTable = ", retSysTable) 
+    Config:set('employee_name', retSysTable[1][7])
+    Config:set('department_id', retSysTable[1][8])
+    Config:set('department_name', retSysTable[1][9])
+    Config:set('department_level', retSysTable[1][10])
+    Config:set('employeeId', retSysTable[1][6])
+    Config:set('userId', retSysTable[1][4])
+    Config:set('userVersion', retSysTable[1][3])
+    Config:set('mobileRights', retSysTable[1][5])
+    Config:set('deptversion', retSysTable[1][2])
+    department_version = retSysTable[1][2]
+    employee_version = retSysTable[1][3]
+end
+
+function updateDatabase()
+    local paras = '&userCode='..Config:get('userId')..'&deptCode='..Config:get('deptversion')..'&deptList='..'&token='
+    Log:write('===更新参数====='..paras)
+    Http:request('departmentdata0', url_updatedept..paras, 102, {useCache = false})
+    --Loading:show(rootSprite)
+end
+
+-- 初始化本地人员表
+function updateEmployeeData()
+    local returnValue = userversiondata.value     
+    Log:write("用户数据返回最大版本号 versionNum：",returnValue[0].versonNum)
+    local rights = userversiondata.rights
+    Log:write("用户数据返回权限 rights：",rights)
+    local totalNum = tonumber(userversiondata.total)-1  
+    Log:write("配置文件中存储的用户版本号：",Config:get('userVersion'))
+    Log:write("配置文件中存储的用户权限：",Config:get('mobileRights'))
+    if Config:get('mobileRights') ~= rights then
+        -- 清空用户表中数据
+        local sqlClear = "DELETE FROM tb_c_employee;"
+        Log:write("sqlClear = ",sqlClear)
+        bRet, errMsg = Sqlite:update(databaseName, sqlClear)
+        Log:write("清空用户表:bRet = "..bRet.." errMsg ="..errMsg)    
+        Config:set('mobileRights',rights)
+        bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
+        Log:write("首次安装应用--人员添加事务开始:bRet = "..bRet.." errMsg ="..errMsg)
+        for i=0,totalNum do 
+            if returnValue[i].delFlag == '0' then 
+                -- 新增用户SQL
+                local sqlInsert = "insert into tb_c_employee values('"..returnValue[i].employee_id.."','"..
+                    returnValue[i].employee_name.."','"..returnValue[i].department_id.."','"..
+                    returnValue[i].department_name.."','"..returnValue[i].headship_level.."','"..
+                    returnValue[i].headshipName.."','"..returnValue[i].mobile.."','"..
+                    returnValue[i].mobile_short.."','"..returnValue[i].tel.."','"..
+                    returnValue[i].tel_short.."','"..returnValue[i].email.."','"..
+                    returnValue[i].versonNum.."','"..returnValue[i].picture.."','"..
+                    returnValue[i].employee_firstword.."','"..returnValue[i].employee_fullword.."','"..
+                    returnValue[i].parent_department_name.."','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."');"
+                -- Log:write("sqlInsert = ",sqlInsert)                         
+                bRet, errMsg = Sqlite:update(databaseName, sqlInsert) 
+                -- Log:write("新增用户:bRet = "..bRet.." errMsg ="..errMsg)      
+            end    
+        end
+        bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
+        Log:write("首次安装应用--人员添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
+    else
+        bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
+        Log:write("非首次安装--人员添加事务开始:bRet = "..bRet.." errMsg ="..errMsg)
+        for i=0,totalNum do  
+            -- 判断用户是否存在SQL
+            local sqlCount = "SELECT COUNT(*) FROM tb_c_employee emp WHERE emp.employee_id = '"..
+            returnValue[i].employee_id.."';"
+            bRet, retCountTable, errMsg = Sqlite:query(databaseName, sqlCount)
+            local count = retCountTable[1][1]
+            if count == '0' then
+                if returnValue[i].delFlag == '0' then 
+                     -- 新增用户SQL
+                    local sqlInsert = "insert into tb_c_employee values('"..returnValue[i].employee_id.."','"..
+                        returnValue[i].employee_name.."','"..returnValue[i].department_id.."','"..
+                        returnValue[i].department_name.."','"..returnValue[i].headship_level.."','"..
+                        returnValue[i].headshipName.."','"..returnValue[i].mobile.."','"..
+                        returnValue[i].mobile_short.."','"..returnValue[i].tel.."','"..
+                        returnValue[i].tel_short.."','"..returnValue[i].email.."','"..
+                        returnValue[i].versonNum.."','"..returnValue[i].picture.."','"..
+                        returnValue[i].employee_firstword.."','"..returnValue[i].employee_fullword.."','"..
+                        returnValue[i].parent_department_name.."','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."');"
+                    Log:write("sqlInsert = ",sqlInsert)
+                    bRet, errMsg = Sqlite:update(databaseName, sqlInsert)
+                    Log:write("新增用户:bRet = "..bRet.." errMsg ="..errMsg)
+                end 
+            else
+                -- 修改类型，1：修改 2：删除
+                if returnValue[i].update_type == '1' or returnValue[i].update_type == '0' then
+                    -- 修改用户SQL
+                    local sqlUpdate = "UPDATE tb_c_employee SET employee_name = '"..returnValue[i].employee_name..
+                        "',department_id = '"..returnValue[i].department_id.."',department_name = '"..
+                        returnValue[i].department_name.."',headship_level = '"..returnValue[i].headship_level..
+                        "',headship_name = '"..returnValue[i].headshipName.."',mobile = '"..
+                        returnValue[i].mobile.."',mobile_short = '"..returnValue[i].mobile_short..
+                        "',tel = '"..returnValue[i].tel.."',tel_short = '"..returnValue[i].tel_short..
+                        "',email = '"..returnValue[i].email.."',versionNum = '"..returnValue[i].versonNum..
+                        "',picture = '"..returnValue[i].picture.."',employee_firstword = '"..
+                        returnValue[i].employee_firstword.."',employee_fullword = '"..returnValue[i].employee_fullword..
+                        "',parent_department_name = '"..returnValue[i].parent_department_name..
+                        "',display_order = '"..returnValue[i].display_order..
+                        "',department_fax = '"..returnValue[i].department_fax..
+                        "' WHERE employee_id = '"..returnValue[i].employee_id.."';"
+                        Log:write("sqlUpdate = ",sqlUpdate)
+
+                        bRet, errMsg = Sqlite:update(databaseName, sqlUpdate)
+                        Log:write("修改用户:bRet = "..bRet.." errMsg ="..errMsg)
+                else 
+                     -- 删除用户SQL
+                    local sqlDelete = "DELETE FROM tb_c_employee WHERE employee_id = '"..returnValue[i].employee_id.."';"
+                        Log:write("sqlDelete = ",sqlDelete)
+                        bRet, errMsg = Sqlite:update(databaseName, sqlDelete)
+                        Log:write("删除用户:bRet = "..bRet.." errMsg ="..errMsg)
+                    end 
+            end 
+        end 
+        bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
+        Log:write("非首次安装--人员添加事务开始:bRet = "..bRet.." errMsg ="..errMsg) 
+    end 
+    Config:set('userVersion',returnValue[0].versonNum) 
+    employee_version = returnValue[0].versonNum
+    Config:set('userVersion',employee_version)
+    Config:set('mobileRights',userversiondata.rights)
+end
+
+--创建数据库
+function createDatabase()
+    local Path = getDownloadPath().."sqlitedownload" 
+    Log:write("path= "..Path)
+    if IO:dirExist(Path) == false then 
+        IO:dirCreate(Path)
+    end
+    databaseName = Path..'/jttxlDatabase'
+    bRet, errMsg = Sqlite:open(databaseName) 
+    Log:write("创建数据库jttxlDatabase成功:bRet = "..bRet.." errMsg ="..errMsg)
+end
+
+-- 检测客户端版本
+function checkClientVersion()
+    Log:write(">>>checkClientVersion<<<")
+    local webcloud = Config:get('webcloud')
+    local appKey = Config:get('appKey')
+    local appVer = Config:get('app_version')
+    local requestURL = string.format('http://%s/webcloud/sso/sso_upgrade.html?appkey=%s&version=%s', 
+        webcloud, appKey, appVer)
+    Log:write('checkClientVersion() requestURL=', requestURL)
+    -- default value
+    Config:set("isNeedUpdate", "false")
+    Http:request('index_checkversion', requestURL, 104, {useCache = false})
+end
+
+]]>
+</root>

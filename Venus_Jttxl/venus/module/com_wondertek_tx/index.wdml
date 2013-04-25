@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: hewu <hewu2008@gmail.com>
+ == ============================================================================
+ == | Desc: 登陆（入口）页
+ == | 2012/12/11 添加自动升级功能
+ == ============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image rect="0,0,0,0" border="false" src="file://image/loading.png" style="autosize" extendstyle="1177" />
+
+            <!-- 下载进度指示-->
+            <node name="downloadingNode" rect="0,700,480,60" visible="false"
+                enable="false" extendstyle="1111">
+                <label name="percent" rect="345,-25,80,30" font-size="20" text=""
+                    h-align="right" v-align="center"  color="#ffffff" extendstyle="1111" />
+                <image name="progressBg" rect="108,0,265,26" style="autosize" 
+                    src="file://image/jttxl/download_bj.png" extendstyle="1111" />
+                <image name="progressImg" rect="108,0,0,26" style="autosize"
+                    src="file://image/jttxl/download.png" extendstyle="1111" />
+            </node>
+
+            <!-- 增量升级框 -->
+            <node name="diffUpdateNode" rect="0,0,480,800"  visible="false" enable="false" 
+                extendstyle="1111" style='autosize'>
+                <shadow rect="0,0,480,800" color="#333333" extendstyle="1111" alpha="0"/>
+                <image rect="52,240,375,392" src="file://image/jttxl/bangben_bj.png"  style="autosize" extendstyle="1111" ></image>
+                <!-- 当前APP版本信息 -->
+                <image rect="80,305,80,80" border="false" src="file://image/app_icon.png" 
+                    style="autosize" extendstyle="1111" visible="true">
+                </image>
+                <label name="appName" rect="170,315,120,30" text="集团通讯录" 
+                    font-family="bold" font-size="24" color="#a5b0c3" 
+                    v-align="center" h-align="left" extendstyle="1111" />
+                <node rect="300,320,120,25" extendstyle="1111">
+                    <label rect="0,0,40,25" text="新版" 
+                        font-family="bold" font-size="16" color="#a5b0c3" 
+                        v-align="center" h-align="left" extendstyle="1111" />
+                    <label name="appVersion" rect="40,0,80,25" text="" 
+                        font-family="bold" font-size="16" color="#a5b0c3" 
+                        v-align="center" h-align="left" extendstyle="1111" />
+                </node>
+                <!-- 更新包大小 -->
+                <node rect="170,350,273,25" extendstyle="1111">
+                    <label rect="0,0,100,25" text="更新包大小" 
+                        font-family="bold" font-size="18" color="#a5b0c3" 
+                        v-align="center" h-align="left" extendstyle="1111" />
+                    <label name="pkgSize" rect="100,0,80,25" text="" 
+                        font-family="bold" font-size="18" color="#696c71" 
+                        v-align="center" h-align="center" extendstyle="1111" />
+                    <shadow rect="100,11,80,2" border="false" 
+                        color="#c92525" extendstyle="1111" visible="true">
+                    </shadow>
+                    <label name="patchSize" rect="180,0,80,25" text="" 
+                        font-family="bold" font-size="18" color="#8cf11f" 
+                        v-align="center" h-align="left" extendstyle="1111" /> 
+
+                </node>
+                <!-- 暂不升级、更新 -->
+                <node rect="80,537,373,51" extendstyle="1111">
+                    <!-- 取消升级 --> 
+                    <button rect="0,0,129,51" border="false"  enable='true'
+                        normal="src:file://image/jttxl/zanbushengji_d.png;"
+                        sel="src:file://image/jttxl/zanbushengji_s.png;"
+                        OnSelect="goLogin" style='autosize' extendstyle="1111">
+                    </button>
+                    
+                    <!-- 升级操作 -->  
+                    <button rect="192,0,128,51" border="false"  enable='true'
+                        normal="src:file://image/jttxl/gengxin_d.png;"
+                        sel="src:file://image/jttxl/gengxin_s.png;"
+                        OnSelect="downloadPatch" style='autosize' extendstyle="1111">
+                    </button>       
+                </node>                      
+               
+                <textarea name='releaseLog' rect="70,405,335,120" step="1" loop='true' border="false" 
+                    color="#a5b0c3" style="autosize" text="" h-align="left" v-align="top" 
+                    line-height="25" font-family="bold" font-size="18" extendstyle="1111"/>
+
+            </node>
+
+            <!-- 文本通知信息  -->
+            <label name="noticeLbl" rect="60,727,420,30" font-size="18" font-family="微软雅黑"
+                text="检查更新中..." v-align="center" h-align="center" color="#9b9b9b" 
+                extendstyle="1111" />
+
+       </node>
+    </body>
+<![CDATA[
+
+require 'com_wondertek_tx.common.framework'
+require 'framework.umsagent'
+require 'framework.msgpush'
+require 'framework.appmanager'
+require 'framework.download'
+require 'framework.sqlite'
+
+local rootSprite
+local g_packageUrl                  -- 客户端升级包url地址
+local g_downloadTime = 0            -- 记录下载所花的时间
+local g_progressWidth = 265         -- 进度条长度
+local g_localpath = nil             -- 下载apk路径
+
+local g_packageSize = 0             -- 客户端升级包大小
+local g_patchSize = 0               -- 补丁包大小
+
+local g_releaseLog = nil            -- 版本升级说明
+local g_patchUrl = nil              -- 补丁包下载url地址
+
+local g_tempPath = nil              -- 临时下载目录
+local g_localPatchPath = nil        -- 下载patch路径
+local g_localPatchResult = nil      -- 补丁更新后的文件路径
+
+local g_updateMethod = 0            -- 更新方法：0为全新升级，1为差分升级
+
+--local databaseName
+local jumpFlag = 1
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    UmsAgent:postClientData()
+    
+    -- startMsgPushService()
+    --鉴权
+    Config:set('togohomeTag','1')  ---进入home页是否需要更新组织结构联系人标记
+    Log:write('进入bodyBuildChildrenFinished')
+    checkDatabase()
+    --checkClientVersion()
+    Log:write('离开bodyBuildChildrenFinished')
+    
+    
+end
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        Http:startNetwork()
+        connectNet()
+        Log:write('进入bodyOnSpriteEvent')
+        Timer:set(111, 300, 'goLogin')
+        -- @brief 取账号密码
+        elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+function checkDatabase()
+    local netstatus = Http:getNetworkStatus()
+    Log:write('当前网络状态：', netstatus)
+    if netstatus == 1 then
+        Dialog:show('提示', 'WLAN连接异常，当前无可用网络，点击取消继续使用', 'ok_cancel', 'doExit')
+    elseif netstatus == 2 then
+        Dialog:show('提示', 'WAP出现异常，当前无可用网络，点击取消继续使用', 'ok_cancel', 'doExit')
+    end
+    local flashCard = System:getFlashCardName(1) -- 判断外置存储卡存在性
+    if flashCard == nil then --存在外置存储卡
+        Dialog:show('提示', '无可用的存储卡设备，程序即将退出', 'ok_cancel', 'doExit')
+    end
+    local Path = flashCard.."sqlitedownload" 
+    Log:write("存储卡路径path= "..Path)
+    if IO:dirExist(Path) == false then 
+        IO:dirCreate(Path)
+    end
+    local databaseName = Path..'/jttxlDatabase'
+	Config:set('databaseName', databaseName)
+    if IO:fileExist(databaseName) == false  or Config:get('forceUpdateDatabase') == '1' then
+        jumpFlag = 1
+    else
+        local bRet, errMsg = Sqlite:open(databaseName) 
+        Log:write("创建数据库成功:bRet = "..bRet.." errMsg ="..errMsg)
+        local sql = "select register_flag from tb_c_system where system_id='001';"
+        local bRet, retCountTable, errMsg = Sqlite:query(databaseName, sql)
+        Log:write("系统表查询结果:bRet = "..bRet.." errMsg ="..errMsg)
+        if tonumber(bRet) == 0 then
+            Log:write("系统表查询结果:jump =2")
+            jumpFlag = 2
+        elseif retCountTable[1][1]=='' or tonumber(retCountTable[1][1]) < tonumber(Config:get('DatabaseVersion')) then
+            Log:write("系统表查询结果:retCountTable =", retCountTable)
+            jumpFlag = 3
+        else
+            Log:write("系统表查询结果:retCountTable =", retCountTable)
+            jumpFlag = 0
+        end
+    end
+end
+
+function goLogin()
+	Log:write("forceUpdateDatabase= "..Config:get('forceUpdateDatabase'))
+    Log:write("jumpFlag="..jumpFlag)
+    if jumpFlag > 0 then 
+        Scene:go(Alias.m_newUserLeader, true)
+        else
+        Scene:go(Alias.m_recentContacter, true)
+    end
+end
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    Log:write('the msg is ',msg)
+    if msg == 101 then
+    elseif msg == 102 then --  版本检测
+        if Loading:isShow() then Loading:close() end
+        Log:write('进入bodyOnPluginEvent msg=2')
+        local checkversionData = Http:jsonDecode('index_checkversion')
+        Log:write('index_checkversion', checkversionData)
+        if checkversionData and checkversionData['version'] then
+            g_packageUrl = checkversionData['version']['url']
+            g_patchUrl = checkversionData['version']['patchUrl']
+            if tonumber(checkversionData['version']['isNeedUpdate']) == 0 then  -- 不需要升级
+                local noticeLbl = Sprite:findChild(rootSprite, "noticeLbl")
+                Sprite:setProperty(noticeLbl, 'text', '该版本已是最新')
+                Timer:set(111, 1000, 'goLogin')
+            elseif tonumber(checkversionData['version']['isNeedUpdate']) == 1 then -- 提示升级
+                g_releaseLog = checkversionData.version.releaseLog
+                g_packageSize = checkversionData.version.apk_size or 0
+                g_patchSize = checkversionData.version.patch_size or 0
+                doUpgrade()
+            elseif tonumber(checkversionData['version']['isNeedUpdate']) == 2 then -- 强制升级
+                downloadPackage()
+                return
+            else
+                goLogin()
+            end
+        else
+            --Dialog:show('', '版本检测返回的数据异常，请检查网络！', 'ok')
+            Timer:set(111, 200, 'goLogin')
+        end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        if Loading:isShow() then
+            Loading:close()
+        else
+            Dialog:show('提示', '是否确定退出？', 'ok_cancel', 'doExit')
+        end
+        return 1
+        elseif kc == Key.F1 then
+        return 1
+    end
+end
+--连接至网络
+function connectNet()
+    WLAN:setUrl('http://www.baidu.com/', '')
+    if WLAN:isSwitchOn() then
+        local attach = WLAN:isAttach()
+        if attach then
+            curSSID = attach.ssid
+            Http:connectWLAN(attach.ssid)
+            else
+            connectToWAP()
+        end
+        else
+        connectToWAP()
+    end
+end
+-- @brief 连接移动网络
+function connectToWAP()
+    local APNtype = Http:getCurrentAPNType()
+    if APNtype == 1 then -- Net网
+        Http:setProxy('')
+        elseif APNtype == 2 then --移动wap
+        Http:setProxy('http://10.0.0.172:80/')
+        elseif APNtype == 3 then --电信wap
+        Http:setProxy('http://10.0.0.200:80/')
+        elseif APNtype == 4 then --联通wap
+        Http:setProxy('http://10.0.0.172:80/')
+        else
+        Http:setProxy('')
+    end
+    Http:connectCMWAP()
+end
+---------------------------------------util functions---------------------------
+-- 检测客户端版本
+function checkClientVersion()
+    local webcloud = Config:get('webcloud')
+    local appKey = Config:get('appKey')
+    local appVer = Config:get('app_version')
+    local requestURL = string.format('http://%s/webcloud/sso/sso_upgrade.html?appkey=%s&version=%s', 
+        webcloud, appKey, appVer)
+    Log:write('info: checkClientVersion() requestURL=', requestURL)
+    Http:request('index_checkversion', requestURL, 102, {useCache = false})
+end
+
+-- 根据增量升级的条件，进行全新升级或增量升级
+function doUpgrade()
+    Log:write("存在升级信息，开始升级...")
+    local bDiffUpdate = true
+    getDownloadPath()
+    -- g_patchUrl = "http://120.209.131.146/patch_dir/Venus_Jttxl.patch"
+    -- 检查差分包的URL地址
+    if g_patchUrl == nil or g_patchUrl == "" then 
+        Log:write("差分包的URL地址为空！")
+        bDiffUpdate = false
+    end
+    -- 检查本地旧本地文件是否存在 
+    if IO:fileExist(g_localpath) == false then
+        Log:write("本地文件不存在！")
+        bDiffUpdate =  false
+    end
+    -- 开始升级
+    if bDiffUpdate == true then
+        Log:write("显示增量升级对话框")
+        -- local packagesize = getHttpFileSize(g_packageUrl, g_tempPath.."/Venus_Jttxl.apk")
+        -- local patchsize = getHttpFileSize(g_patchUrl, g_tempPath.."/Venus_Jttxl.patch")
+        local packagesize = getReadableSize(g_packageSize) 
+        local patchsize = getReadableSize(g_patchSize) 
+        
+        -- 显示差分升级对话框
+        local appVersion = Sprite:findChild(rootSprite, 'appVersion')
+        Sprite:setProperty(appVersion, 'text', Config:get("app_version"))
+        local releaseLog = Sprite:findChild(rootSprite, 'releaseLog')
+        Sprite:setProperty(releaseLog, 'text', g_releaseLog)
+        local pkgSize = Sprite:findChild(rootSprite, 'pkgSize')
+        Sprite:setProperty(pkgSize, 'text', packagesize)
+        local patchSizeLabel = Sprite:findChild(rootSprite, 'patchSize')
+        Sprite:setProperty(patchSizeLabel, 'text', patchsize)
+        local diffUpdateNode = Sprite:findChild(rootSprite, 'diffUpdateNode')
+        Sprite:setProperty(diffUpdateNode, 'visible', 'true')
+        Sprite:setProperty(diffUpdateNode, 'enable', 'true')
+    else
+        Dialog:show('提示','系统检测到有新版本发布，是否更新？','ok_cancel','downloadPackage','cancelDownload')
+    end
+end
+
+-- 下载差分升级包
+function downloadPatch()
+    local diffUpdateNode = Sprite:findChild(rootSprite, "diffUpdateNode")
+    Sprite:setProperty(diffUpdateNode, "enable", "false")
+    Sprite:setProperty(diffUpdateNode, "visible", "false")
+    if not g_patchUrl or '' == g_patchUrl then
+        Dialog:show('', '增量补丁包下载地址为空，版本升级失败！【确定】继续进入，【取消】退出客户端！', 
+            'ok_cancel', 'goLogin', 'doExit')
+        return
+    end
+    local noticeLblSprite = Sprite:findChild(rootSprite, "noticeLbl")
+    Sprite:setProperty(noticeLblSprite, "text", "增量升级中...")
+    -- 删除缓存
+    IO:dirRemove('CACHE:\\com_wondertek_tx', 1)
+     -- 显示下载进度
+    local downloadingNode = Sprite:findChild(rootSprite, 'downloadingNode')
+    setAllShoworHide(downloadingNode, 1)
+    local progress = Sprite:findChild(downloadingNode, 'progressImg')
+    -- 开始下载
+    Log:write("采用增量升级方式")
+    g_updateMethod = 1   
+    if IO:fileExist(g_localPatchPath) == true then 
+        IO:fileRemove(g_localPatchPath)
+        Log:write("增量升级：删除旧的补丁文件")
+    end
+    Download:append(g_localPatchPath, 'intallPackageName', g_patchUrl, true)
+    onGetDownloadStatus()
+end
+
+-- 获取http文件大小, 需要先下载到本地
+function getHttpFileSize(url, localPath)
+    __remove_all_download()
+    if IO:fileExist(localPath) ==  true then 
+        IO:fileRemove(localPath)
+    end
+    if url == nil or url == "" then 
+        Log:write("getHttpFileSize: url 地址为空")
+        return getReadableSize(0)
+    end
+    Download:append(localPath, 'packagesize', url, true)
+    local count = Download:getCount(true)
+    for i=1, count do 
+        for j=1, 1000 do -- 尝试取1000次
+            local task = Download:getStatus(i, true)
+            Log:write("task", task)
+            if task.title == 'packagesize' and task.maxsize ~= 0 then
+                local maxsize = task.maxsize
+                __remove_all_download()
+                return getReadableSize(maxsize)
+            elseif task.title == "packagesize" then 
+                Download:start(i, true)
+            end
+        end
+    end
+    __remove_all_download()
+    return getReadableSize(0)
+end
+
+-- 格式化文件大小，转换为可读的格式
+function getReadableSize(size)
+    Log:write("当前文件大小:"..size)
+    local strFileSize = "0B"
+    if size < 1024 then 
+        strFileSize = tostring(size).."B"
+    elseif size / 1024 < 1024 then 
+        strFileSize = string.format("%.2fKB", size / 1024)
+    elseif size / 1048576 < 1024 then 
+        strFileSize = string.format("%.2fMB", size / 1048576)
+    else
+        strFileSize = string.format("%.2fGB", size / 1073741824)
+    end
+    return strFileSize
+end
+
+-- 清空下载队列
+function __remove_all_download()
+    -- 删除以前的下载信息
+    local count = Download:getCount(true)
+    for i = 1, count do
+       Download:delete(i, true, true) 
+    end
+end
+
+-- 启动消息推送服务
+function startMsgPushService()
+    -- 设置消息推送
+    Log:write("启动消息推送服务...")
+    MsgPush:bindHostIp('120.209.131.150') 
+    MsgPush:setListener(Sprite:getCurScene(), 1001) 
+    local appKey = UmsAgent:getAppKey()
+    MsgPush:setApiKey(appKey)
+    MsgPush:setServiceStatus(1)
+end
+
+--  下载升级安装包
+function downloadPackage()
+    if not g_packageUrl or '' == g_packageUrl then
+        Dialog:show('提示', '返回下载地址为空，版本升级失败！', 'ok')
+        return
+    end
+    local noticeLblSprite = Sprite:findChild(rootSprite, "noticeLbl")
+    Sprite:setProperty(noticeLblSprite, "text", "升级中...")
+    -- 删除缓存
+    IO:dirRemove('CACHE:\\com_wondertek_tx', 1)
+     -- 显示下载进度
+    local downloadingNode = Sprite:findChild(rootSprite, 'downloadingNode')
+    setAllShoworHide(downloadingNode, 1)
+    local progress = Sprite:findChild(downloadingNode, 'progressImg')
+    -- 开始下载
+    require('framework.download')
+    getDownloadPath()
+    Download:append(g_localpath, 'intallPackageName', g_packageUrl, true)
+    onGetDownloadStatus()
+end
+
+-- 取消升级
+function cancelDownload()
+    goLogin()   
+end
+
+-- 获取apk下载路径
+function getDownloadPath()
+    g_localpath = ""
+    local downloadPath = System:getFlashCardName(1) 
+    if downloadPath == nil or downloadPath == "" then 
+        Log:write("SD卡不存在,使用内部存储！")
+        downloadPath = System:getFlashCardName(0)
+    end
+    g_localpath = downloadPath.."download"
+    g_tempPath = downloadPath.."temp"
+    Log:write("getDownloadPath: localDir="..g_localpath)
+    -- 如果路径不存在，创建下载目录
+    if IO:dirExist(g_localpath) == false then 
+        IO:dirCreate(g_localpath)
+    end
+     if IO:dirExist(g_tempPath) == false then 
+        IO:dirCreate(g_tempPath)
+    end
+    -- 如果apk已经存在，删除之
+    g_localPatchPath = g_localpath.."/Venus_Jttxl.patch"
+    g_localPatchResult = g_localpath.."/Venus_Jttxl_New.apk"
+    g_localpath = g_localpath.."/Venus_Jttxl.apk"
+    Log:write("getDownloadPath: g_localPatchPath="..g_localPatchPath)
+    Log:write("getDownloadPath: g_localpath="..g_localpath)
+    -- 返回apk本地路径
+    return g_localpath
+end
+
+--  显示下载状态
+function onGetDownloadStatus()
+    local count = Download:getCount(true)
+    g_downloadTime = g_downloadTime + 0.5
+    local progressImg = Sprite:findChild(rootSprite, 'progressImg') -- 下载进度
+    -- local speedLab = Sprite:findChild(rootSprite, 'speedLab')       -- 下载速度
+    -- local proLab = Sprite:findChild(rootSprite, 'proLab')           -- 总体下载进度
+    local noticeLbl = Sprite:findChild(rootSprite, "noticeLbl")     -- 通知信息
+    local percentJttxl = Sprite:findChild(rootSprite, 'percent')    -- 下载百分比
+    
+    -- 迭代下载队列
+    for i = 1, count do
+        local task = Download:getStatus(i, true)
+        if task.title == 'intallPackageName' then   
+            if task.status == 3 then Download:start(i, true) end
+            -- 计算当前的下载百分比
+            local percent = 0
+            if task.size and task.maxsize and task.maxsize ~= 0 then
+                percent = math.floor(task.size / task.maxsize * 100)
+            end
+            Log:write("下载百分比为: ",percent)   
+            
+            if task.status == Download.status.Downloading then -- 下载中
+                local x, y, _, h = Sprite:getRect(progressImg)
+                Sprite:setRect(progressImg, x, y, g_progressWidth * percent / 100, h)
+                -- Sprite:setProperty(speedLab, 'text', math.floor(task.size / 1024 / g_downloadTime) .. 'KB/S')
+                -- Sprite:setProperty(proLab, 'text', math.floor(task.size/1024) .. 'KB/' .. math.floor(task.maxsize/1024) .. 'KB')
+                Sprite:setProperty(percentJttxl, 'text', '下载'..percent..'%')   
+            elseif task.status == Download.status.Finished then -- 下载完毕
+                g_downloadTime = 0
+                Sprite:setProperty(noticeLbl, 'text', '完成')
+                Download:delete(i, false, true)
+                -- Sprite:setProperty(speedLab,'text', '0KB/S')
+                -- Sprite:setProperty(proLab, 'text', math.floor(task.maxsize/1024) .. 'KB/' .. math.floor(task.maxsize/1024) .. 'KB')
+                local x, y, _, h = Sprite:getRect(progressImg)
+                Sprite:setRect(progressImg, x, y, g_progressWidth * percent / 100, h)
+                Http:stopNetwork()
+                -- 下载完成
+                if g_updateMethod == 0 then 
+                    Util:installApp(g_localpath)
+                else
+                    -- 补丁升级
+                    Sprite:setProperty(noticeLbl, 'text', '正在进行补丁合成...')
+                    AppManager:applyPatchToOldApk(g_localpath, g_localPatchResult, 
+                        g_localPatchPath)
+                    -- 删除旧的安装文件
+                    if IO:fileExist(g_localpath) == true then 
+                        IO:fileRemove(g_localpath)
+                        Log:write("删除旧的安装文件成功")
+                    end  
+                    -- 重命名新的安装文件
+                    if IO:fileExist(g_localPatchResult) == true then 
+                        IO:fileRename(g_localPatchResult, g_localpath)
+                        Log:write("重命名新的安装文件")
+                    end
+                    -- 安装更新
+                    Util:installApp(g_localpath)
+                end
+                -- 安装成功，重启时引擎将干掉module，清除cache
+                IO:dirRemove('CACHE:\\com_wondertek_tx', 1)
+                IO:dirCreate('CACHE:\\com_wondertek_tx')
+                IO:dirCreate('CACHE:\\com_wondertek_tx\\image')
+            end
+            break
+        end
+    end
+    Timer:set(111, 500, 'onGetDownloadStatus')
+end
+
+]]>
+</root>

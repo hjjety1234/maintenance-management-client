@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置背景 -->
+            <image name='citybgImg' rect="0,80,480,720" src="file://image/jttxl/bj.png" style="autosize"
+               extendstyle="1111" />
+            <!-- 设置头部 -->
+            <node name="baseSprite" rect="0,0,480,80" extendstyle="1111">
+                 <image name="title" rect="0,0,480,80" border="false" src="file://image/jttxl/top.png" 
+                    style="autosize" extendstyle="1111">
+                    <label name="titleLabel" rect="0,0,480,80" text="" color="#ffffff" v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="32" extendstyle="1111" />
+                 </image>
+                <!-- 返回 -->
+                <button rect="20,18,48,45" OnSelect="doBack" normal="src:file://image/jttxl/back_d.png;"
+                    sel="src:file://image/jttxl/back_s.png;" style="autosize" extendstyle="1111">
+                </button>
+            </node>
+            
+            <!-- 头部门 -->
+            <node name="fistdeptNode" visible="true" enable="true" active="true"
+                extendstyle="1011" rect="0,80,420,100">
+                <button name="fistdeptBtn" rect="0,0,420,100"  OnSelect="fistdeptBtnSelect" visiable="false" normal="normal" sel="sel" data=""
+                    style="autosize" extendstyle="1111" text="">
+                    <!-- 组织机构名 -->
+                    <scrolltext name="listButtonLabel" rect="120,26,240,45"  text="" font-family='微软雅黑' color="#ffffff" font-size="28"
+                        h-align="left" v-align="center" extendstyle="1111" border="false" scroll="true" />                     
+                    <!-- 正常时组织机构图片 -->
+                    <node name="normal" extendstyle="1111">
+                        <image name="fistBeptImage_d" rect="12,5,92,92" src="file://image/jttxl/department_d.png"
+                            style='autosize' extendstyle="1111"/> 
+                        <image name="listButtonImage_d" rect="380,33,33,34" src="file://image/jttxl/more_d.png"
+                            style='autosize' extendstyle="1111"/>                        
+                    </node>
+                    <!-- 点击时组织机构图片 -->
+                    <node name="sel" extendstyle="1111">
+                        <image name="fistBeptImage_s" rect="12,5,92,92" src="file://image/jttxl/department_s.png"
+                            style='autosize' extendstyle="1111"/>
+                        <image name="listButtonImage_s" rect="380,33,33,34" src="file://image/jttxl/more_s.png"
+                            style='autosize' extendstyle="1111"/>                    
+                    </node>
+                    <!-- 组织机构图片连接线 -->
+                    <image name="jiange_line" rect="53,90,10,12" src="file://image/jttxl/jiange_line.png"
+                            style='autosize' extendstyle="1111"/>  
+                </button>
+            </node>
+            
+            <!--列表信息-->
+            <node name="listNode" rect="0,180,420,540" extendstyle="1111">
+                <image name="jiangeImg" rect="53,0,10,540" src="file://image/jttxl/jiange_line.png"
+                    style='autosize' extendstyle="1111" visiable='true'/>  
+                <listview name="zuzhiListview" rect="0,0,420,540" extendstyle="1111" />
+            </node>
+            
+            <!-- 数据加载模版 -->
+            <node name="listitemNode" visible="false" enable="false" active="false"
+                extendstyle="1011" rect="0,0,420,90">
+                <button name="zuzhiBtn" rect="0,0,420,90"  OnSelect="itemOnSelect" visiable="false" normal="normal" sel="sel" data=""
+                    style="autosize" extendstyle="1111" text="">
+                    <!-- 组织机构名 -->
+
+                    <scrolltext name="listButtonLabel" rect="120, 20, 240, 50"  text="" font-family='微软雅黑' color="#ffffff" font-size="28"
+                        h-align="left" v-align="center" extendstyle="1111" border="false" scroll="true" /> 
+                    <scrolltext name="renshuBtnLabel" rect="120,51,240,33"  text="" font-family='微软雅黑' color="#888888" font-size="22"
+                        h-align="left" v-align="center" extendstyle="1111" border="false" visiable="false" scroll="true" />                   
+                    
+                    <!-- 正常时组织机构图片 -->
+                    <node name="normal" extendstyle="1111">
+                        <image name="listButtonImage_d" rect="21,8,74,74" src="file://image/jttxl/department_d.png"
+                            style='autosize' extendstyle="1111"/> 
+                        <image name="listButtonImage_d" rect="380,28,33,34" src="file://image/jttxl/more_d.png"
+                            style='autosize' extendstyle="1111"/>                        
+                    </node>
+                    <!-- 点击时组织机构图片 -->
+                    <node name="sel" extendstyle="1111">
+                        <image name="listButtonImage_s" rect="21,8,74,74" src="file://image/jttxl/department_s.png"
+                            style='autosize' extendstyle="1111"/>
+                        <image name="listButtonImage_s" rect="380,28,33,34" src="file://image/jttxl/more_s.png"
+                            style='autosize' extendstyle="1111"/>                    
+                    </node>
+                </button>
+            </node>
+            
+            <!-- 菜单  -->
+            <node name="listNode" rect="0,720,480,80" extendstyle="1111">
+                <image  rect="0,0,480,80" border="false" extendstyle="1111" 
+                src="file://image/book/list_bg.png"  style="autosize"/>
+                <!-- 搜索  -->
+                <button name='bottomBtn1' rect="15,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/lianxiren_d.png' OnSelect="bottomOnselect" data="1"></button>
+                <!-- 联系人  -->
+                <button name='bottomBtn2' rect="125,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/zuijinglianxiren_s.png' OnSelect="bottomOnselect" data="2"></button>
+                <!-- 个人中心  -->
+                <button name='bottomBtn3' rect="250,0,82,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/person_d.png' OnSelect="bottomOnselect" data="3"></button>
+                <!-- 设置  -->
+                <button name='bottomBtn4' rect="385,0,48,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/site_d.png' OnSelect="bottomOnselect" data="4"></button>
+            </node>
+            
+            <!--列表信息-->
+            <node name="indexListNode" rect="420,80,80,640" extendstyle="1111">
+                <list name="indexList" rect="0,8,60,640" extendstyle="1111" line="26" col="1" auto-adjust="true" offset="0,0">
+                    <list-item rect="0,0,80,24" >
+                        <button name="indexBtn" rect="0,0,60,24" h-align="center" v-align="center" extendstyle="1111" OnSelect="indexitemOnSelect" text="$(text)" font-size="22" color='#7a7a7a'></button>
+                    </list-item>
+                    <dataset>
+                        <set text="A" />
+                        <set text="B" />
+                        <set text="C" />
+                        <set text="D" />
+                        <set text="E" />
+                        <set text="F" />
+                        <set text="G" />
+                        <set text="H" />
+                        <set text="I" />
+                        <set text="J" />
+                        <set text="K" />
+                        <set text="L" />
+                        <set text="M" />
+                        <set text="N" />
+                        <set text="O" />
+                        <set text="P" />
+                        <set text="Q" />
+                        <set text="R" />
+                        <set text="S" />
+                        <set text="T" />
+                        <set text="U" />
+                        <set text="V" />
+                        <set text="W" />
+                        <set text="X" />
+                        <set text="Y" />
+                        <set text="Z" />                        
+                    </dataset>
+                </list>
+            </node>
+            
+        </node>
+    </body>
+    <![CDATA[
+
+--require('framework.common')
+require 'com_wondertek_tx.common.framework'
+require 'framework.umsagent'
+require 'framework.sqlite'
+local rootSprite
+--local departmentCode
+--local departmentName = "合肥分公司"= '8a18965a3d44219e013d442274550000''省公司'
+local bottomdata = 2   ---被点亮的菜单
+local par_department_id    
+local par_department_name 
+local databaseName  --数据库名
+local cityName --当前所属的地区名
+local lastsprite = nil
+local bRet1, errMsg1
+local bRet2, errMsg2 
+local retDeptTable1 = {}
+local retDeptTable2 = {}
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    Log:write("成bodyBuildChildrenFinished"..sprite)
+    rootSprite = sprite
+    --local departmentid = '123'
+    --local departmentname = '省公司'
+    --cityName = '省公司'
+    Log:write("组织结构进入参数:==departmentid=="..departmentid..'==departmentname=='..departmentname)
+    par_department_id = departmentid
+    par_department_name = departmentname
+
+    initDeptPage()
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        UmsAgent:OnActivate(string.match(Alias.m_zuzhijiegou, 'MODULE:\\(.*)'), "组织机构列表")
+        readdeptdata()
+    elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        doBack()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function myfunc()
+end
+
+-- 返回上一个页面
+function doBack()
+    Log:write("==返回=="..par_department_id)
+    local sql1 = "select department_level from tb_c_department where department_id = '"..par_department_id.."' ;"
+    local  bRet1, retDeptTable1, errMsg1 = Sqlite:query(Config:get('databaseName'), sql1)
+    Log:write("查询数据库表成功1:bRet = "..bRet1.." errMsg ="..errMsg1.." 查询结果retDeptTable1 =", retDeptTable1)
+    local sql2 = "select department_id, department_name, department_level from tb_c_department where department_id = "..
+        "(select parent_department_id  from tb_c_department where department_id = '"..par_department_id.."');"
+    Log:write("==查询上级组织结构=="..sql2)
+    local bRet2, retDeptTable2, errMsg2 = Sqlite:query(databaseName, sql2)
+    Log:write("查询数据库表成功1:bRet = "..bRet2.." errMsg ="..errMsg2.." 查询结果retDeptTable2 =", retDeptTable2)
+    local bRet = Sqlite:close('jttxlDatabase')
+    Log:write("数据库关闭："..bRet)
+    if tonumber(retDeptTable1[1][1]) == 1 then
+        Scene:go(Alias.m_renyuantongji, true)
+        else
+        Scene:go(Alias.m_zuzhijiegou.."?departmentid="..retDeptTable2[1][1].."&departmentname="..retDeptTable2[1][2], true)
+    end
+end
+
+function initDeptPage()
+    Log:write("===initDeptPage==")
+    local titleLabel = Sprite:findChild(rootSprite, 'titleLabel')
+    Sprite:setProperty(titleLabel, 'text', par_department_name)
+    
+    local mapdataHandler = Reg:create("mapdataRoom")
+    cityName = Reg:getString(mapdataHandler, 'cityname')
+    Log:write("===cityname=="..cityName)  
+    local fistdeptBtn = Sprite:findChild(rootSprite, 'fistdeptBtn')
+    local citybgImg = Sprite:findChild(rootSprite, 'citybgImg')
+    Sprite:setProperty(citybgImg, 'src', "file://image/map/"..cityName.."_bj.jpg" )
+    local fistBeptImage_d = Sprite:findChild(fistdeptBtn, 'fistBeptImage_d')
+    local fistBeptImage_s = Sprite:findChild(fistdeptBtn, 'fistBeptImage_s')
+    Sprite:setProperty(fistBeptImage_d, 'src', "file://image/map/"..cityName..".png")
+    Sprite:setProperty(fistBeptImage_s, 'src', "file://image/map/"..cityName..".png")
+    local listButtonLabel = Sprite:findChild(fistdeptBtn, 'listButtonLabel')
+    Sprite:setProperty(listButtonLabel, 'text', par_department_name)
+    Sprite:setProperty(fistdeptBtn, 'data', par_department_id)
+    
+    databaseName = Config:get('databaseName')
+    local bRet, errMsg = Sqlite:open(databaseName)
+    Log:write("创建数据库jttxlDatabase结果:bRet = "..bRet.." errMsg ="..errMsg)
+end
+
+function readdeptdata()
+    Log:write("==par_department_id=="..par_department_id)
+    local sql1 = "select (select count(*) from tb_c_employee where department_id = tb_c_department.department_id) as users, "..
+        "(select count(*) from tb_c_department c where c.parent_department_id=tb_c_department.department_id) as depts,department_name,department_id,department_firstword "..
+        "from tb_c_department where parent_department_id = '"..par_department_id.."' ORDER BY department_firstword ASC;"
+    Log:write("==chanxunyuju=="..sql1)
+    bRet1, retDeptTable1, errMsg1 = Sqlite:query(databaseName, sql1)
+    Log:write("查询数据库表成功1:bRet = "..bRet1.." errMsg ="..errMsg1.." 查询结果retDeptTable1 =", retDeptTable1)
+    local list = Sprite:findChild(rootSprite, 'zuzhiListview')
+    ListView:removeAllItems(list,1)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitemNode'), getJsonArrayCount(retDeptTable1)-1, 'loadListItem')
+    ListView:adjust(list)
+end
+
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 90)
+    Log:write("==进入loadListItem=="..index)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local listItemBg_d = Sprite:findChild(item, 'listButtonImage_d')
+    local listItemBg_s = Sprite:findChild(item, 'listButtonImage_s')
+    local listItemLabel = Sprite:findChild(item, 'listButtonLabel')        
+    --local renshuBtnLabel = Sprite:findChild(item, 'renshuBtnLabel')   
+    local zuzhiBtn = Sprite:findChild(item, 'zuzhiBtn')
+    Log:write("==departmentid2==")     
+    Log:write("==departmentid2=="..retDeptTable1[index+1][3]) 
+    Sprite:setProperty(listItemLabel, 'text', retDeptTable1[index+1][3])
+    --Sprite:setProperty(renshuBtnLabel, 'text', retDeptTable1[index+1][1]..'人')
+    Sprite:setProperty(zuzhiBtn, 'data', retDeptTable1[index+1][4]..','..retDeptTable1[index+1][2])
+end
+
+function indexitemOnSelect(sprite)
+    if lastsprite ~= nil then
+        Sprite:setProperty(lastsprite, 'color', '#7a7a7a')
+    end
+    lastsprite = sprite
+    Sprite:setProperty(sprite, 'color', '#11aaff')
+    local txt = string.lower(Sprite:getText(sprite))
+    Log:write("==选中的标识=="..txt)
+    local sql1 = "select count(*) from tb_c_department where parent_department_id = '"..par_department_id.."' and department_firstword < '"..txt.."%' ;"
+    Log:write("==选中的标识=="..sql1)
+    local bRet, retDeptTable, errMsg = Sqlite:query(databaseName, sql1)
+    Log:write("chaxun数据库表成功:bRet = "..bRet.." errMsg ="..errMsg.." retDeptTable =", retDeptTable)
+    local zuzhiListview = Sprite:findChild(rootSprite, 'zuzhiListview')
+    local num = retDeptTable[1][1]
+    if num ~= nil and tonumber(num) ~= 0 then
+        ListView:setItemToTop(zuzhiListview, tonumber(num), 0) 
+    end
+end
+
+function fistdeptBtnSelect(sprite)
+    Log:write('====fistdeptBtnSelect=='..par_department_id)
+    Scene:setReturn(Alias.m_zuzhijiegou, Alias.m_lianxirenlist)
+    Scene:go(Alias.m_lianxirenlist.."?department_id="..par_department_id.."&departmentname="..par_department_name, true)
+end
+
+function itemOnSelect(sprite)
+    Log:write('====itemOnSelect==')
+    local index = ListView:getItemIndex(sprite)
+    local listItemLabel = Sprite:findChild(sprite, 'listButtonLabel')
+    local deptname = Sprite:getText(listItemLabel)
+    local date = Split(Sprite:getData(sprite),',')
+    local deptid = date[1]
+    local childcout = date[2] 
+    Log:write('====itemOnSelect..deptid=='..deptid..'==childcout=='..childcout)
+    if tonumber(childcout) == 0 then
+        Scene:setReturn(Alias.m_zuzhijiegou, Alias.m_lianxirenlist)
+        Scene:go(Alias.m_lianxirenlist.."?department_id="..deptid.."&departmentname="..deptname, true)
+    else
+        Scene:setReturn(Alias.m_zuzhijiegou, Alias.m_zuzhijiegou)
+        Scene:go(Alias.m_zuzhijiegou.."?departmentid="..deptid.."&departmentname="..deptname, true)
+    end
+end
+
+function bottomOnselect(sprite)
+    local bottomBtn =Sprite:findChild(rootSprite, 'bottomBtn'..bottomdata)
+    Sprite:setProperty(bottomBtn, 'data', bottomdata)
+    local curSpsrc = Sprite:getProperty(bottomBtn,'src')
+    local curSpsrc2 =  string.gsub(curSpsrc, "s.png", "d.png")
+    Sprite:setProperty(bottomBtn,'src', curSpsrc2)
+    
+    local newsrc = Sprite:getProperty(sprite,'src')
+    local newsrc =  string.gsub(newsrc, "d.png", "s.png")
+    Sprite:setProperty(sprite,'src', newsrc)
+    local spName = Sprite:getName(sprite)
+    bottomdata = string.sub(spName, 10, 10)
+    Sprite:setProperty(sprite, 'data', 0)
+    Log:write('bottomdata=='..bottomdata)
+    if '1' == bottomdata then
+        Scene:setReturn(Alias.m_lianxirenlist, Alias.m_recentContacter)
+        Scene:go(Alias.m_recentContacter, true)
+    elseif '2' == bottomdata then 
+        Scene:setReturn(Alias.m_lianxirenlist, Alias.m_renyuantongji)
+        Scene:go(Alias.m_renyuantongji, true)
+    elseif '3' == bottomdata then
+        Scene:setReturn(Alias.m_lianxirenlist, Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"))
+        Scene:go(Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"), true)
+    elseif '4' == bottomdata then 
+	    Scene:setReturn(Alias.m_lianxirenlist, Alias.m_system)
+	    Scene:go(Alias.m_system, true)
+    end
+end
+
+    ]]>
+</root>

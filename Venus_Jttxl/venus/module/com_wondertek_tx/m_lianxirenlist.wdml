@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置背景 -->
+            <image rect="0,0,480,800" src="file://image/jttxl/bj.png" style="autosize"
+               extendstyle="1111" />
+            <!-- 设置头部 -->
+            <node name="baseSprite" rect="0,0,480,80" extendstyle="1111">
+                 <image name="title" rect="0,0,480,80" border="false" src="file://image/jttxl/top.png" 
+                    style="autosize" extendstyle="1111">
+                    <label name="titleLabel" rect="0,0,480,80" text="市场部" color="#ffffff" v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="32px" extendstyle="1111" />
+                 </image>
+                <button rect="20,18,48,45" OnSelect="doBack" normal="normal"
+                    sel="sel" style="autosize" extendstyle="1111">
+                    <node name="normal" extendstyle="1111">
+                        <image rect="0,0,48,45" src="file://image/jttxl/back_d.png" style="autosize"
+                            extendstyle="1111" />
+                    </node>
+                    <node name="sel" extendstyle="1111">
+                        <image rect="0,0,48,45" src="file://image/jttxl/back_s.png" style="autosize" 
+                            extendstyle="1111" />
+                    </node>
+                </button>
+            </node>
+
+            <!--列表信息-->
+            <node name="listNode" rect="0,98,480,720" extendstyle="1111">
+                <listview name="sampleList" rect="0,0,480,622" extendstyle="1111" />
+            </node>
+            <!-- 数据加载模版 -->
+            <node name="listitemNode" rect="0,0,480,85" visible="false" enable="false" active="false"
+                extendstyle="1111">        
+                <!-- 点击电话与短信之间部分 -->
+                <button  rect="110,0,375,85"  OnSelect="itemOnSelect" normal="normal"
+                    sel="sel" style="autosize" extendstyle="1111"> 
+                    <!-- 人员ID -->
+                    <label name="employeeId" text=""  visible="false" extendstyle="1111"/>
+                    <!-- 正常时组织机构图片 -->
+                    <node name="normal" extendstyle="1111">
+                        <image name="listButtonImage_d" rect="327,25,33,34" src="file://image/jttxl/more_d.png"
+                            style='autosize' extendstyle="1111"/>                         
+                    </node>
+                    <!-- 点击时组织机构图片 -->
+                    <node name="sel" extendstyle="1111">
+                        <image name="listButtonImage_s" rect="327,25,33,34" src="file://image/jttxl/more_s.png"
+                            style='autosize' extendstyle="1111"/>              
+                    </node> 
+                </button>
+                <!--发送短信 -->
+                <button name="smsNode" rect="385,25,43,36"  OnSelect="smsOnSelect" style="autosize"  
+                    normal="src:file://image/jttxl/sms_d.png;"
+                    sel="src:file://image/jttxl/sms_s.png;"
+                    extendstyle="1111" data="1">
+                </button>
+                <!-- 电话图片 -->
+                <button name='telImg' rect="18,0,74,73"  OnSelect="telOnSelect" style="autosize"  
+                    normal="normal" sel="sel" extendstyle="1111">
+                    <!-- 正常时打电话图片 -->
+                    <node name="normal" extendstyle="1111">
+                        <image name="telImag_d" rect="0,0,74,73" src="file://image/jttxl/tel_d.png"
+                            style='autosize' extendstyle="1111"/>                         
+                    </node>
+                    <!-- 点击时打电话图片 -->
+                    <node name="sel" extendstyle="1111">
+                        <image name="telImag_s" rect="0,0,74,73" src="file://image/jttxl/tel_s.png"
+                            style='autosize' extendstyle="1111"/>              
+                    </node> 
+                </button>
+                <!-- 图片连接线 -->
+                <image name="jiange_line" rect="50,73,10,12" src="file://image/jttxl/jiange_line.png"
+                        style='autosize' extendstyle="1111"/>                
+                <node name="employeeLine" rect="110,5,375,40">
+                    <!-- 联系人姓名 -->
+                    <label name="employeeName" rect="0, 0, 140, 35"  text="史伟" font-family='微软雅黑' 
+                        color="#ffffff" font-size="24" h-align="left" v-align="center"
+                        border="false" extendstyle="1111"/>
+                    <!-- 岗位 -->
+                    <scrolltext name="headshipName" rect="150, 0, 125, 30"  text="" font-family='微软雅黑' 
+                        color="#ffffff" font-size="24" h-align="left" v-align="center" scroll="true"
+                        border="false" style="autosize" extendstyle="1111">
+                    </scrolltext> 
+                </node>
+                <node name="telephoneLine" rect="110,35,375,40">                           
+                    <!-- 电话号码 -->
+                    <label name="mobile" rect="0, 8, 140, 30"  text="1375515935" font-family="微软雅黑"  
+                        color="#aba8a8" font-size="18" h-align="left" v-align="top"
+                        border="false" extendstyle="1111"/> 
+                    <!-- 联系人所在部门 -->
+                    <scrolltext name="departmentName" rect="150, 8, 125, 30" text="" font-family="微软雅黑"
+                        scroll="true" color="#aba8a8" font-size="18" h-align="left" v-align="top" 
+                        border="false" style="autosize" extendstyle="1111">
+                    </scrolltext>  
+                </node>
+            </node>
+            
+            <!-- 底部菜单  -->
+            <node name="listNode" rect="0,720,480,80" extendstyle="1111">
+                <image  rect="0,0,480,80" border="false" extendstyle="1111" 
+                src="file://image/book/list_bg.png"  style="autosize"/>
+                <!-- 搜索  -->
+                <button name='searchBtn' rect="15,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/lianxiren_d.png' OnSelect="doSearch"></button>
+                <!-- 联系人  -->
+                <button name='contactBtn' rect="125,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/zuijinglianxiren_s.png' OnSelect="doContact"></button>
+                <!-- 个人中心  -->
+                <button name='personBtn' rect="250,0,82,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/person_d.png' OnSelect="doPersonalCenter"></button>
+                <!-- 设置  -->
+                <button name='siteBtn' rect="385,0,48,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/site_d.png' OnSelect="doSetting"></button>
+            </node>  
+
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_tx.common.framework'
+require 'framework.umsagent'
+require 'framework.sqlite'
+local rootSprite
+local databaseName
+local len
+local list
+local bRet, errMsg, retUserTable, retCountTable
+local departmentname1
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    list = Sprite:findChild(rootSprite, 'sampleList')
+    Log:write("部门编号：",department_id)  
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        Http:startNetwork()
+        lookUserData()
+        UmsAgent:OnActivate(string.match(Alias.m_lianxirenlist, 'MODULE:\\(.*)'), "联系人列表")
+        Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_s.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+    elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
+    end
+end
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+		-- Scene:back()
+       local sql1 = "select department_id, department_name from tb_c_department where department_id = "..
+            "(select parent_department_id  from tb_c_department where department_id = '"..department_id.."');"
+        Log:write("==查询上级组织结构=="..sql1)
+        local  bRet1, retDeptTable1, errMsg1 = Sqlite:query(Config:get('databaseName'), sql1)
+        Log:write("查询数据库表成功1:bRet = "..bRet1.." errMsg ="..errMsg1.." 查询结果retDeptTable1 =", retDeptTable1)
+        local sql2 = "select count(*) from tb_c_department where parent_department_id = '"..department_id.."' ;"
+        Log:write("==查询上级组织结构=="..sql2)
+        local  bRet2, retDeptTable2, errMsg2 = Sqlite:query(Config:get('databaseName'), sql2)
+        Log:write("查询数据库表成功1:bRet = "..bRet2.." errMsg ="..errMsg2.." 查询结果retDeptTable1 =", retDeptTable2)
+
+        local sql3 = "select parent_department_id from tb_c_department where department_id = '"..department_id.."' ;"
+        Log:write("==查询上级组织结构=="..sql3)
+        local  bRet3, retDeptTable3, errMsg3 = Sqlite:query(Config:get('databaseName'), sql3)
+        Log:write("查询数据库表成功1:bRet = "..bRet3.." errMsg ="..errMsg3.." 查询结果retDeptTable1 =", retDeptTable3)
+        
+        local bRet = Sqlite:close('jttxlDatabase')
+        Log:write("数据库关闭："..bRet)
+        if  tonumber(retDeptTable3[1][1]) == 0 then
+            Scene:go(Alias.m_renyuantongji, true)
+        end
+        if tonumber(retDeptTable2[1][1]) > 0 then
+              Scene:go(Alias.m_zuzhijiegou.."?departmentid="..department_id.."&departmentname="..departmentname1, true)
+        else
+              Scene:go(Alias.m_zuzhijiegou.."?departmentid="..retDeptTable1[1][1].."&departmentname="..retDeptTable1[1][2], true)
+        end
+        return 1
+    end
+end
+
+---------------------------------------util functions--------------------------
+
+-- 返回
+function doBack()
+    -- Scene:back()
+        local sql1 = "select department_id, department_name from tb_c_department where department_id = "..
+            "(select parent_department_id  from tb_c_department where department_id = '"..department_id.."');"
+        Log:write("==查询上级组织结构=="..sql1)
+        local  bRet1, retDeptTable1, errMsg1 = Sqlite:query(Config:get('databaseName'), sql1)
+        Log:write("查询数据库表成功1:bRet = "..bRet1.." errMsg ="..errMsg1.." 查询结果retDeptTable1 =", retDeptTable1)
+        local sql2 = "select count(*) from tb_c_department where parent_department_id = '"..department_id.."' ;"
+        Log:write("==查询上级组织结构=="..sql2)
+        local  bRet2, retDeptTable2, errMsg2 = Sqlite:query(Config:get('databaseName'), sql2)
+        Log:write("查询数据库表成功1:bRet = "..bRet2.." errMsg ="..errMsg2.." 查询结果retDeptTable1 =", retDeptTable2)
+
+        local sql3 = "select parent_department_id from tb_c_department where department_id = '"..department_id.."' ;"
+        Log:write("==查询上级组织结构=="..sql3)
+        local  bRet3, retDeptTable3, errMsg3 = Sqlite:query(Config:get('databaseName'), sql3)
+        Log:write("查询数据库表成功1:bRet = "..bRet3.." errMsg ="..errMsg3.." 查询结果retDeptTable1 =", retDeptTable3)
+        
+        local bRet = Sqlite:close('jttxlDatabase')
+        Log:write("数据库关闭："..bRet)
+        if  tonumber(retDeptTable3[1][1]) == 0 then
+            Scene:go(Alias.m_renyuantongji, true)
+        end
+        if tonumber(retDeptTable2[1][1]) > 0 then
+              Scene:go(Alias.m_zuzhijiegou.."?departmentid="..department_id.."&departmentname="..departmentname1, true)
+        else
+              Scene:go(Alias.m_zuzhijiegou.."?departmentid="..retDeptTable1[1][1].."&departmentname="..retDeptTable1[1][2], true)
+        end
+end
+
+-- 加载部门列表
+function loadUserData()
+    len = tonumber(getJsonArrayCount(retUserTable))-1;
+    Log:write("查询联系人列表记录数目：",len)
+    ListView:removeAllItems(list,1)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitemNode'), len, 'loadListItem')
+    ListView:adjust(list)    
+end
+
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 85)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local employeeId = Sprite:findChild(item, 'employeeId')                 --人员ID
+    local employeeName = Sprite:findChild(item, 'employeeName')             --人员名称 
+    local headshipName = Sprite:findChild(item, 'headshipName')             --岗位 
+    local mobile = Sprite:findChild(item, 'mobile')                         --移动长号
+    local departmentName = Sprite:findChild(item, 'departmentName')         --部门名称 
+    local telImg = Sprite:findChild(item,'telImg')                          --电话图片
+    local telImag_d = Sprite:findChild(item,'telImag_d')                    --正常 电话图片
+    local telImag_s = Sprite:findChild(item,'telImag_s')                    --点击 电话图片   
+    local jiangeline = Sprite:findChild(item, 'jiange_line')                --间隔线  
+    local smsNode = Sprite:findChild(item, 'smsNode')                       --短信   
+    local listButtonImage_d = Sprite:findChild(item, 'listButtonImage_d')   --更多
+    local listButtonImage_s = Sprite:findChild(item, 'listButtonImage_s')
+    Sprite:setProperty(employeeId, 'text', retUserTable[index+1][1]) 
+    Sprite:setProperty(employeeName, 'text', retUserTable[index+1][2])
+    Sprite:setProperty(mobile, 'text', retUserTable[index+1][3]) 
+    Sprite:setProperty(departmentName, 'text', retUserTable[index+1][4])  
+    
+    local headShipName = retUserTable[index+1][5]
+    local headshipLevel = retUserTable[index+1][6]
+    Log:write("岗位级别："..headshipLevel)    
+    if tonumber(headshipLevel)  <= 7 then
+        Sprite:setRect(item, 0, 0, 480, 105)
+        Sprite:setRect(jiangeline, 50, 90, 10, 17)
+        Sprite:setRect(telImg, 10, 0, 90, 90)
+        Sprite:setRect(telImag_d, 0, 0, 90, 90)
+        Sprite:setRect(telImag_s, 0, 0, 90, 90)
+        Sprite:setRect(employeeName, 0, 0, 140, 30)   
+        Sprite:setRect(headshipName, 150, 0, 125, 30)  
+        Sprite:setRect(mobile, 0, 12, 140, 30)
+        Sprite:setRect(departmentName, 150, 12, 125, 30)
+        Sprite:setRect(smsNode, 385, 27, 43, 36)    
+        Sprite:setRect(listButtonImage_d, 327, 28, 33, 34)
+        Sprite:setRect(listButtonImage_s, 327, 28, 33, 34)
+
+
+        Sprite:setProperty(telImag_d,'src','file://image/jttxl/tel_big.png')
+        Sprite:setProperty(telImag_s,'src','file://image/jttxl/tel_big_s.png')
+        Sprite:setProperty(mobile,'color','#00a2ff')
+        Sprite:setProperty(mobile,'font-size','22')
+        Sprite:setProperty(departmentName,'color','#00a2ff')
+        Sprite:setProperty(departmentName,'font-size','22')
+        Sprite:setProperty(employeeName,'font-size','28')
+        Sprite:setProperty(headshipName,'font-size','22')
+        Sprite:setProperty(headshipName,'text',headShipName)
+    end         
+    if index == len - 1 then
+        Sprite:setProperty(jiangeline, 'visible', 'false')
+    end   
+end
+
+-- 列表单击
+function itemOnSelect(sprite)
+    local employeeId = Sprite:getText(Sprite:findChild(sprite,'employeeId'))
+    Scene:setReturn(Alias.m_lianxirenlist, Alias.m_personalInfo .. '?employeeId=' .. employeeId..'&departmentId1='..department_id..'&flag=1')
+    Scene:go(Alias.m_personalInfo .. '?employeeId=' .. employeeId ..'&departmentId1='..department_id..'&flag=1')
+end
+
+-- 搜索函数
+function doSearch(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/lianxiren_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+    Scene:setReturn(Alias.m_lianxirenlist, Alias.m_recentContacter)
+    Scene:go(Alias.m_recentContacter, true)
+end
+
+-- 联系人
+function doContact(sprite) 
+    Sprite:setProperty(sprite,'src','file://image/book/zuijinglianxiren_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+    Scene:setReturn(Alias.m_lianxirenlist, Alias.m_renyuantongji)
+    Scene:go(Alias.m_renyuantongji, true)
+end
+
+-- 个人信息详情
+function doPersonalCenter(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/person_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')   
+    Scene:setReturn(Alias.m_lianxirenlist, Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"))
+    Scene:go(Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"), true)
+end
+
+-- 设置
+function doSetting(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/site_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png') 
+    Scene:setReturn(Alias.m_lianxirenlist, Alias.m_system)
+    Scene:go(Alias.m_system, true)
+end
+
+-- 拨打电话
+function telOnSelect(sprite)
+    Log:write("进入拨打电话函数")
+    local parentNode = Sprite:getParent(sprite)
+    local mobile = Sprite:getText(Sprite:findChild(parentNode, "mobile"))
+    Log:write("电话号码为：",mobile)
+    if mobile ~= nil and mobile ~= '' then
+        if Util:openCallDialog('callFinished',mobile, 0) then
+            Log:write('拨打打电话成功')
+        else
+            Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
+        end
+    else
+        Dialog:show('提示', '电话号码为空！', 'ok')
+    end   
+end
+
+-- 发送短信
+function smsOnSelect(sprite)
+    Log:write("进入发短信函数")
+    local parentNode = Sprite:getParent(sprite)
+    local mobile = Sprite:getText(Sprite:findChild(parentNode, "mobile"))
+    Log:write("电话号码为：",mobile)
+    if mobile ~= nil and mobile ~= '' then
+        if Util:sendSMS(mobile,' ',false) then
+            Log:write('发送短信成功')
+        else
+            Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
+        end
+    else
+        Dialog:show('提示', '电话号码为空！', 'ok')
+    end
+end
+
+-- 搜索联系人信息
+function lookUserData()
+    local Path = getDownloadPath().."sqlitedownload" 
+    Log:write("path= "..Path)
+    if IO:dirExist(Path) == false then 
+        IO:dirCreate(Path)
+    end
+    databaseName = Path..'/jttxlDatabase'
+    bRet, errMsg = Sqlite:open(databaseName) 
+    Log:write("创建数据库jttxlDatabase成功:bRet = "..bRet.." errMsg ="..errMsg)
+
+    -- 判断用户是否存在SQL
+    local sqlCount = "SELECT COUNT(*)"
+             .." FROM tb_c_employee emp,tb_c_department dept"
+             .." WHERE emp.department_id = dept.department_id"
+             .." AND dept.department_id = '"..department_id.."';"
+    Log:write("sqlCount = ",sqlCount)  
+
+    bRet, retCountTable, errMsg = Sqlite:query(databaseName, sqlCount)
+    Log:write("判断用户是否存在 ，retCountTable = ", retCountTable)
+    local count = retCountTable[1][1]
+    if count == '0' then
+        local titleLabel = Sprite:findChild(rootSprite,'titleLabel')
+        Sprite:setProperty(titleLabel,'text', departmentname)
+        departmentname1 = departmentname
+        -- Dialog:show('提示', '该部门联系人为空！','ok','doBack')
+        return 
+    else
+        local sql = "SELECT emp.employee_id,emp.employee_name,emp.mobile,dept.department_name,"
+                 .."emp.headship_name,emp.headship_level"
+                 .." FROM tb_c_employee emp,tb_c_department dept"
+                 .." WHERE emp.department_id = dept.department_id"
+                 .." AND dept.department_id = '"..department_id.."'"
+                 .." ORDER BY emp.headship_level ASC,emp.display_order ASC;"
+        Log:write("查询联系人列表 SQL =",sql)           
+        bRet, retUserTable, errMsg = Sqlite:query(databaseName, sql) 
+        Log:write("部门的联系人列表retUserTable = ", retUserTable) 
+        local titleLabel = Sprite:findChild(rootSprite,'titleLabel')
+        Sprite:setProperty(titleLabel,'text',retUserTable[1][4]) 
+        departmentname1 = retUserTable[1][4] 
+        loadUserData()
+    end 
+end
+
+
+-- 存储卡路径
+function getDownloadPath()
+        local downloadPath = ''
+        local flashCard = System:getFlashCardName(1) -- 判断外置存储卡存在性
+        if flashCard and flashCard ~= '' then --存在外置存储卡
+            Log:write('Util:getDownloadPath  flashCard=================', flashCard)
+            downloadPath = flashCard
+        end
+        Log:write('Util:getDownloadPath=======================', downloadPath)
+        return downloadPath
+end
+    ]]>
+</root>

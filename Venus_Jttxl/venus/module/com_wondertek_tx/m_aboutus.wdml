@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置背景 -->
+            <image rect="0,0,0,0" src="file://image/jttxl/bj.png" style="autosize" extendstyle="1177" />
+            <!-- 设置头部 -->
+            <node name="baseSprite" rect="0,0,480,80" extendstyle="1111">
+                <image name="title" rect="0,0,480,80" border="false" src="file://image/jttxl/top.png" 
+                    style="autosize" extendstyle="1111">
+                    <label name="titleLabel" rect="0,0,480,80" text="关于" color="#ffffff" v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="32" extendstyle="1111" />
+                </image>
+                <!-- 返回 -->
+                <button rect="20,18,48,45" OnSelect="doBack" normal="src:file://image/jttxl/back_d.png;"
+                    sel="src:file://image/jttxl/back_s.png;" style="autosize" extendstyle="1111">
+                </button>
+            </node> 
+            <image rect="40,115,90,90" border="false" src="file://image/jttxl/icon_jttxl.png" style="autosize" extendstyle="1111" /> 
+            <node rect="150,115,300,89" extendstyle="1111">
+                <label rect="0,0,160,50" text="集团通讯录" color="#ffffff" font-style="bold" v-align="center" font-size="30" extendstyle="1171" />
+                <label rect="164,7,120,40" text="版本:1.0.7" color="#ffffff" font-family="微软雅黑" v-align="center" font-size="24" extendstyle="1171" />
+                <label rect="0,45,300,40" text="您的企业联系人查询助手" color="#858fa2" font-family="微软雅黑" v-align="center" font-size="24" extendstyle="1171" />
+            </node>
+            <image rect="28,232,424,2" border="false" src="file://image/line.png" style="autosize" extendstyle="1111" /> 
+            <textarea name="detail" rect="40,252,410,380"  autoextend="true" order="false" h-align="left"
+                    text="        本软件系中国移动安徽公司内部通讯录，提供企业内部联系人查询、来电名片显示等功能。内部资料，注意保密。\r        此版本适用于Android 2.1及以上系统版本。\r        下载方式：发短信“集团通讯录”或“jttxl”到10086，点击短信下发的链接地址下载。\r        中国移动安徽公司版权所有\r        信息系统部倾情奉献"
+                    font-size="24" line-height="40" font-family="微软雅黑" color="#858fa2" 
+                    extendstyle="1111" >
+            </textarea>
+            
+            
+            <!-- 菜单  -->
+            <node name="listNode" rect="0,720,480,80" extendstyle="1111">
+                <image  rect="0,0,480,80" border="false" extendstyle="1111" 
+                src="file://image/book/list_bg.png"  style="autosize"/>
+                <!-- 搜索  -->
+                <button name='bottomBtn1' rect="15,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/lianxiren_d.png' OnSelect="bottomOnselect" data="1"></button>
+                <!-- 联系人  -->
+                <button name='bottomBtn2' rect="125,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/zuijinglianxiren_d.png' OnSelect="bottomOnselect" data="2"></button>
+                <!-- 个人中心  -->
+                <button name='bottomBtn3' rect="250,0,82,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/person_d.png' OnSelect="bottomOnselect" data="3"></button>
+                <!-- 设置  -->
+                <button name='bottomBtn4' rect="385,0,48,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/site_s.png' OnSelect="bottomOnselect" data="4"></button>
+            </node>
+            
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_tx.common.framework'
+local rootSprite
+local bottomdata = 4   ---被点亮的菜单
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+-- 返回
+function doBack()
+    Scene:back()
+end
+
+function bottomOnselect(sprite)
+    local bottomBtn =Sprite:findChild(rootSprite, 'bottomBtn'..bottomdata)
+    Sprite:setProperty(bottomBtn, 'data', bottomdata)
+    local curSpsrc = Sprite:getProperty(bottomBtn,'src')
+    local curSpsrc2 =  string.gsub(curSpsrc, "s.png", "d.png")
+    Sprite:setProperty(bottomBtn,'src', curSpsrc2)
+    
+    local newsrc = Sprite:getProperty(sprite,'src')
+    local newsrc =  string.gsub(newsrc, "d.png", "s.png")
+    Sprite:setProperty(sprite,'src', newsrc)
+    local spName = Sprite:getName(sprite)
+    bottomdata = string.sub(spName, 10, 10)
+    Sprite:setProperty(sprite, 'data', 0)
+    Log:write('bottomdata=='..bottomdata)
+    if '1' == bottomdata then
+        Scene:setReturn(Alias.m_lianxirenlist, Alias.m_recentContacter)
+        Scene:go(Alias.m_recentContacter, true)
+    elseif '2' == bottomdata then 
+        Scene:setReturn(Alias.m_lianxirenlist, Alias.m_renyuantongji)
+        Scene:go(Alias.m_renyuantongji, true)
+    elseif '3' == bottomdata then
+        Scene:setReturn(Alias.m_lianxirenlist, Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"))
+        Scene:go(Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"))
+    elseif '4' == bottomdata then 
+        Scene:setReturn(Alias.m_lianxirenlist, Alias.m_system)
+        Scene:go(Alias.m_system, true)
+    end
+end
+    ]]>
+</root>

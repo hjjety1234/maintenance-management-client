@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+	    <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+	        <node layouttype="2">
+	             <panorama name="panorama" layouttype="3" OnKeyUp="panoramaOnKeyup" rect="0,0,480,800"  foreground="foreground" alpha="255" extendstyle="1110"></panorama>
+	        </node>
+	    </node>
+	    <!-- load sprite -->
+	    <node name="panoramaItem" visible="false" enable="false" active="false" extendstyle="1111">
+	        <button name="btnname" rect="0,0,480,800" OnSelect="panoramaItemOnSelect" OnMouseDown="panoramaOnMousedown" OnMouseUp="panoramaOnMouseup" style="autosize" extendstyle="1111" >
+	          <image name="recommendImg" rect="0,0,480,800" style="autosize" src="" extendstyle="1111"/>
+	        </button>
+	    </node>       
+    </body>
+<![CDATA[
+
+require 'com_wondertek_tx.common.framework'
+local rootSprite
+local x_down
+---------------------------------------callbacks--------------------------------
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    Config:set("upgrade_tips","1")
+    local panorama = Sprite:findChild(sprite, 'panorama')
+    local panoramaItem = Sprite:findChild(sprite, 'panoramaItem')
+    Panorama:loadItem(panorama, panoramaItem, 3, 'onLoadPanoramaItem')
+  
+end
+
+-- @brief root节点消息方法
+function bodyPreBuildChildren()
+    System:setFontSize(26)
+end
+
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function panoramaItemOnSelect(sprite)
+    Log:write('panoramaItemOnSelect')
+    local panorama = Sprite:getParent(sprite)
+    local panoramaindex=Sprite:findChild(rootSprite, 'panorama')
+    local index = Panorama:getCurItem(panoramaindex)
+    Log:write('index', index)
+    
+    if index == 2 then
+        Scene:go(Alias.m_renyuantongji,true)
+    else 
+       Panorama:setCurItem(panoramaindex, index + 1)
+    end
+end 
+
+
+
+
+-- @brief 加载panoramaItem
+function onLoadPanoramaItem(panorama, item, index)
+    Log:write('onLoadPanoramaItem', index)
+    local recommendImg = Sprite:findChild(item, 'recommendImg')
+    Sprite:setProperty(recommendImg, 'src', 'file://image/lead' .. (index + 1) .. '.png')
+   -- Sprite:setProperty(item, 'OnSelect', 'panoramaItemOnSelect')
+    Sprite:setRect(item, 0, 0, 480, 800)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+end
+
+
+function panoramaOnKeyup(sprite,kc)
+    if kc == Key.Left then
+        local curItemIndex = Panorama:getCurItem(sprite)
+        Panorama:setCurItem (sprite, curItemIndex - 1 < 0 and Panorama:getItemCount(sprite) - 1 or curItemIndex - 1)
+    elseif kc == Key.Right then
+        local curItemIndex = Panorama:getCurItem(sprite)
+        Panorama:setCurItem(sprite, curItemIndex + 1 >Panorama:getItemCount(sprite) - 1 and 0 or curItemIndex + 1)
+    end
+end
+
+function panoramaOnMousedown(sprite, x, y)
+    Log:write('ceshidown x='..x)
+    x_down = x
+end
+
+function panoramaOnMouseup(sprite, x, y)
+    Log:write('ceshiup x='..x..' y='..y)
+    Log:write('ceshiup x_down='..x_down)
+    local panorama = Sprite:findChild(rootSprite, 'panorama')
+    local curItemIndex = Panorama:getCurItem(panorama)
+    if x_down == nil then x_down = x end
+    local x_flag = x - x_down
+    Log:write('ceshiup x_down='..x_flag)
+    if x_flag < 20 or x_flag == 0 then
+        if curItemIndex == 2 then
+            Scene:go(Alias.m_renyuantongji, true)
+            else
+            Panorama:setCurItem (sprite, curItemIndex+1)
+        end
+    elseif x_flag > 20 then
+        if curItemIndex == 0 then
+            Panorama:setCurItem (sprite, 0)
+            else
+            Panorama:setCurItem (sprite, curItemIndex-1)
+        end
+    end
+end
+
+    ]]>
+</root>

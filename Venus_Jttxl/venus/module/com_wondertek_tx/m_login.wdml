@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: xxxx <xxxx@xxxx.com> ==
+============================================================================
+== | Desc: 页面描述 ==
+============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" 
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        
+        <!-- 背景图片  -->
+        <image name="image1" rect="0,0,480,80" src="file://image/jttxl/top.png" 
+            style="autosize" extendstyle="1111" >
+            <label name="titleLabel" rect="0,0,480,80" text="注册" v-align="center" h-align="center" font-family='微软雅黑' font-size='36' 
+             color='#ffffff'/>
+        </image>
+        <image name="image1" rect="0,80,480,720" src="file://image/jttxl/bj.png" 
+            style="autosize" extendstyle="1111" />
+        
+        <!-- 主界面  -->
+        <node name="mainNode" rect="0,0,480,800" enable="true" visible='true'
+             active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 输入框  -->
+            <node rect="0,150,480,200" extendstyle="1111">
+                <!-- 用户名  -->                
+                <node rect="0,0,480,67" extendstyle="1111">
+                    <image rect="40,0,390,67" border="false" src="file://image/book/input.png"
+                        style="sudoku-auto"  sudoku="15,15,15,15"   extendstyle="1111"></image>
+                    <image rect="55,15,35,39" border="false" src="file://image/book/name.png"
+                        style="autosize" extendstyle="1111"></image>     
+                    <edit name="usernameEdit" text='请输入您的手机长号' OnSetFocus="initEditText" OnLostFocus="lostEditText"  rect="110,10,280,45" 
+                         v-align="center" font-size="28" color='#7a7a7a' extendstyle='1111'>          
+                    </edit>
+                </node>    
+                        
+                <!-- 注册按钮  -->
+                <node name="regiterNode" rect="0,120,480,73" extendstyle="1111" visible="true" active="true" enable="true">
+                    <button name="zhuceBtn" rect="45,0,385,65" text="" color="#ffffff"
+                        extendstyle="1111" OnSelect="zhuceBtnOnSelect"  visible="true"
+                        normal="src:file://image/jttxl/zhuce_d.png;style:autosize"
+                        sel="src:file://image/jttxl/zhuce_s.png;style:autosize"
+                        font-size="24" />
+                </node> 
+                <!-- 密码  -->                
+                <node name="mimaNode" rect="0,120,480,67" extendstyle="1111" visible="true" active="true" enable="true">
+                    <image rect="40,0,390,67" border="false" src="file://image/book/input.png"
+                         style="sudoku-auto"  sudoku="15,15,15,15" extendstyle="1111"></image>
+                    <image rect="55,20,43,30" border="false" src="file://image/book/key.png"
+                        style="autosize" extendstyle="1111"></image>
+                    <edit name="passwordEdit" text='请输入密码' OnSetFocus="initEditText" OnLostFocus="lostEditText" password="false" 
+                         rect="110,10,280,45" extendstyle="1111" color='#7a7a7a' v-center="true" font-size="26" >
+                    </edit>
+                </node>
+  
+                <!-- 记住密码  -->
+                <node  name="remembermimaNode" rect="0,200,240,50" extendstyle="1111" visible="false" active="false" enable="false">
+                    <button name="rememberBtn" rect="40,30,50,50" border="false" text="" 
+                        color="#ffffff" OnSelect="rememberBtnOnselected" extendstyle="1111" data="1">
+	                    <image name="rememberFlag" rect="0,0,50,50" border="false" 
+	                        src="file://image/book/login_checkbox_unselect.png" style="center"
+	                        sudoku="15,15,15,15" extendstyle="1111">
+	                    </image>
+                    </button>
+                    <label rect="95,30,240,40" color="#afafaf" text="记住用户" font-family='微软雅黑'
+                        v-align="center" h-align="left" font-size="28" extendstyle="1111" />
+                </node>
+                
+                <!-- 找回密码  -->
+                <node  name="findmimaNode" rect="240,240,240,50" extendstyle="1111" visible="false" active="false" enable="false">
+                    <button name="rememberBtn" rect="0,0,180,50" border="false" text="忘记密码"  font-size="28" OnSelect="zhuceBtnOnSelect"
+                        color="#0193f0"  extendstyle="1111" data="0">
+                    </button>
+                </node>
+                
+            </node>    
+            <!-- 登录按钮  -->
+            <node name="loginNode" rect="0,470,480,73" extendstyle="1111" visible="true" active="true" enable="true">
+                <button name="btnLogin" rect="40,0,390,73" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="btnloginOnSelect"
+                    normal="src:file://image/book/login_button.png;style:maxsize;sudoku:15,15,15,15;color:#ffffff"
+                    sel="src:file://image/book/login_button_on.png;style:maxsize;sudoku:15,15,15,15;color:#ffffff"
+                    font-size="24" />
+            </node>
+            
+            <!-- 文本通知信息  -->
+            <label name="noticeLabel" rect="0,655,480,60" font-size="20"  color='#7a7a7a' 
+                text="" v-align="center" h-align="center" 
+                extendstyle="1111" />
+        </node>
+        
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_tx.common.framework'
+require 'framework.umsagent'
+require 'framework.sqlite'
+
+local rootSprite
+local url_login = Alias.url_server..'mobile/login/check?'
+local url_downdeptlist = Alias.url_server..'mobile/orger/downall?cmd=downall'
+local url_updatedept = Alias.url_server..'mobile/orger/update?cmd=updatedept'
+local url_userversion = Alias.url_server..'mobile/UserInfo/getUserInfo?'
+local url_register = Alias.url_server..'mobile/login/register?'
+local departmentdata1   --组织结构数据
+local databaseName
+local returnValue
+local totalNum
+local rights
+
+local bRet, errMsg, retCountTable
+local g_exitFlag = false
+local noticeLabel   --状态提示label
+local loginData
+local department_version=0
+local employee_version=0
+local right_config=''
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    Log:write('com_wondertek_tx.login.start')
+    noticeLabel = Sprite:findChild(rootSprite, 'noticeLabel')
+    
+    local mimaNode =  Sprite:findChild(rootSprite, 'mimaNode')
+    local findmimaNode =  Sprite:findChild(rootSprite, 'findmimaNode')
+    local loginNode =  Sprite:findChild(rootSprite, 'loginNode')
+    local noticeLabel =  Sprite:findChild(rootSprite, 'noticeLabel')
+    Sprite:setRect(mimaNode, 0,240,480,73)
+    Sprite:setRect(findmimaNode, 240,340,240,50)  
+    Sprite:setRect(loginNode, 0,540,480,73)
+    Sprite:setRect(noticeLabel, 0,660,480,60)
+    initdatabase()
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then
+        Http:startNetwork()
+        UmsAgent:OnActivate(string.match(Alias.m_login, 'MODULE:\\(.*)'), "登录页")
+        Sprite:setProperty(noticeLabel, 'text', '')
+    elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
+    elseif msg == MSG_NETWORK then 
+        if g_exitFlag ==  true then
+            doExit()
+        end
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+        UmsAgent:onLoadFinish()
+        --if Loading:isShow() then Loading:close() end
+        loginData = Http:jsonDecode('login_istrue')
+        Log:write('+++++++++==loginData=====', loginData)
+        if loginData['code'] == '0' then
+            Sprite:setProperty(noticeLabel, 'text', '登录成功')
+            --记住用户名和密码
+            writeuserInfo()
+            local paras = '&userCode='..Config:get('userId')..'&deptCode=0'..'&deptList='..'&token='
+            Http:request('departmentdata0', url_downdeptlist..paras, 102, {useCache = false})
+            Sprite:setProperty(noticeLabel, 'text', '下载组织结构中。。。')
+        else
+            if Loading:isShow() then Loading:close() end
+            Sprite:setProperty(noticeLabel, 'text', '')
+            Dialog:show('登陆提示', '账户或密码输入错误！', 'ok')            
+            return
+        end
+    elseif msg == 102 then -- 组织结构第一次下载
+        --if Loading:isShow() then Loading:close() end
+        local departmentdata1 = Http:jsonDecode('departmentdata0')
+        local total = departmentdata1.total   
+        Log:write('===total====='..total)  
+        if total > 0 then
+            bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
+            Log:write("部门1添加事务开始:bRet = "..bRet.." errMsg ="..errMsg)
+	        for i=0,total-1 do
+	            local Valuedata = departmentdata1["value"][i]
+	            local department_id = Valuedata.department_id
+	            local department_name = Valuedata.department_name
+	            local parent_department_id = Valuedata.parent_department_id
+	            local department_level = Valuedata.department_level
+	            local department_firstword = Valuedata.department_firstword 
+	            local sql = "insert into tb_c_department values ('"..department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."');"
+	            Log:write('下载联系人插入语句==第i=='..i..'次==sql=='..sql)
+	            bRet, errMsg = Sqlite:update(databaseName, sql)
+	        end
+            bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
+            Log:write("部门1添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
+        end
+        Log:write('===departmentdata1.deptversion====='..departmentdata1.deptversion)
+        department_version = departmentdata1.deptversion
+        Config:set('deptversion', departmentdata1.deptversion)
+        Log:write('deptversion====='..Config:get('deptversion'))
+        Sprite:setProperty(noticeLabel, 'text', '联系人信息下载中。。。')
+        local paras = 'departmentIdStr=&userId='..Config:get('userId')..'&mobileRights='
+                    ..Config:get('mobileRights')..'&versionNum=0'
+        Log:write('首次登录时联系人URL = '..url_userversion..paras)
+        Http:request('userversiondata0', url_userversion..paras, 104, {useCache = false})
+    elseif msg == 104 then 
+        local userversiondata1 = Http:jsonDecode('userversiondata0')
+        Log:write("数据记录是否发成改变判断标识 updateFlag ：",userversiondata1.updateFlag)
+        Sprite:setProperty(noticeLabel, 'text', '联系人信息下载中。。。')
+            
+        returnValue = userversiondata1.value 
+		Log:write("用户数据返回最大版本号 versionNum：",returnValue[0].versonNum)			
+        totalNum = tonumber(userversiondata1.total)-1   
+        rights = userversiondata1.rights
+        initUserDatabase()
+        employee_version = returnValue[0].versonNum
+        right_config = userversiondata1.rights
+        Config:set('userVersion',employee_version)
+        Config:set('mobileRights',right_config)
+        if Loading:isShow() then Loading:close() end
+        UmsAgent:writeCallLog()
+        Sprite:setProperty(noticeLabel, 'text', '正在进行页面跳转。。。')
+        Timer:set(1,500,'jumpPage')   
+    elseif msg == 111 then
+        if Loading:isShow() then Loading:close() end
+        local registerData = Http:jsonDecode('registerdata0')
+        Log:write("注册返回数据==",registerData) 
+        if registerData['success'] == 'true' then
+            --Scene:go(Alias.m_login)
+            Dialog:show('提示', '密码已经通过短信下发', 'ok')
+            else 
+            Dialog:show('提示', '号码输入有误或非本集团用户', 'ok')
+        end
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        if Loading:isShow() then Loading:close() end
+        Log:write('请求超时')
+        Sprite:setProperty(noticeLabel, 'text', '请求超时，请重新登录')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        if Loading:isShow() then
+            Loading:close()
+        else
+            Dialog:show('提示', '是否确定退出？', 'ok_cancel', 'doExitApp')
+        end
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function initdatabase()
+    local Path = getDownloadPath().."sqlitedownload" 
+    Log:write("path= "..Path)
+    if IO:dirExist(Path) == false then 
+        IO:dirCreate(Path)
+    end
+    databaseName = Path..'/jttxlDatabase'
+    if IO:fileExist(databaseName) == true then 
+        IO:fileRemove(databaseName)
+    end
+    Config:set('databaseName', databaseName)
+    bRet, errMsg = Sqlite:open(databaseName) 
+    Log:write("创建数据库成功:bRet = "..bRet.." errMsg ="..errMsg)
+    local sq1 = "create table tb_c_department(department_id primary key not null, department_name,"..
+        "parent_department_id , department_level, department_firstword );"
+    bRet, errMsg = Sqlite:update(databaseName, sq1)
+    Log:write("创建数据库表tb_c_department结果:bRet = "..bRet.." errMsg ="..errMsg)
+    local sql = "create table tb_c_employee(employee_id primary key not null,employee_name,"..
+        "department_id,department_name,headship_level INTEGER,headship_name,mobile,mobile_short,"..
+        "tel,tel_short,email,versionNum,picture,employee_firstword,employee_fullword,"..
+        "parent_department_name,display_order INTEGER, department_fax);"
+    bRet, errMsg = Sqlite:update(databaseName,sql)
+    Log:write("创建数据库表tb_c_employee结果:bRet = "..bRet.." errMsg ="..errMsg)
+    local sq1 = "create table tb_c_system(system_id primary key not null, register_flag, department_version, "..
+        "employee_version, user_id, right_config, employee_id, employee_name, department_id, department_name, department_level );"
+    bRet, errMsg = Sqlite:update(databaseName, sq1)
+    Log:write("创建数据库表tb_c_system结果:bRet = "..bRet.." errMsg ="..errMsg)
+end
+
+function getDownloadPath()
+    local downloadPath = ''
+    local flashCard = System:getFlashCardName(1) -- 判断外置存储卡存在性
+    if flashCard and flashCard ~= '' then --存在外置存储卡
+        Log:write('Util:getDownloadPath  flashCard=================', flashCard)
+        downloadPath = flashCard
+    end
+    Log:write('Util:getDownloadPath=======================', downloadPath)
+    return downloadPath
+end
+
+function initEditText(sprite)   
+    nms = {"usernameEdit","passwordEdit"}
+    local spriteName = Sprite:getName(sprite)
+    msg = {"请输入您的手机长号","请输入密码"}
+    local txt= Sprite:getProperty(sprite, 'text')
+    for i=1,#msg do
+        if txt == msg[i] then
+            Sprite:setProperty(sprite, 'text', '')
+            Sprite:setProperty(sprite, 'color', '#ffffff')
+            if 2==i then Sprite:setProperty(sprite, 'password', 'true') end
+        end
+    end
+end
+
+function lostEditText(sprite)
+    nms = {"usernameEdit","passwordEdit"}
+    local spriteName = Sprite:getName(sprite)
+    msg = {"请输入您的手机长号","请输入密码"}
+    local txt= Sprite:getProperty(sprite, 'text')
+    for i=1,#nms do
+        if spriteName == nms[i] and txt == ''  then
+            Sprite:setProperty(sprite, 'text', msg[i])
+            Sprite:setProperty(sprite, 'color', '#7a7a7a')
+            if 2==i then Sprite:setProperty(sprite, 'password', 'false') end
+        end
+    end
+end
+
+function zhuceBtnOnSelect()
+    local usernameEdit= Sprite:findChild(rootSprite,'usernameEdit')
+    if Sprite:getText(usernameEdit)~='请输入您的手机长号' and Sprite:getText(usernameEdit)~='' then
+        local paras = 'type=0&mobile='..Sprite:getText(usernameEdit)
+        Http:request('registerdata0', url_register..paras, 111, {useCache = false})
+        Loading:show(rootSprite) 
+        else 
+        Dialog:show('提示', '手机号码不能为空', 'ok')
+    end
+end
+
+function btnloginOnSelect(sprite)
+    UmsAgent:onLoadStart()
+    local imeicode = System:getMachineInfo(4) 
+    local imsicode = System:getMachineInfo(5) 
+    local username=Sprite:getText(Sprite:findChild(rootSprite, 'usernameEdit'))
+    local password=Sprite:getText(Sprite:findChild(rootSprite, 'passwordEdit'))
+    if imeicode == nil then imeicode = "" end
+    Log:write('loginOnSelect: imei = '..imeicode)
+    if imsicode == nil then imsicode = "" end
+    Log:write('loginOnSelect: imsi = '..imsicode)
+    
+    if username == '' or username == '请输入您的手机长号' then
+        Dialog:show('提示','用户名不能为空!','ok')
+    elseif password == '' or password == '请输入密码' then
+        Dialog:show('提示','密码不能为空','ok')
+    else
+        local dataString = string.format('userCode=%s&password=%s&IMEI=%s&IMSI=%s', 
+            username, password, imeicode, imsicode)
+        local url_login1 = url_login..dataString
+        Log:write('===登录请求=====reqURL====', url_login1)
+        Http:request('login_istrue', url_login1, 101, {useCache=false})
+        Sprite:setProperty(noticeLabel, 'text', '正在登录中。。。')
+        Loading:show(rootSprite) 
+    end
+end
+
+function writeuserInfo()
+    Config:set('employee_name', loginData.employee_name)
+    Config:set('department_id', loginData.department_id)
+    Config:set('department_name', loginData.department_name)
+    Config:set('department_level', loginData.department_level)
+    Config:set('employeeId', loginData.employee_id)
+    Config:set('token', loginData.token)
+    Config:set('userId', loginData.user_id)
+    local username=Sprite:getText(Sprite:findChild(rootSprite, 'usernameEdit'))
+    local password=Sprite:getText(Sprite:findChild(rootSprite, 'passwordEdit'))
+    Config:set('username', username)
+    Config:set('password', password)
+    Log:write('===writeuserInfo==userId=='..Config:get('userId'))
+end
+
+--跳转页面
+function jumpPage()
+    local sql = "insert into tb_c_system values ('001','"..Config:get('DatabaseVersion').."','"..department_version.."','"..employee_version..
+        "','"..loginData.user_id.."','"..right_config.."','"..loginData.employee_id.."','"..loginData.employee_name..
+        "','"..loginData.department_id.."','"..loginData.department_name.."','"..loginData.department_level.."');"
+    Log:write('系统表插入语句==sql=='..sql)
+    bRet, errMsg = Sqlite:update(databaseName, sql)
+    Log:write("系统表插入结果:bRet = "..bRet.." errMsg ="..errMsg)
+    Config:set('forceUpdateDatabase', '0')
+	Log:write("forceUpdateDatabase2= "..Config:get('forceUpdateDatabase'))
+    Scene:setReturn(Alias.m_login, Alias.m_recentContacter)
+    Scene:go(Alias.m_recentContacter, true)
+end
+
+
+-- 退出前如果在在内网，需要进行APN切换
+function doExitApp()
+    if Config:get('server_url') == '10.225.222.5' then 
+        Loading:show()
+        showSysSetting()
+        -- 网络连接发生切换后，需要在相应的MSG_NETWORK中
+        -- 调用doExit()函数
+        g_exitFlag = true
+    else
+        bRet = Sqlite:close(databaseName)
+        Log:write("关闭数据库:bRet = "..bRet)
+        Scene:exit()
+    end
+end
+
+-- 初始化本地人员表
+function initUserDatabase()
+    -- 清空用户表中数据
+    local sqlClear = "DELETE FROM tb_c_employee;"
+    Log:write("sqlClear = ",sqlClear)
+    bRet, errMsg = Sqlite:update(databaseName, sqlClear)
+    Log:write("清空用户表:bRet = "..bRet.." errMsg ="..errMsg)    
+
+    bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
+    Log:write("首次安装应用--人员添加事务开始:bRet = "..bRet.." errMsg ="..errMsg)
+    for i=0,totalNum do 
+        if returnValue[i].delFlag == '0' then 
+            -- 新增用户SQL
+            local sqlInsert = "insert into tb_c_employee values('"..returnValue[i].employee_id.."','"..
+            returnValue[i].employee_name.."','"..returnValue[i].department_id.."','"..
+            returnValue[i].department_name.."','"..returnValue[i].headship_level.."','"..
+            returnValue[i].headshipName.."','"..returnValue[i].mobile.."','"..
+            returnValue[i].mobile_short.."','"..returnValue[i].tel.."','"..
+            returnValue[i].tel_short.."','"..returnValue[i].email.."','"..
+            returnValue[i].versonNum.."','"..returnValue[i].picture.."','"..
+            returnValue[i].employee_firstword.."','"..returnValue[i].employee_fullword.."','"..
+            returnValue[i].parent_department_name.."','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."');"                  
+            bRet, errMsg = Sqlite:update(databaseName, sqlInsert)
+            -- Log:write("sqlInsert 语句：",sqlInsert) 
+        end    
+    end
+    bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
+    Log:write("首次安装应用--人员添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
+end
+
+
+]]>
+</root>

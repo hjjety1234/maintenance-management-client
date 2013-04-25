@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置背景 -->
+            <image rect="0,80,480,720" src="file://image/jttxl/bj.png" style="autosize"
+               extendstyle="1111" />
+            <!-- 设置头部 -->
+            <node name="baseSprite" rect="0,0,480,80" extendstyle="1111">
+                <image name="title" rect="0,0,480,80" border="false" src="file://image/jttxl/top.png" 
+                    style="autosize" extendstyle="1111">
+                    <label name="titleLabel" rect="0,0,480,80" text="修改密码" color="#ffffff" v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="32" extendstyle="1111" />
+                </image>
+                <!-- 返回 -->
+                <button rect="20,18,48,45" OnSelect="doBack" normal="src:file://image/jttxl/back_d.png;"
+                    sel="src:file://image/jttxl/back_s.png;" style="autosize" extendstyle="1111">
+                </button>
+
+            </node> 
+            <!-- 列表信息 -->    
+            <node rect="0,150,480,67" extendstyle="1111">
+                <image rect="40,0,390,67" border="false" src="file://image/book/input.png"
+                    style="sudoku-auto"  sudoku="15,15,15,15"   extendstyle="1111">
+                </image>
+                <edit name="oldpassword" OnTextChanged="editOnTextChanged"  rect="110,10,260,45" 
+                    v-align="center" font-size="28" color='#7a7a7a' extendstyle='1111' password="true">
+                    <label  name="hideLabel" rect="0,0,260,45" text="旧密码" v-align="center" 
+                        h-align="center" font-family='微软雅黑' font-size='28' color='#7a7a7a'/>
+                </edit>
+            </node>
+            
+            <node rect="0,260,480,67" extendstyle="1111">
+                <image rect="40,0,390,67" border="false" src="file://image/book/input.png"
+                    style="sudoku-auto"  sudoku="15,15,15,15"   extendstyle="1111">
+                </image>
+                <edit name="newpassword" OnTextChanged="editOnTextChanged"  rect="110,10,260,45" 
+                    v-align="center" font-size="28" color='#7a7a7a' extendstyle='1111' password="true">
+                    <label  name="hideLabel" rect="0,0,260,45" text="新密码" v-align="center" 
+                        h-align="center" font-family='微软雅黑' font-size='28' color='#7a7a7a'/>
+                </edit>
+            </node>
+            
+            <node rect="0,370,480,67" extendstyle="1111">
+                <image rect="40,0,390,67" border="false" src="file://image/book/input.png"
+                    style="sudoku-auto"  sudoku="15,15,15,15"   extendstyle="1111">
+                </image>
+                <edit name="againpassword" OnTextChanged="editOnTextChanged"  rect="110,10,260,45" 
+                    v-align="center" font-size="28" color='#7a7a7a' extendstyle='1111' password="true">
+                    <label  name="hideLabel" rect="0,0,260,45" text="确认新密码" v-align="center" 
+                        h-align="center" font-family='微软雅黑' font-size='28' color='#7a7a7a'/>
+                </edit>
+            </node>
+            
+            <!-- 登录按钮  -->
+            <node name="node2" rect="0,490,390,73">
+                <button name="btnLogin" rect="40,0,390,73" text="" color="#ffffff"
+                    extendstyle="1111" OnSelect="xgmmOnSelect"
+                    normal="src:file://image/jttxl/xiugaimima_d.png;style:maxsize;sudoku:15,15,15,15;color:#ffffff"
+                    sel="src:file://image/jttxl/xiugaimima_s.png;style:maxsize;sudoku:15,15,15,15;color:#ffffff"
+                    font-size="24" />
+            </node>  
+
+            <!-- 底部菜单  -->
+            <node name="listNode" rect="0,720,480,80" extendstyle="1111">
+                <image  rect="0,0,480,80" border="false" extendstyle="1111" 
+                src="file://image/book/list_bg.png"  style="autosize"/>
+                <!-- 搜索  -->
+                <button name='searchBtn' rect="15,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/lianxiren_d.png' OnSelect="doSearch"></button>
+                <!-- 联系人  -->
+                <button name='contactBtn' rect="125,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/zuijinglianxiren_d.png' OnSelect="doContact"></button>
+                <!-- 个人中心  -->
+                <button name='personBtn' rect="250,0,82,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/person_d.png' OnSelect="doPersonalCenter"></button>
+                <!-- 设置  -->
+                <button name='siteBtn' rect="385,0,48,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/site_s.png' OnSelect="doSetting"></button>
+            </node>    
+
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_tx.common.framework'
+require 'framework.umsagent'
+local rootSprite
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        Http:startNetwork()
+        UmsAgent:OnActivate(string.match(Alias.m_xiugaimima, 'MODULE:\\(.*)'), "修改密码页")
+    elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+        UmsAgent:onLoadFinish()
+        if Loading:isShow() then Loading:close() end     
+        local modifyPwdData = Http:jsonDecode('modifyPwd')
+        Log:write('modifyPwd ：',modifyPwdData)
+        if modifyPwdData.success=='true' then 
+            Dialog:show('提示', '修改密码成功', 'ok', 'okOn') 
+        elseif modifyPwdData.success=='false' then
+            Dialog:show('', modifyPwdData.msg,'ok')
+        end  
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function myfunc()
+
+end
+
+-- 返回设置页面
+function okOn()
+    Scene:go(Alias.m_system,true)
+end
+
+-- 返回
+function doBack()
+    Scene:back()
+end
+
+-- 修改密码
+function xgmmOnSelect()
+    local oldpassword = Sprite:getText(Sprite:findChild(rootSprite,'oldpassword'))
+    local newpassword = Sprite:getText(Sprite:findChild(rootSprite,'newpassword'))
+    local againpassword = Sprite:getText(Sprite:findChild(rootSprite,'againpassword'))
+    Log:write('旧密码 ： ',oldpassword)
+    Log:write('新密码 ： ',newpassword)
+    Log:write('再次确认 ： ',againpassword)
+    --判断是否输入数据
+    if  oldpassword==nil or  oldpassword=='' then 
+        Dialog:show('提示', '请输入旧密码','ok')
+        return
+    elseif newpassword==nil or  newpassword==''  or againpassword==nil or  againpassword=='' then 
+        Dialog:show('提示', '请输入新密码','ok')
+        return
+    elseif newpassword~=againpassword then 
+        Dialog:show('提示', '两次新密码应保持一致','ok')
+        return
+    end
+    request()
+end
+
+--上传修改数据
+function request()
+    UmsAgent:onLoadStart()
+    local old = Sprite:findChild(rootSprite,'oldpassword')
+    local again = Sprite:findChild(rootSprite,'againpassword')
+    local oldpassword = Sprite:getText(old)
+    local againpassword = Sprite:getText(again)
+    Log:write('密码' , oldpassword,againpassword)
+    local userId = Config:get('userId')
+    local token = Config:get('token')
+    local imeicode = System:getMachineInfo(4)
+    if imeicode == nil then 
+        imeicode = "" 
+    end
+    local requestURL = Alias.url_server..'mobile/login/changePwd?userId='
+                   ..userId..'&oldPwd='..oldpassword..'&newPwd='..againpassword
+                   ..'&token='..token..'&IMEI='..imeicode
+    Log:write("修改密码请求地址 : ",requestURL)
+    Http:request('modifyPwd', requestURL, 101,{useCache=false,method = 'post'})
+    Loading:show(rootSprite)
+end 
+
+-- 搜索
+function doSearch(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/lianxiren_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+    Scene:setReturn(Alias.m_xiugaimima, Alias.m_recentContacter)
+    Scene:go(Alias.m_recentContacter, true)
+end
+
+-- 联系人列表
+function doContact(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/zuijinglianxiren_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+    Scene:setReturn(Alias.m_xiugaimima, Alias.m_renyuantongji)
+    Scene:go(Alias.m_renyuantongji, true)
+end
+
+-- 个人信息中心
+function doPersonalCenter(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/person_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')   
+    Scene:setReturn(Alias.m_xiugaimima, Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"))
+    Scene:go(Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"))
+end
+
+-- 设置
+function doSetting(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/site_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png') 
+    Scene:setReturn(Alias.m_xiugaimima, Alias.m_system)
+    Scene:go(Alias.m_system, true)
+end
+
+
+    ]]>
+</root>
