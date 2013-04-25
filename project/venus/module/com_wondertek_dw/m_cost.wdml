@@ -86,7 +86,7 @@
                         OnSelect="dangjiduOnSelect" extendstyle="1111"  data='0'>
                         <image name='dangjiduimg' rect="0,0,56,35" src="file://image/major.png" 
                              extendstyle="1111" style='autosize'/>
-                        <label name='jiduselectName' rect="0,0,56,30" text="季度" font-family='微软雅黑'
+                        <label name='jiduselectName' rect="0,0,56,30" text="季" font-family='微软雅黑'
                             extendstyle="1111" font-size="24" h-align="center" v-align="center"
                             color="#ffffff" />
                     </button>
@@ -357,7 +357,7 @@ end
 -------点击按地市统计标签
 function cityOn(sprite)
     function_name(cityBtn,companyBtn)
-    Log:write("1111")
+    --Log:write("1111")
     local dimension = Sprite:findChild(rootSprite,'dimension')
     local dimension1 = Sprite:findChild(rootSprite,'dimension1')
     local dimension2 = Sprite:findChild(rootSprite,'dimension2')
@@ -377,13 +377,13 @@ end
 -------点击按代维公司统计标签
 function companyOn(sprite)
     function_name(companyBtn,cityBtn)
-    Log:write("1111")
+    --Log:write("1111")
     local dimension = Sprite:findChild(rootSprite,'dimension')
     local dimension1 = Sprite:findChild(rootSprite,'dimension1')
     local dimension2 = Sprite:findChild(rootSprite,'dimension2')
     Sprite:setProperty(dimension,'text','代维公司')	
     cmd = Sprite:getData(sprite)
-    Log:write('cmd',cmd)
+    --Log:write('cmd',cmd)
     --显示选择专业框
     local selectMajor = Sprite:findChild(rootSprite,'selectMajor')
     Sprite:setProperty(selectMajor,'visible','true')
@@ -706,10 +706,10 @@ function request()
     local endday=Sprite:getText(rilabel2)
     local starttime=startyear..'-'..startmonth..'-'..startday
     local endtime=endyear..'-'..endmonth..'-'..endday
-    Log:write('starttime',starttime,endtime)
+    --Log:write('starttime',starttime,endtime)
     local param = 'cmd='..cmd..'&starttime='..starttime..'&endtime='..endtime..'&major='..majorData..'&page=1&pagesize=300&usercode='..Config:get('username')
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
-    Log:write('reqURL',reqURL) 
+    --Log:write('reqURL',reqURL) 
     Http:request('city_data', reqURL, 101, {useCache = false})
 end
 --加载按地市统计数据
@@ -763,7 +763,7 @@ function showRank1(item, index)
             rank =  rank + 1
         end 
     end 
-    Log:write('ratio',ratio,rank)
+    --Log:write('ratio',ratio,rank)
     -- 获取金钱图标的Sprite
     local KFPic = Sprite:findChild(item, 'KFPic')
     if rank == 1 and ratio~=0   then
@@ -783,7 +783,7 @@ function loadListItem1(list, item, index)
     local kfNumLab = Sprite:findChild(item,'kfNum')
     local kfTimeLab = Sprite:findChild(item,'kfTime')
     Sprite:setProperty(num,'text',tostring(index+1)..'、')
-    Log:write("点击的是哪个222")
+    --Log:write("点击的是哪个222")
     --Sprite:setProperty(kfDetailsLab,'text',"基站接地不规范")
     --Sprite:setProperty(kfNumLab,'text',"-100")
     --Sprite:setProperty(kfTimeLab,'text',"2012-12-20")
@@ -797,11 +797,11 @@ end
 function dwSeqOnSelect(sprite)
     local data = Sprite:getData(sprite)
     local len = city_data.total
-    Log:write('--------len--',len)
+    --Log:write('--------len--',len)
     if data == "0" then
         Sprite:setProperty(sprite,'data',"1")
         city_data.value = sortTable(city_data.value, 'cost', true)
-        Log:write('--------city_data.value--',city_data.value)
+        --Log:write('--------city_data.value--',city_data.value)
         local listView = Sprite:findChild(rootSprite, 'sampleList')
         ListView:removeAllItems(listView,1,1)
         -- 加载列表项
@@ -871,9 +871,9 @@ end
 function KFOnSelect(sprite)
    setAllShoworHide(Sprite:findChild(rootSprite, 'selectKFNode'), 1)
    KFNum=Sprite:getData(sprite)
-   Log:write("点击的是哪个1111",KFNum)
+   --Log:write("点击的是哪个1111",KFNum)
    listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-  Log:write("点击的是哪个we212121",#city_data.value[KFNum].data+1)
+   --Log:write("点击的是哪个we212121",#city_data.value[KFNum].data+1)
    ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listitem1'), #city_data.value[KFNum].data+1, 'loadListItem1')
    ListView:adjust(listView1)
 end

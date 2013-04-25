@@ -106,7 +106,7 @@ require 'framework.umsagent'
 
 local rootSprite
 local user_name
-
+local loginData
 local g_exitFlag = false
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -139,20 +139,28 @@ function bodyOnPluginEvent(msg)
     Loading:close()
     if msg == 101 then
         UmsAgent:onLoadFinish()
-        local loginData = Http:jsonDecode('login_istrue')
-        Log:write('+++++++++++++++++',loginData)
-        local result=loginData['code']
-        local role = loginData.value[0].rolecode
-        local username = loginData.value[0].userid
-            Config:set('username',username)
-        if(loginData['simid'] ~= nil) then
-            Config:set('simid',loginData['simid'])
-        else
-            Config:set('simid','-1')
+        loginData = Http:jsonDecode('login_istrue')
+        --Log:write('++++++++日志日志日志1111+++++++++',loginData)
+        if loginData == nil then 
+            Dialog:show("", "登录失败，服务器返回异常!", "ok")
+            --Log:write("loginData is null")
+            return
         end
-        Log:write('username',username)
-        Log:write('role----',role)
-        if result=='0' then
+       
+        local result= loginData['code']
+        --Log:write("===loginData['code']",result)
+        
+        
+         
+        if result== '0' then
+            local role = loginData.value[0].rolecode
+            local username = loginData.value[0].userid
+            Config:set('username',username)
+           if(loginData['simid'] ~= nil) then
+              Config:set('simid',loginData['simid'])
+            else
+            Config:set('simid','-1')
+           end
             Config:set('realname', loginData.userName)
             Config:set('tasknum', loginData.taskNum)
             --写入为综合资源管理系统需要的数据
@@ -160,7 +168,7 @@ function bodyOnPluginEvent(msg)
             Config:set('orgname',loginData.value[0].orgname)
             writeuserInfo()
             local xlFlag = Config:get("xlFlag")
-            Log:write('xianlu flag is -->'..user_name)
+            --Log:write('xianlu flag is -->'..user_name)
             if xlFlag == '1' then
                 Scene:go(Alias.home_xianlu)
             elseif role=='MM000' or role=='MM001' or role=='MM002' then 
@@ -177,7 +185,7 @@ function bodyOnPluginEvent(msg)
             elseif username == 'liutingliang' or username == 'tangjizhi'
                 or username == 'sunjun' or username == 'likunzi'
                 or username == 'xufan' then 
-                Scene:go(Alias.home_sheng_manager)
+                Scene:go(Alias.home_sheng)
             elseif username == 'chenxiaofeng' then 
                 Scene:go(Alias.home_city) 
             elseif username == 'liuguoli' or username == 'huotingrui' then 
@@ -194,9 +202,9 @@ function bodyOnPluginEvent(msg)
         end
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
-        Log:write('拨号失败')
+        --Log:write('拨号失败')
     elseif msg > MSG_NETWORK_ERROR then -- 请求超时
-        Log:write('请求超时')
+        --Log:write('请求超时')
         Dialog:show('登陆提醒','请求超时！','ok')
     end
 end
@@ -228,7 +236,7 @@ function loginOnSelect(sprite)
     local password=Sprite:getText(Sprite:findChild(rootSprite, 'password'))
     local imei = System:getMachineInfo(4) 
     if imei == nil then imei = "860173012418210" end
-    Log:write('loginOnSelect: imei = '..imei)
+    --Log:write('loginOnSelect: imei = '..imei)
     user_name=username
     if(username=='') then
         Dialog:show('提醒','用户名不能为空!','ok')

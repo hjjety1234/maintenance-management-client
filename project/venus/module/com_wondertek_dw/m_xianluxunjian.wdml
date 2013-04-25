@@ -379,7 +379,8 @@ function _requestNearbyStationByRadius()
 		Log:write('gps data is ------------------->'..gpsdate)
         timerNum = 20
         Timer:cancel(111)
-        System:setGPSStatus(0)
+        
+        --System:setGPSStatus(0) --定位成功后，不关闭GPS
         
         -- 判断定位是否成功
         local latitudeValue = latitude
@@ -446,9 +447,9 @@ function _requestNearbyStationByRadius()
         end
         
         -- 定位失败
-        --Sprite:setProperty(statusBarText, 'text', '定位失败，请点击下方按钮重试.')
+        Sprite:setProperty(statusBarText, 'text', '定位失败，请点击下方按钮重试.')
         --改用网络定位
-        getGPSDataByMap(sprite)
+        --getGPSDataByMap(sprite)
     end
  end
  --此函数的意义是向服务器端发送一条消息，告知服务器端进行了线路巡检，便于用户进行统计
