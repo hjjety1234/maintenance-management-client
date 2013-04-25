@@ -47,7 +47,7 @@
                         <image name='cityImg1' rect="0,0,240,49" src=""
                          extendstyle="1111" style='autosize'/>
                         <label name='dangyuelabel' rect="0,0,240,49" text="按次成本标杆" font-family='微软雅黑'
-                            extendstyle="1111" font-size="28" h-align="center" v-align="center"  color="#0062ab"
+                            extendstyle="1111" font-size="28" h-align="center" v-align="center"  color="#5a5a5a"
                              />
                     </button>
                     <button name="dangjidu" rect="240,0,240,66" 
@@ -55,7 +55,7 @@
                         <image name='cityImg1' rect="0,0,240,49" src="file://image/city_on.png"
                          extendstyle="1111" style='autosize'/>
                         <label name='dangyuelabel' rect="0,0,240,49" text="周期成本标杆" font-family='微软雅黑'
-                            extendstyle="1111" font-size="28" h-align="center" v-align="center"  color="#5a5a5a"
+                            extendstyle="1111" font-size="28" h-align="center" v-align="center"  color="#0062ab"
                              />
                     </button>
              </node> 
@@ -117,7 +117,7 @@
                     style="autosize" extendstyle="1111" /> 
                 
                 <!--列表信息-->
-                <node name="listViewNode" rect="0,80,480,400" extendstyle="1111">
+                <node name="listViewNode" rect="0,100,480,400" extendstyle="1111">
                     <listview name="sampleList1" rect="0,45,480,400" extendstyle="1111" 
                         auto-scroll='true' limit='true' />
                     <image name="listButtonImage" rect="31,9,418,38" 
@@ -130,7 +130,7 @@
                             extendstyle="1111" font-size="22" h-align="center" v-align="center"
                             color="#e33a10" />
                        
-                        <label name='cost' rect="260,5,145,25" text="成本标杆(元)" font-family='微软雅黑'
+                        <label name='cost' rect="260,5,145,25" text="年成本标杆" font-family='微软雅黑'
                             extendstyle="1111" font-size="22" h-align="center" v-align="center"
                             color="#e33a10" />
                     </image>
@@ -160,30 +160,31 @@
             </node>
 
             <!-- 平原、山丘、丘陵选择  -->
-            <node name="typeNode" rect="0,220,480,300" extendstyle="1111" border="1">
+            <node name="typeNode" rect="0,220,480,300" extendstyle="1111" >
               <label name='typeLabel' rect="10,60,120,30" text="平原" font-family='微软雅黑'
                   extendstyle="1111" font-size="24" h-align="center" v-align="center"
                             color="#0062ab" />
-             <image rect="15,110,450,1" src="file://image/xianluzancun_line.png" style="autosize" 
-                            extendstyle="1114" />
+             
              <button name="pingyun" rect="220,0,77,77" src='file://image/py_d.png'
                     OnSelect="pyOnSelect" extendstyle="1111" data='0' >
-               <label name='pyLabel' rect="10,70,60,30" text="平原" font-family='微软雅黑'
-                   border="1"  extendstyle="1111" font-size="20" h-align="center" v-align="center"
+             </button>
+             <label name='pyLabel' rect="230,80,60,30" text="平原" font-family='微软雅黑'
+                 extendstyle="1111" font-size="20" h-align="center" v-align="center"
                             color="#0062ab" />
-              </button>
               <button name="shanqiu" rect="300,0,77,77" src='file://image/shanqiu_s.png'
                     OnSelect="sqOnSelect" extendstyle="1111" data='2'>
-                 <label name='sqLabel' rect="10,70,60,30" text="山区" font-family='微软雅黑'
-                      border="1"  extendstyle="1111" font-size="20" h-align="center" v-align="center"
-                            color="#303030" />
+            
               </button>
+              <label name='sqLabel' rect="310,80,60,30" text="山区" font-family='微软雅黑'
+                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                            color="#303030" />
               <button name="qiulin" rect="380,0,77,77" src='file://image/qiulin_s.png'
                     OnSelect="qlOnSelect" extendstyle="1111" data='1' >
-                 <label name='qlLabel' rect="10,70,60,30" text="丘陵" font-family='微软雅黑'
-                     border="1"  style='autosize' extendstyle="1111" font-size="20" h-align="center" v-align="center"
-                            color="#303030" />
+                
               </button>
+             <label name='qlLabel' rect="390,80,60,30" text="丘陵" font-family='微软雅黑'
+                   style='autosize' extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                            color="#303030" />
             </node>
         </node>
     </body>
@@ -308,7 +309,7 @@ end
 
 -- 请求统计数据
 function request(major,area)
-     local param = string.format('cmd=wlbbenchmarking&usercode=%s&major=%s&area=%s&page=1&pagesize=100', 
+     local param = string.format('cmd=wlbbillingcycle&usercode=%s&major=%s&area=%s&page=1&pagesize=100', 
         Config:get('username'), major,area)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write("[request] reqURL:======== ", reqURL)
