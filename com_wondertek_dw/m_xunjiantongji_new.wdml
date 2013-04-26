@@ -159,23 +159,23 @@
                         <node name="listViewNode" rect="0,6,480,510" extendstyle="1111">
                             <listview name="sampleList1" rect="0,40,480,510" extendstyle="1111" 
                                 auto-scroll='true' limit='true' />
-                            <image name='selectImg' rect="21,0,438,1" 
-                                src="file://image/xianluzancun_line.png" extendstyle="1111" 
+                            <image name='selectImg' rect="21,0,438,2" 
+                                src="file://image/line.png" extendstyle="1111" 
                                 style='autosize'/>
                             <image name="listButtonImage" rect="31,9,418,38" 
                                 src="file://image/ziyuan_bg.png"
                                 extendstyle="1111" style='autosize' >
-                                <label name='cityName' rect="0,5,70,25" text="市公司" font-family='微软雅黑'
-                                    extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                                <label name='cityName' rect="0,5,85,25" text="市公司" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="21" h-align="center" v-align="center"
                                     color="#e33a10" />
                                 <label rect="60,5,160,25" text="计划站点" font-family='微软雅黑'
-                                    extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                                    extendstyle="1111" font-size="21" h-align="center" v-align="center"
                                     color="#e33a10" />
                                 <label rect="170,5,160,25" text="巡检站点" font-family='微软雅黑'
-                                    extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                                    extendstyle="1111" font-size="21" h-align="center" v-align="center"
                                     color="#e33a10" />
                                 <label rect="270,5,160,25" text="巡检率" font-family='微软雅黑'
-                                    extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                                    extendstyle="1111" font-size="21" h-align="center" v-align="center"
                                     color="#e33a10" />
                             </image>
                             <!-- 计划巡检站点排序 -->
@@ -221,14 +221,14 @@
                 <label name='ratio' rect="300,5,160,25" text="100" font-family='微软雅黑'
                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
                     color="#5a5a5a" />
-                <image name='faceName'  rect="410,5,30,30" src=""
+                <image name='faceName'  rect="413,5,30,30" src=""
                     style="autosize" extendstyle="1111" /> 
             </node>
             <!-- 考核信息列表项模板 -->
             <node name="listItem2" rect="0,400,480,80" border="false"
                 visible="false" enable="false" active="false" extendstyle="1111">
-                <textarea name="newCity" rect="5,25,120,70" text="" color="#303030" border="false"
-                    font-family='微软雅黑' font-size="18" h-align="center"
+                <textarea name="newCity" rect="8,22,120,70" text="" color="#303030" border="false"
+                    font-family='微软雅黑' font-size="17" h-align="center"
                     v-align="top" style="autosize" extendstyle="1111" >
                 </textarea> 
                 <shadow name='newShadow' rect="10,48,400,30" color="#916747" alpha="200" border="false"
@@ -320,13 +320,13 @@ function addSumToListItem( list, item, index )
     local newCity = Sprite:findChild(item,'newCity')         -- 地市
     local newRatio = Sprite:findChild(item,'newRatio')         -- 巡检率
     local newShadow = Sprite:findChild(item,'newShadow')         -- 背景色
-    local shadownum = math.floor(tonumber(string.format('%.1f',g_sum.ratio))*3.4)
+    local shadownum = math.floor(tonumber(string.format('%.2f',g_sum.ratio))*3.4)
     Sprite:setProperty(newCity, 'text', g_sum.dimension)
-    Sprite:setProperty(newRatio, 'text', string.format('%.1f',g_sum.ratio).."%")
+    Sprite:setProperty(newRatio, 'text', string.format('%.2f',g_sum.ratio).."%")
     Sprite:setRect(newShadow,120,10,shadownum,45)
     Log:write('shadownum',shadownum)
     if shadownum > 70 then 
-        Sprite:setRect(newRatio,shadownum+50,22,90,25)
+        Sprite:setRect(newRatio,shadownum+45,22,90,25)
     else 
         Sprite:setRect(newRatio,shadownum+135,22,90,25)
         Sprite:setProperty(newRatio,'color','#303030')
@@ -365,7 +365,7 @@ function addSumToListItem1( list, item, index )
     Sprite:setProperty(dimension, 'text', g_sum.dimension)
     Sprite:setProperty(plan, 'text', g_sum.plan)
     Sprite:setProperty(complete, 'text', g_sum.complete)
-    Sprite:setProperty(ratio, 'text', string.format('%.1f',g_sum.ratio).."%")
+    Sprite:setProperty(ratio, 'text', string.format('%.2f',g_sum.ratio).."%")
     if g_sum.plan<=g_sum.complete and g_sum.plan~=0 then 
       Sprite:setProperty(ratio, 'text', '100.0%')
     end
@@ -399,10 +399,7 @@ function loadListItem(list, item, index)
     Sprite:setProperty(dimension, 'text', value[index].dimension)
     Sprite:setProperty(plan, 'text', value[index].plan)
     Sprite:setProperty(complete, 'text', value[index].complete)
-    Sprite:setProperty(ratio, 'text', string.format('%.1f',value[index].ratio).."%")
-    if value[index].plan<=value[index].complete and value[index].plan~=0 then 
-      Sprite:setProperty(ratio, 'text', '100.0%')
-    end
+    Sprite:setProperty(ratio, 'text', string.format('%.2f',value[index].ratio).."%")
     -- 前三名显示笑脸，后三名显示哭脸
     showRank1(item, index)
 end
@@ -414,13 +411,13 @@ function loadListItem2(list, item, index)
     local newCity = Sprite:findChild(item,'newCity')         -- 地市
     local newRatio = Sprite:findChild(item,'newRatio')         -- 巡检率
     local newShadow = Sprite:findChild(item,'newShadow')         -- 背景色
-    local shadownum = math.floor(tonumber(string.format('%.1f',value[index].ratio))*3.4)
+    local shadownum = math.floor(tonumber(string.format('%.2f',value[index].ratio))*3.4)
     Sprite:setProperty(newCity, 'text', value[index].dimension)
-    Sprite:setProperty(newRatio, 'text', string.format('%.1f',value[index].ratio).."%")
+    Sprite:setProperty(newRatio, 'text', string.format('%.2f',value[index].ratio).."%")
     Sprite:setRect(newShadow,120,10,shadownum,45)
     Log:write('shadownum',shadownum)
     if shadownum > 70 then 
-        Sprite:setRect(newRatio,shadownum+50,22,90,25)
+        Sprite:setRect(newRatio,shadownum+45,22,90,25)
     else 
         Sprite:setRect(newRatio,shadownum+135,22,90,25)
         Sprite:setProperty(newRatio,'color','#303030')
@@ -447,29 +444,28 @@ end
 -- 对前三名显示笑脸，后三名显示哭脸
 function showRank1(item, index)
     -- 获取当前巡检率的值
-    local ratio = g_response.value[index].ratio
+    local ratio = tonumber(g_response.value[index].ratio)
     if ratio=='' or ratio==nil  then 
         ratio=0
     end
 
-    --Log:write('当前巡检率的值',ratio)
+    Log:write('当前巡检率的值',ratio)
     -- 统计巡检率的排名
     local rank = 1
     for i=0,getJsonArrayCount(g_response.value)-1 do
         local compare = g_response.value[i].ratio
-        --Log:write('compare',compare)
+    Log:write('compare',compare)
         if tonumber(ratio) < tonumber(compare) then 
             rank =  rank + 1
         end 
-            --Log:write('排名',rank)
+    Log:write('排名',rank)
     end 
-
     -- 获取笑脸和哭脸的Sprite
     local faceName = Sprite:findChild(item, 'faceName')
     
-    if rank <= 3 and ratio~=0  then
+    if ratio==100 or rank<=3 and ratio~=0 then
         Sprite:setProperty(faceName, 'src', 'file://image/smileface.png')
-    elseif getJsonArrayCount(g_response.value) - rank <= 3 or ratio==0 then
+    elseif getJsonArrayCount(g_response.value) - rank <= 2 or ratio==0 then
         Sprite:setProperty(faceName, 'src', 'file://image/cryface.png')
     end
     --[[if ratio >= 100.0 then 
