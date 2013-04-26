@@ -62,9 +62,9 @@
             <node name="bodyNode" rect="0,135,480,720" foreground="" alpha="255">
 	            <image rect="10,0,460,12" src="file://image/content_top.png"
 	                style="autosize" extendstyle="1111" />
-	            <image rect="10,12,460,680" src="file://image/content_center.png"
+	            <image rect="10,12,460,640" src="file://image/content_center.png"
 	                style="autosize" extendstyle="1111" />
-	            <image rect="10,690,460,12" src="file://image/content_bottom.png"
+	            <image rect="10,650,460,12" src="file://image/content_bottom.png"
 	                style="autosize" extendstyle="1111" />
                 <!-- 维度标签 -->
                 <node name="dimNode" rect="0,0,480,66" extendstyle="1111">
@@ -80,7 +80,7 @@
                     <!--按代维公司 -->
                     <button name="companyBtn" rect="120,0,130,66" 
                         OnSelect="companyOn" extendstyle="1111" data='wlbcompanyquality' >
-                        <image name='companyImg' rect="30,10,120,37" src="" 
+                        <image name='companyImg' rect="30,10,130,37" src="" 
                              extendstyle="1111" style='autosize'/>
                         <label name="companyTxt" rect="30,5,110,37" text="代维单位" font-family='微软雅黑'
                             extendstyle="1111" font-size="23" h-align="center" v-align="center"
@@ -89,7 +89,7 @@
                     <!-- 按代维专业 -->
                     <button name="majorBtn" rect="250,0,130,66" 
                         OnSelect="majorOn" extendstyle="1111" data='wlbcompanyquality' >
-                        <image name='majorImg' rect="30,10,120,37" src="" 
+                        <image name='majorImg' rect="30,10,130,37" src="" 
                              extendstyle="1111" style='autosize'/>
                         <label name="majorTxt" rect="30,5,110,37" text="代维专业" font-family='微软雅黑'
                             extendstyle="1111" font-size="23" h-align="center" v-align="center"
@@ -99,14 +99,14 @@
                 </node>
                 <!--列表信息-->
                 <node name="listNode1" rect="0,56,480,640" extendstyle="1111">
-                    <listview name="sampleList1" rect="0,40,480,600" extendstyle="1111" auto-scroll='true' limit='true' />
+                    <listview name="sampleList1" rect="0,45,480,560" extendstyle="1111"  />
                     <image name='selectImg' rect="21,0,438,1" src="file://image/xianluzancun_line.png" 
                         extendstyle="1111" style='autosize'/>
                     <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
                         extendstyle="1111" style='autosize' >
                         <label name='dimension' rect="0,5,90,25" text="市公司" font-family='微软雅黑'
-	                       extendstyle="1111" font-size="22" h-align="center" v-align="center"
-	                       color="#e33a10" />
+                           extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                           color="#e33a10" />
                         <label rect="90,5,160,25" text="上报隐患数" font-family='微软雅黑'
                             extendstyle="1111" font-size="22" h-align="center" v-align="center"
                             color="#e33a10" />
@@ -128,7 +128,7 @@
                     </button>
                 </node> 
                 <!-- 列表项模板  -->
-                <node name="listItem1" rect="0,0,480,80" border="false"
+                <node name="listItem1" rect="0,0,480,40" border="false"
                     visible="false" enable="false" active="false" extendstyle="1111">
                     <image name="listItem_bg" rect="31,0,418,38" src=""
                         extendstyle="1111" style='autosize' />
@@ -156,6 +156,7 @@ local g_respValue = nil     -- 服务端返回数据
 local searchDate = 'year'   --默认按当年进行查询
 local dangyue
 local dangjidu 
+local g_sum
 ---------------------------------------系统回调函数列表--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -207,10 +208,18 @@ function bodyOnPluginEvent(msg, param)
         end
         -- 加载统计数据
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-        local len = getJsonArrayCount(resp.value)
+        local len = getJsonArrayCount(resp.value)-1
+
+        g_sum = g_respValue[len]
+        g_respValue[len]=nil
+        Log:write('len',len)
+        Log:write('g_sum',g_sum)
+        Log:write('g_respValue',g_respValue)
         ListView:removeAllItems(listView1)
         ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
             len, 'loadListItem')
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+            1, 'addloadListItem')
         ListView:adjust(listView1)
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
@@ -328,10 +337,26 @@ function loadListItem(list, item, index)
     Sprite:setProperty(dealDangerRatio,'text', 
         string.format('%.1f',g_respValue[index].dealdangercount).."%")
 end
+function addloadListItem(list, item, index)
+    Log:write('++++',g_sum)
+    Sprite:setRect(item, 0, 0, 480, 40)
+    local listItem_bg = Sprite:findChild(item, 'listItem_bg')
+    if index % 2 > 0 then
+       Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
+    end
+    -- 加载返回的数据
+    local dimName = Sprite:findChild(item,'dimName')                    -- 维度名称
+    local dangerCount = Sprite:findChild(item,'dangerCount')            -- 上报隐患数
+    local dealDangerRatio = Sprite:findChild(item,'dealDangerRatio')    -- 解决率
+    Sprite:setProperty(dimName,'text', g_sum.name)
+    Sprite:setProperty(dangerCount,'text', g_sum.dangercount)
+    Sprite:setProperty(dealDangerRatio,'text', 
+        string.format('%.1f',g_sum.dealdangercount).."%")
+end
 
 -- @brief 上报隐患数排序
 function xqSeqOnselect(sprite)
-    local len = getJsonArrayCount(g_respValue) 
+    local len = getJsonArrayCount(g_respValue)-1 
     local XQ = Sprite:findChild(rootSprite,'triangleXQ')
     if  Sprite:getProperty(XQ,'src') == "file://image/triangle_down.png" then
         Sprite:setProperty(XQ,'src','file://image/triangle_up.png')
@@ -345,12 +370,14 @@ function xqSeqOnselect(sprite)
     ListView:removeAllItems(listView1,1,1)
     ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
         len, 'loadListItem')
+    ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+        1, 'addloadListItem')
     ListView:adjust(listView1)
 end
 
 -- @brief 解决率排序
 function fdSeqOnselect(sprite)
-    local len = getJsonArrayCount(g_respValue) 
+    local len = getJsonArrayCount(g_respValue)-1
     local XQ = Sprite:findChild(rootSprite,'triangleFD')
     if  Sprite:getProperty(XQ,'src') == "file://image/triangle_down.png" then
         Sprite:setProperty(XQ,'src','file://image/triangle_up.png')
@@ -364,6 +391,8 @@ function fdSeqOnselect(sprite)
     ListView:removeAllItems(listView1,1,1)
     ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
         len, 'loadListItem')
+    ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+        1, 'addloadListItem')
     ListView:adjust(listView1)
 end
 
