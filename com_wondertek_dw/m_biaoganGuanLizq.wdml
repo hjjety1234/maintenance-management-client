@@ -164,27 +164,28 @@
               <label name='typeLabel' rect="10,60,120,30" text="平原" font-family='微软雅黑'
                   extendstyle="1111" font-size="24" h-align="center" v-align="center"
                             color="#0062ab" />
-             
-             <button name="pingyun" rect="220,0,70,70" src='file://image/py_d.png' style='autosize'
-                    OnSelect="pyOnSelect" extendstyle="1111" data='0' >
+             <image  rect="30,105,420,1" src="file://image/xianluzancun_line.png"
+                    extendstyle="1114" style='autosize' />
+             <button name="pingyun" rect="220,0,70,70" src='file://image/py_d.png'
+                    OnSelect="pyOnSelect" extendstyle="1111" data='0' style='autosize'>
              </button>
-             <label name='pyLabel' rect="220,80,60,30" text="平原" font-family='微软雅黑'
+             <label name='pyLabel' rect="225,75,60,30" text="平原" font-family='微软雅黑'
                  extendstyle="1111" font-size="20" h-align="center" v-align="center"
                             color="#0062ab" />
-              <button name="shanqiu" rect="300,0,70,70" src='file://image/shanqiu_s.png' style='autosize'
-                    OnSelect="sqOnSelect" extendstyle="1111" data='2'>
-            
-              </button>
-              <label name='sqLabel' rect="300,80,60,30" text="山区" font-family='微软雅黑'
-                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
-                            color="#303030" />
-              <button name="qiulin" rect="380,0,70,70" src='file://image/qiulin_s.png' style='autosize'
+               <button name="qiulin" rect="300,0,70,70" src='file://image/qiulin_s.png' style='autosize'
                     OnSelect="qlOnSelect" extendstyle="1111" data='1' >
                 
               </button>
-             <label name='qlLabel' rect="380,80,60,30" text="丘陵" font-family='微软雅黑'
+              <label name='qlLabel' rect="305,75,60,30" text="丘陵" font-family='微软雅黑'
                    style='autosize' extendstyle="1111" font-size="20" h-align="center" v-align="center"
-                            color="#303030" />
+                            color="#bcbcbc" />
+              <button name="shanqiu" rect="380,0,70,70" src='file://image/shanqiu_s.png' style='autosize'
+                    OnSelect="sqOnSelect" extendstyle="1111" data='2'>
+            
+              </button>
+              <label name='sqLabel' rect="385,75,60,30" text="山区" font-family='微软雅黑'
+                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                            color="#bcbcbc" />
             </node>
         </node>
     </body>
@@ -341,6 +342,7 @@ function loadListItem(list, item, index)
   end
 end
 
+--平原、丘陵、山区类型选择
 function pyOnSelect(sprite)
     local pingyun =Sprite:findChild(rootSprite,'pingyun')
     local shanqiu =Sprite:findChild(rootSprite,'shanqiu')
@@ -355,8 +357,8 @@ function pyOnSelect(sprite)
     Sprite:setProperty(shanqiu, 'src', 'file://image/shanqiu_s.png')
     Sprite:setProperty(qiulin, 'src', 'file://image/qiulin_s.png')
     Sprite:setProperty(pyLabel, 'color', '#0062ab')
-    Sprite:setProperty(sqLabel, 'color', '#303030')
-    Sprite:setProperty(qlLabel, 'color', '#303030')
+    Sprite:setProperty(sqLabel, 'color', '#bcbcbc')
+    Sprite:setProperty(qlLabel, 'color', '#bcbcbc')
     Sprite:setProperty(typeLabel, 'text', '平原')
     request(g_major,area)
 end
@@ -373,9 +375,9 @@ function sqOnSelect(sprite)
     Sprite:setProperty(pingyun, 'src', 'file://image/py_s.png')
     Sprite:setProperty(shanqiu, 'src', 'file://image/shanqiu_d.png')
     Sprite:setProperty(qiulin, 'src', 'file://image/qiulin_s.png')
-    Sprite:setProperty(pyLabel, 'color', '#303030')
+    Sprite:setProperty(pyLabel, 'color', '#bcbcbc')
     Sprite:setProperty(sqLabel, 'color', '#0062ab')
-    Sprite:setProperty(qlLabel, 'color', '#303030')
+    Sprite:setProperty(qlLabel, 'color', '#bcbcbc')
     Sprite:setProperty(typeLabel, 'text', '山区')
     request(g_major,area)
 end
@@ -392,12 +394,13 @@ function qlOnSelect(sprite)
     Sprite:setProperty(pingyun, 'src', 'file://image/py_s.png')
     Sprite:setProperty(shanqiu, 'src', 'file://image/shanqiu_s.png')
     Sprite:setProperty(qiulin, 'src', 'file://image/qiulin_d.png')
-    Sprite:setProperty(pyLabel, 'color', '#303030')
-    Sprite:setProperty(sqLabel, 'color', '#303030')
+    Sprite:setProperty(pyLabel, 'color', '#bcbcbc')
+    Sprite:setProperty(sqLabel, 'color', '#bcbcbc')
     Sprite:setProperty(qlLabel, 'color', '#0062ab')
      Sprite:setProperty(typeLabel, 'text', '丘陵')
     request(g_major,area)
 end
+--成本排序
 function docostSort(sprite)
     local data = Sprite:getData(sprite)
     local len = getJsonArrayCount(g_response.value)
