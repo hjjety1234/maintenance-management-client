@@ -47,7 +47,7 @@ public class VenusApplication  extends Application {
 
 	private boolean mDownVenusZip = false;
 
-	private static boolean bAppActivityIsRunning = false;
+	public static boolean bAppActivityIsRunning = false;
 	
 	private String ts;
 	private String tslocal;

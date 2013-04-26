@@ -127,6 +127,7 @@ import android.widget.TextView;
 //import com.google.ads.AdSize;
 //import com.google.ads.AdView;
 //import com.wondertek.activity.R;
+import com.wondertek.video.Util;
 import com.wondertek.video.alarm.AlarmObserver;
 import com.wondertek.video.appmanager.AppManager;
 //AuthPlugin
@@ -155,6 +156,8 @@ import com.wondertek.video.smsspam.SMSSpamMgr;
 import com.wondertek.video.telephone.PhoneObserver;
 import com.wondertek.video.update.UpdateMan;
 import com.wondertek.video.wifi.WifiObserver;
+//fractalad: for plugin FractalAD, now it's not used
+//import com.wondertek.video.fractalad.FractalADPlugin;
 
 //safetyAuthentic: for plugin CA, now it's not used
 //import com.wondertek.video.authentic.AuthenticObserver;
@@ -167,6 +170,7 @@ import com.wondertek.video.wifi.WifiObserver;
 
 public class VenusActivity implements SurfaceHolder.Callback {
 	static String TAG = "VenusActivity";
+	public static String startParam = "";
 
 	public static int PHONE_PLATFORM = 0;	//0-ANDROID, 1-OPHONE
 
@@ -294,6 +298,15 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	private static final int TMPC_MEDIA_PLAYER_PublicSurface	= 3;
 	private static final int PE_MEDIA_PALYER_OVERLEY			= 4;
 	private static final int WD_MEDIA_PLAYER_PublicSurface      = 5;
+	
+	public static final char Enum_StringEventID_VOICE					= 1;
+	public static final char Enum_StringEventID_NOTIFICATION_TEXT		= 2;
+	public static final char Enum_StringEventID_NOTIFICATION_PROCESS	= 3;
+	public static final char Enum_StringEventID_APPCALLBACK				= 4;
+	public static final char Enum_StringEventID_WAPSTART				= 5;
+	public static final char Enum_StringEventID_INTENT_DATA				= 6;
+	public static final char Enum_StringEventID_VEDIO_DATA				= 7;
+	public static final char Enum_StringEventID_VEDIO					= 8;
 
 	//Listen the event of G-SENSOR
 	private static VenusOrientation venusOrientation;
@@ -326,7 +339,12 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public static final int CAMERA_RESULT = 100;
 	public static final int CALL_RESULT = 101;
 	public static final int REQUEST_PICKER_ALBUM = 102;
+	
+	public static long tolRxTraffic = -1;
+	public static long tolTxTraffic = -1;
 
+	//FractalADPlugin
+	//public FractalADPlugin fractalADPlugin = null;
 	//AuthPlugin
 //	public AuthPlugin authPlugin = null;
 	//TODO VoiceInput
@@ -1103,7 +1121,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 		appManager = AppManager.getInstance(this);
 		//add pj
-//		viManager = VoiceInputManager.getInstance();
+		// viManager = VoiceInputManager.getInstance();
 
 		Util.saveMachineSettings(appActivity.getContentResolver());
 
@@ -1126,7 +1144,14 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		//AuthPlugin
 //		if(authPlugin == null)
 //			authPlugin = AuthPlugin.getInstance(this);
-
+		
+		//FractalADPlugin
+		//if(fractalADPlugin == null)
+		//{
+		//	fractalADPlugin = FractalADPlugin.getInstance(this);
+		//	al.addView(fractalADPlugin.GetFractalADView());
+		//}
+		
 		sysState = SYS_STATE_RUN;
 	}
 
@@ -1807,6 +1832,8 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public native void nativesendtouchevent(int touch[]);
 
 	public native void nativesendevent(int keytype, int x, int y);
+	
+	public native void nativesendeventstring(int eventID, String strContent);
 
 	public native void nativesendkeyevent(int keyValue, int param1, int param2);
 
@@ -4174,4 +4201,92 @@ public class VenusActivity implements SurfaceHolder.Callback {
         home.addCategory(Intent.CATEGORY_HOME);   
         appActivity.startActivity(home);
     }
+	
+	private String JavaGetAppStartParamString()
+    {
+    	return startParam;
+    }
+	
+	public long GetTotalRxBytes()
+	{
+		int sdk = Util.GetSDK();
+		long RL = -1;
+		if(sdk >= Util.SDK_ANDROID_22)
+		{
+			Class<?> cls;
+			try {
+				cls = Class.forName("android.net.TrafficStats");
+				Util.Trace("GetTotalRxBytes cls =" + cls);
+				Method m_getTotalRxBytes = cls.getMethod("getTotalRxBytes");
+				Util.Trace("GetTotalRxBytes m_getTotalRxBytes =" + m_getTotalRxBytes);
+				RL = (Long) m_getTotalRxBytes.invoke(RL);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		Util.Trace("GetTotalBytes :" + RL);
+		return RL;
+	}
+	
+	public long GetTotalTxBytes()
+	{
+		int sdk = Util.GetSDK();
+		long TL = -1;
+		if(sdk >= Util.SDK_ANDROID_22)
+		{
+			Class<?> cls;
+			try {
+				cls = Class.forName("android.net.TrafficStats");
+				Util.Trace("GetTotalRxBytes cls =" + cls);
+				Method m_getTotalTxBytes = cls.getMethod("getTotalTxBytes");
+				Util.Trace("GetTotalTxBytes m_getTotalTxBytes =" + m_getTotalTxBytes);
+				TL = (Long) m_getTotalTxBytes.invoke(TL);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		Util.Trace("GetTotalTxBytes :" + TL);
+		return TL;
+	}
+	
+	public long GetMobilRxBytes()
+	{
+		int sdk = Util.GetSDK();
+		long RL = -1;
+		if(sdk >= Util.SDK_ANDROID_22)
+		{
+			Class<?> cls;
+			try {
+				cls = Class.forName("android.net.TrafficStats");
+				Util.Trace("GetMobilBytes cls =" + cls);
+				Method m_getMobileRxBytes = cls.getMethod("getMobileRxBytes");
+				Util.Trace("GetMobilBytes m_getMobileRxBytes =" + m_getMobileRxBytes);
+				RL = (Long) m_getMobileRxBytes.invoke(RL);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		Util.Trace("GetMobilBytes :" + RL);
+		return RL;
+	}
+	
+	public void javaStartFlux()
+	{
+		tolRxTraffic = GetTotalRxBytes();
+		tolTxTraffic = GetTotalTxBytes();
+	}
+	
+	public int javaGetRxFlux()
+	{
+		if(tolRxTraffic == -1)
+			return -1;
+		return (int) (GetTotalRxBytes() - tolRxTraffic);
+	}
+	
+	public int javaGetTxFlux()
+	{
+		if(tolTxTraffic == -1)
+			return -1;
+		return (int) (GetTotalTxBytes() - tolTxTraffic);
+	}
 }

@@ -12,11 +12,13 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.URLDecoder;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -760,6 +762,8 @@ public class Util {
 	private static final String KEYSTRING_USER_AGENT = "user_agent_key"; 	//For OMS
 	private static String User_Agent = null;
 
+	private static String content_id = "";
+
 	/**
 	 * Get the platform mold, such as Android and OMS
 	 * 
@@ -1030,5 +1034,26 @@ public class Util {
 		return mSDK;
 	}
 
+	public static void SetIntentData(Intent intent)
+    {
+    	content_id  = intent.getStringExtra("content_id") != null ? intent.getStringExtra("content_id") : "";
+    	Util.Trace("SetIntentData content_id: " + content_id);
+    }
+    
+    public static void executeIntentData()
+    {
+    	if(!content_id.equals(""))
+    	{
+    		String strMsg = "content_id|" + content_id;
+			if ( VenusActivity.getInstance() != null 
+					&& VenusApplication.getInstance().bAppActivityIsRunning == true )
+				VenusActivity.getInstance().nativesendeventstring(VenusActivity.Enum_StringEventID_INTENT_DATA, strMsg);
+			else
+				VenusActivity.startParam = strMsg;
+
+    	}
+    	Util.Trace("VenusActivity.startParam strMsg = " + VenusActivity.startParam);
+    	//TODO
+    }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }

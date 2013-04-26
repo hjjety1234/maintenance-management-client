@@ -83,6 +83,8 @@ public class AppFakeActivity extends Activity {
 	@Override
 	protected void onResume() {
 		Util.Trace( SELF+"onResume");
+		Util.SetIntentData(getIntent());
+		Util.executeIntentData();
 		super.onResume();
 	}
 
