@@ -191,7 +191,6 @@
               <label name='sqLabel' rect="385,75,60,30" text="山区" font-family='微软雅黑'
                      extendstyle="1111" font-size="20" h-align="center" v-align="center"
                             color="#bcbcbc" />
-             
             </node>
         </node>
     </body>
@@ -339,15 +338,15 @@ function loadListItem(list, item, index)
         local workchild = Sprite:findChild(item,'workchild')          -- 工作子项
         local measurement = Sprite:findChild(item,'measurement') --计量单位
         local cost = Sprite:findChild(item,'cost') --成本
-        local typeString = string.gsub(value[index].type, ' ', '')
+        local typeString = string.gsub(value[index-1].type, ' ', '')
         Sprite:setProperty(type, 'text', typeString)
-        local childrenString = string.gsub(value[index].children, ' ', '')
+        local childrenString = string.gsub(value[index-1].children, ' ', '')
         Sprite:setProperty(workchild, 'text', childrenString)
-        Sprite:setProperty(measurement, 'text', value[index].unit)
-        Sprite:setProperty(cost, 'text', value[index].cost)
+        Sprite:setProperty(measurement, 'text', value[index-1].unit)
+        Sprite:setProperty(cost, 'text', value[index-1].cost)
   end
 end
-
+--平原、丘陵、山区类型选择
 function pyOnSelect(sprite)
     local pingyun =Sprite:findChild(rootSprite,'pingyun')
     local shanqiu =Sprite:findChild(rootSprite,'shanqiu')
@@ -405,16 +404,18 @@ function qlOnSelect(sprite)
      Sprite:setProperty(typeLabel, 'text', '丘陵')
     request(g_major,area)
 end
+--成本排序
 function docostSort(sprite)
     local data = Sprite:getData(sprite)
     local len = getJsonArrayCount(g_response.value)
     if data == "0" then
         Sprite:setProperty(sprite,'data',"1")
         g_response.value = sortTable(g_response.value, 'cost', true)
+        Log:write("=========没序吗========",g_response.value)
         local listView1 = Sprite:findChild(rootSprite,'sampleList1')
         ListView:removeAllItems(listView1,1,1)
         -- 加载列表项
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len+1, 'loadListItem')
         ListView:adjust(listView1)
     elseif data ~= "0" then
         local triangleFD = Sprite:findChild(rootSprite,'triangleFD')
@@ -422,25 +423,27 @@ function docostSort(sprite)
         if triangleFDsrc == "file://image/triangle_down.png" then
             Sprite:setProperty(triangleFD,'src','file://image/triangle_up.png')
             g_response.value = sortTable(g_response.value, 'cost', false)
+            Log:write("=========没序吗111========",g_response.value)
              local listView1 = Sprite:findChild(rootSprite,'sampleList1')
             ListView:removeAllItems(listView1,1,1)
             -- 加载列表项
-            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len+1, 'loadListItem')
             ListView:adjust(listView1)
         else
             Sprite:setProperty(triangleFD,'src','file://image/triangle_down.png')
             g_response.value = sortTable(g_response.value, 'cost', true)
+            Log:write("=========没序吗2222========",g_response.value)
              local listView1 = Sprite:findChild(rootSprite,'sampleList1')
             ListView:removeAllItems(listView1,1,1)
             -- 加载列表项
-            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len+1, 'loadListItem')
             ListView:adjust(listView1)
         end
     end
 
 end
 function yearOnSelect(sprite)
-  Scene:setReturn(Alias.m_biaoganGuanLi, Alias.m_biaoganGuanLizq)
+  
   Scene:go(Alias.m_biaoganGuanLizq)
 end
 ]]>

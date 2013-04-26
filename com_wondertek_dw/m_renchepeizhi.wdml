@@ -163,7 +163,7 @@
                 <node rect="10,0,460,45" extendstyle="1111">
                     <button name="" rect="0,0,460,45"  style="center"  normal="" sel="" data="1"
                         OnSelect="" extendstyle="1111">
-                        <label name="cmpName" rect="10,0,130,45" text="代维单位：" color="#00549f" v-align="center"  
+                        <label name="cmpName" rect="10,0,130,45" text="代维单位数：" color="#00549f" v-align="center"  
                             h-align="right" font-family="微软雅黑" font-size="22" extendstyle="1111" />
                         <image name="house1" rect="150,9,30,30" style="autosize" border="false" extendstyle="1111" 
                             src="file://image/gongsi.png" visible="false"></image>
@@ -239,7 +239,7 @@ textcontent[1]="应配人数/实配人数*100%"
 textcontent[2]="本月离职人数/员工总数*100%"
 local renyuandata = nil
 local g_companys = {"浙江邮电", "安徽电信工程", "江苏邮电", "南京欣网视讯", "广东长实", "浙江和勤", "华为技术"}
-
+local city
 ---------------------------------------回调函数--------------------------------
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -266,6 +266,7 @@ function bodyOnPluginEvent(msg, param)
     if Loading:isShow() then Loading:close() end 
     if msg == 101 then
         renyuandata = Http:jsonDecode('renyuandata')
+        Log:write("人员信息",renyuandata )
         OnSelectShowMap()
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
@@ -298,7 +299,7 @@ function doRegionClick(sprite)
     if name ~= nil then
         Sprite:setProperty(titlename,'text','人车配置('..name..')')
     end
-    local city = nil
+   
     for i=0,#renyuandata.value[0].data do
        if name == renyuandata.value[0].data[i].dimension then
             city = renyuandata.value[0].data[i]
@@ -329,10 +330,10 @@ end
 -- 显示详细信息
 function showDetail(strName, strCmpNum, strCarNum, strStaffNum)
     Log:write(">>>显示详细信息<<<")
-    Log:write("代维单位:", strCmpNum)
+    Log:write("代维单位数:", strCmpNum)
     Log:write("代维车辆数:", strCarNum)
     Log:write("代维人员数:", strStaffNum)
-    
+    Log:write("代维区域:", strName)
     -------------- 显示代维车辆 -----------------------------------
     local nCarNum = tonumber(strCarNum)
     local flagCount = math.floor(nCarNum / 4)
@@ -441,7 +442,7 @@ function showDetail(strName, strCmpNum, strCarNum, strStaffNum)
 	else
         -- 显示代维单位总数
         local cmpName = Sprite:findChild(rootSprite, 'cmpName')
-        Sprite:setProperty(cmpName, 'text', "代维单位：")
+        Sprite:setProperty(cmpName, 'text', "代维单位数：")
         local cmpNum = Sprite:findChild(rootSprite, 'cmpNum')
         Sprite:setProperty(cmpNum, 'text', strCmpNum)
         for i=1, 4 do 
@@ -454,15 +455,11 @@ function showDetail(strName, strCmpNum, strCarNum, strStaffNum)
     end
 end
 
--- @brief 选择地市维度
-function OnCitySelect(sprite)
-    Scene:go(Alias.m_renyuantongji)
-end 
+
 
 -- @brief 选择代维公司
 function OnCompanySelect(sprite)
-   
-    Scene:go(Alias.m_renyuantongji)
+   Scene:go(Alias.m_renyuantongji)
 end 
 
 ]]>
