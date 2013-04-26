@@ -46,7 +46,7 @@ public class G3WLANHttp {
 	private final String BJ_IP 				= "221.176.1.140";
 
 	
-	//private HttpURLConnection httpConn;
+	private HttpURLConnection httpConn;
 	private String cookie = null;
 	private String response = null;
 	private String host = null;
@@ -74,8 +74,8 @@ public class G3WLANHttp {
 
 	
 	
-	private HttpURLConnection initHttpConn(boolean flagHttps, String strHttpUrl) {
-		HttpURLConnection mhttpConn = null;
+	private void initHttpConn(boolean flagHttps, String strHttpUrl) {
+		
 		try {
 			// when using HTTPS 
 			if(flagHttps) {
@@ -85,38 +85,37 @@ public class G3WLANHttp {
 				HttpsURLConnection.setDefaultSSLSocketFactory(sslCont.getSocketFactory());
 				HttpsURLConnection.setDefaultHostnameVerifier(
 						new MyHostnameVerifier(new URL(strHttpUrl).getHost()));
-				mhttpConn = (HttpsURLConnection)new URL(strHttpUrl).openConnection();
+				httpConn = (HttpsURLConnection)new URL(strHttpUrl).openConnection();
 			
 			// when using HTTP
 			} else {
-				mhttpConn = (HttpURLConnection)new URL(strHttpUrl).openConnection();
+				httpConn = (HttpURLConnection)new URL(strHttpUrl).openConnection();
 			}
 			
 			HttpURLConnection.setFollowRedirects(false);
-			mhttpConn.setDoInput(true);
-			mhttpConn.setDoOutput(true);
-			mhttpConn.setReadTimeout(15000);
-			mhttpConn.setConnectTimeout(15000);
-			/*mhttpConn.setRequestProperty("Accept-Language", "zh-cn");
-			mhttpConn.setRequestProperty("Connection", "Keep-Alive");
-			mhttpConn.setRequestProperty("Cache-Control", "no-cache");
-			mhttpConn.setRequestProperty("Accept-Charset", "UTF-8");*/
-			mhttpConn.setRequestProperty("Accept-Charset", "gb2312");
-			mhttpConn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			mhttpConn.setRequestProperty("User-Agent", "G3WLAN");
-//			mhttpConn.setRequestProperty("Content-Type", "text/html");
-			mhttpConn.setInstanceFollowRedirects(false);
+			httpConn.setDoInput(true);
+			httpConn.setDoOutput(true);
+			httpConn.setReadTimeout(15000);
+			httpConn.setConnectTimeout(15000);
+			/*httpConn.setRequestProperty("Accept-Language", "zh-cn");
+			httpConn.setRequestProperty("Connection", "Keep-Alive");
+			httpConn.setRequestProperty("Cache-Control", "no-cache");
+			httpConn.setRequestProperty("Accept-Charset", "UTF-8");*/
+			httpConn.setRequestProperty("Accept-Charset", "gb2312");
+			httpConn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			httpConn.setRequestProperty("User-Agent", "G3WLAN");
+//			httpConn.setRequestProperty("Content-Type", "text/html");
+			httpConn.setInstanceFollowRedirects(false);
 			
 		} 
 		catch(Exception e) {
 			e.printStackTrace();
 			Util.Trace("initHttpConn exception: " + e.getMessage());
 		}
-		return mhttpConn;
 	}
 
-	private HttpURLConnection initHttpConn(boolean flagHttps, String strHttpUrl, int connectTO, int readTO) {
-		HttpURLConnection mhttpConn = null;
+	private void initHttpConn(boolean flagHttps, String strHttpUrl, int connectTO, int readTO) {
+		
 		try {
 			// when using HTTPS 
 			if(flagHttps) {
@@ -126,50 +125,47 @@ public class G3WLANHttp {
 				HttpsURLConnection.setDefaultSSLSocketFactory(sslCont.getSocketFactory());
 				HttpsURLConnection.setDefaultHostnameVerifier(
 						new MyHostnameVerifier(new URL(strHttpUrl).getHost()));
-				mhttpConn = (HttpsURLConnection)new URL(strHttpUrl).openConnection();
+				httpConn = (HttpsURLConnection)new URL(strHttpUrl).openConnection();
 			
 			// when using HTTP
 			} else {
-				mhttpConn = (HttpURLConnection)new URL(strHttpUrl).openConnection();
+				httpConn = (HttpURLConnection)new URL(strHttpUrl).openConnection();
 			}
 			
 			HttpURLConnection.setFollowRedirects(false);
-			mhttpConn.setDoInput(true);
-			mhttpConn.setDoOutput(true);
-			mhttpConn.setReadTimeout(readTO);
-			mhttpConn.setConnectTimeout(connectTO);
-			/*mhttpConn.setRequestProperty("Accept-Language", "zh-cn");
-			mhttpConn.setRequestProperty("Connection", "Keep-Alive");
-			mhttpConn.setRequestProperty("Cache-Control", "no-cache");
-			mhttpConn.setRequestProperty("Accept-Charset", "UTF-8");*/
-			mhttpConn.setRequestProperty("Accept-Charset", "gb2312");
-			mhttpConn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			mhttpConn.setRequestProperty("User-Agent", "G3WLAN");
-//			mhttpConn.setRequestProperty("Content-Type", "text/html");
-			mhttpConn.setInstanceFollowRedirects(false);
+			httpConn.setDoInput(true);
+			httpConn.setDoOutput(true);
+			httpConn.setReadTimeout(readTO);
+			httpConn.setConnectTimeout(connectTO);
+			/*httpConn.setRequestProperty("Accept-Language", "zh-cn");
+			httpConn.setRequestProperty("Connection", "Keep-Alive");
+			httpConn.setRequestProperty("Cache-Control", "no-cache");
+			httpConn.setRequestProperty("Accept-Charset", "UTF-8");*/
+			httpConn.setRequestProperty("Accept-Charset", "gb2312");
+			httpConn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			httpConn.setRequestProperty("User-Agent", "G3WLAN");
+//			httpConn.setRequestProperty("Content-Type", "text/html");
+			httpConn.setInstanceFollowRedirects(false);
 			
 		} 
 		catch(Exception e) {
 			e.printStackTrace();
 			Util.Trace("initHttpConn exception: " + e.getMessage());
 		}
-		return mhttpConn;
 	}
 
 	public boolean wlanIsPortal()
 	{
-		HttpURLConnection mhttpConn = null;
 		try {
-			mhttpConn = initHttpConn(false, Util.getPingUrl());
-			if(mhttpConn==null)
-				return false;
+			initHttpConn(false, Util.getPingUrl());
+			
 			// send out data using GET method
-			mhttpConn.setRequestMethod("GET");
-			mhttpConn.connect();
+			httpConn.setRequestMethod("GET");
+			httpConn.connect();
 			
 			// receive the response
 			response = null;
-			int rspCode = mhttpConn.getResponseCode();
+			int rspCode = httpConn.getResponseCode();
 			Util.Trace("G3WLANHttp:: " + "GET response code: " + rspCode);
 			
 			// process HTTP 302-redirection 
@@ -178,7 +174,7 @@ public class G3WLANHttp {
 				if(rspCode == HttpURLConnection.HTTP_MOVED_TEMP)
 				{
 					Util.Trace("G3WLANHttp:: " + "WLAN is AuthenPortal! ");
-					mhttpConn.disconnect();
+					httpConn.disconnect();
 					return true;
 				}
 			}
@@ -189,31 +185,29 @@ public class G3WLANHttp {
 		}
 		
 		Util.Trace("G3WLANHttp:: " + "WLAN isn't AuthenPortal! ");
-		if(mhttpConn != null) mhttpConn.disconnect();
+		if(httpConn != null) httpConn.disconnect();
 		return false;
 	}
 	
 	public boolean wlanHaveLogin()
 	{
-		HttpURLConnection mhttpConn = null;
 		try {
-			mhttpConn = initHttpConn(false, Util.getPingUrl());
-			if(mhttpConn==null)
-				return false;
+			initHttpConn(false, Util.getPingUrl());
+			
 			// send out data using GET method
-			mhttpConn.setRequestMethod("GET");
-			mhttpConn.connect();
+			httpConn.setRequestMethod("GET");
+			httpConn.connect();
 			
 			// receive the response
 			response = null;
-			int rspCode = mhttpConn.getResponseCode();
+			int rspCode = httpConn.getResponseCode();
 			Util.Trace("wlanHaveLogin:: GET response code: " + rspCode);
 			
 			// process HTTP 302-redirection 
 			if(rspCode != -1)
 			{
 				Util.Trace("wlanHaveLogin:: WLAN is connected! ");
-				mhttpConn.disconnect();
+				httpConn.disconnect();
 				return true;
 			}
 		}
@@ -224,34 +218,32 @@ public class G3WLANHttp {
 		}
 		
 		Util.Trace("G3WLANHttp:: " + "WLAN isn't connected! ");
-		if(mhttpConn != null) mhttpConn.disconnect();
+		if(httpConn != null) httpConn.disconnect();
 		return false;
 	}
 	
 	public boolean sendDataPost(boolean isHttps, String strUrl, String outData) {
-		HttpURLConnection mhttpConn = null;
 		try {
 			
-			mhttpConn = initHttpConn(isHttps, strUrl);
-			if(mhttpConn==null)
-				return false;
+			initHttpConn(isHttps, strUrl);
+			
 			// send out data using POST method
-			mhttpConn.setRequestMethod("POST");
+			httpConn.setRequestMethod("POST");
 			// add "Cookie" value
-			mhttpConn.setRequestProperty("Cookie", cookie);
+			httpConn.setRequestProperty("Cookie", cookie);
 			Util.Trace("AuthenPortal:: " + "____cookie of SendDataPost(): " + cookie);
 			Utils.writeLog("____cookie of SendDataPost(): " + cookie);
 			
-			mhttpConn.connect();
+			httpConn.connect();
 			
-			DataOutputStream dout = new DataOutputStream(mhttpConn.getOutputStream());
+			DataOutputStream dout = new DataOutputStream(httpConn.getOutputStream());
 			dout.write(outData.getBytes());
 			dout.flush();
 			dout.close();
 			
 			// receive the response
 			response = null;
-			int rspCode = mhttpConn.getResponseCode();
+			int rspCode = httpConn.getResponseCode();
 			Utils.writeLog("POST response code: " + rspCode);
 			
 			int i = 0;
@@ -260,27 +252,25 @@ public class G3WLANHttp {
 				
 				if(rspCode == HttpURLConnection.HTTP_MOVED_TEMP) {
 					String location;
-					location = mhttpConn.getHeaderField("Location");
+					location = httpConn.getHeaderField("Location");
 					
 					++i;
 					Util.Trace("AuthenPortal:: " + i + "____RspCode of SendDataPost(): " + rspCode);
 					Util.Trace("AuthenPortal::" + i + "____location of SendDataPost(): " + location);
 					Utils.writeLog(i + "____location of SendDataPost(): " + location);
 					
-					mhttpConn.disconnect();
+					httpConn.disconnect();
 					
-					mhttpConn = initHttpConn(false, location);
-					if(mhttpConn==null)
-						return false;
-					mhttpConn.setRequestMethod("GET");
+					initHttpConn(false, location);
+					httpConn.setRequestMethod("GET");
 					// add "Cookie" value
-					mhttpConn.setRequestProperty("Cookie", cookie);
+					httpConn.setRequestProperty("Cookie", cookie);
 					Util.Trace("AuthenPortal:: " + i + "____cookie of SendDataPost(): " + cookie);
 					Utils.writeLog(i + "____cookie of SendDataPost(): " + cookie);
 					
-					mhttpConn.connect();
+					httpConn.connect();
 					
-					rspCode = mhttpConn.getResponseCode();
+					rspCode = httpConn.getResponseCode();
 					Utils.writeLog(i + " GET response code after 302: " + rspCode);
 				} else {
 					break;
@@ -289,7 +279,7 @@ public class G3WLANHttp {
 			
 			// process HTTP 200-OK
 			if(rspCode == HttpsURLConnection.HTTP_OK) {
-				BufferedReader br = new BufferedReader(new InputStreamReader(mhttpConn.getInputStream(), "gb2312"));
+				BufferedReader br = new BufferedReader(new InputStreamReader(httpConn.getInputStream(), "gb2312"));
 
 				String strLine;
 				StringBuffer rspBuf = new StringBuffer(); 
@@ -306,8 +296,8 @@ public class G3WLANHttp {
 				//writeLog("Response of SendDataPost(): " + response);
 				br.close();
 				
-				mhttpConn.getInputStream().close();
-				mhttpConn.disconnect();
+				httpConn.getInputStream().close();
+				httpConn.disconnect();
 				return true;
 			}
 			return false;
@@ -319,32 +309,32 @@ public class G3WLANHttp {
 			e.printStackTrace();
 			return false;
 		}
+		
+		
 	}
 
 	public boolean sendDataPost(boolean isHttps, String strUrl, String outData, int connectTO, int readTO) {
-		HttpURLConnection mhttpConn = null;
 		try {
 			
-			mhttpConn = initHttpConn(isHttps, strUrl, connectTO, readTO);
-			if(mhttpConn==null)
-				return false;
+			initHttpConn(isHttps, strUrl, connectTO, readTO);
+			
 			// send out data using POST method
-			mhttpConn.setRequestMethod("POST");
+			httpConn.setRequestMethod("POST");
 			// add "Cookie" value
-			mhttpConn.setRequestProperty("Cookie", cookie);
+			httpConn.setRequestProperty("Cookie", cookie);
 			Util.Trace("AuthenPortal:: " + "____cookie of SendDataPost(): " + cookie);
 			Utils.writeLog("____cookie of SendDataPost(): " + cookie);
 			
-			mhttpConn.connect();
+			httpConn.connect();
 			
-			DataOutputStream dout = new DataOutputStream(mhttpConn.getOutputStream());
+			DataOutputStream dout = new DataOutputStream(httpConn.getOutputStream());
 			dout.write(outData.getBytes());
 			dout.flush();
 			dout.close();
 			
 			// receive the response
 			response = null;
-			int rspCode = mhttpConn.getResponseCode();
+			int rspCode = httpConn.getResponseCode();
 			Utils.writeLog("POST response code: " + rspCode);
 			
 			int i = 0;
@@ -353,28 +343,25 @@ public class G3WLANHttp {
 				
 				if(rspCode == HttpURLConnection.HTTP_MOVED_TEMP) {
 					String location;
-					location = mhttpConn.getHeaderField("Location");
+					location = httpConn.getHeaderField("Location");
 					
 					++i;
 					Util.Trace("AuthenPortal:: " + i + "____RspCode of SendDataPost(): " + rspCode);
 					Util.Trace("AuthenPortal:: " + i + "____location of SendDataPost(): " + location);
 					Utils.writeLog(i + "____location of SendDataPost(): " + location);
 					
-					mhttpConn.disconnect();
+					httpConn.disconnect();
 					
-					mhttpConn = initHttpConn(false, location);
-					if(mhttpConn==null)
-						return false;
-					
-					mhttpConn.setRequestMethod("GET");
+					initHttpConn(false, location);
+					httpConn.setRequestMethod("GET");
 					// add "Cookie" value
-					mhttpConn.setRequestProperty("Cookie", cookie);
+					httpConn.setRequestProperty("Cookie", cookie);
 					Util.Trace("AuthenPortal:: " + i + "____cookie of SendDataPost(): " + cookie);
 					Utils.writeLog(i + "____cookie of SendDataPost(): " + cookie);
 					
-					mhttpConn.connect();
+					httpConn.connect();
 					
-					rspCode = mhttpConn.getResponseCode();
+					rspCode = httpConn.getResponseCode();
 					Utils.writeLog(i + " GET response code after 302: " + rspCode);
 				} else {
 					break;
@@ -383,7 +370,7 @@ public class G3WLANHttp {
 			
 			// process HTTP 200-OK
 			if(rspCode == HttpsURLConnection.HTTP_OK) {
-				BufferedReader br = new BufferedReader(new InputStreamReader(mhttpConn.getInputStream(), "gb2312"));
+				BufferedReader br = new BufferedReader(new InputStreamReader(httpConn.getInputStream(), "gb2312"));
 
 				String strLine;
 				StringBuffer rspBuf = new StringBuffer(); 
@@ -400,8 +387,8 @@ public class G3WLANHttp {
 				//writeLog("Response of SendDataPost(): " + response);
 				br.close();
 				
-				mhttpConn.getInputStream().close();
-				mhttpConn.disconnect();
+				httpConn.getInputStream().close();
+				httpConn.disconnect();
 				return true;
 			}
 			return false;
@@ -418,19 +405,17 @@ public class G3WLANHttp {
 	}
 
 	public boolean sendDataGet(boolean isHttps, String outDataUrl) {
-		HttpURLConnection mhttpConn = null;
 		try {
 			
-			mhttpConn = initHttpConn(isHttps, outDataUrl);
-			if(mhttpConn==null)
-				return false;
+			initHttpConn(isHttps, outDataUrl);
+			
 			// send out data using POST method
-			mhttpConn.setRequestMethod("GET");
-			mhttpConn.connect();
+			httpConn.setRequestMethod("GET");
+			httpConn.connect();
 			
 			// receive the response
 			response = null;
-			int rspCode = mhttpConn.getResponseCode();
+			int rspCode = httpConn.getResponseCode();
 			Util.Trace("G3WLANHttp:: " + "GET response code: " + rspCode);
 			
 			int i = 0;
@@ -439,20 +424,18 @@ public class G3WLANHttp {
 				
 				if(rspCode == HttpURLConnection.HTTP_MOVED_TEMP) {
 					String location;
-					location = mhttpConn.getHeaderField("Location");
+					location = httpConn.getHeaderField("Location");
 					
 					++i;
 					Util.Trace("AuthenPortal:: " + i + "____location of SendDataGet(): " + location);
 
-					mhttpConn.disconnect();
+					httpConn.disconnect();
 					
-					mhttpConn = initHttpConn(false, location);
-					if(mhttpConn==null)
-						return false;
-					mhttpConn.setRequestMethod("GET");
-					mhttpConn.connect();
+					initHttpConn(false, location);
+					httpConn.setRequestMethod("GET");
+					httpConn.connect();
 					
-					rspCode = mhttpConn.getResponseCode();
+					rspCode = httpConn.getResponseCode();
 					Util.Trace(i + " GET response code after 302: " + rspCode);
 					
 				} else {
@@ -461,9 +444,9 @@ public class G3WLANHttp {
 			}
 			
 			if(HttpsURLConnection.HTTP_OK == rspCode) {
-				host = mhttpConn.getURL().getHost();
+				host = httpConn.getURL().getHost();
 				
-				String setCookie = mhttpConn.getHeaderField("Set-Cookie");
+				String setCookie = httpConn.getHeaderField("Set-Cookie");
 				Util.Trace("AuthenPortal:: " + i + "____setcookie of SendDataGet(): " + setCookie);
 				
 				// extract the cookie property
@@ -484,7 +467,7 @@ public class G3WLANHttp {
 				}
 				
 				
-				BufferedReader br = new BufferedReader(new InputStreamReader(mhttpConn.getInputStream(), "gb2312"));
+				BufferedReader br = new BufferedReader(new InputStreamReader(httpConn.getInputStream(), "gb2312"));
 				String strLine;
 				StringBuffer rspBuf = new StringBuffer(); 
 				try {
@@ -499,8 +482,8 @@ public class G3WLANHttp {
 				Util.Trace("AuthenPortal:: " + "Response of SendDataGet(): " + response);
 				br.close();
 				
-				mhttpConn.getInputStream().close();
-				mhttpConn.disconnect();
+				httpConn.getInputStream().close();
+				httpConn.disconnect();
 				return true;
 			} 
 			return false;
@@ -514,19 +497,17 @@ public class G3WLANHttp {
 	}
 
 	public boolean sendDataGet(boolean isHttps, String outDataUrl, int connectTO, int readTO) {
-		HttpURLConnection mhttpConn = null;
 		try {
 			
-			mhttpConn = initHttpConn(isHttps, outDataUrl, connectTO, readTO);
-			if(mhttpConn==null)
-				return false;
+			initHttpConn(isHttps, outDataUrl, connectTO, readTO);
+			
 			// send out data using POST method
-			mhttpConn.setRequestMethod("GET");
-			mhttpConn.connect();
+			httpConn.setRequestMethod("GET");
+			httpConn.connect();
 			
 			// receive the response
 			response = null;
-			int rspCode = mhttpConn.getResponseCode();
+			int rspCode = httpConn.getResponseCode();
 			Util.Trace("G3WLANHttp:: " + "GET response code: " + rspCode);
 			
 			int i = 0;
@@ -535,21 +516,19 @@ public class G3WLANHttp {
 				
 				if(rspCode == HttpURLConnection.HTTP_MOVED_TEMP) {
 					String location;
-					location = mhttpConn.getHeaderField("Location");
+					location = httpConn.getHeaderField("Location");
 					
 					++i;
 					//Util.Trace("AuthenPortal", i + "____RspCode of SendDataGet(): " + rspCode);
 					Util.Trace("AuthenPortal:: " + i + "____location of SendDataGet(): " + location);
 
-					mhttpConn.disconnect();
+					httpConn.disconnect();
 					
-					mhttpConn = initHttpConn(false, location);
-					if(mhttpConn==null)
-						return false;
-					mhttpConn.setRequestMethod("GET");
-					mhttpConn.connect();
+					initHttpConn(false, location);
+					httpConn.setRequestMethod("GET");
+					httpConn.connect();
 					
-					rspCode = mhttpConn.getResponseCode();
+					rspCode = httpConn.getResponseCode();
 					Util.Trace(i + " GET response code after 302: " + rspCode);
 					
 				} else {
@@ -558,9 +537,9 @@ public class G3WLANHttp {
 			}
 			
 			if(HttpsURLConnection.HTTP_OK == rspCode) {
-				host = mhttpConn.getURL().getHost();
+				host = httpConn.getURL().getHost();
 				
-				String setCookie = mhttpConn.getHeaderField("Set-Cookie");
+				String setCookie = httpConn.getHeaderField("Set-Cookie");
 				Util.Trace("AuthenPortal:: " + i + "____setcookie of SendDataGet(): " + setCookie);
 				
 				// extract the cookie property
@@ -581,7 +560,7 @@ public class G3WLANHttp {
 				}
 				
 				
-				BufferedReader br = new BufferedReader(new InputStreamReader(mhttpConn.getInputStream(), "gb2312"));
+				BufferedReader br = new BufferedReader(new InputStreamReader(httpConn.getInputStream(), "gb2312"));
 				String strLine;
 				StringBuffer rspBuf = new StringBuffer(); 
 				try {
@@ -596,8 +575,8 @@ public class G3WLANHttp {
 				Util.Trace("AuthenPortal:: " + "Response of SendDataGet(): " + response);
 				br.close();
 				
-				mhttpConn.getInputStream().close();
-				mhttpConn.disconnect();
+				httpConn.getInputStream().close();
+				httpConn.disconnect();
 				return true;
 			} 
 			return false;
