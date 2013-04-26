@@ -7,6 +7,15 @@ public class Employee {
 	private String headship;
 	private String department;
 	private String picutre;
+	private String departmentFax;
+
+	public String getDepartmentFax() {
+		return departmentFax;
+	}
+
+	public void setDepartmentFax(String departmentFax) {
+		this.departmentFax = departmentFax;
+	}
 
 	public String getEmpid() {
 		return empid;
@@ -57,13 +66,14 @@ public class Employee {
 	}
 
 	public Employee(String empid, String name, String mobile, String headship,
-			String department, String picture) {
+			String department, String picture, String departmentFax) {
 		this.name = name;
 		this.mobile = mobile;
 		this.headship = headship;
 		this.department = department;
 		this.picutre = picture;
 		this.empid = empid;
+		this.departmentFax = departmentFax;
 	}
 
 }

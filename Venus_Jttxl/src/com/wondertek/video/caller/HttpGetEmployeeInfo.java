@@ -17,12 +17,16 @@ import android.util.Log;
 public class HttpGetEmployeeInfo {
 	private static final String TAG = "HttpGetEmployeeInfo";
 
-	public Employee getEmployee(String number) {
+	public Employee getEmployee(String number, String strDepartmentFax) {
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpResponse response = null;
 		try {
+			Log.d(TAG, "[getEmployee] request uri: "
+					+ Constants.CALLER_INFO_URL_PREFIX + number
+					+ "&department_fax=" + strDepartmentFax);
 			response = httpclient.execute(new HttpGet(
-					Constants.CALLER_INFO_URL_PREFIX + number));
+					Constants.CALLER_INFO_URL_PREFIX + number
+							+ "&department_fax=" + strDepartmentFax));
 			StatusLine statusLine = response.getStatusLine();
 			if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
 				StringBuilder builder = new StringBuilder();
@@ -53,10 +57,24 @@ public class HttpGetEmployeeInfo {
 					String picture = jsonEmployee.getString("picture");
 					Log.d(TAG, "[getEmployee] picture: " + picture);
 					String empid = jsonEmployee.getString("employee_id");
-					Employee e = new Employee(empid, name, mobile, headship, department, picture);
-					return e;
-				} else
+					Log.d(TAG, "[getEmployee] employee_id: " + empid);
+					String departmentFax = jsonEmployee
+							.getString("department_fax");
+					Log.d(TAG, "[getEmployee] department_fax: " + departmentFax);
+					if (!strDepartmentFax.equals(departmentFax)) {
+						Log.d(TAG,
+								"[getEmployee] system user's deparment fax is not equals to this employee...");
+						return null;
+					} else {
+						Employee e = new Employee(empid, name, mobile,
+								headship, department, picture, departmentFax);
+						return e;
+					}
+				} else {
+					Log.d(TAG,
+							"[getEmployee] can't find employee's information by http method! ");
 					return null;
+				}
 			} else {
 				response.getEntity().getContent().close();
 				Log.d(TAG,

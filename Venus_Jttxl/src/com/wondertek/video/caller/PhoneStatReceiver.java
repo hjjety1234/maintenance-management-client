@@ -29,6 +29,7 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 	static FloatRelativeLayout relativeLayout = null;
 	private static KeyguardLock keyguard = null;
 	TelephonyManager telMgr;
+	private static Context mContext;
 	private static Timer timer = null;
 	private Handler handler = new Handler() {
 		@Override
@@ -36,6 +37,10 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 			if (msg.what == 1) {
 				Log.d(TAG, "[handleMessage] call screen isn't on top... ");
 				removePopup((Context) msg.obj);
+			} else if (msg.what == 2) {
+				Log.d(TAG,
+						"[handleMessage] handle get employee info by http method... ");
+				addPopup((Employee) msg.obj, mContext);
 			}
 			super.handleMessage(msg);
 		}
@@ -45,38 +50,61 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 	public void onReceive(final Context context, final Intent intent) {
 		telMgr = (TelephonyManager) context
 				.getSystemService(Service.TELEPHONY_SERVICE);
+		mContext = context;
 		// outgoing call
 		if (intent.getAction().equals(Intent.ACTION_NEW_OUTGOING_CALL)) {
-			String number = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
+			final String number = intent
+					.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
 			IS_OUTGOING_CALL = true;
 			Log.d(TAG, "[onReceive] outgoing caller number: " + number);
 			// search sqlite database
 			DbHelper helper = new DbHelper(context);
 			Employee e = helper.getEmployee(number);
 			if (e != null) {
-				//record to history first
-				addToHistory(number, "1", context,e.getEmpid());
-				//pop
+				// record to history first
+				addToHistory(number, "1", context, e.getEmpid());
 				addPopup(e, context);
 			} else {
+				final Employee systemUser = helper.getSystemUser();
+				if (systemUser == null) {
+					Log.w(TAG, "[onReceive] get system user failed!");
+					return;
+				}
+				if (number.length() == 6
+						&& (systemUser == null || systemUser.getDepartmentFax() == "")) {
+					Log.w(TAG,
+							"[onReceive] system user is not exist or department fax is empty!");
+					return;
+				}
 				// get employee info by http method
 				Log.d(TAG,
 						"[onReceive] trying to get outgoing caller info by http method...");
-				HttpGetEmployeeInfo ge = new HttpGetEmployeeInfo();
-				e = ge.getEmployee(number);
-				if (e != null) {
-					//record to history first(not record when local not exist)
-					//addToHistory(number, "1", context);
-					//pop
-					addPopup(e, context);
-				}
+				new Thread() {
+					@Override
+					public void run() {
+						Log.d(TAG,
+								"[run] very time consuming, so do http method in workround thread...");
+						HttpGetEmployeeInfo ge = new HttpGetEmployeeInfo();
+						Employee e1 = ge.getEmployee(number,
+								systemUser.getDepartmentFax());
+						if (e1 != null) {
+							Message msg = new Message();
+							msg.what = 2;
+							msg.obj = e1;
+							handler.sendMessage(msg);
+						} else {
+							Log.w(TAG,
+									"[onReceive] can't find any outgoing caller's information in local and remote server!");
+						}
+					}
+				}.start();
 			}
 			return;
 		}
 
 		switch (telMgr.getCallState()) {
 		case TelephonyManager.CALL_STATE_RINGING:
-			String number = intent
+			final String number = intent
 					.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
 			IS_OUTGOING_CALL = false;
 			Log.d(TAG, "[onReceive] incoming call number:" + number);
@@ -84,22 +112,44 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 			DbHelper helper = new DbHelper(context);
 			Employee e = helper.getEmployee(number);
 			if (e != null) {
-				//record to history first
-				addToHistory(number, "0", context,e.getEmpid());
-				//pop
+				// record to history first
+				addToHistory(number, "0", context, e.getEmpid());
+				// pop
 				addPopup(e, context);
 			} else {
+				final Employee systemUser = helper.getSystemUser();
+				if (systemUser == null) {
+					Log.w(TAG, "[onReceive] get system user failed!");
+					return;
+				}
+				if (number.length() == 6 && systemUser == null
+						|| systemUser.getDepartmentFax() == "") {
+					Log.w(TAG,
+							"[onReceive] system user is not exist or department fax is empty!");
+					return;
+				}
 				// get employee info by http method
 				Log.d(TAG,
 						"[onReceive] trying to get incoming caller info by http method...");
-				HttpGetEmployeeInfo ge = new HttpGetEmployeeInfo();
-				e = ge.getEmployee(number);
-				if (e != null) {
-					//record to history first(not record when local dosen't exist)
-					//addToHistory(number, "0", context);
-					//pop
-					addPopup(e, context);
-				}
+				new Thread() {
+					@Override
+					public void run() {
+						Log.d(TAG,
+								"[run] very time consuming, so do http method in workround thread...");
+						HttpGetEmployeeInfo ge = new HttpGetEmployeeInfo();
+						Employee e1 = ge.getEmployee(number,
+								systemUser.getDepartmentFax());
+						if (e1 != null) {
+							Message msg = new Message();
+							msg.what = 2;
+							msg.obj = e1;
+							handler.sendMessage(msg);
+						} else {
+							Log.w(TAG,
+									"[onReceive] can't find any incoming caller's information in local and remote server!");
+						}
+					}
+				}.start();
 			}
 			break;
 		case TelephonyManager.CALL_STATE_OFFHOOK:
@@ -119,14 +169,15 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 			break;
 		}
 	}
-	
-	//add record to history
-	public void addToHistory(String num,String type,final Context context,String empid)
-	{
+
+	// add record to history
+	public void addToHistory(String num, String type, final Context context,
+			String empid) {
 		DbHelper helper = new DbHelper(context);
 		helper.recordCallHistory(num, type, empid, null);
 	}
 
+	// add popup window
 	public void addPopup(Employee e, Context c) {
 		Log.d(TAG,
 				"[addPopup] name: " + e.getName() + " department: "
@@ -175,9 +226,10 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 		relativeLayout = new FloatRelativeLayout(c, params, e);
 		wm.addView(relativeLayout, params);
 		timer = new Timer();
-		timer.scheduleAtFixedRate(new DetectCallSceenTask(c), 1, 5000);
+		timer.scheduleAtFixedRate(new DetectCallSceenTask(c), 5000, 5000);
 	}
 
+	// remove popup window
 	public void removePopup(Context c) {
 		Log.d(TAG, "[removePopup]");
 		WindowManager wm = (WindowManager) c
@@ -192,6 +244,7 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 		}
 	}
 
+	//
 	private class DetectCallSceenTask extends TimerTask {
 		private Context mContext;
 
@@ -224,7 +277,9 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 					|| "com.android.phone.PrivilegedOutgoingCallBroadcaster"
 							.equals(taskInfo.get(0).topActivity.getClassName())
 					|| "com.android.phone.OutgoingCallBroadcaster"
-							.equals(taskInfo.get(0).topActivity.getClassName())) {
+							.equals(taskInfo.get(0).topActivity.getClassName())
+					|| "com.sonyericsson.home.HomeActivity".equals(taskInfo
+							.get(0).topActivity.getClassName())) {
 				Log.d(TAG, "[isCallSceenOn] true ");
 				return true;
 			} else {

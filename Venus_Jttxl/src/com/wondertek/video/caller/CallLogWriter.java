@@ -51,14 +51,15 @@ public class CallLogWriter {
 				} else if (type == CallLog.Calls.MISSED_TYPE) {
 					strType = "0"; // incoming call
 				} else {
-					Log.w(TAG, "[writeCallLog] unknown call log type: " + type);
+					//	Log.w(TAG, "[writeCallLog] unknown call log type: " + type);
+					strType  = "0"; // 4 is voice mail, 5 is rejected, 7 is rejected lists 
 					continue;
 				}
 				// format call date
 				long date = cursor.getLong(cursor.getColumnIndex("date"));
 				Log.d(TAG, "[writeCallLog] date: " + date);
 				SimpleDateFormat formatter = new SimpleDateFormat(
-						"yyyy-MM-dd hh:mm:ss", Locale.CHINA);
+						"yyyy-MM-dd HH:mm:ss", Locale.CHINA);
 				String dateString = formatter.format(date);
 				Log.d(TAG, "[writeCallLog] format date:" + dateString);
 				// query employee info by number

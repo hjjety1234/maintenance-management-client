@@ -33,7 +33,6 @@ public class FloatRelativeLayout extends RelativeLayout {
 		employee = e;
 		mContext = context;
 		wmParams = params;
-		//这里要根据用户是否有照片来加载不同的Layout
 		if (employee.getPicutre() != null
 				&& !employee.getPicutre().trim().equals("")) {
 			File dir = new File(Constants.LOC_PIC_DIR);
@@ -43,12 +42,10 @@ public class FloatRelativeLayout extends RelativeLayout {
 			File pic = new File(localPicPath);
 			if (pic.exists() == true) {
 				inflate(context, R.layout.float_view_withphoto, this);
-			}
-			else
+			} else {
 				inflate(context, R.layout.float_view, this);
-		}
-		else
-		{
+			}
+		} else {
 			inflate(context, R.layout.float_view, this);
 		}
 		initLayout();
@@ -66,7 +63,7 @@ public class FloatRelativeLayout extends RelativeLayout {
 		String defaultHeadship = getResources().getString(
 				R.string.defaultHeadship);
 		if (!employee.getHeadship().trim().equals(""))
-				//&& !employee.getHeadship().equals(defaultHeadship))
+			// && !employee.getHeadship().equals(defaultHeadship))
 			headship.setText(employee.getHeadship());
 
 		// set caller department information
@@ -88,7 +85,6 @@ public class FloatRelativeLayout extends RelativeLayout {
 				Log.d(TAG, "[initLayout] trying to async download picture...");
 				DownloadFileTask downloadFile = new DownloadFileTask(
 						employee.getPicutre());
-
 				String requestUri = downloadFile.requestResourceUri();
 				if (requestUri != null) {
 					String resourceUri = Constants.RES_PIC_URL_PREFIX
@@ -113,7 +109,7 @@ public class FloatRelativeLayout extends RelativeLayout {
 		// set caller info background visible
 		ImageView iv = (ImageView) findViewById(R.id.caller_info_bg);
 		iv.setVisibility(VISIBLE);
-		iv.setAlpha(100);
+		// iv.setAlpha(100);
 
 		// change caller name font color
 		// TextView callerName = (TextView) findViewById(R.id.caller_name);

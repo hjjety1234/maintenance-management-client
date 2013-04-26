@@ -21,6 +21,9 @@ public class DbHelper extends SQLiteOpenHelper {
 	// Call history table name
 	private static final String TABLE_CALL_HIS = "tb_c_callhis";
 
+	// system user table
+	private static final String TABLE_SYSTEM = "tb_c_system";
+
 	// Department Table Columns names
 	private static final String KEY_DEPARTMENT_ID = "department_id";
 	private static final String KEY_DEPARTMENT_NAME = "department_name";
@@ -30,35 +33,43 @@ public class DbHelper extends SQLiteOpenHelper {
 	// Employee table Columns names
 	private static final String KEY_EMPLOYEE_ID = "employee_id";
 	private static final String KEY_EMPLOYEE_NAME = "employee_name";
-	private static final String KEY_HEADSHIP_ID = "headship_id";
-	private static final String KEY_HEADSHIP_NAME = "headship_name";
-	private static final String KEY_MOBILE = "mobile";
-	private static final String KEY_MOBILE_SHORT = "mobile_short";
-	private static final String KEY_TEL = "tel";
-	private static final String KEY_TEL_SHORT = "tel_short";
-	private static final String KEY_EMAIL = "email";
-	private static final String KEY_VERSIONNUM = "versionNum";
-	private static final String KEY_PICTURE = "picture";
+	private static final String KEY_EMPLOYEE_HEADSHIP_ID = "headship_id";
+	private static final String KEY_EMPLOYEE_HEADSHIP_NAME = "headship_name";
+	private static final String KEY_EMPLOYEE_MOBILE = "mobile";
+	private static final String KEY_EMPLOYEE_MOBILE_SHORT = "mobile_short";
+	private static final String KEY_EMPLOYEE_TEL = "tel";
+	private static final String KEY_EMPLOYEE_TEL_SHORT = "tel_short";
+	private static final String KEY_EMPLOYEE_EMAIL = "email";
+	private static final String KEY_EMPLOYEE_VERSIONNUM = "versionNum";
+	private static final String KEY_EMPLOYEE_PICTURE = "picture";
 	private static final String KEY_EMPLOYEE_FIRSTWORD = "employee_firstword";
+	private static final String KEY_EMPLOYEE_DEPARTMENT_FAX = "department_fax";
 
 	// Call history table Columns names
-	private static final String KEY_CALLHIS_ID = "callhis_id"; // auto increment
-																// primary key
-	private static final String KEY_CALLHIS_EMPID = "callhis_empid"; // employee
-																		// id
-	private static final String KEY_CALLHIS_NUM = "callhis_num"; // phone num
-	private static final String KEY_CALLHIS_DATE = "callhis_date"; // last call
-																	// date
-	private static final String KEY_CALLHIS_COUNT = "callhis_count"; // call
-																		// count
-	private static final String KEY_CALLHIS_TYPE = "callhis_type"; // when 0
-																	// recevive
-																	// call,when
-																	// 1 call
-																	// other
+	private static final String KEY_CALLHIS_ID = "callhis_id";
+	private static final String KEY_CALLHIS_EMPID = "callhis_empid";
+	private static final String KEY_CALLHIS_NUM = "callhis_num";
+	private static final String KEY_CALLHIS_DATE = "callhis_date";
+	private static final String KEY_CALLHIS_COUNT = "callhis_count";
+	private static final String KEY_CALLHIS_TYPE = "callhis_type";
+
+	// system user columns names
+	private static final String KEY_SYSTEM_ID = "system_id";
+	private static final String KEY_SYSTEM_REGISTER_FLAG = "register_flag";
+	private static final String KEY_SYSTEM_DEPARTMENT_VERSION = "department_version";
+	private static final String KEY_SYSTEM_EMPLOYEE_VERSION = "employee_version";
+	private static final String KEY_SYSTEM_USER_ID = "user_id";
+	private static final String KEY_SYSTEM_RIGHT_CONFIG = "right_config";
+	private static final String KEY_SYSTEM_EMPLOYEE_ID = "employee_id";
+	private static final String KEY_SYSTEM_EMPLOYEE_NAME = "employee_name";
+	private static final String KEY_SYSTEM_DEPARTMENT_NAME = "department_name";
+	private static final String KEY_SYSTEM_DEPARTMENT_LEVEL = "department_level";
+
+	private static Employee systemUser = null;
 
 	public DbHelper(Context context) {
 		super(context, Constants.DATABASE_NAME, null, DATABASE_VERSION);
+		systemUser = getSystemUser();
 	}
 
 	@Override
@@ -75,10 +86,12 @@ public class DbHelper extends SQLiteOpenHelper {
 				"CREATE TABLE %s(%s INTEGER PRIMARY KEY, "
 						+ "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
 				TABLE_EMPLOYEE, KEY_EMPLOYEE_ID, KEY_EMPLOYEE_NAME,
-				KEY_DEPARTMENT_ID, KEY_DEPARTMENT_NAME, KEY_HEADSHIP_ID,
-				KEY_HEADSHIP_NAME, KEY_MOBILE, KEY_MOBILE_SHORT, KEY_TEL,
-				KEY_TEL_SHORT, KEY_EMAIL, KEY_VERSIONNUM, KEY_PICTURE,
-				KEY_EMPLOYEE_FIRSTWORD);
+				KEY_DEPARTMENT_ID, KEY_DEPARTMENT_NAME,
+				KEY_EMPLOYEE_HEADSHIP_ID, KEY_EMPLOYEE_HEADSHIP_NAME,
+				KEY_EMPLOYEE_MOBILE, KEY_EMPLOYEE_MOBILE_SHORT,
+				KEY_EMPLOYEE_TEL, KEY_EMPLOYEE_TEL_SHORT, KEY_EMPLOYEE_EMAIL,
+				KEY_EMPLOYEE_VERSIONNUM, KEY_EMPLOYEE_PICTURE,
+				KEY_EMPLOYEE_FIRSTWORD, KEY_EMPLOYEE_DEPARTMENT_FAX);
 		Log.d(TAG, CREATE_EMPLOYEE_TABLE);
 		db.execSQL(CREATE_EMPLOYEE_TABLE);
 
@@ -109,14 +122,42 @@ public class DbHelper extends SQLiteOpenHelper {
 			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, null,
 					SQLiteDatabase.NO_LOCALIZED_COLLATORS
 							| SQLiteDatabase.CREATE_IF_NECESSARY);
-			Cursor cursor = db.query(TABLE_EMPLOYEE,
-					new String[] { KEY_EMPLOYEE_NAME, KEY_DEPARTMENT_ID,
-							KEY_DEPARTMENT_NAME, KEY_HEADSHIP_NAME, KEY_MOBILE,
-							KEY_PICTURE, KEY_EMPLOYEE_ID }, KEY_MOBILE
-							+ "=? or " + KEY_MOBILE_SHORT + "=? or " + KEY_TEL
-							+ "=? or " + KEY_TEL_SHORT + "=?", new String[] {
-							number, number, number, number }, null, null, null,
-					null);
+			Cursor cursor = null;
+
+			// check if this is the short number
+			if (number.length() == 6) {
+				Log.d(TAG, "[getEmployee] " + number + " is short number!");
+				// get current system user
+				if (systemUser != null && systemUser.getDepartmentFax() != "") {
+					Log.d(TAG, "[getEmployee] system user deparment fax is: "
+							+ systemUser.getDepartmentFax());
+					cursor = db.query(TABLE_EMPLOYEE, new String[] {
+							KEY_EMPLOYEE_NAME, KEY_DEPARTMENT_ID,
+							KEY_DEPARTMENT_NAME, KEY_EMPLOYEE_HEADSHIP_NAME,
+							KEY_EMPLOYEE_MOBILE, KEY_EMPLOYEE_PICTURE,
+							KEY_EMPLOYEE_ID, KEY_EMPLOYEE_DEPARTMENT_FAX }, "("
+							+ KEY_EMPLOYEE_DEPARTMENT_FAX + "=?) and ("
+							+ KEY_EMPLOYEE_MOBILE_SHORT + "=? )", new String[] {
+							systemUser.getDepartmentFax(), number }, null,
+							null, null, null);
+				} else {
+					Log.w(TAG,
+							"[getEmployee] system user's deparment fax is empty, return null!");
+					db.close();
+					return null;
+				}
+			} else {
+				Log.d(TAG, "[getEmployee] " + number + " is not short number!");
+				cursor = db.query(TABLE_EMPLOYEE, new String[] {
+						KEY_EMPLOYEE_NAME, KEY_DEPARTMENT_ID,
+						KEY_DEPARTMENT_NAME, KEY_EMPLOYEE_HEADSHIP_NAME,
+						KEY_EMPLOYEE_MOBILE, KEY_EMPLOYEE_PICTURE,
+						KEY_EMPLOYEE_ID, KEY_EMPLOYEE_DEPARTMENT_FAX },
+						KEY_EMPLOYEE_MOBILE + "=? or " + KEY_EMPLOYEE_TEL
+								+ "=?", new String[] { number, number }, null,
+						null, null, null);
+			}
+
 			if (cursor != null && cursor.moveToFirst()) {
 				String name = cursor.getString(0);
 				Log.d(TAG, "[getEmployee] name: " + name);
@@ -137,12 +178,14 @@ public class DbHelper extends SQLiteOpenHelper {
 				Log.d(TAG, "[getEmployee] mobile: " + mobile);
 				String picture = cursor.getString(5);
 				Log.d(TAG, "[getEmployee] picutre: " + picture);
-				String empid = cursor.getString(6);
-				Log.d(TAG, "[getEmployee] employee_id:" + empid);
+				String empolyeeId = cursor.getString(6);
+				Log.d(TAG, "[getEmployee] employee_id:" + empolyeeId);
+				String departmentFax = cursor.getString(7);
+				Log.d(TAG, "[getEmployee] department fax:" + departmentFax);
 				cursor.close();
 				db.close();
-				return new Employee(empid, name, mobile, headshipName,
-						qualifiedDeptName, picture);
+				return new Employee(empolyeeId, name, mobile, headshipName,
+						qualifiedDeptName, picture, departmentFax);
 			} else {
 				Log.d(TAG,
 						"[getEmployee] can't find the caller in sqlite database.");
@@ -151,9 +194,10 @@ public class DbHelper extends SQLiteOpenHelper {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (db != null)
-				db.close();
 			return null;
+		} finally {
+			if (db != null && db.isOpen())
+				db.close();
 		}
 	}
 
@@ -166,14 +210,42 @@ public class DbHelper extends SQLiteOpenHelper {
 			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, null,
 					SQLiteDatabase.NO_LOCALIZED_COLLATORS
 							| SQLiteDatabase.CREATE_IF_NECESSARY);
-			Cursor cursor = db.query(TABLE_EMPLOYEE,
-					new String[] { KEY_EMPLOYEE_NAME, KEY_DEPARTMENT_ID,
-							KEY_DEPARTMENT_NAME, KEY_HEADSHIP_NAME, KEY_MOBILE,
-							KEY_PICTURE, KEY_EMPLOYEE_ID }, KEY_MOBILE
-							+ "=? or " + KEY_MOBILE_SHORT + "=? or " + KEY_TEL
-							+ "=? or " + KEY_TEL_SHORT + "=?", new String[] {
-							number, number, number, number }, null, null, null,
-					null);
+			Cursor cursor = null;
+
+			// check if this is the short number
+			if (number.length() == 6) {
+				Log.d(TAG, "[getEmployeeId] " + number + " is short number!");
+				// get current system user
+				if (systemUser != null && systemUser.getDepartmentFax() != "") {
+					Log.d(TAG, "[getEmployeeId] system user deparment fax is: "
+							+ systemUser.getDepartmentFax());
+					cursor = db.query(TABLE_EMPLOYEE, new String[] {
+							KEY_EMPLOYEE_NAME, KEY_DEPARTMENT_ID,
+							KEY_DEPARTMENT_NAME, KEY_EMPLOYEE_HEADSHIP_NAME,
+							KEY_EMPLOYEE_MOBILE, KEY_EMPLOYEE_PICTURE,
+							KEY_EMPLOYEE_ID, KEY_EMPLOYEE_DEPARTMENT_FAX }, "("
+							+ KEY_EMPLOYEE_DEPARTMENT_FAX + "=?) and ("
+							+ KEY_EMPLOYEE_MOBILE_SHORT + "=? )", new String[] {
+							systemUser.getDepartmentFax(), number }, null,
+							null, null, null);
+				} else {
+					Log.w(TAG,
+							"[getEmployeeId] system user's deparment fax is empty, do nothing!");
+					db.close();
+					return null;
+				}
+			} else {
+				Log.d(TAG, "[getEmployeeId] " + number
+						+ " is not short number!");
+				cursor = db.query(TABLE_EMPLOYEE, new String[] {
+						KEY_EMPLOYEE_NAME, KEY_DEPARTMENT_ID,
+						KEY_DEPARTMENT_NAME, KEY_EMPLOYEE_HEADSHIP_NAME,
+						KEY_EMPLOYEE_MOBILE, KEY_EMPLOYEE_PICTURE,
+						KEY_EMPLOYEE_ID, KEY_EMPLOYEE_DEPARTMENT_FAX },
+						KEY_EMPLOYEE_MOBILE + "=? or " + KEY_EMPLOYEE_TEL
+								+ "=?", new String[] { number, number }, null,
+						null, null, null);
+			}
 			if (cursor != null && cursor.moveToFirst()) {
 				String empid = cursor.getString(6);
 				Log.d(TAG, "[getEmployeeId] employee_id:" + empid);
@@ -188,9 +260,88 @@ public class DbHelper extends SQLiteOpenHelper {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (db != null)
-				db.close();
 			return null;
+		} finally {
+			if (db != null && db.isOpen())
+				db.close();
+		}
+	}
+
+	// get current system login user
+	public Employee getSystemUser() {
+		Log.d(TAG, ">>>getSystemUser<<< ");
+		if (systemUser != null) {
+			Log.d(TAG, "[getSystemUser] system user is already found...");
+			return systemUser;
+		}
+		SQLiteDatabase db = null;
+		try {
+			// db = this.getReadableDatabase();
+			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, null,
+					SQLiteDatabase.NO_LOCALIZED_COLLATORS
+							| SQLiteDatabase.CREATE_IF_NECESSARY);
+			Cursor cursor = db.query(TABLE_SYSTEM,
+					new String[] { KEY_SYSTEM_EMPLOYEE_ID }, null, null, null,
+					null, null, null);
+			if (cursor != null && cursor.moveToFirst()) {
+				String employeeId = cursor.getString(0);
+				Log.d(TAG, "[getSystemUser] system user employee id: "
+						+ employeeId);
+				cursor.close();
+				cursor = db.query(TABLE_EMPLOYEE, new String[] {
+						KEY_EMPLOYEE_NAME, KEY_DEPARTMENT_ID,
+						KEY_DEPARTMENT_NAME, KEY_EMPLOYEE_HEADSHIP_NAME,
+						KEY_EMPLOYEE_MOBILE, KEY_EMPLOYEE_PICTURE,
+						KEY_EMPLOYEE_ID, KEY_EMPLOYEE_DEPARTMENT_FAX },
+						KEY_EMPLOYEE_ID + "=?", new String[] { employeeId },
+						null, null, null, null);
+				if (cursor != null && cursor.moveToFirst()) {
+					String name = cursor.getString(0);
+					Log.d(TAG, "[getSystemUser] name: " + name);
+					String departmentId = cursor.getString(1);
+					Log.d(TAG, "[getSystemUser] departmentId: " + departmentId);
+					String qualifiedDeptName = getQualifiedDeptName(db,
+							departmentId);
+					if (qualifiedDeptName.substring(0, 1).equals("\\"))
+						qualifiedDeptName = qualifiedDeptName.substring(1,
+								qualifiedDeptName.length());
+					Log.d(TAG, "[getSystemUser] qualifiedDeptName: "
+							+ qualifiedDeptName);
+					String headshipName = cursor.getString(3);
+					Log.d(TAG, "[getSystemUser] headshipName: " + headshipName);
+					String mobile = cursor.getString(4);
+					Log.d(TAG, "[getSystemUser] mobile: " + mobile);
+					String picture = cursor.getString(5);
+					Log.d(TAG, "[getSystemUser] picutre: " + picture);
+					String empid = cursor.getString(6);
+					Log.d(TAG, "[getSystemUser] employee_id:" + empid);
+					String departmentFax = cursor.getString(7);
+					Log.d(TAG, "[getSystemUser] department fax:"
+							+ departmentFax);
+					systemUser = new Employee(empid, name, mobile,
+							headshipName, qualifiedDeptName, picture,
+							departmentFax);
+					cursor.close();
+					Log.d(TAG, ">>>[getSystemUser] finished<<<");
+					return systemUser;
+				} else {
+					Log.d(TAG,
+							"[getSystemUser] can't find the system user info in employee table.");
+				}
+				db.close();
+				return null;
+			} else {
+				Log.d(TAG,
+						"[getSystemUser] can't find the system user in sqlite database.");
+				db.close();
+				return null;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			if (db != null && db.isOpen())
+				db.close();
 		}
 	}
 
@@ -225,10 +376,9 @@ public class DbHelper extends SQLiteOpenHelper {
 					SQLiteDatabase.NO_LOCALIZED_COLLATORS
 							| SQLiteDatabase.CREATE_IF_NECESSARY);
 			try {
-				// 如果数据表不存在，则创建之。有问题，先try catch掉
 				String CREATE_CALLHIS_TABLE = String
 						.format("CREATE TABLE %s(%s integer PRIMARY KEY autoincrement,"
-								+ "%s,%s datetime default (datetime('now', 'localtime')),%s, %s, %s)",
+								+ "%s varchar(20), %s datetime default (datetime('now', 'localtime')),%s, %s, %s)",
 								TABLE_CALL_HIS, KEY_CALLHIS_ID,
 								KEY_CALLHIS_NUM, KEY_CALLHIS_DATE,
 								KEY_CALLHIS_TYPE, KEY_CALLHIS_COUNT,
@@ -261,18 +411,18 @@ public class DbHelper extends SQLiteOpenHelper {
 			} else {
 				if (datetime == null)
 					db.execSQL(String.format(
-							"INSERT INTO %s(%s,%s,%s,%s) VALUES (%s,%s,%s,?)",
+							"INSERT INTO %s(%s,%s,%s,%s) VALUES (?,%s,%s,?)",
 							TABLE_CALL_HIS, KEY_CALLHIS_NUM, KEY_CALLHIS_TYPE,
-							KEY_CALLHIS_COUNT, KEY_CALLHIS_EMPID, phoneNum,
-							type, 1), new String[] { empid });
+							KEY_CALLHIS_COUNT, KEY_CALLHIS_EMPID, type, 1),
+							new String[] { phoneNum, empid });
 				else
 					db.execSQL(
 							String.format(
-									"INSERT INTO %s(%s,%s,%s,%s,%s) VALUES (%s,%s,%s,?,?)",
+									"INSERT INTO %s(%s,%s,%s,%s,%s) VALUES (?,%s,%s,?,?)",
 									TABLE_CALL_HIS, KEY_CALLHIS_NUM,
 									KEY_CALLHIS_TYPE, KEY_CALLHIS_COUNT,
-									KEY_CALLHIS_EMPID, KEY_CALLHIS_DATE,
-									phoneNum, type, 1), new String[] { empid,
+									KEY_CALLHIS_EMPID, KEY_CALLHIS_DATE, type,
+									1), new String[] { phoneNum, empid,
 									datetime });
 			}
 			cursor.close();
