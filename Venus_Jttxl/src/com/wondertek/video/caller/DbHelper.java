@@ -352,6 +352,16 @@ public class DbHelper extends SQLiteOpenHelper {
 			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, null,
 					SQLiteDatabase.NO_LOCALIZED_COLLATORS
 							| SQLiteDatabase.CREATE_IF_NECESSARY);
+
+			// create call history table if not exist
+			String CREATE_CALLHIS_TABLE = String
+					.format("CREATE TABLE IF NOT EXISTS %s(%s integer PRIMARY KEY autoincrement,"
+							+ "%s varchar(20), %s datetime default (datetime('now', 'localtime')),%s, %s, %s)",
+							TABLE_CALL_HIS, KEY_CALLHIS_ID, KEY_CALLHIS_NUM,
+							KEY_CALLHIS_DATE, KEY_CALLHIS_TYPE,
+							KEY_CALLHIS_COUNT, KEY_CALLHIS_EMPID);
+			db.execSQL(CREATE_CALLHIS_TABLE);
+
 			Cursor cursor = db.query(TABLE_CALL_HIS,
 					new String[] { KEY_CALLHIS_ID }, null, null, null, null,
 					null);
@@ -369,27 +379,25 @@ public class DbHelper extends SQLiteOpenHelper {
 	// record the history when receive calls or call to other
 	public void recordCallHistory(String phoneNum, String type, String empid,
 			String datetime) {
-		Log.d(TAG, "[recordCallHistory] phoneNum:" + phoneNum);
+		Log.d(TAG, "[recordCallHistory] phoneNum: " + phoneNum
+				+ " employee id: " + empid);
 		SQLiteDatabase db = null;
 		try {
 			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, null,
 					SQLiteDatabase.NO_LOCALIZED_COLLATORS
 							| SQLiteDatabase.CREATE_IF_NECESSARY);
-			try {
-				String CREATE_CALLHIS_TABLE = String
-						.format("CREATE TABLE %s(%s integer PRIMARY KEY autoincrement,"
-								+ "%s varchar(20), %s datetime default (datetime('now', 'localtime')),%s, %s, %s)",
-								TABLE_CALL_HIS, KEY_CALLHIS_ID,
-								KEY_CALLHIS_NUM, KEY_CALLHIS_DATE,
-								KEY_CALLHIS_TYPE, KEY_CALLHIS_COUNT,
-								KEY_CALLHIS_EMPID);
-				Log.d(TAG, CREATE_CALLHIS_TABLE);
-				db.execSQL(CREATE_CALLHIS_TABLE);
-			} catch (Exception e) {
-				// e.printStackTrace();
-			}
 
-			// if the phone num exist,add count + 1
+			// create call history table if not exist
+			String CREATE_CALLHIS_TABLE = String
+					.format("CREATE TABLE IF NOT EXISTS %s(%s integer PRIMARY KEY autoincrement,"
+							+ "%s varchar(20), %s datetime default (datetime('now', 'localtime')),%s, %s, %s)",
+							TABLE_CALL_HIS, KEY_CALLHIS_ID, KEY_CALLHIS_NUM,
+							KEY_CALLHIS_DATE, KEY_CALLHIS_TYPE,
+							KEY_CALLHIS_COUNT, KEY_CALLHIS_EMPID);
+			Log.d(TAG, CREATE_CALLHIS_TABLE);
+			db.execSQL(CREATE_CALLHIS_TABLE);
+
+			// if the phone number exist, add count + 1
 			Cursor cursor = db.query(TABLE_CALL_HIS, new String[] {
 					KEY_CALLHIS_ID, KEY_CALLHIS_NUM },
 					KEY_CALLHIS_EMPID + "=?", new String[] { empid }, null,

@@ -61,43 +61,11 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 			DbHelper helper = new DbHelper(context);
 			Employee e = helper.getEmployee(number);
 			if (e != null) {
-				// record to history first
 				addToHistory(number, "1", context, e.getEmpid());
 				addPopup(e, context);
 			} else {
-				final Employee systemUser = helper.getSystemUser();
-				if (systemUser == null) {
-					Log.w(TAG, "[onReceive] get system user failed!");
-					return;
-				}
-				if (number.length() == 6
-						&& (systemUser == null || systemUser.getDepartmentFax() == "")) {
-					Log.w(TAG,
-							"[onReceive] system user is not exist or department fax is empty!");
-					return;
-				}
-				// get employee info by http method
-				Log.d(TAG,
-						"[onReceive] trying to get outgoing caller info by http method...");
-				new Thread() {
-					@Override
-					public void run() {
-						Log.d(TAG,
-								"[run] very time consuming, so do http method in workround thread...");
-						HttpGetEmployeeInfo ge = new HttpGetEmployeeInfo();
-						Employee e1 = ge.getEmployee(number,
-								systemUser.getDepartmentFax());
-						if (e1 != null) {
-							Message msg = new Message();
-							msg.what = 2;
-							msg.obj = e1;
-							handler.sendMessage(msg);
-						} else {
-							Log.w(TAG,
-									"[onReceive] can't find any outgoing caller's information in local and remote server!");
-						}
-					}
-				}.start();
+				Log.w(TAG,
+						"[onReceive] can't find the outgoing caller in sqlite database.");
 			}
 			return;
 		}
@@ -114,42 +82,10 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 			if (e != null) {
 				// record to history first
 				addToHistory(number, "0", context, e.getEmpid());
-				// pop
 				addPopup(e, context);
 			} else {
-				final Employee systemUser = helper.getSystemUser();
-				if (systemUser == null) {
-					Log.w(TAG, "[onReceive] get system user failed!");
-					return;
-				}
-				if (number.length() == 6 && systemUser == null
-						|| systemUser.getDepartmentFax() == "") {
-					Log.w(TAG,
-							"[onReceive] system user is not exist or department fax is empty!");
-					return;
-				}
-				// get employee info by http method
-				Log.d(TAG,
-						"[onReceive] trying to get incoming caller info by http method...");
-				new Thread() {
-					@Override
-					public void run() {
-						Log.d(TAG,
-								"[run] very time consuming, so do http method in workround thread...");
-						HttpGetEmployeeInfo ge = new HttpGetEmployeeInfo();
-						Employee e1 = ge.getEmployee(number,
-								systemUser.getDepartmentFax());
-						if (e1 != null) {
-							Message msg = new Message();
-							msg.what = 2;
-							msg.obj = e1;
-							handler.sendMessage(msg);
-						} else {
-							Log.w(TAG,
-									"[onReceive] can't find any incoming caller's information in local and remote server!");
-						}
-					}
-				}.start();
+				Log.w(TAG,
+						"[onReceive] can't find the incoming caller in sqlite database.");
 			}
 			break;
 		case TelephonyManager.CALL_STATE_OFFHOOK:
@@ -171,7 +107,7 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 	}
 
 	// add record to history
-	public void addToHistory(String num, String type, final Context context,
+	public void addToHistory(String num, String type, Context context,
 			String empid) {
 		DbHelper helper = new DbHelper(context);
 		helper.recordCallHistory(num, type, empid, null);
@@ -244,7 +180,6 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 		}
 	}
 
-	//
 	private class DetectCallSceenTask extends TimerTask {
 		private Context mContext;
 
