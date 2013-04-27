@@ -221,7 +221,6 @@ function bodyOnPluginEvent(msg)
         Config:set('userVersion',employee_version)
         Config:set('mobileRights',right_config)
         if Loading:isShow() then Loading:close() end
-        UmsAgent:writeCallLog()
         Sprite:setProperty(noticeLabel, 'text', '正在进行页面跳转。。。')
         Timer:set(1,500,'jumpPage')   
     elseif msg == 111 then
@@ -384,6 +383,7 @@ function jumpPage()
     Log:write("系统表插入结果:bRet = "..bRet.." errMsg ="..errMsg)
     Config:set('forceUpdateDatabase', '0')
 	Log:write("forceUpdateDatabase2= "..Config:get('forceUpdateDatabase'))
+    UmsAgent:writeCallLog()
     Scene:setReturn(Alias.m_login, Alias.m_recentContacter)
     Scene:go(Alias.m_recentContacter, true)
 end
