@@ -127,6 +127,7 @@ import android.widget.TextView;
 //import com.google.ads.AdSize;
 //import com.google.ads.AdView;
 //import com.wondertek.activity.R;
+import android.widget.Toast;
 import com.wondertek.video.Util;
 import com.wondertek.video.alarm.AlarmObserver;
 import com.wondertek.video.appmanager.AppManager;
@@ -4288,5 +4289,52 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		if(tolTxTraffic == -1)
 			return -1;
 		return (int) (GetTotalTxBytes() - tolTxTraffic);
+	}
+	
+		Handler AutoTestHandler = new Handler() {
+		public void handleMessage(Message msg) {
+			Log.d("AutoTest", "" + msg.what + " (" + msg.arg1 + "," + msg.arg2 + ")");
+			Window window = null;
+			switch(msg.what)
+			{
+			case 100:
+				window = VenusActivity.getInstance().appActivity.getWindow();
+			    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+				Toast.makeText(appActivity, "开始回放", Toast.LENGTH_SHORT).show();
+				break;
+			case 101:
+				window = VenusActivity.getInstance().appActivity.getWindow();
+			    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+				Toast.makeText(appActivity, "开始录制", Toast.LENGTH_SHORT).show();
+				break;
+			case 102:
+				window = VenusActivity.getInstance().appActivity.getWindow();
+			    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+				Toast.makeText(appActivity, "回放结束", Toast.LENGTH_SHORT).show();
+				break;
+			case 103:
+				window = VenusActivity.getInstance().appActivity.getWindow();
+			    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+				Toast.makeText(appActivity, "录制结束", Toast.LENGTH_SHORT).show();
+				break;
+			case 1000:
+				break;
+			case 2000:
+				Toast.makeText(appActivity, "请先进行录制", Toast.LENGTH_SHORT).show();
+				break;
+			case 2001:
+				Toast.makeText(appActivity, "无SD卡", Toast.LENGTH_SHORT).show();
+				break;
+			default:
+				nativesendevent(msg.what, -(msg.arg1 + 1), msg.arg2);
+				break;
+			}
+		}
+	};
+	
+	public static void javaAutoTestSendEvent(int type, int x, int y)
+	{
+		Message message = Message.obtain(VenusActivity.getInstance().AutoTestHandler, type, x, y);
+		message.sendToTarget();
 	}
 }
