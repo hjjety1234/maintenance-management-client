@@ -274,19 +274,26 @@ public class MqttPushService extends Service
 	}
 
 	private synchronized void start() {
-		log("Starting service...");
-		
-		// Do nothing, if the service is already running.
-		if (mStarted == true) {
-			Log.w(TAG, "Attempt to start connection that is already active");
-			return;
-		}
-		
-		// Establish an MQTT connection
-		connect();
-		
-		// Register a connectivity listener
-		registerReceiver(mConnectivityChanged, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));		
+		new Thread() {
+			@Override
+			public void run() {
+				log("Starting service in thread...");
+
+				// Do nothing, if the service is already running.
+				if (mStarted == true) {
+					Log.w(TAG,
+							"Attempt to start connection that is already active");
+					return;
+				}
+
+				// Establish an MQTT connection
+				connect();
+
+				// Register a connectivity listener
+				registerReceiver(mConnectivityChanged, new IntentFilter(
+						ConnectivityManager.CONNECTIVITY_ACTION));
+			}
+		}.start();
 	}
 
 	private synchronized void stop() {
