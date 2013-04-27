@@ -114,7 +114,7 @@
                     </node>
                     <!--列表信息-->
                     <node name="listNode1" rect="0,56,480,560" extendstyle="1111">
-                        <listview name="sampleList1" rect="0,40,480,560" extendstyle="1111" auto-scroll='true' limit='true' />
+                        <listview name="sampleList1" rect="0,40,480,568" extendstyle="1111" auto-scroll='true' limit='true' />
                         <image name='selectImg' rect="21,0,438,1" src="file://image/xianluzancun_line.png" 
                                  extendstyle="1111" style='autosize'/>
                         <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
@@ -295,7 +295,10 @@ end
 --获取统计数据返回地址（市公司）
 function request()
     local date = getSelectedMonth()
-    local param = 'cmd='..selectData..'&major=C34&date=&page=1&pagesize=100&usercode='..Config:get('username')..'&date='..date
+    if  date =='2013-1' or date =='2013-2' then 
+        date ='2013-3'
+    end
+    local param = 'cmd='..selectData..'&major=C34&page=1&pagesize=100&usercode='..Config:get('username')..'&date='..date
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write('reqURL',reqURL)
     Http:request('city_data', reqURL, 101, {useCache = false})
