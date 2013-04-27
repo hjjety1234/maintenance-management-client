@@ -106,7 +106,7 @@
                 </node>
                 <node name="telephoneLine" rect="110,35,375,40">                           
                     <!-- 电话号码 -->
-                    <label name="mobile" rect="0, 8, 115, 30"  text="" font-family="微软雅黑"  
+                    <label name="mobile" rect="0, 8, 140, 30"  text="" font-family="微软雅黑"  
                         color="#aeb1b1" font-size="18" h-align="left" v-align="top"
                         border="false" extendstyle="1111"/> 
                     <!-- 来电时间 -->
@@ -253,7 +253,7 @@ function bodyOnSpriteEvent(msg, param)
         elseif Config:get('judge_flag') == "1" then
             Config:set('judge_flag', '0')
         end   
-        UmsAgent:OnActivate(string.match(Alias.m_recentContacter, 'MODULE:\\(.*)'), "联系人")
+        UmsAgent:OnActivate(string.match(Alias.m_recentContacter, 'MODULE:\\(.*)'), "最近联系人")
         Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
         Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_s.png')
         Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
@@ -283,7 +283,7 @@ function bodyOnPluginEvent(msg)
                 local update_type = Valuedata.update_type
                 local department_firstword = Valuedata.department_firstword
                 if update_type == "0" then
-                    local sql = "insert into tb_c_department values ('"..department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."');"
+                    local sql = "insert into tb_c_department values ('"..department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."' ,'' ,'' ,'' ,'' );"
                     Log:write("部门新增语句:sql = "..sql) 
                     bRet, errMsg = Sqlite:update(databaseName, sql)
                     Log:write("部门1添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
@@ -292,7 +292,7 @@ function bodyOnPluginEvent(msg)
                     Log:write("部门新增语句1:sql = "..sql) 
                     bRet, errMsg = Sqlite:update(databaseName, sql)
                     Log:write("部门1添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
-                    sql = "insert into tb_c_department values ('"..department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."');"
+                    sql = "insert into tb_c_department values ('"..department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."' ,'' ,'' ,'' ,'' );"
                     Log:write("部门新增语句1:sql = "..sql) 
                     bRet, errMsg = Sqlite:update(databaseName, sql)
                     Log:write("部门1添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
@@ -343,7 +343,8 @@ end
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-        doBack()
+        --doBack()
+        Util:backgroundApp()
     end
 end
 
@@ -898,7 +899,7 @@ function updateEmployeeData()
                     returnValue[i].tel_short.."','"..returnValue[i].email.."','"..
                     returnValue[i].versonNum.."','"..returnValue[i].picture.."','"..
                     returnValue[i].employee_firstword.."','"..returnValue[i].employee_fullword.."','"..
-                    returnValue[i].parent_department_name.."','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."');"
+                    returnValue[i].parent_department_name.."','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."' ,'' ,'' ,'' ,'' );"
                 -- Log:write("sqlInsert = ",sqlInsert)                         
                 bRet, errMsg = Sqlite:update(databaseName, sqlInsert) 
                 -- Log:write("新增用户:bRet = "..bRet.." errMsg ="..errMsg)      
@@ -926,7 +927,7 @@ function updateEmployeeData()
                         returnValue[i].tel_short.."','"..returnValue[i].email.."','"..
                         returnValue[i].versonNum.."','"..returnValue[i].picture.."','"..
                         returnValue[i].employee_firstword.."','"..returnValue[i].employee_fullword.."','"..
-                        returnValue[i].parent_department_name.."','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."');"
+                        returnValue[i].parent_department_name.."','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."' ,'' ,'' ,'' ,'' );"
                     Log:write("sqlInsert = ",sqlInsert)
                     bRet, errMsg = Sqlite:update(databaseName, sqlInsert)
                     Log:write("新增用户:bRet = "..bRet.." errMsg ="..errMsg)

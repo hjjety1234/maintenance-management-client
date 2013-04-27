@@ -190,7 +190,7 @@ function bodyOnPluginEvent(msg)
 	            local parent_department_id = Valuedata.parent_department_id
 	            local department_level = Valuedata.department_level
 	            local department_firstword = Valuedata.department_firstword 
-	            local sql = "insert into tb_c_department values ('"..department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."');"
+	            local sql = "insert into tb_c_department values ('"..department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."' ,'' ,'' ,'' ,'' );"
 	            Log:write('下载联系人插入语句==第i=='..i..'次==sql=='..sql)
 	            bRet, errMsg = Sqlite:update(databaseName, sql)
 	        end
@@ -267,17 +267,17 @@ function initdatabase()
     bRet, errMsg = Sqlite:open(databaseName) 
     Log:write("创建数据库成功:bRet = "..bRet.." errMsg ="..errMsg)
     local sq1 = "create table tb_c_department(department_id primary key not null, department_name,"..
-        "parent_department_id , department_level, department_firstword );"
+        "parent_department_id , department_level, department_firstword, mark1, mark2, mark3, mark4 );"
     bRet, errMsg = Sqlite:update(databaseName, sq1)
     Log:write("创建数据库表tb_c_department结果:bRet = "..bRet.." errMsg ="..errMsg)
     local sql = "create table tb_c_employee(employee_id primary key not null,employee_name,"..
         "department_id,department_name,headship_level INTEGER,headship_name,mobile,mobile_short,"..
         "tel,tel_short,email,versionNum,picture,employee_firstword,employee_fullword,"..
-        "parent_department_name,display_order INTEGER, department_fax);"
+        "parent_department_name,display_order INTEGER, department_fax, mark1, mark2, mark3, mark4);"
     bRet, errMsg = Sqlite:update(databaseName,sql)
     Log:write("创建数据库表tb_c_employee结果:bRet = "..bRet.." errMsg ="..errMsg)
     local sq1 = "create table tb_c_system(system_id primary key not null, register_flag, department_version, "..
-        "employee_version, user_id, right_config, employee_id, employee_name, department_id, department_name, department_level );"
+        "employee_version, user_id, right_config, employee_id, employee_name, department_id, department_name, department_level, mark1, mark2, mark3, mark4 );"
     bRet, errMsg = Sqlite:update(databaseName, sq1)
     Log:write("创建数据库表tb_c_system结果:bRet = "..bRet.." errMsg ="..errMsg)
 end
@@ -377,7 +377,7 @@ end
 function jumpPage()
     local sql = "insert into tb_c_system values ('001','"..Config:get('DatabaseVersion').."','"..department_version.."','"..employee_version..
         "','"..loginData.user_id.."','"..right_config.."','"..loginData.employee_id.."','"..loginData.employee_name..
-        "','"..loginData.department_id.."','"..loginData.department_name.."','"..loginData.department_level.."');"
+        "','"..loginData.department_id.."','"..loginData.department_name.."','"..loginData.department_level.."' ,'' ,'' ,'' ,'' );"
     Log:write('系统表插入语句==sql=='..sql)
     bRet, errMsg = Sqlite:update(databaseName, sql)
     Log:write("系统表插入结果:bRet = "..bRet.." errMsg ="..errMsg)
@@ -425,7 +425,7 @@ function initUserDatabase()
             returnValue[i].tel_short.."','"..returnValue[i].email.."','"..
             returnValue[i].versonNum.."','"..returnValue[i].picture.."','"..
             returnValue[i].employee_firstword.."','"..returnValue[i].employee_fullword.."','"..
-            returnValue[i].parent_department_name.."','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."');"                  
+            returnValue[i].parent_department_name.."','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."' ,'' ,'' ,'' ,'' );"                  
             bRet, errMsg = Sqlite:update(databaseName, sqlInsert)
             -- Log:write("sqlInsert 语句：",sqlInsert) 
         end    

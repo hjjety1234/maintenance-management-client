@@ -354,11 +354,12 @@ function EditMyInfo(sprite)
     local tel_short = Sprite:getProperty(Sprite:findChild(rootSprite,'duanhaoLabel_s3'),'text')     --办公短号
     local telephone = Sprite:getProperty(Sprite:findChild(rootSprite,'duanhaoLabel_s4'),'text')     --办公长号
     local email = Sprite:getProperty(Sprite:findChild(rootSprite,'email'),'text')                   --电子邮箱
-    local requestURL = Alias.url_server..'mobile/UserInfo/update?employeeId='..employeeId..'&employeeName='..empName..'&mobileLong='..mobile
+    local requestURL = Alias.url_server..'mobile/UserInfo/update'
+    local para = 'employeeId='..employeeId..'&employeeName='..empName..'&mobileLong='..mobile
                         ..'&mobileShort='..mobileShort..'&telLong='..telephone..'&telShort='..tel_short..'&email='..email
     Log:write("更新联系人信息URL:", requestURL) 
     Loading:show(rootSprite)
-    Http:request('editinfosubmit', requestURL, 102,{useCache=false,method = 'post'}) 
+    Http:request('editinfosubmit', requestURL, 102,{useCache=false,method = 'post',postData=para}) 
 end
 
 -- 下载用户图片

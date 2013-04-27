@@ -204,6 +204,10 @@ function editOnTextChanged(sprite,ncount)
     end
 end
 
+function Util:backgroundApp()
+    BackgroundApp()
+end
+
 --------------------------------统计报表相关函数----------------------------
 require 'framework.webbrowser'
 -- 在webview中显示fusionCharts统计报表
