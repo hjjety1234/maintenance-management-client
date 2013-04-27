@@ -152,5 +152,7 @@ Alias = {
 
     m_biaoganGuanLi =  "MODULE:\\com_wondertek_dw\\m_biaoganGuanLi.wdml",  -- 标杆管理
     m_biaoganGuanLizq =  "MODULE:\\com_wondertek_dw\\m_biaoganGuanLizq.wdml",  -- 标杆管理
+
+    home_sheng_leader = "MODULE:\\com_wondertek_dw\\home_sheng_leader.wdml",
 }
 
