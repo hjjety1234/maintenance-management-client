@@ -2,6 +2,8 @@ package com.wondertek.video.msgpush.mqtt;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Hashtable;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -21,7 +23,9 @@ import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -33,6 +37,7 @@ import com.ibm.mqtt.MqttSimpleCallback;
 import com.wbtech.common.CommonUtil;
 import com.wondertek.jttxl.R;
 import com.wondertek.video.VenusActivity;
+import com.wondertek.video.caller.Employee;
 import com.wondertek.video.msgpush.NotificationDetailsActivity;
 import com.wondertek.video.msgpush.implbyself.Constants;
 
@@ -134,6 +139,29 @@ public class MqttPushService extends Service
 	// This is the instance of an MQTT connection.
 	private MQTTConnection			mConnection;
 	private long					mStartTime;
+	
+	private Handler handler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			if (msg.what == 1) {
+				log("Starting connection in handler...");
+
+				// Do nothing, if the service is already running.
+				if (mStarted == true) {
+					Log.w(TAG, "Attempt to start connection that is already active");
+					return;
+				}
+
+				// Establish an MQTT connection
+				connect();
+
+				// Register a connectivity listener
+				registerReceiver(mConnectivityChanged, new IntentFilter(
+						ConnectivityManager.CONNECTIVITY_ACTION));
+			} 
+			super.handleMessage(msg);
+		}
+	};
 	
 
 	// Static method to start the service
@@ -273,20 +301,34 @@ public class MqttPushService extends Service
 		mStarted = started;
 	}
 
-	private synchronized void start() {
-		log("Starting service...");
-		
-		// Do nothing, if the service is already running.
-		if (mStarted == true) {
-			Log.w(TAG, "Attempt to start connection that is already active");
-			return;
+	private void start() {
+		new Thread() {
+			@Override
+			public void run(){
+				if (isActiveMQAvailable() ==  true) {
+					Message msg = new Message();
+					msg.what = 1;
+					handler.sendMessage(msg);
+				} 
+			}
+		}.start();
+	}
+
+	private boolean isActiveMQAvailable() {
+		try {
+			URL url = new URL("http://120.209.131.150:8161");
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			int responseCode = conn.getResponseCode();
+			Log.d("TAG", "[isActiveMQAvailable] response code: " + responseCode);
+			if (responseCode == 200) {
+				return true;
+			}else {
+				return false;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
 		}
-		
-		// Establish an MQTT connection
-		connect();
-		
-		// Register a connectivity listener
-		registerReceiver(mConnectivityChanged, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));		
 	}
 
 	private synchronized void stop() {
