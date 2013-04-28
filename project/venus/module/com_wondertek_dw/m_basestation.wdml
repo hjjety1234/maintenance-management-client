@@ -220,7 +220,7 @@ local quyuData
 local data
 local quyuid=''
 local listNode
-
+local companyCode
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -355,14 +355,12 @@ function loadRequest()
     local stationname=Sprite:getText(Sprite:findChild(NameNode, 'content'))
     --local codetext = Sprite:getText(Sprite:findChild(CodeNode, 'content'))
     local codetext =''
-    local companycode=Sprite:getData(Sprite:findChild(CompanyNode, 'CompanyBtn'))
-    companycode=string.gsub(companycode,' ','')
-    
-        local param = string.format('&pagesize=10&page=1&stationtype=&stationname=%s&stationcode=%s&companycode=%s&areacode=%s',stationname,codetext,companycode,quyuid)
-        Log:write("&param = ", param)
-        local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')
-        Http:request('jizhan_data', reqURL, 102, {useCache = false, method = 'post', postData='cmd=wlbstationsearch'..param})
-        Loading:show()  
+    local param = string.format('&page=1&stationtype=&cmd=wlbstationsearch&stationname=%s&stationcode=%s&companycode=%s&areacode=%s',stationname,codetext,companyCode,quyuid)
+    Log:write("&param = ", param)
+    local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')..param
+    Log:write('+++++reqURL',reqURL)
+    Http:request('jizhan_data', reqURL, 102, {useCache = false, method = 'post'})
+    Loading:show()  
 end
 
 function loadList(count)
@@ -501,6 +499,7 @@ function CompanyGroupOnSelect(sprite)
     Sprite:setProperty(curCompanyBtn, 'data', companyData)
     local index = ListView:getItemIndex(Sprite:getParent(sprite))
     Sprite:setProperty(companyText, 'text', cmpData.value[index].cmpname)
+    companyCode=cmpData.value[index].id
     setAllShoworHide(Sprite:findChild(rootSprite, 'CompanySelectNode'), 0)
 end
 
@@ -517,6 +516,7 @@ end
 function loadCompanyRequest()
     local param = 'cmd=wlbCmpList&page='..'1'..'&code=340100'
     local reqURL = getWholeUrl('nbspweb/webservice/chart!doWebservice.action', param)
+    Log:write('++++reqURL',reqURL)
     Http:request('group_data', reqURL, 101, {useCache = false})
     UmsAgent:onLoadStart()
      Loading:show()

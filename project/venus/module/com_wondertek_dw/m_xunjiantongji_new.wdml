@@ -32,7 +32,7 @@
                         <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
                     </button>  
-                    <scrolltext name="title" rect="105,5,280,40" text="巡检统计" font-family='微软雅黑'
+                    <scrolltext name="title" rect="105,5,280,40" text="巡检完成情况" font-family='微软雅黑'
                         extendstyle="1111" font-size="36" h-align="center" v-align="center"
                         color="#ffffff" scroll="true"  step="2" />
                 </node>
@@ -93,7 +93,7 @@
                 <image rect="10,596,460,12" src="file://image/content_bottom.png"
                     style="autosize" extendstyle="1111" /> 
                 <!-- 选择月份 -->
-                <node name="MonthNode" rect="0,15,480,31" extendstyle="1111">
+                <node name="MonthNode" rect="0,12,480,31" extendstyle="1111">
                     <button name="prevMonthBtn" rect="220,0,40,31" OnSelect="prevMonthOnSelect" 
                         style="autosize" extendstyle="1111" >
                         <image name="normal" rect="0,0,40,31" src="file://image/t5.png" 
@@ -119,51 +119,89 @@
                         font-size="23" h-align="center" v-align="center" 
                         color="#ffffff" style="autosize" extendstyle="0010"/>
                 </node>
-                <!--列表信息-->
-                <node name="listViewNode" rect="0,56,480,510" extendstyle="1111">
-                    <listview name="sampleList1" rect="0,40,480,510" extendstyle="1111" 
-                        auto-scroll='true' limit='true' />
-                    <image name='selectImg' rect="21,0,438,1" 
-                        src="file://image/xianluzancun_line.png" extendstyle="1111" 
-                        style='autosize'/>
-                    <image name="listButtonImage" rect="31,9,418,38" 
-                        src="file://image/ziyuan_bg.png"
-                        extendstyle="1111" style='autosize' >
-                        <label rect="0,5,70,25" text="市公司" font-family='微软雅黑'
-                            extendstyle="1111" font-size="22" h-align="center" v-align="center"
-                            color="#e33a10" />
-                        <label rect="60,5,160,25" text="计划站点" font-family='微软雅黑'
-                            extendstyle="1111" font-size="22" h-align="center" v-align="center"
-                            color="#e33a10" />
-                        <label rect="170,5,160,25" text="巡检站点" font-family='微软雅黑'
-                            extendstyle="1111" font-size="22" h-align="center" v-align="center"
-                            color="#e33a10" />
-                        <label rect="270,5,160,25" text="巡检率" font-family='微软雅黑'
-                            extendstyle="1111" font-size="22" h-align="center" v-align="center"
-                            color="#e33a10" />
-                    </image>
-                    <!-- 计划巡检站点排序 -->
-                    <button name="planBtn" rect="110,15,160,30" normal="normal" 
-                        sel="sel" OnSelect="doPlanSort" extendstyle="1111" data="0">
-                        <image name="triangleFD2" rect="107,7,20,12" 
-                            src="file://image/triangle_down.png" style="autosize" 
-                            extendstyle="1111" />
+                <!-- 统计标签 -->
+                <node name="baseSprite" rect="0,3,480,66" extendstyle="1111">
+                    <!--市公司-->
+                    <button name="cityBtn" rect="0,0,120,66" 
+                        OnSelect="cityOn" extendstyle="1111" data='city'>
+                        <image name='cityImg' rect="30,10,75,37" src="file://image/city_bg.png"
+                             extendstyle="1111" style='autosize'/>
+                        <label name="cityTxt" rect="20,5,95,37" text="市公司" font-family='微软雅黑'
+                            extendstyle="1111" font-size="23" h-align="center" v-align="center"
+                            color="#ffffff" />
+                    </button> 
+                    <!--代维单位公司-->
+                    <button name="companyBtn" rect="110,0,120,66" 
+                        OnSelect="companyOn" extendstyle="1111" data='company' >
+                        <image name='companyImg' rect="0,10,100,37" src="" 
+                             extendstyle="1111" style='autosize'/>
+                        <label name="companyTxt" rect="5,5,95,37" text="代维单位" font-family='微软雅黑'
+                            extendstyle="1111" font-size="23" h-align="left" v-align="center"
+                            color="#5a5a5a" />
                     </button>
-                    <!-- 巡检率排序 -->
-                    <button name="completeSortBtn" rect="250,15,150,30" normal="normal" 
-                        sel="sel" OnSelect="doCompleteSort" extendstyle="1111" data="0">
-                        <image name="triangleFD1" rect="76,7,20,12" 
-                            src="file://image/triangle_down.png" style="autosize" 
-                            extendstyle="1111" />
-                    </button>
-                    <!-- 巡检率排序 -->
-                    <button name="scoreSortBtn" rect="350,15,150,30" normal="normal" 
-                        sel="sel" OnSelect="doScoreSort" extendstyle="1111" data="0">
-                        <image name="triangleFD" rect="70,7,20,12" 
-                            src="file://image/triangle_down.png" style="autosize" 
-                            extendstyle="1111" />
-                    </button>
-                </node> 
+                </node>
+                <!-- 主体可滑动部分  -->
+                <panorama name="panorama" rect="0,50,480,800" foreground="" alpha="255" >
+                    <panoramaitem name="item1" rect="0,0,480,800" 
+                    extendstyle="1111" data="01">
+                    <!--列表信息-->
+                        <node name="listViewNode" rect="0,6,480,510" extendstyle="1111">
+                            <listview name="sampleList2" rect="0,10,480,540" extendstyle="1111" 
+                                limit='true' />
+                            <image name='selectImg' rect="21,0,438,2" 
+                                src="file://image/line.png" extendstyle="1111" 
+                                style='autosize'/> 
+                        </node> 
+                    </panoramaitem>
+                    <panoramaitem name="item2" rect="0,0,480,800" 
+                    extendstyle="1111" data="01">
+                    <!--列表信息-->
+                        <node name="listViewNode" rect="0,6,480,510" extendstyle="1111">
+                            <listview name="sampleList1" rect="0,40,480,510" extendstyle="1111" 
+                                auto-scroll='true' limit='true' />
+                            <image name='selectImg' rect="21,0,438,2" 
+                                src="file://image/line.png" extendstyle="1111" 
+                                style='autosize'/>
+                            <image name="listButtonImage" rect="31,9,418,38" 
+                                src="file://image/ziyuan_bg.png"
+                                extendstyle="1111" style='autosize' >
+                                <label name='cityName' rect="0,5,85,25" text="市公司" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="21" h-align="center" v-align="center"
+                                    color="#e33a10" />
+                                <label rect="60,5,160,25" text="计划站点" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="21" h-align="center" v-align="center"
+                                    color="#e33a10" />
+                                <label rect="170,5,160,25" text="巡检站点" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="21" h-align="center" v-align="center"
+                                    color="#e33a10" />
+                                <label rect="270,5,160,25" text="巡检率" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="21" h-align="center" v-align="center"
+                                    color="#e33a10" />
+                            </image>
+                            <!-- 计划巡检站点排序 -->
+                            <button name="planBtn" rect="110,15,160,30" normal="normal" 
+                                sel="sel" OnSelect="doPlanSort" extendstyle="1111" data="0">
+                                <image name="triangleFD2" rect="107,7,20,12" 
+                                    src="file://image/triangle_down.png" style="autosize" 
+                                    extendstyle="1111" />
+                            </button>
+                            <!-- 巡检率排序 -->
+                            <button name="completeSortBtn" rect="250,15,150,30" normal="normal" 
+                                sel="sel" OnSelect="doCompleteSort" extendstyle="1111" data="0">
+                                <image name="triangleFD1" rect="76,7,20,12" 
+                                    src="file://image/triangle_down.png" style="autosize" 
+                                    extendstyle="1111" />
+                            </button>
+                            <!-- 巡检率排序 -->
+                            <button name="scoreSortBtn" rect="350,15,150,30" normal="normal" 
+                                sel="sel" OnSelect="doScoreSort" extendstyle="1111" data="0">
+                                <image name="triangleFD" rect="70,7,20,12" 
+                                    src="file://image/triangle_down.png" style="autosize" 
+                                    extendstyle="1111" />
+                            </button>
+                        </node> 
+                    </panoramaitem>
+            </panorama>
             </node>
             <!-- 考核信息列表项模板 -->
             <node name="listItem1" rect="0,400,480,80" border="false"
@@ -183,30 +221,24 @@
                 <label name='ratio' rect="300,5,160,25" text="100" font-family='微软雅黑'
                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
                     color="#5a5a5a" />
-                <image name='faceName'  rect="410,5,30,30" src=""
+                <image name='faceName'  rect="413,5,30,30" src=""
                     style="autosize" extendstyle="1111" /> 
             </node>
-            <!-- 统计标签 -->
-            <node name="baseSprite" rect="0,190,480,66" extendstyle="1111">
-                <!--市公司-->
-                <button name="cityBtn" rect="0,0,120,66" 
-                    OnSelect="cityOn" extendstyle="1111" data='city'>
-                    <image name='cityImg' rect="30,10,75,37" src="file://image/city_bg.png"
-                         extendstyle="1111" style='autosize'/>
-                    <label name="cityTxt" rect="20,5,95,37" text="市公司" font-family='微软雅黑'
-                        extendstyle="1111" font-size="23" h-align="center" v-align="center"
-                        color="#ffffff" />
-                </button> 
-                <!--代维单位公司-->
-                <button name="companyBtn" rect="110,0,120,66" 
-                    OnSelect="companyOn" extendstyle="1111" data='company' >
-                    <image name='companyImg' rect="0,10,100,37" src="" 
-                         extendstyle="1111" style='autosize'/>
-                    <label name="companyTxt" rect="5,5,95,37" text="代维单位" font-family='微软雅黑'
-                        extendstyle="1111" font-size="23" h-align="left" v-align="center"
-                        color="#5a5a5a" />
-                </button>
+            <!-- 考核信息列表项模板 -->
+            <node name="listItem2" rect="0,400,480,80" border="false"
+                visible="false" enable="false" active="false" extendstyle="1111">
+                <textarea name="newCity" rect="8,22,120,70" text="" color="#303030" border="false"
+                    font-family='微软雅黑' font-size="17" h-align="center"
+                    v-align="top" style="autosize" extendstyle="1111" >
+                </textarea> 
+                <shadow name='newShadow' rect="10,48,400,30" color="#916747" alpha="200" border="false"
+                 extendstyle="1111"/>
+                <textarea name="newRatio" rect="345,20,90,25" text="" color="#ffffff" 
+                    font-family='微软雅黑' font-size="20"  h-align="left"
+                    v-align="center" style="autosize" extendstyle="1111"  >
+                </textarea>
             </node>
+
         </node>
     </body>
 <![CDATA[
@@ -218,6 +250,7 @@ local rootSprite
 local g_response = nil
 local g_major = nil
 local xunjiandata= 'city'
+local g_sum = nil
 
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
@@ -251,18 +284,90 @@ function bodyOnPluginEvent(msg, param)
         end
         local len = getJsonArrayCount(g_response.value)
         Log:write('len+++++',len)
+        Log:write("g_response.value", g_response.value)
+
+        g_sum = g_response.value[len - 1]
+        g_response.value[len - 1] = nil
         g_response.value = sortTable(g_response.value, 'ratio', true)
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+        local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
         ListView:removeAllItems(listView1, 1, 1)
+        ListView:removeAllItems(listView2, 1, 1)
         ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
-            len, 'loadListItem')
+            len-1, 'loadListItem')
+        ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), 
+            len - 1, 'loadListItem2')
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+            1, 'addSumToListItem1')
+        ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), 
+            1, 'addSumToListItem')
         ListView:adjust(listView1)
+        ListView:adjust(listView2)
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
     elseif msg > MSG_NETWORK_ERROR then -- 请求超时
         Log:write('请求超时')
+    end
+end
+
+function addSumToListItem( list, item, index )
+    Sprite:setRect(item, 0, 0, 480, 60)
+    -- 读取返回的数据
+    Log:write("addSumToListItem g_sum", g_sum)
+    local value = g_response.value
+    local newCity = Sprite:findChild(item,'newCity')         -- 地市
+    local newRatio = Sprite:findChild(item,'newRatio')         -- 巡检率
+    local newShadow = Sprite:findChild(item,'newShadow')         -- 背景色
+    local shadownum = math.floor(tonumber(string.format('%.2f',g_sum.ratio))*3.4)
+    Sprite:setProperty(newCity, 'text', g_sum.dimension)
+    Sprite:setProperty(newRatio, 'text', string.format('%.2f',g_sum.ratio).."%")
+    Sprite:setRect(newShadow,120,10,shadownum,45)
+    Log:write('shadownum',shadownum)
+    if shadownum > 70 then 
+        Sprite:setRect(newRatio,shadownum+45,22,90,25)
+    else 
+        Sprite:setRect(newRatio,shadownum+135,22,90,25)
+        Sprite:setProperty(newRatio,'color','#303030')
+    end
+    if  index == 0  or index == 8 or index == 16 then 
+        Sprite:setProperty(newShadow,'color','#0059a7')
+    elseif index == 1 or index == 9 or index == 17 then
+        Sprite:setProperty(newShadow,'color','#f25b00')
+    elseif index == 2 or index == 10 or index == 18 then
+        Sprite:setProperty(newShadow,'color','#38b034')
+    elseif index == 3 or index == 11 then
+        Sprite:setProperty(newShadow,'color','#a93446')
+    elseif index == 4 or index == 12 then
+        Sprite:setProperty(newShadow,'color','#916646')
+    elseif index == 5 or index == 13 then
+        Sprite:setProperty(newShadow,'color','#008ef4')
+    elseif index == 6 or index == 14 then
+        Sprite:setProperty(newShadow,'color','#f25b00')
+    elseif index == 7 or index == 15 then
+        Sprite:setProperty(newShadow,'color','#6028c1')
+    end 
+end
+
+function addSumToListItem1( list, item, index )
+    Sprite:setRect(item, 0, 0, 480, 40)
+    local listItem_bg = Sprite:findChild(item, 'listItem_bg')
+    if index % 2 > 0 then
+       Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
+    end
+    -- 读取返回的数据
+    local value = g_response.value
+    local dimension = Sprite:findChild(item,'dimension')         -- 地市
+    local plan = Sprite:findChild(item,'plan')        -- 计划巡检站点
+    local complete = Sprite:findChild(item,'complete')          -- 实际巡检站点
+    local ratio = Sprite:findChild(item,'ratio')          -- 巡检率
+    Sprite:setProperty(dimension, 'text', g_sum.dimension)
+    Sprite:setProperty(plan, 'text', g_sum.plan)
+    Sprite:setProperty(complete, 'text', g_sum.complete)
+    Sprite:setProperty(ratio, 'text', string.format('%.2f',g_sum.ratio).."%")
+    if g_sum.plan<=g_sum.complete and g_sum.plan~=0 then 
+      Sprite:setProperty(ratio, 'text', '100.0%')
     end
 end
 
@@ -294,39 +399,73 @@ function loadListItem(list, item, index)
     Sprite:setProperty(dimension, 'text', value[index].dimension)
     Sprite:setProperty(plan, 'text', value[index].plan)
     Sprite:setProperty(complete, 'text', value[index].complete)
-    Sprite:setProperty(ratio, 'text', string.format('%.1f',value[index].ratio).."%")
-    if value[index].plan<=value[index].complete and value[index].plan~=0 then 
-      Sprite:setProperty(ratio, 'text', '100.0%')
-    end
+    Sprite:setProperty(ratio, 'text', string.format('%.2f',value[index].ratio).."%")
     -- 前三名显示笑脸，后三名显示哭脸
     showRank1(item, index)
 end
+-- 加载统计数据
+function loadListItem2(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 60)
+    -- 读取返回的数据
+    local value = g_response.value
+    local newCity = Sprite:findChild(item,'newCity')         -- 地市
+    local newRatio = Sprite:findChild(item,'newRatio')         -- 巡检率
+    local newShadow = Sprite:findChild(item,'newShadow')         -- 背景色
+    local shadownum = math.floor(tonumber(string.format('%.2f',value[index].ratio))*3.4)
+    Sprite:setProperty(newCity, 'text', value[index].dimension)
+    Sprite:setProperty(newRatio, 'text', string.format('%.2f',value[index].ratio).."%")
+    Sprite:setRect(newShadow,120,10,shadownum,45)
+    Log:write('shadownum',shadownum)
+    if shadownum > 70 then 
+        Sprite:setRect(newRatio,shadownum+45,22,90,25)
+    else 
+        Sprite:setRect(newRatio,shadownum+135,22,90,25)
+        Sprite:setProperty(newRatio,'color','#303030')
+    end
+    if  index == 0  or index == 8 or index == 16 then 
+        Sprite:setProperty(newShadow,'color','#0059a7')
+    elseif index == 1 or index == 9 or index == 17 then
+        Sprite:setProperty(newShadow,'color','#f25b00')
+    elseif index == 2 or index == 10 or index == 18 then
+        Sprite:setProperty(newShadow,'color','#38b034')
+    elseif index == 3 or index == 11 then
+        Sprite:setProperty(newShadow,'color','#a93446')
+    elseif index == 4 or index == 12 then
+        Sprite:setProperty(newShadow,'color','#916646')
+    elseif index == 5 or index == 13 then
+        Sprite:setProperty(newShadow,'color','#008ef4')
+    elseif index == 6 or index == 14 then
+        Sprite:setProperty(newShadow,'color','#f25b00')
+    elseif index == 7 or index == 15 then
+        Sprite:setProperty(newShadow,'color','#6028c1')
+    end 
+end
+
 -- 对前三名显示笑脸，后三名显示哭脸
 function showRank1(item, index)
     -- 获取当前巡检率的值
-    local ratio = g_response.value[index].ratio
+    local ratio = tonumber(g_response.value[index].ratio)
     if ratio=='' or ratio==nil  then 
         ratio=0
     end
 
-    --Log:write('当前巡检率的值',ratio)
+    Log:write('当前巡检率的值',ratio)
     -- 统计巡检率的排名
     local rank = 1
     for i=0,getJsonArrayCount(g_response.value)-1 do
         local compare = g_response.value[i].ratio
-        --Log:write('compare',compare)
+    Log:write('compare',compare)
         if tonumber(ratio) < tonumber(compare) then 
             rank =  rank + 1
         end 
-            --Log:write('排名',rank)
+    Log:write('排名',rank)
     end 
-
     -- 获取笑脸和哭脸的Sprite
     local faceName = Sprite:findChild(item, 'faceName')
     
-    if rank <= 3 and ratio~=0  then
+    if ratio==100 or rank<=3 and ratio~=0 then
         Sprite:setProperty(faceName, 'src', 'file://image/smileface.png')
-    elseif getJsonArrayCount(g_response.value) - rank <= 3 or ratio==0 then
+    elseif getJsonArrayCount(g_response.value) - rank <= 2 or ratio==0 then
         Sprite:setProperty(faceName, 'src', 'file://image/cryface.png')
     end
     --[[if ratio >= 100.0 then 
@@ -340,7 +479,7 @@ function doPlanSort(sprite)
         Dialog:show('', '暂无巡检数据!', 'ok')
         return
     end
-    local len = getJsonArrayCount(g_response.value)
+    local len = getJsonArrayCount(g_response.value)-1
     if data == "0" then
         Sprite:setProperty(sprite,'data', "1")
         g_response.value = sortTable(g_response.value, 'plan', true)
@@ -348,6 +487,8 @@ function doPlanSort(sprite)
         ListView:removeAllItems(listView1, 1, 1)
         ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
             len, 'loadListItem')
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+            1, 'addSumToListItem1')
         ListView:adjust(listView1)
         --Log:write('g_response.value',g_response.value)
     else
@@ -359,6 +500,8 @@ function doPlanSort(sprite)
             ListView:removeAllItems(listView1, 1, 1)
             ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
                 len, 'loadListItem')
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+            1, 'addSumToListItem1')
             ListView:adjust(listView1)
             --Log:write('g_response.value',g_response.value)
         else
@@ -368,6 +511,8 @@ function doPlanSort(sprite)
             ListView:removeAllItems(listView1, 1, 1)
             ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
                 len, 'loadListItem')
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+            1, 'addSumToListItem1')
             ListView:adjust(listView1)
             --Log:write('g_response.value',g_response.value)
         end
@@ -380,7 +525,7 @@ function doCompleteSort(sprite)
         Dialog:show('', '暂无巡检数据!', 'ok')
         return
     end
-    local len = getJsonArrayCount(g_response.value)
+    local len = getJsonArrayCount(g_response.value)-1
     --Log:write("[doScoreSort] len: "..len)
     if data == "0" then
         Sprite:setProperty(sprite,'data', "1")
@@ -388,6 +533,8 @@ function doCompleteSort(sprite)
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
         ListView:removeAllItems(listView1, 1, 1)
         ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+            1, 'addSumToListItem1')
         ListView:adjust(listView1)
        
     else
@@ -399,6 +546,8 @@ function doCompleteSort(sprite)
             ListView:removeAllItems(listView1, 1, 1)
             ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
                 len, 'loadListItem')
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+            1, 'addSumToListItem1')
             ListView:adjust(listView1)
            
         else
@@ -408,6 +557,8 @@ function doCompleteSort(sprite)
             ListView:removeAllItems(listView1, 1, 1)
             ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
                 len, 'loadListItem')
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+            1, 'addSumToListItem1')
             ListView:adjust(listView1)
             --Log:write("[doScoreSort] len: "..len)
         end
@@ -420,7 +571,7 @@ function doScoreSort(sprite)
         Dialog:show('', '暂无巡检数据!', 'ok')
         return
     end
-    local len = getJsonArrayCount(g_response.value)
+    local len = getJsonArrayCount(g_response.value)-1
     --Log:write("[doScoreSort] len: "..len)
     if data == "0" then
         Sprite:setProperty(sprite,'data', "1")
@@ -430,6 +581,8 @@ function doScoreSort(sprite)
         ListView:removeAllItems(listView1, 1, 1)
         ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
             len, 'loadListItem')
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+            1, 'addSumToListItem1')
         ListView:adjust(listView1)
         --Log:write("[doScoreSort] len: "..len)
     else
@@ -442,6 +595,8 @@ function doScoreSort(sprite)
             ListView:removeAllItems(listView1, 1, 1)
             ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
                 len, 'loadListItem')
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+            1, 'addSumToListItem1')
             ListView:adjust(listView1)
             --Log:write("[doScoreSort] len: "..len)
         else
@@ -451,6 +606,8 @@ function doScoreSort(sprite)
             ListView:removeAllItems(listView1, 1, 1)
             ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
                 len, 'loadListItem')
+            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+            1, 'addSumToListItem1')
             ListView:adjust(listView1)
             --Log:write("[doScoreSort] len: "..len)
         end
@@ -591,6 +748,7 @@ function cityOn(sprite)
     Sprite:setProperty(companyTxt,'color','#5a5a5a')
     local cityName = Sprite:findChild(rootSprite,'cityName')
     Sprite:setProperty(cityName,'text','市公司')
+    Sprite:setRect(cityName,0,5,70,25)
     request(g_major)
 end
 
@@ -608,6 +766,7 @@ function companyOn(sprite)
     Sprite:setProperty(companyTxt,'color','#ffffff') 
     local cityName = Sprite:findChild(rootSprite,'cityName')
     Sprite:setProperty(cityName,'text','代维单位')
+    Sprite:setRect(cityName,10,5,70,25)
     request(g_major)
 end
 

@@ -120,26 +120,43 @@
                         color="#ffffff" style="autosize" extendstyle="0010"/>
                 </node>
                 <!--列表信息-->
-                <node name="listViewNode" rect="0,56,480,510" extendstyle="1111">
-                    <listview name="sampleList1" rect="0,40,480,510" extendstyle="1111" 
-                        auto-scroll='true' limit='true' />
-                    <image name="listButtonImage" rect="31,9,418,38" 
-                        src="file://image/ziyuan_bg.png"
-                        extendstyle="1111" style='autosize' >
-                        <label name='cityName' rect="0,5,90,25" text="市公司" font-family='微软雅黑'
-                            extendstyle="1111" font-size="22" h-align="center" v-align="center"
-                            color="#e33a10" />
-                        <label rect="265,5,160,25" text="考核得分" font-family='微软雅黑'
-                            extendstyle="1111" font-size="22" h-align="center" v-align="center"
-                            color="#e33a10" />
-                    </image>
-                    <button name="scoreSortBtn" rect="280,15,160,30" normal="normal" 
-                        sel="sel" OnSelect="doScoreSort" extendstyle="1111" data="0">
-                        <image name="triangleFD" rect="140,7,20,12" 
-                            src="file://image/triangle_down.png" style="autosize" 
-                            extendstyle="1111" />
-                    </button>
-                </node> 
+                <panorama name="panorama" rect="0,50,480,800" foreground="" alpha="255">
+                    <!--列表信息-->
+                    <panoramaitem name="item1" rect="0,0,480,800" 
+                    extendstyle="1111" data="01">
+                    <!--列表信息-->
+                        <node name="listViewNode" rect="0,6,480,510" extendstyle="1111">
+                            <listview name="sampleList2" rect="0,10,480,540" extendstyle="1111" 
+                                limit='true' />
+                            <image name='selectImg' rect="21,0,438,2" 
+                                src="file://image/line.png" extendstyle="1111" 
+                                style='autosize'/> 
+                        </node> 
+                    </panoramaitem>
+                    <panoramaitem name="item2" rect="0,0,480,800" 
+                    extendstyle="1111" data="02">
+                        <node name="listViewNode" rect="0,6,480,510" extendstyle="1111">
+                            <listview name="sampleList1" rect="0,40,480,510" extendstyle="1111" 
+                                auto-scroll='true' limit='true' />
+                            <image name="listButtonImage" rect="31,9,418,38" 
+                                src="file://image/ziyuan_bg.png"
+                                extendstyle="1111" style='autosize' >
+                                <label name='cityName' rect="0,5,90,25" text="市公司" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                                    color="#e33a10" />
+                                <label rect="265,5,160,25" text="考核得分" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="center" v-align="center"
+                                    color="#e33a10" />
+                            </image>
+                            <button name="scoreSortBtn" rect="280,15,160,30" normal="normal" 
+                                sel="sel" OnSelect="doScoreSort" extendstyle="1111" data="0">
+                                <image name="triangleFD" rect="140,7,20,12" 
+                                    src="file://image/triangle_down.png" style="autosize" 
+                                    extendstyle="1111" />
+                            </button>
+                        </node> 
+                    </panoramaitem>
+                </panorama>
             </node>
             <!-- 考核信息列表项模板 -->
             <node name="listItem1" rect="0,400,480,80" border="false"
@@ -176,6 +193,20 @@
                         extendstyle="1111" font-size="23" h-align="left" v-align="center"
                         color="#5a5a5a" />
                 </button>
+            </node>
+            <!-- 考核信息列表项模板 -->
+            <node name="listItem2" rect="0,400,480,80" border="false"
+                visible="false" enable="false" active="false" extendstyle="1111">
+                <textarea name="newCity" rect="12,0,105,70" text="" color="#303030" border="false"
+                    font-family='微软雅黑' font-size="18" h-align="center"
+                    v-align="center" style="autosize" extendstyle="1111" >
+                </textarea> 
+                <shadow name='newShadow' rect="10,48,400,30" color="#916747" alpha="200" border="false"
+                 extendstyle="1111"/>
+                <textarea name="newRatio" rect="345,20,90,25" text="" color="#ffffff" 
+                    font-family='微软雅黑' font-size="20"  h-align="left"
+                    v-align="center" style="autosize" extendstyle="1111"  >
+                </textarea>
             </node>
         </node>
     </body>
@@ -222,20 +253,22 @@ function bodyOnPluginEvent(msg, param)
         UmsAgent:onLoadFinish()
         if Loading:isShow() then Loading:close() end
         g_response = Http:jsonDecode('assessment')
-        --Log:write('111111111',g_response)
-        --Log:write('[bodyOnPluginEvent] g_response', g_response)
-        Log:write('the getJsonArrayCount(g_response.value) is ',getJsonArrayCount(g_response.value))
         if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.code == '50' or getJsonArrayCount(g_response.value) == 0 then 
-            Dialog:show(rootSprite, '暂无考核数据!', 'ok')
+            Dialog:show('', '暂无考核数据!', 'ok')
         end
         getMaxAndMin()
-        local len = #g_response.value + 1
+        local len = getJsonArrayCount(g_response.value)
         Log:write('g_response_value is ',g_response.value)
+        Log:write('len',len)
         --Log:write('=====len===',len)
         local listView1 = Sprite:findChild(rootSprite,'sampleList1')
+        local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
         ListView:removeAllItems(listView1,1,1)
+        ListView:removeAllItems(listView2,1,1)
         ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+        ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len-1, 'loadListItem2')
         ListView:adjust(listView1)
+        ListView:adjust(listView2)
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -252,9 +285,9 @@ function getMaxAndMin()
         local aCount = #sortValue-2
         --取前三的最小值和后三的最大值
         if getJsonArrayCount(sortValue)>3 then
-            max = sortValue[2].score
+            max = tonumber(sortValue[2].score)
             Log:write('the max value is ',max)
-            min = sortValue[aCount].score
+            min = tonumber(sortValue[aCount].score)
             Log:write('the min is ',min)
         else
 
@@ -291,9 +324,9 @@ function loadListItem(list, item, index)
         Sprite:setProperty(dimension, 'text', value[index].dimension)
         Sprite:setProperty(score, 'text', value[index].score)
         --Log:write('----',faceName,value[index].score)
-        if  value[index].score>=tonumber(max) then 
+        if  tonumber(value[index].score)>=tonumber(max) then 
             Sprite:setProperty(faceName,'src','file://image/smileface.png')
-        elseif value[index].score<=tonumber(min) then 
+        elseif tonumber(value[index].score)<=tonumber(min) then 
             Sprite:setProperty(faceName,'src','file://image/cryface.png')
         end
     end
@@ -306,11 +339,47 @@ function loadListItem(list, item, index)
     Sprite:setProperty(score, 'text', string.format('%.1f',value[index].score))
 
 end
+function loadListItem2(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 60)
+    -- 读取返回的数据
+    local value = g_response.value
+    local newCity = Sprite:findChild(item,'newCity')         -- 地市
+    local newRatio = Sprite:findChild(item,'newRatio')         -- 巡检率
+    local newShadow = Sprite:findChild(item,'newShadow')         -- 背景色
+    local shadownum = math.floor(tonumber(string.format('%.1f',value[index+1].score))*3.4)
+    Sprite:setProperty(newCity, 'text', value[index+1].dimension)
+    Sprite:setProperty(newRatio, 'text', string.format('%.1f',value[index+1].score))
+    Sprite:setRect(newShadow,120,10,shadownum,45)
+    Log:write('shadownum',shadownum)
+    if shadownum > 70 then 
+        Sprite:setRect(newRatio,shadownum+50,22,90,25)
+    else 
+        Sprite:setRect(newRatio,shadownum+135,22,90,25)
+        Sprite:setProperty(newRatio,'color','#303030')
+    end
+    if  index == 0  or index == 8 or index == 16 then 
+        Sprite:setProperty(newShadow,'color','#0059a7')
+    elseif index == 1 or index == 9 or index == 17 then
+        Sprite:setProperty(newShadow,'color','#f25b00')
+    elseif index == 2 or index == 10 or index == 18 then
+        Sprite:setProperty(newShadow,'color','#38b034')
+    elseif index == 3 or index == 11 then
+        Sprite:setProperty(newShadow,'color','#a93446')
+    elseif index == 4 or index == 12 then
+        Sprite:setProperty(newShadow,'color','#916646')
+    elseif index == 5 or index == 13 then
+        Sprite:setProperty(newShadow,'color','#008ef4')
+    elseif index == 6 or index == 14 then
+        Sprite:setProperty(newShadow,'color','#f25b00')
+    elseif index == 7 or index == 15 then
+        Sprite:setProperty(newShadow,'color','#6028c1')
+    end 
+end
 -- 考核得分排序
 function doScoreSort(sprite)
     local data = Sprite:getData(sprite)
     if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.value == nil then 
-        Dialog:show(rootSprite, '暂无考核数据!', 'ok')
+        Dialog:show('', '暂无考核数据!', 'ok')
         return
     end
     local len = #g_response.value+1
@@ -482,6 +551,7 @@ function cityOn(sprite)
     Sprite:setProperty(companyTxt,'color','#5a5a5a')
     local cityName = Sprite:findChild(rootSprite,'cityName')
     Sprite:setProperty(cityName,'text','市公司')
+    Sprite:setProperty(cityName,'rect','0,5,90,25')
     request(g_major)
     Loading:show()
 end
@@ -503,6 +573,7 @@ function companyOn(sprite)
     Log:write('kaohedata',kaohedata)
     local cityName = Sprite:findChild(rootSprite,'cityName')
     Sprite:setProperty(cityName,'text','代维单位')
+    Sprite:setProperty(cityName,'rect','10,5,90,25')
     request(g_major)
     Loading:show()
 end

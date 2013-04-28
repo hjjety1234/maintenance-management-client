@@ -180,6 +180,7 @@ require 'framework.umsagent'
 local rootSprite
 local city_data
 local dimension = 'city' --初始市公司维度
+local g_sum
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -204,19 +205,14 @@ function bodyOnPluginEvent(msg, param)
         UmsAgent:onLoadFinish() 
         city_data = Http:jsonDecode('city_data')
         local listView = Sprite:findChild(rootSprite, 'sampleList')
-        local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-        local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
-        local len = getJsonArrayCount(city_data.value)
+        local len = getJsonArrayCount(city_data.value)-1
+        g_sum = city_data.value[len]
+        city_data.value[len]=nil
         ListView:removeAllItems(listView,1,1)
-        ListView:removeAllItems(listView1,1,1)
-        ListView:removeAllItems(listView2,1,1)
         -- 加载列表项
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
-        ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')
         ListView:adjust(listView)
-        ListView:adjust(listView1)
-        ListView:adjust(listView2)
         Loading:close()
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
@@ -360,6 +356,73 @@ function loadListItem(list, item, index)
     Sprite:setProperty(locatedstation,'text',city_data.value[index].locatedstation)
     Sprite:setProperty(remotestation,'text',city_data.value[index].remotestation)
 end
+function addloadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 40)
+    local listItem_bg = Sprite:findChild(item, 'listItem_bg')
+    if index % 2 > 0 then
+       Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
+    end
+    -- 读取返回的数据
+    local cityName = Sprite:findChild(item,'cityName')
+    local cityName1 = Sprite:findChild(item,'cityName1')
+    local cityName2 = Sprite:findChild(item,'cityName2')
+    local peopleNum = Sprite:findChild(item,'peopleNum')
+    local carNum = Sprite:findChild(item,'carNum')
+    local radio = Sprite:findChild(item,'radio')
+    local vvipstation = Sprite:findChild(item,'vvipstation')
+    local vipstation = Sprite:findChild(item,'vipstation')
+    local commonstation = Sprite:findChild(item,'commonstation')
+    local acerstation = Sprite:findChild(item,'acerstation')
+    local locatedstation = Sprite:findChild(item,'locatedstation')
+    local remotestation = Sprite:findChild(item,'remotestation')
+    Sprite:setProperty(cityName,'text',g_sum.dimension)
+    if(dimension == 'city') then
+        --设置两列显示
+        local dimension = Sprite:findChild(rootSprite,'dimension')
+        Sprite:setProperty(dimension,'rect','-10,5,90,25')
+        local select1 = Sprite:findChild(rootSprite,'select1')
+        local select2 = Sprite:findChild(rootSprite,'select2')
+        local xqseqBtn = Sprite:findChild(rootSprite,'xqseqBtn')
+        local fdseqBtnDB = Sprite:findChild(rootSprite,'fdseqBtnDB')
+        Sprite:setVisible(select1,1)
+        Sprite:setEnable(select1,1)
+        Sprite:setVisible(select2,1)
+        Sprite:setEnable(select2,1)
+        Sprite:setVisible(xqseqBtn,1)
+        Sprite:setEnable(xqseqBtn,1)
+        Sprite:setVisible(fdseqBtnDB,1)
+        Sprite:setEnable(fdseqBtnDB,1)
+        Sprite:setProperty(peopleNum,'text',g_sum.station)
+        Sprite:setProperty(radio,'text',string.format('%.1f',g_sum.ratio)..'%')
+    else
+        --设置两列不显示
+        local dimension = Sprite:findChild(rootSprite,'dimension')
+        Sprite:setProperty(dimension,'rect','3,5,100,25')
+        local select1 = Sprite:findChild(rootSprite,'select1')
+        local select2 = Sprite:findChild(rootSprite,'select2')
+        local xqseqBtn = Sprite:findChild(rootSprite,'xqseqBtn')
+        local fdseqBtnDB = Sprite:findChild(rootSprite,'fdseqBtnDB')
+        Sprite:setVisible(select1,0)
+        Sprite:setEnable(select1,0)
+        Sprite:setVisible(select2,0)
+        Sprite:setEnable(select2,0)
+        Sprite:setVisible(xqseqBtn,0)
+        Sprite:setEnable(xqseqBtn,0)
+        Sprite:setVisible(fdseqBtnDB,0)
+        Sprite:setEnable(fdseqBtnDB,0)
+        Sprite:setProperty(peopleNum,'text','')
+        Sprite:setProperty(radio,'text','')
+    end
+    Sprite:setProperty(carNum,'text',g_sum.maintenance)
+    Sprite:setProperty(cityName1,'text',g_sum.dimension)
+    Sprite:setProperty(cityName2,'text',g_sum.dimension)
+    Sprite:setProperty(vvipstation,'text',g_sum.vvipstation)
+    Sprite:setProperty(vipstation,'text',g_sum.vipstation)
+    Sprite:setProperty(commonstation,'text',g_sum.commonstation)
+    Sprite:setProperty(acerstation,'text',g_sum.acerstation)
+    Sprite:setProperty(locatedstation,'text',g_sum.locatedstation)
+    Sprite:setProperty(remotestation,'text',g_sum.remotestation)
+end
 ----选择专业按钮
 function lineOn(sprite)
     Scene:go(Alias.m_resource_line1)
@@ -391,6 +454,7 @@ function paixuJZ(sprite,list, item, index)
         ListView:removeAllItems(listView,1,1)
         -- 加载列表项
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')
         ListView:adjust(listView)
     elseif data ~= "0" then
         local paixu = Sprite:findChild(rootSprite,'paixu')
@@ -402,6 +466,7 @@ function paixuJZ(sprite,list, item, index)
             ListView:removeAllItems(listView,1,1)
             -- 加载列表项
             ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')
             ListView:adjust(listView)
         else
             Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
@@ -410,6 +475,7 @@ function paixuJZ(sprite,list, item, index)
             ListView:removeAllItems(listView,1,1)
             -- 加载列表项
             ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')
             ListView:adjust(listView)
         end
     end
@@ -420,6 +486,7 @@ function paixuDS(sprite)
     local data = Sprite:getData(sprite)
     local len = getJsonArrayCount(city_data.value)
     if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
         city_data.value = sortTable(city_data.value, 'maintenance', true)
         Log:write("代维数量排序",city_data.value)
         local listView = Sprite:findChild(rootSprite, 'sampleList')
@@ -429,9 +496,7 @@ function paixuDS(sprite)
         --Log:write("kkkkkkkkkkkk")
         -- 加载列表项
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
-        ListView:adjust(listView)
-        Sprite:setProperty(sprite,'data',"1")
-        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')
         ListView:adjust(listView)
     elseif data ~= "0" then
         local paixu = Sprite:findChild(rootSprite,'paixu1')
@@ -444,6 +509,7 @@ function paixuDS(sprite)
             ListView:removeAllItems(listView,1,1)
             -- 加载列表项
             ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')
             ListView:adjust(listView)
         else
             Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
@@ -453,6 +519,7 @@ function paixuDS(sprite)
             ListView:removeAllItems(listView,1,1)
             -- 加载列表项
             ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')
             ListView:adjust(listView)
         end
     end
@@ -469,6 +536,7 @@ function paixuDB(sprite)
         ListView:removeAllItems(listView,1,1)
         -- 加载列表项
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')
         ListView:adjust(listView)
     elseif data ~= "0" then
         local paixu = Sprite:findChild(rootSprite,'paixu2')
@@ -480,6 +548,7 @@ function paixuDB(sprite)
             ListView:removeAllItems(listView,1,1)
             -- 加载列表项
             ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')
             ListView:adjust(listView)
         else
             Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
@@ -488,219 +557,11 @@ function paixuDB(sprite)
             ListView:removeAllItems(listView,1,1)
             -- 加载列表项
             ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')
             ListView:adjust(listView)
         end
     end
 end
---VVIP基站排序
-function paixuVV(sprite)
-    -- body
-    local data = Sprite:getData(sprite)
-    local len = getJsonArrayCount(city_data.value)
-    if data == "0" then
-        Sprite:setProperty(sprite,'data',"1")
-        city_data.value = sortTable(city_data.value, 'vvipstation', true)
-        local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-        ListView:removeAllItems(listView1,1,1)
-        -- 加载列表项
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
-        ListView:adjust(listView1)
-    elseif data ~= "0" then
-        local paixu = Sprite:findChild(rootSprite,'paixu3')
-        local paixusrc = Sprite:getProperty(paixu,'src')
-        if paixusrc == "file://image/triangle_down.png" then
-            Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
-            city_data.value = sortTable(city_data.value, 'vvipstation', false)
-            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-            ListView:removeAllItems(listView1,1,1)
-            -- 加载列表项
-            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
-            ListView:adjust(listView1)
-        else
-            Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
-            city_data.value = sortTable(city_data.value, 'vvipstation', true)
-            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-            ListView:removeAllItems(listView1,1,1)
-            -- 加载列表项
-            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
-            ListView:adjust(listView1)
-        end
-    end
-end
---VIP基站排序
-function paixuVP(sprite)
-    -- body
-    local data = Sprite:getData(sprite)
-    local len = getJsonArrayCount(city_data.value)
-    if data == "0" then
-        Sprite:setProperty(sprite,'data',"1")
-        city_data.value = sortTable(city_data.value, 'vipstation', true)
-        local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-        ListView:removeAllItems(listView1,1,1)
-        -- 加载列表项
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
-        ListView:adjust(listView1)
-    elseif data ~= "0" then
-        local paixu = Sprite:findChild(rootSprite,'paixu4')
-        local paixusrc = Sprite:getProperty(paixu,'src')
-        if paixusrc == "file://image/triangle_down.png" then
-            Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
-            city_data.value = sortTable(city_data.value, 'vipstation', false)
-            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-            ListView:removeAllItems(listView1,1,1)
-            -- 加载列表项
-            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
-            ListView:adjust(listView1)
-        else
-            Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
-            city_data.value = sortTable(city_data.value, 'vipstation', true)
-            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-            ListView:removeAllItems(listView1,1,1)
-            -- 加载列表项
-            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
-            ListView:adjust(listView1)
-        end
-    end
-end
---普通基站排序
-function paixuPJ(sprite)
-    -- body
-    local data = Sprite:getData(sprite)
-    local len = getJsonArrayCount(city_data.value)
-    if data == "0" then
-        Sprite:setProperty(sprite,'data',"1")
-        city_data.value = sortTable(city_data.value, 'commonstation', true)
-        local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-        ListView:removeAllItems(listView1,1,1)
-        -- 加载列表项
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
-        ListView:adjust(listView1)
-    elseif data ~= "0" then
-        local paixu = Sprite:findChild(rootSprite,'paixu5')
-        local paixusrc = Sprite:getProperty(paixu,'src')
-        if paixusrc == "file://image/triangle_down.png" then
-            Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
-            city_data.value = sortTable(city_data.value, 'commonstation', false)
-            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-            ListView:removeAllItems(listView1,1,1)
-            -- 加载列表项
-            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
-            ListView:adjust(listView1)
-        else
-            Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
-            city_data.value = sortTable(city_data.value, 'commonstation', true)
-        local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-        ListView:removeAllItems(listView1,1,1)
-        -- 加载列表项
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
-        ListView:adjust(listView1)
-        end
-    end
-end
---宏基站排序
-function paixuHJ(sprite)
-    -- body
-    local data = Sprite:getData(sprite)
-    local len = getJsonArrayCount(city_data.value)
-    if data == "0" then
-        Sprite:setProperty(sprite,'data',"1")
-        city_data.value = sortTable(city_data.value, 'acerstation', true)
-        local listView1 = Sprite:findChild(rootSprite, 'sampleList2')
-        ListView:removeAllItems(listView1,1,1)
-        -- 加载列表项
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
-        ListView:adjust(listView1)
-    elseif data ~= "0" then
-        local paixu = Sprite:findChild(rootSprite,'paixu6')
-        local paixusrc = Sprite:getProperty(paixu,'src')
-        if paixusrc == "file://image/triangle_down.png" then
-            Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
-            city_data.value = sortTable(city_data.value, 'acerstation', false)
-            local listView1 = Sprite:findChild(rootSprite, 'sampleList2')
-            ListView:removeAllItems(listView1,1,1)
-            -- 加载列表项
-            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
-            ListView:adjust(listView1)
-        else
-            Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
-            city_data.value = sortTable(city_data.value, 'acerstation', true)
-        local listView1 = Sprite:findChild(rootSprite, 'sampleList2')
-        ListView:removeAllItems(listView1,1,1)
-        -- 加载列表项
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
-        ListView:adjust(listView1)
-        end
-    end
-end
---共址基站排序
-function paixuGZ(sprite)
-    -- body
-    local data = Sprite:getData(sprite)
-    local len = getJsonArrayCount(city_data.value)
-    if data == "0" then
-        Sprite:setProperty(sprite,'data',"1")
-         city_data.value = sortTable(city_data.value, 'locatedstation', true)
-        local listView1 = Sprite:findChild(rootSprite, 'sampleList2')
-        ListView:removeAllItems(listView1,1,1)
-        -- 加载列表项
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
-        ListView:adjust(listView1)
-    elseif data ~= "0" then
-        local paixu = Sprite:findChild(rootSprite,'paixu7')
-        local paixusrc = Sprite:getProperty(paixu,'src')
-        if paixusrc == "file://image/triangle_down.png" then
-            Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
-            city_data.value = sortTable(city_data.value, 'locatedstation', false)
-            local listView1 = Sprite:findChild(rootSprite, 'sampleList2')
-            ListView:removeAllItems(listView1,1,1)
-            -- 加载列表项
-            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
-            ListView:adjust(listView1)
-        else
-            Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
-             city_data.value = sortTable(city_data.value, 'locatedstation', true)
-        local listView1 = Sprite:findChild(rootSprite, 'sampleList2')
-        ListView:removeAllItems(listView1,1,1)
-        -- 加载列表项
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
-        ListView:adjust(listView1)
-        end
-    end
-end
---拉远基站排序
-function paixuLY(sprite)
-    -- body
-    local data = Sprite:getData(sprite)
-    local len = getJsonArrayCount(city_data.value)
-    if data == "0" then
-        Sprite:setProperty(sprite,'data',"1")
-         city_data.value = sortTable(city_data.value, 'remotestation', true)
-        local listView1 = Sprite:findChild(rootSprite, 'sampleList2')
-        ListView:removeAllItems(listView1,1,1)
-        -- 加载列表项
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
-        ListView:adjust(listView1)
-    elseif data ~= "0" then
-        local paixu = Sprite:findChild(rootSprite,'paixu8')
-        local paixusrc = Sprite:getProperty(paixu,'src')
-        if paixusrc == "file://image/triangle_down.png" then
-            Sprite:setProperty(paixu,'src','file://image/triangle_up.png')
-            city_data.value = sortTable(city_data.value, 'remotestation', false)
-            local listView1 = Sprite:findChild(rootSprite, 'sampleList2')
-            ListView:removeAllItems(listView1,1,1)
-            -- 加载列表项
-            ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
-            ListView:adjust(listView1)
-        else
-            Sprite:setProperty(paixu,'src','file://image/triangle_down.png')
-             city_data.value = sortTable(city_data.value, 'remotestation', true)
-        local listView1 = Sprite:findChild(rootSprite, 'sampleList2')
-        ListView:removeAllItems(listView1,1,1)
-        -- 加载列表项
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
-        ListView:adjust(listView1)
-        end
-    end
-end
+
 ]]>
 </root>

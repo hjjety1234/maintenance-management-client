@@ -85,6 +85,34 @@
                             style="autosize" extendstyle="1111" />
                     <image rect="10,650,460,12" src="file://image/content_bottom.png"
                             style="autosize" extendstyle="1111" />
+
+                    <!-- 选择月份 -->
+                    <node name="MonthNode" rect="0,15,480,31" extendstyle="1111">
+                        <button name="prevMonthBtn" rect="220,0,40,31" OnSelect="prevMonthOnSelect" 
+                            style="autosize" extendstyle="1111" >
+                            <image name="normal" rect="0,0,40,31" src="file://image/t5.png" 
+                                style="autosize" extendstyle="0010"/>                  
+                        </button>
+                        <button name="nextMonthBtn" rect="414,0,40,31" OnSelect="nextMonthOnSelect" 
+                            style="autosize" extendstyle="1111">
+                            <image name="normal" rect="0,0,40,31" src="file://image/t6.png" 
+                                style="autosize" extendstyle="0010"/>                  
+                        </button>
+                        <image name='rightImg' rect="260,0,154,31" src="file://image/t7.png" 
+                            extendstyle="1111" style='autosize'/>
+                        <label name="yearLabel" rect="270,0,55,31" text="2012" 
+                            font-family="微软雅黑" font-size="23" h-align="center" 
+                            v-align="center" color="#ffffff" style="autosize" extendstyle="0010"/> 
+                        <label rect="325,0,20,31" text="年" font-family="微软雅黑" 
+                            font-size="23" h-align="center" v-align="center" 
+                            color="#ffffff" style="autosize" extendstyle="0010"/> 
+                        <label name="monthLabel" rect="345,0,25,31" text="2" 
+                            font-family="微软雅黑" font-size="24" h-align="center" 
+                            v-align="center" color="#ffffff" style="autosize" extendstyle="0010"/> 
+                        <label rect="367,0,20,31" text="月" font-family="微软雅黑" 
+                            font-size="24" h-align="center" v-align="center" 
+                            color="#ffffff" style="autosize" extendstyle="0010"/>
+                    </node>
                     <!--列表信息-->
                     <node name="listNode1" rect="0,56,480,580" extendstyle="1111">
                         <listview name="sampleList1" rect="0,40,480,560" extendstyle="1111" auto-scroll='true' limit='true'/>
@@ -132,20 +160,20 @@
                     <!-- 统计标签 -->
                     <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
                         <!--市公司-->
-                        <button name="cityBtn" rect="0,0,120,66" 
+                        <button name="cityBtn" rect="0,0,100,66" 
                             OnSelect="cityOn" extendstyle="1111" data='wlbcityquality'>
-                            <image name='cityImg' rect="30,10,95,37" src="file://image/city_bg.png"
+                            <image name='cityImg' rect="30,10,75,37" src="file://image/city_bg.png"
                                  extendstyle="1111" style='autosize'/>
-                            <label name="cityTxt" rect="30,5,95,37" text="市公司" font-family='微软雅黑'
+                            <label name="cityTxt" rect="20,5,95,37" text="市公司" font-family='微软雅黑'
                                 extendstyle="1111" font-size="23" h-align="center" v-align="center"
                                 color="#ffffff" />
                         </button> 
                         <!--代维单位公司-->
-                        <button name="companyBtn" rect="120,0,140,66" 
+                        <button name="companyBtn" rect="100,0,100,66" 
                             OnSelect="companyOn" extendstyle="1111" data='wlbcompanyquality' >
-                            <image name='companyImg' rect="30,10,120,37" src="" 
+                            <image name='companyImg' rect="0,10,100,37" src="" 
                                  extendstyle="1111" style='autosize'/>
-                            <label name="companyTxt" rect="30,5,110,37" text="代维单位" font-family='微软雅黑'
+                            <label name="companyTxt" rect="5,5,95,37" text="代维单位" font-family='微软雅黑'
                                 extendstyle="1111" font-size="23" h-align="center" v-align="center"
                                 color="#5a5a5a" />
                         </button>
@@ -166,7 +194,7 @@ local selectData = 'wlbcityquality'  --选择页签data属性,默认为市公司
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
- 
+    setDefaultMonth()
 end
 
 -- @brief root节点消息方法
@@ -265,10 +293,15 @@ end
 
 --获取统计数据返回地址（市公司）
 function request()
-    local param = 'cmd='..selectData..'&major=C37&page=1&pagesize=100&usercode='..Config:get('username').."&date="
+    local date = getSelectedMonth()
+    if  date =='2013-1' or date =='2013-2' then 
+        date ='2013-3'
+    end
+    local param = 'cmd='..selectData..'&major=C37&page=1&pagesize=100&usercode='..Config:get('username').."&date="..date
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     --Log:write('reqURL',reqURL)
     Http:request('city_data', reqURL, 101, {useCache = false})
+    Loading:show()
 end
 --加载市公司统计数据
 function loadListItem(list, item, index)
@@ -376,6 +409,72 @@ function zajishiSeqOnSelect(sprite)
             ListView:adjust(listView2)
         end
     end
+end
+
+
+-- 设置默认的月份
+function setDefaultMonth()
+    -- 获取当前月份
+    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
+    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
+    Sprite:setProperty(yearLabel, "text", 
+        os.date("*t", os.time() + 86400)["year"])      
+    Sprite:setProperty(monthLabel, "text", 
+        os.date("*t", os.time() + 86400)["month"])
+    -- 往前推一个月
+    local year = tonumber(Sprite:getText(yearLabel))
+    local month = tonumber(Sprite:getText(monthLabel))
+    if  month == 1 then 
+        year = year - 1 
+        month = 12
+    else
+        month = month - 1
+    end
+    Sprite:setProperty(yearLabel, "text", tostring(year))
+    Sprite:setProperty(monthLabel, "text", tostring(month))
+end
+
+-- 上个月份
+function prevMonthOnSelect(sprite)
+    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
+    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
+    local year = tonumber(Sprite:getText(yearLabel))
+    local month = tonumber(Sprite:getText(monthLabel))
+    if month == 1 then 
+        year = year - 1 
+        month = 12
+    else
+        month = month - 1
+    end
+    Sprite:setProperty(yearLabel, "text", tostring(year))
+    Sprite:setProperty(monthLabel, "text", tostring(month))
+    request()
+end
+
+-- 下个月份
+function nextMonthOnSelect(sprite)
+    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
+    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
+    local year = tonumber(Sprite:getText(yearLabel))
+    local month = tonumber(Sprite:getText(monthLabel))
+    if month == 12 then 
+        year = year + 1 
+        month = 1
+    else
+        month = month + 1
+    end
+    Sprite:setProperty(yearLabel, "text", tostring(year))
+    Sprite:setProperty(monthLabel, "text", tostring(month))
+    request()
+end
+
+-- 获取当前选择的月份
+function getSelectedMonth()
+    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
+    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
+    local year = Sprite:getText(yearLabel)
+    local month = Sprite:getText(monthLabel)
+    return year.."-"..month
 end
 ]]>
 </root>
