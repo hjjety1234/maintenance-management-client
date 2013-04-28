@@ -68,6 +68,7 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -180,7 +181,8 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	private static VenusActivity sInstance = null;
 	private VenusView venusview = null;
-	//public SurfaceHolder VenusViewHolder = null;
+	//add pj
+	public SurfaceHolder VenusViewHolder = null;
 	private static SurfaceView videoview = null;
 	private SurfaceHolder mHolder = null;
 	private Surface mSurface = null;
@@ -1239,7 +1241,8 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				appActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 			else
 				appActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			//venusview.setVisibility(View.VISIBLE);
+			//add pj
+			venusview.setVisibility(View.VISIBLE);
 			nativesendevent(Util.WDM_SYSRESUME, 0, 0);
 			SystemConnectionManager.getInstance().PostEvent(ConnectionImpl.EVENT_ID_SYSTEM_RESUME, null);
 			WifiObserver.getInstance(this).dealWithWLan(Util.WDM_SYSRESUME);
@@ -1280,19 +1283,19 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		}
 	}
 
-	//private boolean redrawall = true;
-	//public void sendredraw()
-	//{
-	//	{
-	//		if( VenusViewHolder!= null)
-	//		{
-	//			redrawall = false;
-	//			nativeupdatemaincanvas(VenusViewHolder.getSurface(), Build.VERSION.SDK_INT);
-	//		}
-	//		else
-	//			redrawall = true;
-	//	}
-	//}
+	private boolean redrawall = true;
+	public void sendredraw()
+	{
+		{
+			if( VenusViewHolder!= null)
+			{
+				redrawall = false;
+				nativeupdatemaincanvas(VenusViewHolder.getSurface(), Build.VERSION.SDK_INT);
+			}
+			else
+				redrawall = true;
+		}
+	}
 	
 	public boolean javaInstallApp(String apkPath)
 	{
@@ -4300,30 +4303,30 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			case 100:
 				window = VenusActivity.getInstance().appActivity.getWindow();
 			    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-				Toast.makeText(appActivity, "ø™ ºªÿ∑≈", Toast.LENGTH_SHORT).show();
+				Toast.makeText(appActivity, "ÂºÄÂßãÂõûÊîæ", Toast.LENGTH_SHORT).show();
 				break;
 			case 101:
 				window = VenusActivity.getInstance().appActivity.getWindow();
 			    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-				Toast.makeText(appActivity, "ø™ º¬º÷∆", Toast.LENGTH_SHORT).show();
+				Toast.makeText(appActivity, "ÂºÄÂßãÂΩïÂà∂", Toast.LENGTH_SHORT).show();
 				break;
 			case 102:
 				window = VenusActivity.getInstance().appActivity.getWindow();
 			    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-				Toast.makeText(appActivity, "ªÿ∑≈Ω· ¯", Toast.LENGTH_SHORT).show();
+				Toast.makeText(appActivity, "ÂõûÊîæÁªìÊùü", Toast.LENGTH_SHORT).show();
 				break;
 			case 103:
 				window = VenusActivity.getInstance().appActivity.getWindow();
 			    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-				Toast.makeText(appActivity, "¬º÷∆Ω· ¯", Toast.LENGTH_SHORT).show();
+				Toast.makeText(appActivity, "ÂΩïÂà∂ÁªìÊùü", Toast.LENGTH_SHORT).show();
 				break;
 			case 1000:
 				break;
 			case 2000:
-				Toast.makeText(appActivity, "«Îœ»Ω¯––¬º÷∆", Toast.LENGTH_SHORT).show();
+				Toast.makeText(appActivity, "ËØ∑ÂÖàËøõË°åÂΩïÂà∂", Toast.LENGTH_SHORT).show();
 				break;
 			case 2001:
-				Toast.makeText(appActivity, "ŒﬁSDø®", Toast.LENGTH_SHORT).show();
+				Toast.makeText(appActivity, "Êó†SDÂç°", Toast.LENGTH_SHORT).show();
 				break;
 			default:
 				nativesendevent(msg.what, -(msg.arg1 + 1), msg.arg2);

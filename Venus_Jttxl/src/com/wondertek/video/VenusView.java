@@ -49,11 +49,15 @@ class VenusView extends SurfaceView implements SurfaceHolder.Callback
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
+		venusActivity.VenusViewHolder = holder;
+		holder.setType(SurfaceHolder.SURFACE_TYPE_NORMAL);
+		holder.setFormat(PixelFormat.RGBA_8888);
 		this.venusActivity.nativeupdatemaincanvas(holder.getSurface(),sdkint);
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
+		venusActivity.VenusViewHolder = null;
 		this.venusActivity.nativeupdatemaincanvas(null,sdkint);
 	}
 
