@@ -103,10 +103,11 @@
                             <image rect="0,5,150,40" src="file://image/select_bg.png"  style="sudoku-auto" 
                                     sudoku="15,15,15,15" extendstyle="1111">                  
                             </image>
+
                             <scrolltext name="name" rect="5,5,123,35" text="" color="#303030" extendstyle="1111"
                                 style="autosize" scroll="true" h-align="left" v-align="center" font-size="24">
                             </scrolltext>
-                        </button>
+                         </button>
                     </node>
                     <node name="baseSprite" rect="0,240,460,300" extendstyle="1111">
                         <!--隐患地址-->
@@ -583,8 +584,7 @@ function zhandianOnSelect(sprite)
     selectIndex = 4
    local latitudeValue = postData.latitude/ 1000000.0
    local longitudeValue = postData.longitude / 1000000.0
-    Log:write("==========Jing为",latitudeValue)
-    Log:write("==========Jing为2222",longitudeValue)
+ 
     local param = 'cmd=wlbjingwei&lon='..longitudeValue..'&lat='..latitudeValue..'&radius=10000'..'&page=1'
     local url = getWholeUrl('nbspweb/webservice/assessment!doWebservice.action', param)
     Http:request('select', url, 102, {useCache = true, method = 'post'})
@@ -605,9 +605,13 @@ function xunjianGroupOnSelect(sprite)
     local typeBtn = Sprite:findChild(rootSprite, 'typeBtn')
     local levelBtn = Sprite:findChild(rootSprite, 'levelBtn')
     local zhandianBtn = Sprite:findChild(rootSprite, 'zhandianBtn')
+    local zhandianlabel=Sprite:findChild(rootSprite,'zhandianlabel')
+    local typeBtn =Sprite:findChild(rootSprite,'typeBtn')
+    local typeLab =Sprite:findChild(typeBtn,'name')
     if selectIndex == 1 then
         title = selectData.value[index].typeName
         zhuanyeValue = xunjianData
+     
     elseif selectIndex == 2 then
         title = selectData.value[index].levelName
         levelValue = xunjianData
@@ -621,19 +625,15 @@ function xunjianGroupOnSelect(sprite)
     Sprite:setProperty(curXunjianBtn, 'data', Sprite:getProperty(sprite, 'data'))
     Sprite:setProperty(xunjianText, 'text', title)
     setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 0)
-    
-    local zhandianlabel=Sprite:findChild(rootSprite,'zhandianlabel')
-    local zhandianBtn =Sprite:findChild(rootSprite,'zhandianBtn')
-    if  title == "传输线路" then
-           
-           Sprite:setVisible(zhandianlabel,0)
-           Sprite:setVisible(zhandianBtn,0)
+    if Sprite:getText(typeLab)=="传输线路" then 
+        Sprite:setVisible(zhandianBtn,0)
+        Sprite:setVisible(zhandianlabel,0)
     else 
-           Sprite:setVisible(zhandianlabel,1)
-           Sprite:setVisible(zhandianBtn,1)
+        Sprite:setVisible(zhandianBtn,1)
+        Sprite:setVisible(zhandianlabel,1)
     end
-end
 
+end
 function hideXunjianSelected(sprite)
     setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 0)
 end
