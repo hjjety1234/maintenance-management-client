@@ -143,7 +143,7 @@ import com.wondertek.video.connection.SystemConnectionManager;
 import com.wondertek.video.email.EmailObserver;
 import com.wondertek.video.gps.GPSObserver;
 //add pj
-import com.wondertek.video.ifly.VoiceInputManager;
+//import com.wondertek.video.ifly.VoiceInputManager;
 //Map
 //import com.wondertek.video.map.MapPluginMgr;
 import com.wondertek.video.monitor.MonitorCommon;
@@ -151,7 +151,7 @@ import com.wondertek.video.monitor.MonitorHeadset;
 import com.wondertek.video.monitor.MonitorManager;
 import com.wondertek.video.monitor.MonitorScreen;
 import com.wondertek.video.msgpush.MsgPushManager;
-import com.wondertek.video.phonegap.PhonegapObserver;
+//import com.wondertek.video.phonegap.PhonegapObserver;
 import com.wondertek.video.sensor.SensorObserver;
 import com.wondertek.video.smsspam.SMSSpamMgr;
 //import com.wondertek.video.sysplayer.SysMediaPlayerMgr;
@@ -335,7 +335,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	public CalendarObserver calendarObserver;
 
-	public PhonegapObserver phonegapObserver;
+//	public PhonegapObserver phonegapObserver;
 	public AbsoluteLayout webViewRoot = null;
 
 	public AppManager	appManager;
@@ -352,7 +352,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 //	public AuthPlugin authPlugin = null;
 	//TODO VoiceInput
 	//add pj
-	public VoiceInputManager viManager;
+//	public VoiceInputManager viManager;
 
 	//Manage the KeyQuard
 	//private KeyguardLock keyguardLock = null;
@@ -989,7 +989,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		emailObserver = EmailObserver.getInstance(this);
 		alarmObserver = AlarmObserver.getInstance(this);
 		calendarObserver = CalendarObserver.getInstance(this);
-		phonegapObserver = PhonegapObserver.getInstance(this);
+//		phonegapObserver = PhonegapObserver.getInstance(this);
 
 		//safetyAuthentic: for plugin CA, now it's not used
 		//authenticObserver = AuthenticObserver.getInstance(this);

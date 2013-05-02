@@ -57,7 +57,7 @@ class VenusView extends SurfaceView implements SurfaceHolder.Callback
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		venusActivity.VenusViewHolder = null;
+		venusActivity.VenusViewHolder = holder;
 		this.venusActivity.nativeupdatemaincanvas(null,sdkint);
 	}
 
