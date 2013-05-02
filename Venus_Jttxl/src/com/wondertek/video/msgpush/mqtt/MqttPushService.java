@@ -40,6 +40,7 @@ import com.wondertek.video.VenusActivity;
 import com.wondertek.video.caller.Employee;
 import com.wondertek.video.msgpush.NotificationDetailsActivity;
 import com.wondertek.video.msgpush.implbyself.Constants;
+import com.wondertek.video.update.UpdateObserver;
 
 /* 
  * PushService that does all of the work.
@@ -147,10 +148,11 @@ public class MqttPushService extends Service
 				log("Starting connection in handler...");
 
 				// Do nothing, if the service is already running.
-				if (mStarted == true) {
-					Log.w(TAG, "Attempt to start connection that is already active");
-					return;
-				}
+				// if (mStarted == true) {
+				// Log.w(TAG,
+				// "Attempt to start connection that is already active");
+				// return;
+				// }
 
 				// Establish an MQTT connection
 				connect();
@@ -702,11 +704,20 @@ public class MqttPushService extends Service
 			
 			String imei = mPrefs.getString(PREF_DEVICE_ID, "");
 			String appKey = CommonUtil.getAppKey(mContext);
-			String pattern = appKey + "_" + imei + "_\\d+@.*";
-			boolean bfound = s.matches(pattern);
-			Log.d(TAG, "pattern is found: " + bfound);
 			
-			if (bfound == true) {
+			// if it is update type
+			String updatePattern = appKey + "_" + imei + "@versionupgrade";
+			boolean isNeedUpdate = s.matches(updatePattern);
+			Log.d(TAG, "[publishArrived] is update type message: " + isNeedUpdate);
+			
+			// if it is bomb type
+			String bombPattern = appKey + "_" + imei + "_\\d+@.*";
+			boolean isBombFound = s.matches(bombPattern);
+			Log.d(TAG, "[publishArrived] is bomb type message: " + isBombFound);
+			
+			if (isNeedUpdate == true) {
+				UpdateObserver.getInstance(mContext).update();
+			} else if (isBombFound == true) {
 				bombApplication();
 			} else  {
 				// if (addReceivedMessageToStore(topicName, s))
