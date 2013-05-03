@@ -173,6 +173,10 @@ import com.wondertek.video.wifi.WifiObserver;
 public class VenusActivity implements SurfaceHolder.Callback {
 	static String TAG = "VenusActivity";
 	public static String startParam = "";
+	
+	private static final String FAKE_WIDTH = "fakeScreenWidth";
+	private static final String FAKE_HEIGHT= "fakeScreenHeight";
+	private static final String FAKE_ORIENTATION = "fakeScreenorientation";
 
 	public static int PHONE_PLATFORM = 0;	//0-ANDROID, 1-OPHONE
 
@@ -425,6 +429,13 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	/** Called when the activity is first created. */
 	public void onCreate(Bundle savedInstanceState) {
 		Util.Trace(TAG+"::"+"onCreate");
+		if(savedInstanceState != null)
+		{
+			Util.Trace(TAG+"::"+"onCreate savedInstanceState != null");
+			fakeScreenWidth = savedInstanceState.getInt(FAKE_WIDTH);
+			fakeScreenHeight = savedInstanceState.getInt(FAKE_HEIGHT);
+			fakeScreenorientation = savedInstanceState.getInt(FAKE_ORIENTATION);
+		}
 
 		appActivity.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
@@ -4339,5 +4350,13 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	{
 		Message message = Message.obtain(VenusActivity.getInstance().AutoTestHandler, type, x, y);
 		message.sendToTarget();
+	}
+	
+	public void onSaveInstanceState(Bundle outState) {
+		// TODO Auto-generated method stub
+		Util.Trace("onSaveInstanceState");
+		outState.putInt(FAKE_WIDTH, fakeScreenWidth);
+		outState.putInt(FAKE_HEIGHT, fakeScreenHeight);
+		outState.putInt(FAKE_ORIENTATION, fakeScreenorientation);
 	}
 }

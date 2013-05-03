@@ -161,7 +161,14 @@ public class AppActivity extends Activity{
 //		return false;
 //	}
 
-//phonegap	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		// TODO Auto-generated method stub
+		VenusActivity.getInstance().onSaveInstanceState(outState);
+		super.onSaveInstanceState(outState);
+	}
+
+	//phonegap	
 	public void loadUrl(String url)
 	{
 //		super.loadUrl(url);		
