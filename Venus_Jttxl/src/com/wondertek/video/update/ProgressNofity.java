@@ -68,7 +68,6 @@ public class ProgressNofity extends Activity {
 
 		new AsyncDownloadTask().execute(updateInfo.getRemoteApkUri());
 		VenusApplication.startAppFakeActivity();
-		finish();
 	}
 
 	public static void setUpdateInfo(UpdateInfo info) {

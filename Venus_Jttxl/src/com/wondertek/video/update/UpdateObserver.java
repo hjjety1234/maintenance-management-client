@@ -120,8 +120,9 @@ public class UpdateObserver {
 
 		// do update
 		ProgressNofity.setUpdateInfo(updateInfo);
-		PendingIntent pi = PendingIntent.getActivity(mContext, 0, new Intent(
-				mContext, ProgressNofity.class), 0);
+		Intent i = new Intent(mContext, ProgressNofity.class);
+		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		PendingIntent pi = PendingIntent.getActivity(mContext, 0, i, 0);
 
 		// Change the name of the notification here
 		n.setLatestEventInfo(mContext, "集团通讯录存在新版本，点击更新!",
