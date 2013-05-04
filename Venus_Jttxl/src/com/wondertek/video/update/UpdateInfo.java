@@ -1,10 +1,11 @@
 package com.wondertek.video.update;
 
 public class UpdateInfo {
-	private String releaseLog = null;
-	private String localApkPath = "/mnt/sdcard/download/Venus_Jttxl.apk";
-	private String localPatchPath = "/mnt/sdcard/download/Venus_Jttxl.patch";
-	private String localNewApkPath = "/mnt/sdcard/download/Venus_Jttxl_New.apk";
+	public static String localDownloadDir = "/mnt/sdcard/download";
+	public static String releaseLog = null;
+	public static String localApkPath = "/mnt/sdcard/download/Venus_Jttxl.apk";
+	public static String localPatchPath = "/mnt/sdcard/download/Venus_Jttxl.patch";
+	public static String localNewApkPath = "/mnt/sdcard/download/Venus_Jttxl_New.apk";
 	
 	private String remoteApkUri = null;
 	private String remotePatchUri = null;
@@ -18,7 +19,7 @@ public class UpdateInfo {
 	}
 
 	public void setReleaseLog(String releaseLog) {
-		this.releaseLog = releaseLog;
+		UpdateInfo.releaseLog = releaseLog;
 	}
 
 	public String getLocalApkPath() {
@@ -26,7 +27,7 @@ public class UpdateInfo {
 	}
 
 	public void setLocalApkPath(String localApkPath) {
-		this.localApkPath = localApkPath;
+		UpdateInfo.localApkPath = localApkPath;
 	}
 
 	public String getLocalPatchPath() {
@@ -34,7 +35,7 @@ public class UpdateInfo {
 	}
 
 	public void setLocalPatchPath(String localPatchPath) {
-		this.localPatchPath = localPatchPath;
+		UpdateInfo.localPatchPath = localPatchPath;
 	}
 
 	public String getLocalNewApkPath() {
@@ -42,7 +43,7 @@ public class UpdateInfo {
 	}
 
 	public void setLocalNewApkPath(String localNewApkPath) {
-		this.localNewApkPath = localNewApkPath;
+		UpdateInfo.localNewApkPath = localNewApkPath;
 	}
 
 	public String getRemoteApkUri() {

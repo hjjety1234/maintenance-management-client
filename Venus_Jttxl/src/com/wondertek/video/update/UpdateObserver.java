@@ -10,17 +10,8 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.wbtech.common.CommonUtil;
-import com.wondertek.jttxl.R;
-import com.wondertek.video.Util;
-import com.wondertek.video.VenusActivity;
-import com.wondertek.video.caller.Constants;
-import com.wondertek.video.caller.Employee;
-import com.wondertek.video.msgpush.NotificationDetailsActivity;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -28,6 +19,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+
+import com.wbtech.common.CommonUtil;
+import com.wondertek.jttxl.R;
 
 public class UpdateObserver {
 	private static final String TAG = "UpdateObserver";
@@ -93,14 +87,31 @@ public class UpdateObserver {
 		JSONObject obj = new JSONObject(json);
 		JSONObject version = obj.getJSONObject("version");
 		int isNeedUpdate = version.getInt("isNeedUpdate");
+		
 		if (isNeedUpdate != 0) {
-			int apk_size = version.getInt("apk_size");
+			// get release log
 			String releaseLog = version.getString("releaseLog");
+			
+			// get package info 
 			String url = version.getString("url");
+			int apk_size = version.getInt("apk_size");
+			
+			// get patch info 
+			String patchUrl = version.getString("patchUrl");
+			int patch_size =  version.getInt("patch_size");
+			
+			// get local package md5sum 
+			String md5sum = version.getString("shalNum");
+			
+			// construct update info object 
 			UpdateInfo updateInfo = new UpdateInfo();
 			updateInfo.setReleaseLog(releaseLog);
 			updateInfo.setRemoteApkUri(url);
 			updateInfo.setRemoteApkSize(apk_size);
+			updateInfo.setRemotePatchUri(patchUrl);
+			updateInfo.setRemotePatchSize(patch_size);
+			updateInfo.setMd5sum(md5sum);
+			
 			return updateInfo;
 		} else
 			return null;
@@ -118,7 +129,7 @@ public class UpdateObserver {
 		n.icon = R.drawable.icon;
 		n.when = System.currentTimeMillis();
 
-		// do update
+		// do update invoke progressNofity activity
 		ProgressNofity.setUpdateInfo(updateInfo);
 		Intent i = new Intent(mContext, ProgressNofity.class);
 		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -139,6 +150,8 @@ public class UpdateObserver {
 		UpdateInfo updateInfo = requestUpdateInfo();
 		if (updateInfo != null) {
 			showUpateNotification(updateInfo);
+		}else {
+			Log.w(TAG, "[update] get update info failed!");
 		}
 	}
 }

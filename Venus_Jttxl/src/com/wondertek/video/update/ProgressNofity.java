@@ -1,11 +1,18 @@
 package com.wondertek.video.update;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import android.app.Activity;
 import android.app.Notification;
@@ -30,6 +37,7 @@ public class ProgressNofity extends Activity {
 	private final static String TAG = "ProgressNofity";
 	private Notification notification = null;
 	private NotificationManager notificationManager = null;
+	private boolean bIncrementalUpdate = true;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +74,8 @@ public class ProgressNofity extends Activity {
 				.getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
 		notificationManager.notify(42, notification);
 
-		new AsyncDownloadTask().execute(updateInfo.getRemoteApkUri());
+		// start download task
+		doDownloadTask();
 		VenusApplication.startAppFakeActivity();
 	}
 
@@ -76,6 +85,58 @@ public class ProgressNofity extends Activity {
 
 	public static UpdateInfo getUpdateInfo() {
 		return updateInfo;
+	}
+
+	public void doDownloadTask() {
+		if (updateInfo == null) {
+			Log.w(TAG, "[doDownloadTask] updateInfo is null.");
+			return;
+		}
+
+		new File(UpdateInfo.localDownloadDir).mkdirs();
+
+		bIncrementalUpdate = true;
+
+		if (updateInfo.getRemotePatchUri() == null
+				|| updateInfo.getRemotePatchUri().trim().equals("")) {
+			Log.d(TAG, "[doDownloadTask] remote patch uri is empty!");
+			bIncrementalUpdate = false;
+		}
+
+		if (new File(UpdateInfo.localApkPath).exists() == false) {
+			Log.d(TAG, "[doDownloadTask] local apk is not exist!");
+			bIncrementalUpdate = false;
+		}
+
+		String md5 = "";
+		try {
+			FileInputStream fis = new FileInputStream(new File(
+					UpdateInfo.localApkPath));
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			byte[] b = new byte[10240];
+			int bytesRead;
+			while ((bytesRead = fis.read(b)) != -1) {
+				bos.write(b, 0, bytesRead);
+			}
+			fis.close();
+			byte[] data = bos.toByteArray();
+			md5 = new String(Hex.encodeHex(DigestUtils.md5(data)));
+			Log.d(TAG, "[doDownloadTask] local md5sum: " + md5);
+		} catch (IOException e) {
+			Log.e(TAG, "[doDownloadTask] " + e.getMessage());
+			bIncrementalUpdate = false;
+		}
+
+		if (!md5.equals(updateInfo.getMd5sum())) {
+			Log.d(TAG, "[doDownloadTask] local: " + md5
+					+ " is not same as remote md5: " + updateInfo.getMd5sum());
+			bIncrementalUpdate = false;
+		}
+
+		if (bIncrementalUpdate == false)
+			new AsyncDownloadTask().execute(updateInfo.getRemoteApkUri());
+		else
+			new AsyncDownloadTask().execute(updateInfo.getRemotePatchUri());
 	}
 
 	class AsyncDownloadTask extends AsyncTask<String, Integer, String> {
@@ -92,8 +153,13 @@ public class ProgressNofity extends Activity {
 
 				// download the file
 				InputStream input = new BufferedInputStream(url.openStream());
-				OutputStream output = new FileOutputStream(
-						updateInfo.getLocalApkPath());
+				String localpath = null;
+				if (bIncrementalUpdate == false) {
+					localpath = updateInfo.getLocalApkPath();
+				} else {
+					localpath = updateInfo.getLocalPatchPath();
+				}
+				OutputStream output = new FileOutputStream(localpath);
 				byte data[] = new byte[10240];
 				long total = 0;
 				int count;
@@ -119,14 +185,39 @@ public class ProgressNofity extends Activity {
 		@Override
 		protected void onProgressUpdate(Integer... progress) {
 			int i = progress[0];
-			Log.d(TAG, "[onProgressUpdate] progress: " + i);
 			notification.contentView.setProgressBar(R.id.status_progress, 100,
 					i, false);
 			notificationManager.notify(42, notification);
 			if (i == 100) {
 				notificationManager.cancel(42);
-				AppManager.getInstance(VenusActivity.getInstance()).InstallApp(
-						updateInfo.getLocalApkPath());
+				if (bIncrementalUpdate == false)
+					AppManager.getInstance(VenusActivity.getInstance())
+							.InstallApp(updateInfo.getLocalApkPath());
+				else {
+					Log.d(TAG,
+							"[onProgressUpdate] trying to load libbsdiff.so...");
+					// String dirname = VenusApplication.appAbsPath
+					// + "/lib2/appmanager/";
+					// System.load(dirname + "libBsdiff.so");
+					System.loadLibrary("Bsdiff");
+					VenusActivity va = VenusActivity.getInstance();
+					AppManager.getInstance(va).applyPatchToOldApk(
+							UpdateInfo.localApkPath,
+							UpdateInfo.localNewApkPath,
+							UpdateInfo.localPatchPath);
+
+					new File(UpdateInfo.localApkPath).delete();
+					Log.d(TAG, "[onProgressUpdate] delete "
+							+ UpdateInfo.localApkPath);
+
+					new File(UpdateInfo.localNewApkPath).renameTo(new File(
+							UpdateInfo.localApkPath));
+					Log.d(TAG, "[onProgressUpdate] rename "
+							+ UpdateInfo.localNewApkPath);
+
+					AppManager.getInstance(VenusActivity.getInstance())
+							.InstallApp(updateInfo.getLocalApkPath());
+				}
 			}
 		}
 
