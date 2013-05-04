@@ -1,5 +1,5 @@
-F:/project/Venus_DW//obj/local/armeabi-v7a/objs/Bsdiff/bzip2.o: \
- F:/project/Venus_DW//jni/bzip2.c \
+F:/project/Venus_Jttxl//obj/local/armeabi-v7a/objs/Bsdiff/bzip2.o: \
+ F:/project/Venus_Jttxl//jni/bzip2.c \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/stdio.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/sys/cdefs.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/sys/cdefs_elf.h \
@@ -41,7 +41,7 @@ F:/project/Venus_DW//obj/local/armeabi-v7a/objs/Bsdiff/bzip2.o: \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/asm-generic/errno.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/asm-generic/errno-base.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/ctype.h \
- F:/project/Venus_DW//jni/bzlib.h \
+ F:/project/Venus_Jttxl//jni/bzlib.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/fcntl.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/linux/fcntl.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/asm/fcntl.h \
@@ -144,7 +144,7 @@ D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/asm-generic/
 
 D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/ctype.h:
 
-F:/project/Venus_DW//jni/bzlib.h:
+F:/project/Venus_Jttxl//jni/bzlib.h:
 
 D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/fcntl.h:
 

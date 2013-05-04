@@ -183,7 +183,7 @@ int applypatch(int argc,char * argv[])
 // new 升级之后apk包路径
 // patch文件，可以用bsdiff工具生成
 // 具体原理可以参看http://blog.csdn.net/hmg25/article/details/8100896
-JNIEXPORT jint JNICALL Java_com_example_diffupdate_MainActivity_applyPatchToOldApk(JNIEnv *env,
+JNIEXPORT jint JNICALL Java_com_wondertek_video_appmanager_AppManager_applyPatchToOldApk(JNIEnv *env,
         jobject obj, jstring old, jstring new , jstring patch){
   int argc=4;
   char * argv[argc];

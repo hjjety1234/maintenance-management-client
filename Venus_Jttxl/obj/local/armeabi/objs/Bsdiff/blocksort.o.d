@@ -1,6 +1,6 @@
-F:/project/Venus_DW//obj/local/armeabi/objs/Bsdiff/blocksort.o: \
- F:/project/Venus_DW//jni/blocksort.c \
- F:/project/Venus_DW//jni/bzlib_private.h \
+F:/project/Venus_Jttxl//obj/local/armeabi/objs/Bsdiff/blocksort.o: \
+ F:/project/Venus_Jttxl//jni/blocksort.c \
+ F:/project/Venus_Jttxl//jni/bzlib_private.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/stdlib.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/sys/cdefs.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/sys/cdefs_elf.h \
@@ -24,9 +24,9 @@ F:/project/Venus_DW//obj/local/armeabi/objs/Bsdiff/blocksort.o: \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/memory.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/stdio.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/ctype.h \
- F:/project/Venus_DW//jni/bzlib.h
+ F:/project/Venus_Jttxl//jni/bzlib.h
 
-F:/project/Venus_DW//jni/bzlib_private.h:
+F:/project/Venus_Jttxl//jni/bzlib_private.h:
 
 D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/stdlib.h:
 
@@ -74,4 +74,4 @@ D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/stdio.h:
 
 D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/ctype.h:
 
-F:/project/Venus_DW//jni/bzlib.h:
+F:/project/Venus_Jttxl//jni/bzlib.h:

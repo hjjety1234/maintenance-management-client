@@ -1,5 +1,5 @@
-F:/project/Venus_DW//obj/local/armeabi/objs/Bsdiff/com_wondertek_video_appmanager_AppManager.o: \
- F:/project/Venus_DW//jni/com_wondertek_video_appmanager_AppManager.c \
+F:/project/Venus_Jttxl//obj/local/armeabi/objs/Bsdiff/com_wondertek_video_appmanager_AppManager.o: \
+ F:/project/Venus_Jttxl//jni/com_wondertek_video_appmanager_AppManager.c \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/stdio.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/sys/cdefs.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/sys/cdefs_elf.h \
@@ -16,9 +16,9 @@ F:/project/Venus_DW//obj/local/armeabi/objs/Bsdiff/com_wondertek_video_appmanage
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/linux/types.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/machine/kernel.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/sys/sysmacros.h \
- F:/project/Venus_DW//jni/com_wondertek_video_appmanager_AppManager.h \
+ F:/project/Venus_Jttxl//jni/com_wondertek_video_appmanager_AppManager.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/jni.h \
- F:/project/Venus_DW//jni/bzlib_private.h \
+ F:/project/Venus_Jttxl//jni/bzlib_private.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/stdlib.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/string.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/malloc.h \
@@ -26,7 +26,7 @@ F:/project/Venus_DW//obj/local/armeabi/objs/Bsdiff/com_wondertek_video_appmanage
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/strings.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/memory.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/ctype.h \
- F:/project/Venus_DW//jni/bzlib.h \
+ F:/project/Venus_Jttxl//jni/bzlib.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/err.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/unistd.h \
  D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/sys/select.h \
@@ -85,11 +85,11 @@ D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/machine/kern
 
 D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/sys/sysmacros.h:
 
-F:/project/Venus_DW//jni/com_wondertek_video_appmanager_AppManager.h:
+F:/project/Venus_Jttxl//jni/com_wondertek_video_appmanager_AppManager.h:
 
 D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/jni.h:
 
-F:/project/Venus_DW//jni/bzlib_private.h:
+F:/project/Venus_Jttxl//jni/bzlib_private.h:
 
 D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/stdlib.h:
 
@@ -105,7 +105,7 @@ D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/memory.h:
 
 D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/ctype.h:
 
-F:/project/Venus_DW//jni/bzlib.h:
+F:/project/Venus_Jttxl//jni/bzlib.h:
 
 D:/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include/err.h:
 
