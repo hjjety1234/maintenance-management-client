@@ -64,7 +64,7 @@ public class ProgressNofity extends Activity {
 				.getPackageName(), R.layout.download_progress);
 		notification.contentIntent = pendingIntent;
 		notification.contentView.setImageViewResource(R.id.status_icon,
-				R.drawable.ic_menu_save);
+				R.drawable.icon);
 		notification.contentView.setTextViewText(R.id.status_text, "正在下载...");
 		notification.contentView.setProgressBar(R.id.status_progress, 100, 0,
 				false);
