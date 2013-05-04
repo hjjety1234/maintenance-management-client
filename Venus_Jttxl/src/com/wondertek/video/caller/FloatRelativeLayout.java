@@ -128,8 +128,9 @@ public class FloatRelativeLayout extends RelativeLayout {
 	public void scale(float scaleFactor, float pivotX, float pivotY) {
 		Log.d(TAG, "[scale] scale:" + scaleFactor + ", pivotX:" + pivotX
 				+ ", pivotY: " + pivotY);
-		if (isScale == false) {
-			Log.d(TAG, "[scale] isScale is false, do nothing...");
+		if (isScale == false || scaleFactor <= 0.8) {
+			Log.w(TAG,
+					"[scale] isScale is false or reach minmal limit, do nothing...");
 			return;
 		}
 		if (scaleFactor < 1) {
