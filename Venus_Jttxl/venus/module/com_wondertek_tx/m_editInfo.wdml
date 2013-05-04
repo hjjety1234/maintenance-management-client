@@ -195,6 +195,11 @@
                 <!-- 设置  -->
                 <button name='siteBtn' rect="385,0,48,80"  extendstyle="1111"  style='autosize'
                 src='file://image/book/site_d.png' OnSelect="doSetting"></button>
+                <!-- New -->
+                <node name="newNode" rect="410,0,48,80" extendstyle="1111">
+                    <image  rect="0,0,43,28" border="false" src="file://image/jttxl/new.png" 
+                        style="autosize" extendstyle="1111" />
+                </node>
             </node> 
   
         </node>
@@ -205,6 +210,7 @@ require('com_wondertek_tx.common.framework')
 require('framework.sqlite')
 require 'framework.umsagent'
 local rootSprite
+local newNode
 local versionNum 
 local picOnload
 local jsonDecodedEmployee = nil
@@ -218,6 +224,7 @@ local employeeId = Config:get("employeeId")
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite 
+    newNode = Sprite:findChild(rootSprite, 'newNode') 
     connectNet()     
 end
 
@@ -225,6 +232,11 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         Http:startNetwork()
+        if (Config:get("isNeedUpdate") == "true") then 
+            setAllShoworHide(newNode, 1)
+        else 
+            setAllShoworHide(newNode, 0)
+        end 
         UmsAgent:OnActivate(string.match(Alias.m_editInfo, 'MODULE:\\(.*)'), "编辑个人信息")
         picOnload = Sprite:findChild(rootSprite, 'picOnload')
         Log:write("进入个人中心页面 人员ID = ",employeeId)

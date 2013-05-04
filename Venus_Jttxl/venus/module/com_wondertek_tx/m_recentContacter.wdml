@@ -39,7 +39,7 @@
                     OnSetFocus="editOnSetFocus" OnLostFocus="editOnLostFocus" OnTextChanged="editOnTextChanged" extendstyle='1111'>
                 </edit>
                 <!-- 搜索输入框置空按钮 -->  
-                <button rect="420,30,32,31" OnSelect="doCancel" normal="src:file://image/jttxl/close_d.png;"
+                <button name="resetBtn" rect="420,30,32,31" OnSelect="doCancel" normal="src:file://image/jttxl/close_d.png;"
                     sel="src:file://image/jttxl/close_s.png;" style="autosize" extendstyle="1111">
                 </button>             
             </node>
@@ -201,6 +201,11 @@
                 <!-- 设置  -->
                 <button name='siteBtn' rect="385,0,48,80"  extendstyle="1111"  style='autosize'
                 src='file://image/book/site_d.png' OnSelect="doSetting"></button>
+                <!-- New -->
+                <node name="newNode" rect="410,0,48,80" extendstyle="1111">
+                    <image  rect="0,0,43,28" border="false" src="file://image/jttxl/new.png" 
+                        style="autosize" extendstyle="1111" />
+                </node>
             </node>  
 
         </node>
@@ -212,6 +217,7 @@ require 'framework.umsagent'
 require 'framework.sqlite'
 local url_updatedept = Alias.url_server..'mobile/orger/update?cmd=updatedept'
 local url_userversion = Alias.url_server..'mobile/UserInfo/getUserInfo?'
+local url_updateAllUser = Alias.url_server..'mobile/UserInfo/addUserInfo?'
 local databaseName
 local department_version = 0
 local employee_version = 0
@@ -222,17 +228,25 @@ local databaseName
 local len
 local list
 local totalNum
+local maxUserVersion
+local firstUpdateFlag
+local resetBtn
+local newNode
 local editeKeyword
 local curpage = 1
 local pagesize = 7  
 local recentSearchFlag = 0
-local bRet, errMsg, retRecentUserTable, retCommonUserTable, retSysTable, retUserTable, retCountTable
+local bRet, errMsg, retRecentUserTable, retCommonUserTable, retSysTable, retUserTable, retCountTable, headshipLevelTable
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     list = Sprite:findChild(rootSprite, 'sampleList') 
+    resetBtn = Sprite:findChild(rootSprite, 'resetBtn')
+    setAllShoworHide(resetBtn, 0)
+    newNode = Sprite:findChild(rootSprite, 'newNode')
+    
     createDatabase()
     if Config:get('togohomeTag') == '1' then
 	    -- testdatabase()
@@ -245,7 +259,15 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        Http:startNetwork() 
+        Http:startNetwork()
+
+        
+        if (Config:get("isNeedUpdate") == "true") then 
+            setAllShoworHide(newNode, 1)
+        else 
+            setAllShoworHide(newNode, 0)
+        end 
+
         checkClientVersion()
         Log:write("judgeFlag = ", Config:get('judge_flag'))
         if Config:get('judge_flag') == "0" then  
@@ -265,6 +287,7 @@ end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
+    Log:write("消息号，msg ======= ",msg)
     if msg == 101 then
     elseif msg == 102 then -- 101请求的数据有更新
         local departmentdata1 = Http:jsonDecode('departmentdata0')
@@ -308,10 +331,8 @@ function bodyOnPluginEvent(msg)
         end
         Config:set('deptversion', departmentdata1.deptversion)
         department_version = departmentdata1.deptversion
-        local paras = 'departmentIdStr=&userId='..Config:get('userId')..'&mobileRights='
-                    ..Config:get('mobileRights')..'&versionNum='..Config:get('userVersion')
-        Log:write('联系人URL = '..url_userversion..paras)
-        Http:request('userversiondata0', url_userversion..paras, 103, {useCache = false})
+        -- 下载联系人接口地址
+        firstUpdateUserData()
     elseif msg == 103 then 
         userversiondata = Http:jsonDecode('userversiondata0')
         Log:write("数据记录是否发成改变判断标识 updateFlag ：", userversiondata.updateFlag)
@@ -321,7 +342,7 @@ function bodyOnPluginEvent(msg)
         else
             Log:write("联系人不需要更新= ")
         end
-        local sql = "update tb_c_system set department_version = '"..department_version.."', employee_version = '"..employee_version.."', right_config = '"..Config:get('mobileRights').."'  where system_id = '001';"
+        local sql = "update tb_c_system set department_version = '"..department_version.."', employee_version = '"..employee_version.."', right_config = '"..Config:get('mobileRights').."', mark1 = '1'  where system_id = '001';"
         Log:write('更新系统表语句==sql=='..sql)
         bRet, errMsg = Sqlite:update(databaseName, sql)
         Log:write("系统表插入结果:bRet = "..bRet.." errMsg ="..errMsg)
@@ -333,6 +354,8 @@ function bodyOnPluginEvent(msg)
             if tonumber(checkversionData['version']['isNeedUpdate']) == 1 then  -- 需要升级
                 Log:write("isNeedUpdate: ".."true")
                 Config:set("isNeedUpdate", "true")
+                setAllShoworHide(newNode, 1)
+
             end
         end
     elseif msg > MSG_NETWORK_ERROR then -- 请求超时
@@ -625,6 +648,7 @@ end
 
 --当未有任何输入时，初始化为提示
 function editOnTextChanged(sprite) 
+    setAllShoworHide(resetBtn,1)
     recentSearchFlag = 1
 
     local bottomBtn = Sprite:findChild(rootSprite,'bottomBtn')
@@ -644,6 +668,7 @@ function editOnTextChanged(sprite)
         searchUserData()
         loadUserData() 
     else
+        setAllShoworHide(resetBtn,0)
         Sprite:setProperty(Sprite:findChild(rootSprite,'bottomImg'),'src','file://image/jttxl/paixu1.png')
         local bottomBtn = Sprite:findChild(rootSprite,'bottomBtn')
         ListView:removeAllItems(list,1)
@@ -668,6 +693,7 @@ end
 --释放焦点时
 function editOnLostFocus(sprite)
     Log:write("释放焦点时触发")
+    setAllShoworHide(resetBtn,0)
     local txt= Sprite:getProperty(sprite, 'text')
     if txt=='' then
         Sprite:setProperty(sprite, 'text', '搜索姓名、长号、短号')
@@ -687,6 +713,7 @@ function searchUserCount()
     local sqlCount = "SELECT COUNT(emp.employee_id)"..
                 " FROM tb_c_employee emp,tb_c_department dept"..
                 " WHERE emp.department_id = dept.department_id"..
+                " AND emp.mark1 = '1'"..
                 " AND (emp.mobile LIKE '%"..editeKeyword..
                     "%' OR emp.employee_name LIKE '%"..editeKeyword..
                     "%' OR emp.mobile_short LIKE '%"..editeKeyword..
@@ -712,6 +739,7 @@ function searchUserData()
                 "emp.headship_level"..
                 " FROM tb_c_employee emp,tb_c_department dept"..
                 " WHERE emp.department_id = dept.department_id"..
+                " AND emp.mark1 = '1'"..
                 " AND (emp.mobile LIKE '%"..editeKeyword..
                     "%' OR emp.employee_name LIKE '%"..editeKeyword..
                     "%' OR emp.mobile_short LIKE '%"..editeKeyword..
@@ -763,7 +791,7 @@ function smsOnSelect(sprite)
     local mobile = Sprite:getText(Sprite:findChild(parentNode, "mobile"))
     Log:write("电话号码为：",mobile)
     if mobile ~= nil and mobile ~= '' then
-        if Util:sendSMS(mobile,' ',false) then
+        if Util:sendSMS(mobile,'',false) then
             Log:write('发送短信成功')
         else
             Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
@@ -843,13 +871,13 @@ end
 function querySysConfig()
     local sqlQuery = "SELECT sys.register_flag,sys.department_version,sys.employee_version,"
                    .."sys.user_id,sys.right_config,sys.employee_id,sys.employee_name,"
-                   .."sys.department_id,sys.department_name,sys.department_level"
+                   .."sys.department_id,sys.department_name,sys.department_level,sys.mark1"
                    .." FROM tb_c_system sys"
                    .." WHERE sys.system_id='001';"
     Log:write("查询系统配置表 SQL =",sqlQuery)           
     bRet, retSysTable, errMsg = Sqlite:query(databaseName, sqlQuery) 
-
     Log:write("系统配置表retSysTable = ", retSysTable) 
+
     Config:set('employee_name', retSysTable[1][7])
     Config:set('department_id', retSysTable[1][8])
     Config:set('department_name', retSysTable[1][9])
@@ -873,22 +901,13 @@ end
 -- 初始化本地人员表
 function updateEmployeeData()
     local returnValue = userversiondata.value     
-    Log:write("用户数据返回最大版本号 versionNum：",returnValue[0].versonNum)
-    local rights = userversiondata.rights
-    Log:write("用户数据返回权限 rights：",rights)
-    local totalNum = tonumber(userversiondata.total)-1  
+    local totalNum1 = tonumber(userversiondata.total)-1  
     Log:write("配置文件中存储的用户版本号：",Config:get('userVersion'))
     Log:write("配置文件中存储的用户权限：",Config:get('mobileRights'))
-    if Config:get('mobileRights') ~= rights then
-        -- 清空用户表中数据
-        local sqlClear = "DELETE FROM tb_c_employee;"
-        Log:write("sqlClear = ",sqlClear)
-        bRet, errMsg = Sqlite:update(databaseName, sqlClear)
-        Log:write("清空用户表:bRet = "..bRet.." errMsg ="..errMsg)    
-        Config:set('mobileRights',rights)
+    if firstUpdateFlag == 0 then   
         bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
-        Log:write("首次安装应用--人员添加事务开始:bRet = "..bRet.." errMsg ="..errMsg)
-        for i=0,totalNum do 
+        Log:write("第一次升级应用--人员添加事务开始:bRet = "..bRet.." errMsg ="..errMsg)
+        for i=0,totalNum1 do 
             if returnValue[i].delFlag == '0' then 
                 -- 新增用户SQL
                 local sqlInsert = "insert into tb_c_employee values('"..returnValue[i].employee_id.."','"..
@@ -897,78 +916,63 @@ function updateEmployeeData()
                     returnValue[i].headshipName.."','"..returnValue[i].mobile.."','"..
                     returnValue[i].mobile_short.."','"..returnValue[i].tel.."','"..
                     returnValue[i].tel_short.."','"..returnValue[i].email.."','"..
-                    returnValue[i].versonNum.."','"..returnValue[i].picture.."','"..
+                    returnValue[i].versionNum.."','"..returnValue[i].picture.."','"..
                     returnValue[i].employee_firstword.."','"..returnValue[i].employee_fullword.."','"..
-                    returnValue[i].parent_department_name.."','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."' ,'' ,'' ,'' ,'' );"
-                -- Log:write("sqlInsert = ",sqlInsert)                         
-                bRet, errMsg = Sqlite:update(databaseName, sqlInsert) 
-                -- Log:write("新增用户:bRet = "..bRet.." errMsg ="..errMsg)      
+                    returnValue[i].parent_department_name.."','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."' ,'' ,'' ,'' ,'' );"                     
+                bRet, errMsg = Sqlite:update(databaseName, sqlInsert)     
             end    
         end
         bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
-        Log:write("首次安装应用--人员添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
+        Log:write("第一次升级应用--人员添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
+        setUserRights()    
+        if tonumber(returnValue[0].versionNum) > tonumber(Config:get('userVersion')) then
+            maxUserVersion = returnValue[0].versionNum
+        else
+            maxUserVersion = Config:get('userVersion')
+        end
+    else
+        updateUserData()
+        if tonumber(returnValue[0].versonNum) > tonumber(Config:get('userVersion')) then
+            maxUserVersion = returnValue[0].versonNum
+        else
+            maxUserVersion = Config:get('userVersion')
+        end
+    end  
+    Log:write("maxUserVersion = ",maxUserVersion)
+    employee_version = maxUserVersion
+    Config:set('userVersion',employee_version)
+end
+
+--首次升级设置用户权限
+function setUserRights()
+    --查询登录人的岗位级别
+    local sqlQuery = "select emp.headship_level"
+            .." from tb_c_employee emp"
+            .." where emp.employee_id = '"..Config:get('employeeId').."';"
+    bRet, headshipLevelTable, errMsg = Sqlite:query(databaseName, sqlQuery)
+    Log:write("登录人的岗位级别：",headshipLevelTable[1][1])
+    if tonumber(headshipLevelTable[1][1]) <= 3 then
+        Log:write("岗位级别小于等于3的人可以看到所有人的通讯录信息！")
+
+        bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
+        Log:write("登录人岗位级别小于等于3，第一次升级应用--修改权限mark1开始事务:bRet = "..bRet.." errMsg ="..errMsg)     
+        local sqlUpdate = "UPDATE tb_c_employee SET mark1 = '1';"   
+        bRet, errMsg = Sqlite:update(databaseName, sqlUpdate)
+        bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
+        Log:write("登录人岗位级别小于等于3，第一次升级应用--修改权限mark1结束事务:bRet = "..bRet.." errMsg ="..errMsg)
+
     else
         bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
-        Log:write("非首次安装--人员添加事务开始:bRet = "..bRet.." errMsg ="..errMsg)
-        for i=0,totalNum do  
-            -- 判断用户是否存在SQL
-            local sqlCount = "SELECT COUNT(*) FROM tb_c_employee emp WHERE emp.employee_id = '"..
-            returnValue[i].employee_id.."';"
-            bRet, retCountTable, errMsg = Sqlite:query(databaseName, sqlCount)
-            local count = retCountTable[1][1]
-            if count == '0' then
-                if returnValue[i].delFlag == '0' then 
-                     -- 新增用户SQL
-                    local sqlInsert = "insert into tb_c_employee values('"..returnValue[i].employee_id.."','"..
-                        returnValue[i].employee_name.."','"..returnValue[i].department_id.."','"..
-                        returnValue[i].department_name.."','"..returnValue[i].headship_level.."','"..
-                        returnValue[i].headshipName.."','"..returnValue[i].mobile.."','"..
-                        returnValue[i].mobile_short.."','"..returnValue[i].tel.."','"..
-                        returnValue[i].tel_short.."','"..returnValue[i].email.."','"..
-                        returnValue[i].versonNum.."','"..returnValue[i].picture.."','"..
-                        returnValue[i].employee_firstword.."','"..returnValue[i].employee_fullword.."','"..
-                        returnValue[i].parent_department_name.."','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."' ,'' ,'' ,'' ,'' );"
-                    Log:write("sqlInsert = ",sqlInsert)
-                    bRet, errMsg = Sqlite:update(databaseName, sqlInsert)
-                    Log:write("新增用户:bRet = "..bRet.." errMsg ="..errMsg)
-                end 
-            else
-                -- 修改类型，1：修改 2：删除
-                if returnValue[i].update_type == '1' or returnValue[i].update_type == '0' then
-                    -- 修改用户SQL
-                    local sqlUpdate = "UPDATE tb_c_employee SET employee_name = '"..returnValue[i].employee_name..
-                        "',department_id = '"..returnValue[i].department_id.."',department_name = '"..
-                        returnValue[i].department_name.."',headship_level = '"..returnValue[i].headship_level..
-                        "',headship_name = '"..returnValue[i].headshipName.."',mobile = '"..
-                        returnValue[i].mobile.."',mobile_short = '"..returnValue[i].mobile_short..
-                        "',tel = '"..returnValue[i].tel.."',tel_short = '"..returnValue[i].tel_short..
-                        "',email = '"..returnValue[i].email.."',versionNum = '"..returnValue[i].versonNum..
-                        "',picture = '"..returnValue[i].picture.."',employee_firstword = '"..
-                        returnValue[i].employee_firstword.."',employee_fullword = '"..returnValue[i].employee_fullword..
-                        "',parent_department_name = '"..returnValue[i].parent_department_name..
-                        "',display_order = '"..returnValue[i].display_order..
-                        "',department_fax = '"..returnValue[i].department_fax..
-                        "' WHERE employee_id = '"..returnValue[i].employee_id.."';"
-                        Log:write("sqlUpdate = ",sqlUpdate)
-
-                        bRet, errMsg = Sqlite:update(databaseName, sqlUpdate)
-                        Log:write("修改用户:bRet = "..bRet.." errMsg ="..errMsg)
-                else 
-                     -- 删除用户SQL
-                    local sqlDelete = "DELETE FROM tb_c_employee WHERE employee_id = '"..returnValue[i].employee_id.."';"
-                        Log:write("sqlDelete = ",sqlDelete)
-                        bRet, errMsg = Sqlite:update(databaseName, sqlDelete)
-                        Log:write("删除用户:bRet = "..bRet.." errMsg ="..errMsg)
-                    end 
-            end 
-        end 
+        Log:write("登录人岗位级别大于3，第一次升级应用--修改权限mark1开始事务:bRet = "..bRet.." errMsg ="..errMsg) 
+        local sqlUpdate = "UPDATE tb_c_employee SET mark1 ="
+            .." case when headship_level < 2 then '0'"
+            .." else '1' end;"
+        Log:write("sqlUpdate = ",sqlUpdate)
+        bRet, errMsg = Sqlite:update(databaseName, sqlUpdate)
         bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
-        Log:write("非首次安装--人员添加事务开始:bRet = "..bRet.." errMsg ="..errMsg) 
-    end 
-    Config:set('userVersion',returnValue[0].versonNum) 
-    employee_version = returnValue[0].versonNum
-    Config:set('userVersion',employee_version)
-    Config:set('mobileRights',userversiondata.rights)
+        Log:write("登录人岗位级别大于3，第一次升级应用--修改权限mark1结束事务:bRet = "..bRet.." errMsg ="..errMsg)
+    end
+    
 end
 
 --创建数据库
@@ -993,9 +997,90 @@ function checkClientVersion()
         webcloud, appKey, appVer)
     Log:write('checkClientVersion() requestURL=', requestURL)
     -- default value
-    Config:set("isNeedUpdate", "false")
+    -- Config:set("isNeedUpdate", "false")
     Http:request('index_checkversion', requestURL, 104, {useCache = false})
 end
 
+-- 第一次升级需要下载所有用户数据
+function firstUpdateUserData()
+    Log:write("下载用户数据开始")
+    local paras
+    if retSysTable[1][11] == '' then
+        firstUpdateFlag = 0
+        paras = 'userId='..Config:get('userId')..'&mobileRights='..Config:get('mobileRights') 
+        Log:write('下载之前没有权限联系人URL = '..url_updateAllUser..paras)           
+        Http:request('userversiondata0', url_updateAllUser..paras, 103, {useCache = false})
+    elseif retSysTable[1][11] == '1' then
+        firstUpdateFlag = 1
+        paras = 'departmentIdStr='..Config:get('department_id')..'&userId='..Config:get('userId')..'&mobileRights='
+                    ..Config:get('mobileRights')..'&versionNum='..Config:get('userVersion')
+        Log:write('联系人URL = '..url_userversion..paras)
+        Http:request('userversiondata0', url_userversion..paras, 103, {useCache = false})
+    end
+    Log:write("是否首次升级标识：firstUpdateFlag = ",firstUpdateFlag)    
+end
+
+-- 用户数据同步
+function updateUserData()
+    local returnValue = userversiondata.value 
+    local totalNum1 = tonumber(userversiondata.total)-1 
+    bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
+    Log:write("非首次安装--人员添加事务开始:bRet = "..bRet.." errMsg ="..errMsg)
+    for i=0,totalNum1 do  
+        -- 判断用户是否存在SQL
+        local sqlCount = "SELECT COUNT(*) FROM tb_c_employee emp WHERE emp.employee_id = '"..
+        returnValue[i].employee_id.."';"
+        bRet, retCountTable, errMsg = Sqlite:query(databaseName, sqlCount)
+        local count = retCountTable[1][1]
+        if count == '0' then
+            if returnValue[i].delFlag == '0' then 
+                -- 新增用户SQL
+                local sqlInsert = "insert into tb_c_employee values('"..returnValue[i].employee_id.."','"..
+                        returnValue[i].employee_name.."','"..returnValue[i].department_id.."','"..
+                        returnValue[i].department_name.."','"..returnValue[i].headship_level.."','"..
+                        returnValue[i].headshipName.."','"..returnValue[i].mobile.."','"..
+                        returnValue[i].mobile_short.."','"..returnValue[i].tel.."','"..
+                        returnValue[i].tel_short.."','"..returnValue[i].email.."','"..
+                        returnValue[i].versonNum.."','"..returnValue[i].picture.."','"..
+                        returnValue[i].employee_firstword.."','"..returnValue[i].employee_fullword.."','"..
+                        returnValue[i].parent_department_name.."','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."' ,'"..returnValue[i].rightFlag.."' ,'' ,'' ,'' );"
+                Log:write("sqlInsert = ",sqlInsert)
+                bRet, errMsg = Sqlite:update(databaseName, sqlInsert)
+                Log:write("新增用户:bRet = "..bRet.." errMsg ="..errMsg)
+            end 
+        else
+             -- 修改类型，1：修改 2：删除
+            if returnValue[i].update_type == '1' or returnValue[i].update_type == '0' then
+                -- 修改用户SQL
+                local sqlUpdate = "UPDATE tb_c_employee SET employee_name = '"..returnValue[i].employee_name..
+                        "',department_id = '"..returnValue[i].department_id.."',department_name = '"..
+                        returnValue[i].department_name.."',headship_level = '"..returnValue[i].headship_level..
+                        "',headship_name = '"..returnValue[i].headshipName.."',mobile = '"..
+                        returnValue[i].mobile.."',mobile_short = '"..returnValue[i].mobile_short..
+                        "',tel = '"..returnValue[i].tel.."',tel_short = '"..returnValue[i].tel_short..
+                        "',email = '"..returnValue[i].email.."',versionNum = '"..returnValue[i].versonNum..
+                        "',picture = '"..returnValue[i].picture.."',employee_firstword = '"..
+                        returnValue[i].employee_firstword.."',employee_fullword = '"..returnValue[i].employee_fullword..
+                        "',parent_department_name = '"..returnValue[i].parent_department_name..
+                        "',display_order = '"..returnValue[i].display_order..
+                        "',department_fax = '"..returnValue[i].department_fax..
+                        "',mark1 = '"..returnValue[i].rightFlag..
+                        "' WHERE employee_id = '"..returnValue[i].employee_id.."';"
+                Log:write("sqlUpdate = ",sqlUpdate)
+
+                bRet, errMsg = Sqlite:update(databaseName, sqlUpdate)
+                Log:write("修改用户:bRet = "..bRet.." errMsg ="..errMsg)
+            else 
+                -- 删除用户SQL
+                local sqlDelete = "DELETE FROM tb_c_employee WHERE employee_id = '"..returnValue[i].employee_id.."';"
+                Log:write("sqlDelete = ",sqlDelete)
+                bRet, errMsg = Sqlite:update(databaseName, sqlDelete)
+                Log:write("删除用户:bRet = "..bRet.." errMsg ="..errMsg)
+            end 
+        end 
+    end 
+    bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
+    Log:write("非首次安装--人员添加事务结束:bRet = "..bRet.." errMsg ="..errMsg) 
+end
 ]]>
 </root>

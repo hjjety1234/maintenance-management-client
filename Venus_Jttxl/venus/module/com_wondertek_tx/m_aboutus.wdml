@@ -58,6 +58,11 @@
                 <!-- 设置  -->
                 <button name='bottomBtn4' rect="385,0,48,80"  extendstyle="1111"  style='autosize'
                 src='file://image/book/site_s.png' OnSelect="bottomOnselect" data="4"></button>
+                <!-- New -->
+                <node name="newNode" rect="410,0,48,80" extendstyle="1111">
+                    <image  rect="0,0,43,28" border="false" src="file://image/jttxl/new.png" 
+                        style="autosize" extendstyle="1111" />
+                </node>
             </node>
             
         </node>
@@ -66,16 +71,24 @@
 
 require 'com_wondertek_tx.common.framework'
 local rootSprite
+local newNode
 local bottomdata = 4   ---被点亮的菜单
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    newNode = Sprite:findChild(rootSprite, 'newNode')
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        
+        if (Config:get("isNeedUpdate") == "true") then 
+            setAllShoworHide(newNode, 1)
+        else 
+            setAllShoworHide(newNode, 0)
+        end 
 
     elseif msg == MSG_DEACTIVATE then
     end

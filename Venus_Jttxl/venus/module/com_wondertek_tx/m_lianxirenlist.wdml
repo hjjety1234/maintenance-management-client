@@ -123,6 +123,11 @@
                 <!-- 设置  -->
                 <button name='siteBtn' rect="385,0,48,80"  extendstyle="1111"  style='autosize'
                 src='file://image/book/site_d.png' OnSelect="doSetting"></button>
+                <!-- New -->
+                <node name="newNode" rect="410,0,48,80" extendstyle="1111">
+                    <image  rect="0,0,43,28" border="false" src="file://image/jttxl/new.png" 
+                        style="autosize" extendstyle="1111" />
+                </node>
             </node>  
 
         </node>
@@ -133,6 +138,7 @@ require 'com_wondertek_tx.common.framework'
 require 'framework.umsagent'
 require 'framework.sqlite'
 local rootSprite
+local newNode
 local databaseName
 local len
 local list
@@ -143,6 +149,7 @@ local departmentname1
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     list = Sprite:findChild(rootSprite, 'sampleList')
+    newNode = Sprite:findChild(rootSprite, 'newNode')
     Log:write("部门编号：",department_id)  
 end
 
@@ -150,6 +157,11 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         Http:startNetwork()
+        if (Config:get("isNeedUpdate") == "true") then 
+            setAllShoworHide(newNode, 1)
+        else 
+            setAllShoworHide(newNode, 0)
+        end 
         lookUserData()
         UmsAgent:OnActivate(string.match(Alias.m_lianxirenlist, 'MODULE:\\(.*)'), "联系人列表")
         Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
@@ -369,7 +381,7 @@ function smsOnSelect(sprite)
     local mobile = Sprite:getText(Sprite:findChild(parentNode, "mobile"))
     Log:write("电话号码为：",mobile)
     if mobile ~= nil and mobile ~= '' then
-        if Util:sendSMS(mobile,' ',false) then
+        if Util:sendSMS(mobile,'',false) then
             Log:write('发送短信成功')
         else
             Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
@@ -394,6 +406,7 @@ function lookUserData()
     local sqlCount = "SELECT COUNT(*)"
              .." FROM tb_c_employee emp,tb_c_department dept"
              .." WHERE emp.department_id = dept.department_id"
+             .." AND emp.mark1 = '1'"
              .." AND dept.department_id = '"..department_id.."';"
     Log:write("sqlCount = ",sqlCount)  
 
@@ -411,6 +424,7 @@ function lookUserData()
                  .."emp.headship_name,emp.headship_level"
                  .." FROM tb_c_employee emp,tb_c_department dept"
                  .." WHERE emp.department_id = dept.department_id"
+                 .." AND emp.mark1 = '1'"
                  .." AND dept.department_id = '"..department_id.."'"
                  .." ORDER BY emp.headship_level ASC,emp.display_order ASC;"
         Log:write("查询联系人列表 SQL =",sql)           

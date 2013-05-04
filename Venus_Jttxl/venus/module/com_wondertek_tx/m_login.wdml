@@ -202,7 +202,7 @@ function bodyOnPluginEvent(msg)
         Config:set('deptversion', departmentdata1.deptversion)
         Log:write('deptversion====='..Config:get('deptversion'))
         Sprite:setProperty(noticeLabel, 'text', '联系人信息下载中。。。')
-        local paras = 'departmentIdStr=&userId='..Config:get('userId')..'&mobileRights='
+        local paras = 'departmentIdStr='..Config:get('department_id')..'&userId='..Config:get('userId')..'&mobileRights='
                     ..Config:get('mobileRights')..'&versionNum=0'
         Log:write('首次登录时联系人URL = '..url_userversion..paras)
         Http:request('userversiondata0', url_userversion..paras, 104, {useCache = false})
@@ -377,7 +377,7 @@ end
 function jumpPage()
     local sql = "insert into tb_c_system values ('001','"..Config:get('DatabaseVersion').."','"..department_version.."','"..employee_version..
         "','"..loginData.user_id.."','"..right_config.."','"..loginData.employee_id.."','"..loginData.employee_name..
-        "','"..loginData.department_id.."','"..loginData.department_name.."','"..loginData.department_level.."' ,'' ,'' ,'' ,'' );"
+        "','"..loginData.department_id.."','"..loginData.department_name.."','"..loginData.department_level.."' ,'1' ,'' ,'' ,'' );"
     Log:write('系统表插入语句==sql=='..sql)
     bRet, errMsg = Sqlite:update(databaseName, sql)
     Log:write("系统表插入结果:bRet = "..bRet.." errMsg ="..errMsg)
@@ -425,7 +425,7 @@ function initUserDatabase()
             returnValue[i].tel_short.."','"..returnValue[i].email.."','"..
             returnValue[i].versonNum.."','"..returnValue[i].picture.."','"..
             returnValue[i].employee_firstword.."','"..returnValue[i].employee_fullword.."','"..
-            returnValue[i].parent_department_name.."','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."' ,'' ,'' ,'' ,'' );"                  
+            returnValue[i].parent_department_name.."','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."' ,'"..returnValue[i].rightFlag.."' ,'' ,'' ,'' );"                  
             bRet, errMsg = Sqlite:update(databaseName, sqlInsert)
             -- Log:write("sqlInsert 语句：",sqlInsert) 
         end    

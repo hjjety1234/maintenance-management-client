@@ -110,6 +110,11 @@
                 <!-- 设置  -->
                 <button name='bottomBtn4' rect="385,0,48,80"  extendstyle="1111"  style='autosize'
                 src='file://image/book/site_d.png' OnSelect="bottomOnselect" data="4"></button>
+                <!-- New -->
+                <node name="newNode" rect="410,0,48,80" extendstyle="1111">
+                    <image  rect="0,0,43,28" border="false" src="file://image/jttxl/new.png" 
+                        style="autosize" extendstyle="1111" />
+                </node>
             </node>
             
             <!--列表信息-->
@@ -158,6 +163,7 @@ require 'com_wondertek_tx.common.framework'
 require 'framework.umsagent'
 require 'framework.sqlite'
 local rootSprite
+local newNode
 --local departmentCode
 --local departmentName = "合肥分公司"= '8a18965a3d44219e013d442274550000''省公司'
 local bottomdata = 2   ---被点亮的菜单
@@ -175,6 +181,7 @@ local retDeptTable2 = {}
 function bodyBuildChildrenFinished(sprite)
     Log:write("成bodyBuildChildrenFinished"..sprite)
     rootSprite = sprite
+    newNode = Sprite:findChild(rootSprite, 'newNode')
     --local departmentid = '123'
     --local departmentname = '省公司'
     --cityName = '省公司'
@@ -188,6 +195,11 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        if (Config:get("isNeedUpdate") == "true") then 
+            setAllShoworHide(newNode, 1)
+        else 
+            setAllShoworHide(newNode, 0)
+        end 
         UmsAgent:OnActivate(string.match(Alias.m_zuzhijiegou, 'MODULE:\\(.*)'), "组织机构列表")
         readdeptdata()
     elseif msg == MSG_DEACTIVATE then
