@@ -4,9 +4,13 @@ import java.io.File;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -18,13 +22,19 @@ public class FloatRelativeLayout extends RelativeLayout {
 	private static final String TAG = "FloatRelativeLayout";
 	private Context mContext;
 	private Employee employee;
+	public boolean isScale = false;
+	private float mScaleFactor = 1;
+	private ScaleGestureDetector mScaleDetector;
 	private float rx;
 	private float ry;
+	private float px;
+	private float py;
 	private float rawX;
 	private float rawY;
 
 	private WindowManager wm = (WindowManager) getContext()
 			.getApplicationContext().getSystemService("window");
+
 	private WindowManager.LayoutParams wmParams = null;
 
 	public FloatRelativeLayout(Context context,
@@ -33,6 +43,8 @@ public class FloatRelativeLayout extends RelativeLayout {
 		employee = e;
 		mContext = context;
 		wmParams = params;
+		mScaleDetector = new ScaleGestureDetector(context,
+				new OnPinchListener());
 		if (employee.getPicutre() != null
 				&& !employee.getPicutre().trim().equals("")) {
 			File dir = new File(Constants.LOC_PIC_DIR);
@@ -49,6 +61,89 @@ public class FloatRelativeLayout extends RelativeLayout {
 			inflate(context, R.layout.float_view, this);
 		}
 		initLayout();
+	}
+
+	@Override
+	protected void dispatchDraw(Canvas canvas) {
+		Log.d(TAG, "[dispatchDraw] isScale: " + isScale);
+		if (isScale == false) {
+			super.dispatchDraw(canvas);
+			return;
+		}
+
+		// save scale and pivotX and pivotY value
+		SharedPreferences popupPos = mContext.getSharedPreferences(
+				PhoneStatReceiver.POPUP_POS, Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = popupPos.edit();
+		editor.putFloat("scale", mScaleFactor);
+		editor.putFloat("pivotX", px);
+		editor.putFloat("pivotY", py);
+
+		// get orginal matrix
+		float[] values = new float[9];
+		Matrix m = new Matrix();
+		boolean isMatrixSaved = true;
+		for (int i = 0; i < 9; ++i)  {
+			values[i] = popupPos.getFloat("f" + i, -1000);
+			if (values[i] == -1000)
+				isMatrixSaved = false;
+		}
+		if (isMatrixSaved == true) {
+			m.setValues(values);
+		}else {
+			m = canvas.getMatrix();
+			m.getValues(values);
+			for (int i = 0; i < 9; ++i) {
+				editor.putFloat("f" + i, values[i]);
+			}
+		}
+		
+		canvas.setMatrix(m);
+		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.scale(mScaleFactor, mScaleFactor, px, py);
+		super.dispatchDraw(canvas);
+		canvas.restore();
+
+		// get original width and height
+		float width = popupPos.getFloat("width", 0.0f);
+		float height = popupPos.getFloat("height", 0.0f);
+		if (width < 0.01f || height < 0.01f) {
+			width = getWidth();
+			height = getHeight();
+			editor.putFloat("width", width);
+			editor.putFloat("height", height);
+		}
+		
+		editor.commit();
+
+		// set layout's width and height
+		getLayoutParams().width = (int) (width * mScaleFactor);
+		getLayoutParams().height = (int) (height * mScaleFactor);
+
+		// debug output
+		Log.d(TAG, "[dispatchDraw] width: " + getWidth());
+		Log.d(TAG, "[dispatchDraw] height: " + getHeight());
+	}
+
+	public void scale(float scaleFactor, float pivotX, float pivotY) {
+		Log.d(TAG, "[scale] scale:" + scaleFactor + ", pivotX:" + pivotX
+				+ ", pivotY: " + pivotY);
+		if (isScale == false) {
+			Log.d(TAG, "[scale] isScale is false, do nothing...");
+			return;
+		}
+		if (scaleFactor < 1) {
+			mScaleFactor = scaleFactor;
+		} else {
+			mScaleFactor = 1;
+		}
+		px = pivotX;
+		py = pivotY;
+		this.invalidate();
+	}
+
+	public void setScaleEnabled(boolean bEnable) {
+		isScale = bEnable;
 	}
 
 	private void initLayout() {
@@ -109,43 +204,48 @@ public class FloatRelativeLayout extends RelativeLayout {
 		// set caller info background visible
 		ImageView iv = (ImageView) findViewById(R.id.caller_info_bg);
 		iv.setVisibility(VISIBLE);
-		// iv.setAlpha(100);
-
-		// change caller name font color
-		// TextView callerName = (TextView) findViewById(R.id.caller_name);
-		// callerName.setTextColor(getResources().getColor(R.color.white));
-		//
-		// // change caller headship font color
-		// TextView headship = (TextView) findViewById(R.id.headship);
-		// headship.setTextColor(getResources().getColor(R.color.white));
-		//
-		// // set caller department information
-		// TextView dept = (TextView) findViewById(R.id.deptinfo);
-		// dept.setTextColor(getResources().getColor(R.color.white));
 	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		rawX = event.getRawX();
-		rawY = event.getRawY() - 25;
-		switch (event.getAction()) {
+		rawY = event.getRawY();
+		Log.d(TAG, "[onTouchEvent] MotionEvent: " + event.getAction());
+		switch (event.getAction() & MotionEvent.ACTION_MASK) {
 		case MotionEvent.ACTION_DOWN:
 			rx = event.getX();
 			ry = event.getY();
+			isScale = false;
 			break;
 		case MotionEvent.ACTION_MOVE:
-			updateViewPosition();
+			if (isScale == false) {
+				updateViewPosition();
+			} else {
+				mScaleDetector.onTouchEvent(event);
+			}
 			break;
 		case MotionEvent.ACTION_UP:
-			updateViewPosition();
+			if (isScale == false) {
+				updateViewPosition();
+			}
+			isScale = false;
 			rx = 0;
 			ry = 0;
 			break;
+		case MotionEvent.ACTION_POINTER_DOWN:
+			isScale = true;
+			mScaleDetector.onTouchEvent(event);
+			break;
+		case MotionEvent.ACTION_POINTER_UP:
+			isScale = false;
+			break;
 		}
+		Log.d(TAG, "[onTouchEvent] isScale: " + isScale);
 		return true;
 	}
 
 	private void updateViewPosition() {
+		Log.d(TAG, ">>>updateViewPosition<<<");
 		wmParams.x = (int) (rawX - rx);
 		wmParams.y = (int) (rawY - ry);
 		if (PhoneStatReceiver.relativeLayout != null)
@@ -156,5 +256,26 @@ public class FloatRelativeLayout extends RelativeLayout {
 		editor.putInt("rawX", wmParams.x);
 		editor.putInt("rawY", wmParams.y);
 		editor.commit();
+	}
+
+	private class OnPinchListener extends SimpleOnScaleGestureListener {
+		float startingSpan;
+		float startFocusX;
+		float startFocusY;
+
+		public boolean onScaleBegin(ScaleGestureDetector detector) {
+			Log.d(TAG, ">>>onScaleBegin<<<");
+			startingSpan = detector.getCurrentSpan();
+			startFocusX = detector.getFocusX();
+			startFocusY = detector.getFocusY();
+			return true;
+		}
+
+		public boolean onScale(ScaleGestureDetector detector) {
+			Log.d(TAG, ">>>onScale<<<");
+			scale(detector.getCurrentSpan() / startingSpan, startFocusX,
+					startFocusY);
+			return true;
+		}
 	}
 }

@@ -146,6 +146,9 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 				Context.MODE_PRIVATE);
 		int rx = popupPos.getInt("rawX", 0);
 		int ry = popupPos.getInt("rawY", 250);
+		float scaleFactor = popupPos.getFloat("scale", 1.0f);
+		float pivotY = popupPos.getFloat("pivotY", 0.0f);
+		float pivotX = popupPos.getFloat("pivotX", 0.0f);
 		Log.d(TAG, "[addPopup] rawX: " + rx + " rawY: " + ry);
 		params.x = rx;
 		params.y = ry;
@@ -161,6 +164,10 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 		}
 		relativeLayout = new FloatRelativeLayout(c, params, e);
 		wm.addView(relativeLayout, params);
+		
+		relativeLayout.setScaleEnabled(true);
+		relativeLayout.scale(scaleFactor, pivotX, pivotY);
+
 		timer = new Timer();
 		timer.scheduleAtFixedRate(new DetectCallSceenTask(c), 5000, 5000);
 	}
