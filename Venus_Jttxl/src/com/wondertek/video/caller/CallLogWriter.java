@@ -29,10 +29,9 @@ public class CallLogWriter {
 			// write to sqlite database
 			Uri uri = CallLog.Calls.CONTENT_URI;
 			Long l = System.currentTimeMillis() - 3 * 24 * 3600 * 1000; 
-			// CallLog.Calls.DATE + " > " + l
 			Cursor cursor = ((Activity) mContext).managedQuery(uri,
 					new String[] { "name", "number", "date", "type", },
-					null, null, null);
+					CallLog.Calls.DATE + " > " + l, null, null);
 			while (cursor.moveToNext()) {
 				// get name
 				String name = cursor.getString(cursor.getColumnIndex("name"));
