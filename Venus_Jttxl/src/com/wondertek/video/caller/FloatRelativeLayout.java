@@ -66,43 +66,36 @@ public class FloatRelativeLayout extends RelativeLayout {
 	@Override
 	protected void dispatchDraw(Canvas canvas) {
 		Log.d(TAG, "[dispatchDraw] isScale: " + isScale);
-		if (isScale == false) {
-			super.dispatchDraw(canvas);
-			return;
-		}
 
-		// save scale and pivotX and pivotY value
+		// get SharedPreferences and editor
 		SharedPreferences popupPos = mContext.getSharedPreferences(
 				PhoneStatReceiver.POPUP_POS, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = popupPos.edit();
-		editor.putFloat("scale", mScaleFactor);
-		editor.putFloat("pivotX", px);
-		editor.putFloat("pivotY", py);
 
-		// get orginal matrix
+		// get original matrix
 		float[] values = new float[9];
 		Matrix m = new Matrix();
 		boolean isMatrixSaved = true;
-		for (int i = 0; i < 9; ++i)  {
+		for (int i = 0; i < 9; ++i) {
 			values[i] = popupPos.getFloat("f" + i, -1000);
 			if (values[i] == -1000)
 				isMatrixSaved = false;
 		}
 		if (isMatrixSaved == true) {
 			m.setValues(values);
-		}else {
+		} else {
 			m = canvas.getMatrix();
 			m.getValues(values);
 			for (int i = 0; i < 9; ++i) {
 				editor.putFloat("f" + i, values[i]);
 			}
 		}
-		
 		canvas.setMatrix(m);
-		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.scale(mScaleFactor, mScaleFactor, px, py);
-		super.dispatchDraw(canvas);
-		canvas.restore();
+
+		// save scale pivotX and pivotY
+		editor.putFloat("scale", mScaleFactor);
+		editor.putFloat("pivotX", px);
+		editor.putFloat("pivotY", py);
 
 		// get original width and height
 		float width = popupPos.getFloat("width", 0.0f);
@@ -113,12 +106,19 @@ public class FloatRelativeLayout extends RelativeLayout {
 			editor.putFloat("width", width);
 			editor.putFloat("height", height);
 		}
-		
 		editor.commit();
 
+		// do scale
+		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.scale(mScaleFactor, mScaleFactor, px, py);
+		super.dispatchDraw(canvas);
+		canvas.restore();
+
 		// set layout's width and height
-		getLayoutParams().width = (int) (width * mScaleFactor);
-		getLayoutParams().height = (int) (height * mScaleFactor);
+		wmParams.width = (int) (width * mScaleFactor);
+		wmParams.height = (int) (height * mScaleFactor);
+		if (PhoneStatReceiver.relativeLayout != null)
+			wm.updateViewLayout(this, wmParams);
 
 		// debug output
 		Log.d(TAG, "[dispatchDraw] width: " + getWidth());
