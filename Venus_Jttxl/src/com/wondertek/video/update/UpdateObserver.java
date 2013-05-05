@@ -129,11 +129,10 @@ public class UpdateObserver {
 		n.icon = R.drawable.icon;
 		n.when = System.currentTimeMillis();
 
-		// do update invoke progressNofity activity
-		ProgressNofity.setUpdateInfo(updateInfo);
-		Intent i = new Intent(mContext, ProgressNofity.class);
-		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		PendingIntent pi = PendingIntent.getActivity(mContext, 0, i, 0);
+		// do update invoke update service
+		UpdateService.setUpdateInfo(updateInfo, mContext);
+		Intent i = new Intent(mContext, UpdateService.class);
+		PendingIntent pi = PendingIntent.getService(mContext, 0, i, 0);
 
 		// Change the name of the notification here
 		n.setLatestEventInfo(mContext, "集团通讯录存在新版本，点击更新!",
