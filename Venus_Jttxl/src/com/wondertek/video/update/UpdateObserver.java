@@ -176,7 +176,7 @@ public class UpdateObserver {
 		PendingIntent pi = PendingIntent.getService(mContext, 0, i, 0);
 
 		// Change the name of the notification here
-		n.setLatestEventInfo(mContext, "集团通讯录存在新版本，点击更新!",
+		n.setLatestEventInfo(mContext, "集团通讯录新版发布，点击更新!",
 				updateInfo.getReleaseLog(), pi);
 		NotificationManager mNotifMan = (NotificationManager) mContext
 				.getSystemService(Context.NOTIFICATION_SERVICE);
