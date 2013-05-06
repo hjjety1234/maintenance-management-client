@@ -20,6 +20,7 @@ import com.wondertek.jttxl.R;
 
 public class FloatRelativeLayout extends RelativeLayout {
 	private static final String TAG = "FloatRelativeLayout";
+	private static boolean bIsCustomLayout = false;
 	private Context mContext;
 	private Employee employee;
 	public boolean isScale = false;
@@ -45,6 +46,7 @@ public class FloatRelativeLayout extends RelativeLayout {
 		wmParams = params;
 		mScaleDetector = new ScaleGestureDetector(context,
 				new OnPinchListener());
+		bIsCustomLayout = false;
 		if (employee.getPicutre() != null
 				&& !employee.getPicutre().trim().equals("")) {
 			File dir = new File(Constants.LOC_PIC_DIR);
@@ -54,6 +56,7 @@ public class FloatRelativeLayout extends RelativeLayout {
 			File pic = new File(localPicPath);
 			if (pic.exists() == true) {
 				inflate(context, R.layout.float_view_withphoto, this);
+				bIsCustomLayout = true;
 			} else {
 				inflate(context, R.layout.float_view, this);
 			}
@@ -65,8 +68,15 @@ public class FloatRelativeLayout extends RelativeLayout {
 
 	@Override
 	protected void dispatchDraw(Canvas canvas) {
-		Log.d(TAG, "[dispatchDraw] isScale: " + isScale);
-
+		Log.d(TAG, "[dispatchDraw] isScale: " + isScale + ", isCustomLayout: "
+				+ bIsCustomLayout);
+		if (bIsCustomLayout == true) {
+			canvas.save(Canvas.MATRIX_SAVE_FLAG);
+			super.dispatchDraw(canvas);
+			canvas.restore();
+			return;
+		}
+		
 		// get SharedPreferences and editor
 		SharedPreferences popupPos = mContext.getSharedPreferences(
 				PhoneStatReceiver.POPUP_POS, Context.MODE_PRIVATE);
