@@ -83,25 +83,66 @@ public class UpdateObserver {
 	}
 
 	// convert json string to update information object
-	private UpdateInfo getUpdateInfo(String json) throws JSONException {
-		JSONObject obj = new JSONObject(json);
-		JSONObject version = obj.getJSONObject("version");
-		int isNeedUpdate = version.getInt("isNeedUpdate");
-		
+	private UpdateInfo getUpdateInfo(String json)  {
+		JSONObject obj = null;
+		JSONObject version = null;
+		int isNeedUpdate = 0;
+		try {
+			obj = new JSONObject(json);
+			version = obj.getJSONObject("version");
+			isNeedUpdate = version.getInt("isNeedUpdate");
+		}catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
 		if (isNeedUpdate != 0) {
 			// get release log
-			String releaseLog = version.getString("releaseLog");
+			String releaseLog = "";
+			try {
+				releaseLog = version.getString("releaseLog");
+			}catch (Exception e) {
+				Log.d(TAG, "[getUpdateInfo] releaseLog is null!");
+			}
 			
-			// get package info 
-			String url = version.getString("url");
-			int apk_size = version.getInt("apk_size");
+			// get apk uri
+			String url = "";
+			try {
+				url = version.getString("url");
+			}catch (Exception e) {
+				Log.d(TAG, "[getUpdateInfo] url is null!");
+			}
+			
+			// get apk size 
+			int apk_size = 0;
+			try {
+				apk_size = version.getInt("apk_size");
+			}catch (Exception e) {
+				Log.d(TAG, "[getUpdateInfo] apk_size is null!");
+			}
 			
 			// get patch info 
-			String patchUrl = version.getString("patchUrl");
-			int patch_size =  version.getInt("patch_size");
+			String patchUrl = "";
+			try {
+				patchUrl = version.getString("patchUrl");
+			}catch (Exception e) {
+				Log.d(TAG, "[getUpdateInfo] patchUrl is null!");
+			}
+			
+			int patch_size =  0;
+			try {
+				patch_size = version.getInt("patch_size");
+			}catch (Exception e) {
+				Log.d(TAG, "[getUpdateInfo] patch_size is null!");
+			}
 			
 			// get local package md5sum 
-			String md5sum = version.getString("shalNum");
+			String md5sum = "";
+			try {
+				md5sum = version.getString("shalNum");
+			}catch (Exception e) {
+				Log.d(TAG, "[getUpdateInfo] md5sum is null!");
+			}
 			
 			// construct update info object 
 			UpdateInfo updateInfo = new UpdateInfo();
