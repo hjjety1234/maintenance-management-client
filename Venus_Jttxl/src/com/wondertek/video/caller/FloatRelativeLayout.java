@@ -179,16 +179,22 @@ public class FloatRelativeLayout extends RelativeLayout {
 				initCustomLayout();
 			} else {
 				Log.d(TAG, "[initLayout] trying to async download picture...");
-				DownloadFileTask downloadFile = new DownloadFileTask(
+				final DownloadFileTask downloadFile = new DownloadFileTask(
 						employee.getPicutre());
-				String requestUri = downloadFile.requestResourceUri();
-				if (requestUri != null) {
-					String resourceUri = Constants.RES_PIC_URL_PREFIX
-							+ requestUri;
-					downloadFile.execute(resourceUri);
-				} else {
-					Log.w(TAG, "[initLayout] request resource uri failed!");
-				}
+				new Thread() {
+					@Override
+					public void run() {
+						String requestUri = downloadFile.requestResourceUri();
+						if (requestUri != null) {
+							String resourceUri = Constants.RES_PIC_URL_PREFIX
+									+ requestUri;
+							downloadFile.execute(resourceUri);
+						} else {
+							Log.w(TAG,
+									"[initLayout] request resource uri failed!");
+						}
+					}
+				}.start();
 			}
 		} else {
 			Log.w(TAG, "[initLayout] picture path is null.");
