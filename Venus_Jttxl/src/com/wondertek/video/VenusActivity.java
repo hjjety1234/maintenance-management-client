@@ -2461,8 +2461,46 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			{
 				phones.moveToNext();
 				String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+				String firstspell = PinYinUtil.getFirstSpell(name);
+				String fullspell = PinYinUtil.getFullSpell(name);
 				String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-				Contact_Map.put(name+"###" + i, phone);
+				String contactId = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
+				String groupId = "";
+				String groupName = ""; 
+				Log.d(TAG, "[getContactsHighSDK] contact id: " + contactId);
+				
+				// get group id 
+				Cursor dataCursor = appActivity
+						.getContentResolver()
+						.query(ContactsContract.Data.CONTENT_URI,
+								new String[] { ContactsContract.Data.CONTACT_ID, ContactsContract.Data.DATA1 },
+								ContactsContract.Data.MIMETYPE + "=? and " + ContactsContract.Data.CONTACT_ID + "=?",
+								new String[] { ContactsContract.CommonDataKinds.GroupMembership.CONTENT_ITEM_TYPE, contactId }, 
+								null);
+				if (dataCursor.getCount() > 0) {
+					dataCursor.moveToFirst();
+					groupId = dataCursor.getString(dataCursor.getColumnIndex(ContactsContract.Data.DATA1)); 
+					// get group name
+					Cursor groupCursor = appActivity.getContentResolver().query(
+							ContactsContract.Groups.CONTENT_URI,
+							new String[] { ContactsContract.Groups._ID,
+									ContactsContract.Groups.TITLE },
+							ContactsContract.Groups._ID + "=?",
+							new String[] { groupId }, null);
+					if (groupCursor.getCount() > 0) {
+						groupCursor.moveToFirst();
+						groupName = groupCursor.getString(groupCursor
+								.getColumnIndex(ContactsContract.Groups.TITLE));
+					}
+					groupCursor.close();
+				}
+				dataCursor.close();
+		
+				Log.d(TAG, "[getContactsHighSDK] groupId: " + groupId
+						+ ", group name: " + groupName + ", fullspell: "
+						+ fullspell + ", firstspell: " + firstspell);
+				Contact_Map.put(name + "###" + i, phone + ";" + groupName + ";"
+						+ fullspell + ";" + firstspell);
 				Contact_Count++;
 			}
 		}
