@@ -204,7 +204,7 @@
                 src='file://image/book/site_d.png' OnSelect="doSetting"></button>
                 <!-- New -->
                 <node name="newNode" rect="410,0,48,80" extendstyle="1111">
-                    <image  rect="0,0,43,28" border="false" src="file://image/jttxl/new.png" 
+                    <image  rect="10,5,24,24" border="false" src="file://image/jttxl/new.png" 
                         style="autosize" extendstyle="1111" />
                 </node>
             </node> 
@@ -345,18 +345,13 @@ end
 
 -- 获取本地库中用户版本号
 function getUserVersion()
-    local Path = getDownloadPath().."sqlitedownload" 
-    Log:write("path= "..Path)
-    if IO:dirExist(Path) == false then 
-        IO:dirCreate(Path)
-    end
-    databaseName = Path..'/jttxlDatabase'
+    databaseName = getLocalDiskPath()..'/jttxlDatabase'
     bRet, errMsg = Sqlite:open(databaseName) 
     Log:write("创建数据库jttxlDatabase成功:bRet = "..bRet.." errMsg ="..errMsg)
     loadUserData()
     versionNum = retUserTable[1][9] 
     Log:write("当前用户的版本号 ======= ",versionNum)
-    doRefurbish()      
+    -- doRefurbish()      
 end
 
 --点击拨号按钮

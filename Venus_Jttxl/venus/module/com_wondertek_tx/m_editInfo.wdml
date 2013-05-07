@@ -197,7 +197,7 @@
                 src='file://image/book/site_d.png' OnSelect="doSetting"></button>
                 <!-- New -->
                 <node name="newNode" rect="410,0,48,80" extendstyle="1111">
-                    <image  rect="0,0,43,28" border="false" src="file://image/jttxl/new.png" 
+                    <image  rect="10,5,24,24" border="false" src="file://image/jttxl/new.png" 
                         style="autosize" extendstyle="1111" />
                 </node>
             </node> 
@@ -219,6 +219,13 @@ local returnValue = {}
 local imageArray = {}
 local picture
 local employeeId = Config:get("employeeId")
+
+local empName                                    --用户姓名
+local mobileShort                                --手机短号
+local mobile                                     --手机长号 
+local tel_short                                  --办公短号
+local telephone                                  --办公长号
+local email                                      --电子邮件 
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -287,6 +294,7 @@ function bodyOnPluginEvent(msg)
             local nodeSuccess = Sprite:findChild(rootSprite, 'nodeSuccess')
             Sprite:setProperty(Sprite:findChild(nodeSuccess, 'content'), 'text', '更新成功')
             Sprite:setVisible(nodeSuccess, 1)
+            updateUserData()
             Timer:set(1, 3000, 'successInvisible')
         else
             local nodeSuccess = Sprite:findChild(rootSprite, 'nodeSuccess')
@@ -335,18 +343,13 @@ end
 
 -- 获取本地库中用户版本号
 function getUserVersion()
-    local Path = getDownloadPath().."sqlitedownload" 
-    Log:write("path= "..Path)
-    if IO:dirExist(Path) == false then 
-        IO:dirCreate(Path)
-    end
-    databaseName = Path..'/jttxlDatabase'
+    databaseName = getLocalDiskPath()..'/jttxlDatabase'
     bRet, errMsg = Sqlite:open(databaseName) 
     Log:write("创建数据库jttxlDatabase成功:bRet = "..bRet.." errMsg ="..errMsg)
     loadUserData()
     versionNum = retUserTable[1][9] 
     Log:write("当前用户的版本号 ======= ",versionNum)
-    doRefurbish()      
+    -- doRefurbish()      
 end
 
 
@@ -360,12 +363,12 @@ end
 
 -- 编辑个人信息
 function EditMyInfo(sprite)
-    local empName = Sprite:getProperty(Sprite:findChild(rootSprite,'duanhaoLabel_s'),'text')        --用户姓名
-    local mobileShort = Sprite:getProperty(Sprite:findChild(rootSprite,'duanhaoLabel_s1'),'text')   --手机短号
-    local mobile = Sprite:getProperty(Sprite:findChild(rootSprite,'duanhaoLabel_s2'),'text')        --手机长号 
-    local tel_short = Sprite:getProperty(Sprite:findChild(rootSprite,'duanhaoLabel_s3'),'text')     --办公短号
-    local telephone = Sprite:getProperty(Sprite:findChild(rootSprite,'duanhaoLabel_s4'),'text')     --办公长号
-    local email = Sprite:getProperty(Sprite:findChild(rootSprite,'email'),'text')                   --电子邮箱
+    empName = Sprite:getProperty(Sprite:findChild(rootSprite,'duanhaoLabel_s'),'text')        --用户姓名
+    mobileShort = Sprite:getProperty(Sprite:findChild(rootSprite,'duanhaoLabel_s1'),'text')   --手机短号
+    mobile = Sprite:getProperty(Sprite:findChild(rootSprite,'duanhaoLabel_s2'),'text')        --手机长号 
+    tel_short = Sprite:getProperty(Sprite:findChild(rootSprite,'duanhaoLabel_s3'),'text')     --办公短号
+    telephone = Sprite:getProperty(Sprite:findChild(rootSprite,'duanhaoLabel_s4'),'text')     --办公长号
+    email = Sprite:getProperty(Sprite:findChild(rootSprite,'email'),'text')                   --电子邮箱
     local requestURL = Alias.url_server..'mobile/UserInfo/update'
     local para = 'employeeId='..employeeId..'&employeeName='..empName..'&mobileLong='..mobile
                         ..'&mobileShort='..mobileShort..'&telLong='..telephone..'&telShort='..tel_short..'&email='..email
@@ -405,32 +408,17 @@ end
 -- 更新用户数据
 function updateUserData()
     -- 修改用户SQL
-    local sqlUpdate = "UPDATE tb_c_employee SET employee_name = '"..returnValue[0].employee_name..
-            "',department_id = '"..returnValue[0].department_id.."',department_name = '"..
-            returnValue[0].department_name.."',headship_level = '"..returnValue[0].headship_level..
-            "',headship_name = '"..returnValue[0].headshipName.."',mobile = '"..
-            returnValue[0].mobile.."',mobile_short = '"..returnValue[0].mobile_short..
-            "',tel = '"..returnValue[0].tel.."',tel_short = '"..returnValue[0].tel_short..
-            "',email = '"..returnValue[0].email.."',versionNum = '"..returnValue[0].versionNum..
-            "',picture = '"..returnValue[0].picture.."',employee_firstword = '"..
-            returnValue[0].employee_firstword.."',employee_fullword = '"..returnValue[0].employee_fullword..
-            "',parent_department_name = '"..returnValue[0].parent_department_name..
-            "',display_order = '"..returnValue[0].display_order..
-            "',department_fax = '"..returnValue[0].department_fax..
+    local sqlUpdate = "UPDATE tb_c_employee SET employee_name = '"..empName..
+            "',mobile = '"..mobile.."',mobile_short = '"..mobileShort..
+            "',tel = '"..telephone.."',tel_short = '"..tel_short..
+            "',email = '"..email..
             "' WHERE employee_id = '"..employeeId.."';"
     Log:write("sqlUpdate = ",sqlUpdate)
-    -- 删除用户SQL
-    local sqlDelete = "DELETE FROM tb_c_employee WHERE employee_id = '"..employeeId.."';"
-    Log:write("sqlDelete = ",sqlDelete)  
+
     bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
     Log:write("单个用户信息更新添加事务:bRet = "..bRet.." errMsg ="..errMsg)
-    if returnValue[0].update_type == '1' or returnValue[0].update_type == '0' then
-        bRet, errMsg = Sqlite:update(databaseName, sqlUpdate)
-        Log:write("修改用户:bRet = "..bRet.." errMsg ="..errMsg)
-    elseif returnValue[0].update_type == '2' then
-        bRet, errMsg = Sqlite:update(databaseName, sqlDelete)
-        Log:write("删除用户:bRet = "..bRet.." errMsg ="..errMsg)
-    end 
+    bRet, errMsg = Sqlite:update(databaseName, sqlUpdate)
+    Log:write("修改用户:bRet = "..bRet.." errMsg ="..errMsg)
     bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
     Log:write("单个用户信息更新添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
 end

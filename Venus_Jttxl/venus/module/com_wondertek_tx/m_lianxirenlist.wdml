@@ -125,7 +125,7 @@
                 src='file://image/book/site_d.png' OnSelect="doSetting"></button>
                 <!-- New -->
                 <node name="newNode" rect="410,0,48,80" extendstyle="1111">
-                    <image  rect="0,0,43,28" border="false" src="file://image/jttxl/new.png" 
+                    <image  rect="10,5,24,24" border="false" src="file://image/jttxl/new.png" 
                         style="autosize" extendstyle="1111" />
                 </node>
             </node>  
@@ -393,12 +393,7 @@ end
 
 -- 搜索联系人信息
 function lookUserData()
-    local Path = getDownloadPath().."sqlitedownload" 
-    Log:write("path= "..Path)
-    if IO:dirExist(Path) == false then 
-        IO:dirCreate(Path)
-    end
-    databaseName = Path..'/jttxlDatabase'
+    databaseName = getLocalDiskPath()..'/jttxlDatabase'
     bRet, errMsg = Sqlite:open(databaseName) 
     Log:write("创建数据库jttxlDatabase成功:bRet = "..bRet.." errMsg ="..errMsg)
 
@@ -406,7 +401,7 @@ function lookUserData()
     local sqlCount = "SELECT COUNT(*)"
              .." FROM tb_c_employee emp,tb_c_department dept"
              .." WHERE emp.department_id = dept.department_id"
-             .." AND emp.mark1 = '1'"
+             .." AND (emp.mark1 = '1' OR emp.mark1 = '')"
              .." AND dept.department_id = '"..department_id.."';"
     Log:write("sqlCount = ",sqlCount)  
 
@@ -424,7 +419,7 @@ function lookUserData()
                  .."emp.headship_name,emp.headship_level"
                  .." FROM tb_c_employee emp,tb_c_department dept"
                  .." WHERE emp.department_id = dept.department_id"
-                 .." AND emp.mark1 = '1'"
+                 .." AND (emp.mark1 = '1' OR emp.mark1 = '')"
                  .." AND dept.department_id = '"..department_id.."'"
                  .." ORDER BY emp.headship_level ASC,emp.display_order ASC;"
         Log:write("查询联系人列表 SQL =",sql)           

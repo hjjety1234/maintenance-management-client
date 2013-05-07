@@ -39,11 +39,11 @@
                  </button>
                  -->
             </node>
-            <node rect="0,85,480,62" extendstyle="1111" >
-                <button rect="27,0,213,62"  extendstyle="1111"  style='autosize' src='file://image/jttxl/local_top_s.png' >
+            <node rect="0,85,480,62" name="localContactNode" extendstyle="1111">
+                <button rect="27,0,213,62"  extendstyle="1111"  style='autosize' src='file://image/jttxl/local_top_a1.png' >
                     <label rect="0,0,213,50" text="安徽公司" font-family="微软雅黑" font-size="24" color="#ffffff" v-align="center" h-align="center" extendstyle="1111" />
                 </button>
-                <button rect="240,0,213,62"  extendstyle="1111"  style='autosize' src='file://image/jttxl/local_top_d.png' OnSelect="localOnselect">
+                <button rect="240,0,214,62"  extendstyle="1111"  style='autosize' src='file://image/jttxl/local_top_a2.png' OnSelect="localOnselect">
                     <label rect="0,0,213,50" text="本机通讯录" font-family="微软雅黑" font-size="24" color="#ffffff" v-align="center" h-align="center" extendstyle="1111" />
                 </button>
             </node>
@@ -52,7 +52,7 @@
             </button>
             
             <!-- 地图部分   -->
-            <node rect="0,155,480,534" extendstyle="0011">
+            <node name="anhuimapNode" rect="0,155,480,534" extendstyle="0011">
                  <image rect="20,0,440,534" border="false" src="file://image/map.png" 
                    style="autosize" extendstyle="0011"/>
                  <image rect="360,-10,76,96" border="false" src="file://image/map/anhui_d.png" 
@@ -280,7 +280,7 @@
                 src='file://image/book/site_d.png' OnSelect="doSetting"></button>
                 <!-- New -->
                 <node name="newNode" rect="410,0,48,80" extendstyle="1111">
-                    <image  rect="0,0,43,28" border="false" src="file://image/jttxl/new.png" 
+                    <image  rect="10,5,24,24" border="false" src="file://image/jttxl/new.png" 
                         style="autosize" extendstyle="1111" />
                 </node>
             </node> 
@@ -333,6 +333,13 @@ function bodyBuildChildrenFinished(sprite)
     data3 = Sprite:getData(person)
     data4 = Sprite:getData(site)
     initCityData()
+    local localstatus = Config:get('localContactStatus')
+	if localstatus == '0' then
+	    setAllShoworHide(Sprite:findChild(rootSprite, 'localContactNode'), 0)
+	    Sprite:setRect(Sprite:findChild(rootSprite, 'anhuimapNode'),0,130,480,534)
+	    Sprite:setRect(Sprite:findChild(rootSprite, 'cityNode'),0,130,480,534)
+	    Sprite:setRect(Sprite:findChild(rootSprite, 'showmapBtn'),0,130,480,534)
+	end
 end
 
 -- root节点消息方法

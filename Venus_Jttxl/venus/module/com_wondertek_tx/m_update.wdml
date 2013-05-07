@@ -167,12 +167,7 @@ function checkDatabase()
     if flashCard == nil then --存在外置存储卡
         Dialog:show('提示', '无可用的存卡设备，点击取消退出程序', 'ok_cancel', 'doExit')
     end
-    local Path = flashCard.."sqlitedownload" 
-    Log:write("存储卡路径path= "..Path)
-    if IO:dirExist(Path) == false then 
-        IO:dirCreate(Path)
-    end
-    databaseName = Path..'/jttxlDatabase'
+    databaseName = getLocalDiskPath()..'/jttxlDatabase'
 	Config:set('databaseName', databaseName)
     if IO:fileExist(databaseName) == false  or Config:get('forceUpdateDatabase') == '1' then
         jumpFlag = 0

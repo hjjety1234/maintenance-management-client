@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image name='citybgImg' rect="0,80,480,720" src="file://image/jttxl/bj.png" style="autosize" extendstyle="1111" />
+            <node name="baseSprite" rect="0,0,480,80" extendstyle="1111" >
+                <image name="title" rect="0,0,480,80" border="false" src="file://image/jttxl/top.png" style="autosize" extendstyle="1111" />
+                <label rect="0,0,480,80" text="通讯录展示" color="#ffffff" v-align="center" h-align="center" font-family="微软雅黑" font-size="32" extendstyle="1111" />
+                <button name="backBtn" rect="20,18,48,45" OnSelect="doBack" normal="src:file://image/jttxl/back_d.png" visible="true"
+                    sel="src:file://image/jttxl/back_s.png" style="autosize" extendstyle="1111">
+                </button>
+            </node>
+            <node rect="0,85,480,92" extendstyle="1111" >
+                <image rect="35,16,37,60" border="false" src="file://image/jttxl/localset_phone.png" style="autosize" extendstyle="1111" />
+                <label rect="95,10,213,40" text="手机通讯录" font-family="微软雅黑" font-size="28" color="#ffffff" v-align="center" h-align="left" extendstyle="1111" />
+                <label rect="95,50,313,30" text="展示您的手机联系人" font-family="微软雅黑" font-size="24" color="#a9a9a9" v-align="center" h-align="left" extendstyle="1111" />
+                <button name="localsetBtn" rect="360,18,103,55" OnSelect="localsetOnSelect" src="file://image/jttxl/local_on.png" visible="true" />  
+                <image rect="11,89,458,3" border="false" src="file://image/jttxl/localset_line.png" style="autosize" extendstyle="1111" />
+            </node>
+            <!--tips-->
+            <node name="nodeSuccess" rect="131,650,250,48" enable="false" visible="false" active="false" layouttype="1" extendstyle="1111">
+                <image rect="0,0,218,48" border="false" src="file://image/jttxl/gengxin_bj.png" style="autosize"></image>
+                <label name="content" rect="0,0,218,48" border="false" text="" h-align="center" 
+                    v-align="center" font-family="微软雅黑" font-size="24" color="#FFFFFF" style="autosize" extendstyle="1111"></label>
+            </node>
+            <!-- 底部菜单  -->
+            <node name="listNode" rect="0,720,480,80" extendstyle="1111">
+                <image  rect="0,0,480,80" border="false" extendstyle="1111" 
+                src="file://image/book/list_bg.png"  style="autosize"/>
+                <!-- 搜索  -->
+                <button name='searchBtn' rect="15,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/lianxiren_d.png' OnSelect="doSearch"></button>
+                <!-- 联系人  -->
+                <button name='contactBtn' rect="125,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/zuijinglianxiren_d.png' OnSelect="doContact"></button>
+                <!-- 个人中心  -->
+                <button name='personBtn' rect="250,0,82,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/person_d.png' OnSelect="doPersonalCenter"></button>
+                <!-- 设置  -->
+                <button name='siteBtn' rect="385,0,48,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/site_s.png' OnSelect="doSetting"></button>
+                <!-- New -->
+                <node name="newNode" rect="410,0,48,80" extendstyle="1111">
+                    <image  rect="10,5,24,24" border="false" src="file://image/jttxl/new.png" 
+                        style="autosize" extendstyle="1111" />
+                </node>
+            </node> 
+        </node>
+    </body>
+    <![CDATA[
+
+require('com_wondertek_tx.common.framework')
+require('framework.sqlite')
+require 'framework.umsagent'
+local rootSprite
+  
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite    
+    local status = Config:get('localContactStatus')
+    if status == '1' then
+        Sprite:setProperty(Sprite:findChild(rootSprite,'localsetBtn'), 'src', "file://image/jttxl/local_on.png")
+    else
+        Sprite:setProperty(Sprite:findChild(rootSprite,'localsetBtn'), 'src', "file://image/jttxl/local_off.png")
+    end
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        local newNode = Sprite:findChild(rootSprite, 'newNode')
+        if (Config:get("isNeedUpdate") == "true") then 
+            setAllShoworHide(newNode, 1)
+        else 
+            setAllShoworHide(newNode, 0)
+        end 
+    elseif msg == MSG_DEACTIVATE then
+    
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function localsetOnSelect(sprite)
+    local cursrc = Sprite:getProperty(sprite, 'src')
+    local tips = ''
+    if cursrc == "file://image/jttxl/local_on.png" then
+        Sprite:setProperty(sprite, 'src', "file://image/jttxl/local_off.png")
+        Config:set('localContactStatus', 0)
+        tips = '不再显示本机通讯录'
+    else
+        Sprite:setProperty(sprite, 'src', "file://image/jttxl/local_on.png")
+        Config:set('localContactStatus', 1)
+        tips = '显示本机通讯录'
+    end
+    local content = Sprite:findChild(Sprite:findChild(rootSprite,'nodeSuccess'),'content')
+    Sprite:setProperty(content,'text',tips)
+    failInvisible()
+end
+
+--显示设置更改时的提示信息
+function failInvisible()
+    Log:write('set visible')
+    local nodeSuccess = Sprite:findChild(rootSprite,'nodeSuccess')
+    Sprite:setVisible(nodeSuccess,1)
+    Timer:set(158,3000,'failOutvisible')
+end
+--隐藏提示设置更改时的提示信息
+function failOutvisible()
+    Log:write('set unvisible')
+    local nodeSuccess = Sprite:findChild(rootSprite,'nodeSuccess')
+    Sprite:setVisible(nodeSuccess,0)
+end
+
+-- 搜索函数
+function doSearch(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/lianxiren_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+    Scene:setReturn(Alias.m_local, Alias.m_recentContacter)
+    Scene:go(Alias.m_recentContacter, true)
+end
+
+-- 联系人列表
+function doContact(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/zuijinglianxiren_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+    Scene:setReturn(Alias.m_local, Alias.m_renyuantongji)
+    Scene:go(Alias.m_renyuantongji, true)
+    --Log:write("已在联系人列表界面，点击不做任何操作！")
+end
+
+-- 个人信息详情
+function doPersonalCenter(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/person_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')   
+    Scene:setReturn(Alias.m_local, Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"))
+    Scene:go(Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"), true)
+end
+
+-- 设置
+function doSetting(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/site_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png') 
+    Scene:setReturn(Alias.m_local, Alias.m_system)
+    Scene:go(Alias.m_system, true)
+end
+
+function doBack()
+    Scene:go(Alias.m_system, true)     
+end
+
+    ]]>
+</root>

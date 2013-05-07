@@ -45,21 +45,21 @@
             </node>
 
             <!-- 最近联系人、常用联系人切换 -->
-            <node name="bottomBtn" rect="10,165,459,69" extendstyle="1111">
-                <image name = "bottomImg" rect="0,0,459,69" src="file://image/jttxl/paixu1.png"
+            <node name="bottomBtn" rect="10,165,459,84" extendstyle="1111">
+                <image name = "bottomImg" rect="0,0,459,84" src="file://image/jttxl/paixu1.png"
                     style="autosize" extendstyle="1111" />
                 <!-- 最近联系人 -->
-                <button name="recentContacterBtn" rect="0,0,230,69" OnSelect="recentOnSelect" 
+                <button name="recentContacterBtn" rect="0,0,230,84" OnSelect="recentOnSelect" 
                     extendstyle="1111"> 
                 </button> 
                 <!-- 常用联系人 -->
-                <button name="commonContacterBtn" rect="230,0,230,69" OnSelect="commonOnSelect" 
+                <button name="commonContacterBtn" rect="230,0,230,84" OnSelect="commonOnSelect" 
                     extendstyle="1111">
                 </button>
             </node>
 
             <!--列表信息-->
-            <node name="listNode" rect="0,240,480,480" extendstyle="1111">
+            <node name="listNode" rect="0,255,480,480" extendstyle="1111">
                 <listview name="sampleList" rect="0,0,480,480" auto-adjust="true" OnTrail="listviewOnTrail" extendstyle="1111"/>
             </node>
 
@@ -127,6 +127,8 @@
                     sel="sel" style="autosize" extendstyle="1111" data='1'> 
                     <!-- 人员ID -->
                     <label name="employeeId" text=""  visible="false" extendstyle="1111"/>
+                    <lable name="employeeNameH" text="" visible="false" extendstyle="1111" />
+                    <lable name="employeePhoneH" text="" visible="false" extendstyle="1111" />
                     <!-- 正常时组织机构图片 -->
                     <node name="normal" extendstyle="1111">
                         <image name="listButtonImage_d" rect="327,25,33,34" src="file://image/jttxl/more_d.png"
@@ -203,7 +205,7 @@
                 src='file://image/book/site_d.png' OnSelect="doSetting"></button>
                 <!-- New -->
                 <node name="newNode" rect="410,0,48,80" extendstyle="1111">
-                    <image  rect="0,0,43,28" border="false" src="file://image/jttxl/new.png" 
+                    <image  rect="10,5,24,24" border="false" src="file://image/jttxl/new.png" 
                         style="autosize" extendstyle="1111" />
                 </node>
             </node>  
@@ -249,11 +251,14 @@ function bodyBuildChildrenFinished(sprite)
     
     createDatabase()
     if Config:get('togohomeTag') == '1' then
-	    -- testdatabase()
 	    querySysConfig()
-	    updateDatabase() 
+        getUserHeadshipLevel()
+        Log:write('设置时钟，5秒后开始检测本地数据是否有更新')
+	    Timer:set(159,5000,'updateDatabase') 
     end
     Config:set('togohomeTag','0')   
+    --读取本机通讯录
+    System:getContacts()
 end
 
 -- @brief root节点消息方法
@@ -280,9 +285,33 @@ function bodyOnSpriteEvent(msg, param)
         Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_s.png')
         Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
         Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+
+        --此版本中添加一行代码，用来收集用户的IMSI号信息至服务器端
+        local device_flag = Config:get('device_flag')
+        if device_flag == nil or device_flag == '' then
+            updateDeviceInfo()
+        end
+
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
+end
+
+-- @zhouyu 收集用户IMSI号信息
+function updateDeviceInfo()
+    local imeicode = System:getMachineInfo(4) 
+    local imsicode = System:getMachineInfo(5) 
+    if imeicode == nil or imeicode == '' then
+        imeicode = '0'
+    end
+    if imsicode == nil or imsicode == '' then
+        imsicode = '0'
+    end
+    local url = Alias.url_server..'mobile/login/update_device?userCode='..Config:get('userId')
+    url = url .. '&imsicode='..imsicode..'&imeicode='..imeicode
+    Log:write('the url is',url)
+    Http:request('updateDevice',url,999,{useCache=false})
+    Config:set('device_flag','1')
 end
 
 -- @brief 插件消息方法
@@ -290,6 +319,8 @@ function bodyOnPluginEvent(msg)
     Log:write("消息号，msg ======= ",msg)
     if msg == 101 then
     elseif msg == 102 then -- 101请求的数据有更新
+        Log:write('读取数据后，先将时钟取消')
+        Timer:cancel(159)
         local departmentdata1 = Http:jsonDecode('departmentdata0')
         local total = departmentdata1.total
         Log:write('返回数据数量====='..total.." 更新组织结构==", departmentdata1) 
@@ -342,11 +373,11 @@ function bodyOnPluginEvent(msg)
         else
             Log:write("联系人不需要更新= ")
         end
-        local sql = "update tb_c_system set department_version = '"..department_version.."', employee_version = '"..employee_version.."', right_config = '"..Config:get('mobileRights').."', mark1 = '1'  where system_id = '001';"
-        Log:write('更新系统表语句==sql=='..sql)
-        bRet, errMsg = Sqlite:update(databaseName, sql)
-        Log:write("系统表插入结果:bRet = "..bRet.." errMsg ="..errMsg)
+        -- 更新系统配置表数据
+        updateSysData()
         if Loading:isShow() then Loading:close() end
+        Log:write('首次执行后，再延迟8个小时后再次进行检测')
+        Timer:set(159,480000,'updateDatabase') 
     elseif msg == 104 then 
         local checkversionData = Http:jsonDecode('index_checkversion')
         Log:write('index_checkversion', checkversionData)
@@ -428,9 +459,14 @@ function loadSearchListItem(list, item, index)
     local smsNode = Sprite:findChild(item, 'smsNode')                       --短信   
     local listButtonImage_d = Sprite:findChild(item, 'listButtonImage_d')   --更多
     local listButtonImage_s = Sprite:findChild(item, 'listButtonImage_s')
+    local employeeNameH = Sprite:findChild(item,'employeeNameH')    --本机通讯录用户姓名
+    local employeePhoneH = Sprite:findChild(item,'employeePhoneH')  --本机通讯录录号码
     Sprite:setProperty(employeeId, 'text', retUserTable[index+1][1]) 
     Sprite:setProperty(employeeName, 'text', retUserTable[index+1][2])
-    Sprite:setProperty(mobile, 'text', retUserTable[index+1][3]) 
+    Sprite:setProperty(employeeNameH,'text',Sprite:getText(employeeName))
+    Sprite:setProperty(mobile, 'text', retUserTable[index+1][3])
+    Log:write('the mobile is ',Sprite:getText(mobile)) 
+    Sprite:setProperty(employeePhoneH,'text',Sprite:getText(mobile))
     Sprite:setProperty(departmentName, 'text', retUserTable[index+1][6])
     Sprite:setProperty(parentDeptName, 'text', retUserTable[index+1][8])
     local headshipLevel = retUserTable[index+1][9]  
@@ -585,12 +621,25 @@ end
 function itemOnSelect(sprite)
     local judgeData = Sprite:getData(sprite)
     local employeeId = Sprite:getText(Sprite:findChild(sprite,'employeeId')) 
-    if judgeData == '1' then       
-        Scene:setReturn(Alias.m_recentContacter, Alias.m_personalInfo .. '?employeeId=' .. employeeId..'&flag=2')
-        Scene:go(Alias.m_personalInfo .. '?employeeId=' .. employeeId..'&flag=2',true)
-    elseif judgeData == '0' then
-        Scene:setReturn(Alias.m_recentContacter, Alias.m_personalInfo .. '?employeeId=' .. employeeId..'&flag=3')
+    if(employeeId == '0') then
+        --将用户信息保存至数据仓库
+        local employeeName = Sprite:getText(Sprite:findChild(Sprite:getParent(sprite),'employeeName'))
+        local employeePhoneH = Sprite:getText(Sprite:findChild(Sprite:getParent(sprite),'mobile'))
+        Log:write('name and phone is ',employeeName..','..employeePhoneH)
+        local persionalInfoHandler = Reg:create("personalInfo")
+        Reg:clear(persionalInfoHandler)
+        Reg:setString(persionalInfoHandler, 'employeeId', employeeId)
+        Reg:setString(persionalInfoHandler, 'employeeName', employeeName)
+        Reg:setString(persionalInfoHandler,'employeePhone', employeePhoneH)
         Scene:go(Alias.m_personalInfo .. '?employeeId=' .. employeeId..'&flag=3',true)
+    else
+        if judgeData == '1' then       
+            Scene:setReturn(Alias.m_recentContacter, Alias.m_personalInfo .. '?employeeId=' .. employeeId..'&flag=2')
+            Scene:go(Alias.m_personalInfo .. '?employeeId=' .. employeeId..'&flag=2',true)
+        elseif judgeData == '0' then
+            Scene:setReturn(Alias.m_recentContacter, Alias.m_personalInfo .. '?employeeId=' .. employeeId..'&flag=3')
+            Scene:go(Alias.m_personalInfo .. '?employeeId=' .. employeeId..'&flag=3',true)
+        end
     end
 end
 
@@ -641,7 +690,7 @@ function doCancel()
     ListView:removeAllItems(list,1)
     setAllShoworHide(bottomBtn,'1')
     local listNode = Sprite:findChild(rootSprite,'listNode')
-    Sprite:setRect(listNode, 0, 240, 480, 480)
+    Sprite:setRect(listNode, 0, 255, 480, 480)
     Sprite:setRect(list, 0, 0, 480, 480)
     lookRecentUserData()
 end
@@ -674,7 +723,7 @@ function editOnTextChanged(sprite)
         ListView:removeAllItems(list,1)
         setAllShoworHide(bottomBtn,'1')
         local listNode = Sprite:findChild(rootSprite,'listNode')
-        Sprite:setRect(listNode, 0, 240, 480, 480)
+        Sprite:setRect(listNode, 0, 255, 480, 480)
         Sprite:setRect(list, 0, 0, 480, 480)
         lookRecentUserData()
     end
@@ -702,7 +751,7 @@ function editOnLostFocus(sprite)
         local bottomBtn = Sprite:findChild(rootSprite,'bottomBtn')
         setAllShoworHide(bottomBtn,'1')
         local listNode = Sprite:findChild(rootSprite,'listNode')
-        Sprite:setRect(listNode, 0, 240, 480, 480)
+        Sprite:setRect(listNode, 0, 255, 480, 480)
         Sprite:setRect(list, 0, 0, 480, 480)
         lookRecentUserData()
     end
@@ -713,7 +762,7 @@ function searchUserCount()
     local sqlCount = "SELECT COUNT(emp.employee_id)"..
                 " FROM tb_c_employee emp,tb_c_department dept"..
                 " WHERE emp.department_id = dept.department_id"..
-                " AND emp.mark1 = '1'"..
+                " AND (emp.mark1 = '1' OR emp.mark1 = '')"..
                 " AND (emp.mobile LIKE '%"..editeKeyword..
                     "%' OR emp.employee_name LIKE '%"..editeKeyword..
                     "%' OR emp.mobile_short LIKE '%"..editeKeyword..
@@ -739,7 +788,7 @@ function searchUserData()
                 "emp.headship_level"..
                 " FROM tb_c_employee emp,tb_c_department dept"..
                 " WHERE emp.department_id = dept.department_id"..
-                " AND emp.mark1 = '1'"..
+                " AND (emp.mark1 = '1' OR emp.mark1 = '')"..
                 " AND (emp.mobile LIKE '%"..editeKeyword..
                     "%' OR emp.employee_name LIKE '%"..editeKeyword..
                     "%' OR emp.mobile_short LIKE '%"..editeKeyword..
@@ -749,7 +798,42 @@ function searchUserData()
                 " LIMIT "..fromIndex..","..toIndex..";" 
     Log:write("搜索联系人SQL: ",sql)
     bRet, retUserTable, errMsg = Sqlite:query(databaseName, sql) 
+    --搜索本地
+    local localTable = getContactsData(editeKeyword,retUserTable)
     Log:write("搜索联系人记录：retUserTable = ", retUserTable)    
+end
+
+--搜索本地联系人
+function getContactsData(keyword,retUserTable)
+    Log:write('=========getContactsData=========')
+    local midTable = {} 
+    if IO:fileExist('WONDER:\\contacts.txt') then
+        local tempStr = IO:fileRead('WONDER:\\contacts.txt')
+        local tempTable = Util:split(tempStr, '\n')
+        Log:write("tempTable = ",tempTable)
+        for i = 1, #tempTable do
+            if i % 2 == 0 then
+                Log:write('empTable is ',string.find(tempTable[i-1],keyword))
+                local tempPhoneTable = Util:split(tempTable[i], ';')
+                Log:write("tempPhoneTable = ",tempPhoneTable)
+                if(string.find(tempTable[i-1],keyword)~=nil or string.find(tempTable[i],keyword)~=nil or string.find(tempPhoneTable[3],keyword)~=nil or string.find(tempPhoneTable[4],keyword)~=nil) then
+                    local contact = {}
+                    contact[1] = '0'
+                    contact[2] = tempTable[i-1] 
+                    contact[3] = tempPhoneTable[1]
+                    contact[4] = ' '
+                    contact[5] = ' '
+                    contact[6]=' '
+                    contact[7] = ' '
+                    contact[8]='本机通讯录'
+                    contact[9] = 8
+                    table.insert(retUserTable, contact)
+                end
+            end
+        end
+    end
+    Log:write('the midTable is ',midTable)
+    return midTable
 end
 
 -- 滑动翻页
@@ -844,29 +928,6 @@ function getDownloadPath()
         return downloadPath
 end
 
-function testdatabase()
-    databaseName = Config:get('databaseName')
-    local bRet, errMsg = Sqlite:open(databaseName)
-    Log:write("创建数据库jttxlDatabase结果:bRet = "..bRet.." errMsg ="..errMsg)
-    local sqlQuery = "SELECT department_id, department_name, department_level "
-                   .." FROM tb_c_department;"
-    Log:write("查询 SQL =", sqlQuery)           
-    bRet, retSysTable, errMsg = Sqlite:query(databaseName, sqlQuery) 
-    Log:write("==数据库表tb_c_department数量=="..getJsonArrayCount(retSysTable))
-    local sqlQuery = "SELECT employee_id, employee_name, department_name, versionNum "
-                   .." FROM tb_c_employee;"
-    Log:write("查询 SQL =", sqlQuery)           
-    bRet, retSysTable, errMsg = Sqlite:query(databaseName, sqlQuery) 
-    Log:write("==数据库表tb_c_employee数量=="..getJsonArrayCount(retSysTable))
-    local sqlQuery = "SELECT sys.register_flag,sys.department_version,sys.employee_version,"
-                   .."sys.user_id,sys.right_config,sys.employee_id,sys.employee_name,"
-                   .."sys.department_id,sys.department_name,sys.department_level "
-                   .." FROM tb_c_system sys;"
-    Log:write("查询系统配置表 SQL =",sqlQuery)           
-    bRet, retSysTable, errMsg = Sqlite:query(databaseName, sqlQuery) 
-    Log:write("==数据库表tb_c_system数据==", retSysTable)
-end
-
 -- 查询系统配置文件表
 function querySysConfig()
     local sqlQuery = "SELECT sys.register_flag,sys.department_version,sys.employee_version,"
@@ -889,6 +950,14 @@ function querySysConfig()
     Config:set('deptversion', retSysTable[1][2])
     department_version = retSysTable[1][2]
     employee_version = retSysTable[1][3]
+end
+
+-- 更新系统配置表数据
+function updateSysData()
+    local sql = "update tb_c_system set department_version = '"..department_version.."', employee_version = '"..employee_version.."', right_config = '"..Config:get('mobileRights').."', mark1 = '1'  where system_id = '001';"
+    Log:write('更新系统表语句==sql=='..sql)
+    bRet, errMsg = Sqlite:update(databaseName, sql)
+    Log:write("系统表更新数据:bRet = "..bRet.." errMsg ="..errMsg)   
 end
 
 function updateDatabase()
@@ -943,30 +1012,26 @@ function updateEmployeeData()
     Config:set('userVersion',employee_version)
 end
 
---首次升级设置用户权限
-function setUserRights()
+--获取登录用户岗位级别
+function getUserHeadshipLevel()
     --查询登录人的岗位级别
+    Log:write("查询登录人岗位级别")
     local sqlQuery = "select emp.headship_level"
             .." from tb_c_employee emp"
             .." where emp.employee_id = '"..Config:get('employeeId').."';"
     bRet, headshipLevelTable, errMsg = Sqlite:query(databaseName, sqlQuery)
     Log:write("登录人的岗位级别：",headshipLevelTable[1][1])
+end
+
+--首次升级设置用户权限
+function setUserRights()  
     if tonumber(headshipLevelTable[1][1]) <= 3 then
-        Log:write("岗位级别小于等于3的人可以看到所有人的通讯录信息！")
-
-        bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
-        Log:write("登录人岗位级别小于等于3，第一次升级应用--修改权限mark1开始事务:bRet = "..bRet.." errMsg ="..errMsg)     
-        local sqlUpdate = "UPDATE tb_c_employee SET mark1 = '1';"   
-        bRet, errMsg = Sqlite:update(databaseName, sqlUpdate)
-        bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
-        Log:write("登录人岗位级别小于等于3，第一次升级应用--修改权限mark1结束事务:bRet = "..bRet.." errMsg ="..errMsg)
-
+        Log:write("登录人的岗位级别如果小于等于3的话，不做任何操作")
     else
         bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
         Log:write("登录人岗位级别大于3，第一次升级应用--修改权限mark1开始事务:bRet = "..bRet.." errMsg ="..errMsg) 
-        local sqlUpdate = "UPDATE tb_c_employee SET mark1 ="
-            .." case when headship_level < 2 then '0'"
-            .." else '1' end;"
+        local sqlUpdate = "UPDATE tb_c_employee SET mark1 = '0'"
+            .." where headship_level < 2;"
         Log:write("sqlUpdate = ",sqlUpdate)
         bRet, errMsg = Sqlite:update(databaseName, sqlUpdate)
         bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
@@ -977,12 +1042,7 @@ end
 
 --创建数据库
 function createDatabase()
-    local Path = getDownloadPath().."sqlitedownload" 
-    Log:write("path= "..Path)
-    if IO:dirExist(Path) == false then 
-        IO:dirCreate(Path)
-    end
-    databaseName = Path..'/jttxlDatabase'
+    databaseName = getLocalDiskPath()..'/jttxlDatabase'
     bRet, errMsg = Sqlite:open(databaseName) 
     Log:write("创建数据库jttxlDatabase成功:bRet = "..bRet.." errMsg ="..errMsg)
 end
@@ -1005,12 +1065,18 @@ end
 function firstUpdateUserData()
     Log:write("下载用户数据开始")
     local paras
-    if retSysTable[1][11] == '' then
+    if (retSysTable[1][11] == '' and tonumber(headshipLevelTable[1][1]) > 3) then
+        Log:write("用户首次升级，需要请求服务端接口!")
         firstUpdateFlag = 0
         paras = 'userId='..Config:get('userId')..'&mobileRights='..Config:get('mobileRights') 
         Log:write('下载之前没有权限联系人URL = '..url_updateAllUser..paras)           
         Http:request('userversiondata0', url_updateAllUser..paras, 103, {useCache = false})
+    elseif (retSysTable[1][11] == '' and tonumber(headshipLevelTable[1][1]) <= 3) then
+        Log:write("用户首次升级，不需要请求服务端接口！")
+        firstUpdateFlag = 0
+        updateSysData()
     elseif retSysTable[1][11] == '1' then
+        Log:write("用户非首次升级，需要请求服务端接口！")
         firstUpdateFlag = 1
         paras = 'departmentIdStr='..Config:get('department_id')..'&userId='..Config:get('userId')..'&mobileRights='
                     ..Config:get('mobileRights')..'&versionNum='..Config:get('userVersion')

@@ -159,16 +159,8 @@ function checkDatabase()
     elseif netstatus == 2 then
         Dialog:show('提示', 'WAP出现异常，当前无可用网络，点击取消继续使用', 'ok_cancel', 'doExit')
     end
-    local flashCard = System:getFlashCardName(1) -- 判断外置存储卡存在性
-    if flashCard == nil then --存在外置存储卡
-        Dialog:show('提示', '无可用的存储卡设备，程序即将退出', 'ok_cancel', 'doExit')
-    end
-    local Path = flashCard.."sqlitedownload" 
-    Log:write("存储卡路径path= "..Path)
-    if IO:dirExist(Path) == false then 
-        IO:dirCreate(Path)
-    end
-    local databaseName = Path..'/jttxlDatabase'
+    
+    local databaseName = getLocalDiskPath()..'/jttxlDatabase'
 	Config:set('databaseName', databaseName)
     if IO:fileExist(databaseName) == false  or Config:get('forceUpdateDatabase') == '1' then
         jumpFlag = 1

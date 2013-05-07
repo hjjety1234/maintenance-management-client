@@ -344,6 +344,33 @@ function XY_TO_GPSCOORDINATE(lon, lat)
     return result
 end
 
+--读取本机磁盘的物理地址。如果无SD卡，则使用手机存储，如果存储路径找不到（某些修改过的手机系统），则保存在应用内部
+function getLocalDiskPath()
+    local path = System:getFlashCardName(1)
+    if isEmpty(path) then
+        Log:write('SD卡不存在，尝试使用手机存储')
+        path = System:getFlashCardName(0)
+        if isEmpty(path) then
+            Log:write('手机内部存储无法获取，使用应用路径')
+            path = 'MODULE:\\com_wondertek_tx\\'
+        end
+    end
+    path = path..'sqlitedownload'
+    if IO:dirExist(path) == false then
+        IO:dirCreate(path)
+    end
+    Log:write('最终获得的磁盘路径为',path)
+    return path
+end
+--判断是否为空
+function isEmpty(str)
+    if str == nil or str == '' then
+        return true
+    else
+        return false
+    end
+end
+
 -- 将table写入指定的文件中
 require 'com_wondertek_tx.common.json'
 function writeTable2File(tbl, filePath)

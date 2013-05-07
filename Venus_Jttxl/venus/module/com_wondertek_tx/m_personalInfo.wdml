@@ -198,7 +198,7 @@
                 src='file://image/book/site_d.png' OnSelect="doSetting"></button>
                 <!-- New -->
                 <node name="newNode" rect="410,0,48,80" extendstyle="1111">
-                    <image  rect="0,0,43,28" border="false" src="file://image/jttxl/new.png" 
+                    <image  rect="10,5,24,24" border="false" src="file://image/jttxl/new.png" 
                         style="autosize" extendstyle="1111" />
                 </node>
             </node> 
@@ -328,18 +328,13 @@ end
 
 -- 获取本地库中用户版本号
 function getUserVersion()
-    local Path = getDownloadPath().."sqlitedownload" 
-    Log:write("path= "..Path)
-    if IO:dirExist(Path) == false then 
-        IO:dirCreate(Path)
-    end
-    databaseName = Path..'/jttxlDatabase'
+    databaseName = getLocalDiskPath()..'/jttxlDatabase'
     bRet, errMsg = Sqlite:open(databaseName) 
     Log:write("创建数据库jttxlDatabase成功:bRet = "..bRet.." errMsg ="..errMsg)
     loadUserData()
     versionNum = retUserTable[1][9] 
     Log:write("当前用户的版本号 ======= ",versionNum)
-    doRefurbish()      
+    -- doRefurbish()      
 end
 
 --点击拨号按钮
@@ -567,23 +562,43 @@ end
 
 -- 查询人员ID信息详情
 function SQLxinxiDetail()
-    local sql = "SELECT emp.employee_name AS employee_name,"..
-        "dept.department_name,"..
-        "(SELECT dept1.department_name"..
-        " FROM tb_c_department dept1"..
-        " WHERE dept1.department_id = dept.parent_department_id) AS parent_department,"..
-        "emp.mobile_short AS mobile_short,"..
-        "emp.mobile AS mobile,"..
-        "emp.tel_short AS tel_short,"..
-        "emp.tel AS tel,"..
-        "emp.email AS email,"..
-        "emp.versionNum AS versionNum,"..
-        "emp.picture AS picture"..
-        " FROM tb_c_employee emp,tb_c_department dept"..
-        " WHERE emp.department_id = dept.department_id"..
-        " AND emp.employee_id = '"..employeeId.."';"
-    Log:write("查询用户信息SQL = ",sql)
-    bRet, retUserTable, errMsg = Sqlite:query(databaseName, sql) 
+    if(employeeId == '0') then
+        retUserTable = {}
+        local persionalInfoHandler = Reg:create("personalInfo")
+        Log:write('table is ',persionalInfoHandler)
+        local employeeNameH = Reg:getString(persionalInfoHandler, 'employeeName')
+        local employeePhone = Reg:getString(persionalInfoHandler,'employeePhone')
+        local contact = {}
+        contact[1] = employeeNameH
+        contact[2] = '本机通讯录'
+        contact[3] = ''
+        contact[4] = ''
+        contact[5] = employeePhone
+        contact[6] = ''
+        contact[7] = ''
+        contact[8] = ''
+        contact[9] = ''
+        contact[10] = ''
+        table.insert(retUserTable, contact)
+    else
+        local sql = "SELECT emp.employee_name AS employee_name,"..
+            "dept.department_name,"..
+            "(SELECT dept1.department_name"..
+            " FROM tb_c_department dept1"..
+            " WHERE dept1.department_id = dept.parent_department_id) AS parent_department,"..
+            "emp.mobile_short AS mobile_short,"..
+            "emp.mobile AS mobile,"..
+            "emp.tel_short AS tel_short,"..
+            "emp.tel AS tel,"..
+            "emp.email AS email,"..
+            "emp.versionNum AS versionNum,"..
+            "emp.picture AS picture"..
+            " FROM tb_c_employee emp,tb_c_department dept"..
+            " WHERE emp.department_id = dept.department_id"..
+            " AND emp.employee_id = '"..employeeId.."';"
+        Log:write("查询用户信息SQL = ",sql)
+        bRet, retUserTable, errMsg = Sqlite:query(databaseName, sql)
+    end
     Log:write("用户详细信息JSON数据 retUserTable = ", retUserTable)  
 end
 
