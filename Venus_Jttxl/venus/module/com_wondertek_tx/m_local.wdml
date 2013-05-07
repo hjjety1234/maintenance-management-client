@@ -17,7 +17,7 @@
             <image name='citybgImg' rect="0,80,480,720" src="file://image/jttxl/bj.png" style="autosize" extendstyle="1111" />
             <node name="baseSprite" rect="0,0,480,80" extendstyle="1111" >
                 <image name="title" rect="0,0,480,80" border="false" src="file://image/jttxl/top.png" style="autosize" extendstyle="1111" />
-                <button rect="0,0,480,80" text="本机通讯录" color="#ffffff" v-align="center" h-align="center" font-family="微软雅黑" font-size="32" extendstyle="1111"  style='autosize' />
+                <button name="fenleibtnName" rect="0,0,480,80" text="本机通讯录▼" color="#ffffff" v-align="center" h-align="center" OnSelect="fenleiBtnOnselect" font-family="微软雅黑" font-size="32" extendstyle="1111"  style='autosize' />
             </node>
             <node rect="0,85,480,62" extendstyle="1111" >
                 <button rect="27,0,213,62"  extendstyle="1111"  style='autosize' src='file://image/jttxl/local_top_b1.png' OnSelect="jituanOnselect">
@@ -163,10 +163,10 @@ local rootSprite
 local list
 local fenleiList
 local phoneList
-local fenleiNum  
 local callorsms
 local curphones
 local contactsTable = {}   
+local displayTable = {}
 local groupTable = {}
 local phoneItemH = 58
 ---------------------------------------callbacks--------------------------------
@@ -176,8 +176,6 @@ function bodyBuildChildrenFinished(sprite)
     list = Sprite:findChild(rootSprite, 'sampleList')
     fenleiList = Sprite:findChild(rootSprite, 'fenleiList')
     phoneList = Sprite:findChild(rootSprite, 'phoneList')
-    listlen = 9
-    fenleiNum = 8
     --System:getContacts()
     --ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), listlen, 'loadItemData')
     --ListView:loadItem(fenleiList, Sprite:findChild(rootSprite, 'fenleiItem'), fenleiNum, 'loadfenleiData')
@@ -197,18 +195,14 @@ function bodyOnSpriteEvent(msg, param)
             setAllShoworHide(newNode, 0)
         end 
         if IO:fileExist('WONDER:\\contacts.txt') then
-            clearLastConstactStatus()
-            getContactsData()
-            buildContactList()
+            Timer:set(1000, 200, 'showContactList')
         else
             System:getContacts()
         end
     elseif msg == MSG_DEACTIVATE then
     
     elseif msg == MSG_CONTACTS then
-        clearLastConstactStatus()
-        getContactsData()
-        buildContactList()
+        showContactList()
     end
 end
 
@@ -237,12 +231,12 @@ function loadItemData(list, item, index)
     Sprite:setProperty(item, 'extendstyle', '1111')
     Sprite:setRect(item, 0,0,480,85) 
     local name = Sprite:findChild(item, 'name')
-    Sprite:setProperty(name, 'text', contactsTable[index+1].name)
+    Sprite:setProperty(name, 'text', displayTable[index+1].name)
     local phone = Sprite:findChild(item, 'phone')
-    Sprite:setProperty(phone, 'text', contactsTable[index+1].phone[1])
+    Sprite:setProperty(phone, 'text', displayTable[index+1].phone[1])
     local phoneindex = Sprite:findChild(item, 'phoneindex')
     Sprite:setProperty(phoneindex, 'text', index+1)
-    local phoneall = contactsTable[index+1].phone
+    local phoneall = displayTable[index+1].phone
     if #phoneall > 1 then
         local manyphone = Sprite:findChild(item, 'manyphone')
         Sprite:setVisible(manyphone, 1)
@@ -252,7 +246,8 @@ end
 function loadfenleiData(list, item, index)
     Sprite:setProperty(item, 'extendstyle', '1111')
     Sprite:setRect(item, 0,0,143,37)   
-    
+    local name = Sprite:findChild(item, 'name')
+    Sprite:setProperty(name, 'text', groupTable[index+1].name)
 end
 
 function loadphoneData(list, item, index)
@@ -310,7 +305,7 @@ end
 function telOnSelect(sprite)
    local cursprite = Sprite:getParent(sprite)
    local phoneindex = Sprite:getText(Sprite:findChild(cursprite, "phoneindex"))
-   curphones = contactsTable[tonumber(phoneindex)].phone
+   curphones = displayTable[tonumber(phoneindex)].phone
    Log:write('phonenum22222222222',curphones)
    local phonenum = #curphones
    Log:write('phonenum111111111',phonenum)
@@ -371,7 +366,7 @@ end
 function smsOnSelect(sprite)
    local cursprite = Sprite:getParent(sprite)
    local phoneindex = Sprite:getText(Sprite:findChild(cursprite, "phoneindex"))
-   curphones = contactsTable[tonumber(phoneindex)].phone
+   curphones = displayTable[tonumber(phoneindex)].phone
    Log:write('phonenum22222222222',curphones)
    local phonenum = #curphones
    Log:write('phonenum111111111',phonenum)
@@ -418,8 +413,36 @@ function fenleiBtnOnselect(sprite)
     if Sprite:isVisible(Sprite:findChild(rootSprite, 'fenleiListNode'))== 1 then
         setAllShoworHide(Sprite:findChild(rootSprite, 'fenleiListNode'), 0)
     else
+        local fenleiNum = #groupTable
+        ListView:removeAllItems(fenleiList, true) 
+        ListView:loadItem(fenleiList, Sprite:findChild(rootSprite, 'fenleiItem'), fenleiNum, 'loadfenleiData')        
+        Sprite:setRect(Sprite:findChild(rootSprite, 'fenleiListNode'), 180,60,143,26+37*fenleiNum+15)
+        Sprite:setRect(fenleiList, 0,26,143,37*fenleiNum)
+        Sprite:setRect(Sprite:findChild(rootSprite, 'fenleiImg'), 0,26,143,37*fenleiNum+15)
+        ListView:adjust(fenleiList)
         setAllShoworHide(Sprite:findChild(rootSprite, 'fenleiListNode'), 1)
     end
+end
+
+function fenleiitemOnSelect(sprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'fenleiListNode'), 0)
+    local groupName = Sprite:getText(Sprite:findChild(sprite, 'name'))
+    Sprite:setProperty(Sprite:findChild(rootSprite, 'fenleibtnName'), 'text', groupName..'▼')
+    ListView:removeAllItems(list, true) 
+    local oneGroup = {}
+    if groupName == '全部' then
+        displayTable = contactsTable
+    else
+	    for i = 1, #contactsTable do
+	        if contactsTable[i].group == groupName then
+	            --插入value
+	            table.insert(oneGroup,contactsTable[i])
+	        end  
+	    end 
+	    displayTable = oneGroup
+	end
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), #displayTable, 'loadItemData')
+    ListView:adjust(list)
 end
 
 function jituanOnselect(sprite)
@@ -458,7 +481,6 @@ function getContactsData()
     group.name = '全部'
     group.total = 0
     table.insert(groupTable,group)
-    groupTable[1].total = groupTable[1].total+1
     for i = 1, #midTable do
         samenum = 0
         for j = 1, #contactsTable do
@@ -476,31 +498,48 @@ function getContactsData()
 	        local allstr = SplitWithBlank(midTable[i].phone, ';')
 	        Log:write('11111111', allstr)
 	        contact.phone = {allstr[1]}
+	        if allstr[2]=='' then
+	           allstr[2] = '未分组'
+	        end
 	        contact.group = allstr[2]
 	        contact.fullSpel = allstr[3]
 	        contact.firstSpel = allstr[4]
 	        table.insert(contactsTable,contact)
 	        local gsum = 0
 	        for q = 1, #groupTable do
-	           if groupTable[q] == allstr[2] then
+	           if groupTable[q].name == allstr[2] then
+	               groupTable[q].total = groupTable[q].total + 1
 	               gsum = gsum + 1
 	           end
 	        end
 	        if gsum < 1 then
 	            local group = {}
                 group.name = allstr[2]
-                group.total = 0 
+                group.total = 1 
                 table.insert(groupTable,group)
             end
         end 
     end
+    groupTable[1].total = #contactsTable
     Log:write('111111111111111111111',contactsTable)
     Log:write('111111111111111111111',groupTable)
 end
 
 function buildContactList()
-    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), #contactsTable, 'loadItemData')
+    displayTable = contactsTable
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), #displayTable, 'loadItemData')
     ListView:adjust(list)
+end
+
+-- @brief 显示联系人列表
+function showContactList()
+    if #contactsTable == 0 or #groupTable == 0 then 
+        clearLastConstactStatus()
+        getContactsData()
+        buildContactList()
+    else
+        Log:write("联系人表和群组信息已经存在，不做任何操作！")
+    end
 end
     ]]>
 </root>
