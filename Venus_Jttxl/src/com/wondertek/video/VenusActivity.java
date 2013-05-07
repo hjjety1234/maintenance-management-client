@@ -2461,13 +2461,13 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			{
 				phones.moveToNext();
 				String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-				String firstspell = PinYinUtil.getFirstSpell(name);
-				String fullspell = PinYinUtil.getFullSpell(name);
 				String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 				String contactId = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
+				Log.d(TAG, "[getContactsHighSDK] contact id: " + contactId + ", name: " + name);
+				String firstspell = PinYinUtil.getFirstSpell(name);
+				String fullspell = PinYinUtil.getFullSpell(name);
 				String groupId = "";
 				String groupName = ""; 
-				Log.d(TAG, "[getContactsHighSDK] contact id: " + contactId);
 				
 				// get group id 
 				Cursor dataCursor = appActivity

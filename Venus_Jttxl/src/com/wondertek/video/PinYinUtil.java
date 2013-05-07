@@ -56,7 +56,7 @@ public class PinYinUtil {
 				try {
 					pybf.append(PinyinHelper.toHanyuPinyinStringArray(arr[i],
 							defaultFormat)[0]);
-				} catch (BadHanyuPinyinOutputFormatCombination e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			} else {
