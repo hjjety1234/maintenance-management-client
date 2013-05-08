@@ -140,6 +140,7 @@ import com.wondertek.video.call.CallObserver;
 import com.wondertek.video.camera.CameraObserver;
 import com.wondertek.video.connection.ConnectionImpl;
 import com.wondertek.video.connection.SystemConnectionManager;
+import com.wondertek.video.contacts.ContactsMan;
 import com.wondertek.video.email.EmailObserver;
 import com.wondertek.video.gps.GPSObserver;
 //add pj
@@ -2442,6 +2443,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	private String getContactsHighSDK()
 	{
+		Log.d(TAG, ">>>getContactsHighSDK<<<");
 		Contact_cursor = ContactRefresh();
 		String contactsList = "";
 		Contact_Count = 0;
@@ -2463,45 +2465,19 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
 				String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 				String contactId = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
-				Log.d(TAG, "[getContactsHighSDK] contact id: " + contactId + ", name: " + name);
 				String firstspell = PinYinUtil.getFirstSpell(name);
 				String fullspell = PinYinUtil.getFullSpell(name);
-				String groupId = "";
-				String groupName = ""; 
-				
-				// get group id 
-				Cursor dataCursor = appActivity
-						.getContentResolver()
-						.query(ContactsContract.Data.CONTENT_URI,
-								new String[] { ContactsContract.Data.CONTACT_ID, ContactsContract.Data.DATA1 },
-								ContactsContract.Data.MIMETYPE + "=? and " + ContactsContract.Data.CONTACT_ID + "=?",
-								new String[] { ContactsContract.CommonDataKinds.GroupMembership.CONTENT_ITEM_TYPE, contactId }, 
-								null);
-				if (dataCursor.getCount() > 0) {
-					dataCursor.moveToFirst();
-					groupId = dataCursor.getString(dataCursor.getColumnIndex(ContactsContract.Data.DATA1)); 
-					// get group name
-					Cursor groupCursor = appActivity.getContentResolver().query(
-							ContactsContract.Groups.CONTENT_URI,
-							new String[] { ContactsContract.Groups._ID,
-									ContactsContract.Groups.TITLE },
-							ContactsContract.Groups._ID + "=?",
-							new String[] { groupId }, null);
-					if (groupCursor.getCount() > 0) {
-						groupCursor.moveToFirst();
-						groupName = groupCursor.getString(groupCursor
-								.getColumnIndex(ContactsContract.Groups.TITLE));
-					}
-					groupCursor.close();
+				String groupId = getGroupId(contactId);
+				String groupName = getGroupName(groupId); 
+				String value = Contact_Map.get(name);
+				if (value == null) {
+					String s = phone + ";" + groupName + ";" + fullspell + ";" + firstspell;
+					Contact_Map.put(name, s);
+					Contact_Count++;
+				} else  {
+					Contact_Map.put(name, phone + ":" + value);
 				}
-				dataCursor.close();
-		
-				Log.d(TAG, "[getContactsHighSDK] groupId: " + groupId
-						+ ", group name: " + groupName + ", fullspell: "
-						+ fullspell + ", firstspell: " + firstspell);
-				Contact_Map.put(name + "###" + i, phone + ";" + groupName + ";"
-						+ fullspell + ";" + firstspell);
-				Contact_Count++;
+				Log.d(TAG, "[getContactsHighSDK] " + name + ": " + Contact_Map.get(name));
 			}
 		}
 
@@ -2520,7 +2496,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		//Build the contacts list
 		for(j=0; j<elementN; j++)
 		{
-			contactsList = contactsList + nameArray[j].substring(0,nameArray[j].lastIndexOf("###")) + "\n" + Contact_Map.get(nameArray[j]) + "\n";
+			contactsList = contactsList + nameArray[j] + "\n" + Contact_Map.get(nameArray[j]) + "\n";
 		}
 		ContactClose(Contact_cursor);
 		return contactsList;
@@ -4396,5 +4372,56 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		outState.putInt(FAKE_WIDTH, fakeScreenWidth);
 		outState.putInt(FAKE_HEIGHT, fakeScreenHeight);
 		outState.putInt(FAKE_ORIENTATION, fakeScreenorientation);
+	}
+	
+	/**
+	 * 获取联系人所在群组的ID号
+	 * @param contactId 联系人的ID号
+	 * @return 联系人所属群组的ID号
+	 * @author 何武
+	 */
+	public static String getGroupId(String contactId) {
+		String groupId = "";
+		Cursor dataCursor = appActivity
+				.getContentResolver()
+				.query(ContactsContract.Data.CONTENT_URI,
+						new String[] { ContactsContract.Data.CONTACT_ID,
+								ContactsContract.Data.DATA1 },
+						ContactsContract.Data.MIMETYPE + "=? and "
+								+ ContactsContract.Data.CONTACT_ID + "=?",
+						new String[] {
+								ContactsContract.CommonDataKinds.GroupMembership.CONTENT_ITEM_TYPE,
+								contactId }, null);
+		if (dataCursor.getCount() > 0) {
+			dataCursor.moveToFirst();
+			groupId = dataCursor.getString(dataCursor
+					.getColumnIndex(ContactsContract.Data.DATA1));
+		} 
+		dataCursor.close();
+		return groupId;
+	}
+	
+	/**
+	 * 由群组的ID号查询群组名称
+	 * @param groupId 联系人组ID号
+	 * @return 联系人组名称
+	 * @author 何武
+	 */
+	public static String getGroupName(String groupId) {
+		String groupName = "";
+		Cursor groupCursor = appActivity
+				.getContentResolver()
+				.query(ContactsContract.Groups.CONTENT_URI,
+						new String[] { ContactsContract.Groups._ID,
+								ContactsContract.Groups.TITLE },
+						ContactsContract.Groups._ID + "=?",
+						new String[] { groupId }, null);
+		if (groupCursor.getCount() > 0) {
+			groupCursor.moveToFirst();
+			groupName = groupCursor.getString(groupCursor
+					.getColumnIndex(ContactsContract.Groups.TITLE));
+		} 
+		groupCursor.close();
+		return groupName;
 	}
 }
