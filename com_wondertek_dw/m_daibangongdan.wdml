@@ -243,9 +243,10 @@ end
 function loadDoneRequest()
     local url= getWholeUrl('nbspweb/webservice/wlbaccident!doWebservice.action' , '')
     local username = Config:get('username')
-    local param = '&cmd=wlbhandledalltasklist&page=1&ordernum=&title='
-    Log:write("统一已办工单列表URL: ", url..param)
-    Http:request('handled_data', url, 102, {useCache = false, method = 'post', postData=''..param})
+    local param = '&cmd=wlbhandledalltasklist&page=1'
+    local requestUrl = url..param
+    Log:write("requestUrl: ", url..param)
+    Http:request('handled_data', url, 102, {useCache = false, method = 'post'})
     Loading:show(rootSprite)
 end
 
@@ -318,7 +319,7 @@ function loadZanCunItem(list, item, index)
     local textTime = Sprite:findChild(item, 'textTime')
     local timeLabel=Sprite:findChild(item, 'timeLabel')
     local finishTime=Sprite:findChild(item, 'finishTime')
-  
+    if  data.value[index].taskdate ~= '' then 
        local timeString=Split(dataString[8]," ") 
        local timeDate=Split(timeString[1],"-")
        local timeHour=Split(timeString[2],":")
@@ -328,10 +329,10 @@ function loadZanCunItem(list, item, index)
        local hours=math.floor((os.time(to)-os.time(from))/3600)
        local remaindays=math.floor(hours/24)
        local remainhours=math.floor((os.time(to)-os.time(from))/3600)%24
-    local secs=(os.time(to)-os.time(from))%3600  
-    local remainmins=math.floor(secs/60)
-    local remainsecs=secs%60
-    
+        local secs=(os.time(to)-os.time(from))%3600  
+        local remainmins=math.floor(secs/60)
+        local remainsecs=secs%60
+    end
     Log:write('index=============================',index)
     Sprite:setProperty(item, 'data',dataString[2])
     

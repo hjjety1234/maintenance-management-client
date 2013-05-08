@@ -50,14 +50,14 @@
                     extendstyle="1111" style="autosize" />
                 <button name="btnTab1" rect="0,0,240,60" text="" color="#ffffff"
                     extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="01">
-                    <image name="tabBg" rect="0,0,240,60" border="false" src="file://image/tab_s_new.png"
+                    <image name="tabBg" rect="0,0,240,60" border="false" src=""
                         style="autosize" extendstyle="1111" />
                     <label rect="0,0,240,60" text="查询站点" color="#ffffff" v-align="center"
                         h-align="center" font-size="22" font-family="黑体" extendstyle="1111" />
                 </button>
                 <button name="btnTab2" rect="241,0,240,60" text="" color="#ffffff"
                     extendstyle="1111" OnSelect="tabOnSelect" font-size="24" data="02">
-                    <image name="tabBg" rect="0,0,240,60" border="false" src=""
+                    <image name="tabBg" rect="0,0,240,60" border="false" src="file://image/tab_s_new.png"
                         style="autosize" extendstyle="1111" />
                     <label rect="0,0,240,60" text="周边站点" color="#ffffff" v-align="center"
                         h-align="center" font-size="22" font-family="黑体" extendstyle="1111" />
@@ -115,10 +115,10 @@
                     <label name="stationId" rect="40,20,0,0" text="" color="#0"
                         font-size="16" h-align="left" v-align="center" extendstyle="1111"
                         border="false" visible="false" />
-                    <scrolltext name="stationName" rect="67,11,200,50" text=""
+                    <scrolltext name="stationName" rect="27,11,250,50" text=""
                         color="#0" font-size="24" font-family="黑体" h-align="left" v-align="center"
                         scroll="true" extendstyle="1111" border="false" />
-                    <label name="stationDistance" rect="270,10,110,50" text=""
+                    <label name="stationDistance" rect="280,10,110,50" text=""
                         color="#0" font-size="20" h-align="left" v-align="center"
                         extendstyle="1111" border="false" />
                 </button>
@@ -168,6 +168,8 @@ local longClickItemIndex -- 当前长按按钮列表索引
 local firtClick_y -- 第一次点击时的纵坐标
 local g_retryCount = 20 -- gps重试次数
 
+local dataInfo = '02'   --初始搜索周边站点
+
 ---------------------------------------回调函数列表--------------------------------
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -179,19 +181,25 @@ function bodyBuildChildrenFinished(sprite)
     statusBarText =  Sprite:findChild(sprite, 'statusBarText')
     g_planName = Reg:getString(regHandle, 'planName')
     g_businessType = Reg:getString(regHandle, 'businessType')
-    
-    -- 默认选择tab1
-    local tab1 = Sprite:findChild(rootSprite,'btnTab1')
-    Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_s_new.png')
 
-    -- 默认加载5个站点
-    local posValue = '117.251339,31.849438'
-    request('2', posValue, '合', page, 1001)
 end
 
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+    -- 隐藏搜索栏
+    local searchStationNameNodeSprite = Sprite:findChild(rootSprite, 'searchStationNameNode')
+    local x,y,width,height = Sprite:getRect(searchStationNameNodeSprite)
+    Sprite:setProperty(searchStationNameNodeSprite, "visible", "false")
+    Sprite:setProperty(searchStationNameNodeSprite, "enable", "false")
+    --Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_s_new.png')
+    -- 显示状态栏
+    local statusBar = Sprite:findChild(rootSprite, "statusBar")
+    Sprite:setProperty(statusBar, "visible", "true")
+    Sprite:setProperty(statusBar, "enable", "true")
+    local listviewNode = Sprite:findChild(rootSprite, 'listviewNode')
+    Sprite:setRect(listviewNode,0,136,480,614)
+    doLocation()
     elseif msg == MSG_DEACTIVATE then
         System:setGPSStatus(0)
     end
@@ -205,7 +213,7 @@ function bodyOnPluginEvent(msg, param)
         local resp = Http:jsonDecode('stationList')
         Log:write(resp.value)
         if (resp.code == nil or resp.code ~= '0') then
-            Dialog:show('', getErrorCode(resp.code), 'ok')
+            Dialog:show('', '无站点数据返回', 'ok')
             Loading:close()
             return
         elseif (getJsonArrayCount(resp.value) == 0 or resp.value=='') then
@@ -396,7 +404,7 @@ end
 -- 标签页选择
 function tabOnSelect(sprite)
     local tabNode = Sprite:getParent(sprite)
-    local dataInfo = Sprite:getData(sprite)
+    dataInfo = Sprite:getData(sprite)
     local tab1 = Sprite:findChild(tabNode, 'btnTab1')
     local tab2 = Sprite:findChild(tabNode, 'btnTab2')
     local list = Sprite:findChild(rootSprite, 'listview1')
@@ -415,6 +423,14 @@ function tabOnSelect(sprite)
         local statusBar = Sprite:findChild(rootSprite, "statusBar")
         Sprite:setProperty(statusBar, "visible", "false")
         Sprite:setProperty(statusBar, "enable", "false")
+        local listviewNode = Sprite:findChild(rootSprite, 'listviewNode')
+        Sprite:setRect(listviewNode,0,186,480,564)
+        -- 默认选择tab1
+        local tab1 = Sprite:findChild(rootSprite,'btnTab1')
+        Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_s_new.png')
+        -- 默认加载5个站点
+        local posValue = '117.251339,31.849438'
+        request('2', posValue, '合', page, 1001)
     elseif dataInfo=='02'  then
         -- 隐藏搜索栏
 	    local searchStationNameNodeSprite = Sprite:findChild(rootSprite, 'searchStationNameNode')
@@ -429,6 +445,8 @@ function tabOnSelect(sprite)
         local statusBar = Sprite:findChild(rootSprite, "statusBar")
         Sprite:setProperty(statusBar, "visible", "true")
         Sprite:setProperty(statusBar, "enable", "true")
+        local listviewNode = Sprite:findChild(rootSprite, 'listviewNode')
+        Sprite:setRect(listviewNode,0,136,480,614)
         --改为组合定位模式
         doLocation()
     end
@@ -496,7 +514,7 @@ function loadListItem(list, item, index)
     -- 是否显示站点距离
     if stationDistanceVisible == true then
         Sprite:setProperty(stationDistance, 'visible', 'true')
-        Sprite:setProperty(stationDistance, "text", '距离:'..distance..'米以内')
+        Sprite:setProperty(stationDistance, "text", distance..'米以内')
     else
         Sprite:setProperty(stationDistance, 'visible', 'false')
     end
@@ -698,18 +716,22 @@ end
 ---------------------------------定位相关函数列表------------------------------
 -- 综合定位方式，优先使用gps，在gps定位失败时采用网络定位
 function doLocation()
-    local locInfo = Sprite:findChild(rootSprite, 'statusBarText')
+    Log:write('111',111)
+    local locInfo = Sprite:findChild(rootSprite,'statusBarText')
     Sprite:setProperty(locInfo, 'text', '正在定位中.....')
+    Log:write('222',222)
     -- 当前无经纬度信息，检查当前gps状态
     local result = System:getGPSStatus()
     if result == -1 then
         Sprite:setProperty(locInfo, 'text', '当前GPS不可用, 尝试使用网络定位...')
         getGPSDataByMap()
+    Log:write('222',333)
     elseif result == 0 then
         local gpsStatus = System:setGPSStatus(1)
         if gpsStatus then
             Sprite:setProperty(locInfo, 'text', 'GPS开启成功，正在定位...')
             Timer:set(222, 1000, 'getLoctude')
+    Log:write('222',444)
         else
             Sprite:setProperty(locInfo, 'text', 'GPS开启失败, 尝试使用网络定位...')
             getGPSDataByMap()
