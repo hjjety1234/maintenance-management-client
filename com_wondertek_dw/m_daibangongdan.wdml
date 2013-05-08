@@ -383,11 +383,13 @@ function loadListItem(list, item, index)
     local textTitle = Sprite:findChild(item, 'textTitle')
     local textTime = Sprite:findChild(item, 'textTime')
     local timeLabel=Sprite:findChild(item, 'timeLabel')
-    local finishTime=Sprite:findChild(item, 'finishTime')  
-    -- if data.value[index].taskdate ~= nil and data.value[index].taskdate ~= '' then
+    local finishTime=Sprite:findChild(item, 'finishTime')
+    Log:write('测试',textNum,textTitle,textTime,timeLabel,finishTime)
+    if  data.value[index].workordertype ~= '501' then 
         local timeString=Split(data.value[index].taskdate," ") 
         local timeDate=Split(timeString[1],"-")
         local timeHour=Split(timeString[2],":")
+        Sprite:setProperty(finishTime, 'text', data.value[index].taskdate)
 
         local from={year=timeDate[1], month=timeDate[2], day=timeDate[3], hour=timeHour[1],min=timeHour[2],sec=timeHour[3],isdst=false}
         local dd = os.date("*t",os.time())
@@ -400,7 +402,7 @@ function loadListItem(list, item, index)
         local remainsecs=secs%60 
         Log:write("剩余日期：",remaindays)
         Log:write("剩余小时：",hours)
-    -- end
+    end
        
     Log:write('index=============================',index)  
     Sprite:setProperty(item, 'data', index)   
@@ -415,38 +417,9 @@ function loadListItem(list, item, index)
         Sprite:setProperty(Sprite:findChild(item, 'lineSign'), 'src', 'file://image/jinji_line.png')
     end
     Log:write("工单编号："..data.value[index].taskcode.." ，工单标题："..data.value[index].taskname.." ，派发时间："..data.value[index].createdatedis.." ，紧急程度："..data.value[index].emergencylevel)
-    Sprite:setProperty(finishTime, 'text', data.value[index].taskdate)
+
     Sprite:setProperty(timeLabel, 'color','#dd512e')
     Sprite:setProperty(finishTime, 'color','#dd512e')
-    -- if data.value[index].taskstate == '' then
-    --     Sprite:setProperty(finishTime, 'text', data.value[index].taskdate)
-    --     Sprite:setProperty(timeLabel, 'color','#dd512e')
-    --     Sprite:setProperty(finishTime, 'color','#dd512e')
-    -- else
-    --     if tonumber(data.value[index].taskstate)>3 then
-    --         Sprite:setProperty(timeLabel, 'color','#ff0000')
-    --         Sprite:setProperty(finishTime, 'color','#ff0000')
-    --         Sprite:setProperty(finishTime, 'text','已完成')
-    --     else
-    --         if hours<0 then
-    --             if -remaindays>=5 then
-    --                 Sprite:setProperty(finishTime, 'text', data.value[index].taskdate)
-    --                 Sprite:setProperty(timeLabel, 'color','#5a5a5a')
-    --                 Sprite:setProperty(finishTime, 'color','#5a5a5a')
-    --             else
-    --                 Sprite:setProperty(timeLabel, 'color','#dd512e')
-    --                 Sprite:setProperty(finishTime, 'color','#dd512e')
-    --                 Sprite:setProperty(Sprite:findChild(item, 'timeSign'), 'src', 'file://image/willover.png')  
-    --                 Sprite:setProperty(finishTime, 'text', '还剩'..(-remaindays-1)..'天')
-    --                --Sprite:setProperty(finishTime, 'text', '还剩'..-remaindays..'天'..remainhours..'小时'..remainmins..'分钟'..remainsecs..'秒')
-    --             end
-    --         else
-    --             Sprite:setProperty(Sprite:findChild(item, 'timeSign'), 'src', 'file://image/overtime.png')
-    --             Sprite:setProperty(finishTime, 'text', '已过期'..remaindays..'天')
-    --             --Sprite:setProperty(finishTime, 'text', '已过期'..remaindays..'天'..remainhours..'小时'..remainmins..'分钟'..remainsecs..'秒')
-    --         end 
-    --     end
-    -- end 
 end
 
 --@brief 请求服务器公告列表
