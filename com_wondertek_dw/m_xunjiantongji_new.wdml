@@ -264,7 +264,7 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_xunjiantongji_new, 'MODULE:\\(.*)'), "巡检统计")
-        UmsAgent:onLoadStart()
+      
         request(g_major)
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
@@ -731,6 +731,7 @@ function request(major)
         Config:get('username'), month, major,xunjiandata)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     --Log:write("[request] reqURL: ", reqURL)
+    UmsAgent:onLoadStart()
     Http:request('patrol', reqURL, 101, {useCache = false})
     Loading:show()
 end
