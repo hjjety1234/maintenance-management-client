@@ -195,7 +195,7 @@ function bodyOnPluginEvent(msg)
         local list = Sprite:findChild(rootSprite, 'sampleList')
         ListView:removeAllItems(list,true)
         data = Http:jsonDecode('handled_data')
-        Log:write("data101 = ", data)
+        Log:write("data102 = ", data)
         if not data or type(data) ~= 'table' then
             Dialog:show(rootSprite, '返回数据格式错误', 'ok')
             return
@@ -243,9 +243,10 @@ end
 function loadDoneRequest()
     local url= getWholeUrl('nbspweb/webservice/wlbaccident!doWebservice.action' , '')
     local username = Config:get('username')
-    local param = '&cmd=wlbhandledalltasklist&page=1&ordernum=&title='
-    Log:write("统一已办工单列表URL: ", url..param)
-    Http:request('handled_data', url, 102, {useCache = false, method = 'post', postData=''..param})
+    local param = '&cmd=wlbhandledalltasklist&page=1'
+    local requestUrl = url..param
+    Log:write("requestUrl: ", url..param)
+    Http:request('handled_data', url, 102, {useCache = false, method = 'post'})
     Loading:show(rootSprite)
 end
 
@@ -297,8 +298,8 @@ end
 
 function loadZanCunItem(list, item, index)
     local idString
-    Log:write('loadZanCunItem================savedDatas', savedDatas)
-     idString= savedDatas[index+1]
+    Log:write('loadZanCunItem================savedData501s', savedDatas)
+    idString= savedDatas[index+1]
     Log:write('loadSavedListItemloadSavedListItem', idString , Config:get('daibanID' .. idString))
     local dataString = Split(Config:get('daibanID' .. idString), ';')
   
@@ -318,21 +319,20 @@ function loadZanCunItem(list, item, index)
     local textTime = Sprite:findChild(item, 'textTime')
     local timeLabel=Sprite:findChild(item, 'timeLabel')
     local finishTime=Sprite:findChild(item, 'finishTime')
-
-    local timeString=Split(dataString[8]," ") 
-    local timeDate=Split(timeString[1],"-")
-    local timeHour=Split(timeString[2],":")
-
-    local from={year=timeDate[1], month=timeDate[2], day=timeDate[3], hour=timeHour[1],min=timeHour[2],sec=timeHour[3],isdst=false}
-    local dd = os.date("*t",os.time())
-    local to={year=dd.year,month=dd.month,day=dd.day,hour=dd.hour,min=dd.min,sec=dd.sec,isdst=false}  
-    local hours=math.floor((os.time(to)-os.time(from))/3600)
-    local remaindays=math.floor(hours/24)
-    local remainhours=math.floor((os.time(to)-os.time(from))/3600)%24
-    local secs=(os.time(to)-os.time(from))%3600  
-    local remainmins=math.floor(secs/60)
-    local remainsecs=secs%60
-    
+    if  data.value[index].taskdate ~= '' then 
+       local timeString=Split(dataString[8]," ") 
+       local timeDate=Split(timeString[1],"-")
+       local timeHour=Split(timeString[2],":")
+       local from={year=timeDate[1], month=timeDate[2], day=timeDate[3], hour=timeHour[1],min=timeHour[2],sec=timeHour[3],isdst=false}
+       local dd = os.date("*t",os.time())
+       local to={year=dd.year,month=dd.month,day=dd.day,hour=dd.hour,min=dd.min,sec=dd.sec,isdst=false}  
+       local hours=math.floor((os.time(to)-os.time(from))/3600)
+       local remaindays=math.floor(hours/24)
+       local remainhours=math.floor((os.time(to)-os.time(from))/3600)%24
+        local secs=(os.time(to)-os.time(from))%3600  
+        local remainmins=math.floor(secs/60)
+        local remainsecs=secs%60
+    end
     Log:write('index=============================',index)
     Sprite:setProperty(item, 'data',dataString[2])
     
@@ -373,7 +373,7 @@ function loadListItem(list, item, index)
     Sprite:setRect(listItemBg, 0, 0, 480, 115)
  
     local num = index+1
-    Log:write('index=============================',num%2)
+    --Log:write('index=============================',num%2)
     if num % 2 > 0 then
        Sprite:setProperty(listItemBg, 'alpha', '0')
     else
@@ -383,11 +383,13 @@ function loadListItem(list, item, index)
     local textTitle = Sprite:findChild(item, 'textTitle')
     local textTime = Sprite:findChild(item, 'textTime')
     local timeLabel=Sprite:findChild(item, 'timeLabel')
-    local finishTime=Sprite:findChild(item, 'finishTime')  
-    -- if data.value[index].taskdate ~= nil and data.value[index].taskdate ~= '' then
+    local finishTime=Sprite:findChild(item, 'finishTime')
+    Log:write('测试',textNum,textTitle,textTime,timeLabel,finishTime)
+    if  data.value[index].taskdate ~= '' then 
         local timeString=Split(data.value[index].taskdate," ") 
         local timeDate=Split(timeString[1],"-")
         local timeHour=Split(timeString[2],":")
+        Sprite:setProperty(finishTime, 'text', data.value[index].taskdate)
 
         local from={year=timeDate[1], month=timeDate[2], day=timeDate[3], hour=timeHour[1],min=timeHour[2],sec=timeHour[3],isdst=false}
         local dd = os.date("*t",os.time())
@@ -400,9 +402,9 @@ function loadListItem(list, item, index)
         local remainsecs=secs%60 
         Log:write("剩余日期：",remaindays)
         Log:write("剩余小时：",hours)
-    -- end
+    end
        
-    Log:write('index=============================',index)  
+   -- Log:write('index=============================',index)  
     Sprite:setProperty(item, 'data', index)   
     
     Sprite:setProperty(textNum, 'text', data.value[index].taskcode)
@@ -414,39 +416,10 @@ function loadListItem(list, item, index)
     elseif data.value[index].emergencylevel=='紧急' then
         Sprite:setProperty(Sprite:findChild(item, 'lineSign'), 'src', 'file://image/jinji_line.png')
     end
-    Log:write("工单编号："..data.value[index].taskcode.." ，工单标题："..data.value[index].taskname.." ，派发时间："..data.value[index].createdatedis.." ，紧急程度："..data.value[index].emergencylevel)
-    Sprite:setProperty(finishTime, 'text', data.value[index].taskdate)
+    --Log:write("工单编号："..data.value[index].taskcode.." ，工单标题："..data.value[index].taskname.." ，派发时间："..data.value[index].createdatedis.." ，紧急程度："..data.value[index].emergencylevel)
+
     Sprite:setProperty(timeLabel, 'color','#dd512e')
     Sprite:setProperty(finishTime, 'color','#dd512e')
-    -- if data.value[index].taskstate == '' then
-    --     Sprite:setProperty(finishTime, 'text', data.value[index].taskdate)
-    --     Sprite:setProperty(timeLabel, 'color','#dd512e')
-    --     Sprite:setProperty(finishTime, 'color','#dd512e')
-    -- else
-    --     if tonumber(data.value[index].taskstate)>3 then
-    --         Sprite:setProperty(timeLabel, 'color','#ff0000')
-    --         Sprite:setProperty(finishTime, 'color','#ff0000')
-    --         Sprite:setProperty(finishTime, 'text','已完成')
-    --     else
-    --         if hours<0 then
-    --             if -remaindays>=5 then
-    --                 Sprite:setProperty(finishTime, 'text', data.value[index].taskdate)
-    --                 Sprite:setProperty(timeLabel, 'color','#5a5a5a')
-    --                 Sprite:setProperty(finishTime, 'color','#5a5a5a')
-    --             else
-    --                 Sprite:setProperty(timeLabel, 'color','#dd512e')
-    --                 Sprite:setProperty(finishTime, 'color','#dd512e')
-    --                 Sprite:setProperty(Sprite:findChild(item, 'timeSign'), 'src', 'file://image/willover.png')  
-    --                 Sprite:setProperty(finishTime, 'text', '还剩'..(-remaindays-1)..'天')
-    --                --Sprite:setProperty(finishTime, 'text', '还剩'..-remaindays..'天'..remainhours..'小时'..remainmins..'分钟'..remainsecs..'秒')
-    --             end
-    --         else
-    --             Sprite:setProperty(Sprite:findChild(item, 'timeSign'), 'src', 'file://image/overtime.png')
-    --             Sprite:setProperty(finishTime, 'text', '已过期'..remaindays..'天')
-    --             --Sprite:setProperty(finishTime, 'text', '已过期'..remaindays..'天'..remainhours..'小时'..remainmins..'分钟'..remainsecs..'秒')
-    --         end 
-    --     end
-    -- end 
 end
 
 --@brief 请求服务器公告列表
