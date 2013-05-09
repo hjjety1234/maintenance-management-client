@@ -126,11 +126,14 @@
                     extendstyle="1111" data="01">
                     <!--列表信息-->
                         <node name="listViewNode" rect="0,6,480,510" extendstyle="1111">
-                            <listview name="sampleList2" rect="0,10,480,540" extendstyle="1111" 
+                            <listview name="sampleList2" rect="0,20,480,530" extendstyle="1111" 
                                 limit='true' />
                             <image name='selectImg' rect="21,0,438,2" 
                                 src="file://image/line.png" extendstyle="1111" 
                                 style='autosize'/> 
+                            <label name='meanLine' rect="300,0,70,21" text="平均值" font-family="微软雅黑" 
+                                font-size="18" h-align="center" v-align="center" 
+                                color="#303030" style="autosize" extendstyle="0010"/>
                         </node> 
                     </panoramaitem>
                     <panoramaitem name="item2" rect="0,0,480,800" 
@@ -207,6 +210,9 @@
                     font-family='微软雅黑' font-size="20"  h-align="left"
                     v-align="center" style="autosize" extendstyle="1111"  >
                 </textarea>
+                <image name='meanName' rect="321,0,3,50" 
+                                src="file://image/guoqi_line.png" extendstyle="1111" 
+                                style='autosize'/> 
             </node>
         </node>
     </body>
@@ -227,7 +233,10 @@ local min1 = 0
 local min2 = 0
 local min3 = 0
 local kaohedata='city'
-
+local minus = 0
+local plus = 0
+local values = 0
+local mean = 0
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -258,7 +267,7 @@ function bodyOnPluginEvent(msg, param)
         end
         getMaxAndMin()
         local len = getJsonArrayCount(g_response.value)
-        Log:write('g_response_value is ',g_response.value)
+        --Log:write('g_response_value is ',g_response.value)
         Log:write('len',len)
         --Log:write('=====len===',len)
         local listView1 = Sprite:findChild(rootSprite,'sampleList1')
@@ -283,11 +292,28 @@ function getMaxAndMin()
     if(g_response.value ~= nil and g_response.value ~= '') then
         local sortValue = sortTable(g_response.value, 'score', true)
         local aCount = #sortValue-2
+        ----取最大和最小值
+        plus = tonumber(sortValue[0].score)
+        minus = tonumber(sortValue[aCount+2].score)
+        if plus~= minus then 
+            values = math.floor(300/(plus - minus)) --最大值和最小值的差值，每单位等于多少距离
+        else 
+            values = 350
+        end
+        --取平均值
+        local total = 0  --计算总值
+        for i=1 ,getJsonArrayCount(g_response.value)-1 do
+            total = g_response.value[i].score+total
+        end 
+        mean = tonumber(string.format('%.2f',total/(getJsonArrayCount(g_response.value)-1)))
+
         --取前三的最小值和后三的最大值
         if getJsonArrayCount(sortValue)>3 then
             max = tonumber(sortValue[2].score)
+
             Log:write('the max value is ',max)
             min = tonumber(sortValue[aCount].score)
+
             Log:write('the min is ',min)
         else
 
@@ -341,12 +367,20 @@ function loadListItem(list, item, index)
 end
 function loadListItem2(list, item, index)
     Sprite:setRect(item, 0, 0, 480, 60)
+    --平均线位置
+    local meannum = 120+(mean-minus+0.1)*values
+    local meanName = Sprite:findChild(item,'meanName')
+    local meanLine = Sprite:findChild(rootSprite,'meanLine')
+    Sprite:setRect(meanName,meannum,10,3,60)
+    Sprite:setRect(meanLine,meannum-33,2,70,21)
+    Log:write('total is ',getJsonArrayCount(g_response.value)-1,total,mean)
     -- 读取返回的数据
     local value = g_response.value
     local newCity = Sprite:findChild(item,'newCity')         -- 地市
     local newRatio = Sprite:findChild(item,'newRatio')         -- 巡检率
     local newShadow = Sprite:findChild(item,'newShadow')         -- 背景色
-    local shadownum = math.floor(tonumber(string.format('%.1f',value[index+1].score))*3.4)
+    Log:write('values',tonumber(string.format('%.1f',value[index+1].score)),minus)
+    local shadownum = math.floor((tonumber(string.format('%.2f',value[index+1].score))-minus+0.1)*values)
     Sprite:setProperty(newCity, 'text', value[index+1].dimension)
     Sprite:setProperty(newRatio, 'text', string.format('%.1f',value[index+1].score))
     Sprite:setRect(newShadow,120,10,shadownum,45)
