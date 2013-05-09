@@ -211,12 +211,14 @@ function bodyOnSpriteEvent(msg, param)
         if IO:fileExist('WONDER:\\contacts.txt') then
             Timer:set(1000, 200, 'showContactList')
         else
-            System:getContacts()
+            Loading:show()
+            -- System:getContacts()
         end
     elseif msg == MSG_DEACTIVATE then
     
     elseif msg == MSG_CONTACTS then
         showContactList()
+        Loading:close()
     end
 end
 
@@ -484,6 +486,51 @@ end
 
 function getContactsData()
     Log:write('=========getContactsData=========')
+    local beginTime = os.time()
+    -- 全局变量初始化
+    groupTable = {}
+    contactsTable = {}
+    -- 添加默认群组
+    local group = {}
+    groupTable["全部"] = 1     -- 用于快速查找
+    group.name = '全部'
+    group.total = 0
+    table.insert(groupTable, group)
+    if IO:fileExist('WONDER:\\contacts.txt') then
+        local tempStr = IO:fileRead('WONDER:\\contacts.txt')
+        local tempTable = Util:split(tempStr, '\n')
+        for i = 1, #tempTable do
+            if i % 2 == 0 then
+                -- 获取姓名,所属群组, 拼音
+                local allstr = SplitWithBlank(tempTable[i] , ';')
+                local contact = {}
+                contact.name = tempTable[i-1] 
+                contact.phone = SplitWithBlank(allstr[1], ":")
+                if allstr[2] == "" then 
+                    contact.group = "未分组"
+                else
+                    contact.group = allstr[2]
+                end 
+                contact.fullSpel = allstr[3]
+                contact.firstSpel = allstr[4]
+                table.insert(contactsTable, contact)
+                -- 添加群组到群组表中
+                if groupTable[contact.group] == nil then
+                    groupTable[contact.group] = 1 -- 标记该群组是否已经添加
+                    group = {}
+                    group.name = contact.group
+                    group.total = 0
+                    table.insert(groupTable, group)
+                end
+            end
+        end
+    end
+    -- 打印加载的统计数据
+    local endTime = os.time()
+    Log:write("=====共加载本机联系人:"..#contactsTable.."个, 群组:"..#groupTable.."个!=====")
+    Log:write("time elapse: "..(endTime-beginTime).."seconds")
+
+    --[[
     local midTable = {} 
     if IO:fileExist('WONDER:\\contacts.txt') then
         local tempStr = IO:fileRead('WONDER:\\contacts.txt')
@@ -545,9 +592,11 @@ function getContactsData()
     groupTable[1].total = #contactsTable
     Log:write('111111111111111111111',contactsTable)
     Log:write('111111111111111111111',groupTable)
+    --]]
 end
 
 function buildContactList()
+     Log:write("===buildContactList===")
     displayTable = contactsTable
     ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), #displayTable, 'loadItemData')
     ListView:adjust(list)
@@ -555,6 +604,7 @@ end
 
 -- @brief 显示联系人列表
 function showContactList()
+    Log:write("===showContactList===")
     if #contactsTable == 0 or #groupTable == 0 then 
         clearLastConstactStatus()
         getContactsData()
@@ -583,7 +633,7 @@ function editOnTextChanged(sprite)
     else
         displayTable = contactsTable
     end
-    Log:write('displayTable==========',displayTable)
+    -- Log:write('displayTable==========',displayTable)
     if #displayTable > 0 then
         ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), #displayTable, 'loadItemData')
         ListView:adjust(list)
