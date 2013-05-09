@@ -2230,6 +2230,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	public void getContactsAsync()
 	{
+		Log.d(TAG, ">>>getContactsAsync<<<");
 		Util.getInstance().getAsyncTask().execute("GetContacts");
 	}
 	
@@ -2241,6 +2242,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	public String getContacts()
 	{
+		Log.d(TAG, ">>>getContacts<<<");
 		if(contactsObserver!=null)
 			return contactsObserver.getContacts();
 		else
@@ -3856,12 +3858,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		outState.putInt(FAKE_ORIENTATION, fakeScreenorientation);
 	}
 	
-	/**
-	 * 获取联系人所在群组的ID号
-	 * @param contactId 联系人的ID号
-	 * @return 联系人所属群组的ID号
-	 * @author 何武
-	 */
 	public static String getGroupId(String contactId) {
 		String groupId = "";
 		Cursor dataCursor = appActivity
@@ -3883,12 +3879,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		return groupId;
 	}
 	
-	/**
-	 * 由群组的ID号查询群组名称
-	 * @param groupId 联系人组ID号
-	 * @return 联系人组名称
-	 * @author 何武
-	 */
 	public static String getGroupName(String groupId) {
 		String groupName = "";
 		Cursor groupCursor = appActivity

@@ -374,12 +374,12 @@ public class Util {
 				{
 					mGetContactsFinish = false;
 					new Thread(new Runnable(){
-
+						@Override
 						public void run() {
 							if(mContactsChange)
 							{
 								mContactsChange = false;
-								Util.Trace("---Contacts have been changed---");
+								Log.d(TAG, "[doInBackground] GetContacts: Contacts have been changed");
 								android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
 								boolean error = false;
 								FileWriter writer = null;
@@ -397,26 +397,25 @@ public class Util {
 										writer.write(contactsList);
 									} catch (IOException e) {
 										error = true;
-										Util.Trace(e.toString());
+										e.printStackTrace();
 									} finally {
 										try {
 											if(writer != null) writer.close();
-											if(error && contactFile.exists())
-											{
+											if(error && contactFile.exists()){
 												contactFile.delete();
 											}
-											if(contactFile.exists())
-											{
-												Util.Trace("Get contacts SUCCESS");
-											}
-											else
-											{
-												Util.Trace("Get contacts FAIL");
+											if(contactFile.exists()){
+												Log.d(TAG, "[doInBackground] GetContacts: SUCCESS");
+											} else {
+												Log.d(TAG, "[doInBackground] GetContacts: FAILED");
 											}
 										} catch (IOException e) {
+											e.printStackTrace();
 										}
 									}
 								}
+							}else {
+								Log.d(TAG, "[doInBackground] GetContacts: Contacts have not been changed");
 							}
 							VenusActivity.getInstance().nativesendevent(Util.WDM_CONTACTS, 0, 0);
 							mGetContactsFinish = true;
@@ -424,18 +423,13 @@ public class Util {
 				}
 			}else if( "GetSearchContacts".equals(params[0]))
 			{
-				Log.d(TAG,
-						"[doInBackground] GetSearchContacts mGetContactsFinish: "
-								+ mGetContactsFinish + ", mContactsChange: "
-								+ mContactsChange);
 				mSearchcondition = params[1];
 				if(mGetContactsFinish)
 				{
 					mGetContactsFinish = false;
 					new Thread(new Runnable(){
-
+						@Override
 						public void run() {
-							Util.Trace("---Contacts have been changed---");
 							android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
 							boolean error = false;
 							FileWriter writer = null;
@@ -453,29 +447,28 @@ public class Util {
 									writer.write(contactsList);
 								} catch (IOException e) {
 									error = true;
-									Util.Trace(e.toString());
+									e.printStackTrace();
 								} finally {
 									try {
 										if(writer != null) writer.close();
-										if(error && contactFile.exists())
-										{
+										if(error && contactFile.exists()) {
 											contactFile.delete();
 										}
-										if(contactFile.exists())
-										{
-											Util.Trace("Get contacts SUCCESS");
-										}
-										else
-										{
-											Util.Trace("Get contacts FAIL");
+										if(contactFile.exists()){
+											Log.d(TAG, "[doInBackground] GetSearchContacts: SUCCESS");
+										} else {
+											Log.d(TAG, "[doInBackground] GetSearchContacts: FAILED");
 										}
 									} catch (IOException e) {
+										e.printStackTrace();
 									}
 								}
 							}
 							VenusActivity.getInstance().nativesendevent(Util.WDM_SEARCHCONTACTS, 0, 0);
 							mGetContactsFinish = true;
 						}}).start();
+				}else {
+					Log.w(TAG, "[doInBackground] GetSearchContacts: mGetContactsFinish=" + mGetContactsFinish);
 				}
 			}
 			
