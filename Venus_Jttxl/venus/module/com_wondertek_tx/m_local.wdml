@@ -27,8 +27,26 @@
                     <label rect="0,0,213,50" text="本机通讯录" font-family="微软雅黑" font-size="24" color="#ffffff" v-align="center" h-align="center" extendstyle="1111" />
                 </button>
             </node>
-            <node rect="0,148,480,570" extendstyle="1111">
-                <listview name="sampleList" rect="0,0,480,570" extendstyle="1111" />
+            <!-- 设置搜索框 -->
+            <node rect="28,138,406,90" extendstyle="1111">   
+                <image name="searchInput" rect="0,10,406,67" src="file://image/jttxl/search_bj.png"
+                    style='autosize' extendstyle="1111" />
+                <image rect="15,24,40,39" src="file://image/jttxl/search.png"
+                    style="autosize" extendstyle="1111"/>
+                
+                <!-- 编辑文本框 -->
+                <edit name="keywordEdit" rect="60,10,290,70" h-align="left" v-align="center" 
+                    font-family="微软雅黑" color="#605e5e" font-size="24" text="搜索姓名、号码" 
+                    OnSetFocus="editOnSetFocus" OnLostFocus="editOnLostFocus" OnTextChanged="editOnTextChanged" extendstyle='1111'>
+                </edit>
+                <!-- 搜索输入框置空按钮 -->  
+                <button name="resetBtn" rect="360,30,32,31" OnSelect="doCancel" visible="false" enable="false"
+                    normal="src:file://image/jttxl/close_d.png;"
+                    sel="src:file://image/jttxl/close_s.png;" style="autosize" extendstyle="1111">
+                </button>             
+            </node>
+            <node rect="0,220,430,495" extendstyle="1111">
+                <listview name="sampleList" rect="0,0,430,495" extendstyle="1111" />
             </node>
             <!-- 底部菜单  -->
             <node name="listNode" rect="0,720,480,80" extendstyle="1111">
@@ -52,7 +70,7 @@
                         style="autosize" extendstyle="1111" />
                 </node>
             </node> 
-            <!-- <node name="indexListNode" rect="430,148,50,570" extendstyle="1111">
+            <node name="indexListNode" rect="430,140,50,570" extendstyle="1111">
                 <list name="indexList" rect="0,8,50,562" extendstyle="1111" line="26" col="1" auto-adjust="true" offset="0,0">
                     <list-item rect="0,0,50,21" >
                         <button name="indexBtn" rect="0,0,50,21" font-family="微软雅黑" h-align="center" v-align="center" extendstyle="1111" OnSelect="indexitemOnSelect" text="$(text)" font-size="20" color='#7a7a7d'></button>
@@ -86,12 +104,12 @@
                         <set text="Z" />                        
                     </dataset>
                 </list>
-            </node>-->
+            </node>
             
-            <node name="fenleiListNode" rect="180,60,143,63" extendstyle="1111" visible="false" enable="false" active="false">
-               <image rect="0,0,143,63" src="file://image/jttxl/local_fenleitop.png" style='autosize' extendstyle="1111"/>  
-               <image name="fenleiImg" rect="0,26,143,37" src="file://image/jttxl/local_fenlei_d.png" style='autosize' extendstyle="1111"/>  
-               <listview name="fenleiList" limit="true" rect="0,26,143,37" extendstyle="1111" />
+            <node name="fenleiListNode" rect="136,60,230,85" extendstyle="1111" visible="false" enable="false" active="false">
+               <image rect="44,0,143,63" src="file://image/jttxl/local_fenleitop.png" style='autosize' extendstyle="1111"/>  
+               <image name="fenleiImg" rect="0,12,230,70" src="file://image/jttxl/local_fenlei_d.png" style='autosize' extendstyle="1111"/>  
+               <listview name="fenleiList" limit="true" rect="0,22,230,60" extendstyle="1111" />
             </node>
             
             <node name="phoneListNode" rect="0,0,480,800" extendstyle="1111" visible="false" enable="false" active="false">
@@ -113,9 +131,9 @@
                 </button> 
             </node>
         </node>
-        <node name="listItem" rect="0,200,480,85"  visible="false" enable="false">
+        <node name="listItem" rect="0,200,430,85"  visible="false" enable="false">
             <image name="jiange_line" rect="50,73,10,12" src="file://image/jttxl/jiange_line.png" style='autosize' extendstyle="1111"/> 
-            <button name="lianxirenbtn" rect="0,0,480,85" extendstyle="1111" OnSelect="listitemOnSelect">
+            <button name="lianxirenbtn" rect="0,0,430,85" extendstyle="1111" OnSelect="listitemOnSelect">
                 <!--<node name="normal" rect="0,0,0,0" extendstyle="1177">
                     <image name="norimg" rect="397,25,33,34" src="file://image/jttxl/more_d.png" border="false" extendstyle="1111" style="autosize" />
                 </node>
@@ -123,22 +141,22 @@
                     <image name="selimg" rect="397,25,33,34" src="file://image/jttxl/more_s.png" border="false" extendstyle="1111" style="autosize" />
                 </node>-->
                 <button name="phonebtn" data="1" rect="18,0,74,73" OnSelect="telOnSelect" normal="src:file://image/jttxl/tel_d.png" sel="src:file://image/jttxl/tel_s.png" style="autosize" extendstyle="1111" />
-                <label name="name" rect="112,5,210,35" text="刘科长" v-align="center" font-family="微软雅黑" color="#ffffff" font-size="28" extendstyle="0010" />
-                <label name="phone" rect="112,43,170,30" text="13111111111" font-family="微软雅黑" v-align="top" color="#aeb1b1" font-size="22" extendstyle="0010" />
-                <label name="manyphone" visible="false" rect="320,43,100,30" text="多号码»" font-family="微软雅黑" h-align="left" v-align="top" font-size="22" color="#aeb1b1" extendstyle="0010" />
+                <scrolltext name="name" rect="112,0,260,35" text="" v-align="center" font-family="微软雅黑" color="#ffffff" font-size="28" extendstyle="0010" step="2" scroll="true"/>
+                <label name="phone" rect="112,41,170,30" text="" font-family="微软雅黑" v-align="top" color="#aeb1b1" font-size="22" extendstyle="0010" />
+                <label name="manyphone" visible="false" rect="320,41,100,30" text="多号码»" font-family="微软雅黑" h-align="left" v-align="top" font-size="22" color="#aeb1b1" extendstyle="0010" />
                 <label name="phoneindex" visible="false" rect="288,43,100,30" text="" font-family="微软雅黑" h-align="left" v-align="top" font-size="22" color="#aeb1b1" extendstyle="0010" />
-                <button name="smsbtn" rect="410,15,43,36" data="1" OnSelect="smsOnSelect" normal="src:file://image/jttxl/sms_d.png" sel="src:file://image/jttxl/sms_s.png" style="autosize" extendstyle="1111" />
+                <button name="smsbtn" rect="380,5,43,36" data="1" OnSelect="smsOnSelect" normal="src:file://image/jttxl/sms_d.png" sel="src:file://image/jttxl/sms_s.png" style="autosize" extendstyle="1111" />
             </button>
         </node>
-        <node name="fenleiItem" rect="0,400,143,37"  visible="false" enable="false">
-            <button rect="0,0,143,37" normal="normal" sel="sel" extendstyle="1111" OnSelect="fenleiitemOnSelect">
+        <node name="fenleiItem" rect="0,400,230,60"  visible="false" enable="false">
+            <button rect="0,0,230,60" normal="normal" sel="sel" extendstyle="1111" OnSelect="fenleiitemOnSelect">
                 <node name="normal" rect="0,0,0,0" extendstyle="1177">
                     <image name="norimg" rect="0,0,0,0" src="file://image/jttxl/local_fenlei_d.png" border="false" extendstyle="1177" style="autosize" />
                 </node>
-                <node name="sel" rect="-1,2,145,33" extendstyle="1111"> 
-                    <image name="selimg" rect="0,0,145,33" src="file://image/jttxl/local_fenlei_s.png" border="false" extendstyle="1111" style="autosize" />
+                <node name="sel" rect="0,0,0,0" extendstyle="1177"> 
+                    <image name="selimg" rect="0,0,0,0" src="file://image/jttxl/local_fenlei_s.png" border="false" extendstyle="1177" style="autosize" />
                 </node>
-                <label name="name" rect="0,0,0,0" text="同事" h-align="center" v-align="center" color="#ffffff" font-size="24" extendstyle="1177" />
+                <label name="name" rect="0,0,0,0" text="" h-align="center" v-align="center" color="#ffffff" font-size="26" extendstyle="1177" />
             </button>
         </node>
         <node name="phoneItem" rect="0,300,365,58"  visible="false" enable="false">
@@ -150,7 +168,7 @@
                     <image name="selimg" rect="0,0,0,0" src="file://image/jttxl/local_phones_s.png" border="false" extendstyle="1177" style="autosize" />
                 </node>
                 <label name="phonetype" visible="false" rect="24,9,115,38" text="手机号码" font-family="微软雅黑" h-align="left" v-align="center" color="#aeb1b1" font-size="22" extendstyle="1111" />
-                <label name="phonenumber" rect="25,9,340,38" text="13711111111" font-family="微软雅黑" h-align="left" v-align="center" color="#ffffff" font-size="26" extendstyle="1111" />
+                <label name="phonenumber" rect="25,9,340,38" text="" font-family="微软雅黑" h-align="left" v-align="center" color="#ffffff" font-size="26" extendstyle="1111" />
             </button>
         </node>
     </body>
@@ -169,6 +187,8 @@ local contactsTable = {}
 local displayTable = {}
 local groupTable = {}
 local phoneItemH = 58
+local lastsprite = nil
+local resetBtn
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -176,13 +196,7 @@ function bodyBuildChildrenFinished(sprite)
     list = Sprite:findChild(rootSprite, 'sampleList')
     fenleiList = Sprite:findChild(rootSprite, 'fenleiList')
     phoneList = Sprite:findChild(rootSprite, 'phoneList')
-    --System:getContacts()
-    --ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), listlen, 'loadItemData')
-    --ListView:loadItem(fenleiList, Sprite:findChild(rootSprite, 'fenleiItem'), fenleiNum, 'loadfenleiData')
-    --ListView:loadItem(phoneList, Sprite:findChild(rootSprite, 'phoneItem'), 8, 'loadphoneData')
-    --Sprite:setRect(Sprite:findChild(rootSprite, 'fenleiListNode'), 180,60,143,26+37*fenleiNum)
-    --Sprite:setRect(fenleiList, 0,26,143,37*fenleiNum)
-    --Sprite:setRect(Sprite:findChild(rootSprite, 'fenleiImg'), 0,26,143,37*fenleiNum)
+    resetBtn = Sprite:findChild(rootSprite, 'resetBtn')
 end
 
 -- @brief root节点消息方法
@@ -229,7 +243,7 @@ end
 ---------------------------------------util functions---------------------------
 function loadItemData(list, item, index)
     Sprite:setProperty(item, 'extendstyle', '1111')
-    Sprite:setRect(item, 0,0,480,85) 
+    Sprite:setRect(item, 0,0,430,85) 
     local name = Sprite:findChild(item, 'name')
     Sprite:setProperty(name, 'text', displayTable[index+1].name)
     local phone = Sprite:findChild(item, 'phone')
@@ -245,7 +259,7 @@ end
 
 function loadfenleiData(list, item, index)
     Sprite:setProperty(item, 'extendstyle', '1111')
-    Sprite:setRect(item, 0,0,143,37)   
+    Sprite:setRect(item, 0,0,230,60)   
     local name = Sprite:findChild(item, 'name')
     Sprite:setProperty(name, 'text', groupTable[index+1].name)
 end
@@ -329,7 +343,7 @@ function telOnSelect(sprite)
 	   local phone = Sprite:getText(Sprite:findChild(cursprite, "phone"))
 	   Log:write('phone number is:',phone)
 	   if phone ~= nil and phone ~= '' then
-	       if Util:openCallDialog('callFinished',phone, 0) then
+	       if Util:openCallDialog('callFinished',formatPhoneNum(phone), 0) then
 	           Log:write('telSuccess')
 	           else
 	           Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
@@ -341,17 +355,18 @@ function telOnSelect(sprite)
 end
 
 function phoneitemOnSelect(sprite)
+   setAllShoworHide(Sprite:findChild(rootSprite, 'phoneListNode'), 0)
    local phone = Sprite:getText(Sprite:findChild(sprite, "phonenumber"))
    Log:write('phone number is:',phone)
    if phone ~= nil and phone ~= '' then
        if callorsms == 1 then
-	       if Util:openCallDialog('callFinished',phone, 0) then
+	       if Util:openCallDialog('callFinished',formatPhoneNum(phone), 0) then
 	           Log:write('telSuccess')
 	           else
 	           Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
 	       end
 	   else
-	       if Util:sendSMS(phone,'',false) then
+	       if Util:sendSMS(formatPhoneNum(phone),'',false) then
                Log:write('smsSuccess')
                else
                Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
@@ -389,7 +404,7 @@ function smsOnSelect(sprite)
 	   local cursprite = Sprite:getParent(sprite)
 	   local phone = Sprite:getText(Sprite:findChild(cursprite, "phone"))
 	   if phone ~= nil and phone ~= '' then
-	       if Util:sendSMS(phone,'',false) then
+	       if Util:sendSMS(formatPhoneNum(phone),'',false) then
 	           Log:write('smsSuccess')
 	           else
 	           Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
@@ -406,7 +421,14 @@ function indexitemOnSelect(sprite)
     end
     lastsprite = sprite
     Sprite:setProperty(sprite, 'color', '#1cf700')
-    local txt = string.lower(Sprite:getText(sprite))
+    local indextxt = string.lower(Sprite:getText(sprite))
+    local indexNum = 0
+    for i=1,#displayTable do
+        if string.sub(displayTable[i].fullSpel,1,1) < indextxt then
+            indexNum = indexNum + 1
+        end
+    end
+    ListView:setItemToTop(list, tonumber(indexNum), 0) 
 end
 
 function fenleiBtnOnselect(sprite)
@@ -416,9 +438,9 @@ function fenleiBtnOnselect(sprite)
         local fenleiNum = #groupTable
         ListView:removeAllItems(fenleiList, true) 
         ListView:loadItem(fenleiList, Sprite:findChild(rootSprite, 'fenleiItem'), fenleiNum, 'loadfenleiData')        
-        Sprite:setRect(Sprite:findChild(rootSprite, 'fenleiListNode'), 180,60,143,26+37*fenleiNum+15)
-        Sprite:setRect(fenleiList, 0,26,143,37*fenleiNum)
-        Sprite:setRect(Sprite:findChild(rootSprite, 'fenleiImg'), 0,26,143,37*fenleiNum+15)
+        Sprite:setRect(Sprite:findChild(rootSprite, 'fenleiListNode'), 160,60,230,25+60*fenleiNum+25)
+        Sprite:setRect(fenleiList, 0,22,230,60*fenleiNum) 
+        Sprite:setRect(Sprite:findChild(rootSprite, 'fenleiImg'), 0,12,230,60*fenleiNum+25)
         ListView:adjust(fenleiList)
         setAllShoworHide(Sprite:findChild(rootSprite, 'fenleiListNode'), 1)
     end
@@ -541,5 +563,68 @@ function showContactList()
         Log:write("联系人表和群组信息已经存在，不做任何操作！")
     end
 end
+
+--当未有任何输入时，初始化为提示
+function editOnTextChanged(sprite) 
+    setAllShoworHide(resetBtn,1)
+    Log:write("文本发生改变时触发") 
+    local editeKeyword = string.lower(Sprite:getProperty(sprite, 'text'))
+    Log:write("editeKeyword ====== ",editeKeyword)
+    ListView:removeAllItems(list, true) 
+    if editeKeyword ~= '' then    
+        local tempTab = {}
+        for i=1 , #contactsTable do
+            if(string.find(contactsTable[i].name,editeKeyword)~=nil or string.find(contactsTable[i].fullSpel,editeKeyword)~=nil 
+                or string.find(contactsTable[i].firstSpel,editeKeyword)~=nil or string.find(contactsTable[i].phone[1],editeKeyword)~=nil) then
+                table.insert(tempTab,contactsTable[i])
+            end
+        end
+        displayTable = tempTab 
+    else
+        displayTable = contactsTable
+    end
+    Log:write('displayTable==========',displayTable)
+    if #displayTable > 0 then
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), #displayTable, 'loadItemData')
+        ListView:adjust(list)
+    end
+end 
+
+--获得焦点时
+function editOnSetFocus(sprite)
+    Log:write("获得焦点时触发")
+    local txt= Sprite:getProperty(sprite, 'text')
+    if txt=='搜索姓名、号码' then
+        Sprite:setProperty(sprite, 'text', '')
+        Sprite:setProperty(sprite, 'color', '#605e5e')
+    end
+end 
+
+--释放焦点时
+function editOnLostFocus(sprite)
+    Log:write("释放焦点时触发") 
+    local txt= Sprite:getProperty(sprite, 'text')
+    if txt=='' then
+        setAllShoworHide(resetBtn,0)
+        Sprite:setProperty(sprite, 'text', '搜索姓名、号码')
+        Sprite:setProperty(sprite, 'color', '#605e5e')
+        --[[displayTable = contactsTable
+        ListView:removeAllItems(list, true) 
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), #displayTable, 'loadItemData')
+        ListView:adjust(list)--]]
+    end
+end
+
+-- 搜索输入框置空
+function doCancel()
+    local keywordEditNode = Sprite:findChild(rootSprite,'keywordEdit')
+    Sprite:setProperty(keywordEditNode, 'color', '#605e5e')
+    Sprite:setProperty(keywordEditNode, 'text', '搜索姓名、号码')
+    ListView:removeAllItems(list,true)
+    displayTable = contactsTable
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), #displayTable, 'loadItemData')
+    ListView:adjust(list)
+end
+
     ]]>
 </root>

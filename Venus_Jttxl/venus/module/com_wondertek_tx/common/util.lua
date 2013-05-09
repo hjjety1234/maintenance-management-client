@@ -395,3 +395,10 @@ function writeTable2File(tbl, filePath)
     -- 写入TABLE字符串
     IO:fileWrite(filePath, tblStr)
 end
+-- 格式化手机号码
+function formatPhoneNum(phonenum)
+    local noCountryCode = string.gsub(phonenum, "+86", "")
+    local result = string.gsub(noCountryCode, "[^%d]", "")
+    Log:write("格式化的手机号码为:", result)
+    return result
+end

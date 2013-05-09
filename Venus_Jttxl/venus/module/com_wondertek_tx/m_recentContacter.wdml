@@ -39,7 +39,8 @@
                     OnSetFocus="editOnSetFocus" OnLostFocus="editOnLostFocus" OnTextChanged="editOnTextChanged" extendstyle='1111'>
                 </edit>
                 <!-- 搜索输入框置空按钮 -->  
-                <button name="resetBtn" rect="420,30,32,31" OnSelect="doCancel" normal="src:file://image/jttxl/close_d.png;"
+                <button name="resetBtn" rect="420,30,32,31" OnSelect="doCancel" visible="false" enable="false"
+                    normal="src:file://image/jttxl/close_d.png;"
                     sel="src:file://image/jttxl/close_s.png;" style="autosize" extendstyle="1111">
                 </button>             
             </node>
@@ -165,9 +166,10 @@
                     style='autosize' extendstyle="1111"/>
                 <node name="employeeLine" rect="110,5,375,40">
                     <!-- 联系人姓名 -->
-                    <label name="employeeName" rect="0, 0, 140, 35"  text="" font-family='微软雅黑' 
-                        color="#00a2ff" font-size="24" h-align="left" v-align="center"
-                        border="false" extendstyle="1111"/>
+                    <scrolltext  name="employeeName" rect="0, 0, 140, 35"  text="" font-family='微软雅黑' 
+                        scroll="true" color="#00a2ff" font-size="24" h-align="left" v-align="center"
+                        border="false" style="autosize" extendstyle="1111">
+                    </scrolltext> 
                     <!-- 一级部门 -->
                     <scrolltext name="parentDeptName" rect="150, 0, 120, 30"  text="" font-family='微软雅黑' 
                         scroll="true" color="#aba8a8" font-size="18" h-align="left" v-align="center"
@@ -230,6 +232,8 @@ local databaseName
 local len
 local list
 local totalNum
+
+local firstFlag = 0     -- 搜索滑动到最后一页之后，只有一次调用本机通讯录
 local maxUserVersion
 local firstUpdateFlag
 local resetBtn
@@ -246,7 +250,8 @@ function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     list = Sprite:findChild(rootSprite, 'sampleList') 
     resetBtn = Sprite:findChild(rootSprite, 'resetBtn')
-    setAllShoworHide(resetBtn, 0)
+    -- setAllShoworHide(resetBtn, 0)
+    Log:write("进入bodyBuildChildrenFinished函数")
     newNode = Sprite:findChild(rootSprite, 'newNode')
     
     createDatabase()
@@ -288,7 +293,9 @@ function bodyOnSpriteEvent(msg, param)
 
         --此版本中添加一行代码，用来收集用户的IMSI号信息至服务器端
         local device_flag = Config:get('device_flag')
+        Log:write('the device_flag is ',device_flag)
         if device_flag == nil or device_flag == '' then
+            Log:write('收集设备信息至服务端s')
             updateDeviceInfo()
         end
 
@@ -307,8 +314,8 @@ function updateDeviceInfo()
     if imsicode == nil or imsicode == '' then
         imsicode = '0'
     end
-    local url = Alias.url_server..'mobile/login/update_device?userCode='..Config:get('userId')
-    url = url .. '&imsicode='..imsicode..'&imeicode='..imeicode
+    local url = Alias.url_server..'mobile/login/update_device?userCode='..Config:get('employeeId')
+    url = url .. '&imsi='..imsicode..'&imei='..imeicode
     Log:write('the url is',url)
     Http:request('updateDevice',url,999,{useCache=false})
     Config:set('device_flag','1')
@@ -631,7 +638,8 @@ function itemOnSelect(sprite)
         Reg:setString(persionalInfoHandler, 'employeeId', employeeId)
         Reg:setString(persionalInfoHandler, 'employeeName', employeeName)
         Reg:setString(persionalInfoHandler,'employeePhone', employeePhoneH)
-        Scene:go(Alias.m_personalInfo .. '?employeeId=' .. employeeId..'&flag=3',true)
+        Scene:setReturn(Alias.m_recentContacter, Alias.m_personalInfo)
+        Scene:go(Alias.m_personalInfo .. '?employeeId=' .. employeeId..'&flag=2',true)
     else
         if judgeData == '1' then       
             Scene:setReturn(Alias.m_recentContacter, Alias.m_personalInfo .. '?employeeId=' .. employeeId..'&flag=2')
@@ -741,10 +749,10 @@ end
 
 --释放焦点时
 function editOnLostFocus(sprite)
-    Log:write("释放焦点时触发")
-    setAllShoworHide(resetBtn,0)
+    Log:write("释放焦点时触发") 
     local txt= Sprite:getProperty(sprite, 'text')
     if txt=='' then
+        setAllShoworHide(resetBtn,0)
         Sprite:setProperty(sprite, 'text', '搜索姓名、长号、短号')
         Sprite:setProperty(sprite, 'color', '#605e5e')
         Sprite:setProperty(Sprite:findChild(rootSprite,'bottomImg'),'src','file://image/jttxl/paixu1.png')
@@ -798,9 +806,11 @@ function searchUserData()
                 " LIMIT "..fromIndex..","..toIndex..";" 
     Log:write("搜索联系人SQL: ",sql)
     bRet, retUserTable, errMsg = Sqlite:query(databaseName, sql) 
-    --搜索本地
-    local localTable = getContactsData(editeKeyword,retUserTable)
-    Log:write("搜索联系人记录：retUserTable = ", retUserTable)    
+    Log:write("searchUserData 中 curpage = ",curpage)
+    if curpage == 1 and tonumber(totalNum) <= 7 then
+        local localTable = getContactsData(editeKeyword,retUserTable)
+        Log:write("搜索联系人记录：retUserTable = ", retUserTable)
+    end      
 end
 
 --搜索本地联系人
@@ -841,10 +851,20 @@ function listviewOnTrail(sprite)
     if recentSearchFlag == 1 then
         curpage = curpage + 1 
         Log:write("搜索记录总条数：  ",totalNum)
-        if (curpage-1)*pagesize < tonumber(totalNum) then
-            Log:write("已进入滑动翻页搜索函数")
-            searchUserData() 
-            loadUserData()        
+        if tonumber(totalNum) > 7 then  
+            if (curpage-1)*pagesize < tonumber(totalNum) then
+                Log:write("已进入滑动翻页搜索函数")
+                searchUserData() 
+                loadUserData()  
+            else
+                if firstFlag == 0 then 
+                    --搜索本地
+                    local localTable = getContactsData(editeKeyword,retUserTable)
+                    Log:write("搜索联系人记录：retUserTable = ", retUserTable) 
+                    loadUserData() 
+                    firstFlag = 1
+                end      
+            end
         end
     else
         Log:write("此时进入最近联系人、常用联系人界面")
@@ -857,6 +877,8 @@ function telOnSelect(sprite)
     local parentNode = Sprite:getParent(sprite)
     local mobile = Sprite:getText(Sprite:findChild(parentNode, "mobile"))
     Log:write("电话号码为：",mobile)
+    mobile = formatPhoneNum(mobile)
+    Log:write("格式化后电话号码为：",mobile)
     if mobile ~= nil and mobile ~= '' then
         if Util:openCallDialog('callFinished',mobile, 0) then
             Log:write('拨打打电话成功')
