@@ -29,7 +29,8 @@ import java.lang.reflect.Method;
 //import java.net.Proxy;
 //import java.net.SocketAddress;
 //import java.net.URL;
-//import android.os.Build;
+//add pj
+import android.os.Build;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,7 +69,6 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -128,7 +128,6 @@ import android.widget.TextView;
 //import com.google.ads.AdSize;
 //import com.google.ads.AdView;
 //import com.wondertek.activity.R;
-import android.widget.Toast;
 import com.wondertek.video.Util;
 import com.wondertek.video.alarm.AlarmObserver;
 import com.wondertek.video.appmanager.AppManager;
@@ -140,7 +139,6 @@ import com.wondertek.video.call.CallObserver;
 import com.wondertek.video.camera.CameraObserver;
 import com.wondertek.video.connection.ConnectionImpl;
 import com.wondertek.video.connection.SystemConnectionManager;
-import com.wondertek.video.contacts.ContactsMan;
 import com.wondertek.video.email.EmailObserver;
 import com.wondertek.video.gps.GPSObserver;
 //add pj
@@ -170,6 +168,7 @@ import com.wondertek.video.wifi.WifiObserver;
 
 //lotuseed
 //import com.wondertek.video.lotuseed.LotuseedObserver;
+import com.wondertek.video.contacts.ContactsObserver;
 
 public class VenusActivity implements SurfaceHolder.Callback {
 	static String TAG = "VenusActivity";
@@ -186,7 +185,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	private static VenusActivity sInstance = null;
 	private VenusView venusview = null;
-	//add pj
+    //add pj	
 	public SurfaceHolder VenusViewHolder = null;
 	private static SurfaceView videoview = null;
 	private SurfaceHolder mHolder = null;
@@ -265,12 +264,12 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	private int m_height;
 	//private Button closeAdBtn;
 
-	private Button Contact_yes;
-	private Button Contact_no;
-	private TextView Contact_title;
-	private ListView Contact_list;
-	private RelativeLayout Contact_buttonView;
-	private LinearLayout Contact_view;
+//	private Button Contact_yes;
+//	private Button Contact_no;
+//	private TextView Contact_title;
+//	private ListView Contact_list;
+//	private RelativeLayout Contact_buttonView;
+//	private LinearLayout Contact_view;
 	WebView webView;
 	private LinearLayout webView_LinearLayout;
 	private LinearLayout webView_Center;
@@ -288,14 +287,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	Animation animation;
 	Stack<String> oldurls = new Stack<String>();
 	private Stack<String> perurls = new Stack<String>();
-	private Cursor Contact_cursor;
-	private HashSet<Integer> Contact_positions;
-	private ContactAdapter Contact_adapter;
-	private int Contact_Count = 0;
-	private ArrayList<String> Contact_NumberList;
-	private ArrayList<String> Contact_NameList;
-	private ArrayList<Integer> Contact_SelectedList;
-	private HashMap<String, String> Contact_Map ;
 
 	/**
 	 * Must select a player.
@@ -341,6 +332,8 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public CalendarObserver calendarObserver;
 
 //	public PhonegapObserver phonegapObserver;
+	
+	public ContactsObserver contactsObserver;
 	public AbsoluteLayout webViewRoot = null;
 
 	public AppManager	appManager;
@@ -728,19 +721,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		pLeft.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
 		pRight.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
 
-		Edit_yes = new Button(appActivity);
-		Edit_yes.setText(VenusApplication.getInstance().getResString("common_ok"));
-		Edit_yes.setOnClickListener(listener);
-		Edit_yes.setLayoutParams(pLeft);
-
-		Edit_no = new Button(appActivity);
-		Edit_no.setText(VenusApplication.getInstance().getResString("common_cancel"));
-		Edit_no.setOnClickListener(listener);
-		Edit_no.setLayoutParams(pRight);
-
-		Edit_buttonView.addView(Edit_yes);
-		Edit_buttonView.addView(Edit_no);
-
 		Edit_title = new TextView(appActivity);
 		Edit_text = new EditText(appActivity);
 		Edit_text.setLayoutParams(new LinearLayout.LayoutParams(
@@ -826,49 +806,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			}
 		});
 		Edit_viewone.setVisibility(View.GONE);
-
-		Contact_positions = new HashSet<Integer>();
-
-		Contact_view = new LinearLayout(appActivity);
-		Contact_view.setOrientation(LinearLayout.VERTICAL);
-		Contact_view.setLayoutParams(new AbsoluteLayout.LayoutParams(
-				fakeScreenWidth, fakeScreenHeight, 0, 0));
-		Contact_view.setBackgroundColor(Color.parseColor("#000000"));
-
-		Contact_buttonView = new RelativeLayout(appActivity);
-		Contact_buttonView.setLayoutParams(new LinearLayout.LayoutParams(
-				LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-
-		Contact_yes = new Button(appActivity);
-		Contact_yes.setText(VenusApplication.getInstance().getResString("common_ok"));
-		Contact_yes.setOnClickListener(listener);
-		Contact_yes.setLayoutParams(pLeft);
-
-		Contact_no = new Button(appActivity);
-		Contact_no.setText(VenusApplication.getInstance().getResString("common_cancel"));
-		Contact_no.setOnClickListener(listener);
-		Contact_no.setLayoutParams(pRight);
-
-		Contact_buttonView.addView(Contact_yes);
-		Contact_buttonView.addView(Contact_no);
-
-		Contact_title = new TextView(appActivity);
-
-		Contact_list = new ListView(appActivity);
-		Contact_list.setLayoutParams(new LinearLayout.LayoutParams(
-				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-
-		//		appActivity.startManagingCursor(Contact_cursor);
-		Contact_adapter = new ContactAdapter(appActivity);
-		Contact_list.setAdapter(Contact_adapter);
-
-		Contact_NumberList = new ArrayList<String>();
-		Contact_NameList  = new ArrayList<String>();
-		Contact_SelectedList = new ArrayList<Integer>();
-		Contact_view.addView(Contact_buttonView);
-		Contact_view.addView(Contact_title);
-		Contact_view.addView(Contact_list);
-		Contact_view.setVisibility(View.GONE);
 
 		/////////////////////////////////////
 		webView_LinearLayout = new LinearLayout(appActivity);
@@ -1002,6 +939,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		alarmObserver = AlarmObserver.getInstance(this);
 		calendarObserver = CalendarObserver.getInstance(this);
 //		phonegapObserver = PhonegapObserver.getInstance(this);
+		contactsObserver = ContactsObserver.getInstance(this);
 
 		//safetyAuthentic: for plugin CA, now it's not used
 		//authenticObserver = AuthenticObserver.getInstance(this);
@@ -1112,7 +1050,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		al.addView(Edit_viewone);
 		al.addView(venusview);
 		al.addView(Edit_view);
-		al.addView(Contact_view);
+		//al.addView(Contact_view);
 		al.addView(webView_LinearLayout);
 		al.addView(imageView);
 		//al.addView(adView);
@@ -1261,7 +1199,8 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			AppManager.getInstance(this).dealWithAppManager(Util.WDM_SYSRESUME);
 			PhoneObserver.getInstance().enablePhoneStateListener(PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 			//            mapPluginMgr.start();
-            //sendredraw();
+            //add pj
+			sendredraw();
 			//MsgPush
             //add PJ
 			if (msgPushMgr != null) {
@@ -1294,7 +1233,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			System.exit(0);
 		}
 	}
-
+    //add pj
 	private boolean redrawall = true;
 	public void sendredraw()
 	{
@@ -2113,7 +2052,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		if(sysState == SYS_STATE_RUN && mKeyPrepared == true)
 		{
 			mKeyPrepared = false;
-			if( Edit_view.getVisibility() == View.VISIBLE || Contact_view.getVisibility() == View.VISIBLE ||
+			if( Edit_view.getVisibility() == View.VISIBLE ||
 					(webViewRoot!=null && webViewRoot.getVisibility() == View.VISIBLE))
 			{
 				//Filter the KEY_BACK when we are in EDIT VIEW form.
@@ -2214,12 +2153,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		imm.hideSoftInputFromWindow(Edit_text.getWindowToken(), 0);
 	}
 
-	private void releaseContact() {
-		Contact_positions.clear();
-		ContactClose(Contact_cursor);
-		venusview.setVisibility(View.VISIBLE);
-		Contact_view.setVisibility(View.GONE);
-	}
 
 	public void initEdit(int type, int maxSize, String titleText, String defaultText) {
 		// edit.setInputType(type);
@@ -2295,437 +2228,34 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		}
 	}
 
-	private boolean initContact(String titleText) {
-		Contact_cursor = ContactRefresh();
-
-		Contact_Count = 0;
-		Contact_NameList.clear();
-		Contact_NumberList.clear();
-		//Contact_SelectedList.clear();
-
-		int i = 0;
-		int c = Contact_cursor.getCount();
-		if(c > 0)
-		{
-			Contact_cursor.moveToFirst();
-			for(; i<c; i++)
-			{
-				String name = Contact_cursor.getString(Contact_cursor.getColumnIndex("display_name"));
-				String id = Contact_cursor.getString(Contact_cursor.getColumnIndex("_id"));
-				String hasPhone = Contact_cursor.getString( Contact_cursor.getColumnIndex("has_phone_number") );
-				if( hasPhone.equals("1") )
-				{
-					Cursor phones = appActivity.getContentResolver().query(
-							phoneUri,
-							null,
-							"contact_id" +" = ?",
-							new String[] { id }, 
-							null);
-					while(phones != null && phones.moveToNext())
-					{
-						String phone = phones.getString(phones.getColumnIndex("data1"));
-						Contact_NameList.add(name);
-						Contact_NumberList.add(phone);
-						Contact_Count++;
-					}
-					phones.close();
-				}
-
-				Contact_cursor.moveToNext();	
-			}
-		}
-
-		if(Contact_Count > 0)
-		{
-			Contact_title.setText(titleText);
-			Contact_view.setVisibility(View.VISIBLE);
-			venusview.setVisibility(View.GONE);
-			Contact_adapter.notifyDataSetChanged();
-			Contact_list.setSelection(0);
-			ContactClose(Contact_cursor);
-			return true;
-		}
-		else
-		{
-			ContactClose(Contact_cursor);
-			return false;
-		}
-	}
-
-	private String getContactReturn() {
-		String contactReturn = "";
-		int i = 0;
-		int c = Contact_SelectedList.size();
-		for(; i<c; i++) {
-			String name = Contact_NameList.get( Contact_SelectedList.get(i).intValue() );
-			String number = Contact_NumberList.get( Contact_SelectedList.get(i).intValue() );
-			number = number.replace("-", ""); // Remove the character "-", such as "XXX-XXXX-XXXX"
-			contactReturn += name + "," + number + ";";
-		}
-
-		return contactReturn;
-	}
-
 	public void getContactsAsync()
 	{
 		Util.getInstance().getAsyncTask().execute("GetContacts");
 	}
+	
+	public void javaGetSearchContactsAsync(String condition)
+	{
+		Log.d(TAG, ">>>javaGetSearchContactsAsync<<<");
+		Util.getInstance().getAsyncTask().execute("GetSearchContacts",condition);
+	}
 
 	public String getContacts()
 	{
-		int sdk = Util.GetSDK();
-		if(sdk == Util.SDK_ANDROID_15 || sdk == Util.SDK_ANDROID_16 || sdk == Util.SDK_OMS_15 || sdk == Util.SDK_OMS_16)
-		{
-			return getContactsLowSDK();
-		}
+		if(contactsObserver!=null)
+			return contactsObserver.getContacts();
 		else
-		{
-			return getContactsHighSDK();
-		}
+			return "";
 	}
-
-	private final Uri CONTACT_PHONE_URI = Uri.parse("content://contacts/people"); // People.CONTENT_URI;
-	private final Uri CONTACT_SIM_URI = Uri.parse("content://icc/adn"); // sim
-	private String getContactsLowSDK()
+	
+	public boolean initContact(String str)
 	{
-		Uri uri = null;
-		String contactsList = "";
-		ContentResolver resolver = appActivity.getContentResolver();
-		String columns[] = new String[] { People._ID, People.NAME, People.NUMBER };
-		Cursor cur = null;
-
-		if(Contact_Map == null) Contact_Map = new HashMap<String, String>();
-		Contact_Map.clear();
-
-		for(int i=0; i<2; i++)
-		{
-			if(i == 0) 
-				uri = CONTACT_PHONE_URI;
-			else if(i == 1)
-				uri = CONTACT_SIM_URI;
-			else
-				break;
-
-			try {
-				cur = resolver.query(uri, columns, null, null, People.NAME);
-				if (cur.moveToFirst()) {
-					do {
-						String name = cur.getString(cur.getColumnIndex(People.NAME));
-						String temp = cur.getString(cur.getColumnIndex(People.NUMBER));
-						//phoneNumberfilter(name, temp);
-						Contact_Map.put(name, temp);
-					} while (cur.moveToNext());
-				}
-			} catch (Exception e) {
-			} finally {
-				if (cur != null) {
-					cur.close();
-					cur = null;
-				}
-			}
-		}
-
-		//Build the contacts list
-		int elementN = Contact_Map.size();
-		int j = 0;
-		String[] nameArray = new String[elementN];
-		Set<String> set = Contact_Map.keySet();
-		for(String key : set)
-		{
-			nameArray[j++] = key;
-		}
-		for(j=0; j<elementN; j++)
-		{
-			contactsList = contactsList + nameArray[j] + "\n" + Contact_Map.get(nameArray[j]) + "\n";
-		}
-		return contactsList;
+		return true;
 	}
 
-	private String getContactsHighSDK()
+	public String getSearchContacts(String condition)
 	{
-		Log.d(TAG, ">>>getContactsHighSDK<<<");
-		Contact_cursor = ContactRefresh();
-		String contactsList = "";
-		Contact_Count = 0;
-		if(Contact_Map == null) Contact_Map = new HashMap<String, String>();
-		Contact_Map.clear();
-		Cursor phones = appActivity.getContentResolver().query(
-				ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-				null,
-				null,
-				null,
-				null);
-		int c = phones.getCount();
-		if(c > 0)
-		{
-			Contact_cursor.moveToFirst();
-			for(int i = 0; i<c; i++)
-			{
-				phones.moveToNext();
-				String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-				String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-				String contactId = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
-				String firstspell = PinYinUtil.getFirstSpell(name);
-				String fullspell = PinYinUtil.getFullSpell(name);
-				String groupId = getGroupId(contactId);
-				String groupName = getGroupName(groupId); 
-				String value = Contact_Map.get(name);
-				if (value == null) {
-					String s = phone + ";" + groupName + ";" + fullspell + ";" + firstspell;
-					Contact_Map.put(name, s);
-					Contact_Count++;
-				} else  {
-					Contact_Map.put(name, phone + ":" + value);
-				}
-				Log.d(TAG, "[getContactsHighSDK] " + name + ": " + Contact_Map.get(name));
-			}
-		}
-
-		//Sort the contacts by name
-		Comparator cmp = Collator.getInstance(java.util.Locale.CHINA);
-		int elementN = Contact_Map.size();
-		int j = 0;
-		String[] nameArray = new String[elementN];
-		Set<String> set = Contact_Map.keySet();
-		for(String key : set)
-		{
-			nameArray[j++] = key;
-		}
-		Arrays.sort(nameArray, cmp);
-
-		//Build the contacts list
-		for(j=0; j<elementN; j++)
-		{
-			contactsList = contactsList + nameArray[j] + "\n" + Contact_Map.get(nameArray[j]) + "\n";
-		}
-		ContactClose(Contact_cursor);
-		return contactsList;
+		return contactsObserver.getSearchContacts(condition);
 	}
-
-	private void phoneNumberfilter(String name, String temp) {
-		if (temp != null) {
-			String phoneNo = temp;
-			if (temp.contains(" ") || temp.contains("-") || temp.contains("_")) {
-				phoneNo = temp.replaceAll("-|\\s|_", "");
-			}
-			if (checkMobilePhone(phoneNo)) {
-				Pattern pattern = Pattern.compile("1(3[4-9]|5[012789]|8[278])\\d{8}$");
-				Matcher matcher = pattern.matcher(phoneNo);
-				StringBuffer phoneNoMached = new StringBuffer();
-				while (matcher.find()) {
-					phoneNoMached.append(matcher.group());
-				}
-				String phoneNoMachedString = phoneNoMached.toString();
-				//				if (!phoneMap.containsKey(phoneNoMachedString)) {
-				//					if (name != null && !"".equals(name)) {
-				//						personsArrayList.add(phoneNoMachedString.concat("[")
-				//								.concat(name).concat("]"));
-				//
-				//					} else {
-				//						personsArrayList.add(phoneNoMachedString);
-				//					}
-				//					phoneMap.put(phoneNoMachedString, 1);
-				//				}
-			}
-		}
-	}
-
-	private boolean checkMobilePhone(String phone) {
-		/*
-		 * Matcher China Mobile "^1(3[4-9]|5[012789]|8[78])\d{8}$"
-		 * 
-		 * Matcher China Telecom "^18[09]\d{8}$"
-		 * 
-		 * Matcher China Unicom "^1(3[0-2]|5[56]|8[56])\d{8}$"
-		 * 
-		 * Matcher CDMA "^1[35]3\d{8}$"
-		 */
-		Pattern pattern = Pattern
-				.compile("^(\\+86)?1(3[4-9]|5[012789]|8[278])\\d{8}$");
-		Matcher matcher = pattern.matcher(phone);
-
-		if (matcher.matches()) {
-			return true;
-		}
-		return false;
-	}
-
-	private Uri contactsUri = null;
-	private Uri phoneUri = null;
-	private Cursor ContactRefresh()
-	{
-		if(contactsUri == null || phoneUri == null)
-		{
-			try {
-				Class<?> clazz = Class.forName("android.provider.ContactsContract$Contacts");
-				Field f1 = clazz.getField("CONTENT_URI");
-				contactsUri = (Uri) (f1.get(null));
-
-				Class<?> clazz2 = Class.forName("android.provider.ContactsContract$CommonDataKinds$Phone");
-				Field f2 = clazz2.getField("CONTENT_URI");
-				phoneUri = (Uri) (f2.get(null));
-			} catch (Exception e) {
-				Util.Trace(e.toString());
-			}
-		}
-		Cursor c = appActivity.getContentResolver().query(contactsUri/*Phones.CONTENT_URI*/, null, null, null, null);
-		return c;
-	}
-
-	private void ContactClose(Cursor c)
-	{
-		c.deactivate();
-		c.close();
-	}
-
-	View.OnClickListener listener = new View.OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			if (v.equals(Edit_yes)) {
-				nativeeditreturn(Edit_text.getText().toString(), true);
-				releaseEdit();
-			} else if (v.equals(Edit_no)) {
-				nativeeditreturn(null, false);
-				releaseEdit();
-			} else if (v.equals(Contact_yes)) {
-				nativecontactreturn(getContactReturn(), true);
-				releaseContact();
-			} else if (v.equals(Contact_no)) {
-				nativecontactreturn(null, false);
-				releaseContact();
-			}
-		}
-	};
-
-	//Adapter for contacts
-	public class ContactAdapter extends BaseAdapter {
-		private Context context;
-
-		public ContactAdapter(Context context) {
-			this.context = context;
-		}
-
-		@Override
-		public int getCount() {
-			//return Contact_cursor.getCount();
-			return Contact_Count;
-		}
-
-		@Override
-		public Object getItem(int position) {
-			return position;
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			ViewHolder holder;
-			//Contact_cursor.moveToPosition(position);
-
-			if (convertView == null) {
-				convertView = new LinearLayout(context);
-				convertView.setLayoutParams(new AbsListView.LayoutParams(
-						LinearLayout.LayoutParams.WRAP_CONTENT,
-						LinearLayout.LayoutParams.WRAP_CONTENT));
-
-				RelativeLayout relative = new RelativeLayout(context);
-				relative.setLayoutParams(new LinearLayout.LayoutParams(
-						LinearLayout.LayoutParams.FILL_PARENT,
-						LinearLayout.LayoutParams.WRAP_CONTENT));
-
-				TextView name = new TextView(context);
-				RelativeLayout.LayoutParams pName = new RelativeLayout.LayoutParams(
-						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-				pName.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
-						RelativeLayout.TRUE);
-				pName.leftMargin = 4;
-				name.setLayoutParams(pName);
-				name.setTextSize(20);
-				name.setTextColor(Color.parseColor("#FFFFFF"));
-
-				TextView number = new TextView(context);
-				RelativeLayout.LayoutParams pNumber = new RelativeLayout.LayoutParams(
-						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-				pNumber.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
-						RelativeLayout.TRUE);
-				pNumber.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,
-						RelativeLayout.TRUE);
-				pNumber.leftMargin = 4;
-				pNumber.topMargin = 1;
-				number.setLayoutParams(pNumber);
-				number.setTextSize(14);
-				number.setTextColor(Color.parseColor("#FFFFFF"));
-
-				CheckBox check = new CheckBox(context);
-				RelativeLayout.LayoutParams pCheck = new RelativeLayout.LayoutParams(
-						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-				pCheck.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,
-						RelativeLayout.TRUE);
-				pCheck.addRule(RelativeLayout.ALIGN_PARENT_TOP,
-						RelativeLayout.TRUE);
-				check.setLayoutParams(pCheck);
-
-				relative.addView(name);
-				relative.addView(number);
-				relative.addView(check);
-				((LinearLayout) convertView).addView(relative);
-
-				holder = new ViewHolder();
-				holder.name = name;
-				holder.number = number;
-				holder.check = check;
-
-				convertView.setTag(holder);
-			} else {
-				holder = (ViewHolder) convertView.getTag();
-			}
-
-			String name = Contact_NameList.get(position);
-			String number = Contact_NumberList.get(position);
-			holder.name.setText(name);
-			holder.number.setText(number);
-			holder.check.setTag(position);
-
-			//if (Contact_positions.contains(new Integer(position))) {
-			if(Contact_SelectedList.contains(new Integer(position))) {
-				holder.check.setChecked(true);
-			} else {
-				holder.check.setChecked(false);
-			}
-
-			holder.check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-				@Override
-				public void onCheckedChanged(CompoundButton Contact_buttonView,	boolean isChecked) {
-					if (isChecked) {
-						//Contact_positions
-						//		.add((Integer) Contact_buttonView
-						//				.getTag());
-						if(!Contact_SelectedList.contains((Integer) Contact_buttonView.getTag()))
-							Contact_SelectedList.add((Integer) Contact_buttonView.getTag());
-					} else {
-						//Contact_positions
-						//		.remove((Integer) Contact_buttonView
-						//				.getTag());
-						Contact_SelectedList.remove((Integer) Contact_buttonView.getTag());
-					}
-				}
-			});
-
-			return convertView;
-		}
-
-		public class ViewHolder {
-			TextView name;
-			TextView number;
-			CheckBox check;
-		}
-	}
-
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// get machine info.
@@ -4318,54 +3848,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			return -1;
 		return (int) (GetTotalTxBytes() - tolTxTraffic);
 	}
-	
-		Handler AutoTestHandler = new Handler() {
-		public void handleMessage(Message msg) {
-			Log.d("AutoTest", "" + msg.what + " (" + msg.arg1 + "," + msg.arg2 + ")");
-			Window window = null;
-			switch(msg.what)
-			{
-			case 100:
-				window = VenusActivity.getInstance().appActivity.getWindow();
-			    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-				Toast.makeText(appActivity, "ÂºÄÂßãÂõûÊîæ", Toast.LENGTH_SHORT).show();
-				break;
-			case 101:
-				window = VenusActivity.getInstance().appActivity.getWindow();
-			    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-				Toast.makeText(appActivity, "ÂºÄÂßãÂΩïÂà∂", Toast.LENGTH_SHORT).show();
-				break;
-			case 102:
-				window = VenusActivity.getInstance().appActivity.getWindow();
-			    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-				Toast.makeText(appActivity, "ÂõûÊîæÁªìÊùü", Toast.LENGTH_SHORT).show();
-				break;
-			case 103:
-				window = VenusActivity.getInstance().appActivity.getWindow();
-			    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-				Toast.makeText(appActivity, "ÂΩïÂà∂ÁªìÊùü", Toast.LENGTH_SHORT).show();
-				break;
-			case 1000:
-				break;
-			case 2000:
-				Toast.makeText(appActivity, "ËØ∑ÂÖàËøõË°åÂΩïÂà∂", Toast.LENGTH_SHORT).show();
-				break;
-			case 2001:
-				Toast.makeText(appActivity, "Êó†SDÂç°", Toast.LENGTH_SHORT).show();
-				break;
-			default:
-				nativesendevent(msg.what, -(msg.arg1 + 1), msg.arg2);
-				break;
-			}
-		}
-	};
-	
-	public static void javaAutoTestSendEvent(int type, int x, int y)
-	{
-		Message message = Message.obtain(VenusActivity.getInstance().AutoTestHandler, type, x, y);
-		message.sendToTarget();
-	}
-	
 	public void onSaveInstanceState(Bundle outState) {
 		// TODO Auto-generated method stub
 		Util.Trace("onSaveInstanceState");
@@ -4375,10 +3857,10 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	}
 	
 	/**
-	 * Ëé∑ÂèñËÅîÁ≥ª‰∫∫ÊâÄÂú®Áæ§ÁªÑÁöÑIDÂè∑
-	 * @param contactId ËÅîÁ≥ª‰∫∫ÁöÑIDÂè∑
-	 * @return ËÅîÁ≥ª‰∫∫ÊâÄÂ±ûÁæ§ÁªÑÁöÑIDÂè∑
-	 * @author ‰ΩïÊ≠¶
+	 * ªÒ»°¡™œµ»ÀÀ˘‘⁄»∫◊ÈµƒID∫≈
+	 * @param contactId ¡™œµ»ÀµƒID∫≈
+	 * @return ¡™œµ»ÀÀ˘ Ù»∫◊ÈµƒID∫≈
+	 * @author ∫ŒŒ‰
 	 */
 	public static String getGroupId(String contactId) {
 		String groupId = "";
@@ -4402,10 +3884,10 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	}
 	
 	/**
-	 * Áî±Áæ§ÁªÑÁöÑIDÂè∑Êü•ËØ¢Áæ§ÁªÑÂêçÁß∞
-	 * @param groupId ËÅîÁ≥ª‰∫∫ÁªÑIDÂè∑
-	 * @return ËÅîÁ≥ª‰∫∫ÁªÑÂêçÁß∞
-	 * @author ‰ΩïÊ≠¶
+	 * ”…»∫◊ÈµƒID∫≈≤È—Ø»∫◊È√˚≥∆
+	 * @param groupId ¡™œµ»À◊ÈID∫≈
+	 * @return ¡™œµ»À◊È√˚≥∆
+	 * @author ∫ŒŒ‰
 	 */
 	public static String getGroupName(String groupId) {
 		String groupName = "";
