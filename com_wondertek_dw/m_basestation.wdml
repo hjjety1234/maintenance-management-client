@@ -220,7 +220,7 @@ local quyuData
 local data
 local quyuid=''
 local listNode
-local companyCode
+local companyCode=''
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -263,7 +263,7 @@ function bodyOnPluginEvent(msg)
    
     elseif msg == 102 then
     data = Http:jsonDecode('jizhan_data')
-    Log:write("data101 = ", data)
+    Log:write("data101资源查询 = ", data)
     if not data or type(data) ~= 'table' then
         Dialog:show(rootSprite, '返回数据格式错误', 'ok')
         return
@@ -348,14 +348,13 @@ function OnSearchButtonClicked(sprite)
 end
 ---------------------------------------util functions---------------------------
 function loadRequest()
+    --站点名称
     local NameNode = Sprite:findChild(rootSprite, 'NameNode')
-    --local CodeNode = Sprite:findChild(rootSprite, 'CodeNode')
-    local CompanyNode = Sprite:findChild(rootSprite, 'CompanyNode')
-    
     local stationname=Sprite:getText(Sprite:findChild(NameNode, 'content'))
-    --local codetext = Sprite:getText(Sprite:findChild(CodeNode, 'content'))
-    local codetext =''
-    local param = string.format('&page=1&stationtype=&cmd=wlbstationsearch&stationname=%s&stationcode=%s&companycode=%s&areacode=%s',stationname,codetext,companyCode,quyuid)
+    --local CodeNode = Sprite:findChild(rootSprite, 'CodeNode')
+    --local CompanyNode = Sprite:findChild(rootSprite, 'CompanyNode')
+   -- local CompanyName= Sprite:findChild(CompanyNode, 'CompanyName')
+    local param = string.format('&page=1&stationtype=&cmd=wlbstationsearch&stationname=%s&stationcode=&companycode=%s&areacode=%s',stationname,companyCode,quyuid)
     Log:write("&param = ", param)
     local reqURL = getWholeUrl('nbspweb/webservice/resource!doWebservice.action', '')..param
     Log:write('+++++reqURL',reqURL)
