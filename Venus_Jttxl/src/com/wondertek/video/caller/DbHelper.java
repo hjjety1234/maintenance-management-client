@@ -1,5 +1,8 @@
 package com.wondertek.video.caller;
 
+import java.io.File;
+import java.io.IOException;
+
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
 import android.content.Context;
@@ -467,5 +470,29 @@ public class DbHelper extends SQLiteOpenHelper {
 			if (cursor != null) cursor.close();
 			return "";
 		}
+	}
+
+	// encrypt plain text database 
+	public static boolean encryptPlainTextDatabase() {
+		File unencryptedDatabase = new File(Constants.DATABASE_NAME);
+		File encryptedDatabase = new File(Constants.TEMP_DATABASE_NAME);
+		SQLiteDatabase database = null;
+		try {
+			database = SQLiteDatabase.openOrCreateDatabase(unencryptedDatabase,
+					"", null);
+			database.rawExecSQL(String.format(
+					"ATTACH DATABASE '%s' AS encrypted KEY '%s'",
+					encryptedDatabase.getAbsolutePath(), password));
+			database.rawExecSQL("select sqlcipher_export('encrypted')");
+			database.rawExecSQL("DETACH DATABASE encrypted");
+			database.close();
+			encryptedDatabase.renameTo(unencryptedDatabase);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		} finally {
+			if (database != null) database.close();
+		}
+		return true;
 	}
 }

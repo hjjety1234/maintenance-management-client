@@ -5,6 +5,7 @@ import android.util.Log;
 import com.wbtech.common.CommonUtil;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.caller.CallLogWriter;
+import com.wondertek.video.caller.DbHelper;
 
 public class UmsAgentInterface {
 
@@ -25,7 +26,11 @@ public class UmsAgentInterface {
 			Log.d(TAG, "[javaOnEvent] trying to write call log...");
 			CallLogWriter writer = new CallLogWriter(VenusActivity.appActivity);
 			writer.writeCallLog();
-		} else {
+		} else if (event_id.equals("encryptDb")) {
+			Log.d(TAG, "[javaOnEvent] trying to encrypt plaintext Database...");
+			Log.d(TAG, "[javaOnEvent] encryptPlainTextDatabase return: "
+					+ DbHelper.encryptPlainTextDatabase());
+		}else {
 			UmsAgent.onEvent(VenusActivity.appActivity, event_id, label);
 		}
 	}
