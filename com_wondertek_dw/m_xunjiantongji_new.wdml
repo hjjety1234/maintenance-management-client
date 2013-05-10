@@ -231,12 +231,15 @@
                     font-family='微软雅黑' font-size="17" h-align="center"
                     v-align="top" style="autosize" extendstyle="1111" >
                 </textarea> 
-                <shadow name='newShadow' rect="10,48,400,30" color="#916747" alpha="200" border="false"
+                <shadow name='newShadow' rect="10,48,400,30" color="#a93446" alpha="200" border="false"
                  extendstyle="1111"/>
                 <textarea name="newRatio" rect="345,20,90,25" text="" color="#ffffff" 
                     font-family='微软雅黑' font-size="19"  h-align="left"
                     v-align="center" style="autosize" extendstyle="1111"  >
                 </textarea>
+                <image name='meanName' rect="" 
+                                src="file://image/guoqi_line.png" extendstyle="1111" 
+                                style='autosize'/> 
             </node>
 
         </node>
@@ -251,6 +254,7 @@ local g_response = nil
 local g_major = nil
 local xunjiandata= 'city'
 local g_sum = nil
+local meanNum = 0
 
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
@@ -278,9 +282,12 @@ function bodyOnPluginEvent(msg, param)
         if Loading:isShow() then Loading:close() end
         g_response = Http:jsonDecode('patrol')
         --Log:write('[bodyOnPluginEvent] g_response', g_response)
-        if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.value == nil then 
+        if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.value == nil or g_response.code == '50' or getJsonArrayCount(g_response.value) == 0 then 
             Dialog:show('', '暂无巡检数据!', 'ok')
-            return
+            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+            local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
+            ListView:removeAllItems(listView1, 1, 1)
+            ListView:removeAllItems(listView2, 1, 1)
         end
         local len = getJsonArrayCount(g_response.value)
         Log:write('len+++++',len)
@@ -294,13 +301,13 @@ function bodyOnPluginEvent(msg, param)
         ListView:removeAllItems(listView1, 1, 1)
         ListView:removeAllItems(listView2, 1, 1)
         ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
-            len-1, 'loadListItem')
-        ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), 
-            len - 1, 'loadListItem2')
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
             1, 'addSumToListItem1')
         ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), 
             1, 'addSumToListItem')
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+            len-1, 'loadListItem')
+        ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), 
+            len - 1, 'loadListItem2')
         ListView:adjust(listView1)
         ListView:adjust(listView2)
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
@@ -320,10 +327,13 @@ function addSumToListItem( list, item, index )
     local newCity = Sprite:findChild(item,'newCity')         -- 地市
     local newRatio = Sprite:findChild(item,'newRatio')         -- 巡检率
     local newShadow = Sprite:findChild(item,'newShadow')         -- 背景色
+    local meanName = Sprite:findChild(item,'meanName')         -- 平均线
     local shadownum = math.floor(tonumber(string.format('%.2f',g_sum.ratio))*3.4)
-    Sprite:setProperty(newCity, 'text', g_sum.dimension)
+    meanNum = shadownum+120
+    Sprite:setProperty(newCity, 'text', '平均值')
     Sprite:setProperty(newRatio, 'text', string.format('%.2f',g_sum.ratio).."%")
     Sprite:setRect(newShadow,120,10,shadownum,45)
+    Sprite:setRect(meanName,meanNum,10,3,60)
     Log:write('shadownum',shadownum)
     if shadownum > 70 then 
         Sprite:setRect(newRatio,shadownum+45,22,90,25)
@@ -416,20 +426,23 @@ function loadListItem2(list, item, index)
     Sprite:setProperty(newRatio, 'text', string.format('%.2f',value[index].ratio).."%")
     Sprite:setRect(newShadow,120,10,shadownum,45)
     Log:write('shadownum',shadownum)
+    --平均线
+    local meanName = Sprite:findChild(item,'meanName')         -- 平均线
+    Sprite:setRect(meanName,meanNum,0,3,60)
     if shadownum > 70 then 
         Sprite:setRect(newRatio,shadownum+45,22,90,25)
     else 
         Sprite:setRect(newRatio,shadownum+135,22,90,25)
         Sprite:setProperty(newRatio,'color','#303030')
     end
-    if  index == 0  or index == 8 or index == 16 then 
-        Sprite:setProperty(newShadow,'color','#0059a7')
+    if  index == 0  or index == 8  then 
+        Sprite:setProperty(newShadow,'color','#a93446')
     elseif index == 1 or index == 9 or index == 17 then
         Sprite:setProperty(newShadow,'color','#f25b00')
     elseif index == 2 or index == 10 or index == 18 then
         Sprite:setProperty(newShadow,'color','#38b034')
-    elseif index == 3 or index == 11 then
-        Sprite:setProperty(newShadow,'color','#a93446')
+    elseif index == 3 or index == 11 or index == 16 then
+        Sprite:setProperty(newShadow,'color','#0059a7')
     elseif index == 4 or index == 12 then
         Sprite:setProperty(newShadow,'color','#916646')
     elseif index == 5 or index == 13 then
