@@ -151,7 +151,18 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 				Context.MODE_PRIVATE);
 		int rx = popupPos.getInt("rawX", 0);
 		int ry = popupPos.getInt("rawY", 250);
-		float scaleFactor = popupPos.getFloat("scale", 1.0f);
+		// read scale factor from config file
+		float scaleFactor = 1.0f;
+		String strfactor = ConfigUtil.getValue();
+		if (strfactor !=null && !strfactor.trim().equals("")) {
+			try {
+				Log.d(TAG, "[addPopup] read scale factor is: " + strfactor);
+				scaleFactor = Integer.valueOf(strfactor.trim()) / 100.0f;
+			}catch (Exception e1) {
+				e1.printStackTrace();
+				scaleFactor = 1.0f;
+			}
+		}
 		float pivotY = popupPos.getFloat("pivotY", 0.0f);
 		float pivotX = popupPos.getFloat("pivotX", 0.0f);
 		Log.d(TAG, "[addPopup] rawX: " + rx + " rawY: " + ry);

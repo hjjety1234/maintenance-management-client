@@ -103,7 +103,9 @@ public class FloatRelativeLayout extends RelativeLayout {
 		canvas.setMatrix(m);
 
 		// save scale pivotX and pivotY
-		editor.putFloat("scale", mScaleFactor);
+		int nfactor = (int)(mScaleFactor * 100);
+		Log.d(TAG, "[dispatchDraw] write scale factor: " + nfactor);
+		ConfigUtil.setValue(String.valueOf(nfactor));
 		editor.putFloat("pivotX", px);
 		editor.putFloat("pivotY", py);
 

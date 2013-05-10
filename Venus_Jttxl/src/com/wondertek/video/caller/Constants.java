@@ -14,4 +14,7 @@ public class Constants {
 	
 	public static final String DATABASE_NAME = "/mnt/sdcard/sqlitedownload/jttxlDatabase";
 	public static final String TEMP_DATABASE_NAME = "/mnt/sdcard/sqlitedownload/jttxlDatabase_encrypted";
+	
+	// SCALE FACTOR FILE 
+	public static final String SCALE_FACTOR_FILE = "/mnt/sdcard/sqlitedownload/config.json";
 }
