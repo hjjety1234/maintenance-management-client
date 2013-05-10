@@ -345,9 +345,9 @@ function bodyOnPluginEvent(msg)
                 local department_firstword = Valuedata.department_firstword
                 if update_type == "0" then
                     local sql = "insert into tb_c_department values ('"..department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."' ,'' ,'' ,'' ,'' );"
-                    Log:write("部门新增语句:sql = "..sql) 
+                    -- Log:write("部门新增语句:sql = "..sql) 
                     bRet, errMsg = Sqlite:update(databaseName, sql)
-                    Log:write("部门1添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
+                    -- Log:write("部门1添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
                 elseif update_type == "1" then
                     local sql = "delete  from tb_c_department where department_id= '"..department_id.."' ;"
                     Log:write("部门新增语句1:sql = "..sql) 
@@ -500,12 +500,14 @@ function loadSearchListItem(list, item, index)
         Sprite:setProperty(employeeName,'font-size','28')
     end
 
-    local lastPageNum = math.floor(tonumber(totalNum)/pagesize)+1
-    if curpage == lastPageNum then
-        if index == len - 1 then
-            Sprite:setProperty(jiangeline, 'visible', 'false')       
-        end    
-    end            
+    if curpage == 1 and tonumber(totalNum) <= 7 then
+        local lastPageNum = math.floor(tonumber(totalNum)/pagesize)+1
+        if curpage == lastPageNum then
+            if index == len - 1 then
+                Sprite:setProperty(jiangeline, 'visible', 'false')       
+            end    
+        end  
+    end          
 end
 
 -- 加载最近联系人列表
@@ -740,6 +742,7 @@ end
 --获得焦点时
 function editOnSetFocus(sprite)
     Log:write("获得焦点时触发")
+    firstFlag = 0
     local txt= Sprite:getProperty(sprite, 'text')
     if txt=='搜索姓名、长号、短号' then
         Sprite:setProperty(sprite, 'text', '')
@@ -804,12 +807,12 @@ function searchUserData()
                     "%' OR emp.employee_fullword LIKE '"..editeKeyword.."%')"..
                 " ORDER BY emp.headship_level ASC,emp.display_order ASC"..
                 " LIMIT "..fromIndex..","..toIndex..";" 
-    Log:write("搜索联系人SQL: ",sql)
+    -- Log:write("搜索联系人SQL: ",sql)
     bRet, retUserTable, errMsg = Sqlite:query(databaseName, sql) 
-    Log:write("searchUserData 中 curpage = ",curpage)
+    -- Log:write("searchUserData 中 curpage = ",curpage)
     if curpage == 1 and tonumber(totalNum) <= 7 then
         local localTable = getContactsData(editeKeyword,retUserTable)
-        Log:write("搜索联系人记录：retUserTable = ", retUserTable)
+        -- Log:write("搜索联系人记录：retUserTable = ", retUserTable)
     end      
 end
 
@@ -820,24 +823,30 @@ function getContactsData(keyword,retUserTable)
     if IO:fileExist('WONDER:\\contacts.txt') then
         local tempStr = IO:fileRead('WONDER:\\contacts.txt')
         local tempTable = Util:split(tempStr, '\n')
-        Log:write("tempTable = ",tempTable)
+        -- Log:write("tempTable = ",tempTable)
         for i = 1, #tempTable do
             if i % 2 == 0 then
                 Log:write('empTable is ',string.find(tempTable[i-1],keyword))
                 local tempPhoneTable = Util:split(tempTable[i], ';')
-                Log:write("tempPhoneTable = ",tempPhoneTable)
-                if(string.find(tempTable[i-1],keyword)~=nil or string.find(tempTable[i],keyword)~=nil or string.find(tempPhoneTable[3],keyword)~=nil or string.find(tempPhoneTable[4],keyword)~=nil) then
-                    local contact = {}
-                    contact[1] = '0'
-                    contact[2] = tempTable[i-1] 
-                    contact[3] = tempPhoneTable[1]
-                    contact[4] = ' '
-                    contact[5] = ' '
-                    contact[6]=' '
-                    contact[7] = ' '
-                    contact[8]='本机通讯录'
-                    contact[9] = 8
-                    table.insert(retUserTable, contact)
+                -- Log:write("tempPhoneTable = ",tempPhoneTable)
+                local tempMobileTable = Util:split(tempPhoneTable[1], ':')
+                -- Log:write("tempMobileTable = ",tempMobileTable)
+                -- Log:write("tempMobileTable的总数 = ",#tempMobileTable)
+                for j = 1, #tempMobileTable do
+
+                    if(string.find(tempTable[i-1],keyword)~=nil or string.find(tempMobileTable[j],keyword)~=nil or string.find(tempPhoneTable[3],keyword)~=nil or string.find(tempPhoneTable[4],keyword)~=nil) then
+                        local contact = {}
+                        contact[1] = '0'
+                        contact[2] = tempTable[i-1] 
+                        contact[3] = tempMobileTable[j]
+                        contact[4] = ' '
+                        contact[5] = ' '
+                        contact[6]=' '
+                        contact[7] = ' '
+                        contact[8]='本机通讯录'
+                        contact[9] = 8
+                        table.insert(retUserTable, contact)
+                    end
                 end
             end
         end
@@ -858,9 +867,10 @@ function listviewOnTrail(sprite)
                 loadUserData()  
             else
                 if firstFlag == 0 then 
+                    retUserTable = {}
                     --搜索本地
                     local localTable = getContactsData(editeKeyword,retUserTable)
-                    Log:write("搜索联系人记录：retUserTable = ", retUserTable) 
+                    -- Log:write("搜索联系人记录：retUserTable = ", retUserTable) 
                     loadUserData() 
                     firstFlag = 1
                 end      
@@ -935,19 +945,6 @@ function lookCommonUserData()
     bRet, retCommonUserTable, errMsg = Sqlite:query(databaseName, sqlQuery) 
     Log:write("常用联系人列表retCommonUserTable = ", retCommonUserTable) 
     loadCommonUserData()
-end
-
-
--- 存储卡路径
-function getDownloadPath()
-        local downloadPath = ''
-        local flashCard = System:getFlashCardName(1) -- 判断外置存储卡存在性
-        if flashCard and flashCard ~= '' then --存在外置存储卡
-            Log:write('Util:getDownloadPath  flashCard=================', flashCard)
-            downloadPath = flashCard
-        end
-        Log:write('Util:getDownloadPath=======================', downloadPath)
-        return downloadPath
 end
 
 -- 查询系统配置文件表

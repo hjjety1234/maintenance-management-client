@@ -22,12 +22,41 @@
                     sel="src:file://image/jttxl/back_s.png" style="autosize" extendstyle="1111">
                 </button>
             </node>
-            <node rect="0,85,480,92" extendstyle="1111" >
-                <image rect="35,16,37,60" border="false" src="file://image/jttxl/localset_phone.png" style="autosize" extendstyle="1111" />
-                <label rect="95,10,213,40" text="手机通讯录" font-family="微软雅黑" font-size="28" color="#ffffff" v-align="center" h-align="left" extendstyle="1111" />
-                <label rect="95,50,313,30" text="展示您的手机联系人" font-family="微软雅黑" font-size="24" color="#a9a9a9" v-align="center" h-align="left" extendstyle="1111" />
-                <button name="localsetBtn" rect="360,18,103,55" OnSelect="localsetOnSelect" src="file://image/jttxl/local_on.png" visible="true" />  
-                <image rect="11,89,458,3" border="false" src="file://image/jttxl/localset_line.png" style="autosize" extendstyle="1111" />
+            <node rect="0,85,480,132" extendstyle="1111" >
+                <label rect="17,0,213,40" text="通讯录设置" font-family="微软雅黑" font-size="26" color="#bababa" v-align="center" h-align="left" extendstyle="1111" />
+                <button rect="0,48,480,71" normal="normal" sel="select" OnSelect="localsetOnSelect" style="autosize" extendstyle="1110">
+	                <node name="normal" extendstyle="1177" rect="0,0,0,0">
+	                    <image rect="12,0,455,71" border="false" src="file://image/jttxl/localsetup_list_d.png" style="autosize" extendstyle="1111" />
+                        <image rect="25,6,31,58" border="false" src="file://image/jttxl/localsetup_phone_d.png" style="autosize" extendstyle="1111" />
+                        <label rect="75,6,213,30" text="手机通讯录" font-family="微软雅黑" font-size="26" color="#000000" v-align="center" h-align="left" extendstyle="1111" />
+                        <label rect="75,32,313,30" text="展示您的手机联系人" font-family="微软雅黑" font-size="22" color="#363232" v-align="center" h-align="left" extendstyle="1111" />
+                        <!--<button name="localsetBtn" rect="360,48,103,55" OnSelect="localsetOnSelect" src="file://image/jttxl/local_on.png" visible="true" />-->  
+	                </node>
+	                <node name="select" extendstyle="1177" rect="0,0,0,0">
+	                    <image rect="12,0,455,71" border="false" src="file://image/jttxl/localsetup_list_s.png" style="autosize" extendstyle="1111" />
+                        <image rect="25,6,31,58" border="false" src="file://image/jttxl/localsetup_phone_s.png" style="autosize" extendstyle="1111" />
+                        <label rect="75,6,213,30" text="手机通讯录" font-family="微软雅黑" font-size="26" color="#ffffff" v-align="center" h-align="left" extendstyle="1111" />
+                        <label rect="75,32,313,30" text="展示您的手机联系人" font-family="微软雅黑" font-size="22" color="#ffffff" v-align="center" h-align="left" extendstyle="1111" />
+	                </node>
+	                <image name='localsetImg' rect="355,10,103,55" border="false" src="file://image/jttxl/local_on.png" style="autosize" extendstyle="1111" />
+                </button>               
+            </node>
+            <node rect="0,235,480,132" extendstyle="1111" >
+                <label rect="17,0,213,40" text="名片尺寸设置" font-family="微软雅黑" font-size="26" color="#bababa" v-align="center" h-align="left" extendstyle="1111" />
+                <button rect="0,48,480,71" normal="normal" sel="select" OnSelect="cardOnSelect" style="autosize" extendstyle="1110">
+                    <node name="normal" extendstyle="1177" rect="0,0,0,0">
+                        <image rect="12,0,455,71" border="false" src="file://image/jttxl/localsetup_list_d.png" style="autosize" extendstyle="1111" />
+                        <image rect="25,16,45,42" border="false" src="file://image/jttxl/mingpian_d.png" style="autosize" extendstyle="1111" />
+                        <label rect="75,6,213,55" text="名片尺寸设置" font-family="微软雅黑" font-size="26" color="#000000" v-align="center" h-align="left" extendstyle="1111" />
+                        <image rect="428,26,12,19" border="false" src="file://image/jttxl/xianshishezhi_more_d.png" style="autosize" extendstyle="1111" />
+                    </node>
+                    <node name="select" extendstyle="1177" rect="0,0,0,0">
+                        <image rect="12,0,455,71" border="false" src="file://image/jttxl/localsetup_list_s.png" style="autosize" extendstyle="1111" />
+                        <image rect="25,16,45,42" border="false" src="file://image/jttxl/mingpian_s.png" style="autosize" extendstyle="1111" />
+                        <label rect="75,6,213,55" text="名片尺寸设置" font-family="微软雅黑" font-size="26" color="#ffffff" v-align="center" h-align="left" extendstyle="1111" />
+                        <image rect="428,26,12,19" border="false" src="file://image/jttxl/xianshishezhi_more_s.png" style="autosize" extendstyle="1111" />
+                    </node>
+                </button>               
             </node>
             <!--tips-->
             <node name="nodeSuccess" rect="131,650,250,48" enable="false" visible="false" active="false" layouttype="1" extendstyle="1111">
@@ -72,9 +101,9 @@ function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite    
     local status = Config:get('localContactStatus')
     if status == '1' then
-        Sprite:setProperty(Sprite:findChild(rootSprite,'localsetBtn'), 'src', "file://image/jttxl/local_on.png")
+        Sprite:setProperty(Sprite:findChild(rootSprite,'localsetImg'), 'src', "file://image/jttxl/local_on.png")
     else
-        Sprite:setProperty(Sprite:findChild(rootSprite,'localsetBtn'), 'src', "file://image/jttxl/local_off.png")
+        Sprite:setProperty(Sprite:findChild(rootSprite,'localsetImg'), 'src', "file://image/jttxl/local_off.png")
     end
 end
 
@@ -114,14 +143,14 @@ end
 
 ---------------------------------------util functions---------------------------
 function localsetOnSelect(sprite)
-    local cursrc = Sprite:getProperty(sprite, 'src')
+    local cursrc = Sprite:getProperty(Sprite:findChild(sprite, 'localsetImg'), 'src')
     local tips = ''
     if cursrc == "file://image/jttxl/local_on.png" then
-        Sprite:setProperty(sprite, 'src', "file://image/jttxl/local_off.png")
+        Sprite:setProperty(Sprite:findChild(sprite, 'localsetImg'), 'src', "file://image/jttxl/local_off.png")
         Config:set('localContactStatus', 0)
         tips = '不再显示本机通讯录'
     else
-        Sprite:setProperty(sprite, 'src', "file://image/jttxl/local_on.png")
+        Sprite:setProperty(Sprite:findChild(sprite, 'localsetImg'), 'src', "file://image/jttxl/local_on.png")
         Config:set('localContactStatus', 1)
         tips = '显示本机通讯录'
     end
@@ -150,7 +179,7 @@ function doSearch(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
-    Scene:setReturn(Alias.m_local, Alias.m_recentContacter)
+    Scene:setReturn(Alias.m_localsetup, Alias.m_recentContacter)
     Scene:go(Alias.m_recentContacter, true)
 end
 
@@ -160,7 +189,7 @@ function doContact(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
-    Scene:setReturn(Alias.m_local, Alias.m_renyuantongji)
+    Scene:setReturn(Alias.m_localsetup, Alias.m_renyuantongji)
     Scene:go(Alias.m_renyuantongji, true)
     --Log:write("已在联系人列表界面，点击不做任何操作！")
 end
@@ -171,7 +200,7 @@ function doPersonalCenter(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/zuijinglianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')   
-    Scene:setReturn(Alias.m_local, Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"))
+    Scene:setReturn(Alias.m_localsetup, Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"))
     Scene:go(Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"), true)
 end
 
@@ -181,12 +210,17 @@ function doSetting(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/zuijinglianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png') 
-    Scene:setReturn(Alias.m_local, Alias.m_system)
+    Scene:setReturn(Alias.m_localsetup, Alias.m_system)
     Scene:go(Alias.m_system, true)
 end
 
 function doBack()
     Scene:go(Alias.m_system, true)     
+end
+
+function cardOnSelect()
+    Scene:setReturn(Alias.m_localsetup, Alias.cardDesign)
+    Scene:go(Alias.cardDesign, true)
 end
 
     ]]>

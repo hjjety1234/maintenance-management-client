@@ -291,21 +291,6 @@ end
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
     if msg == 101 then
-        UmsAgent:onLoadFinish()
-        jsonDecodedEmployee = Http:jsonDecode('employeeTag')
-        -- 如果更新用户信息返回数据为空，则加载本地库中数据
-        if jsonDecodedEmployee == '' or jsonDecodedEmployee == nil then
-            Log:write("此时更新用户没有返回数据")
-            return
-        end 
-        Log:write('更新单个联系人返回数据 = ', jsonDecodedEmployee)
-        returnValue = jsonDecodedEmployee.value
-        local updateFlag = jsonDecodedEmployee.updateFlag
-        if updateFlag == '1' then
-            -- 更新该人员信息
-            updateUserData() 
-            loadUserData()
-        end 
     elseif msg == 102 then   
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -350,8 +335,7 @@ function getUserVersion()
     Log:write("创建数据库jttxlDatabase成功:bRet = "..bRet.." errMsg ="..errMsg)
     loadUserData()
     versionNum = retUserTable[1][9] 
-    Log:write("当前用户的版本号 ======= ",versionNum)
-    -- doRefurbish()      
+    Log:write("当前用户的版本号 ======= ",versionNum)     
 end
 
 --点击拨号按钮
@@ -456,14 +440,6 @@ function smsOnSelect(sprite)
         end
 end
 
--- 刷新
-function doRefurbish()
-    UmsAgent:onLoadStart()
-    local requestURL = Alias.url_server..'mobile/UserInfo/updateUserInfo?employeeId='..employeeId..'&versionNum='..versionNum..'&pictureName='..picture
-    Log:write("更新联系人信息URL:", requestURL)  
-    Http:request('employeeTag', requestURL, 101,{useCache=false,method = 'post'}) 
-end 
-
 -- 下载用户图片
 function loadUserPic()
     Log:write("进入  loadUserPic 函数")
@@ -490,39 +466,6 @@ function loadUserPic()
             Sprite:setProperty(personImg_s,'src',remoteImgPath) 
         end 
     end                     
-end
-
--- 更新用户数据
-function updateUserData()
-    -- 修改用户SQL
-    local sqlUpdate = "UPDATE tb_c_employee SET employee_name = '"..returnValue[0].employee_name..
-            "',department_id = '"..returnValue[0].department_id.."',department_name = '"..
-            returnValue[0].department_name.."',headship_level = '"..returnValue[0].headship_level..
-            "',headship_name = '"..returnValue[0].headshipName.."',mobile = '"..
-            returnValue[0].mobile.."',mobile_short = '"..returnValue[0].mobile_short..
-            "',tel = '"..returnValue[0].tel.."',tel_short = '"..returnValue[0].tel_short..
-            "',email = '"..returnValue[0].email.."',versionNum = '"..returnValue[0].versionNum..
-            "',picture = '"..returnValue[0].picture.."',employee_firstword = '"..
-            returnValue[0].employee_firstword.."',employee_fullword = '"..returnValue[0].employee_fullword..
-            "',parent_department_name = '"..returnValue[0].parent_department_name..
-            "',display_order = '"..returnValue[0].display_order..
-            "',department_fax = '"..returnValue[0].department_fax..
-            "' WHERE employee_id = '"..employeeId.."';"
-    Log:write("sqlUpdate = ",sqlUpdate)
-    -- 删除用户SQL
-    local sqlDelete = "DELETE FROM tb_c_employee WHERE employee_id = '"..employeeId.."';"
-    Log:write("sqlDelete = ",sqlDelete)  
-    bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
-    Log:write("单个用户信息更新添加事务:bRet = "..bRet.." errMsg ="..errMsg)
-    if returnValue[0].update_type == '1' or returnValue[0].update_type == '0' then
-        bRet, errMsg = Sqlite:update(databaseName, sqlUpdate)
-        Log:write("修改用户:bRet = "..bRet.." errMsg ="..errMsg)
-    elseif returnValue[0].update_type == '2' then
-        bRet, errMsg = Sqlite:update(databaseName, sqlDelete)
-        Log:write("删除用户:bRet = "..bRet.." errMsg ="..errMsg)
-    end 
-    bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
-    Log:write("单个用户信息更新添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
 end
 
 -- 搜索函数
@@ -562,18 +505,6 @@ function doSetting(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png') 
     Scene:setReturn(Alias.m_myInfo, Alias.m_system)
     Scene:go(Alias.m_system, true)
-end
-
--- 存储卡路径
-function getDownloadPath()
-        local downloadPath = ''
-        local flashCard = System:getFlashCardName(1) -- 判断外置存储卡存在性
-        if flashCard and flashCard ~= '' then --存在外置存储卡
-            Log:write('Util:getDownloadPath  flashCard=================', flashCard)
-            downloadPath = flashCard
-        end
-        Log:write('Util:getDownloadPath=======================', downloadPath)
-        return downloadPath
 end
 
 -- 查询人员ID信息详情
@@ -699,16 +630,5 @@ function onOpenAlbumDialog(filePath, fileType) --此函数名和OpenAlbumDialog�
     Scene:go(Alias.m_picRecord,true)
 end
 
--- 判断手机是否有存储卡
-function getDownloadPath()
-        local downloadPath = ''
-        local flashCard = System:getFlashCardName(1) -- 判断外置存储卡存在性
-        if flashCard and flashCard ~= '' then --存在外置存储卡
-            Log:write('Util:getDownloadPath  flashCard=================', flashCard)
-            downloadPath = flashCard
-        end
-        Log:write('Util:getDownloadPath=======================', downloadPath)
-        return downloadPath
-    end
     ]]>
 </root>

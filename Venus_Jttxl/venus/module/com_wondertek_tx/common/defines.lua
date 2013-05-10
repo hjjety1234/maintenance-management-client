@@ -64,6 +64,8 @@ Alias = {
     m_local = 'MODULE:\\com_wondertek_tx\\m_local.wdml', -- 本机通讯录
     
     m_localsetup = 'MODULE:\\com_wondertek_tx\\m_localsetup.wdml', -- 本机通讯录设置
+
+    cardDesign = 'MODULE:\\com_wondertek_tx\\cardDesign.wdml', --名片设置
     
     url_server = 'http://120.209.138.173:8080/',     --测试服务器地址
     m_update = 'MODULE:\\com_wondertek_tx\\m_update.wdml', -- 入口页

@@ -157,27 +157,6 @@
                 <label name="content" rect="0,0,218,48" border="false" text="更新失败，请重试！" h-align="center" 
                     v-align="center" font-family="微软雅黑" font-size="24" color="#FFFFFF" style="autosize" extendstyle="1111"></label>
             </node>
-            <!-- 图片上传弹出框 -->
-             <node name="picOnload" rect="0,0,480,800"  visible="false" active="false" enable="false" extendstyle="1111" style='autosize'>
-                <image rect="0,0,480,800" src="file://image/picselect_shadow.png"  style="autosize" extendstyle="1111" border="false" ></image>
-                <shadow rect="0,410,480,1" color="#9a9a9b" alpha="255" extendstyle="1114" />
-                <image rect="0,411,480,389" src="file://image/picselect_bj.png"  style="autosize" extendstyle="1111" border="false" ></image> 
-                <!-- 拍照按钮 -->
-                <button rect="25,430,440,71" border="false"  enable='true' text="拍照" font-size="24px"
-                    extendstyle="1111" OnSelect="cameraOnSelect" style='autosize'  normal="src:file://image/pic_btn_d.png;style:sudoku-auto;sudoku:15,15,15,15;"
-                    sel="src:file://image/pic_btn_s.png;style:sudoku-auto;sudoku:15,15,15,15;">
-                </button>
-                <!-- 从相机中选择按钮 -->
-                <button rect="25,520,440,71" border="false"  enable='true' text="从相机选择" font-size="24px"
-                    extendstyle="1111" OnSelect="albumOnSelect" style='autosize'  normal="src:file://image/pic_btn_d.png;style:sudoku-auto;sudoku:15,15,15,15;"
-                    sel="src:file://image/pic_btn_s.png;style:sudoku-auto;sudoku:15,15,15,15;">
-                </button>
-                <!-- 取消 -->
-                <button rect="25,610,440,71" border="false"  enable='true' text="取消" font-size="24px" color="#ffffff"
-                    extendstyle="1111" OnSelect="cancelOnSelect" style='autosize'  normal="src:file://image/Cancel_d.png;style:sudoku-auto;sudoku:15,15,15,15;"
-                    sel="src:file://image/Cancel_s.png;style:sudoku-auto;sudoku:15,15,15,15;">
-                </button>
-            </node>
             
             <!-- 底部菜单  -->
             <node name="listNode" rect="0,720,480,80" extendstyle="1111">
@@ -212,11 +191,8 @@ require 'framework.umsagent'
 local rootSprite
 local newNode
 local versionNum 
-local picOnload
 local jsonDecodedEmployee = nil
 local bRet, errMsg, retUserTable
-local returnValue = {}
-local imageArray = {}
 local picture
 local employeeId = Config:get("employeeId")
 
@@ -245,7 +221,6 @@ function bodyOnSpriteEvent(msg, param)
             setAllShoworHide(newNode, 0)
         end 
         UmsAgent:OnActivate(string.match(Alias.m_editInfo, 'MODULE:\\(.*)'), "编辑个人信息")
-        picOnload = Sprite:findChild(rootSprite, 'picOnload')
         Log:write("进入个人中心页面 人员ID = ",employeeId)
         Log:write("配置文件中employeeId = ",Config:get("employeeId"))
         Sprite:setFocus(Sprite:findChild(rootSprite,'duanhaoLabel_s'))
@@ -272,21 +247,7 @@ end
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
     if msg == 101 then
-        UmsAgent:onLoadFinish()
-        jsonDecodedEmployee = Http:jsonDecode('employeeTag')
-        -- 如果更新用户信息返回数据为空，则加载本地库中数据
-        if jsonDecodedEmployee == '' or jsonDecodedEmployee == nil then
-            Log:write("此时更新用户没有返回数据")
-            return
-        end 
-        Log:write('更新单个联系人返回数据 = ', jsonDecodedEmployee)
-        returnValue = jsonDecodedEmployee.value
-        local updateFlag = jsonDecodedEmployee.updateFlag
-        if updateFlag == '1' then
-            -- 更新该人员信息
-            updateUserData() 
-            loadUserData()
-        end 
+      
     elseif msg == 102 then  
         if Loading:isShow() then Loading:close() end
         editinfosubmit = Http:jsonDecode('editinfosubmit')
@@ -348,18 +309,8 @@ function getUserVersion()
     Log:write("创建数据库jttxlDatabase成功:bRet = "..bRet.." errMsg ="..errMsg)
     loadUserData()
     versionNum = retUserTable[1][9] 
-    Log:write("当前用户的版本号 ======= ",versionNum)
-    -- doRefurbish()      
+    Log:write("当前用户的版本号 ======= ",versionNum)   
 end
-
-
--- 刷新
-function doRefurbish()
-    UmsAgent:onLoadStart()
-    local requestURL = Alias.url_server..'mobile/UserInfo/updateUserInfo?employeeId='..employeeId..'&versionNum='..versionNum..'&pictureName='..picture
-    Log:write("更新联系人信息URL:", requestURL)  
-    Http:request('employeeTag', requestURL, 101,{useCache=false,method = 'post'}) 
-end 
 
 -- 编辑个人信息
 function EditMyInfo(sprite)
@@ -462,18 +413,6 @@ function doSetting(sprite)
     Scene:go(Alias.m_system, true)
 end
 
--- 存储卡路径
-function getDownloadPath()
-        local downloadPath = ''
-        local flashCard = System:getFlashCardName(1) -- 判断外置存储卡存在性
-        if flashCard and flashCard ~= '' then --存在外置存储卡
-            Log:write('Util:getDownloadPath  flashCard=================', flashCard)
-            downloadPath = flashCard
-        end
-        Log:write('Util:getDownloadPath=======================', downloadPath)
-        return downloadPath
-end
-
 -- 查询人员ID信息详情
 function SQLxinxiDetail()
     local sql = "SELECT emp.employee_name AS employee_name,"..
@@ -517,97 +456,6 @@ function loadUserData()
     -- 图片
     -- loadUserPic()
 end
-
--- 个人信息头像上传
-function picOnSelect()
-    Log:write("添加图片函数")
-    -- imageArray = {}
-    -- setAllShoworHide(Sprite:findChild(rootSprite, 'picOnload'), 1)
-end
-
--- 取消
-function cancelOnSelect()
-    setAllShoworHide(Sprite:findChild(rootSprite, 'picOnload'), 0)
-end
-
--- 调摄像头
-function cameraOnSelect()
-    local result = System:openCamera('onCameraDialog',  'file://image/' ..employeeId.. '.jpg' , 'jpg')
-    if result == 0 then
-      Dialog:show('提示', '相机打开失败!', 'ok')
-      return 1
-    end
-end
--- 拍照图片处理
-function onCameraDialog(photoPath, photoType)
-    cancelOnSelect()
-    Log:write("photoPath ===== ",photoPath)
-    -- 添加图片压缩支持
-    local tmpSplitArray = Split(photoPath,'%.')
-    local dest = tmpSplitArray[1]..'temp.jpg'
-    Log:write('目标文件路径为:'..dest)
-    local ret = ScaleImageAsJpg(photoPath, dest, 480, 800, 0)
-    if ret == 1 then
-        table.insert(imageArray, dest)
-        Log:write('图片压缩成功，压缩后的图片位置为:'..dest)
-    else
-        table.insert(imageArray, photoPath)
-        Log:write('警告：图片压缩失败，使用未压缩的图片:'..photoPath)
-    end
-    Log:write("imageArray", imageArray)
-    local tmpSplitImage = Split(dest,'%.')
-    local imageName = Split(tmpSplitImage[1],'/')
-    Log:write("imageName 数组长度  "..table.getn(imageName))
-    Log:write("fileName = "..imageName[5])
-    local fileName = imageName[5]
-    local count = #imageArray
-    Log:write("图片数组的数目：",count)
-    local regHandle1=Reg:create('image_data')
-    Reg:setString(regHandle1, "imageName",fileName)
-    Reg:setString(regHandle1, "imageSrc",dest)
-    Reg:setTable(regHandle1, "imageArray", imageArray)
-    Scene:setReturn(Alias.m_myInfo, Alias.m_picRecord)
-    Scene:go(Alias.m_picRecord,true)
-end
-
--- 调本地图片库
-function albumOnSelect(sprite)
-    OpenAlbumDialog('onOpenAlbumDialog') 
-end
-
--- 本地库图片回调
-function onOpenAlbumDialog(filePath, fileType) --此函数名和OpenAlbumDialog里的参数保持一致
-    cancelOnSelect()
-    Log:write('filePath', filePath)
-    Log:write('fileType', fileType)
-    imageArray = {}
-    table.insert(imageArray, filePath)
-    Log:write("imageArray", imageArray)
-    local tmpSplitImage = Split(filePath,'%.')
-    local imageName = Split(tmpSplitImage[1],'/')
-    Log:write("imageName 数组长度  "..table.getn(imageName))
-    Log:write("fileName = "..imageName[5])
-    local fileName = imageName[5]
-    local count = #imageArray
-    local regHandle1=Reg:create('image_data')
-    Reg:setString(regHandle1, "imageName",fileName)
-    Reg:setString(regHandle1, "imageSrc",filePath)
-    Reg:setTable(regHandle1, "imageArray", imageArray)
-    Scene:setReturn(Alias.m_myInfo, Alias.m_picRecord)
-    Scene:go(Alias.m_picRecord,true)
-end
-
--- 判断手机是否有存储卡
-function getDownloadPath()
-        local downloadPath = ''
-        local flashCard = System:getFlashCardName(1) -- 判断外置存储卡存在性
-        if flashCard and flashCard ~= '' then --存在外置存储卡
-            Log:write('Util:getDownloadPath  flashCard=================', flashCard)
-            downloadPath = flashCard
-        end
-        Log:write('Util:getDownloadPath=======================', downloadPath)
-        return downloadPath
-    end
     
 function editOnLost(sprite)
     local imgname= Sprite:getProperty(sprite, 'name')
