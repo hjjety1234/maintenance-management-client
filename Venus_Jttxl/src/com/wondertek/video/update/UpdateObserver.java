@@ -144,6 +144,14 @@ public class UpdateObserver {
 				Log.d(TAG, "[getUpdateInfo] md5sum is null!");
 			}
 			
+			// get remote version
+			String number = "";
+			try {
+				number = version.getString("number");
+			}catch (Exception e) {
+				Log.d(TAG, "[getUpdateInfo] number is null!");
+			}
+			
 			// construct update info object 
 			UpdateInfo updateInfo = new UpdateInfo();
 			updateInfo.setReleaseLog(releaseLog);
@@ -152,6 +160,7 @@ public class UpdateObserver {
 			updateInfo.setRemotePatchUri(patchUrl);
 			updateInfo.setRemotePatchSize(patch_size);
 			updateInfo.setMd5sum(md5sum);
+			updateInfo.setNumber(number);
 			
 			return updateInfo;
 		} else

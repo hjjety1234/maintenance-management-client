@@ -13,6 +13,16 @@ public class UpdateInfo {
 	private String md5sum = null;
 	private long remoteApkSize = 0;
 	private long remotePatchSize = 0;
+	
+	private String number = "";
+
+	public String getNumber() {
+		return number;
+	}
+
+	public void setNumber(String number) {
+		this.number = number;
+	}
 
 	public String getReleaseLog() {
 		return releaseLog;

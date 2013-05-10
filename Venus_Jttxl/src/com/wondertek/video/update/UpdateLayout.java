@@ -62,7 +62,7 @@ public class UpdateLayout extends RelativeLayout {
 		UpdateLayout.updateInfo = updateInfo;
 
 		TextView appVersion = (TextView) findViewById(R.id.app_version);
-		appVersion.setText(CommonUtil.getCurVersion(mContext));
+		appVersion.setText(updateInfo.getNumber());
 
 		TextView appSize = (TextView) findViewById(R.id.app_size);
 		appSize.setText(getReadableSize(updateInfo.getRemoteApkSize()));
