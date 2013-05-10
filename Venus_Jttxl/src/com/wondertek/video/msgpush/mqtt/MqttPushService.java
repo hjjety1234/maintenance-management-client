@@ -259,7 +259,12 @@ public class MqttPushService extends Service
 			keepAlive();
 		} else if (intent.getAction().equals(ACTION_RECONNECT) == true) {
 			if (isNetworkAvailable()) {
-				reconnectIfNecessary();
+				new Thread() {
+					@Override
+					public void run() {
+						reconnectIfNecessary();
+					}
+				}.start();
 			}
 		}
 		// We want this service to continue running until it is explicitly
