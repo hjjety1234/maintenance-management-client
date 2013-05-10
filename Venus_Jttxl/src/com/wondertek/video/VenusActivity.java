@@ -44,6 +44,8 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -656,6 +658,10 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			//System.load(VenusApplication.appAbsPath + "/lib2/webbrowser/" + "libwebbrowser.so");
 			//System.load(VenusApplication.appAbsPath + "/lib2/admobview/" + "libadmobview.so");
 		}
+		
+		// load sql cipher library
+		 SQLiteDatabase.loadLibs(appActivity);
+		
 		//GDMAP
 		//System.load(VenusApplication.appAbsPath + "/lib2/mapview/libmapview.so");
 		// use for c call java find this activity.

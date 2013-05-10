@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.wondertek.video.VenusApplication;
+
+import net.sqlcipher.database.SQLiteDatabase;
+
 import android.app.ActivityManager;
 import android.app.KeyguardManager;
 import android.app.KeyguardManager.KeyguardLock;
@@ -51,6 +55,7 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 		telMgr = (TelephonyManager) context
 				.getSystemService(Service.TELEPHONY_SERVICE);
 		mContext = context;
+		SQLiteDatabase.loadLibs(context);
 		// outgoing call
 		if (intent.getAction().equals(Intent.ACTION_NEW_OUTGOING_CALL)) {
 			final String number = intent
