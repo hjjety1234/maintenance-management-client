@@ -155,7 +155,12 @@ public class MqttPushService extends Service
 				// }
 
 				// Establish an MQTT connection
-				connect();
+				new Thread() {
+					@Override
+					public void run() {
+						connect();
+					}
+				}.start();
 
 				// Register a connectivity listener
 				registerReceiver(mConnectivityChanged, new IntentFilter(
