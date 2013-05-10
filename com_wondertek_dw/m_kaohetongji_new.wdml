@@ -126,14 +126,28 @@
                     extendstyle="1111" data="01">
                     <!--列表信息-->
                         <node name="listViewNode" rect="0,6,480,510" extendstyle="1111">
-                            <listview name="sampleList2" rect="0,20,480,530" extendstyle="1111" 
+                            <listview name="sampleList2" rect="0,75,480,475" extendstyle="1111" 
                                 limit='true' />
                             <image name='selectImg' rect="21,0,438,2" 
                                 src="file://image/line.png" extendstyle="1111" 
                                 style='autosize'/> 
-                            <label name='meanLine' rect="300,0,70,21" text="平均值" font-family="微软雅黑" 
+                            <label name='meanLine' rect="300,0,70,21" text="" font-family="微软雅黑" 
                                 font-size="18" h-align="center" v-align="center" 
                                 color="#303030" style="autosize" extendstyle="0010"/>
+                            <!--全省平均值-->
+                            <node name="meanNode" rect="0,0,480,510" extendstyle="1111">
+                                <label rect="30,30,70,21" text="全省平均" font-family="微软雅黑" 
+                                font-size="18" h-align="center" v-align="center" 
+                                color="#303030" style="autosize" extendstyle="0010"/>
+                                <shadow  name="meanShadow" rect="120,20,200,45" color="#a93446" alpha="200" border="false"
+                                        extendstyle="1111"/>
+                                <textarea name="meanRatio" rect="200,30,90,25" text="" color="#ffffff" 
+                                    font-family='微软雅黑' font-size="20"  h-align="left"
+                                    v-align="center" style="autosize" extendstyle="1111"  >
+                                </textarea>
+                                <image name="meanImage" rect="" src="file://image/guoqi_line.png" extendstyle="1111" 
+                                    style='autosize'/> 
+                            </node> 
                         </node> 
                     </panoramaitem>
                     <panoramaitem name="item2" rect="0,0,480,800" 
@@ -204,7 +218,7 @@
                     font-family='微软雅黑' font-size="18" h-align="center"
                     v-align="center" style="autosize" extendstyle="1111" >
                 </textarea> 
-                <shadow name='newShadow' rect="10,48,400,30" color="#916747" alpha="200" border="false"
+                <shadow name='newShadow' rect="10,48,400,45" color="#916747" alpha="200" border="false"
                  extendstyle="1111"/>
                 <textarea name="newRatio" rect="345,20,90,25" text="" color="#ffffff" 
                     font-family='微软雅黑' font-size="20"  h-align="left"
@@ -263,7 +277,16 @@ function bodyOnPluginEvent(msg, param)
         if Loading:isShow() then Loading:close() end
         g_response = Http:jsonDecode('assessment')
         if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.code == '50' or getJsonArrayCount(g_response.value) == 0 then 
+            local meanLine = Sprite:findChild(rootSprite,'meanLine')
+            local meanNode = Sprite:findChild(rootSprite,'meanNode')
+            Sprite:setProperty(meanLine,'visible','false')
+            Sprite:setProperty(meanNode,'visible','false')
             Dialog:show('', '暂无考核数据!', 'ok')
+        else
+            local meanLine = Sprite:findChild(rootSprite,'meanLine')
+            local meanNode = Sprite:findChild(rootSprite,'meanNode')
+            Sprite:setProperty(meanLine,'visible','true')
+            Sprite:setProperty(meanNode,'visible','true')
         end
         getMaxAndMin()
         local len = getJsonArrayCount(g_response.value)
@@ -305,7 +328,8 @@ function getMaxAndMin()
         for i=1 ,getJsonArrayCount(g_response.value)-1 do
             total = g_response.value[i].score+total
         end 
-        mean = tonumber(string.format('%.2f',total/(getJsonArrayCount(g_response.value)-1)))
+        mean = tonumber(string.format('%.1f',total/(getJsonArrayCount(g_response.value)-1)))
+        Log:write('mean+++++++++++',mean)
 
         --取前三的最小值和后三的最大值
         if getJsonArrayCount(sortValue)>3 then
@@ -371,8 +395,14 @@ function loadListItem2(list, item, index)
     local meannum = 120+(mean-minus+0.1)*values
     local meanName = Sprite:findChild(item,'meanName')
     local meanLine = Sprite:findChild(rootSprite,'meanLine')
-    Sprite:setRect(meanName,meannum,10,3,60)
-    Sprite:setRect(meanLine,meannum-33,2,70,21)
+    local meanShadow = Sprite:findChild(rootSprite,'meanShadow')
+    local meanImage = Sprite:findChild(rootSprite,'meanImage')
+    local meanRatio = Sprite:findChild(rootSprite,'meanRatio')
+    Sprite:setProperty(meanRatio,'text',mean)
+    Log:write('mean+++++++++++11111111111',mean)
+    Sprite:setRect(meanName,meannum-4,0,3,60)
+    Sprite:setRect(meanImage,meannum-4,20,3,80)
+    Sprite:setRect(meanShadow,120,20,meannum-124,45)
     Log:write('total is ',getJsonArrayCount(g_response.value)-1,total,mean)
     -- 读取返回的数据
     local value = g_response.value
@@ -380,7 +410,7 @@ function loadListItem2(list, item, index)
     local newRatio = Sprite:findChild(item,'newRatio')         -- 巡检率
     local newShadow = Sprite:findChild(item,'newShadow')         -- 背景色
     Log:write('values',tonumber(string.format('%.1f',value[index+1].score)),minus)
-    local shadownum = math.floor((tonumber(string.format('%.2f',value[index+1].score))-minus+0.1)*values)
+    local shadownum = math.floor((tonumber(string.format('%.1f',value[index+1].score))-minus+0.1)*values)
     Sprite:setProperty(newCity, 'text', value[index+1].dimension)
     Sprite:setProperty(newRatio, 'text', string.format('%.1f',value[index+1].score))
     Sprite:setRect(newShadow,120,10,shadownum,45)
@@ -391,6 +421,15 @@ function loadListItem2(list, item, index)
         Sprite:setRect(newRatio,shadownum+135,22,90,25)
         Sprite:setProperty(newRatio,'color','#303030')
     end
+
+    if meannum>200 then 
+        Sprite:setRect(meanRatio,meannum-50,30,80,30)
+        Sprite:setProperty(meanRatio,'color','#ffffff')
+    else 
+        Sprite:setRect(meanRatio,meannum+20,30,80,30)
+        Sprite:setProperty(meanRatio,'color','#303030')
+    end
+
     if  index == 0  or index == 8 or index == 16 then 
         Sprite:setProperty(newShadow,'color','#0059a7')
     elseif index == 1 or index == 9 or index == 17 then
