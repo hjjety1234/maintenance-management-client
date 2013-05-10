@@ -170,6 +170,19 @@ function checkDatabase()
         local sql = "select register_flag from tb_c_system where system_id='001';"
         local bRet, retCountTable, errMsg = Sqlite:query(databaseName, sql)
         Log:write("系统表查询结果:bRet = "..bRet.." errMsg ="..errMsg)
+
+        -- @author: hewu
+        -- 尝试对明文的数据库进行加密
+        if tonumber(bRet) == 0 then 
+            Log:write("对明文数据库进行加密操作")
+            UmsAgent:encryptDb()
+            Log:write("重新打开加密数据库")
+            bRet, errMsg = Sqlite:open(databaseName) 
+            Log:write("尝试打开加密数据库返回:bRet = "..bRet.." errMsg ="..errMsg)
+            bRet, retCountTable, errMsg = Sqlite:query(databaseName, sql)
+            Log:write("尝试读取加密数据库系统表返回结果:bRet = "..bRet.." errMsg ="..errMsg)
+        end  
+
         if tonumber(bRet) == 0 then
             Log:write("系统表查询结果:jump =2")
             jumpFlag = 2
