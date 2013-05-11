@@ -150,9 +150,11 @@ Alias = {
     m_renchepeizhi = "MODULE:\\com_wondertek_dw\\m_renchepeizhi.wdml",  -- 人车配置   
 
 
-    m_biaoganGuanLi =  "MODULE:\\com_wondertek_dw\\m_biaoganGuanLi.wdml",  -- 标杆管理
-    m_biaoganGuanLizq =  "MODULE:\\com_wondertek_dw\\m_biaoganGuanLizq.wdml",  -- 标杆管理
-
+    m_biaoganGuanLi ="MODULE:\\com_wondertek_dw\\m_biaoganGuanLi.wdml",  -- 标杆管理
+    m_biaoganGuanLizq = "MODULE:\\com_wondertek_dw\\m_biaoganGuanLizq.wdml",  -- 标杆管理
     home_sheng_leader = "MODULE:\\com_wondertek_dw\\home_sheng_leader.wdml",
+    m_renchedetails = "MODULE:\\com_wondertek_dw\\m_renchedetails.wdml",--人车配置表格
+    m_renyuandetails = "MODULE:\\com_wondertek_dw\\m_renyuandetails.wdml",--人员配置表格
+   
 }
 
