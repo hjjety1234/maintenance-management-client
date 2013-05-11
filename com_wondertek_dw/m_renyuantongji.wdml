@@ -35,12 +35,11 @@
                     <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png" 
                         extendstyle="1111" />
                 </button>
-                 <button name="Details" rect="400,0,40,40" color="#ffffff" extendstyle="1111" OnSelect="detailOnSelect" font-size="24" >
+               
+                <!--人员统计表格-->
+                <button name="selBtn" rect="400,0,100,66" OnSelect="detailOnSelect" extendstyle="1111">
                     <image name="icon_detail" rect="21,8,40,40" src="file://image/icon_detail.png"
                     extendstyle="1111"  />
-                </button>
-                <!--选择下拉菜单，按地市和代维公司两个维度进行选择-->
-                <button name="selBtn" rect="400,0,100,66" OnSelect="selBtnClicked" extendstyle="1111">
                 </button>
             </node>
             
@@ -310,6 +309,7 @@ function bodyOnPluginEvent(msg, param)
     if msg == 101 then
         UmsAgent:onLoadFinish()
         renyuandata = Http:jsonDecode('renyuandata')
+        Log:write("人员统计人员统计人员统计",renyuandata)
         OnSelectShowMap()
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
@@ -495,9 +495,11 @@ end
 
 -- @brief 选择代维公司
 function OnCompanySelect(sprite)
-    Log:write("111111")
+   -- Log:write("111111")
     Scene:go(Alias.m_renchepeizhi)
 end 
-
+function detailOnSelect()
+    Scene:go(Alias.m_renyuandetails)
+end
     ]]>
 </root>
