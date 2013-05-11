@@ -144,6 +144,9 @@ require 'com_wondertek_dw.common.framework'
 local rootSprite
 local observer
 local mapViewPlugin
+local year = '' --年
+local quarter = ''--季
+local month  = ''--月
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -165,19 +168,35 @@ function bodyBuildChildrenFinished(sprite)
     end
 
 end
-
-function updateDaibanNum()
-    local username=Config:get('username')
-    local password=Config:get('password')
-    local dataString=string.format('usercode=%s&password=%s&cmd=%s',username, password,'wlblogin')
-    local reqURL = getUrl()..'nbspweb/webservice/user!doWebservice.action?'..dataString
-    Http:request('login_istrue', reqURL, 102, {useCache=false})
+-- 获取当前年月
+function setDefaultMonth()
+    year = (os.date("*t",os.time() + 86400)) ["year"]
+    month = (os.date("*t",os.time() + 86400))["month"]
+    --Log:write('month',month)
+    if  month==3 or month==2 or month==1 then        
+        quarter = 1
+    elseif month==4 or month==5 or month==6 then        
+        quarter = 2
+    elseif month==7 or month==8 or month==9 then        
+        quarter = 3
+    elseif month==10 or month==11 or month==12 then        
+        quarter = 4
+    end
 end
-
+-- 请求统计数据
+function request()
+    setDefaultMonth()
+    local date = year..'-'..quarter
+    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=C30&page=1&pagesize=100&dimension=city', 
+        Config:get('username'), date)
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Log:write("[request] reqURL: ", reqURL)
+    Http:request('patrol', reqURL, 101, {useCache = false})
+end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        updateDaibanNum()
+        request()--预加载巡检数据
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -186,6 +205,11 @@ end
 function bodyOnPluginEvent(msg, param)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
+       --patrol = Http:jsonDecode('patrol')
+       --local patroltable = sz_T2S(patrol)
+       --Log:write('patroltable',patroltable)
+       --local regHandle = Reg:create('patroltable')
+       --Reg:setString(regHandle,patroltable)
     elseif msg == 102 then
         local loginData = Http:jsonDecode('login_istrue')
         local result=loginData['code']
@@ -233,21 +257,7 @@ end
 function doExitButtonOnClick(sprite)
     Dialog:show('','是否确定退出？','ok_cancel','doExit')
 end
----------------------------------------util functions---------------------------
-
-function setDaibanNum(num)
-    local daibannode = Sprite:findChild(rootSprite, 'daibanNode')
-    Log:write('num================',num)
-    if tonumber(num)==0 or num=='' or num==nil then
-        setAllShoworHide(Sprite:findChild(daibannode, 'daibanimg'), 0)
-        setAllShoworHide(Sprite:findChild(daibannode, 'daibanNum'), 0)
-        else
-        setAllShoworHide(Sprite:findChild(daibannode, 'daibanimg'), 1)
-        setAllShoworHide(Sprite:findChild(daibannode, 'daibanNum'), 1)
-        Sprite:setProperty(Sprite:findChild(daibannode, 'daibanNum'),'text',num)
-    end
-end
-
+---------------------------------------util functions--------------------------
 function listItemOnSelect(sprite)
     local dataInfo = Sprite:getData(sprite)
     if dataInfo == '01' then    -- 人车配置
