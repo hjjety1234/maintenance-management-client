@@ -24,7 +24,7 @@
             <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
                  <image name="title" rect="0,0,480,66" border="false" src="file://image/title_bg_new.png" 
                     style="autosize" extendstyle="1111">
-                    <label rect="0,0,480,66" text="人车配置(全省)" name="titlename" color="#ffffff" v-align="center"  
+                    <label rect="0,0,480,66" text="人车配置" name="titlename" color="#ffffff" v-align="center"  
                        h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />
                  </image>
                  <!-- 返回按钮  -->
@@ -88,6 +88,13 @@
                     normal="" sel="" OnSelect="doRegionClick"></button>
                  <button rect="277,357,43,37" data="铜陵" extendstyle="1111" 
                     normal="" sel="" OnSelect="doRegionClick"></button>
+                 <button rect="190,560,240,40" src='file://image/zy_icon.png'
+                        OnSelect="doRegionClick" extendstyle="1111" data='全省'>
+                        <label rect="32,2,100,30" text="全省合计" h-align="center"
+                        v-align="center" color="#303030" font-family="微软雅黑" 
+                        font-size="22">
+                    </label>
+                 </button>
             </node>
             
             <!-- 弹出提示部分  -->
@@ -338,11 +345,16 @@ end
 function doRegionClick(sprite)
     -- 获取当前被选地市的数据
     local name = Sprite:getData(sprite)
+    Log:write('name++++++',name)
     local titlename = Sprite:findChild(rootSprite,'titlename')
     if name ~= nil then
         Sprite:setProperty(titlename,'text','人车配置('..name..')')
     end
     local city = nil
+    if name =='全省' then
+        Log:write('全省++',renyuandata.value[0].companynum,renyuandata.value[0].allcar,renyuandata.value[0].allstaff)
+        showDetail('全省', renyuandata.value[0].companynum-1, renyuandata.value[0].allcar, renyuandata.value[0].allstaff)
+    end
     for i=0,#renyuandata.value[0].data do
        if name == renyuandata.value[0].data[i].dimension then
             city = renyuandata.value[0].data[i]
@@ -363,7 +375,7 @@ end
 
 function OnSelectShowMap(sprite)
     local titlename = Sprite:findChild(rootSprite,'titlename')
-    Sprite:setProperty(titlename,'text','人车配置(全省)')
+    Sprite:setProperty(titlename,'text','人车配置')
     local cityNode = Sprite:findChild(rootSprite, 'cityNode')
     Sprite:setProperty(cityNode, 'visible', 'false') 
     if renyuandata ~= nil and renyuandata.value ~= nil and renyuandata.value ~= "" then 
@@ -481,6 +493,10 @@ function showDetail(strName, strCmpNum, strCarNum, strStaffNum)
            Sprite:setVisible(renDia,1)
            Sprite:setProperty(renche_dialog,'src','file://image/renche_dialog3.png')
            Sprite:setRect(renDia, 60, 380, 300, 100)
+        elseif strName=="全省" then--换
+           Sprite:setVisible(renDia,1)
+           Sprite:setProperty(renche_dialog,'src','file://image/renche_dialog4.png')
+           Sprite:setRect(renDia, 180, 580, 300, 100)
         else 
            Sprite:setVisible(renDia,0)
         end

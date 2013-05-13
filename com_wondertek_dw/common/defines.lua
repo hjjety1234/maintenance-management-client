@@ -155,6 +155,7 @@ Alias = {
     home_sheng_leader = "MODULE:\\com_wondertek_dw\\home_sheng_leader.wdml",
     m_renchedetails = "MODULE:\\com_wondertek_dw\\m_renchedetails.wdml",--人车配置表格
     m_renyuandetails = "MODULE:\\com_wondertek_dw\\m_renyuandetails.wdml",--人员配置表格
+    m_zhangaigongdanlist = "MODULE:\\com_wondertek_dw\\m_zhangaigongdanlist.wdml",--障碍代办工单
    
 }
 
