@@ -281,6 +281,7 @@ local g_localpath = nil             -- 下载apk路径
 
 local g_packageSize = 0             -- 客户端升级包大小
 local g_patchSize = 0               -- 补丁包大小
+local g_packageMd5 = nil            -- 客户端校验值
 
 local g_releaseLog = nil            -- 版本升级说明
 local g_patchUrl = nil              -- 补丁包下载url地址
@@ -347,6 +348,7 @@ function bodyOnPluginEvent(msg)
                 g_releaseLog = checkversionData.version.releaseLog
                 g_packageSize = checkversionData.version.apk_size or 0
                 g_patchSize = checkversionData.version.patch_size or 0
+                g_packageMd5 = checkversionData.version.shalNum or 0
                 doUpgrade()
             elseif tonumber(checkversionData['version']['isNeedUpdate']) == 2 then -- 强制升级
                 downloadPackage()
@@ -432,6 +434,14 @@ function doUpgrade()
         Log:write("本地文件不存在！")
         bDiffUpdate =  false
     end
+    -- 进行文件校验
+    local md5 = Util:md5(g_localpath, true)
+    Log:write("本地文件MD5:"..md5..", 服务端返回校验值为:", g_packageMd5)
+    if g_packageMd5 ~= md5 then 
+        Log:write("校验失败，与服务端不匹配！")
+        bDiffUpdate =  false
+    end
+
     -- 开始升级
     if bDiffUpdate == true then
         Log:write("显示增量升级对话框")     
