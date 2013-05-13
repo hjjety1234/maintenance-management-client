@@ -115,10 +115,10 @@
                             <image name="normal" rect="0,0,40,35" src="file://image/t6.png" style="autosize" extendstyle="0010"/>                  
                         </button>
                         <image name='rightImg' rect="61,0,140,35" src="file://image/t7.png" extendstyle="1111" style='autosize'/>
-                        <label name="nianlabel1" rect="70,0,50,35" text="2012" font-family="微软雅黑" font-size="24" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010" /> 
-                        <label name="zhi" rect="130,0,25,35" text="年" font-family="微软雅黑" font-size="24" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010"/> 
-                        <label name="yuelabel1" rect="155,0,30,35" text="2" font-family="微软雅黑" font-size="24" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010" /> 
-                        
+                        <label name="nianlabel1" rect="60,0,50,35" text="2012" font-family="微软雅黑" font-size="24" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010" /> 
+                        <label name="zhi" rect="110,0,25,35" text="年" font-family="微软雅黑" font-size="24" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010"/> 
+                        <label name="yuelabel1" rect="145,0,30,35" text="2" font-family="微软雅黑" font-size="24" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010" /> 
+                         <label name="yueLab" rect="170,0,25,35" text="月" font-family="微软雅黑" font-size="24" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010"/> 
                         <label name="nian" rect="115,0,20,35" text="年" font-family="微软雅黑" font-size="24" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010" visible="false"/> 
                         <label name="jidulabel1" rect="135,0,20,35" text="1" font-family="微软雅黑" font-size="24" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010" visible="false"/> 
                         <label name="jidu" rect="155,0,45,35" text="季度" font-family="微软雅黑" font-size="24" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010" visible="false"/> 
@@ -203,6 +203,7 @@ local zhi
 local jidulabel1
 local nian
 local jidu
+local yueLab
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -220,6 +221,7 @@ function bodyBuildChildrenFinished(sprite)
     jidulabel1=Sprite:findChild(rootSprite,"jidulabel1")
     nian = Sprite:findChild(rootSprite,"nian")
     jidu = Sprite:findChild(rootSprite,"jidu")
+    yueLab = Sprite:findChild(rootSprite,"yueLab")
     Loading:show(rootSprite)
 
 end
@@ -357,7 +359,8 @@ function dangyueOnSelect(sprite)
     Sprite:setVisible(zhi,1)   
     Sprite:setVisible(yuelabel1,1)
     Sprite:setRect(nianlabel1, 80, 0, 50, 35)    
-    Sprite:setRect(zhi, 130, 0, 30, 35)   
+    Sprite:setRect(zhi, 130, 0, 30, 35) 
+    Sprite:setVisible(yueLab,1)  
    local data = Sprite:getData(sprite);
    if (data == "0") then
       local dangyueimg = Sprite:findChild(sprite,"dangyueimg")
@@ -415,6 +418,7 @@ end
 function dangjiduOnSelect(sprite)
    local data = Sprite:getData(sprite);
    Sprite:setRect(nianlabel1, 60, 0, 50, 35)
+   Sprite:setVisible(yueLab,0) 
    Sprite:setVisible(jidulabel1,1)
    if (data == "0") then
       local dangjiduimg = Sprite:findChild(sprite,"dangjiduimg")
@@ -489,6 +493,7 @@ function dangnianOnSelect(sprite)
     Sprite:setVisible(jidulabel1,0)
     Sprite:setVisible(yuelabel1,0)
     Sprite:setVisible(zhi,1)
+      Sprite:setVisible(yueLab,0) 
     Sprite:setRect(nianlabel1, 80, 0, 60, 35)
     Sprite:setRect(zhi, 140, 0, 30, 35)
    local data = Sprite:getData(sprite);
