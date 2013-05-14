@@ -260,6 +260,8 @@ local meanNum = 0
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    local regHandle=Reg:create('xunjian_data')
+    patrol = Reg:getTable(regHandle, "xunjian")
     g_major = "C31"
     setDefaultMonth()
 end
@@ -268,10 +270,8 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_xunjiantongji_new, 'MODULE:\\(.*)'), "巡检统计")
-        --local regHandle = Reg:create('patroltable')
-        --local xxx = Reg:getString(regHandle,patroltable)
-        --Log:write('xxx',xxx)
-        request(g_major)
+        msgLoad()
+        --request(g_major)
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
@@ -281,37 +281,8 @@ end
 function bodyOnPluginEvent(msg, param)
     if msg == 101 then--按地市数据处理 
         UmsAgent:onLoadFinish()  
-        if Loading:isShow() then Loading:close() end
-        g_response = Http:jsonDecode('patrol')
-        --Log:write('[bodyOnPluginEvent] g_response', g_response)
-        if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.value == nil or g_response.code == '50' or getJsonArrayCount(g_response.value) == 0 then 
-            Dialog:show('', '暂无巡检数据!', 'ok')
-            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-            local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
-            ListView:removeAllItems(listView1, 1, 1)
-            ListView:removeAllItems(listView2, 1, 1)
-        end
-        local len = getJsonArrayCount(g_response.value)
-        Log:write('len+++++',len)
-        Log:write("g_response.value", g_response.value)
-
-        g_sum = g_response.value[len - 1]
-        g_response.value[len - 1] = nil
-        g_response.value = sortTable(g_response.value, 'ratio', true)
-        local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
-        local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
-        ListView:removeAllItems(listView1, 1, 1)
-        ListView:removeAllItems(listView2, 1, 1)
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
-            1, 'addSumToListItem1')
-        ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), 
-            1, 'addSumToListItem')
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
-            len-1, 'loadListItem')
-        ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), 
-            len - 1, 'loadListItem2')
-        ListView:adjust(listView1)
-        ListView:adjust(listView2)
+        msgLoad()
+        
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -464,16 +435,16 @@ function showRank1(item, index)
         ratio=0
     end
 
-    Log:write('当前巡检率的值',ratio)
+    --Log:write('当前巡检率的值',ratio)
     -- 统计巡检率的排名
     local rank = 1
     for i=0,getJsonArrayCount(g_response.value)-1 do
         local compare = g_response.value[i].ratio
-    Log:write('compare',compare)
+    --Log:write('compare',compare)
         if tonumber(ratio) < tonumber(compare) then 
             rank =  rank + 1
         end 
-    Log:write('排名',rank)
+    --Log:write('排名',rank)
     end 
     -- 获取笑脸和哭脸的Sprite
     local faceName = Sprite:findChild(item, 'faceName')
@@ -786,5 +757,39 @@ function companyOn(sprite)
     request(g_major)
 end
 
+--获取json数据进行加载
+function msgLoad()
+    if Loading:isShow() then Loading:close() end
+        g_response = Http:jsonDecode('patrol')
+        --Log:write('[bodyOnPluginEvent] g_response', g_response)
+        if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.value == nil or g_response.code == '50' or getJsonArrayCount(g_response.value) == 0 then 
+            Dialog:show('', '暂无巡检数据!', 'ok')
+            local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+            local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
+            ListView:removeAllItems(listView1, 1, 1)
+            ListView:removeAllItems(listView2, 1, 1)
+        end
+        local len = getJsonArrayCount(g_response.value)
+        Log:write('len+++++',len)
+        Log:write("g_response.value", g_response.value)
+
+        g_sum = g_response.value[len - 1]
+        g_response.value[len - 1] = nil
+        g_response.value = sortTable(g_response.value, 'ratio', true)
+        local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
+        local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
+        ListView:removeAllItems(listView1, 1, 1)
+        ListView:removeAllItems(listView2, 1, 1)
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+            1, 'addSumToListItem1')
+        ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), 
+            1, 'addSumToListItem')
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
+            len-1, 'loadListItem')
+        ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), 
+            len - 1, 'loadListItem2')
+        ListView:adjust(listView1)
+        ListView:adjust(listView2)
+end
 ]]>
 </root>

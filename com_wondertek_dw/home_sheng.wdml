@@ -182,16 +182,28 @@ function setDefaultMonth()
     elseif month==10 or month==11 or month==12 then        
         quarter = 4
     end
+    if month==1 then 
+        month = 11 
+    elseif month==2  then 
+        month = 12
+    else
+        month = month -2
+    end
 end
 -- 请求统计数据
 function request()
     setDefaultMonth()
-    local date = year..'-'..quarter
-    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=C30&page=1&pagesize=100&dimension=city', 
+    local date = year..'-'..quarter--巡检季度
+    local date1 = year..'-'..month--考核月份
+    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=C31&page=1&pagesize=100&dimension=city', 
         Config:get('username'), date)
+    local param1 = string.format('cmd=wlbassessment&usercode=%s&date=%s&major=C31&page=1&pagesize=100&dimension=city', 
+        Config:get('username'), date1)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
-    Log:write("[request] reqURL: ", reqURL)
+    local reqURL1 = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param1
+    Log:write("[request] reqURL1: ", reqURL1)
     Http:request('patrol', reqURL, 101, {useCache = false})
+    Http:request('assessment', reqURL1, 103, {useCache = false})
 end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
@@ -205,11 +217,12 @@ end
 function bodyOnPluginEvent(msg, param)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
-       --patrol = Http:jsonDecode('patrol')
-       --local patroltable = sz_T2S(patrol)
-       --Log:write('patroltable',patroltable)
-       --local regHandle = Reg:create('patroltable')
-       --Reg:setString(regHandle,patroltable)
+       --预加载数据存到巡检页面
+       patrol = Http:jsonDecode('patrol')
+       local regHandle=Reg:create('xunjian_data')
+       Reg:clear(regHandle)
+       Reg:setTable(regHandle, "xunjian", patrol)
+       --Log:write('patrol',patrol)
     elseif msg == 102 then
         local loginData = Http:jsonDecode('login_istrue')
         local result=loginData['code']
@@ -224,6 +237,12 @@ function bodyOnPluginEvent(msg, param)
                 Sprite:setProperty(daibanNum, 'text', loginData.taskNum)
             end
         end
+    elseif msg == 103 then
+        kaohe = Http:jsonDecode('assessment')
+        local regHandle=Reg:create('kaohe_data')
+        Reg:clear(regHandle)
+        Reg:setTable(regHandle, "kaohe", kaohe)
+        --Log:write('kaohe',kaohe)
     elseif msg == 1000 then
         local postData = Param:getString(param, 0)
         if postData.latitude ~= nil then

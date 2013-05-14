@@ -393,6 +393,8 @@ function sortTable(tbl, index, bDesc)
         return tbl
     end
 end
+
+--table转string
 function sz_T2S(_t)  
     local szRet = "{"  
     function doT2S(_i, _v)  
@@ -423,4 +425,4 @@ function sz_T2S(_t)
     table.foreach(_t, doT2S)  
     szRet = szRet .. "}"  
     return szRet  
-end
+end  
