@@ -93,14 +93,25 @@
 
 require 'com_wondertek_tx.common.framework'
 require 'framework.umsagent'
+require 'framework.sqlite'
+
 local rootSprite
 local registerData
 local timeNum = 50 --获取验证码倒计时秒数
+local databaseName
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     Http:startNetwork()
+    createDatabase()
+end
+
+--创建数据库
+function createDatabase()
+    databaseName = getLocalDiskPath()..'/jttxlDatabase'
+    bRet, errMsg = Sqlite:open(databaseName) 
+    Log:write("创建数据库jttxlDatabase成功:bRet = "..bRet.." errMsg ="..errMsg)
 end
 
 -- @brief root节点消息方法
@@ -156,6 +167,22 @@ function bodyOnPluginEvent(msg)
             Config:set('username',Sprite:getText(usernameEdit)) --手机号码
             Config:set('userName',Sprite:getText(usernameEdit))
             --Timer:set(333,2000,'goHome')  --注册成功后，提醒用户继续登录，跳转到登录界面
+            --write 
+            local imeicode = System:getMachineInfo(4) 
+            local imsicode = System:getMachineInfo(5)
+            if imeicode == nil or imeicode == '' then
+                imeicode = '0'
+            end
+            if imsicode == nil or imsicode == '' then
+                imsicode = '0'
+            end
+            local registerCode = Sprite:getText(usernameEdit)..imeicode..imsicode
+            --write to database
+            local sql = "update tb_c_system set mark4='"..registerCode.."'"
+            bRet, errMsg = Sqlite:update(databaseName, sql)
+            Log:write('the sql is ',sql)
+            Log:write('sql execute return value is ',bRet)
+            Log:write('sql execute error value is ',errMsg)
         else 
            Sprite:setVisible(sucess,0)
            Sprite:setVisible(fail,1)

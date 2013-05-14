@@ -269,6 +269,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        
         Http:startNetwork()
 
         
@@ -298,6 +299,7 @@ function bodyOnSpriteEvent(msg, param)
             Log:write('收集设备信息至服务端s')
             updateDeviceInfo()
         end
+        Timer:set(222, 100, "checkDeviceInfo")
 
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
@@ -396,6 +398,8 @@ function bodyOnPluginEvent(msg)
 
             end
         end
+    elseif msg == 1000 then 
+       checkDeviceRespProc()
     elseif msg > MSG_NETWORK_ERROR then -- 请求超时
         Log:write('请求超时')
     end

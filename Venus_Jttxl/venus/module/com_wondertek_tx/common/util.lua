@@ -402,3 +402,91 @@ function formatPhoneNum(phonenum)
     Log:write("格式化的手机号码为:", result)
     return result
 end
+
+-- @hewu 检查用户的imei,imsi和手机号是否三码合一
+require('framework.sqlite')
+function checkDeviceInfo()
+    -- 获取用户的imei和imsi号
+    Log:write("开始进行三码合一检查...")
+    local imeicode = System:getMachineInfo(4) 
+    local imsicode = System:getMachineInfo(5) 
+    if imeicode == nil or imeicode == '' then
+        imeicode = '0'
+    end
+    if imsicode == nil or imsicode == '' then
+        imsicode = '0'
+    end
+    -- 获取用户手机号
+    local mobile = "0"
+    local bRet, errMsg, retCountTable
+    local databaseName = getLocalDiskPath()..'/jttxlDatabase'
+    local sql = "select mobile,tb_c_system.mark4 from tb_c_employee, tb_c_system where tb_c_system.employee_id = tb_c_employee.employee_id"
+    bRet, errMsg = Sqlite:open(databaseName) 
+    Log:write("打开数据库返回:bRet = "..bRet.." errMsg ="..errMsg)
+    bRet, retCountTable, errMsg = Sqlite:query(databaseName, sql)
+    Log:write("获取登录用户数据返回:bRet = "..bRet.." errMsg ="..errMsg)
+    if tonumber(bRet) ~= 0 then
+        Log:write("系统表查询结果: retCountTable =", retCountTable) 
+        if retCountTable[1] ~= nil and retCountTable[1][1] ~= nil then 
+            mobile = retCountTable[1][1] 
+            if retCountTable[1] ~= nil and (retCountTable[1][2] == nil or retCountTable[1][2] == '') then
+                local registerCode = updateDeviceInfoToDb(mobile)
+                retCountTable[1][2] = registerCode
+            end
+        end
+        if retCountTable[1] ~= nil and retCountTable[1][2] ~= nil and retCountTable[1][2] ~= '' then
+            local registerCode = mobile..imeicode..imsicode
+            if registerCode ~= retCountTable[1][2] then
+                Dialog:show("", "设备已禁用，请重新注册!", "ok", "reRegister")
+                return
+            end
+        end
+    end
+    Log:write("登录用户手机号为: ", mobile)
+    -- 进行校验请求
+    local url = Alias.url_server..'mobile/device/validate?userCode='..Config:get('employeeId')
+    url = url .. '&imsi='..imsicode..'&imei='..imeicode.."&phone="..mobile
+    Http:request('checkDevice', url, 1000, {useCache=false})
+end
+
+-- @hewu 三码合一校验返回处理
+function checkDeviceRespProc()
+    local checkDevice = Http:jsonDecode('checkDevice')
+    Log:write('checkDevice', checkDevice)
+    if checkDevice.msg ~= "SUCCESS" then 
+        Dialog:show("", "设备已禁用，请重新注册!", "ok", "reRegister")
+    else
+        Config:set('forceUpdateDatabase', "0")
+        Log:write("三码合一校验成功！")
+    end
+end
+
+-- @hewu 强制退出应用并重新注册
+function reRegister()
+    Log:write("校验失败，即将退出应用并重新注册.")
+    Config:set('forceUpdateDatabase', "1")
+    doExit()
+end
+
+--@zhouyu 
+function updateDeviceInfoToDb(phone)
+    --write imei,imsi info
+    local imeicode = System:getMachineInfo(4) 
+    local imsicode = System:getMachineInfo(5)
+    if imeicode == nil or imeicode == '' then
+        imeicode = '0'
+    end
+    if imsicode == nil or imsicode == '' then
+        imsicode = '0'
+    end
+    local registerCode = phone..imeicode..imsicode
+    --write to database
+    local databaseName = getLocalDiskPath()..'/jttxlDatabase'
+    local bRet, errMsg = Sqlite:open(databaseName) 
+    local sql = "update tb_c_system set mark4='"..registerCode.."'"
+    bRet, errMsg = Sqlite:update(databaseName, sql)
+    Log:write('the sql is ',sql)
+    Log:write('sql execute return value is ',bRet)
+    Log:write('sql execute error value is ',errMsg)
+    return registerCode
+end

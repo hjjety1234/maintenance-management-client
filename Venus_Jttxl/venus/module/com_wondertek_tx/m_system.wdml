@@ -331,6 +331,7 @@ function bodyOnSpriteEvent(msg, param)
         Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
         Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
         Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_s.png')
+        Timer:set(222, 100, "checkDeviceInfo")
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
@@ -362,6 +363,8 @@ function bodyOnPluginEvent(msg)
         else
            Dialog:show('提示', '版本检测返回的数据异常，请检查网络！', 'ok')
         end
+    elseif msg == 1000 then 
+       checkDeviceRespProc()
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')

@@ -164,6 +164,9 @@ function bodyOnPluginEvent(msg)
         Log:write('+++++++++==loginData=====', loginData)
         if loginData['code'] == '0' then
             Sprite:setProperty(noticeLabel, 'text', '登录成功')
+
+            local phone = loginData['mobile']
+            updateDeviceInfoToDb(phone)
             --记住用户名和密码
             writeuserInfo()
             local paras = '&userCode='..Config:get('userId')..'&deptCode=0'..'&deptList='..'&token='
@@ -318,8 +321,16 @@ end
 
 function zhuceBtnOnSelect()
     local usernameEdit= Sprite:findChild(rootSprite,'usernameEdit')
+    local imeicode = System:getMachineInfo(4) 
+    local imsicode = System:getMachineInfo(5) 
+    if imeicode == nil or imeicode == '' then
+        imeicode = '0'
+    end
+    if imsicode == nil or imsicode == '' then
+        imsicode = '0'
+    end
     if Sprite:getText(usernameEdit)~='请输入您的手机长号' and Sprite:getText(usernameEdit)~='' then
-        local paras = 'type=0&mobile='..Sprite:getText(usernameEdit)
+        local paras = 'type=0&mobile='..Sprite:getText(usernameEdit).."&IMEI="..imeicode.."&IMSI="..imsicode
         Http:request('registerdata0', url_register..paras, 111, {useCache = false})
         Loading:show(rootSprite) 
         else 
@@ -379,6 +390,9 @@ function jumpPage()
     Config:set('forceUpdateDatabase', '0')
 	Log:write("forceUpdateDatabase2= "..Config:get('forceUpdateDatabase'))
     UmsAgent:writeCallLog()
+    -- hewu 进入最近联系人之前，设置强制进入注册页面标志位为0
+    -- 防止没有调用到三码合一接口或调用失败导致重复注册
+    Config:set('forceUpdateDatabase', "0")
     Scene:setReturn(Alias.m_login, Alias.m_recentContacter)
     Scene:go(Alias.m_recentContacter, true)
 end
