@@ -124,8 +124,8 @@
                 </button>
             </node>
             <!-- 申请列表 -->
-            <node name="flowNode" rect="0,69,480,500" extendstyle="1111" visible="false" enable="false" active="false">
-                <listview name="sampleFlow" rect="0,0,480,631" extendstyle="1111" limit='true' />
+            <node name="flowNode" rect="0,69,480,600" extendstyle="1111" visible="false" enable="false" active="false">
+                <listview name="sampleFlow" rect="0,0,480,600" extendstyle="1111" limit='true' />
             </node>
             <!-- 申请项模板  -->
             <node name="flowitem" visible="false" enable="false" active="false"
@@ -281,6 +281,9 @@ function bodyOnPluginEvent(msg)
         preRespValue=resp
     elseif msg == 103 then
         local flow_data = Http:jsonDecode('car_flow')
+        if flow_data.code == '50' then 
+            Dialog:show('', '暂无车辆申请!', 'ok')
+        end
         Log:write('the flow data is ',flow_data)
         if(flow_data.code == '0' and flow_data.value ~= '') then
             respValue = flow_data.value
@@ -495,6 +498,9 @@ end
 function getCarFlow()
     local requestParam = string.format('nbspweb/webservice/car!doWebservice.action?cmd=wlbcarflow&usercode=%s&page=1&pagesize=10', Config:get('username'))
     local requestURL = getUrl()..requestParam
+     -- 删除原来的列表
+    local listView = Sprite:findChild(rootSprite, 'sampleList')
+    ListView:removeAllItems(listView)
     Http:request('car_flow', requestURL, 103)
     Log:write('请求申请列表',requestURL)
     Loading:show()

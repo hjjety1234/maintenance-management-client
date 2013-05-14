@@ -251,10 +251,14 @@ local minus = 0
 local plus = 0
 local values = 0
 local mean = 0
+local len
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    local regHandle=Reg:create('kaohe_data')
+    assessment = Reg:getTable(regHandle, "kaohe")
+    --Log:write('++++++222',assessment)
     g_major = "C31"
     setDefaultMonth()
 end
@@ -264,7 +268,8 @@ function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_kaohetongji_new, 'MODULE:\\(.*)'), "考核统计")
         UmsAgent:onLoadStart()
-        request(g_major)
+        msgLoad()
+        --request(g_major)
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
@@ -274,33 +279,8 @@ end
 function bodyOnPluginEvent(msg, param)
     if msg == 101 then--按地市数据处理  
         UmsAgent:onLoadFinish()
-        if Loading:isShow() then Loading:close() end
-        g_response = Http:jsonDecode('assessment')
-        if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.code == '50' or getJsonArrayCount(g_response.value) == 0 then 
-            local meanLine = Sprite:findChild(rootSprite,'meanLine')
-            local meanNode = Sprite:findChild(rootSprite,'meanNode')
-            Sprite:setProperty(meanLine,'visible','false')
-            Sprite:setProperty(meanNode,'visible','false')
-            Dialog:show('', '暂无考核数据!', 'ok')
-        else
-            local meanLine = Sprite:findChild(rootSprite,'meanLine')
-            local meanNode = Sprite:findChild(rootSprite,'meanNode')
-            Sprite:setProperty(meanLine,'visible','true')
-            Sprite:setProperty(meanNode,'visible','true')
-        end
-        getMaxAndMin()
-        local len = getJsonArrayCount(g_response.value)
-        --Log:write('g_response_value is ',g_response.value)
-        Log:write('len',len)
-        --Log:write('=====len===',len)
-        local listView1 = Sprite:findChild(rootSprite,'sampleList1')
-        local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
-        ListView:removeAllItems(listView1,1,1)
-        ListView:removeAllItems(listView2,1,1)
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
-        ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len-1, 'loadListItem2')
-        ListView:adjust(listView1)
-        ListView:adjust(listView2)
+        msgLoad()
+        
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -312,17 +292,22 @@ end
 
 --取得前三名最小值，后三名的最大值
 function getMaxAndMin()
+    Log:write('1',1)
     if(g_response.value ~= nil and g_response.value ~= '') then
+
         local sortValue = sortTable(g_response.value, 'score', true)
+                    Log:write('2',2)
         local aCount = #sortValue-2
         ----取最大和最小值
+
         plus = tonumber(sortValue[0].score)
         minus = tonumber(sortValue[aCount+2].score)
         if plus~= minus then 
-            values = math.floor(300/(plus - minus)) --最大值和最小值的差值，每单位等于多少距离
+            values = math.floor(240/(plus - minus+1.5)) --最大值和最小值的差值，每单位等于多少距离
         else 
-            values = 350
+            values = 240
         end
+         Log:write('2',2)
         --取平均值
         local total = 0  --计算总值
         for i=1 ,getJsonArrayCount(g_response.value)-1 do
@@ -330,7 +315,7 @@ function getMaxAndMin()
         end 
         mean = tonumber(string.format('%.1f',total/(getJsonArrayCount(g_response.value)-1)))
         Log:write('mean+++++++++++',mean)
-
+        Log:write('3',3)
         --取前三的最小值和后三的最大值
         if getJsonArrayCount(sortValue)>3 then
             max = tonumber(sortValue[2].score)
@@ -390,9 +375,41 @@ function loadListItem(list, item, index)
 
 end
 function loadListItem2(list, item, index)
+    Log:write('len+++++++',len)
+    -- 读取返回的数据
+    local value = g_response.value
+    local newCity = Sprite:findChild(item,'newCity')         -- 地市
+    local newRatio = Sprite:findChild(item,'newRatio')         -- 巡检率
+    local newShadow = Sprite:findChild(item,'newShadow')         -- 背景色
+    Log:write('values',tonumber(string.format('%.1f',value[index+1].score)),minus)
+    local shadownum = math.floor((tonumber(string.format('%.1f',value[index+1].score))-minus+1.5)*values)
+    Sprite:setProperty(newCity, 'text', value[index+1].dimension)
+    Sprite:setProperty(newRatio, 'text', string.format('%.1f',value[index+1].score))
+    Log:write('shadownum',shadownum)
+    if len <=2 then 
+        local meanNode  =Sprite:findChild(rootSprite,'meanNode')
+        local meanName  =Sprite:findChild(item,'meanName')
+        Sprite:setProperty(meanNode,'visible','false')
+        Sprite:setProperty(meanName,'visible','false')
+        Sprite:setRect(newShadow,120,10,shadownum-100,45)
+        if shadownum > 70 then 
+            Sprite:setRect(newRatio,shadownum-50,22,90,25)
+        else 
+            Sprite:setRect(newRatio,shadownum+135,22,90,25)
+            Sprite:setProperty(newRatio,'color','#303030')
+        end
+    else
+        Sprite:setRect(newShadow,120,10,shadownum,45)
+        if shadownum > 70 then 
+            Sprite:setRect(newRatio,shadownum+50,22,90,25)
+        else 
+            Sprite:setRect(newRatio,shadownum+135,22,90,25)
+            Sprite:setProperty(newRatio,'color','#303030')
+        end
+    end
     Sprite:setRect(item, 0, 0, 480, 60)
     --平均线位置
-    local meannum = 120+(mean-minus+0.1)*values
+    local meannum = 120+(mean-minus+1.5)*values
     local meanName = Sprite:findChild(item,'meanName')
     local meanLine = Sprite:findChild(rootSprite,'meanLine')
     local meanShadow = Sprite:findChild(rootSprite,'meanShadow')
@@ -404,23 +421,7 @@ function loadListItem2(list, item, index)
     Sprite:setRect(meanImage,meannum-4,20,3,80)
     Sprite:setRect(meanShadow,120,20,meannum-124,45)
     Log:write('total is ',getJsonArrayCount(g_response.value)-1,total,mean)
-    -- 读取返回的数据
-    local value = g_response.value
-    local newCity = Sprite:findChild(item,'newCity')         -- 地市
-    local newRatio = Sprite:findChild(item,'newRatio')         -- 巡检率
-    local newShadow = Sprite:findChild(item,'newShadow')         -- 背景色
-    Log:write('values',tonumber(string.format('%.1f',value[index+1].score)),minus)
-    local shadownum = math.floor((tonumber(string.format('%.1f',value[index+1].score))-minus+0.1)*values)
-    Sprite:setProperty(newCity, 'text', value[index+1].dimension)
-    Sprite:setProperty(newRatio, 'text', string.format('%.1f',value[index+1].score))
-    Sprite:setRect(newShadow,120,10,shadownum,45)
-    Log:write('shadownum',shadownum)
-    if shadownum > 70 then 
-        Sprite:setRect(newRatio,shadownum+50,22,90,25)
-    else 
-        Sprite:setRect(newRatio,shadownum+135,22,90,25)
-        Sprite:setProperty(newRatio,'color','#303030')
-    end
+
 
     if meannum>200 then 
         Sprite:setRect(meanRatio,meannum-50,30,80,30)
@@ -651,5 +652,38 @@ function companyOn(sprite)
     Loading:show()
 end
 
+function msgLoad()
+        if Loading:isShow() then Loading:close() end
+        g_response = Http:jsonDecode('assessment')
+        Log:write('g_response++++',g_response)
+        Log:write('1+',1)
+        if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.code == '50' or getJsonArrayCount(g_response.value) == 0 then 
+            local meanLine = Sprite:findChild(rootSprite,'meanLine')
+            local meanNode = Sprite:findChild(rootSprite,'meanNode')
+            Sprite:setProperty(meanLine,'visible','false')
+            Sprite:setProperty(meanNode,'visible','false')
+            Dialog:show('', '暂无考核数据!', 'ok')
+        else
+            local meanLine = Sprite:findChild(rootSprite,'meanLine')
+            local meanNode = Sprite:findChild(rootSprite,'meanNode')
+            Sprite:setProperty(meanLine,'visible','true')
+            Sprite:setProperty(meanNode,'visible','true')
+        end
+        Log:write('2+',2)
+        getMaxAndMin()
+        Log:write('3+',3)
+        len = getJsonArrayCount(g_response.value)
+        --Log:write('g_response_value is ',g_response.value)
+        Log:write('len',len)
+        --Log:write('=====len===',len)
+        local listView1 = Sprite:findChild(rootSprite,'sampleList1')
+        local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
+        ListView:removeAllItems(listView1,1,1)
+        ListView:removeAllItems(listView2,1,1)
+        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+        ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len-1, 'loadListItem2')
+        ListView:adjust(listView1)
+        ListView:adjust(listView2)
+end
 ]]>
 </root>

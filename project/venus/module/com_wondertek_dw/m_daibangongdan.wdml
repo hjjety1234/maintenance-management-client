@@ -243,10 +243,10 @@ end
 function loadDoneRequest()
     local url= getWholeUrl('nbspweb/webservice/wlbaccident!doWebservice.action' , '')
     local username = Config:get('username')
-    local param = '&cmd=wlbhandledalltasklist&page=1'
+    local param = '&cmd=wlbhandledalltasklist&page=1&title=&ordernum='
     local requestUrl = url..param
-    Log:write("requestUrl: ", url..param)
-    Http:request('handled_data', url, 102, {useCache = false, method = 'post'})
+    Log:write("requestUrl+++++++++", url..param)
+    Http:request('handled_data', requestUrl, 102, {useCache = false, method = 'post'})
     Loading:show(rootSprite)
 end
 
@@ -273,7 +273,8 @@ function tabOnSelect(sprite)
         flag='2'
         ListView:removeAllItems(list,true) 
         Log:write('config===================================',Config:get('daiban'))
-        savedDatas =Split(Config:get('daibanIDList'), ';')        
+        savedDatas =Split(Config:get('daibanIDList'), ';') 
+        Log:write('savedDatas++++',savedDatas)       
         if table.getn(savedDatas)==0 and flag=='2' then
             Sprite:setVisible(Sprite:findChild(rootSprite, 'noDataLbl'), 1)
         else
@@ -286,6 +287,7 @@ function tabOnSelect(sprite)
         flag='3'
         Sprite:setVisible(Sprite:findChild(rootSprite, 'noDataLbl'), 0)
         ListView:removeAllItems(list,true) 
+        Log:write('已办工单',dataInfo)
         loadDoneRequest()
         Config:set('curDaiBanListTab', '3')
     elseif dataInfo=='01' then
@@ -491,7 +493,7 @@ function itemOnSelect(sprite)
         Reg:setString(regHandle,'flag',flag)
         if flag=='1' then     -------待办工单
             Log:write("区分待办隐患工单还是待办任务：",data.value[index].workordertype)
-            if data.value[index].workordertype ~= '501' then --区别 代办隐患工单还是代办任务
+            if data.value[index].workordertype == '001' then --区别 通用工单
                 stepdata=data.value[index].proinsttaskstate
                 Log:write('stepdata',stepdata)
                 if  stepdata=='签收' then
@@ -511,10 +513,14 @@ function itemOnSelect(sprite)
                 Reg:setString(regHandle,'step',tostring(data.value[index].taskid))
                 Scene:setReturn(Alias.m_daibangongdan, Alias.m_daibandetail)
                 Scene:go(Alias.m_daibandetail)
-            else 
+            elseif  data.value[index].workordertype == '501' then --区别隐患工单
                 Log:write("流程步骤编号：",data.value[index].taskid)
                 Scene:setReturn(Alias.m_daibangongdan, Alias.m_yinhuangongdanlist.. '?dangerOrderId=' .. data.value[index].id..'&taskid='..data.value[index].taskid)
                 Scene:go(Alias.m_yinhuangongdanlist.. '?dangerOrderId=' .. data.value[index].id..'&taskid='..data.value[index].taskid)
+            elseif  data.value[index].workordertype == '002' then --区别隐患工单
+                Log:write("故障工单：",data.value[index].taskid)
+                Scene:setReturn(Alias.m_daibangongdan, Alias.m_zhangaigongdanlist)
+                Scene:go(Alias.m_zhangaigongdanlist.. '?dangerOrderId=' .. data.value[index].id..'&taskname='..data.value[index].taskname..'&taskcode='..data.value[index].taskcode..'&taskid='..data.value[index].taskid)
             end
         elseif flag=='3' then
             Log:write("已办工单点击事件")
