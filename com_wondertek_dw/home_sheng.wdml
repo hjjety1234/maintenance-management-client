@@ -135,6 +135,25 @@
                     font-size="20" v-align="top" h-align="center" extendstyle="1111" />
              </node>
         </button>
+        <node name="ContextMenuNode" rect="0,740,480,60" border="false" style = 'autosize'
+                visible="false" enable="true" active="false" extendstyle="1111">
+                <image name="ContextMenuNodeBgImage" rect="0,0,480,60"
+                    src="file://image/tab_n_new.png" extendstyle="1111" border="1" style ='autosize'/>
+                <node name="FavListImg" rect="0,0,480,60" extendstyle="1111"
+                    visible="true" style ='autosize'>
+                    <button name="favListButton" rect="0,0,480,60"
+                        OnSelect="ContextMenuListItemOnSelect" extendstyle="1111">
+                        <image rect="162,10,75,60" src="file://image/skin/bookmark1_new.png"
+                            border="false" extendstyle="1111" />
+                        <label name="noticeDate" rect="315,65,90,20" border="false"
+                            text="" h-align="right" v-align="center" color="#000000"
+                            font-size="15" extendstyle="1111" />
+                        <label name="label2" rect="218,10,120,40" border="false"
+                            text="系统设置" h-align="left" v-align="center" color="#000000"
+                            font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                    </button>
+                </node>
+            </node>
         </node>
     </body>
     <![CDATA[
@@ -147,6 +166,7 @@ local mapViewPlugin
 local year = '' --年
 local quarter = ''--季
 local month  = ''--月
+local isFavContextMenuVisible = false
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -265,10 +285,16 @@ function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
         Dialog:show('', '是否确定退出？', 'ok_cancel', 'doExit')
         return 1
-    elseif kc == Key.F1 then
-        local menuNode = Sprite:findChild(rootSprite, 'menuNode')
-        setAllShoworHide(menuNode, 1)
-        return 1
+    elseif kc == Key.F1 then -- 按下菜单键
+            local FavListNodeSprite = Sprite:findChild(rootSprite, "ContextMenuNode")
+            if (isFavContextMenuVisible == false) then
+                Sprite:setProperty(FavListNodeSprite, 'visible', 'true')
+                isFavContextMenuVisible = true
+                else
+                Sprite:setProperty(FavListNodeSprite, 'visible', 'false')
+                isFavContextMenuVisible = false
+            end
+            return 1
     end
 end
 
@@ -321,7 +347,12 @@ function menuSettingOnSelect(sprite)
     Scene:setReturn(Alias.new_home, Alias.xunjianupload)
     Scene:go(Alias.xunjianupload)
 end
-
+ --@brief 上下文菜单按钮消息处理函数
+    function ContextMenuListItemOnSelect(sprite)
+        local buttonData = Sprite:getData(sprite)
+        Scene:setReturn(Alias.home_sheng, Alias.m_system_manager)
+        Scene:go(Alias.m_system_manager)
+    end
 
     ]]>
 
