@@ -120,12 +120,20 @@ public class FloatRelativeLayout extends RelativeLayout {
 		}
 		editor.commit();
 
+		//do scale text
+		try{
+			scaleText(mScaleFactor);
+		}
+		catch(Exception ex)
+		{
+			Log.d(TAG, "error message"+ex.getMessage());
+		}
 		// do scale
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
 		canvas.scale(mScaleFactor, mScaleFactor, px, py);
 		super.dispatchDraw(canvas);
 		canvas.restore();
-
+		
 		// set layout's width and height
 		wmParams.width = (int) (width * mScaleFactor);
 		wmParams.height = (int) (height * mScaleFactor);
@@ -135,6 +143,19 @@ public class FloatRelativeLayout extends RelativeLayout {
 		// debug output
 		Log.d(TAG, "[dispatchDraw] width: " + getWidth());
 		Log.d(TAG, "[dispatchDraw] height: " + getHeight());
+	}
+	
+	/**
+	 * scale the pop's text
+	 */
+	public void scaleText(float mScaleFactor)
+	{
+		TextView callerName = (TextView) findViewById(R.id.caller_name);
+		TextView headship = (TextView) findViewById(R.id.headship);
+		TextView dept = (TextView) findViewById(R.id.deptinfo);
+		callerName.setTextScaleX(mScaleFactor);
+		headship.setTextScaleX(mScaleFactor);
+		dept.setTextScaleX(mScaleFactor);
 	}
 
 	public void scale(float scaleFactor, float pivotX, float pivotY) {

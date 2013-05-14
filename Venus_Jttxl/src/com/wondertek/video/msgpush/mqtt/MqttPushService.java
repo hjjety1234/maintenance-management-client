@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -26,6 +27,8 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.provider.Settings;
+import android.provider.Settings.Secure;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -56,6 +59,14 @@ public class MqttPushService extends Service
 
 	// the IP address, where your MQTT broker is running.
 	public static final String		MQTT_HOST = "MQTT_HOST";
+	
+	// This is how the Android client app will identify itself to the
+	// message broker.
+	// It has to be unique to the broker - two clients are not permitted to
+	// connect to the same broker using the same client ID.
+	private String mqttClientId = null;
+	
+	public static final int MAX_MQTT_CLIENTID_LENGTH = 22;
 	
 	// the port at which the broker is running. 
 	public static final String				MQTT_BROKER_PORT_NUM      = "MQTT_BROKER_PORT_NUM"; //1883;
@@ -612,7 +623,7 @@ public class MqttPushService extends Service
 	    	log("connecting to "+mqttConnSpec);
 	        	// Create the client and connect
 	        	mqttClient = MqttClient.createMqttClient(mqttConnSpec, MQTT_PERSISTENCE);
-	        	String clientID =  mPrefs.getString(PREF_DEVICE_ID, "");
+	        	String clientID = generateClientId();
 	        	mqttClient.connect(clientID, MQTT_CLEAN_START, MQTT_KEEP_ALIVE);
 	        	
 		        // register this client app has being able to receive messages
@@ -634,8 +645,8 @@ public class MqttPushService extends Service
 			try {
 				log("Connection disconnect");	
 				String appkey = mPrefs.getString(APPKEY, "");
-				String msisdn = mPrefs.getString(PREF_DEVICE_ID, "");
-				String[] topics = new String[]{"webcloud",appkey,msisdn};
+				String imei = mPrefs.getString(PREF_DEVICE_ID, "");
+				String[] topics = new String[]{"webcloud",appkey, appkey + "/" + imei};
 				mqttClient.unsubscribe(topics);
 				stopKeepAlives();
 				mqttClient.disconnect();
@@ -743,6 +754,29 @@ public class MqttPushService extends Service
 			publishToTopic(MQTT_CLIENT_ID + "/keepalive", mPrefs.getString(PREF_DEVICE_ID, ""));
 			
 			
+		}
+		
+		private String generateClientId() {
+			// generate a unique client id if we haven't done so before, otherwise
+			// re-use the one we already have
+
+			if (mqttClientId == null) {
+				// generate a unique client ID - I'm basing this on a combination of
+				// the phone device id and the current timestamp
+				String timestamp = "" + (new Date()).getTime();
+				String android_id = Settings.System.getString(getContentResolver(),
+						Secure.ANDROID_ID);
+				mqttClientId = timestamp + android_id;
+
+				// truncate - MQTT spec doesn't allow client ids longer than 23
+				// chars
+				if (mqttClientId.length() > MAX_MQTT_CLIENTID_LENGTH) {
+					mqttClientId = mqttClientId.substring(0,
+							MAX_MQTT_CLIENTID_LENGTH);
+				}
+			}
+			Log.i(TAG, "[generateClientId] client id:" + mqttClientId);
+			return mqttClientId;
 		}
 		
 	}
