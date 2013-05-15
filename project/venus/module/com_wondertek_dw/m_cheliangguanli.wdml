@@ -332,8 +332,14 @@ function itemOnSelect(sprite)
     Reg:setString(regHandle,'companyName', companyName)
     Reg:setString(regHandle,'carType', carType)
     -- 进行页面跳转
+    local listBtn = Sprite:findChild(rootSprite,'listBtn')
+    local flowBtn = Sprite:findChild(rootSprite,'flowBtn')
+    local listData = Sprite:getData(listBtn)
+    local flowData = Sprite:getData(flowBtn)
+    if flowData=='1' then
     Scene:setReturn(Alias.m_cheliangguanli, Alias.m_cheliangxiangqing)
     Scene:go(Alias.m_cheliangxiangqing)
+    end
 end
 --返回按钮消息处理函数
 function doBack(sprite)
@@ -507,7 +513,7 @@ function getCarFlow()
 end
 
 function bindCarflowList(list, item, index)
-    Log:write('bindCarflowList is clicked')
+  
     Sprite:setRect(item, 0, 0, 480, 100)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local listItemBg = Sprite:findChild(item, 'listItemBg')
@@ -523,7 +529,7 @@ function bindCarflowList(list, item, index)
     local reason = value.reason
     local senddate = value.senddate
     local status = value.status
-    Log:write('the reason is ',reason)
+  
 
     --更改显示Label
     local carNoLabel = Sprite:findChild(item,'carNoLabel')
@@ -540,10 +546,15 @@ function bindCarflowList(list, item, index)
     local companyName = Sprite:findChild(item, 'companyName')
     local carType = Sprite:findChild(item, 'carType')
     local carStatus = Sprite:findChild(item, 'carStatus')
-    --Sprite:setProperty(idSprite, 'text', reason)
+    if reason then
     Sprite:setProperty(carNo, 'text', reason)
+    end
+    if senddate then
     Sprite:setProperty(companyName, 'text', senddate)
+    end
+    if status then
     Sprite:setProperty(carType, 'text', status)
+    end
     Sprite:setProperty(Sprite:findChild(item, 'cheliang_im'), 'visible', 'false')
 end
     ]]>

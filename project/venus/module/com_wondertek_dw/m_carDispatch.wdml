@@ -168,6 +168,13 @@ end
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
     if msg == 101 then
+        local data = Http:jsonDecode('carapply_data')
+        if data.code == '0' then 
+            Dialog:show('','车辆申请成功！','ok','okFanhui')
+
+        else 
+            Dialog:show('','提交失败，服务端数据错误','ok')
+        end
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -183,6 +190,9 @@ function mainNodeOnKeyUp(sprite, kc)
         return 1
     end
 end
+ function okFanhui()
+       Scene:go(Alias.m_cheliangguanli,true)
+ end
 ---------------------------------------util functions---------------------------
 
 --@brief 返回按钮消息处理函数
@@ -236,23 +246,10 @@ function submitOnSelect(sprite)
     local reason=Sprite:getText(Content)
     local timeEnd = Sprite:getText(timeContentEnd)
 
-    local smsstring=user..'申请在'..time..'至'..timeEnd..'调用车辆。申请原因：'..reason
-    Log:write('smsstring===================',smsstring)
-    --local phone = '18756068416'
-    local phone = '10658476002'
-    if user==nil or user==''or reason==nil or reason=='' then
-        Dialog:show(rootSprite, '用车人员和用车原因不允许为空！', 'ok')
-        return
-    elseif phone ~= nil and phone ~= '' then
-        if Util:sendSMS(phone,smsstring,true) then
-            Dialog:show('', '申请成功！', 'ok', 'doBack')
-        else
-            Dialog:show('', '请求发送失败，请稍后再试！', 'ok')
-        end
-        --Util:sendSMS(phone, smscontent)
-    else
-        Dialog:show(rootSprite, '调度接口异常！', 'ok') 
-    end
+    local param = 'cmd=wlbcarapply&usercode='..Config:get("usercode")..'&startdate='..time..'&enddate='..timeEnd..'&caruser='..user..'&reason='..reason
+    local url= getWholeUrl('nbspweb/webservice/car!doWebservice.action',param)
+    Log:write('===新故障工单列表提交按钮响应======', url)
+    Http:request('carapply_data', url, 101, {useCache = false, method = 'post', postData=''})
 end
 
     ]]>
