@@ -295,16 +295,15 @@ local g_localPatchPath = nil        -- 下载patch路径
 local g_localPatchResult = nil      -- 补丁更新后的文件路径
 
 local g_updateMethod = 0            -- 更新方法：0为全新升级，1为差分升级 
-local g_hasMd5Requested = false     -- 是否进行过md5请求
-
+local g_localMd5 = ""               -- 本地Md5校验值 
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     newNode = Sprite:findChild(rootSprite, 'newNode')
-
     connectNet()
+    getDownloadPath()
 end
 
 -- @brief root节点消息方法
@@ -342,6 +341,7 @@ function bodyOnPluginEvent(msg)
     if msg == 101 then
 
      elseif msg == 102 then --  版本检测
+        if Loading:isShow() then Loading:close() end
         checkversionData = Http:jsonDecode('index_checkversion')
         Log:write('更新软件index_checkversion', checkversionData)
         if checkversionData and checkversionData['version'] then
@@ -356,7 +356,6 @@ function bodyOnPluginEvent(msg)
                 g_packageMd5 = checkversionData.version.shalNum or 0
                 doUpgrade()
             elseif tonumber(checkversionData['version']['isNeedUpdate']) == 2 then -- 强制升级
-                if Loading:isShow() then Loading:close() end
                 downloadPackage()
                 return
             end
@@ -416,27 +415,26 @@ end
 -- 检测客户端版本
 function checkClientVersion()
     showNoticeMessage("正在请求版本信息...")
-    g_hasMd5Requested = false
+    -- 获取appkey, appversion和本地文件的md5值
     local webcloud = Config:get('webcloud')
     local appKey = Config:get('appKey')
     local appVer = Config:get('app_version')
-    local requestURL = string.format('http://%s/webcloud/sso/sso_upgrade.html?appkey=%s&version=%s', 
-        webcloud, appKey, appVer)
+    if IO:fileExist(g_localpath) == true and g_localMd5 == "" then 
+        g_localMd5 = Util:md5(g_localpath, true)
+    else
+        g_localMd5 = ""
+    end 
+    -- 构造请求地址
+    local requestURL = nil 
+    if g_localMd5 == nil or g_localMd5 == "" then 
+        requestURL = string.format('http://%s/webcloud/sso/sso_upgrade.html?appkey=%s&version=%s', 
+            webcloud, appKey, appVer)
+    else
+        requestURL = string.format('http://%s/webcloud/sso/sso_upgrade.html?appkey=%s&version=%s&shalNum=%s', 
+            webcloud, appKey, appVer, g_localMd5)
+    end 
+    -- 开始请求
     Log:write('info: checkClientVersion() requestURL=', requestURL)
-    Http:request('index_checkversion', requestURL, 102, {useCache = false})
-    Loading:show(rootSprite) 
-end
-
--- 由本地安装包的Md5值获取补丁包
-function getPatchUrlByMd5(md5)
-    showNoticeMessage("正在请求补丁包信息...")
-    g_hasMd5Requested = true
-    local webcloud = Config:get('webcloud')
-    local appKey = Config:get('appKey')
-    local appVer = Config:get('app_version')
-    local requestURL = string.format('http://%s/webcloud/sso/sso_upgrade.html?appkey=%s&version=%s&shalNum=%s', 
-        webcloud, appKey, appVer, md5)
-    Log:write('info: getPatchUrlByMd5() requestURL=', requestURL)
     Http:request('index_checkversion', requestURL, 102, {useCache = false})
     Loading:show(rootSprite) 
 end
@@ -460,7 +458,7 @@ function doUpgrade()
     Log:write("存在升级信息，开始升级...")
     local updateBtn = Sprite:findChild(rootSprite, 'updateBtn')
     local bDiffUpdate = true
-    getDownloadPath()
+    -- getDownloadPath()
     -- g_patchUrl = "http://120.209.131.146/patch_dir/Venus_Jttxl.patch"
     -- 检查差分包的URL地址
     if g_patchUrl == nil or g_patchUrl == "" then 
@@ -472,25 +470,19 @@ function doUpgrade()
             Log:write("本地文件不存在！")
             bDiffUpdate =  false
         else
+            -- 本地文件存在，进行校验
             showNoticeMessage("正在校验本地安装包...")
-            local md5 = Util:md5(g_localpath, true)
-            Log:write("本地文件MD5:"..md5..", 服务端返回校验值为:", g_packageMd5)
-            if g_packageMd5 ~= md5 then 
-                if g_hasMd5Requested == false then 
-                    Log:write("校验失败，与服务端不匹配， 根据本地文件md5值重新请求补丁包！")
-                    getPatchUrlByMd5(md5)
-                    return 
-                else
-                    Log:write("本地文件Md5值重新请求补丁包，二次校验失败！")
-                    bDiffUpdate =  false 
-                end 
+            Log:write("本地文件MD5:"..g_localMd5..", 服务端返回校验值为:", g_packageMd5)
+            if g_packageMd5 ~= g_localMd5 and g_localMd5 ~= "" 
+                and g_packageMd5 ~= 0 then 
+                Log:write("校验失败，与服务端不匹配！")
+                bDiffUpdate =  false 
             else
                 Log:write("校验成功！")
             end
         end 
     end
-
-    if Loading:isShow() then Loading:close() end
+    -- 检查是否曾经升级失败过
     if Config:get("diffupdate") ~= "" then 
         bDiffUpdate = false
         Log:write("曾经升级失败，只能全新升级！")
@@ -665,7 +657,7 @@ function downloadPackage()
 
     local progress = Sprite:findChild(downloadingNode, 'progressImg')
     -- 开始下载
-    getDownloadPath()
+    -- getDownloadPath()
     Download:append(g_localpath, 'intallPackageName', g_packageUrl, true)
     onGetDownloadStatus()
 end
