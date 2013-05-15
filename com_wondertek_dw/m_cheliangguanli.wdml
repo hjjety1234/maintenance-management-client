@@ -287,10 +287,8 @@ function bodyOnPluginEvent(msg)
         Log:write('the flow data is ',flow_data)
         if(flow_data.code == '0' and flow_data.value ~= '') then
             respValue = flow_data.value
-            Log:write('remote server responsed with value:',respValue)
             local len = getJsonArrayCount(respValue)
-            Log:write('the array length is ',len)
-             -- 删除原来的列表
+            -- 删除原来的列表
             local listView = Sprite:findChild(rootSprite, 'sampleList')
             ListView:removeAllItems(listView)
             total = respValue['total']
@@ -298,7 +296,7 @@ function bodyOnPluginEvent(msg)
             ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listitem'), len, 'bindCarflowList')
             ListView:adjust(listView)
             Loading:close() 
-            preRespValue=resp
+           -- preRespValue=resp
         end
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -502,13 +500,13 @@ function flowOn()
 end 
 --请求申请列表
 function getCarFlow()
-    local requestParam = string.format('nbspweb/webservice/car!doWebservice.action?cmd=wlbcarflow&usercode=%s&page=1&pagesize=10', Config:get('username'))
+    Log:write("$$$$$$$$$$$调用申请列表调用申请列表调用申请列表")
+    local requestParam = string.format('nbspweb/webservice/car!doWebservice.action?cmd=wlbcarflow&usercode=%s&page=1&pagesize=100', Config:get('username'))
     local requestURL = getUrl()..requestParam
      -- 删除原来的列表
     local listView = Sprite:findChild(rootSprite, 'sampleList')
     ListView:removeAllItems(listView)
-    Http:request('car_flow', requestURL, 103)
-    Log:write('请求申请列表',requestURL)
+    Http:request('car_flow', requestURL, 103,{useCache = false})
     Loading:show()
 end
 
@@ -533,7 +531,6 @@ function bindCarflowList(list, item, index)
 
     --更改显示Label
     local carNoLabel = Sprite:findChild(item,'carNoLabel')
-    Log:write('the label is ',Sprite:getProperty(carNoLabel,'text'))
     local carTypeLabel = Sprite:findChild(item,'carTypeLabel')
     local carStatusLabel = Sprite:findChild(item,'cmpLabel')
     Sprite:setProperty(carNoLabel,'text','申请理由：')
