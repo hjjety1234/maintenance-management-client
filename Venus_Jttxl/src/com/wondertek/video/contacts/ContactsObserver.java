@@ -10,9 +10,15 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.Contacts.People;
+import android.provider.ContactsContract.Contacts;
+import android.provider.ContactsContract.Data;
+import android.provider.ContactsContract.Groups;
+import android.provider.ContactsContract.RawContacts;
+import android.provider.ContactsContract.CommonDataKinds.GroupMembership;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract;
 import android.util.Log;
@@ -28,6 +34,7 @@ public class ContactsObserver {
 	private static ContactsObserver instance = null;
 
 	private HashMap<String, String> Contact_Map ;
+	private StringBuilder sb;
 	
 	static String[] pinyin = { "a", "ai",  "an", "ang", "ao", "ba", "bai", "ban", "bang",   
 		"bao", "bei", "ben", "beng", "bi", "bian", "biao", "bie", "bin",   
@@ -138,6 +145,117 @@ public class ContactsObserver {
 		cur.close();
 		Util.Trace("is contactsList= " + contactsList);
 		return contactsList;
+	}
+	
+	public String getContactsGroup()
+	{
+		String contactsGroup = "";
+		String[] projection = new String[] { Groups._ID, Groups.TITLE };
+		// 查询分组
+		String selection = Groups.DELETED + "=?";
+		String[] selectionArgs = new String[] { String.valueOf(0) };
+		Cursor cur = venusHandle.appActivity.getContentResolver().query(Groups.CONTENT_URI, projection,
+				selection, selectionArgs, null);
+		//Util.Trace("分组的数量： " + cur.getCount());
+		cur.moveToFirst();
+		while(cur.getCount() > cur.getPosition()) {
+			String groups_id = cur.getString(cur.getColumnIndex(Groups._ID));
+			String groups_title = cur.getString(cur.getColumnIndex(Groups.TITLE));
+			Util.Trace("contactsgroup>>> groups_id:" + groups_id + "groups_title:" + groups_title);
+			contactsGroup = contactsGroup + groups_id + "\n" + groups_title + "\n";
+			cur.moveToNext();
+		}
+		cur.close();
+		//Util.Trace("contactsgroup>>> contactsGroup:" + contactsGroup);
+		return contactsGroup;
+	}
+	
+	public String getEachContactsGroupInfo(String groupId)
+	{
+		    String contactsList = "";
+		    if (groupId == null || groupId.equals(""))
+				return contactsList;
+		    Uri uri = ContentUris.withAppendedId(Groups.CONTENT_URI, Long.parseLong(groupId));
+		    //Util.Trace("Uri : " + uri);
+		    // 查询Data中与该group相关的信息
+			String groupSelection = Data.MIMETYPE + " = ?" + " AND "
+					+ GroupMembership.GROUP_ROW_ID + " = ?";
+			String[] groupSelectionArgs = new String[] {
+					GroupMembership.CONTENT_ITEM_TYPE, String.valueOf(groupId) };
+			Cursor groupCursor = venusHandle.appActivity.getContentResolver().query(Data.CONTENT_URI, null,
+					groupSelection, groupSelectionArgs, null);
+			int count = groupCursor.getCount();
+			//Util.Trace("count of rawcontacts in this group:" + count);
+			sb = new StringBuilder();
+			long rawContactId;
+			long contactId;
+			for (int i = 0; i < count; i++) 
+			{
+				groupCursor.moveToPosition(i);
+				rawContactId = groupCursor.getLong(groupCursor
+						.getColumnIndex(GroupMembership.RAW_CONTACT_ID));
+				contactId = queryForContactId(venusHandle.appActivity.getContentResolver(), rawContactId);
+				sb.append(contactId);
+				if (i != count - 1) {
+					sb.append(',');
+				}
+			}
+			groupCursor.close();
+			//Util.Trace("所有的ContactId: " + sb.toString());
+			// 构造查询条件
+			String selection = Contacts._ID + " in ( " + sb.toString() + " )";
+			String sortOrder = Contacts.DISPLAY_NAME + "  COLLATE LOCALIZED ASC ";
+			Cursor mCursor = venusHandle.appActivity.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null,
+					selection, null, sortOrder);
+		  Util.Trace("单个分组的联系人数量： " + mCursor.getCount());
+		  mCursor.moveToFirst();
+		  while(mCursor.getCount() > mCursor.getPosition())
+		  {
+			   //根据id查number
+			   String id = mCursor.getString(mCursor.getColumnIndex(ContactsContract.Contacts._ID));
+				Util.Trace("contactsgroup>>> id:" + id);
+				Cursor uriIdCursor = venusHandle.appActivity.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+						ContactsContract.CommonDataKinds.Phone.CONTACT_ID+"="+ id, null, null);
+				//Util.Trace("contactsgroup>>> uriIdCursorgetCount:" + uriIdCursor.getCount());
+				uriIdCursor.moveToFirst();
+				String number = "";
+				while(uriIdCursor.getCount() > uriIdCursor.getPosition())
+				{
+					String singleNumber = uriIdCursor.getString(uriIdCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+					number = number + singleNumber + ";" ;
+					uriIdCursor.moveToNext();
+				}
+				uriIdCursor.close();
+				String name = mCursor.getString(mCursor.getColumnIndex(Contacts.DISPLAY_NAME));
+				String photo_id = mCursor.getString(mCursor.getColumnIndex(Contacts.PHOTO_ID));
+				String sort_key = mCursor.getString(mCursor.getColumnIndex("sort_key"));
+			    contactsList = contactsList + name + "\n"+ number + "\n";
+				mCursor.moveToNext();
+		 }
+		mCursor.close();
+		//Util.Trace("contactsgroup>>> contactsList:" + contactsList);
+		return contactsList;
+	}
+    
+	/**
+	 * 查询RawContacts中_id等于rawContactId的记录的contact_id字段的值
+	 */
+	public long queryForContactId(ContentResolver cr, long rawContactId) {
+		Cursor contactIdCursor = null;
+		long contactId = -1;
+		try {
+			contactIdCursor = cr.query(RawContacts.CONTENT_URI,
+					new String[] { RawContacts.CONTACT_ID }, RawContacts._ID
+							+ "=" + rawContactId, null, null);
+			if (contactIdCursor != null && contactIdCursor.moveToFirst()) {
+				contactId = contactIdCursor.getLong(0);
+			}
+		} finally {
+			if (contactIdCursor != null) {
+				contactIdCursor.close();
+			}
+		}
+		return contactId;
 	}
 	
 	/**

@@ -2236,19 +2236,26 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	public void getContactsAsync()
 	{
-		Log.d(TAG, ">>>getContactsAsync<<<");
 		Util.getInstance().getAsyncTask().execute("GetContacts");
 	}
 	
 	public void javaGetSearchContactsAsync(String condition)
 	{
-		Log.d(TAG, ">>>javaGetSearchContactsAsync<<<");
 		Util.getInstance().getAsyncTask().execute("GetSearchContacts",condition);
 	}
+	
+	public void javaGetContactsGroupAsync()
+	{
+		Util.getInstance().getAsyncTask().execute("GetContactsGroup");
+	}
 
+	public void javaGetEachContactsGroupInfoAsync(String groupId)
+	{
+		Util.getInstance().getAsyncTask().execute("GetEachContactsGroupInfo",groupId);
+	}
+	
 	public String getContacts()
 	{
-		Log.d(TAG, ">>>getContacts<<<");
 		if(contactsObserver!=null)
 			return contactsObserver.getContacts();
 		else
@@ -2265,6 +2272,16 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		return contactsObserver.getSearchContacts(condition);
 	}
 
+	public String getContactsGroup()
+	{
+		return contactsObserver.getContactsGroup();
+	}
+	
+	public String getEachContactsGroupInfo(String groupId)
+	{
+		return contactsObserver.getEachContactsGroupInfo(groupId);
+	}
+	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// get machine info.
 	public static int EMachineInfo_Serial 			= 0; // ID,
