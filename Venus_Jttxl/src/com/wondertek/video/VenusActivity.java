@@ -332,7 +332,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public AlarmObserver alarmObserver;
 
 	public CalendarObserver calendarObserver;
-
+	//add pj
 //	public PhonegapObserver phonegapObserver;
 	
 	public ContactsObserver contactsObserver;
@@ -659,6 +659,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			//System.load(VenusApplication.appAbsPath + "/lib2/admobview/" + "libadmobview.so");
 		}
 		
+		//add pj
 		// load sql cipher library
 		 SQLiteDatabase.loadLibs(appActivity);
 		
@@ -944,6 +945,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		emailObserver = EmailObserver.getInstance(this);
 		alarmObserver = AlarmObserver.getInstance(this);
 		calendarObserver = CalendarObserver.getInstance(this);
+		//add pj
 //		phonegapObserver = PhonegapObserver.getInstance(this);
 		contactsObserver = ContactsObserver.getInstance(this);
 
