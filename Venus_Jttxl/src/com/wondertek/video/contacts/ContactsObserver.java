@@ -222,7 +222,10 @@ public class ContactsObserver {
 				while(uriIdCursor.getCount() > uriIdCursor.getPosition())
 				{
 					String singleNumber = uriIdCursor.getString(uriIdCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-					number = number + singleNumber + ";" ;
+					if (!number.equals(""))
+						number = number + ";" + singleNumber ;
+					else
+						number = singleNumber;
 					uriIdCursor.moveToNext();
 				}
 				uriIdCursor.close();

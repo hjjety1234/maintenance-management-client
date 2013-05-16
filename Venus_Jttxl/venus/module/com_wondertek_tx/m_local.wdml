@@ -210,6 +210,7 @@ function bodyOnSpriteEvent(msg, param)
         end 
         Sprite:setProperty(Sprite:findChild(rootSprite, 'fenleibtnName'), 
             'text', "本机通讯录▼")
+        setAllShoworHide(Sprite:findChild(rootSprite, 'fenleiListNode'), 0)
         getContacts()
         Timer:set(222, 100, "checkDeviceInfo")
     elseif msg == MSG_DEACTIVATE then
@@ -704,7 +705,7 @@ function getEachContactsGroupInfoResp()
                 if 0 == i%2 then
                     contactsTable[i/2] = {}
                     contactsTable[i/2].name = tempTable[i-1]
-                    contactsTable[i/2].phone = Util:split(tempTable[i], ",")
+                    contactsTable[i/2].phone = Util:split(tempTable[i], ";")
                 end
             end
         end
