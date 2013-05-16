@@ -679,5 +679,138 @@ function doCancel()
     ListView:adjust(list)
 end
 
-    ]]>
+-------------------- 新版本地通讯录接口 ----------------
+-- 请求获取本地通讯录
+-- @param void
+-- @return void
+-- @author hewu 
+function getContacts()
+    System:getContacts()
+end
+
+-- 请求获取本地通讯录消息返回处理
+-- 消息号：MSG_CONTACTS
+-- @param void
+-- @return 包含联系人信息的table
+-- @author hewu 
+function getContactsResp()
+    local contactsTable = {}
+    if IO:fileExist('WONDER:\\contacts.txt') then
+        local tempStr = IO:fileRead('WONDER:\\contacts.txt')
+        if tempStr and tempStr ~= '' then
+            local tempTable = Util:split(tempStr, '\n')
+            for i=1, #tempTable do
+                if 0 == i % 2 then
+                    contactsTable[i/2] = {}
+                    contactsTable[i/2].name = tempTable[i-1]
+                    contactsTable[i/2].tel = tempTable[i]
+                end
+            end
+        end
+    end
+    return contactsTable
+end
+
+-- 搜索本地通讯录
+-- @param keyword string 关键字
+-- @return void
+-- @author hewu 
+function getSearchContacts(keyword) 
+    if keyword ~= nil and keyword ~= "" then 
+        System:getSearchContacts(keyword)
+    else
+        Log:write("搜索关键字不能为空!")
+    end
+end 
+
+-- 搜索本地通讯录消息返回处理
+-- 消息号：MSG_SEARCHCONTACTS
+-- @param  void
+-- @return 包含符合搜索结果的联系人table
+-- @author hewu 
+function getSearchContactsResp() 
+    local searchcontactsTable = {}
+    if IO:fileExist('WONDER:\\searchcontacts.txt') then
+        local tempStr = IO:fileRead('WONDER:\\searchcontacts.txt')
+        if tempStr and tempStr ~= '' then
+            local tempTable = Util:split(tempStr, '\n')
+            for i=1, #tempTable do
+                if 0 == i % 2 then
+                    searchcontactsTable[i/2] = {}
+                    searchcontactsTable[i/2].name = tempTable[i-1]
+                    searchcontactsTable[i/2].tel = tempTable[i]
+                end
+            end
+        end
+    end
+    return searchcontactsTable
+end 
+
+-- 请求本地群组列表
+-- @param void
+-- @return void
+-- @author hewu 
+function getContactsGroup()
+    System:getContactsGroup()
+end
+
+-- 请求本地群组列表消息返回处理
+-- 消息号：MSG_CONTACTSGROUP
+-- @param void
+-- @return 包含群组信息的table
+-- @author hewu 
+function getContactsGroupResp()
+    local contactsGroupTable = {}
+    if IO:fileExist('WONDER:\\contactsgroup.txt') then
+        local tempStr = IO:fileRead('WONDER:\\contactsgroup.txt')
+        if tempStr and tempStr ~= '' then
+            local tempTable = Util:split(tempStr, '\n')
+            for i=1, #tempTable do
+                if 0 == i%2 then
+                    contactsGroupTable[i/2] = {}
+                    contactsGroupTable[i/2].id = tempTable[i-1]
+                    contactsGroupTable[i/2].title = tempTable[i]
+                end
+            end
+        end
+    end
+    return contactsGroupTable
+end
+
+-- 搜索指定群组ID下的所有联系人
+-- @param groupId 群组ID
+-- @return void
+-- @author hewu 
+function getEachContactsGroupInfo(groupId)
+    if groupId ~= nil and groupId ~= "" then 
+        System:getEachContactsGroupInfo(groupId)
+    else
+        Log:write("搜索群组ID号不能为空!")
+    end 
+end
+
+-- 搜索指定群组ID下的所有联系人消息返回处理
+-- 消息号：MSG_EACHCONTACTSGROUPINFO
+-- @param void
+-- @return 包含指定联系人table
+-- @author hewu 
+function getEachContactsGroupInfoResp()
+    local contactsTable = {}
+    if IO:fileExist('WONDER:\\eachcontactsgroupinfo.txt') then
+        local tempStr = IO:fileRead('WONDER:\\eachcontactsgroupinfo.txt')
+        if tempStr and tempStr ~= '' then
+            local tempTable = Util:split(tempStr, '\n')
+            for i=1, #tempTable do
+                if 0 == i%2 then
+                    contactsTable[i/2] = {}
+                    contactsTable[i/2].name = tempTable[i-1]
+                    contactsTable[i/2].tel = tempTable[i]
+                end
+            end
+        end
+    end
+    return contactsTable
+end
+
+]]>
 </root>
