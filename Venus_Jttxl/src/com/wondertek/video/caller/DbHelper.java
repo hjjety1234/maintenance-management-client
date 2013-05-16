@@ -12,9 +12,9 @@ import android.util.Log;
 
 public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
-	
+
 	private static final String password = "jttxl";
-	
+
 	// Database Version
 	private static final int DATABASE_VERSION = 1;
 
@@ -125,8 +125,8 @@ public class DbHelper extends SQLiteOpenHelper {
 		Log.d(TAG, "[getEmployee] number: " + number);
 		try {
 			// db = this.getReadableDatabase();
-			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, password, null,
-					SQLiteDatabase.NO_LOCALIZED_COLLATORS
+			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, password,
+					null, SQLiteDatabase.NO_LOCALIZED_COLLATORS
 							| SQLiteDatabase.CREATE_IF_NECESSARY);
 			Cursor cursor = null;
 
@@ -143,9 +143,10 @@ public class DbHelper extends SQLiteOpenHelper {
 							KEY_EMPLOYEE_MOBILE, KEY_EMPLOYEE_PICTURE,
 							KEY_EMPLOYEE_ID, KEY_EMPLOYEE_DEPARTMENT_FAX }, "("
 							+ KEY_EMPLOYEE_DEPARTMENT_FAX + "=?) and ("
-							+ KEY_EMPLOYEE_MOBILE_SHORT + "=? )", new String[] {
-							systemUser.getDepartmentFax(), number }, null,
-							null, null, null);
+							+ KEY_EMPLOYEE_MOBILE_SHORT + "=? or "
+							+ KEY_EMPLOYEE_TEL_SHORT + "=? )", new String[] {
+							systemUser.getDepartmentFax(), number, number },
+							null, null, null, null);
 				} else {
 					Log.w(TAG,
 							"[getEmployee] system user's deparment fax is empty, return null!");
@@ -195,7 +196,8 @@ public class DbHelper extends SQLiteOpenHelper {
 			} else {
 				Log.d(TAG,
 						"[getEmployee] can't find the caller in sqlite database.");
-				if (cursor != null) cursor.close();
+				if (cursor != null)
+					cursor.close();
 				db.close();
 				return null;
 			}
@@ -214,8 +216,8 @@ public class DbHelper extends SQLiteOpenHelper {
 		Log.d(TAG, "[getEmployeeId] number: " + number);
 		try {
 			// db = this.getReadableDatabase();
-			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, password, null,
-					SQLiteDatabase.NO_LOCALIZED_COLLATORS
+			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, password,
+					null, SQLiteDatabase.NO_LOCALIZED_COLLATORS
 							| SQLiteDatabase.CREATE_IF_NECESSARY);
 			Cursor cursor = null;
 
@@ -262,7 +264,8 @@ public class DbHelper extends SQLiteOpenHelper {
 			} else {
 				Log.d(TAG,
 						"[getEmployeeId] can't find the employee in sqlite database.");
-				if (cursor != null) cursor.close();
+				if (cursor != null)
+					cursor.close();
 				db.close();
 				return null;
 			}
@@ -285,8 +288,8 @@ public class DbHelper extends SQLiteOpenHelper {
 		SQLiteDatabase db = null;
 		try {
 			// db = this.getReadableDatabase();
-			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, password, null,
-					SQLiteDatabase.NO_LOCALIZED_COLLATORS
+			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, password,
+					null, SQLiteDatabase.NO_LOCALIZED_COLLATORS
 							| SQLiteDatabase.CREATE_IF_NECESSARY);
 			Cursor cursor = db.query(TABLE_SYSTEM,
 					new String[] { KEY_SYSTEM_EMPLOYEE_ID }, null, null, null,
@@ -333,7 +336,8 @@ public class DbHelper extends SQLiteOpenHelper {
 					Log.d(TAG, ">>>[getSystemUser] finished<<<");
 					return systemUser;
 				} else {
-					if (cursor != null) cursor.close();
+					if (cursor != null)
+						cursor.close();
 					Log.d(TAG,
 							"[getSystemUser] can't find the system user info in employee table.");
 				}
@@ -342,7 +346,8 @@ public class DbHelper extends SQLiteOpenHelper {
 			} else {
 				Log.d(TAG,
 						"[getSystemUser] can't find the system user in sqlite database.");
-				if (cursor != null) cursor.close();
+				if (cursor != null)
+					cursor.close();
 				db.close();
 				return null;
 			}
@@ -359,8 +364,8 @@ public class DbHelper extends SQLiteOpenHelper {
 		Log.d(TAG, ">>>getHisCount<<<");
 		SQLiteDatabase db = null;
 		try {
-			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, password, null,
-					SQLiteDatabase.NO_LOCALIZED_COLLATORS
+			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, password,
+					null, SQLiteDatabase.NO_LOCALIZED_COLLATORS
 							| SQLiteDatabase.CREATE_IF_NECESSARY);
 
 			// create call history table if not exist
@@ -395,8 +400,8 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ " employee id: " + empid);
 		SQLiteDatabase db = null;
 		try {
-			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, password, null,
-					SQLiteDatabase.NO_LOCALIZED_COLLATORS
+			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, password,
+					null, SQLiteDatabase.NO_LOCALIZED_COLLATORS
 							| SQLiteDatabase.CREATE_IF_NECESSARY);
 
 			// create call history table if not exist
@@ -467,12 +472,13 @@ public class DbHelper extends SQLiteOpenHelper {
 			cursor.close();
 			return getQualifiedDeptName(db, param1) + "\\" + param2;
 		} else {
-			if (cursor != null) cursor.close();
+			if (cursor != null)
+				cursor.close();
 			return "";
 		}
 	}
 
-	// encrypt plain text database 
+	// encrypt plain text database
 	public static boolean encryptPlainTextDatabase() {
 		File unencryptedDatabase = new File(Constants.DATABASE_NAME);
 		File encryptedDatabase = new File(Constants.TEMP_DATABASE_NAME);
@@ -491,7 +497,8 @@ public class DbHelper extends SQLiteOpenHelper {
 			e.printStackTrace();
 			return false;
 		} finally {
-			if (database != null) database.close();
+			if (database != null)
+				database.close();
 		}
 		return true;
 	}
