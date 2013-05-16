@@ -208,41 +208,18 @@ function bodyOnSpriteEvent(msg, param)
         else 
             setAllShoworHide(newNode, 0)
         end 
-        Sprite:setProperty(Sprite:findChild(rootSprite, 'fenleibtnName'), 
-            'text', "本机通讯录▼")
-        setAllShoworHide(Sprite:findChild(rootSprite, 'fenleiListNode'), 0)
-        getContacts()
+        if IO:fileExist('WONDER:\\contacts.txt') then
+            Timer:set(1000, 200, 'showContactList')
+        else
+            Loading:show()
+            -- System:getContacts()
+        end
         Timer:set(222, 100, "checkDeviceInfo")
     elseif msg == MSG_DEACTIVATE then
+    
     elseif msg == MSG_CONTACTS then
-        contactsTable = getContactsResp()
         showContactList()
         Loading:close()
-    elseif msg == MSG_SEARCHCONTACTS then 
-        contactsTable = getSearchContactsResp()
-        displayTable = contactsTable
-        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), 
-            #displayTable, 'loadItemData')
-        ListView:adjust(list)
-    elseif msg == MSG_CONTACTSGROUP then 
-        groupTable = getContactsGroupResp()
-        local fenleiNum = #groupTable
-        ListView:removeAllItems(fenleiList, true) 
-        ListView:loadItem(fenleiList, Sprite:findChild(rootSprite, 'fenleiItem'), 
-            fenleiNum, 'loadfenleiData')        
-        Sprite:setRect(Sprite:findChild(rootSprite, 'fenleiListNode'), 
-            160, 60, 230, 25 + 60 * fenleiNum + 25)
-        Sprite:setRect(fenleiList, 0, 22, 230, 60 * fenleiNum) 
-        Sprite:setRect(Sprite:findChild(rootSprite, 'fenleiImg'), 
-            0, 12, 230, 60 * fenleiNum + 25)
-        ListView:adjust(fenleiList)
-        setAllShoworHide(Sprite:findChild(rootSprite, 'fenleiListNode'), 1)
-    elseif msg == MSG_EACHCONTACTSGROUPINFO then 
-        contactsTable = getEachContactsGroupInfoResp()
-        displayTable = contactsTable
-        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), 
-            #displayTable, 'loadItemData')
-        ListView:adjust(list)
     end
 end
 
@@ -286,10 +263,9 @@ end
 
 function loadfenleiData(list, item, index)
     Sprite:setProperty(item, 'extendstyle', '1111')
-    Sprite:setRect(item, 0, 0, 230, 60)   
+    Sprite:setRect(item, 0,0,230,60)   
     local name = Sprite:findChild(item, 'name')
     Sprite:setProperty(name, 'text', groupTable[index+1].name)
-    Sprite:setProperty(item, "data", index + 1)
 end
 
 function loadphoneData(list, item, index)
@@ -463,22 +439,36 @@ function fenleiBtnOnselect(sprite)
     if Sprite:isVisible(Sprite:findChild(rootSprite, 'fenleiListNode'))== 1 then
         setAllShoworHide(Sprite:findChild(rootSprite, 'fenleiListNode'), 0)
     else
-        getContactsGroup()
+        local fenleiNum = #groupTable
+        ListView:removeAllItems(fenleiList, true) 
+        ListView:loadItem(fenleiList, Sprite:findChild(rootSprite, 'fenleiItem'), fenleiNum, 'loadfenleiData')        
+        Sprite:setRect(Sprite:findChild(rootSprite, 'fenleiListNode'), 160,60,230,25+60*fenleiNum+25)
+        Sprite:setRect(fenleiList, 0,22,230,60*fenleiNum) 
+        Sprite:setRect(Sprite:findChild(rootSprite, 'fenleiImg'), 0,12,230,60*fenleiNum+25)
+        ListView:adjust(fenleiList)
+        setAllShoworHide(Sprite:findChild(rootSprite, 'fenleiListNode'), 1)
     end
 end
 
 function fenleiitemOnSelect(sprite)
-    local item = Sprite:getParent(sprite)
-    local index = tonumber(Sprite:getData(item))
-    Log:write("当前组的index为:", index)
-    
-    local id = groupTable[index].id
-    local groupName = groupTable[index].name
     setAllShoworHide(Sprite:findChild(rootSprite, 'fenleiListNode'), 0)
-    
+    local groupName = Sprite:getText(Sprite:findChild(sprite, 'name'))
     Sprite:setProperty(Sprite:findChild(rootSprite, 'fenleibtnName'), 'text', groupName..'▼')
     ListView:removeAllItems(list, true) 
-    getEachContactsGroupInfo(id)
+    local oneGroup = {}
+    if groupName == '全部' then
+        displayTable = contactsTable
+    else
+	    for i = 1, #contactsTable do
+	        if contactsTable[i].group == groupName then
+	            --插入value
+	            table.insert(oneGroup,contactsTable[i])
+	        end  
+	    end 
+	    displayTable = oneGroup
+	end
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), #displayTable, 'loadItemData')
+    ListView:adjust(list)
 end
 
 function jituanOnselect(sprite)
@@ -491,23 +481,139 @@ function phonecancelOnSelect(sprite)
 end
  
 function clearLastConstactStatus()
+    contactsTable = {}
+    groupTable = {}
     ListView:removeAllItems(list, 1, 1)
 end
 
+function getContactsData()
+    Log:write('=========getContactsData=========')
+    local beginTime = os.time()
+    -- 全局变量初始化
+    groupTable = {}
+    contactsTable = {}
+    -- 添加默认群组
+    local group = {}
+    groupTable["全部"] = 1     -- 用于快速查找
+    group.name = '全部'
+    group.total = 0
+    table.insert(groupTable, group)
+    if IO:fileExist('WONDER:\\contacts.txt') then
+        local tempStr = IO:fileRead('WONDER:\\contacts.txt')
+        local tempTable = Util:split(tempStr, '\n')
+        for i = 1, #tempTable do
+            if i % 2 == 0 then
+                -- 获取姓名,所属群组, 拼音
+                local allstr = SplitWithBlank(tempTable[i] , ';')
+                local contact = {}
+                contact.name = tempTable[i-1] 
+                contact.phone = SplitWithBlank(allstr[1], ":")
+                if allstr[2] == "" then 
+                    contact.group = "未分组"
+                else
+                    contact.group = allstr[2]
+                end 
+                contact.fullSpel = allstr[3]
+                contact.firstSpel = allstr[4]
+                table.insert(contactsTable, contact)
+                -- 添加群组到群组表中
+                if groupTable[contact.group] == nil then
+                    groupTable[contact.group] = 1 -- 标记该群组是否已经添加
+                    group = {}
+                    group.name = contact.group
+                    group.total = 0
+                    table.insert(groupTable, group)
+                end
+            end
+        end
+    end
+    -- 打印加载的统计数据
+    local endTime = os.time()
+    Log:write("=====共加载本机联系人:"..#contactsTable.."个, 群组:"..#groupTable.."个!=====")
+    Log:write("time elapse: "..(endTime-beginTime).."seconds")
+
+    --[[
+    local midTable = {} 
+    if IO:fileExist('WONDER:\\contacts.txt') then
+        local tempStr = IO:fileRead('WONDER:\\contacts.txt')
+        local tempTable = Util:split(tempStr, '\n')
+        for i = 1, #tempTable do
+            if i % 2 == 0 then
+                local contact = {}
+                contact.name = tempTable[i-1] 
+                contact.phone = tempTable[i] 
+                table.insert(midTable, contact)
+            end
+        end
+    end
+    Log:write('qqqqqqqqqqqqqqqqqqqq',midTable)
+    local samenum = 0
+    local group = {}
+    group.name = '全部'
+    group.total = 0
+    table.insert(groupTable,group)
+    for i = 1, #midTable do
+        samenum = 0
+        for j = 1, #contactsTable do
+            if contactsTable[j].name == midTable[i].name then
+                --插入value
+                local allstr = SplitWithBlank(midTable[i].phone, ';')
+                table.insert(contactsTable[j].phone, allstr[1])
+                samenum = samenum+1
+            end  
+        end
+        if samenum < 1 then
+            --插入该条记录
+            local contact = {}
+	        contact.name = midTable[i].name
+	        local allstr = SplitWithBlank(midTable[i].phone, ';')
+	        Log:write('11111111', allstr)
+	        contact.phone = {allstr[1]}
+	        if allstr[2]=='' then
+	           allstr[2] = '未分组'
+	        end
+	        contact.group = allstr[2]
+	        contact.fullSpel = allstr[3]
+	        contact.firstSpel = allstr[4]
+	        table.insert(contactsTable,contact)
+	        local gsum = 0
+	        for q = 1, #groupTable do
+	           if groupTable[q].name == allstr[2] then
+	               groupTable[q].total = groupTable[q].total + 1
+	               gsum = gsum + 1
+	           end
+	        end
+	        if gsum < 1 then
+	            local group = {}
+                group.name = allstr[2]
+                group.total = 1 
+                table.insert(groupTable,group)
+            end
+        end 
+    end
+    groupTable[1].total = #contactsTable
+    Log:write('111111111111111111111',contactsTable)
+    Log:write('111111111111111111111',groupTable)
+    --]]
+end
+
 function buildContactList()
-    Log:write("===buildContactList===")
+     Log:write("===buildContactList===")
     displayTable = contactsTable
-    Log:write("获得联系人个数：", #displayTable)
-    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), 
-        #displayTable, 'loadItemData')
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), #displayTable, 'loadItemData')
     ListView:adjust(list)
 end
 
 -- @brief 显示联系人列表
 function showContactList()
     Log:write("===showContactList===")
-    clearLastConstactStatus()
-    buildContactList()
+    if #contactsTable == 0 or #groupTable == 0 then 
+        clearLastConstactStatus()
+        getContactsData()
+        buildContactList()
+    else
+        Log:write("联系人表和群组信息已经存在，不做任何操作！")
+    end
 end
 
 --当未有任何输入时，初始化为提示
@@ -517,12 +623,21 @@ function editOnTextChanged(sprite)
     local editeKeyword = string.lower(Sprite:getProperty(sprite, 'text'))
     Log:write("editeKeyword ====== ",editeKeyword)
     ListView:removeAllItems(list, true) 
-    if editeKeyword ~= '' then   
-        getSearchContacts(editeKeyword) 
+    if editeKeyword ~= '' then    
+        local tempTab = {}
+        for i=1 , #contactsTable do
+            if(string.find(contactsTable[i].name,editeKeyword)~=nil or string.find(contactsTable[i].fullSpel,editeKeyword)~=nil 
+                or string.find(contactsTable[i].firstSpel,editeKeyword)~=nil or string.find(contactsTable[i].phone[1],editeKeyword)~=nil) then
+                table.insert(tempTab,contactsTable[i])
+            end
+        end
+        displayTable = tempTab 
     else
         displayTable = contactsTable
-        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), 
-            #displayTable, 'loadItemData')
+    end
+    -- Log:write('displayTable==========',displayTable)
+    if #displayTable > 0 then
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), #displayTable, 'loadItemData')
         ListView:adjust(list)
     end
 end 
@@ -570,7 +685,6 @@ end
 -- @return void
 -- @author hewu 
 function getContacts()
-    Log:write("开始请求本地通讯录")
     System:getContacts()
 end
 
@@ -580,7 +694,6 @@ end
 -- @return 包含联系人信息的table
 -- @author hewu 
 function getContactsResp()
-    Log:write("请求本地通讯录返回")
     local contactsTable = {}
     if IO:fileExist('WONDER:\\contacts.txt') then
         local tempStr = IO:fileRead('WONDER:\\contacts.txt')
@@ -590,7 +703,7 @@ function getContactsResp()
                 if 0 == i % 2 then
                     contactsTable[i/2] = {}
                     contactsTable[i/2].name = tempTable[i-1]
-                    contactsTable[i/2].phone = Util:split(tempTable[i], ",")
+                    contactsTable[i/2].tel = tempTable[i]
                 end
             end
         end
@@ -604,7 +717,6 @@ end
 -- @author hewu 
 function getSearchContacts(keyword) 
     if keyword ~= nil and keyword ~= "" then 
-        Log:write("开始搜索本地通讯录, 关键字为："..keyword)
         System:getSearchContacts(keyword)
     else
         Log:write("搜索关键字不能为空!")
@@ -617,7 +729,6 @@ end
 -- @return 包含符合搜索结果的联系人table
 -- @author hewu 
 function getSearchContactsResp() 
-    Log:write("开始搜索本地通讯录返回")
     local searchcontactsTable = {}
     if IO:fileExist('WONDER:\\searchcontacts.txt') then
         local tempStr = IO:fileRead('WONDER:\\searchcontacts.txt')
@@ -627,7 +738,7 @@ function getSearchContactsResp()
                 if 0 == i % 2 then
                     searchcontactsTable[i/2] = {}
                     searchcontactsTable[i/2].name = tempTable[i-1]
-                    searchcontactsTable[i/2].phone = Util:split(tempTable[i], ",")
+                    searchcontactsTable[i/2].tel = tempTable[i]
                 end
             end
         end
@@ -640,7 +751,6 @@ end
 -- @return void
 -- @author hewu 
 function getContactsGroup()
-    Log:write("开始请求本地群组")
     System:getContactsGroup()
 end
 
@@ -650,7 +760,6 @@ end
 -- @return 包含群组信息的table
 -- @author hewu 
 function getContactsGroupResp()
-    Log:write("请求本地群组返回")
     local contactsGroupTable = {}
     if IO:fileExist('WONDER:\\contactsgroup.txt') then
         local tempStr = IO:fileRead('WONDER:\\contactsgroup.txt')
@@ -660,14 +769,11 @@ function getContactsGroupResp()
                 if 0 == i%2 then
                     contactsGroupTable[i/2] = {}
                     contactsGroupTable[i/2].id = tempTable[i-1]
-                    contactsGroupTable[i/2].name = tempTable[i]
+                    contactsGroupTable[i/2].title = tempTable[i]
                 end
             end
         end
     end
-    -- 添加默认群组
-    local defaultGroup = {id="-1", name="全部"}
-    table.insert(contactsGroupTable, 1, defaultGroup)
     return contactsGroupTable
 end
 
@@ -677,13 +783,7 @@ end
 -- @author hewu 
 function getEachContactsGroupInfo(groupId)
     if groupId ~= nil and groupId ~= "" then 
-        Log:write("请求群组ID为"..groupId.."下的所有联系人")
-        if groupId == "-1" then 
-            Log:write("默认群组，请求全部联系人")
-            getContacts()
-        else
-            System:getEachContactsGroupInfo(groupId)
-        end 
+        System:getEachContactsGroupInfo(groupId)
     else
         Log:write("搜索群组ID号不能为空!")
     end 
@@ -695,7 +795,6 @@ end
 -- @return 包含指定联系人table
 -- @author hewu 
 function getEachContactsGroupInfoResp()
-    Log:write("请求指定群组ID下的所有联系人返回")
     local contactsTable = {}
     if IO:fileExist('WONDER:\\eachcontactsgroupinfo.txt') then
         local tempStr = IO:fileRead('WONDER:\\eachcontactsgroupinfo.txt')
@@ -705,7 +804,7 @@ function getEachContactsGroupInfoResp()
                 if 0 == i%2 then
                     contactsTable[i/2] = {}
                     contactsTable[i/2].name = tempTable[i-1]
-                    contactsTable[i/2].phone = Util:split(tempTable[i], ";")
+                    contactsTable[i/2].tel = tempTable[i]
                 end
             end
         end

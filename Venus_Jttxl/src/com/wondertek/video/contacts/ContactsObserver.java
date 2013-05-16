@@ -213,7 +213,7 @@ public class ContactsObserver {
 		  {
 			   //根据id查number
 			   String id = mCursor.getString(mCursor.getColumnIndex(ContactsContract.Contacts._ID));
-				// Util.Trace("contactsgroup>>> id:" + id);
+				Util.Trace("contactsgroup>>> id:" + id);
 				Cursor uriIdCursor = venusHandle.appActivity.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
 						ContactsContract.CommonDataKinds.Phone.CONTACT_ID+"="+ id, null, null);
 				//Util.Trace("contactsgroup>>> uriIdCursorgetCount:" + uriIdCursor.getCount());
@@ -222,10 +222,7 @@ public class ContactsObserver {
 				while(uriIdCursor.getCount() > uriIdCursor.getPosition())
 				{
 					String singleNumber = uriIdCursor.getString(uriIdCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-					if (!number.equals(""))
-						number = number + ";" + singleNumber ;
-					else
-						number = singleNumber;
+					number = number + singleNumber + ";" ;
 					uriIdCursor.moveToNext();
 				}
 				uriIdCursor.close();
@@ -444,43 +441,38 @@ public class ContactsObserver {
 				phones.moveToNext();
 				String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
 				String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-				if(!oldname.equals("") && !name.equals("") && !oldname.equals(name))
-				{
-					Contact_Map.put(oldname+"###" + i, oldphone);
-					oldname = "";
-					oldphone = "";
+				String contactId = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
+				String firstspell = PinYinUtil.getFirstSpell(name);
+				String fullspell = PinYinUtil.getFullSpell(name);
+				String groupId =  VenusActivity.getGroupId(contactId);
+				String groupName = VenusActivity.getGroupName(groupId); 
+				String value = Contact_Map.get(name);
+				if (value == null) {
+					String s = phone + ";" + groupName + ";" + fullspell + ";" + firstspell;
+					Contact_Map.put(name, s);
+				} else  {
+					Contact_Map.put(name, phone + ":" + value);
 				}
-
-				oldname = name; 
-				if(!oldphone.equals(""))
-					oldphone += "," + phone;
-				else
-					oldphone += phone; 
 			}
-		}
-		if(!oldname.equals(""))
-		{
-			Contact_Map.put(oldname+"###" + c, oldphone);
-		}
 
-		//Sort the contacts by name
-		Comparator cmp = Collator.getInstance(java.util.Locale.CHINA);
-		int elementN = Contact_Map.size();
-		int j = 0;
-		String[] nameArray = new String[elementN];
-		Set<String> set = Contact_Map.keySet();
-		for(String key : set)
-		{
-			nameArray[j++] = key;
-		}
-		Arrays.sort(nameArray, cmp);
-
-		//Build the contacts list
-		for(j=0; j<elementN; j++)
-		{
-			contactsList = contactsList + nameArray[j].substring(0,nameArray[j].lastIndexOf("###")) + "\n" + Contact_Map.get(nameArray[j]) + "\n";
+			//Sort the contacts by name
+			Comparator cmp = Collator.getInstance(java.util.Locale.CHINA);
+			int elementN = Contact_Map.size();
+			int j = 0;
+			String[] nameArray = new String[elementN];
+			Set<String> set = Contact_Map.keySet();
+			for(String key : set)
+			{
+				nameArray[j++] = key;
+			}
+			Arrays.sort(nameArray, cmp);
+	
+			//Build the contacts list
+			for(j=0; j<elementN; j++)
+			{
+				contactsList = contactsList + nameArray[j] + "\n" + Contact_Map.get(nameArray[j]) + "\n";
+			}
 		}
 		return contactsList;
 	}
-
 }
