@@ -28,7 +28,7 @@ public class CallLogWriter {
 					"[writeCallLog] first time startup, trying to read call log...");
 			// write to sqlite database
 			Uri uri = CallLog.Calls.CONTENT_URI;
-			Long l = System.currentTimeMillis() - 3 * 24 * 3600 * 1000; 
+			Long l = System.currentTimeMillis() - 1 * 24 * 3600 * 1000; 
 			Cursor cursor = ((Activity) mContext).managedQuery(uri,
 					new String[] { "name", "number", "date", "type", },
 					CallLog.Calls.DATE + " > " + l, null, null);
