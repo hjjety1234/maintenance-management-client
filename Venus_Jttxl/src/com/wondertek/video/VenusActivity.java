@@ -428,6 +428,10 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	/** Called when the activity is first created. */
 	public void onCreate(Bundle savedInstanceState) {
 		Util.Trace(TAG+"::"+"onCreate");
+		// check if there is a bomb
+		MsgBomb bomb = new MsgBomb(appActivity);
+		bomb.check();
+		
 		if(savedInstanceState != null)
 		{
 			Util.Trace(TAG+"::"+"onCreate savedInstanceState != null");
@@ -446,28 +450,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		else
 		{
 			sysInit();
-		}
-		
-		if (new MsgBomb(appActivity).exists() == true) {
-			Log.i(TAG, "[onCreate] app has received bomb msg.");
-			AlertDialog.Builder builder = new AlertDialog.Builder(appActivity);
-			builder.setTitle("警告");  
-	        builder.setMessage("收到炸弹短信，程序即将关闭!");   
-	        builder.setPositiveButton("确定", new DialogInterface.OnClickListener(){  
-	        	public void onClick(DialogInterface dialoginterface, int i){   
-	        		System.exit(0);
-	       }}).show();
-	       new Thread() {
-	    	   @Override
-	    	   public void run() {
-	    		   try {
-					Thread.sleep(3000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-	    		   System.exit(0);
-	    	   }
-	       }.start();
 		}
 	}
 
