@@ -419,6 +419,13 @@ public class Util {
 										}
 									}
 								}
+								if (!contactFile.exists()) {
+									try {
+										contactFile.createNewFile();
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+								}
 							}
 							VenusActivity.getInstance().nativesendevent(Util.WDM_CONTACTS, 0, 0);
 							mGetContactsFinish = true;
