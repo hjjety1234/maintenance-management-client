@@ -437,7 +437,7 @@ function checkDeviceInfo()
         if retCountTable[1] ~= nil and retCountTable[1][2] ~= nil and retCountTable[1][2] ~= '' then
             local registerCode = mobile..imeicode..imsicode
             if registerCode ~= retCountTable[1][2] then
-                Dialog:show("", "设备已禁用，请重新注册!", "ok", "reRegister")
+                Dialog:show("", "为保证信息安全，请您重新注册", "ok", "reRegister")
                 return
             end
         end
@@ -454,7 +454,7 @@ function checkDeviceRespProc()
     local checkDevice = Http:jsonDecode('checkDevice')
     Log:write('checkDevice', checkDevice)
     if checkDevice.msg ~= "SUCCESS" then 
-        Dialog:show("", "设备已禁用，请重新注册!", "ok", "reRegister")
+        Dialog:show("", "为保证信息安全，请您重新注册", "ok", "reRegister")
     else
         Config:set('forceUpdateDatabase', "0")
         Log:write("三码合一校验成功！")
@@ -465,7 +465,7 @@ end
 function reRegister()
     Log:write("校验失败，即将退出应用并重新注册.")
     Config:set('forceUpdateDatabase', "1")
-    doExit()
+    Scene:go(Alias.m_login,true)
 end
 
 --@zhouyu 
