@@ -627,14 +627,14 @@ end
 function editOnTextChanged(sprite) 
     setAllShoworHide(resetBtn,1)
     Log:write("文本发生改变时触发") 
-    local editeKeyword = string.lower(Sprite:getProperty(sprite, 'text'))
+    local editeKeyword = Sprite:getProperty(sprite, 'text')
     Log:write("editeKeyword ====== ",editeKeyword)
     ListView:removeAllItems(list, true) 
     if editeKeyword ~= '' then    
         local tempTab = {}
         for i=1 , #contactsTable do
-            if(string.find(contactsTable[i].name,editeKeyword)~=nil or string.find(contactsTable[i].fullSpel,editeKeyword)~=nil 
-                or string.find(contactsTable[i].firstSpel,editeKeyword)~=nil or string.find(contactsTable[i].phone[1],editeKeyword)~=nil) then
+            if(string.find(contactsTable[i].name,editeKeyword)~=nil or string.find(contactsTable[i].name,string.lower(editeKeyword))~=nil or string.find(contactsTable[i].fullSpel,string.lower(editeKeyword))~=nil 
+                or string.find(contactsTable[i].firstSpel,string.lower(editeKeyword))~=nil or string.find(contactsTable[i].phone[1],string.lower(editeKeyword))~=nil) then
                 table.insert(tempTab,contactsTable[i])
             end
         end
