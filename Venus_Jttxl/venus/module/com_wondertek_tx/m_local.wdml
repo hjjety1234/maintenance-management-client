@@ -45,7 +45,7 @@
                     sel="src:file://image/jttxl/close_s.png;" style="autosize" extendstyle="1111">
                 </button>             
             </node>
-            <node rect="0,220,430,495" extendstyle="1111">
+            <node rect="0,225,430,495" extendstyle="1111">
                 <listview name="sampleList" rect="0,0,430,495" extendstyle="1111" />
             </node>
             <!-- 底部菜单  -->
@@ -142,8 +142,8 @@
                 </node>-->
                 <button name="phonebtn" data="1" rect="18,0,74,73" OnSelect="telOnSelect" normal="src:file://image/jttxl/tel_d.png" sel="src:file://image/jttxl/tel_s.png" style="autosize" extendstyle="1111" />
                 <scrolltext name="name" rect="112,0,260,35" text="" v-align="center" font-family="微软雅黑" color="#ffffff" font-size="28" extendstyle="0010" step="2" scroll="true"/>
-                <label name="phone" rect="112,41,170,30" text="" font-family="微软雅黑" v-align="top" color="#aeb1b1" font-size="22" extendstyle="0010" />
-                <label name="manyphone" visible="false" rect="320,41,100,30" text="多号码»" font-family="微软雅黑" h-align="left" v-align="top" font-size="22" color="#aeb1b1" extendstyle="0010" />
+                <label name="phone" rect="112,41,270,30" text="" font-family="微软雅黑" v-align="top" color="#aeb1b1" font-size="22" extendstyle="0010" />
+                <label name="manyphone" visible="false" rect="320,41,100,30" text="多号码" font-family="微软雅黑" h-align="left" v-align="top" font-size="22" color="#aeb1b1" extendstyle="0010" />
                 <label name="phoneindex" visible="false" rect="288,43,100,30" text="" font-family="微软雅黑" h-align="left" v-align="top" font-size="22" color="#aeb1b1" extendstyle="0010" />
                 <button name="smsbtn" rect="380,5,43,36" data="1" OnSelect="smsOnSelect" normal="src:file://image/jttxl/sms_d.png" sel="src:file://image/jttxl/sms_s.png" style="autosize" extendstyle="1111" />
             </button>
@@ -201,13 +201,20 @@ end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
-    if msg == MSG_ACTIVATE then -- 页面激活
+    if msg == MSG_ACTIVATE then -- 页面激活 
+        setAllShoworHide(Sprite:findChild(rootSprite, 'fenleiListNode'), 0)
         local newNode = Sprite:findChild(rootSprite, 'newNode')
         if (Config:get("isNeedUpdate") == "true") then 
             setAllShoworHide(newNode, 1)
         else 
             setAllShoworHide(newNode, 0)
         end 
+
+        Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_s.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+
         if IO:fileExist('WONDER:\\contacts.txt') then
             Timer:set(1000, 200, 'showContactList')
         else
@@ -302,8 +309,8 @@ end
 -- 个人信息详情
 function doPersonalCenter(sprite)
     Sprite:setProperty(sprite,'src','file://image/book/person_s.png')
-    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/zuijinglianxiren_d.png')
-    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')   
     Scene:setReturn(Alias.m_local, Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"))
     Scene:go(Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"), true)
@@ -336,7 +343,7 @@ function telOnSelect(sprite)
         Sprite:setRect(Sprite:findChild(rootSprite, 'phonelistImg'),55,212,365,phoneItemH*(phonenum+1))
         Sprite:setRect(Sprite:findChild(rootSprite, 'phonecancelbtn'),55,212+phoneItemH*phonenum,365,phoneItemH)
       else
-        Sprite:setRect(phoneList, 55,212,365,53*6)
+        Sprite:setRect(phoneList, 55,212,365,phoneItemH*6)
         Sprite:setRect(Sprite:findChild(rootSprite, 'phonelistImg'),55,212,365,phoneItemH*7)
         Sprite:setRect(Sprite:findChild(rootSprite, 'phonecancelbtn'),55,210+phoneItemH*6,365,phoneItemH)
       end
@@ -398,7 +405,7 @@ function smsOnSelect(sprite)
         Sprite:setRect(Sprite:findChild(rootSprite, 'phonelistImg'),55,212,365,phoneItemH*(phonenum+1))
         Sprite:setRect(Sprite:findChild(rootSprite, 'phonecancelbtn'),55,212+phoneItemH*phonenum,365,phoneItemH)
       else
-        Sprite:setRect(phoneList, 55,212,365,53*6)
+        Sprite:setRect(phoneList, 55,212,365,phoneItemH*6)
         Sprite:setRect(Sprite:findChild(rootSprite, 'phonelistImg'),55,212,365,phoneItemH*7)
         Sprite:setRect(Sprite:findChild(rootSprite, 'phonecancelbtn'),55,210+phoneItemH*6,365,phoneItemH)
       end
@@ -633,7 +640,22 @@ function editOnTextChanged(sprite)
         end
         displayTable = tempTab 
     else
-        displayTable = contactsTable
+        local group = Sprite:getProperty(Sprite:findChild(rootSprite,'fenleibtnName'), 'text')
+        local glen = string.len(group)
+        local groupName = string.sub(group,1,glen-3)
+        Log:write('qqqqqqqqqq',glen..groupName)
+	    local oneGroup = {}
+	    if groupName == '全部' or groupName == '本机通讯录' then
+	        displayTable = contactsTable
+	    else
+	        for i = 1, #contactsTable do
+	            if contactsTable[i].group == groupName then
+	                --插入value
+	                table.insert(oneGroup,contactsTable[i])
+	            end  
+	        end 
+	        displayTable = oneGroup
+	    end
     end
     -- Log:write('displayTable==========',displayTable)
     if #displayTable > 0 then
@@ -674,7 +696,23 @@ function doCancel()
     Sprite:setProperty(keywordEditNode, 'color', '#605e5e')
     Sprite:setProperty(keywordEditNode, 'text', '搜索姓名、号码')
     ListView:removeAllItems(list,true)
-    displayTable = contactsTable
+    local group = Sprite:getProperty(Sprite:findChild(rootSprite,'fenleibtnName'), 'text')
+    local glen = string.len(group)
+    local groupName = string.sub(group,1,glen-3)
+    Log:write('qqqqqqqqqq',glen..groupName)
+    local oneGroup = {}
+    if groupName == '全部' or groupName == '本机通讯录' then
+        displayTable = contactsTable
+    else
+        for i = 1, #contactsTable do
+            if contactsTable[i].group == groupName then
+                --插入value
+                table.insert(oneGroup,contactsTable[i])
+            end  
+        end 
+        displayTable = oneGroup
+    end
+
     ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), #displayTable, 'loadItemData')
     ListView:adjust(list)
 end

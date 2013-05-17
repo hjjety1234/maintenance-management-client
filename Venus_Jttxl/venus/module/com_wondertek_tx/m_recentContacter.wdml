@@ -316,6 +316,8 @@ function updateDeviceInfo()
     if imsicode == nil or imsicode == '' then
         imsicode = '0'
     end
+    --收集用户版本号信息
+    imsicode = Config:get('app_version')
     local url = Alias.url_server..'mobile/login/update_device?userCode='..Config:get('employeeId')
     url = url .. '&imsi='..imsicode..'&imei='..imeicode
     Log:write('the url is',url)
@@ -381,6 +383,9 @@ function bodyOnPluginEvent(msg)
             updateEmployeeData()
         else
             Log:write("联系人不需要更新= ")
+            if firstUpdateFlag == 0 then
+                setUserRights()
+            end
         end
         -- 更新系统配置表数据
         updateSysData()
@@ -830,7 +835,7 @@ function getContactsData(keyword,retUserTable)
         -- Log:write("tempTable = ",tempTable)
         for i = 1, #tempTable do
             if i % 2 == 0 then
-                Log:write('empTable is ',string.find(tempTable[i-1],keyword))
+                Log:write('empTable is ',string.find(tempTable[i-1],string.lower(keyword)))
                 local tempPhoneTable = Util:split(tempTable[i], ';')
                 -- Log:write("tempPhoneTable = ",tempPhoneTable)
                 local tempMobileTable = Util:split(tempPhoneTable[1], ':')
@@ -838,7 +843,7 @@ function getContactsData(keyword,retUserTable)
                 -- Log:write("tempMobileTable的总数 = ",#tempMobileTable)
                 for j = 1, #tempMobileTable do
 
-                    if(string.find(tempTable[i-1],keyword)~=nil or string.find(tempMobileTable[j],keyword)~=nil or string.find(tempPhoneTable[3],keyword)~=nil or string.find(tempPhoneTable[4],keyword)~=nil) then
+                    if(string.find(tempTable[i-1],string.lower(keyword))~=nil or string.find(tempMobileTable[j],string.lower(keyword))~=nil or string.find(tempPhoneTable[3],string.lower(keyword))~=nil or string.find(tempPhoneTable[4],string.lower(keyword))~=nil) then
                         local contact = {}
                         contact[1] = '0'
                         contact[2] = tempTable[i-1] 

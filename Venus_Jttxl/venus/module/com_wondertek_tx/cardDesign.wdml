@@ -18,30 +18,31 @@
                extendstyle="1111" />
             <!-- 设置头部 -->
             <node name="baseSprite" rect="0,0,480,80" extendstyle="1111">
-                 <!-- 返回 -->
-                <button rect="20,18,48,45" OnSelect="doBack" normal="src:file://image/jttxl/back_d.png;"
-                    sel="src:file://image/jttxl/back_s.png;" style="autosize" extendstyle="1111">
-                </button>
                 <image name="title" rect="0,0,480,80" border="false" src="file://image/jttxl/top.png" 
                     style="autosize" extendstyle="1111">
                     <label name="titleLabel" rect="0,0,480,80" text="名片尺寸设置" color="#ffffff" v-align="center"  
                        h-align="center" font-family="微软雅黑" font-size="32px" extendstyle="1111" />
                 </image>
+                 <!-- 返回 -->
+                <button rect="20,18,48,45" OnSelect="doBack" normal="src:file://image/jttxl/back_d.png;"
+                    sel="src:file://image/jttxl/back_s.png;" style="autosize" extendstyle="1111">
+                </button>
             </node>
             <!--中间名片预览区域-->
-            <node name="cardNode" rect="72,218,349,235" layouttype="1" style="autosize" extendstyle="1111">
+            <button name="cardNode" rect="72,218,349,235" layouttype="1" style="autosize" extendstyle="1111">
                 <image name="cardImg" rect="0,0,349,235" extendstyle="1111" style="autosize" src="file://image/default_incoming_bg.png" />
                 <!--名片中的内容-->
                 <!--1.Logo-->
                 <image name="imgLog" src="file://image/m_logo.png" rect="24,27,64,64" style="autosize" extendstyle="1111" />
                 <!--2.姓名-->
-                <label name="nameLabel" rect="113,14,200,50" font-size="40" font-family="微软雅黑" text="严翔翔" />
+                <label name="nameLabel" rect="100,15,200,50" font-size="30" font-family="微软雅黑" text="严翔" />
                 <!--3.职位-->
-                <label name="headshipLabel" rect="113,64,200,40" font-size="30" font-family="微软雅黑" text="分公司部室经理" />
+                <label name="headshipLabel" rect="100,66,340,40" font-size="10" font-family="微软雅黑" text="省公司部门主要领导" />
                 <!--4.部门信息-->
-                <textarea name="txtDeptInfo" extendstyle="1111" line-height="28" style="autosize" rect="44,148,265,62" font-family="微软雅黑" font-size="26"
+                <textarea name="txtDeptInfo" extendstyle="1111" line-height="25" style="autosize" 
+                    rect="34,148,280,62" font-family="微软雅黑" font-size="10"
                     text="安庆分公司\怀宁县分公司\石牌乡中心营业部"></textarea>
-            </node>
+            </button>
             <!--滑动条左侧减少键-->
             <button OnSelect="addorslowButton_selected" data="01" name="slowButton" rect="35,518,32,34" style="autosize" extendstyle="1111" 
                 normal="src:file://image/jianhao.png;" sel="src:file://image/jianhao.png;">
@@ -51,13 +52,19 @@
                 normal="src:file://image/jiahao.png;" sel="src:file://image/jiahao.png;">
             </button>
             <!--下方的滑动条-->
-            <node name="progressNode" rect="71,521,460,25" layouttype="2" extendstyle="1111">
-                <button rect="0,0,338,24" layouttype="3" OnKeyDown="progressOnKeyDown" OnMouseDown="progressOnMouseDown" OnMouseMove="progressOnMouseMove" OnMouseUp="progressOnMouseUp" extendstyle="1111">
+            <node name="progressNode" rect="71,521,460,40" layouttype="2" extendstyle="1111">
+                <button rect="0,0,338,40" layouttype="3" OnKeyDown="progressOnKeyDown" OnMouseDown="progressOnMouseDown" OnMouseMove="progressOnMouseMove" OnMouseUp="progressOnMouseUp" extendstyle="1111">
                     <image name="progressBgImg" rect="0,10,338,14" src="file://image/mingpian_shezhi_bj.png" style="autosize" extendstyle="1111"/>
-                    <image name="progressBarImg" rect="3,13 ,0,8" src="file://image/player_progressbar.png"  style="autosize" extendstyle="1111"/>
-                    <image name="progressPointImg" rect="324,6,14,24" src="file://image/mingpian_shezhi_dian.png" style="autosize" extendstyle="1111"/>
+                    <image name="progressBarImg" rect="3,13 ,14,24" src="file://image/mingpian_shezhi_dian.png"  style="autosize" extendstyle="1111"/>
+                    <image name="progressPointImg" rect="324,0,23,40" src="file://image/mingpian_shezhi_dian.png" style="autosize" extendstyle="1111"/>
                 </button>
-                <label name="lblPercent" rect="0,30,338,25" text="100%" h-align="center" color="#aaaaaa" font-size="16px" />
+                <label name="lblPercent" rect="0,35,338,25" text="100%" h-align="center" color="#aaaaaa" font-size="16px" />
+            </node>
+            <!--tips-->
+            <node name="nodeSuccess" rect="131,630,250,48" enable="false" visible="false" active="false" layouttype="1" extendstyle="1111">
+                <image rect="0,0,218,48" border="false" src="file://image/jttxl/gengxin_bj.png" style="autosize"></image>
+                <label name="content" rect="0,0,218,48" border="false" text="设置成功" h-align="center" 
+                    v-align="center" font-family="微软雅黑" font-size="24" color="#FFFFFF" style="autosize" extendstyle="1111"></label>
             </node>
             <!--下方保存和复位按钮-->
             <button name="btnreset" OnSelect="btnreset_onselected" rect="29,690,216,73" style="autosize" extendstyle="1111" 
@@ -215,7 +222,6 @@ end
 
 -- @zhouyu 设置进度条
 function setProgressBarPos(x)
-    Log:write('the x position ',x)
     local imageCard = Sprite:findChild(Sprite:findChild(rootSprite,'cardNode'),'cardImg') --名片背景
     local imageLog = Sprite:findChild(rootSprite,'imgLog')  --名片内部的Logo
     local nameLabel = Sprite:findChild(rootSprite,'nameLabel')  --名片内部的姓名
@@ -233,11 +239,9 @@ function setProgressBarPos(x)
     Sprite:setRect(progressPointImg, x, point_y, point_w, point_h)
     local iPercent = (90+(x/324*10))/100
     local percent = string.format('%.0f',90+(x/324)*10)
-    Log:write('percent is ',iPercent)
     Sprite:setProperty(Sprite:findChild(rootSprite,'lblPercent'),'text',percent..'%')
     local img_x,img_y,img_w,img_h = Sprite:getRect(imageCard)
     local log_x,log_y,log_w,log_h = Sprite:getRect(imageLog)
-    Log:write('the logo width and height is ',log_w..','..log_h)
     --为了使图片大小看起来像是缩放，重新计算图片的大小和位置
     --重新计算名片内部的文字大小、Log的大小
     local changeWidth = img_w - imageCard_w*iPercent
@@ -246,26 +250,40 @@ function setProgressBarPos(x)
         --刻度增加，图片的x和y减
         img_x = img_x - math.abs(changeWidth) / 2
         img_y = img_y - math.abs(changeHeight) / 2
-        --Logo跟随变大
-        --log_w = log_w + (math.abs(changeWidth) / 2) * (log_w / img_w)
-        --log_h = log_h + (math.abs(changeHeight) /2) * (log_h / img_h)
-        --字体大小
-        --Sprite:setProperty(nameLabel,'font-size',tonumber(Sprite:getProperty(nameLabel,'font-size'))+1)
     else
         --刻度减少，图片的x和y加
         img_x = img_x + math.abs(changeWidth) / 2
         img_y = img_y + math.abs(changeHeight) / 2
-        --Logo跟随减小
-        --log_w = log_w - (math.abs(changeWidth) / 2) * (log_w / img_w)
-        --log_h = log_h - (math.abs(changeHeight) /2) * (log_h / img_h)
-        --字体大小
-        --Sprite:setProperty(nameLabel,'font-size',tonumber(Sprite:getProperty(nameLabel,'font-size'))-1)
     end
-    Log:write('the new logo width and height is ',log_w..','..log_h)
     --Logo的位置和大小调整
     Sprite:setRect(imageLog,log_x,log_y,log_w,log_h)
+    --设置名片字体大小
+    setTextSize(iPercent)
     --名片的位置和大小调整
     Sprite:setRect(imageCard,img_x,img_y,imageCard_w*iPercent,imageCard_h*iPercent)
+end
+
+--@zhouyusgs#ahmobile.com设置名片字体大小
+--设置按三档展示90%,95%,100%
+function setTextSize(scale)
+    scale = tonumber(scale)
+    local nameLabel = Sprite:findChild(rootSprite,'nameLabel')  --名片内部的姓名
+    local headshipLabel = Sprite:findChild(rootSprite,'headshipLabel') --名片内部的职位
+    local txtDeptInfo = Sprite:findChild(rootSprite,'txtDeptInfo')  --名片内部的部门信息
+    if scale < 0.93 and scale >= 0.9 then
+        Log:write('the scale is '..scale..',the scale is lowest')
+        Sprite:setProperty(nameLabel,'font-size','30')
+        Sprite:setProperty(headshipLabel,'font-size','20')
+        Sprite:setProperty(txtDeptInfo,'font-size','18')
+    elseif scale >= 0.93 and scale < 0.96 then
+        Sprite:setProperty(nameLabel,'font-size','30')
+        Sprite:setProperty(headshipLabel,'font-size','20')
+        Sprite:setProperty(txtDeptInfo,'font-size','20')
+    else
+        Sprite:setProperty(nameLabel,'font-size','35')
+        Sprite:setProperty(headshipLabel,'font-size','23')
+        Sprite:setProperty(txtDeptInfo,'font-size','23')
+    end
 end
 
 --复位
@@ -284,8 +302,23 @@ function savebtn_onselected(sprite)
         IO:fileCreate(path)
     end
     IO:fileWrite(path,configString)
+    --Dialog:show('提示','保存成功','ok')
+    failInvisible()
+end
 
-    Dialog:show(rootSprite,'提示','保存成功','ok')
+
+--显示设置更改时的提示信息
+function failInvisible()
+    Log:write('set visible')
+    local nodeSuccess = Sprite:findChild(rootSprite,'nodeSuccess')
+    Sprite:setVisible(nodeSuccess,1)
+    Timer:set(158,3000,'failOutvisible')
+end
+--隐藏提示设置更改时的提示信息
+function failOutvisible()
+    Log:write('set unvisible')
+    local nodeSuccess = Sprite:findChild(rootSprite,'nodeSuccess')
+    Sprite:setVisible(nodeSuccess,0)
 end
 
 --增加或减少按钮单击事件
@@ -309,6 +342,20 @@ function addorslowButton_selected(sprite)
     Sprite:setRect(progressPointImg,point_x,point_y,point_w,point_h)
     setProgressBarPos(point_x)
 end
+
+--多点触控，控制图片的缩放
+function buttonOnTouchEvent(sprite,touch)
+    Log:write('touch event ',touch.count)
+    if touch.count>1 then
+        local index = 0
+        local txtDeptInfo = Sprite:findChild(rootSprite,'txtDeptInfo')
+        while index < touch.count do
+            Sprite:setProperty(txtDeptInfo,'text',Sprite:getText(txtDeptInfo)..'\r\n'..touch.pt[index].x..','..touch.pt[index].y)
+            index = index + 1 
+        end
+    end
+end
+
 
     ]]>
 </root>
