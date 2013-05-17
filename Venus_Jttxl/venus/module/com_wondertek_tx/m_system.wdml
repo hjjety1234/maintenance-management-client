@@ -424,14 +424,23 @@ function checkClientVersion()
     else
         g_localMd5 = ""
     end 
+    -- 获取imsi和imei号
+    local imeicode = System:getMachineInfo(4) 
+    local imsicode = System:getMachineInfo(5) 
+    if imeicode == nil or imeicode == '' then
+        imeicode = '0'
+    end
+    if imsicode == nil or imsicode == '' then
+        imsicode = '0'
+    end
     -- 构造请求地址
     local requestURL = nil 
     if g_localMd5 == nil or g_localMd5 == "" then 
-        requestURL = string.format('http://%s/webcloud/sso/sso_upgrade.html?appkey=%s&version=%s', 
-            webcloud, appKey, appVer)
+        requestURL = string.format('http://%s/webcloud/sso/sso_upgrade.html?appkey=%s&version=%s&imei=%s&imsi=%s', 
+            webcloud, appKey, appVer, imeicode, imsicode)
     else
-        requestURL = string.format('http://%s/webcloud/sso/sso_upgrade.html?appkey=%s&version=%s&shalNum=%s', 
-            webcloud, appKey, appVer, g_localMd5)
+        requestURL = string.format('http://%s/webcloud/sso/sso_upgrade.html?appkey=%s&version=%s&imei=%s&imsi=%s&shalNum=%s', 
+            webcloud, appKey, appVer, imeicode, imsicode, g_localMd5)
     end 
     -- 开始请求
     Log:write('info: checkClientVersion() requestURL=', requestURL)
