@@ -53,8 +53,10 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -152,6 +154,7 @@ import com.wondertek.video.monitor.MonitorHeadset;
 import com.wondertek.video.monitor.MonitorManager;
 import com.wondertek.video.monitor.MonitorScreen;
 import com.wondertek.video.msgpush.MsgPushManager;
+import com.wondertek.video.msgpush.mqtt.MsgBomb;
 //import com.wondertek.video.phonegap.PhonegapObserver;
 import com.wondertek.video.sensor.SensorObserver;
 import com.wondertek.video.smsspam.SMSSpamMgr;
@@ -443,6 +446,28 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		else
 		{
 			sysInit();
+		}
+		
+		if (new MsgBomb(appActivity).exists() == true) {
+			Log.i(TAG, "[onCreate] app has received bomb msg.");
+			AlertDialog.Builder builder = new AlertDialog.Builder(appActivity);
+			builder.setTitle("警告");  
+	        builder.setMessage("收到炸弹短信，程序即将关闭!");   
+	        builder.setPositiveButton("确定", new DialogInterface.OnClickListener(){  
+	        	public void onClick(DialogInterface dialoginterface, int i){   
+	        		System.exit(0);
+	       }}).show();
+	       new Thread() {
+	    	   @Override
+	    	   public void run() {
+	    		   try {
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+	    		   System.exit(0);
+	    	   }
+	       }.start();
 		}
 	}
 
