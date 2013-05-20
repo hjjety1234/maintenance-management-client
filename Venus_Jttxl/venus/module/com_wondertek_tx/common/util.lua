@@ -438,7 +438,7 @@ function checkDeviceInfo()
             local registerCode = mobile..imeicode..imsicode
             if registerCode ~= retCountTable[1][2] then
                 Dialog:show("", "为保证信息安全，请您重新注册", "ok", "reRegister")
-                return
+                return "-1"
             end
         end
     end
@@ -447,6 +447,7 @@ function checkDeviceInfo()
     local url = Alias.url_server..'mobile/device/validate?userCode='..Config:get('employeeId')
     url = url .. '&imsi='..imsicode..'&imei='..imeicode.."&phone="..mobile
     Http:request('checkDevice', url, 1000, {useCache=false})
+	return "1"
 end
 
 -- @hewu 三码合一校验返回处理
