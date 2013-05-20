@@ -159,10 +159,12 @@
                     visible="false" enable="false" active="false" extendstyle="1111">
                     <image name="listItem_bg" rect="31,0,418,38" src=""
                         extendstyle="1111" style='autosize' />
-                    <scrolltext name="dimName" rect="45,5,90,25" text="" color="#303030" 
-	                   font-family='微软雅黑' font-size="20" scroll="true" h-align="left"
-	                   v-align="center" style="autosize" extendstyle="1111" >
-                    </scrolltext> 
+                    <button name="dimBtn" rect="45,0,90,38" OnSelect="cityItemBtnOnselect" enable='false'
+                        extendstyle="1111" data='' normal="normal" sel="src:file://image/major_on.png">
+                        <scrolltext name="dimName" rect="0,5,90,25" text="" color="#303030" 
+                            font-family='微软雅黑' font-size="20" scroll="true" h-align="left"
+                            v-align="center" style="autosize" extendstyle="1111" />
+                    </button>
                     <label name='dangerCount' rect="120,5,160,25" text="100" font-family='微软雅黑'
                         extendstyle="1111" font-size="20" h-align="center" v-align="center"
                         color="#5a5a5a" />
@@ -359,9 +361,15 @@ function loadListItem(list, item, index)
        Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
     end
     -- 加载返回的数据
+    local dimBtn = Sprite:findChild(item,'dimBtn')                      -- 区域编号
     local dimName = Sprite:findChild(item,'dimName')                    -- 维度名称
     local dangerCount = Sprite:findChild(item,'dangerCount')            -- 上报隐患数
     local dealDangerRatio = Sprite:findChild(item,'dealDangerRatio')    -- 解决率
+    --判断如果是地市纬度，则开启可点击查看
+    if g_type == 0 then                                                 
+        Sprite:setProperty(dimBtn,'data', g_respValue[index].regionid)
+        Sprite:setProperty(dimBtn,'enable', 'true')
+    end
     Sprite:setProperty(dimName,'text', g_respValue[index].name)
     Sprite:setProperty(dangerCount,'text', g_respValue[index].dangercount)
     Sprite:setProperty(dealDangerRatio,'text', 
@@ -375,9 +383,11 @@ function addloadListItem(list, item, index)
        Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
     end
     -- 加载返回的数据
+    local dimBtn = Sprite:findChild(item,'dimBtn')                      -- 区域编号
     local dimName = Sprite:findChild(item,'dimName')                    -- 维度名称
     local dangerCount = Sprite:findChild(item,'dangerCount')            -- 上报隐患数
     local dealDangerRatio = Sprite:findChild(item,'dealDangerRatio')    -- 解决率
+    Sprite:setProperty(dimBtn,'enable', 'false')
     Sprite:setProperty(dimName,'text', g_sum.name)
     Sprite:setProperty(dangerCount,'text', g_sum.dangercount)
     Sprite:setProperty(dealDangerRatio,'text', 
@@ -497,8 +507,20 @@ end
 -- @brief 获取统计数据
 function request()
     chgDateButtonBg()
-    local param = string.format("cmd=dangerreport&type=%d&page=1&pagesize=30&usercode=%s&date=%s", 
+    local param = string.format("cmd=dangerreport&type=%d&page=1&pagesize=30&usercode=%s&date=%s&regionid=", 
         g_type, Config:get('username'),date)
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Log:write("[request] 请求地址为: ", reqURL)
+    Http:request('city_data', reqURL, 101, {useCache = false})
+    Loading:show(rootSprite)
+    UmsAgent:onLoadStart()
+end
+
+-- @brief 适用于地市纬度的进一步查询
+function request2(regionid)
+    chgDateButtonBg()
+    local param = string.format("cmd=dangerreport&type=%d&page=1&pagesize=30&usercode=%s&date=%s&regionid=%s", 
+        g_type, Config:get('username'),date, regionid)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write("[request] 请求地址为: ", reqURL)
     Http:request('city_data', reqURL, 101, {useCache = false})
@@ -564,6 +586,12 @@ function getSelectedMonth()
     local year = Sprite:getText(yearLabel)
     local month = Sprite:getText(monthLabel)
     return year.."-"..month
+end
+-- 地市纬度进一步查询响应函数
+function cityItemBtnOnselect(sprite)
+    --dimBtn
+    local regionid = Sprite:getData(sprite)
+    request2(regionid)
 end
 
 ]]>
