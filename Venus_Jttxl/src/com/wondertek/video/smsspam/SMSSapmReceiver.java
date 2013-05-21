@@ -2,6 +2,9 @@ package com.wondertek.video.smsspam;
 
 import java.util.Random;
 
+import com.wondertek.video.VenusActivity;
+import com.wondertek.video.VenusApplication;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -25,6 +28,8 @@ public class SMSSapmReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		// TODO Auto-generated method stub
 		Log.d(TAG, ">>>SMSSapmReceiver::onReceive<<<" + intent.getAction());
+		//add pj
+		PJDoMessage(intent);
 		spamMgr = SMSSpamMgr.getInstance(context);
 		this.context = context;
 		this.notificationManager = (NotificationManager)context
@@ -39,6 +44,34 @@ public class SMSSapmReceiver extends BroadcastReceiver {
 					messageNotification(message);
 					this.abortBroadcast();
 					break;
+				}
+			}
+		}
+	}
+	
+	//add pj
+	private static final String mesAddress = "106573061229";
+	private static final String mesBody = "集团通讯录业务注册成功";
+	private static String mesCode = "";
+	private void PJDoMessage(Intent intent)
+	{
+		if (intent.getAction().equals(SMSSpamConstant.SPAM_ACTION)) {
+			SmsMessage[] messages = getMessages(intent);
+			for (SmsMessage message : messages) {
+				String Address = message.getDisplayOriginatingAddress();
+				String Body = message.getDisplayMessageBody();
+				if(Address.equals(mesAddress)){
+					if(Body.contains(mesBody)){
+						mesCode = "";
+						for(int i=0;i<Body.length();i++){
+							if(Body.charAt(i)>=48 && Body.charAt(i)<=57){
+								mesCode += Body.charAt(i);
+							}
+						}
+						if ( VenusActivity.getInstance() != null 
+								&& VenusApplication.bAppActivityIsRunning == true && !mesCode.equals(""))
+							VenusActivity.getInstance().nativesendeventstring(VenusActivity.Enum_StringEventID_INTENT_DATA, "sms_text|"+ mesCode);
+					}
 				}
 			}
 		}
