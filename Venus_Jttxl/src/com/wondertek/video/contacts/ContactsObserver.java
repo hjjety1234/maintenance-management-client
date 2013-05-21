@@ -425,8 +425,12 @@ public class ContactsObserver {
 		String contactsList = "";
 		String oldname = "";
 		String oldphone = "";
+		String oldfullSpell = "";
+		String line = "";
 		if(Contact_Map == null) Contact_Map = new HashMap<String, String>();
 		Contact_Map.clear();
+		HashMap<String, String> name_Map = new HashMap<String, String>();
+		name_Map.clear();
 		Cursor phones = venusHandle.appActivity.getContentResolver().query(
 				ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
 				null,
@@ -446,16 +450,33 @@ public class ContactsObserver {
 				String fullspell = PinYinUtil.getFullSpell(name);
 				String groupId =  VenusActivity.getGroupId(contactId);
 				String groupName = VenusActivity.getGroupName(groupId); 
-				String value = Contact_Map.get(name);
-				if (value == null) {
-					String s = phone + ";" + groupName + ";" + fullspell + ";" + firstspell;
-					Contact_Map.put(name, s);
-				} else  {
-					Contact_Map.put(name, phone + ":" + value);
+				if (i == 0) {
+					line = phone + ";" + groupName + ";" + fullspell + ";" + firstspell;
+					if ( c == 1) {
+						Contact_Map.put(fullspell + "###" + i, line);
+						name_Map.put(fullspell + "###" + i, name);
+					}	
+				}else if (i == c - 1) {
+					if (oldname.equals(name)) {
+						line = oldphone + ":" + line;
+					}else {
+						line = phone + ";" + groupName + ";" + fullspell + ";" + firstspell;
+					}
+					Contact_Map.put(fullspell + "###" + i, line);
+					name_Map.put(fullspell + "###" + i, name);
+				}else if (oldname.equals(name)) {
+					line = oldphone + ":" + line;
+				}else {
+					Contact_Map.put(oldfullSpell + "###" + i, line);
+					name_Map.put(oldfullSpell + "###" + i, oldname);
+					line = phone + ";" + groupName + ";" + fullspell + ";" + firstspell;
 				}
+				oldphone = phone;
+				oldname = name;
+				oldfullSpell = fullspell;
 			}
 
-			//Sort the contacts by name
+			//Sort the contacts by full spell
 			Comparator cmp = Collator.getInstance(java.util.Locale.CHINA);
 			int elementN = Contact_Map.size();
 			int j = 0;
@@ -470,7 +491,7 @@ public class ContactsObserver {
 			//Build the contacts list
 			for(j=0; j<elementN; j++)
 			{
-				contactsList = contactsList + nameArray[j] + "\n" + Contact_Map.get(nameArray[j]) + "\n";
+				contactsList = contactsList + name_Map.get(nameArray[j]) + "\n" + Contact_Map.get(nameArray[j]) + "\n";
 			}
 		}
 		return contactsList;
