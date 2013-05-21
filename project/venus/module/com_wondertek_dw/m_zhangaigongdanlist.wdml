@@ -48,6 +48,7 @@
                     </node>
                 </list-item>
                 <list-item rect="0,0,480,52" extendstyle="1111" border="false">
+                    <image name="pic" rect="0,0,480,60" src="file://image/ziyuan_bg.png" style="autosize" extendstyle="1111" />
                     <label name="label1" rect="20,0,118,52" border="false" text="工单标题："
                         h-align="left" v-align="center" color="#0062ab" font-family="微软雅黑" font-size="24"
                         extendstyle="1111" />
@@ -108,35 +109,39 @@
                 </list-item>  
             </listview>   
             <!-- 故障单流转处理 -->
-                 <node name="gzchuli" rect="0,160,292,52" border="false" text="" color="#ffffff"
+                 <node name="gzchuli" rect="0,180,292,52" border="false" text="" color="#ffffff"
                         extendstyle="1111" visible="false">
-                     <label name="label1" rect="20,0,120,52" border="false" text="故障处理人："
-                        h-align="left" v-align="center" color="#0062ab" font-family="微软雅黑" font-size="24"
+                 
+                     <label name="label1" rect="20,0,140,52" border="false" text="故障处理人："
+                        h-align="left" v-align="center" color="#0062ab" font-family="微软雅黑" font-size="22"
                          extendstyle="1111" />
-                     <scrolltext name="gzchuliren" rect="150,0,252,50" text="" 
+                     <scrolltext name="gzchuliren" rect="160,0,252,50" text="" 
                             font-family="微软雅黑" color="#303030" font-size="22" h-align="left" v-align="center" 
                             scroll="true" style="autosize" extendstyle="1111" >
-                        </scrolltext>    
-                     <label name="label1" rect="20,50,120,50" border="false" text="处理人电话："
-                        h-align="left" v-align="center" color="#0062ab" font-family="微软雅黑" font-size="24"
+                        </scrolltext>   
+                     <image rect="0,50,480,60" src="file://image/ziyuan_bg.png" style="autosize" extendstyle="1111" /> 
+                     <label name="label1" rect="20,50,140,50" border="false" text="处理人电话："
+                        h-align="left" v-align="center" color="#0062ab" font-family="微软雅黑" font-size="22"
                         extendstyle="1111" />
                
-                        <scrolltext name="gzphone" rect="150,50,300,52" text="" 
+                        <scrolltext name="gzphone" rect="160,50,300,52" text="" 
                             font-family="微软雅黑" color="#303030" font-size="22" h-align="left" v-align="center" 
                             scroll="true" style="autosize" extendstyle="1111" >
                         </scrolltext>    
-                     <label name="label1" rect="20,100,120,50" border="false" text="站点名称："
-                        h-align="left" v-align="center" color="#0062ab" font-family="微软雅黑" font-size="24"
+                 
+                     <label name="label1" rect="20,100,140,50" border="false" text="站点名称："
+                        h-align="left" v-align="center" color="#0062ab" font-family="微软雅黑" font-size="22"
                         extendstyle="1111" />
                   
-                        <scrolltext name="gzzhandian" rect="150,100,300,50" text="" 
+                        <scrolltext name="gzzhandian" rect="160,100,300,50" text="" 
                             font-family="微软雅黑" color="#303030" font-size="22" h-align="left" v-align="center" 
                             scroll="true" style="autosize" extendstyle="1111" >
-                        </scrolltext>    
-                      <label name="label1" rect="20,150,120,50" border="false" text="故障级别："
-                        h-align="left" v-align="center" color="#0062ab" font-family="微软雅黑" font-size="24"
+                        </scrolltext>  
+                           <image rect="0,150,480,60" src="file://image/ziyuan_bg.png" style="autosize" extendstyle="1111" />  
+                      <label name="label1" rect="20,150,140,50" border="false" text="故障级别："
+                        h-align="left" v-align="center" color="#0062ab" font-family="微软雅黑" font-size="22"
                         extendstyle="1111" />
-                        <scrolltext name="gzjibie" rect="150,150,300,50" text="" 
+                        <scrolltext name="gzjibie" rect="160,150,300,50" text="" 
                             font-family="微软雅黑" color="#303030" font-size="22" h-align="left" v-align="center" 
                             scroll="true" style="autosize" extendstyle="1111" >
                         </scrolltext>    
@@ -305,8 +310,7 @@ function  fillgzData()
    local submitBtn =Sprite:findChild(rootSprite,"submitBtn")
    local chuligz=Sprite:findChild(rootSprite,"chuligz")
    local gzchuli=Sprite:findChild(rootSprite,"gzchuli")
-
-   Log:write("故障处理人",gzdata.value[0].name)
+   local pic =Sprite:findChild(rootSprite,"pic")
    if gzdata.value[0].name then
    Sprite:setProperty(gzchuliren,"text",gzdata.value[0].name)
    end
@@ -319,7 +323,7 @@ function  fillgzData()
    if gzdata.value[0].level then
    Sprite:setProperty(gzjibie,"text",gzdata.value[0].level)
    end
-   if gzdata.value[0].status =='02' then
+   if gzdata.value[0].status =='01' then
       Sprite:setProperty(statusBtn,"text","到达现场")
       Sprite:setVisible(submitBtn, 0)
       Sprite:setEnable(submitBtn, 0)
@@ -327,30 +331,34 @@ function  fillgzData()
       Sprite:setEnable(statusBtn, 1)  
       Sprite:setVisible(gzchuli, 1) 
       Sprite:setVisible(chuligz, 0) 
-   elseif gzdata.value[0].status =='00' then
-      Sprite:setProperty(gzjibie,"text","签收")
+      Sprite:setVisible(pic, 1)
+   elseif gzdata.value[0].status =='' then
+      Sprite:setProperty(statusBtn,"text","签收")
       Sprite:setVisible(submitBtn, 0)
       Sprite:setEnable(submitBtn, 0)
        Sprite:setVisible(statusBtn, 1)
       Sprite:setEnable(statusBtn, 1)  
       Sprite:setVisible(gzchuli, 1) 
       Sprite:setVisible(chuligz, 0) 
-   elseif  gzdata.value[0].status =='01' then
-      Sprite:setProperty(gzjibie,"text","正在途中")
+      Sprite:setVisible(pic, 1)
+   elseif  gzdata.value[0].status =='00' then
+      Sprite:setProperty(statusBtn,"text","正在途中")
       Sprite:setVisible(submitBtn, 0)
       Sprite:setEnable(submitBtn, 0)
        Sprite:setVisible(statusBtn, 1)
       Sprite:setEnable(statusBtn, 1)  
       Sprite:setVisible(gzchuli, 1) 
       Sprite:setVisible(chuligz, 0) 
-   elseif gzdata.value[0].status =='03' then
-      Sprite:setProperty(gzjibie,"text","处理结束")
+      Sprite:setVisible(pic, 1)
+   elseif gzdata.value[0].status =='02' then
+      Sprite:setProperty(statusBtn,"text","处理结束")
       Sprite:setVisible(submitBtn, 0)
       Sprite:setEnable(submitBtn, 0)
        Sprite:setVisible(statusBtn, 1)
       Sprite:setEnable(statusBtn, 1)  
       Sprite:setVisible(gzchuli, 1) 
       Sprite:setVisible(chuligz, 0) 
+      Sprite:setVisible(pic, 1)
    elseif gzdata.value[0].status =='05' then
      --Sprite:setProperty(gzjibie,"text","故障消除")
       Sprite:setVisible(submitBtn, 1)
@@ -359,10 +367,21 @@ function  fillgzData()
       Sprite:setEnable(statusBtn, 0)  
       Sprite:setVisible(gzchuli, 0) 
       Sprite:setVisible(chuligz, 1) 
+      Sprite:setVisible(pic, 0)
    end
 end
 function doStatus()
-    local param = 'cmd=wlbtroubleprocessevent&userid='..gzdata.value[0].name..'&orderid='..dangerOrderId..'&eventtime='..'&eventid='..gzdata.value[0].status..'&lon=&lat=&ordertypeid=002'
+    local gg
+    if gzdata.value[0].status==''then
+       gg= '00'
+    elseif gzdata.value[0].status=='00'then
+       gg= '01'
+    elseif gzdata.value[0].status=='01' then
+          gg= '02'
+    elseif gzdata.value[0].status=='02' then
+        gg= '05'
+    end
+    local param = 'cmd=wlbtroubleprocessevent&userid='..Config:get("username")..'&orderid='..dangerOrderId..'&eventtime='..'&eventid='..gg..'&lon=&lat=&ordertypeid=002'
     local url= getWholeUrl('nbspweb/webservice/trouble!doWebservice.action',param)
     Log:write('===新故障工单列表提交按钮响应======', url)
     Http:request('dangerlist_data2', url, 103, {useCache = false, method = 'post', postData=''})
