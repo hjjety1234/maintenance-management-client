@@ -31,7 +31,7 @@
                         <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
                     </button>  
-                    <scrolltext name="mainTitle" rect="90,5,300,40" text="隐患情况(全省)" font-family='微软雅黑'
+                    <scrolltext name="mainTitle" rect="80,5,320,40" text="隐患情况(全省)" font-family='微软雅黑'
                         extendstyle="1111" font-size="36" h-align="center" v-align="center"
                         color="#ffffff" scroll="true"  step="2" />
                 </node>
@@ -131,24 +131,24 @@
                         extendstyle="1111" style='autosize'/>
                     <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
                         extendstyle="1111" style='autosize' >
-                        <label name='dimension' rect="0,5,80,25" text="市公司" font-family='微软雅黑'
+                        <label name='dimension' rect="0,5,90,25" text="市公司" font-family='微软雅黑'
                            extendstyle="1111" font-size="22" h-align="center" v-align="center"
                            color="#e33a10" />
-                        <label rect="80,5,120,25" text="上报隐患数" font-family='微软雅黑'
+                        <label rect="90,5,120,25" text="上报隐患数" font-family='微软雅黑'
                             extendstyle="1111" font-size="22" h-align="center" v-align="center"
                             color="#e33a10" />
-                        <label  rect="220,5,120,25" text="解决率" font-family='微软雅黑'
+                        <label  rect="230,5,120,25" text="解决率" font-family='微软雅黑'
                             extendstyle="1111" font-size="22" h-align="center" v-align="center"
                             color="#e33a10" />
                     </image>
                     <!-- 上报隐患数排序 -->
-                    <button name="xqseqBtn" rect="130,15,120,30" normal="normal" sel="sel"
+                    <button name="xqseqBtn" rect="140,15,120,30" normal="normal" sel="sel"
                         OnSelect="xqSeqOnselect" extendstyle="1111"  data="0" >
                         <image name="triangleXQ" rect="100,7,20,12" src="file://image/triangle_down.png"
                             style="autosize" extendstyle="1111" />
                     </button>
                     <!-- 解决率排序 -->
-                    <button name="fdseqBtn" rect="270,15,120,30" normal="normal" sel="sel"
+                    <button name="fdseqBtn" rect="280,15,120,30" normal="normal" sel="sel"
                         OnSelect="fdSeqOnselect" extendstyle="1111"  data="0"  >
                         <image name="triangleFD" rect="80,7,20,12" src="file://image/triangle_down.png"
                             style="autosize" extendstyle="1111" />
@@ -161,17 +161,17 @@
                         extendstyle="1111" style='autosize' />
                     <button name="dimBtn" rect="31,0,80,38" OnSelect="cityItemBtnOnselect" enable='false'
                         extendstyle="1111" data='' >
-                        <scrolltext name="dimName" rect="0,5,90,25" text="" color="#303030" 
+                        <scrolltext name="dimName" rect="0,5,100,25" text="" color="#303030" 
                             font-family='微软雅黑' font-size="20" scroll="true" h-align="center"
                             v-align="center" style="autosize" extendstyle="1111" />
                     </button>
-                    <label name='dangerCount' rect="100,5,100,25" text="100" font-family='微软雅黑'
+                    <label name='dangerCount' rect="140,5,80,25" text="100" font-family='微软雅黑'
                         extendstyle="1111" font-size="20" h-align="right" v-align="center"
                         color="#5a5a5a" />
-                    <label name='dealDangerRatio' rect="220,5,100,25" text="100" font-family='微软雅黑'
+                    <label name='dealDangerRatio' rect="250,5,100,25" text="100" font-family='微软雅黑'
                         extendstyle="1111" font-size="20" h-align="right" v-align="center"
                         color="#5a5a5a" />
-                    <button name="detailBtn" rect="400,5,20,28" normal="src:file://image/jiantou_left.png" sel="sel"
+                    <button name="detailBtn" rect="420,5,20,28" normal="src:file://image/jiantou_left.png" sel="sel"
                         OnSelect="detailBtnOnselect" style='autosize' extendstyle="1111"  data="0"  >
                     </button>
                 </node>
@@ -406,13 +406,20 @@ function addloadListItem(list, item, index)
     local dangerCount = Sprite:findChild(item,'dangerCount')            -- 上报隐患数
     local dealDangerRatio = Sprite:findChild(item,'dealDangerRatio')    -- 解决率
     local detailBtn = Sprite:findChild(item,'detailBtn')                -- 解决率
+    if g_type == 0 then
+        Sprite:setProperty(dimBtn,'data', g_regionid)
+    elseif g_type == 1 then
+        Sprite:setProperty(dimBtn,'data', g_respValue[index].orgid)
+    elseif g_type == 2 then
+        Sprite:setProperty(dimBtn,'data', g_respValue[index].codevalue)
+    end
     Sprite:setProperty(dimBtn,'enable', 'false')
     Sprite:setProperty(dimName,'text', g_sum.name)
     Sprite:setProperty(dangerCount,'text', g_sum.dangercount)
     Sprite:setProperty(dealDangerRatio,'text', 
         string.format('%.1f',g_sum.dealdangercount).."%")
-    Sprite:setProperty(detailBtn,'enable', 'false')
-    Sprite:setProperty(detailBtn,'visible', 'false')
+    --Sprite:setProperty(detailBtn,'enable', 'false')
+    --Sprite:setProperty(detailBtn,'visible', 'false')
 end
 
 -- @brief 上报隐患数排序
