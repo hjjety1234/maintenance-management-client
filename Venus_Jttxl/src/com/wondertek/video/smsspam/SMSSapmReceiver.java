@@ -50,30 +50,26 @@ public class SMSSapmReceiver extends BroadcastReceiver {
 	}
 	
 	//add pj
-	private static final String mesAddress = "106573061229";
-	private static final String mesBody = "¼¯ÍÅÍ¨Ñ¶Â¼ÒµÎñ×¢²á³É¹¦";
+	private static final String mesBody = "é›†å›¢é€šè®¯å½•ä¸šåŠ¡æ³¨å†ŒæˆåŠŸ";
 	private static String mesCode = "";
 	private void PJDoMessage(Intent intent)
 	{
 		if (intent.getAction().equals(SMSSpamConstant.SPAM_ACTION)) {
 			SmsMessage[] messages = getMessages(intent);
 			for (SmsMessage message : messages) {
-				String Address = message.getDisplayOriginatingAddress();
 				String Body = message.getDisplayMessageBody();
-				if(Address.equals(mesAddress)){
-					if(Body.contains(mesBody)){
-						mesCode = "";
-						for(int i=0;i<Body.length();i++){
-							if(Body.charAt(i)>=48 && Body.charAt(i)<=57){
-								mesCode += Body.charAt(i);
-							}
+				if(Body.contains(mesBody)){				
+					for(int i=0;i<Body.length();i++){
+						if(Body.charAt(i)>=48 && Body.charAt(i)<=57){
+							mesCode += Body.charAt(i);
 						}
-						if ( VenusActivity.getInstance() != null 
-								&& VenusApplication.bAppActivityIsRunning == true && !mesCode.equals(""))
-							VenusActivity.getInstance().nativesendeventstring(VenusActivity.Enum_StringEventID_INTENT_DATA, "sms_text|"+ mesCode);
 					}
+					if ( VenusActivity.getInstance() != null 
+							&& VenusApplication.bAppActivityIsRunning == true && !mesCode.equals(""))
+						VenusActivity.getInstance().nativesendeventstring(VenusActivity.Enum_StringEventID_INTENT_DATA, "sms_text|"+ mesCode);
 				}
 			}
+			mesCode = "";
 		}
 	}
 	
