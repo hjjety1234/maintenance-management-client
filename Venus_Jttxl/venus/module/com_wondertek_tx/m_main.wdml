@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2011, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: wangweipeng <wangweipeng@mantis.com>
+ == ============================================================================
+ == | Desc: progressbar示例
+ == ============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" PreBuildChildren="bodyPreBuildChildren" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <shadow rect="0,0,480,800" color="#0" alpha="255" extendstyle="1111"/>
+            <node layouttype="2">
+                <panorama name="panorama" layouttype="3" OnKeyUp="panoramaOnKeyup" rect="0,0,480,800" foreground="foreground" alpha="255" extendstyle="1110">
+                    <panoramaitem name="foreground" rect="0,0,480,800" extendstyle="1110">
+                        <!-- 底部菜单  -->
+                        <node name="listNode" rect="0,720,480,80" extendstyle="1111">
+                            <image  rect="0,0,480,80" border="false" extendstyle="1111" src="file://image/book/list_bg.png"  style="autosize"/>
+                            <!-- 联系人  -->
+                            <button name='contactBtn' rect="15,0,110,80"  extendstyle="1111" data="0" style='autosize' src='file://image/book/lianxiren_s.png' OnSelect="menuSel"></button>
+                            <!-- 组织机构 -->
+                            <button name='orgBtn' rect="125,0,110,80"  extendstyle="1111" data="1" style='autosize' src='file://image/book/zuijinglianxiren_d.png' OnSelect="menuSel"></button>
+                            <!-- 个人中心  -->
+                            <button name='personBtn' rect="250,0,82,80"  extendstyle="1111" data="2" style='autosize' src='file://image/book/person_d.png' OnSelect="menuSel"></button>
+                            <!-- 设置  -->
+                            <button name='siteBtn' rect="385,0,48,80"  extendstyle="1111" data="3" style='autosize' src='file://image/book/site_d.png' OnSelect="menuSel"></button>
+                            <!-- New -->
+                            <node name="newNode" rect="410,0,48,80" extendstyle="1111" visible="false">
+                                <image  rect="10,5,24,24" border="false" src="file://image/jttxl/new.png" style="autosize" extendstyle="1111" />
+                            </node>
+                        </node> 
+                    </panoramaitem>
+                </panorama>
+            </node>
+        </node>
+        <!-- load sprite -->
+        <node name="panoramaItem" visible="false" enable="false" active="false" >
+        </node>
+    </body>
+<![CDATA[
+
+require 'com_wondertek_tx.common.framework'
+require 'framework.umsagent'
+require 'framework.msgpush'
+require 'framework.appmanager'
+require 'framework.download'
+require 'framework.sqlite'
+
+local rootSprite
+local g_panoramaNode        -- 滑动效果节点
+local g_menuTable           -- 底部菜单的Sprite
+local g_page = 0            -- 标记当前页
+local g_lastIndex = nil     -- 标记上次页面
+
+-- 四个滑动页的handle
+local g_handle0 = nil   
+local g_handle1 = nil  
+local g_handle2 = nil   
+local g_handle3 = nil 
+
+-- 四个滑动页的页面地址
+local g_subPages = {
+    Alias.m_recentContacter,   
+    Alias.m_renyuantongji,
+    Alias.m_myInfo,
+    Alias.m_system,
+}
+
+---------------------------------------callbacks--------------------------------
+-- @brief root节点消息方法
+function bodyPreBuildChildren()
+    System:setFontSize(26)
+end
+
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    Log:write("===页面初始化===")
+    rootSprite = sprite
+    g_panoramaNode = Sprite:findChild(sprite, 'panorama')
+    local panoramaItem = Sprite:findChild(sprite, 'panoramaItem')
+    local foreground = Sprite:findChild(g_panoramaNode, 'foreground')
+    g_menuTable = {
+        {'lianxiren_', Sprite:findChild(foreground, 'contactBtn')}, 
+        {'zuijinglianxiren_', Sprite:findChild(foreground, 'orgBtn')}, 
+        {'person_', Sprite:findChild(foreground, 'personBtn')}, 
+        {'site_', Sprite:findChild(foreground, 'siteBtn')}
+    }
+    checkClientVersion()
+    Panorama:removeAllItems(g_panoramaNode) 
+    Panorama:loadItem(g_panoramaNode, panoramaItem, 4, 'onLoadPanoramaItem')
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        selectPage(page)
+    elseif msg == MSG_DEACTIVATE then
+        Log:write("页面去激活前的index: "..Panorama:getCurItem(g_panoramaNode))
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    Log:write("消息号: ",msg)
+    if msg == 101 then
+    elseif msg == 104 then 
+        local checkversionData = Http:jsonDecode('index_checkversion')
+        Log:write('index_checkversion', checkversionData)
+        if checkversionData and checkversionData['version'] then
+            if tonumber(checkversionData['version']['isNeedUpdate']) == 1 then  -- 需要升级
+                Log:write("isNeedUpdate: ".."true")
+                Config:set("isNeedUpdate", "true")
+                local newNode = Sprite:findChild(rootSprite, 'newNode')
+                setAllShoworHide(newNode, 1)
+            end
+        end
+    elseif msg == 1000 then 
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Util:backgroundApp()
+    end
+end
+
+-- @brief 滑动消息处理函数
+function panoramaItemOnSelect(sprite)
+    Log:write('panoramaItemOnSelect')
+    local index = Panorama:getCurItem(g_panoramaNode)
+    Log:write("滑动消息处理函数， 当前页号:"..index)
+    for i=1, #g_menuTable do
+        Sprite:setProperty(g_menuTable[i][2], 'src', 
+            'file://image/book/' .. g_menuTable[i][1] .. 'd.png')
+    end
+    Sprite:setProperty(g_menuTable[index+1][2], 'src', 
+        'file://image/book/' .. g_menuTable[index+1][1] .. 's.png')
+    -- 激活当前页
+    if index == 0 then 
+        Sprite:sendEvent(g_handle0, MSG_ACTIVATE)
+    elseif index == 1 then 
+        Sprite:sendEvent(g_handle1, MSG_ACTIVATE)
+    elseif index == 2 then 
+        Sprite:sendEvent(g_handle2, MSG_ACTIVATE)
+    elseif index == 3 then 
+        Sprite:sendEvent(g_handle3, MSG_ACTIVATE)
+    end
+    -- 去激活上一个页面
+    if g_lastIndex == 0 then 
+        Sprite:sendEvent(g_handle0, MSG_DEACTIVATE)
+    elseif g_lastIndex == 1 then 
+        Sprite:sendEvent(g_handle1, MSG_DEACTIVATE)
+    elseif g_lastIndex == 2 then 
+        Sprite:sendEvent(g_handle2, MSG_DEACTIVATE)
+    elseif g_lastIndex == 3 then
+        Sprite:sendEvent(g_handle3, MSG_DEACTIVATE)
+    end 
+    -- 保存上一个页面
+    g_lastPage = index
+end
+
+-- @brief 底部菜单选择
+function menuSel(sprite)
+    Panorama:setCurItem(g_panoramaNode, tonumber(Sprite:getData(sprite)))
+end
+
+-- @brief 跳转到指定可滑动页面
+function selectPage(index)
+    if index == nil or index == "" then 
+        Log:write("页面跳转目标页为nil")
+        return 
+    end
+    index = tonumber(index)
+    if index < 0 then 
+        index = 0 
+    elseif index > 3 then 
+        index = 3
+    end
+    local curIndex = Panorama:getCurItem(g_panoramaNode)
+    Log:write("页面跳转，当前页为:"..curIndex..", 目标页为："..index)
+    if curIndex ~= index then 
+        Panorama:setCurItem(g_panoramaNode, index)
+    end
+end
+
+-- @brief 加载panoramaItem列表
+function onLoadPanoramaItem(panorama, item, index)
+    Log:write('onLoadPanoramaItem', index)
+    Sprite:setName(item, "panoramaItem"..index)
+    Sprite:setRect(item, 0, 0, 480, 800)
+    Sprite:setProperty(item, 'extendstyle', '1110')
+	Sprite:setProperty(item, 'OnSelect', 'panoramaItemOnSelect')
+	local subPage = createNode(index, item)
+    Sprite:setRect(subPage, 0, 0, 480, 800)
+    Sprite:setProperty(subPage, 'extendstyle', '1110')
+	Sprite:loadFromXml(subPage, g_subPages[index+1])
+end
+
+-- @brief 根据下标创新子页面的handle
+function createNode(index, item)
+    local handle = Sprite:create('node', item)
+    if index == 0 then 
+        g_handle0 = handle 
+    elseif index == 1 then 
+        g_handle1 = handle 
+    elseif index == 2 then 
+        g_handle2 = handle 
+    elseif index == 3 then 
+        g_handle3 = handle 
+    end
+    return handle
+end
+
+-- @brief 检测客户端版本
+function checkClientVersion()
+    -- 获取appkey, appversion和本地文件的md5值
+    local webcloud = Config:get('webcloud')
+    local appKey = Config:get('appKey')
+    local appVer = Config:get('app_version')
+    -- 获取imsi和imei号
+    local imeicode = System:getMachineInfo(4) 
+    local imsicode = System:getMachineInfo(5) 
+    if imeicode == nil or imeicode == '' then
+        imeicode = '0'
+    end
+    if imsicode == nil or imsicode == '' then
+        imsicode = '0'
+    end
+    -- 构造请求地址
+    local requestURL = string.format('http://%s/webcloud/sso/sso_upgrade.html?appkey=%s&version=%s&imei=%s&imsi=%s', 
+        webcloud, appKey, appVer, imeicode, imsicode)
+    Log:write('requestURL=', requestURL)
+    Http:request('index_checkversion', requestURL, 104, {useCache = false})
+end
+
+]]>
+</root>
+

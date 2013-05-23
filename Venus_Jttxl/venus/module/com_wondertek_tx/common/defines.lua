@@ -67,9 +67,11 @@ Alias = {
 
     cardDesign = 'MODULE:\\com_wondertek_tx\\cardDesign.wdml', --名片设置
     
-    url_server = 'http://120.209.138.173:8080/',     --测试服务器地址
+    -- url_server = 'http://120.209.138.173:8080/',     --测试服务器地址
     m_update = 'MODULE:\\com_wondertek_tx\\m_update.wdml', -- 入口页
 
-    --url_server = 'http://120.209.131.147:8088/'  --生产服务器地址
+    url_server = 'http://120.209.131.147:8088/',  --生产服务器地址
+
+    m_main = 'MODULE:\\com_wondertek_tx\\m_main.wdml', -- 系统主页面
 }
 

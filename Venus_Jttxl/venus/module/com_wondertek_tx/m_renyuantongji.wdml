@@ -379,7 +379,7 @@ end
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
         -- Dialog:show('提示', '是否确定退出？', 'ok_cancel', 'doExit') 
-        --Scene:go(Alias.m_recentContacter, true)
+        --Scene:go(Alias.m_main.."?page=0")
         --return 1
         Util:backgroundApp()
     end
@@ -434,12 +434,12 @@ function jumpToDeptPage()
     if currentCity.key == 'anhui' then
         Reg:setString(mapdataHandler, 'cityname', currentCity.key)
         Reg:setString(mapdataHandler, 'cityid', currentCity.deptid)
-        Scene:setReturn(Alias.m_renyuantongji, Alias.m_zuzhijiegou)
+        Scene:setReturn(Alias.m_main, Alias.m_zuzhijiegou)
         Scene:go(Alias.m_zuzhijiegou.."?departmentid="..currentCity.deptid.."&departmentname="..currentCity.name, true)       
         else
         Reg:setString(mapdataHandler, 'cityname', currentCity.key)
         Reg:setString(mapdataHandler, 'cityid', currentCity.deptid)
-        Scene:setReturn(Alias.m_renyuantongji, Alias.m_zuzhijiegou)
+        Scene:setReturn(Alias.m_main, Alias.m_zuzhijiegou)
         Scene:go(Alias.m_zuzhijiegou.."?departmentid="..currentCity.deptid.."&departmentname="..currentCity.name.."分公司", true)
     end
 end
@@ -486,7 +486,7 @@ function doSearch(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
     Scene:setReturn(Alias.m_lianxirenlist, Alias.m_recentContacter)
-    Scene:go(Alias.m_recentContacter, true)
+    Scene:go(Alias.m_main.."?page=0")
 end
 
 -- 联系人列表
@@ -496,7 +496,7 @@ function doContact(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
     Scene:setReturn(Alias.m_lianxirenlist, Alias.m_renyuantongji)
-    Scene:go(Alias.m_renyuantongji, true)
+	Scene:go(Alias.m_main.."?page=1")
     --Log:write("已在联系人列表界面，点击不做任何操作！")
 end
 
@@ -507,7 +507,7 @@ function doPersonalCenter(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')   
     Scene:setReturn(Alias.m_lianxirenlist, Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"))
-    Scene:go(Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"), true)
+	Scene:go(Alias.m_main.."?page=2")
 end
 
 -- 设置
@@ -517,12 +517,12 @@ function doSetting(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png') 
     Scene:setReturn(Alias.m_lianxirenlist, Alias.m_system)
-    Scene:go(Alias.m_system, true)
+	Scene:go(Alias.m_main.."?page=3")
 end
 
 function goSearchPage()
     Log:write("进入搜索 = ") 
-    Scene:setReturn(Alias.m_renyuantongji, Alias.m_searchContacter)
+    Scene:setReturn(Alias.m_main, Alias.m_searchContacter)
     Scene:go(Alias.m_searchContacter, true)
 end
 
@@ -548,7 +548,7 @@ function initCityData()
 end
 
 function localOnselect(sprite)
-    Scene:setReturn(Alias.m_renyuantongji, Alias.m_local)
+    -- Scene:setReturn(Alias.m_main, Alias.m_local)
     -- Scene:go(Alias.m_local, true)
     -- 不释放页面，提高加载速度
     Scene:go(Alias.m_local)

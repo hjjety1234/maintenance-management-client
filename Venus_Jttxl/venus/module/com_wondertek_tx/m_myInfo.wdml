@@ -244,6 +244,7 @@ function bodyOnSpriteEvent(msg, param)
         end 
         UmsAgent:OnActivate(string.match(Alias.m_myInfo, 'MODULE:\\(.*)'), "个人信息")
         picOnload = Sprite:findChild(rootSprite, 'picOnload')
+        employeeId = Config:get("employeeId")
         Log:write("进入个人中心页面 人员ID = ",employeeId)
         Log:write("配置文件中employeeId = ",Config:get("employeeId"))
         Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
@@ -316,7 +317,7 @@ function doBack()
     bRet = Sqlite:close('jttxlDatabase')
     Log:write("数据库关闭："..bRet)
     if employeeId == Config:get("employeeId") then
-        Scene:go(Alias.m_recentContacter, true)
+        Scene:go(Alias.m_main.."?page=0")
     end     
 end
 
@@ -474,8 +475,8 @@ function doSearch(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
-    Scene:setReturn(Alias.m_myInfo, Alias.m_recentContacter)
-    Scene:go(Alias.m_recentContacter, true)
+    Scene:setReturn(Alias.m_main, Alias.m_recentContacter)
+    Scene:go(Alias.m_main.."?page=0")
 end
 
 -- 联系人列表
@@ -484,8 +485,8 @@ function doContact(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
-    Scene:setReturn(Alias.m_myInfo, Alias.m_renyuantongji)
-    Scene:go(Alias.m_renyuantongji, true)
+    Scene:setReturn(Alias.m_main, Alias.m_renyuantongji)
+    Scene:go(Alias.m_main.."?page=1")
 end
 
 -- 个人信息详情
@@ -503,8 +504,8 @@ function doSetting(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png') 
-    Scene:setReturn(Alias.m_myInfo, Alias.m_system)
-    Scene:go(Alias.m_system, true)
+    Scene:setReturn(Alias.m_main, Alias.m_system)
+    Scene:go(Alias.m_main.."?page=3")
 end
 
 -- 查询人员ID信息详情
@@ -599,7 +600,7 @@ function onCameraDialog(photoPath, photoType)
     Reg:setString(regHandle1, "imageName",fileName)
     Reg:setString(regHandle1, "imageSrc",dest)
     Reg:setTable(regHandle1, "imageArray", imageArray)
-    Scene:setReturn(Alias.m_myInfo, Alias.m_picRecord)
+    Scene:setReturn(Alias.m_main, Alias.m_picRecord)
     Scene:go(Alias.m_picRecord,true)
 end
 
@@ -626,7 +627,7 @@ function onOpenAlbumDialog(filePath, fileType) --此函数名和OpenAlbumDialog�
     Reg:setString(regHandle1, "imageName",fileName)
     Reg:setString(regHandle1, "imageSrc",filePath)
     Reg:setTable(regHandle1, "imageArray", imageArray)
-    Scene:setReturn(Alias.m_myInfo, Alias.m_picRecord)
+    Scene:setReturn(Alias.m_main, Alias.m_picRecord)
     Scene:go(Alias.m_picRecord,true)
 end
 
