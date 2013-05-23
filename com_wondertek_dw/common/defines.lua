@@ -137,7 +137,7 @@ Alias = {
     m_kaohetongji_new = "MODULE:\\com_wondertek_dw\\m_kaohetongji_new.wdml",  -- 考核统计 
     m_xunjiantongji_new = "MODULE:\\com_wondertek_dw\\m_xunjiantongji_new.wdml",  -- 巡检统计
     home_sheng_manager = 'MODULE:\\com_wondertek_dw\\home_sheng_manager.wdml',   -- 省公司管理员首页
-    home_city = 'MODULE:\\com_wondertek_dw\\home_city.wdml',   -- 地市领导首页 
+    home_sheng_city = 'MODULE:\\com_wondertek_dw\\home_sheng_city.wdml',   -- 地市领导首页 
     home_city_manager = 'MODULE:\\com_wondertek_dw\\home_city_manager.wdml',   -- 地市管理员首页
 --省公司领导资源查询页面
     m_resource1 = "MODULE:\\com_wondertek_dw\\m_resource1.wdml",  -- 资源统计
