@@ -108,6 +108,7 @@ local g_downloadTime = 0            -- 记录下载所花的时间
 local g_progressWidth = 200--154         -- 进度条长度
 local updateData                    -- 升级标志
 local updateNode
+local employeeId
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
@@ -171,7 +172,8 @@ function bodyOnPluginEvent(msg, param)
         Log:write("======loginData======", loginData)
         if loginData then
             if loginData['success'] then
-                Log:write('99999999999999999999999')
+                Config:set('employeeId',loginData.Rows["employeeId"])
+                Log:write("employeeId有吗",Config:get('employeeId'))
                 local user = Sprite:getText(userEdit)
                 local pwd = Sprite:getText(pwdEdit)
                     Config:set('username', user)
@@ -189,9 +191,9 @@ function bodyOnPluginEvent(msg, param)
                 end
                     Scene:go(Alias.home)
             else
-                Log:write("===========loginData['code']=====", loginData['success'])
+              
                 Dialog:show('', '登陆失败，请检查用户名密码后重试！', 'ok')
-                --Dialog:show('', loginData.message, 'ok')
+          
             end
         else
             Dialog:show('', '返回数据格式错误，请稍后重试！', 'ok')

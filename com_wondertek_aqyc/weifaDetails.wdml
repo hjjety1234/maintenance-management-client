@@ -68,19 +68,22 @@
                 <textarea  name="caozuo" rect="400,250,90,50" font-size="20"  font-family="微软雅黑"
                     text="违法行为记录" extendstyle="1111" v-align="center" h-align="center"/>
             </node>
+            <node rect="0,300,480,100" extendstyle="1111">
+            <listview name="sampleList" rect="0,0,0,600" extendstyle="1177" col="1" auto-adjust="true" ></listview>
+            </node>
             <node rect="0,80,480,100"  name="listitem" extendstyle="1111">
               <image name="bg" rect="0,231,480,79" src="file://image/xinxibiao3.png" style='autosize' extendstyle="1111"/>
-                <textarea rect="0,250,65,50" font-size="20" font-family="微软雅黑"
-                    text="客户简码" extendstyle="1111" v-align="center"  h-align="center"/>
-                <textarea  rect="65,250,65,50" font-size="20"  font-family="微软雅黑"
+                <textarea name="jianma" rect="0,250,65,50" font-size="20" font-family="微软雅黑"
+                    text="" extendstyle="1111" v-align="center"  h-align="center"/>
+                <textarea name="shop" rect="65,250,65,50" font-size="20"  font-family="微软雅黑"
                     text="店铺名称" extendstyle="1111" v-align="center"  h-align="center"/>
-                <textarea  rect="130,250,90,50" font-size="20"  font-family="微软雅黑"
+                <textarea name="netname" rect="130,250,90,50" font-size="20"  font-family="微软雅黑"
                     text="网点名称" extendstyle="1111" v-align="center"  h-align="center"/>
-                <textarea  rect="220,250,90,50" font-size="20"  font-family="微软雅黑"
+                <textarea  name="xundiantime" rect="220,250,90,50" font-size="20"  font-family="微软雅黑"
                     text="巡店时间" extendstyle="1111" v-align="center" h-align="center"/>
-                <textarea  rect="310,250,90,50" font-size="20"  font-family="微软雅黑"
+                <textarea name="xundianpepole" rect="310,250,90,50" font-size="20"  font-family="微软雅黑"
                     text="巡店人" extendstyle="1111"  v-align="center" h-align="center" />
-                <textarea  name="caozuo" rect="400,250,90,50" font-size="20"  font-family="微软雅黑"
+                <textarea  name="weifajilu" rect="400,250,90,50" font-size="20"  font-family="微软雅黑"
                     text="违法行为记录" extendstyle="1111" v-align="center" h-align="center"/>
             </node>
         </node>
@@ -105,36 +108,19 @@ local g_retryCount=0
 local localsuc=0
 local server = Config:get('serverUrl')..':'..Config:get('port')
 local wangdianidList 
+
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    quyuname = Sprite:findChild(rootSprite,'quyuname')
-    wangdian1 = Sprite:findChild(rootSprite,'wangdian1')
+   
+    request()
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-       local quyu = Reg:create("quyu")
-           quyuList = Reg:getString(quyu, "quyuList")
-           Reg:release("quyu")
-           if quyuList ~= '' and quyuList ~= nil then
-               Sprite:setProperty(quyuname,'text',quyuList)
-           end
-        local quyuID = Reg:create("quyuID")
-        local quyuIDList = Reg:getString(quyuID, "quyuIDList")
-     
-        Reg:setString(Reg:create("quyuIDD"), 'quyuIDDList', quyuIDList)
-        Reg:setString(Reg:create("quyu"), 'quyuList', quyuList)
-        local wangdian = Reg:create("wangdian")
-           wangdianList = Reg:getString(wangdian, "wangdianList")
-           Reg:release("wangdian")
-           if wangdianList ~= '' and wangdianList ~= nil then
-               Sprite:setProperty(wangdian1,'text',wangdianList)
-           end
-         local wangdianid = Reg:create("wangdianid")
-        wangdianidList = Reg:getString(wangdianid, "wangdianidList")
+       
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -142,40 +128,8 @@ end
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg, param)
     if msg == 101  then 
-    elseif msg == 1001 then
-      
-            scanData = Param:getString(param,1)
-            local etSearch2 = Sprite:findChild(rootSprite,"barcodeTitleName")
-            Sprite:setProperty(etSearch2, "text",scanData)
-    elseif msg == 503 then
-        local kaoqin_data = Http:jsonDecode('kaoqin_data')
-        if kaoqin_data.result == "success" then 
-            Dialog:show(' 提示', '签到成功！', 'ok')
-            Config:set('isQiandao','1')
-            Timer:set(1,1000,'doBack')
-        end
-    elseif msg == 1002 then--用来显示定位的位置
-        UmsAgent:onLoadFinish()
-        local postDataString = Param:getString(param, 0)
-        local postData = Json:loadString2Table(postDataString)
-        if postData.longitude ~= nil and postData.latitude ~= nil then
-            Log:write('定位成功', postData)
-            -- 定位成功
-            latitude=postData.latitude
-            longitude=postData.longitude
-            if postData.longitude ~= nil and postData.latitude ~= nil then
-                Map:getLocation(observer, 1003, postData.latitude, postData.longitude)  
-            end
-        end
-    elseif msg == 1003 then--返回上传路径，并启动上传 
-        local postDataString = Param:getString(param, 0)
-        local postData = Json:loadString2Table(postDataString)
-        local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
-        if postData.address ~= nil then
-            Log:write('解析地址成功', postData)
-            localsuc=1
-            Sprite:setProperty(locInfo, 'text', postData.address)
-        end
+        local weifaData = Http:jsonDecode('weifaData')
+        Log:write("违法记录数据")
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -200,6 +154,14 @@ function chooseQuYu()
    Reg:setString(Reg:create("yemian1"), 'yemian1', "6")
    Scene:setReturn(Alias.weifatj, Alias.quyuList)
    Scene:go(Alias.quyuList,true)
+end
+function request()
+     
+     local param = '&startDate='..'2013-04'..'&area='..'宜城区'..'&employeeId='..Config:get('employeeId')
+     local Url = server..'/mobileSale/report/detail.htm?page=1&rows=10'..param
+     Log:write('the url is :',Url)
+  
+     Http:request('weifaData', Url, 101, {useCache=false})
 end
 
 
