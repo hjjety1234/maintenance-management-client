@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: xxxx <xxxx@xxxx.com> ==
+============================================================================
+== | Desc: 页面描述 ==
+============================================================================
+-->
+<root>
+    <header />
+        <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <shadow rect="0,0,480,800" color="#ffffff" alpha="255"
+                extendstyle="1111" />
+            <!-- 设置背景 -->
+            <image rect="0,80,480,720" src="" style="autosize"
+               extendstyle="1111" />
+            <!-- 设置头部 -->
+            <node name="baseSprite" rect="0,0,480,87" extendstyle="1111">
+                    <image name="title" rect="0,0,480,87" border="false" src="file://image/top-a.png" 
+                        style="autosize" extendstyle="1111">
+                        <label name="titleLabel" rect="0,0,480,80" text="涉嫌违法信息" color="#ffffff" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />
+                    </image>
+                <!-- 返回 -->
+                <button rect="20,18,84,51" OnSelect="doBack" normal="src:file://image/button-a.png;"
+                    sel="src:file://image/button-b.png;" style="autosize" extendstyle="1111">
+                </button>
+                <!-- 提交 -->
+                <button rect="381,16,84,51" OnSelect="sendInfo" normal="src:file://image/top-tijiao1.png;"
+                    sel="src:file://image/top-tijiao2.png;" style="autosize" extendstyle="1111">
+                </button>
+            </node> 
+            <node name="kehujianma" rect="0,80,480,79" extendstyle="1111">
+                <label name="kehujianmaLb" rect="10,0,125,70" text="网点名称：" color="#0" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                <label name="kehujianmaCt" rect="140,0,200,70" text="" color="#666666" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                <!--间隔线-->
+                <image name="jiange" rect="0,75,480,1" src="file://image/line.png"
+                            style='autosize' extendstyle="1111"/>
+            </node>
+            <node name = "add" rect = "0,160,480,76" extendstyle="1111">
+                <button rect="86,10,112,50" OnSelect="addTobaco" normal="src:file://image/zengjia1.png;"
+                    sel="src:file://image/zengjia2.png;" style="autosize" extendstyle="1111">
+                    <label name="delete" rect="0,-5,112,50" text="增加" color="#ffffff" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                </button>
+                <button rect="280,10,112,50" OnSelect="deleteCigaret" normal="src:file://image/baocun1.png;"
+                    sel="src:file://image/baocun2.png;" style="autosize" extendstyle="1111">
+                    <label name="delete" rect="0,-5,112,50" text="删除" color="#ffffff" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                </button>
+                <!--间隔线-->
+                <image name="jiange" rect="0,75,480,1" src="file://image/line.png"
+                            style='autosize' extendstyle="1111"/>
+            </node>
+            <node name="isOk" rect = "0,236,480,75">
+                <label name="zuangtailable" rect="10,0,125,70" text="销售状态：" color="#0" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                <button name="zhuangtaibtn" rect="143,10,271,50" OnSelect="tanchuzhuangtai" normal="normal" sel="sel">
+                    <image name="normal" rect="0,5,271,42" border="false" src="file://image/quyushuru.png" 
+                            style="autosize" extendstyle="1111" />
+                    <image name="sel" rect="0,5,271,42" border="false" src="file://image/quyushuru.png" 
+                            style="autosize" extendstyle="1111" />
+                    <label name="zhuangtailable" rect="0,5,271,42" color="#0" v-align="center" text="正常"  
+                          h-align="center" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                    <label name="zhuangtaiid" visible="false" text="0"></label>
+                </button>
+            </node>
+            <!--间隔线-->
+                <image name="jiange" rect="0,309,480,1" src="file://image/line.png"
+                            style='autosize' extendstyle="1111"/>
+            <node name="listitemNode" visible="false" enable="false" active="false"
+                extendstyle="1011" rect="0,310,480,220">
+                    <label name = "shexianweifalabel" rect="10,10,125,40" text="涉嫌违法行为" color="#0" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                    <label name = "shexianweifalabel1" rect="150,10,125,40" text="" color="#0" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                    <label name="weifacode" text="" visible="false"></label>
+                    <image name="bggg" rect="0,70,480,150" border="false" src="file://image/weifaxingweibiaoge.png" 
+                            style="autosize" extendstyle="1111" />
+                    <label name = "pingpai" rect="10,80,50,50" text="品牌" color="#0" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    <label name = "guige" rect="120,80,50,50" text="规格" color="#0" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    <label name = "shuliang" rect="200,80,90,50" text="数量(条)" color="#0" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    <label name = "chulizhuangkuang" rect="290,80,90,50" text="处理状态" color="#0" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    <label name = "caozuo" rect="370,80,90,50" text="操作" color="#0" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    <label name = "pingpai1" rect="10,150,90,50" text="" color="#0" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    <label name = "guige1" rect="120,150,90,50" text="" color="#0" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    <label name = "shuliang1" rect="200,150,90,50" text="" color="#0" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    <label name = "chulizhuangkuang1" rect="290,150,90,50" text="" color="#0" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
+                    <checkbox rect="415,170,26,26" name="saveCheckbox" checked="src:file://image/gouxuan1.png;" OnChecked="checkbox2OnChecked" normal="src:file://image/weixuanze.png;"
+                              style="autosize" extendstyle="1111" sudoku="5,5,5,5" />
+                    <label name = "id1" visible="false" text=""></label>
+            </node>
+            <node rect="0,310,480,600" extendstyle="1111">
+                <listview name="sampleList" rect="0,0,0,0" extendstyle="1177" col="1" auto-adjust="true" >   
+                </listview>
+            </node>
+            ---------选择状态
+            <node name="jyggSelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
+                <shadow rect="0,0,480,800"  alpha="160" color="#0"  extendstyle="1111"></shadow>
+                <button name="button" rect="0,0,480,800" OnSelect="hideCompanySelected2">
+                </button>
+                <node rect="29,200,421,79" extendstyle="1111"  border="false">
+                    <image rect="0,0,421,79" src="file://image/shang.png"  style="autosize" extendstyle="1111" />
+                    <label rect="130,2,140,79" border="false"  style="autosize"
+                     text="" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                </node>
+                <node rect="29,279,421,184" extendstyle="1111">
+                    <image rect="0,0,421,184" src="file://image/zhonga.png"  style="autosize" extendstyle="1111" />
+                    <button name="btnName" rect="0,0,421,61" text="" color="#303030" h-align="center" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
+                        extendstyle="0010" OnSelect="pinPaiGroupOnSelect"  normal="" sel=""data="01"  > 
+                        <label name="pinPaiName" rect="29,0,202,61" border="false" color="#0" style="autosize"
+                            text="正常" h-align="left" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                            <label name="zhuangtaiid1" visible="false" text="0"></label>
+                    </button>
+                    <button name="btnName" rect="0,62,421,61" text="" color="#303030" h-align="center" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
+                        extendstyle="0010" OnSelect="pinPaiGroupOnSelect"  normal="" sel=""data="01"  >
+                         <label name="pinPaiName" rect="29,0,202,61" border="false" color="#0" style="autosize"
+                            text="停业" h-align="left" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                            <label name="zhuangtaiid1" visible="false" text="1"></label>
+                    </button>
+                    <button name="btnName" rect="0,124,421,61" text="" color="#303030" h-align="center" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
+                        extendstyle="0010" OnSelect="pinPaiGroupOnSelect"  normal="" sel=""data="01"  >
+                         <label name="pinPaiName" rect="29,0,202,61" border="false" color="#0" style="autosize"
+                            text="歇业" h-align="left" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                            <label name="zhuangtaiid1" visible="false" text="2"></label>
+                    </button>
+                    <image name="jiange" rect="5,61,415,1" src="file://image/line.png"
+                                style='autosize' extendstyle="1111"/>
+                    <image name="jiange" rect="5,124,415,1" src="file://image/line.png"
+                                style='autosize' extendstyle="1111"/>
+                </node>
+                <image rect="29,463,421,79" src="file://image/xia.png"  style="autosize" extendstyle="1111" />
+                <button name="button1" rect="195,481,52,39" normal="src:file://image/caozuo1.png;" h-align="center" v-align="center" text="保存" font-size="20" font-family="微软雅黑" color="#ffffff"
+                    sel="src:file://image/caozuo2.png;" style="autosize" extendstyle="1111" OnSelect="hideCompanySelected2">
+                </button>
+            </node>
+            -----------------------库存条数
+            <node name="jyggSelectNode1" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
+                <shadow rect="0,0,480,800"  alpha="160" color="#0"  extendstyle="1111"></shadow>
+                <button name="button" rect="0,0,480,800" OnSelect="hideCompanySelected21">
+                </button>
+                <node rect="29,200,421,79" extendstyle="1111"  border="false">
+                    <image rect="0,0,421,79" src="file://image/shang.png"  style="autosize" extendstyle="1111" />
+                    <label rect="130,2,140,79" border="false"  style="autosize"
+                     text="" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                </node>
+                <button rect="100,279,421,42">
+                </button>
+                <image rect="29,279,421,42" src="file://image/zhonga.png"  style="autosize" extendstyle="1111" /> 
+                
+                <image name="codebg" rect="100,279,271,42" src="file://image/shurushuzi.png" style="sudoku-auto" sudoku="5,5,5,5"
+                             extendstyle="1111"/>
+                <label name="shijilabel11" rect="120,279,271,42" font-size="24" color="#0" font-family="微软雅黑"
+                    text="输入库存" extendstyle="1111" v-align="center" />
+                <edit name="shijicode11" rect="120,279,100,42" font-size="24" max-size="10" color="#0"
+                      text="" extendstyle="1111" v-center="true" OnSetFocus="initText3"/>
+                
+                <image rect="29,321,421,79" src="file://image/xia.png"  style="autosize" extendstyle="1111" />
+                <button name="button1" rect="195,335,52,39" normal="src:file://image/caozuo1.png;" h-align="center" v-align="center" text="保存" font-size="20" font-family="微软雅黑" color="#ffffff"
+                    sel="src:file://image/caozuo2.png;" style="autosize" extendstyle="1111" OnSelect="hideCompanySelected31">
+                </button>
+            </node>
+            ---------------------输入备注
+            <node name="jyggSelectNode11" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
+                <shadow rect="0,0,480,800"  alpha="160" color="#0"  extendstyle="1111"></shadow>
+                <button name="button" rect="0,0,480,800" OnSelect="hideCompanySelected211">
+                </button>
+                <node rect="29,200,421,79" extendstyle="1111"  border="false">
+                    <image rect="0,0,421,79" src="file://image/shang.png"  style="autosize" extendstyle="1111" />
+                    <label rect="130,2,140,79" border="false"  style="autosize"
+                     text="" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                </node>
+                <button rect="100,279,421,42">
+                </button>
+                <image rect="29,279,421,157" src="file://image/zhonga.png"  style="autosize" extendstyle="1111" /> 
+                
+                <image name="codebg" rect="100,279,271,143" src="file://image/shurushuzi.png" style="sudoku-auto" sudoku="5,5,5,5"
+                             extendstyle="1111"/>
+                <edit name="shijicode111" rect="120,279,200,143" color="#8f8e8e" font-size="24" font-family="微软雅黑" text="" extendstyle="1111" multiline="true" max-size="1024" line-height="28" direction="vertical" OnSetFocus="initText4" />
+                        <textarea name="shijilabel111" rect="120,279,271,143" font-size="24" autoextend="true" color="#8f8e8e" font-family="微软雅黑" text="输入备注" line-height="28" extendstyle="1111" />    
+                <image rect="29,436,421,79" src="file://image/xia.png"  style="autosize" extendstyle="1111" />
+                <button name="button1" rect="195,436,52,39" normal="src:file://image/caozuo1.png;" h-align="center" v-align="center" text="保存" font-size="20" font-family="微软雅黑" color="#ffffff"
+                    sel="src:file://image/caozuo2.png;" style="autosize" extendstyle="1111" OnSelect="hideCompanySelected311">
+                </button>
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_aqyc.common.framework'
+local rootSprite
+local list
+local listitem
+local pingpailabel
+local quyuname = nil
+local wangdian1 = nil
+local allFactCost=''
+local pingpaiList
+local wangdianidList
+local urlRequestServer
+local listview 
+local ids = ''
+local storeCodeContent1
+local items
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    list = Sprite:findChild(sprite, 'list')
+    listitem = Sprite:findChild(sprite, 'listitem')
+    ListView:adjust(list)
+    pingpailabel = Sprite:findChild(rootSprite,'pingpailabel')
+    listview = Sprite:findChildByClass(sprite, 'listview')
+    urlRequestServer = Config:get('server_url')..':'..Config:get('port')
+    
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        local quyuReg = Reg:create("quyuReg")
+        local quyuRegContent = Reg:getString(quyuReg, "quyuRegContent")
+        Reg:release("quyuReg")    
+        Sprite:setProperty(Sprite:findChild(rootSprite,'quyuname'),'text',quyuRegContent) 
+        local wangdianReg = Reg:create("wangdianReg")
+        local wangdianRegContent = Reg:getString(wangdianReg, "wangdianRegContent")
+        Reg:release("wangdianReg")    
+        Sprite:setProperty(Sprite:findChild(rootSprite,'wangdian1'),'text',wangdianRegContent) 
+        local storeCode = Reg:create("storeCode")
+        local storeCodeContent = Reg:getString(storeCode, "storeCodeContent")
+        Reg:release("storeCode")    
+        Sprite:setProperty(Sprite:findChild(rootSprite,'kehujianmaCt'),'text',storeCodeContent)
+        local pingpai = Reg:create("pingpai")
+        pingpaiList = Reg:getString(pingpai, "pingpaiList")
+        Reg:release("pingpai")
+        local storeCode11 = Reg:create("storeCode11")
+        storeCodeContent1 = Reg:getString(storeCode11, "storeCodeContent11")
+        --Reg:release("storeCode1")
+        Reg:setString(Reg:create("storeCode"), 'storeCodeContent', storeCodeContent)
+        Log:write('------------------------',storeCodeContent1)
+        if storeCodeContent1 ~= "" then
+            Log:write('----------------111111111111',storeCodeContent1)
+            local requestUrl = urlRequestServer..'/mobileSale/tobacco/latestBreakLawInfo?storeId='..storeCodeContent1
+            Log:write('the url is :',requestUrl)
+            Log:write('ppppppp')
+            Http:request('listData', requestUrl, 101, {useCache=false})
+        end
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then
+        local listView = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(listView,1,1)
+        if Loading:isShow() then Loading:close() end
+        Log:write('lllllllllll')
+        requestData = Http:jsonDecode('listData')
+        Log:write('====================requestData==================',requestData)
+        if requestData and requestData.Rows then
+            infoData = requestData.Rows
+            Log:write('#######data is########',infoData)
+             Sprite:setVisible(Sprite:findChild(rootSprite, 'noDataLbl'), 0)
+            initListData()
+        else
+            Sprite:setVisible(Sprite:findChild(rootSprite, 'noDataLbl'), 1)
+        end
+    elseif msg == 102 then
+        local listView = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(listView,1,1)
+        if Loading:isShow() then Loading:close() end
+        Log:write('lllllllllll')
+        requestData = Http:jsonDecode('listData')
+        Log:write('====================requestData==================',requestData)
+        if requestData and requestData.Rows then
+            infoData = requestData.Rows
+            Log:write('#######data is########',infoData)
+             Sprite:setVisible(Sprite:findChild(rootSprite, 'noDataLbl'), 0)
+            initListData()
+        else
+            Sprite:setVisible(Sprite:findChild(rootSprite, 'noDataLbl'), 1)
+        end
+        Dialog:show('提示', '提交成功！', 'ok')
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:freeByHandle(rootSprite)
+        Scene:back()
+        return 1
+    elseif kc==Key.F1 then--按下菜单键
+        Scene:freeByHandle(rootSprite)
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function doBack()
+    Scene:go(Alias.zm_marking_info,true)
+end
+
+
+
+function loadItemData(list, item, index)
+    Sprite:setRect(item, 0, 310, 480, 220)
+    Sprite:setProperty(item, 'extendstyle', '1110')
+    local pinpai2 = Sprite:findChild(item,'pingpai1')
+    local guige2 = Sprite:findChild(item,'guige1')
+    local guidinshoujia2 = Sprite:findChild(item,'shuliang1')
+    local shijishoujia2 = Sprite:findChild(item,'chulizhuangkuang1')
+    local id1 = Sprite:findChild(item,'id1')
+    local shexianweifalabel1 = Sprite:findChild(item,'shexianweifalabel1')
+    local weifacode = Sprite:findChild(item,'weifacode')
+    local remark2 = ""
+    Log:write('+++++++++++++++',infoData[index].breakLawId)
+    if infoData[index].brand then
+      Sprite:setProperty(pinpai2,'text',infoData[index].brand)
+    end
+    if infoData[index].standard then
+      Sprite:setProperty(guige2,'text',infoData[index].standard)
+    end
+    if infoData[index].cnt then
+      Sprite:setProperty(guidinshoujia2,'text',infoData[index].cnt)
+    end
+    if infoData[index].deal_result then
+      Sprite:setProperty(shijishoujia2,'text',infoData[index].deal_result)
+    end
+    if infoData[index].typename then
+      Sprite:setProperty(shexianweifalabel1,'text',infoData[index].typename)
+    end
+    if infoData[index].breakLawId then
+      Sprite:setProperty(id1,'text',infoData[index].breakLawId)
+    end
+    if infoData[index].typecode then
+      Sprite:setProperty(weifacode,'text',infoData[index].typecode)
+    end
+end
+
+--删除一行
+function removeBtnOnSelect(sprite)
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    local count = ListView:getItemCount(list)
+    local lastItem = ListView:getItem(list, count - 1)
+    local items = Sprite:getParent(sprite)
+    Log:write('the lastItem is' ,lastItem)
+    Log:write('item is ',items)
+    ListView:removeItem(list, items, 1, 1)
+end
+
+
+function initListData()
+    ListView:loadItem(listview, Sprite:findChild(rootSprite, 'listitemNode'), #infoData+1, 'loadItemData')
+end
+
+function addTobaco(sprite)
+  -- body
+    local storeCode = Reg:create("storeCode2")
+    local storeCodeContent = Reg:getString(storeCode, "storeCodeContent2")
+    Log:write('----------------',storeCodeContent)
+    Reg:setString(Reg:create("storeCode2"), 'storeCodeContent2', storeCodeContent)
+    --[[
+    local storeId = requestData.storeId
+    Reg:setString(Reg:create("storeId"), 'storeId2', storeId)
+    --]]
+    Scene:setReturn(Alias.zhuanmaiweifa, Alias.zhuanmaiadd)
+    Scene:go( Alias.zhuanmaiadd,true)
+end
+
+function checkbox2OnChecked(sprite)
+    -- body
+    Log:write('11111111111111111')
+    local items = Sprite:getParent(sprite)
+    Log:write('77777777777777',items)
+    if Sprite:isChecked(Sprite:findChild(items, 'saveCheckbox')) then
+        if Sprite:isChecked(sprite) then
+            Sprite:setProperty(Sprite:findChild(items, 'saveCheckbox'), 'selected', 'true')
+            local a = Sprite:getText(Sprite:findChild(items,'id1'))
+            Log:write('+++++++++++++++++++',a)
+            ids = ids..a..','
+            Log:write('1212121212121',ids)
+        else
+            Sprite:setProperty(Sprite:findChild(items, 'saveCheckbox'), 'selected', 'true')
+            local a = Sprite:getText(Sprite:findChild(items,'id1'))
+            Log:write('+++++++++++++++++++',a)
+            ids = ids..a..','
+            Log:write('1212121212121',ids)
+        end
+    else
+        if Sprite:isChecked(sprite) then
+            Sprite:setProperty(Sprite:findChild(items, 'saveCheckbox'), 'selected', 'true')
+            local a = Sprite:getText(Sprite:findChild(items,'id1'))
+            local count = string.len(a)
+            Log:write('111111111111111',count)
+            local i = 0-tonumber(count)-2
+            Log:write('9999999999999',i)
+            Log:write('000000000000000000000000')
+            local ids1 = string.sub(ids,1,i)
+            Log:write('000000000000000111111111',ids1)
+            ids = ids1
+            Log:write('---------------------',ids)
+        else
+            local a = Sprite:getText(Sprite:findChild(items,'id1'))
+            local count = string.len(a)
+            Log:write('111111111111111',count)
+            local i = 0-tonumber(count)-2
+            Log:write('9999999999999',i)
+            Log:write('000000000000000000000000')
+            local ids1 = string.sub(ids,1,i)
+            Log:write('000000000000000111111111',ids1)
+            ids = ids1
+            Log:write('---------------------',ids)
+            Sprite:setProperty(Sprite:findChild(items, 'saveCheckbox'), 'selected', 'false')
+        end
+    end  
+    
+end
+
+function deleteCigaret(sprite)
+    -- body
+    Log:write('+++++++++++++++---------------',ids)
+    if ids == '' then 
+        Dialog:show('提示', '请选择需要删除的香烟！', 'ok')
+    else
+        local requestUrl = urlRequestServer..'/mobileSale/tobacco/del?storeId='..storeCodeContent1..'&breakLawIds='..ids
+        Log:write('the url is :',requestUrl)
+        Http:request('listData', requestUrl, 101, {useCache=false})
+    end
+end
+
+function sendInfo(sprite)
+    -- body
+    local storeCode = Reg:create("storeCode2")
+    local storeCodeContent = Reg:getString(storeCode, "storeCodeContent2")
+    Reg:release('storeCode')
+    local storeCode11 = Reg:create("storeCode11")
+    local storeCodeContent1 = Reg:getString(storeCode11, "storeCodeContent11")
+    local list=Sprite:findChild(rootSprite,'sampleList')
+    local count= ListView:getItemCount(list)
+    local pingpa=""
+    local guige=""
+    local shuliang=""
+    local chulizhuangkuang = ""
+    local typeCode = ""
+    local state = Sprite:getText(Sprite:findChild(rootSprite,'zhuangtaiid'))
+    Log:write('_______________111111111111111',state)
+    local storeId = requestData.storeId
+    local param = ""
+    for i=1,count do
+        local itemNode1 = ListView:getItem(list, i-1)
+        local pingpai1 = Sprite:getText(Sprite:findChild(itemNode1,'pingpai1'))
+        Log:write('9999999999999999999999',pingpai1)
+        local guige1 = Sprite:getText(Sprite:findChild(itemNode1,'guige1'))
+        local shuliang1 = Sprite:getText(Sprite:findChild(itemNode1,'shuliang1'))
+        local chulizhuangkuang1 = Sprite:getText(Sprite:findChild(itemNode1,'chulizhuangkuang1'))
+        local typeCode1 = Sprite:getText(Sprite:findChild(itemNode1,'weifacode'))
+        pingpa = pingpa .. pingpai1..","
+        guige = guige .. guige1..","
+        shuliang = shuliang .. shuliang1..","
+        chulizhuangkuang = chulizhuangkuang .. chulizhuangkuang1..","
+        typeCode = typeCode..typeCode1..","
+    end
+    param = param..'storeId='..storeCodeContent1..'&userCode='..Config:get('username')..'&storeCode='..storeCodeContent..'&state='..state..'&typecode='..typeCode..'&brand='..pingpa..'&standard='..guige..'&cnt='..shuliang..'&deal_result='..chulizhuangkuang
+    local requestUrl = urlRequestServer..'/mobileSale/tobacco/saveBreakLaw'
+    Http:request('listData', requestUrl, 102, {useCache = false, method = 'post',postData=param})
+    Log:write('----------------------------',param)
+end
+
+function initText2(sprite)
+        local txt= Sprite:getProperty(sprite, 'text')
+        local i = Sprite:findChild(rootSprite,'shijilabel1')
+        local text = Sprite:getText(i)
+        Log:write('+++++++++',txt)
+        if txt=='' then
+            Log:write('___________')
+            Sprite:setProperty(sprite, 'text', '')
+            Sprite:setProperty(i,'text','')
+            Sprite:setProperty(sprite, 'color', '#8f8e8e')
+        end
+    end
+
+function initText3(sprite)
+        local txt= Sprite:getProperty(sprite, 'text')
+        local i = Sprite:findChild(rootSprite,'shijilabel11')
+        local text = Sprite:getText(i)
+        Log:write('+++++++++',txt)
+        if txt=='' then
+            Log:write('___________')
+            Sprite:setProperty(sprite, 'text', '')
+            Sprite:setProperty(i,'text','')
+            Sprite:setProperty(sprite, 'color', '#8f8e8e')
+        end
+    end
+
+    function initText4(sprite)
+        local txt= Sprite:getProperty(sprite, 'text')
+        local i = Sprite:findChild(rootSprite,'shijilabel111')
+        local text = Sprite:getText(i)
+        Log:write('+++++++++',txt)
+        if txt=='' then
+            Log:write('___________')
+            Sprite:setProperty(sprite, 'text', '')
+            Sprite:setProperty(i,'text','')
+            Sprite:setProperty(sprite, 'color', '#8f8e8e')
+        end
+    end
+
+
+function changeShiji1(sprite)
+    -- body
+    local view = Sprite:findChild(rootSprite,'sampleList')
+    local index = ListView:getItemIndex(Sprite:getParent(sprite))
+    items = ListView:getItem(view,index)
+    Log:write('///////////////',items)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'jyggSelectNode1'), 1)
+end
+
+function changeShiji2(sprite)
+    -- body
+    local view = Sprite:findChild(rootSprite,'sampleList')
+    local index = ListView:getItemIndex(Sprite:getParent(sprite))
+    items = ListView:getItem(view,index)
+    Log:write('///////////////',items)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'jyggSelectNode11'), 1)
+end
+
+function hideCompanySelected2(sprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'jyggSelectNode'), 0)
+end
+
+function hideCompanySelected21(sprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'jyggSelectNode1'), 0)
+end
+
+function hideCompanySelected211(sprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'jyggSelectNode11'), 0)
+end
+
+function setAllShoworHide(sprite, isShow)
+    Sprite:setVisible(sprite, isShow)
+    Sprite:setActive(sprite, isShow)
+    Sprite:setEnable(sprite, isShow)
+end
+
+function hideCompanySelected3(sprite)
+    -- body
+    Log:write('/??????????????????????????')
+    setAllShoworHide(Sprite:findChild(rootSprite, 'jyggSelectNode'), 0)
+end
+
+function hideCompanySelected31(sprite)
+    -- body
+    local money = Sprite:getText(Sprite:findChild(rootSprite,'shijicode11'))
+    Log:write('...................',money)
+    Sprite:setProperty(Sprite:findChild(items,'shuliang2'),'text',money)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'jyggSelectNode1'), 0)
+end
+
+function hideCompanySelected311(sprite)
+    -- body
+    local money = Sprite:getText(Sprite:findChild(rootSprite,'shijicode111'))
+    local remark1 = ""
+    Log:write('...................',money)
+    Sprite:setProperty(Sprite:findChild(items,'remark1'),'text',money)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'jyggSelectNode11'), 0)
+end
+
+function tanchuzhuangtai(sprite)
+    -- body
+    local view = Sprite:findChild(rootSprite,'sampleList')
+    local index = ListView:getItemIndex(Sprite:getParent(sprite))
+    items = ListView:getItem(view,index)
+    Log:write('///////////////',items)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'jyggSelectNode'), 1)
+end
+
+function pinPaiGroupOnSelect(sprite)
+    local pingpainame = Sprite:findChild(rootSprite, 'zhuangtailable')
+    local zhid = Sprite:findChild(rootSprite,'zhuangtaiid')
+    local text = Sprite:getText(Sprite:findChild(sprite,'pinPaiName'))
+    local id = Sprite:getText(Sprite:findChild(sprite,'zhuangtaiid1'))
+    Log:write('------------------',id)
+    Sprite:setProperty(pingpainame, 'text', text)
+    Sprite:setProperty(zhid,'text',id)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'jyggSelectNode'), 0)
+end
+
+]]>
+</root>

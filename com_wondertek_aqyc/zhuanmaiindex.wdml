@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <shadow rect="0,0,480,400" color="#ffffff" alpha="255"
+                extendstyle="1111" />
+            <image rect="0,0,0,0" extendstyle="0077" src="file://image/neiyebg.png" style="autosize"/>
+            <node rect="0,0,0,82" extendstyle="1171">
+                <image rect="0,0,0,0" src="file://image/top-a.png" style="autosize" extendstyle="1177" />
+                <label rect="0,0,480,0" text="专卖管理"  font-family="微软雅黑" font-size="30" h-align="center" v-align="center" extendstyle="1117" />
+                <label rect="0,1,480,0" text="专卖管理" color="#ffffff"  font-family="微软雅黑" font-size="30" h-align="center" v-align="center" extendstyle="1117" />
+                <!--  
+                    <label rect="310,0,180,0" text="" font-style="bold" font-size="25" v-align="center" extendstyle="1117" />
+                    <label rect="310,1,180,0" text="" color="#ffffff" font-style="bold" font-size="25" v-align="center" extendstyle="1117" />
+                -->
+                <!-- 返回 -->
+                <button rect="20,18,84,51" OnSelect="doBack" normal="src:file://image/button-a.png;"
+                    sel="src:file://image/button-b.png;" style="autosize" extendstyle="1111">
+                </button>
+            </node>
+            <image rect="0,82,480,718" src="file://image/neiyebg.png"
+                style="autosize" extendstyle="1111" />
+            <list name="cateList" rect="35,120,450,800" auto-adjust="true"  offset="50,30"  col="3" line="1" extendstyle="1111">
+                <list-item rect="0,0,104,144" frame="true" extendstyle="1111">
+                   <button name="imageBtn" data="$(bdata)" rect="0,0,104,144" normal="normal" sel="sel" OnSelect="cateListItemSelect" extendstyle="1111" >
+                    <image  rect="0,0,104,144"  name="normal"  src="$(nimg)"   style="autosize"  extendstyle="1111" />
+                    <image  rect="0,0,104,144"  name="sel"    src="$(simg)"   style="autosize"  extendstyle="1111" />
+                   </button>
+                </list-item>
+                <dataset>
+                    <set bdata="kaoqingqiandao" nimg="file://image/kaoqinqiandao1.png" simg="file://image/kaoqinqiandao2.png"  />
+                    <set bdata="shichangxinxi" nimg="file://image/jichaxinxi1.png" simg="file://image/jichaxinxi2.png"  />
+                </dataset>
+            </list>
+
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_aqyc.common.framework'
+require('framework.appmanager')
+require 'framework.download'
+local rootSprite
+local num
+local iconCount
+local cateList
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    num = Sprite:findChild(rootSprite, "num")
+    iconCount = Sprite:findChild(rootSprite, "iconCount")
+    cateList = Sprite:findChild(sprite, 'cateList')
+    for i = 1, List:getItemCount(cateList) do
+        local item = List:getItem(cateList, i - 1)
+        local itemImg = Sprite:findChild(item, 'imageBtn')
+    end
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+    elseif msg == 102 then
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:go(Alias.home,true)
+    end
+end
+
+function doBack()
+    Scene:go(Alias.home,true)
+end
+
+---------------------------------------util functions---------------------------
+function myfunc()
+
+end
+    function cateListItemSelect(sprite)
+        Sprite:killFocus(sprite)
+        Sprite:releaseCapture(sprite)
+        local bdata = Sprite:getData(sprite)
+        if bdata == 'kaoqingqiandao' then
+            Scene:setReturn(Alias.zhuanmaiindex, Alias.zhuanmaikaoqing)
+            Scene:go( Alias.zhuanmaikaoqing,true)
+            elseif bdata == 'shichangxinxi' then
+            Scene:setReturn(Alias.zhuanmaiindex, Alias.zm_marking_info)
+            Scene:go(Alias.zm_marking_info,true)
+        end
+    end
+
+    ]]>
+</root>

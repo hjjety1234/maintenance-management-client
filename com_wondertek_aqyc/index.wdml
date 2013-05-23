@@ -1,0 +1,700 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+			<shadow rect="0,0,480,400" color="#ffffff" alpha="255"
+				extendstyle="1111" />
+			<image rect="0,0,480,800" src="file://image/bgnew.png"
+				style="autosize" extendstyle="1111" />
+				
+                
+				
+				
+			<node rect="0,200,480,200" extendstyle="1111">
+				<image rect="42,83,402,147" extendstyle="1111" src="file://image/lgoin.png"
+					style="sudoku-auto" sudoku="5,5,5,5" />
+                <label name="userLabel" rect="120,83,400,73" font-size="24" color="#6c6c6c"
+                    text="输入用户名" extendstyle="1111" v-align="center" />
+				<edit name="userEdit" rect="120,83,400,73" font-size="24" color="#6c6c6c"
+					text="" extendstyle="1111" v-center="true" OnTextChanged="editOnTextChanged"/>
+                <label name="pwdLabel" rect="120,150,400,73" font-size="24" color="#6c6c6c"
+                    text="输入密码" extendstyle="1111" v-align="center" />
+				<edit name="pwdEdit" rect="120,150,400,73" font-size="24" color="#6c6c6c" password="true"
+					text="" extendstyle="1111" v-center="true" OnTextChanged="editOnTextChanged2"/>
+			</node>
+
+			<node rect="176,451,190,28" extendstyle="1111">
+				<checkbox name="saveCheckbox" rect="0,0,28,28" extendstyle="1111"
+					normal="n" checked="c" OnChecked="checkbox2OnChecked">
+					<image name="n" rect="0,0,28,28" extendstyle="1111"
+						src="file://image/no.png" style="center" />
+					<image name="c" rect="0,0,28,28" extendstyle="1111"
+						src="file://image/yes.png" style="center" />
+				</checkbox>
+				<label rect="53,0,150,28" extendstyle="1111" text="记住密码"
+					font-size="20" color="#ffffff" v-align="center" />
+			</node>
+			<node rect="0,502,480,75" extendstyle="1111">
+				<button rect="42,0,404,74" extendstyle="1010" normal="n" sel="s"
+					OnSelect="loginOnSelect">
+					<image name="n" rect="0,0,0,0" extendstyle="0077"
+						src="file://image/denglu1.png" sudoku="5,6,5,6" style="sudoku-auto" />
+					<image name="s" rect="0,0,0,0" extendstyle="0077"
+						src="file://image/denglu2.png" sudoku="5,6,5,6" style="sudoku-auto" />
+				</button>
+			</node>
+            <node name="updateNode" rect="0,0,480,800" enable="0" visible="0" extendstyle="1111">
+                <image rect="0,0,480,800" src="file://image/update_bg.png" style="tile" extendstyle="1111" />
+                <label name="noticeLbl" rect="0,625,480,30" font-size="20" text="版本检测中..." v-align="center" h-align="center" extendstyle="1111" />
+                <node name="scrollBarNode" rect="185,600,110,12" OnTick="scrollOnTick" frame="true" extendstyle="1111">
+                    <image name="scrollBgImg" rect="0,0,110,12" src="file://image/login_scroll_bg.png" extendstyle="1111" />
+                    <image name="scrollImg" rect="0,0,40,12" src="file://image/login_scroll.png" extendstyle="1111" />
+                </node>
+                <node name="downloadingNode" rect="0,590,480,30" visible="0" enable="0" extendstyle="1111">
+                    <image name="progressBg" rect="140,6,200,18" style="sudoku-auto" sudoku="7,7,7,7" src="file://image/positionbg.png" extendstyle="1111" />
+                    <image name="progressImg" rect="140,7,0,16" src="file://image/positionbar.png" style="sudoku-auto" sudoku="7,7,7,7" extendstyle="1111" />
+                    <label name="speedLab" rect="0,0,135,30" text="0KB/S" font-size="18" v-align="center" h-align="right" extendstyle="1111" />
+                    <label name="proLab" rect="345,0,135,30" text="0KB/0KB" font-size="18" v-align="center" extendstyle="1111" />
+                </node>
+            </node>
+
+
+		</node>
+	</body>
+    <![CDATA[
+
+    require 'com_wondertek_aqyc.common.framework'
+    require('com_wondertek_aqyc.common.safetyAuthentic')
+    require('framework.common')
+    require 'framework.umsagent'
+    require 'framework.msgpush'
+    require 'framework.appmanager'
+    require 'framework.download'
+    
+local rootSprite
+local userEdit -- 用户名编辑框
+local pwdEdit -- 密码编辑框
+local APNtype
+local g_packageUrl = nil            -- 客户端升级包url地址
+local g_patchUrl = nil              -- 补丁包下载url地址
+local g_releaseLog = nil            -- 版本升级说明
+
+local g_packageSize = 0             -- 客户端升级包大小
+local g_patchSize = 0               -- 补丁包大小
+
+local g_localpath = nil             -- 下载apk路径
+local g_tempPath = nil              -- 临时下载目录
+local g_localPatchPath = nil        -- 下载patch路径
+local g_localPatchResult = nil      -- 补丁更新后的文件路径
+
+local g_updateMethod = 0            -- 更新方法：0为全新升级，1为差分升级
+
+local g_downloadTime = 0            -- 记录下载所花的时间
+local g_progressWidth = 200--154         -- 进度条长度
+local updateData                    -- 升级标志
+local updateNode
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+	    rootSprite = sprite 
+        updateNode = Sprite:findChild(sprite, 'updateNode')
+	    userEdit = Sprite:findChild(sprite, 'userEdit')
+	    pwdEdit = Sprite:findChild(sprite, 'pwdEdit')
+	    connectToNet()
+        -- 鉴权
+       --checkUserValidata()
+        --Config:get('ssourl')
+	    --Config:set('ssourl','http://120.209.131.146')
+        --Config:set('usermobile','15156892727')
+        --Config:set('productKey','j0188')
+        --Config:set('version','1.0.0')
+        Timer:set(1, 500, 'onTimer')
+    end
+-- @brief 连接移动网络
+function connectToNet()
+    APNtype = Http:getCurrentAPNType()
+    if APNtype == 1 then                     -- Net网
+        Http:setProxy('')
+    elseif APNtype == 2 then                 --移动wap
+        Http:setProxy('http://10.0.0.172:80/')
+    elseif APNtype == 3 then                 --电信wap
+        Http:setProxy('http://10.0.0.200:80/')
+    elseif APNtype == 4 then                 --联通wap
+        Http:setProxy('http://10.0.0.172:80/')
+    else
+        Http:setProxy('')
+    end
+    Http:startNetwork()
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then
+        if tonumber(Config:get('autoRemeber')) == 1 then
+            Sprite:setProperty(Sprite:findChild(rootSprite, 'autoCheckbox'), 'selected', 'true')
+            Sprite:setProperty(Sprite:findChild(rootSprite, 'saveCheckbox'), 'selected', 'true')
+       else
+            Sprite:setProperty(Sprite:findChild(rootSprite, 'autoCheckbox'), 'selected', 'false')
+            Sprite:setProperty(Sprite:findChild(rootSprite, 'saveCheckbox'), 'selected', 'false')
+        end
+        local jizhumima = tonumber(Config:get('jizhumima'))
+        if jizhumima == 1 then 
+            Sprite:setProperty(Sprite:findChild(rootSprite, 'saveCheckbox'), 'selected', 'true')
+        else
+            Sprite:setProperty(Sprite:findChild(rootSprite, 'saveCheckbox'), 'selected', 'false')
+        end
+    
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 and Loading:isShow() then
+        Loading:close()
+        local loginData = Http:jsonDecode('index_login')
+        Log:write("======loginData======", loginData)
+        if loginData then
+            if loginData['success'] then
+                Log:write('99999999999999999999999')
+                local user = Sprite:getText(userEdit)
+                local pwd = Sprite:getText(pwdEdit)
+                    Config:set('username', user)
+                    Config:set('password', pwd)
+
+                if Sprite:isChecked(Sprite:findChild(rootSprite, 'saveCheckbox')) then
+                    Config:set('loginName', user)
+                    Config:set('loginPwd', pwd)
+                else
+                    Config:set('loginName', '')
+                    Config:set('loginPwd', '')
+                end
+                if Sprite:isChecked(Sprite:findChild(rootSprite, 'autoCheckbox')) then
+                    Config:set('autoRemeber', 1)
+                end
+                    Scene:go(Alias.home)
+            else
+                Log:write("===========loginData['code']=====", loginData['success'])
+                Dialog:show('', '登陆失败，请检查用户名密码后重试！', 'ok')
+                --Dialog:show('', loginData.message, 'ok')
+            end
+        else
+            Dialog:show('', '返回数据格式错误，请稍后重试！', 'ok')
+        end
+        return
+     elseif msg == 1001 then
+        --鉴权请求返回
+        Loading:close()
+        local jianquanData = Http:jsonDecode('jianquan')
+        Log:write("===========jianquanData========", jianquanData)
+        if(jianquanData == '' or jianquanData == nil) then
+            Dialog:show('提醒','返回数据错误')
+        else
+            Log:write('the return code is',jianquanData.retcode)
+            Log:write('the retmsg',jianquanData.retmsg)
+            if(jianquanData.retmsg == '该设备已被禁用') then
+                Dialog:show('错误','该设备已被禁用','ok','doExit')
+                return
+            end
+            if(jianquanData.retcode == '0') then
+                --检查版本更新
+                setSpriteVisible(updateNode, 1)
+                Log:write('the version is needupdate?',
+                jianquanData["retdata"].version["isNeedUpdate"])
+                --将appKey写入Config
+                Config:set('appKey',jianquanData['retdata'].appKey)
+                if (jianquanData["retdata"].version["isNeedUpdate"] == 1 or jianquanData["retdata"].version["isNeedUpdate"] == 2 or
+                jianquanData["retdata"].version["isNeedUpdate"] == 3) then
+                    --检测到有新版本，进行系统更新
+                    g_packageUrl = jianquanData['retdata'].version['url']
+                    g_patchUrl = jianquanData['retdata'].version.patchUrl
+                    g_releaseLog = jianquanData['retdata'].version.releaseLog
+                    g_packageSize = jianquanData['retdata'].version.apk_size or 0
+                    g_patchSize = jianquanData['retdata'].version.patch_size or 0
+                    updateData=jianquanData["retdata"].version["isNeedUpdate"]
+                    doUpgrade(jianquanData['retdata'].version.md5sum,updateData)
+                  
+                else
+                  
+                    Dialog:show('提示','鉴权成功','ok')
+                    --跳转到登录界面 
+                    --Scene:go(Alias.login)
+                end
+            else
+                Scene:setReturn(Alias.index,Alias.register)
+                Scene:go(Alias.register)
+            end
+        end   
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Dialog:show('', '请求数据超时，请稍后重试！', 'ok')
+    end
+    if Loading:isShow() then Loading:close() end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        if Loading:isShow() then
+            Loading:close()
+        elseif Dialog:isShow() then
+            Dialog:close()
+        else
+            Log:write('--------------')
+            Dialog:show('', '是否确定退出？', 'ok_cancel', 'doExit')
+        end
+    end
+end
+
+function loginOnSelect(sprite)
+        --Scene:go(Alias.home)
+    local user = Sprite:getText(userEdit)
+    local pwd = Sprite:getText(pwdEdit)
+    if user == '' then
+        Dialog:show('', '用户名不能为空！', 'ok')
+    elseif pwd == '' then
+        Dialog:show('', '密码不能为空！', 'ok')
+    else
+        Loading:show(rootSprite)
+        
+        local url = Config:get('serverUrl')..':'..Config:get('port')
+        Log:write("========serverUrl,port===========", serverUrl,port)
+        local imeicode = System:getMachineInfo(4) 
+        local imsicode = System:getMachineInfo(5) 
+        if(imeicode == nil) then
+            imeicode = '123'
+        end
+        Http:request('index_login', url .. '/mobileSale/userMgr/loginPhone?userCode='..user..'&userPass='..pwd, 101, {useCache=false})
+    end
+end
+
+---------------------------------------util functions---------------------------
+function onTimer()
+    if tonumber(Config:get('autoRemeber')) == 1 then
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'autoCheckbox'), 'selected', 'true')
+        Scene:go(Alias.home)
+    else
+        --Panorama:setCurItem(Sprite:findChild(rootSprite, 'ImgPanorama'), 1)
+        local user = Config:get('loginName')
+        local pwd = Config:get('loginPwd')
+	    local userLabel = Sprite:findChild(rootSprite, "userLabel")
+	    local pwdLabel = Sprite:findChild(rootSprite, "pwdLabel")
+        if user ~= '' and pwd ~= '' then
+            Sprite:setProperty(userEdit, 'text', user)
+            Sprite:setProperty(pwdEdit, 'text', pwd)
+            Sprite:setProperty(userLabel, "text", "")
+            Sprite:setProperty(pwdLabel, "text", "")
+            Sprite:setProperty(Sprite:findChild(rootSprite, 'saveCheckbox'), 'selected', 'true')
+        end
+    end
+end
+function editOnTextChanged(sprite)
+    local userLabel = Sprite:findChild(rootSprite, "userLabel")
+    Sprite:setProperty(userLabel, "text", "")
+    local editText = Sprite:getText(sprite)
+    if editText == "" then
+      Sprite:setProperty(userLabel, "text", "请输入用户名")
+      else
+      Sprite:setProperty(userLabel, "text", "")
+    end
+end
+function editOnTextChanged2(sprite)
+    local pwdLabel = Sprite:findChild(rootSprite, "pwdLabel")
+    Sprite:setProperty(pwdLabel, "text", "")
+    local editText = Sprite:getText(sprite)
+    if editText == "" then
+      Sprite:setProperty(pwdLabel, "text", "请输入密码")
+      else
+      Sprite:setProperty(pwdLabel, "text", "")
+    end
+end
+function stepOnSelect(sprite)   
+        local user = Sprite:getText(userEdit)
+        local pwd = Sprite:getText(pwdEdit)
+        if Sprite:isChecked(Sprite:findChild(rootSprite, 'saveCheckbox')) then
+                    Config:set('jizhumima', 1)
+                else
+                    Config:set('jizhumima', 0)
+        end 
+                   
+        Scene:setReturn(Alias.index, Alias.loginSetup)
+        Scene:go(Alias.loginSetup,true)
+        return 1
+end
+function checkbox1OnChecked(sprite)
+
+            if Sprite:isChecked(Sprite:findChild(rootSprite, 'saveCheckbox')) then
+                if Sprite:isChecked(sprite) then
+                    Config:set('autoRemeber', 1)
+                    Sprite:setProperty(Sprite:findChild(rootSprite, 'saveCheckbox'), 'selected', 'true')
+                else
+                    Config:set('autoRemeber', 0)
+                    Sprite:setProperty(Sprite:findChild(rootSprite, 'saveCheckbox'), 'selected', 'true')
+                end
+            else
+                if Sprite:isChecked(sprite) then
+                    Config:set('autoRemeber', 1)
+                    Sprite:setProperty(Sprite:findChild(rootSprite, 'saveCheckbox'), 'selected', 'true')
+                else
+                    Config:set('autoRemeber', 0)
+                    Sprite:setProperty(Sprite:findChild(rootSprite, 'saveCheckbox'), 'selected', 'false')
+                end
+            end   
+end
+
+function checkbox2OnChecked(sprite)
+    --[[
+            local user = Sprite:getText(userEdit)
+            local pwd = Sprite:getText(pwdEdit)
+        if Sprite:isChecked(sprite) then
+            Log:write("===============isChecked==========")
+            Log:write("===============user==========",user)
+            Log:write("===============pwd===========",pwd)
+            Config:set('loginName', user)
+            Config:set('loginPwd', pwd)
+            --Sprite:setProperty(sprite , 'selected', 'false')
+        else
+            Log:write("===============noChecked==========")
+            Config:set('loginName', '')
+            Config:set('loginPwd', '')
+            --Sprite:setProperty(sprite , 'selected', 'true')
+        end
+        --]]
+end
+
+---------------------------------------鉴权相关函数---------------------------
+-- 用户鉴权登录
+-- 如果鉴权通过，则直接进入系统主界面
+-- 否则跳转至系统注册页面
+function checkUserValidata()
+    Log:write("开始鉴权登录...")
+        Loading:show(rootSprite)
+    local ECCode = Config:get('ECCode')
+    local mobile = Config:get('usermobile')
+    local productKey = Config:get('productKey')
+    local version = Config:get('version')   
+    local imsi=System:getMachineInfo(5) 
+    local imei=System:getMachineInfo(4)
+    Log:write("=======ECCode=====", ECCode)
+
+    if(imei == '' or imei == nil) then
+        imei = '000001'
+    end
+    if(imsi == '' or imsi == nil) then
+        imsi = '000001'
+    end
+    local ip = Config:get('ssourl')
+    Log:write(string.format('the info is %s/%s/%s/%s/%s/%s',ECCode,mobile,productKey,imsi,imei,version))
+    local url = string.format('%s/webcloud/sso/sso_auth.action?mobile=%s&productKey=%s&ecCode=%s&imsi=%s&version=%s'
+                               ,ip,mobile,productKey,ECCode,imsi,version)
+    Log:write('===============the url is================== ',url)
+    --开始http请求
+    Http:request('jianquan', url, 1001, {useCache = false})
+end
+
+
+-- 登录和版本检查进度条
+function scrollOnTick(sprite)
+    local scrollImg = Sprite:findChild(sprite, 'scrollImg')
+    local x, y, w, h = Sprite:getRect(scrollImg)
+    if x > 250  then
+       x = 0
+    end
+    Sprite:setRect(scrollImg, x + 7, y, w, h)
+end
+
+
+
+-- 根据增量升级的条件，进行全新升级或增量升级
+function doUpgrade(md5sum,updateData)
+    Log:write("存在升级信息，开始升级...")
+    local bDiffUpdate = true
+    getDownloadPath()
+    -- g_patchUrl = "http://120.209.131.146/patch_dir/Venus_DW.patch"
+    -- 检查差分包的URL地址
+    if g_patchUrl == nil or g_patchUrl == "" then 
+        Log:write("差分包的URL地址为空！")
+        bDiffUpdate = false
+    end
+    -- 检查本地旧本地文件是否存在 
+    if IO:fileExist(g_localpath) == false then
+        Log:write("本地文件不存在！")
+        bDiffUpdate =  false
+    end
+    -- TODO: 进行MD5校验
+
+    -- 开始升级
+    
+    if bDiffUpdate == true then
+        Log:write("显示增量升级对话框")
+        local packagesize = getReadableSize(g_packageSize) 
+        local patchsize = getReadableSize(g_patchSize) 
+        
+        -- 显示差分升级对话框
+        
+        local appVersion = Sprite:findChild(rootSprite, 'appVersion')
+        Sprite:setProperty(appVersion, 'text', 'v'..Config:get("version"))
+        
+        local releaseLog = Sprite:findChild(rootSprite, 'releaseLog')
+        Sprite:setProperty(releaseLog, 'text', g_releaseLog)
+        
+        local pkgSize = Sprite:findChild(rootSprite, 'pkgSize')
+        Sprite:setProperty(pkgSize, 'text', packagesize)
+        
+        local patchSizeLabel = Sprite:findChild(rootSprite, 'patchSize')
+        Sprite:setProperty(patchSizeLabel, 'text', "仅需"..patchsize)
+        
+        local diffUpdateNode = Sprite:findChild(rootSprite, 'diffUpdateNode')
+        Sprite:setProperty(diffUpdateNode, 'visible', 'true')
+        Sprite:setProperty(diffUpdateNode, 'enable', 'true')
+        
+
+    elseif updateData==1  then
+        Log:write("显示全新升级对话框")
+        Dialog:show('提醒','系统检测到有新版本发布，是否更新？',
+            'ok_cancel','downloadPackage','hidenUpdateNode')
+    elseif updateData==2 or updateData==3 then
+         Dialog:show('提醒','系统检测到有新版本发布，必须升级系统才能正常使用，如果点击取消将推出系统',
+            'ok_cancel','downloadPackage','doExit')
+    end
+end
+-- 获取apk下载路径
+function getDownloadPath()
+    g_localpath = ""
+    local downloadPath = System:getFlashCardName(1) 
+    if downloadPath == nil or downloadPath == "" then 
+        Log:write("SD卡不存在,使用内部存储！")
+        downloadPath = System:getFlashCardName(0)
+    end
+    g_localpath = downloadPath.."download"
+    g_tempPath = downloadPath.."temp"
+    Log:write("getDownloadPath: localDir="..g_localpath)
+    -- 如果路径不存在，创建下载目录
+    if IO:dirExist(g_localpath) == false then 
+        IO:dirCreate(g_localpath)
+    end
+     if IO:dirExist(g_tempPath) == false then 
+        IO:dirCreate(g_tempPath)
+    end
+    -- 如果apk已经存在，删除之
+    g_localPatchPath = g_localpath.."/Venus_GJ.patch"
+    g_localPatchResult = g_localpath.."/Venus_GJ_New.apk"
+    g_localpath = g_localpath.."/Venus_GJ.apk"
+    Log:write("getDownloadPath: g_localPatchPath="..g_localPatchPath)
+    Log:write("getDownloadPath: g_localpath="..g_localpath)
+    -- 返回apk本地路径
+    return g_localpath
+end
+-- 下载升级包
+function downloadPackage()
+    if not g_packageUrl or '' == g_packageUrl then
+        Dialog:show('', '返回下载地址为空，版本升级失败！【确定】继续进入，【取消】退出客户端！', 
+            'ok_cancel', '', 'doExit')
+        return
+    end
+    local noticeLblSprite = Sprite:findChild(rootSprite, "noticeLbl")
+    Sprite:setProperty(noticeLblSprite, "text", "升级中...")
+    -- 删除缓存
+    IO:dirRemove('CACHE:\\com_wondertek_aqyc', 1)
+    -- 隐藏登录和版本检查进度条
+    local scrollBarNode = Sprite:findChild(rootSprite, 'scrollBarNode')
+    Sprite:setVisible(scrollBarNode, 0)
+    Sprite:setEnable(scrollBarNode, 0)
+     -- 显示下载进度
+    local downloadingNode = Sprite:findChild(rootSprite, 'downloadingNode')
+    Sprite:setVisible(downloadingNode, 1)
+    Sprite:setEnable(downloadingNode, 1)
+    local progress = Sprite:findChild(downloadingNode, 'progressImg')
+    local startX,startY,_,startH = Sprite:getRect(progress)
+    -- 开始下载
+    -- 设置升级方式为全新升级
+    Log:write("采用全新升级方式")
+    g_updateMethod = 0 
+    if IO:fileExist(g_localpath) == true then 
+        IO:fileRemove(g_localpath)
+        Log:write("全新升级：删除旧的安装文件")
+    end  
+    -- 开始下载
+    Download:append(g_localpath, 'intallPackageName', g_packageUrl, true)
+    onGetDownloadStatus()
+    --setSpriteVisible(updateNode, 0)
+end
+
+-- 下载增量补丁包
+function downloadPatch()
+    local diffUpdateNode = Sprite:findChild(rootSprite, "diffUpdateNode")
+    Sprite:setProperty(diffUpdateNode, "enable", "false")
+    Sprite:setProperty(diffUpdateNode, "visible", "false")
+    if not g_patchUrl or '' == g_patchUrl then
+        Dialog:show('', '增量补丁包下载地址为空，版本升级失败！【确定】继续进入，【取消】退出客户端！', 
+            'ok_cancel', 'goLogin', 'doExit')
+        return
+    end
+    local noticeLblSprite = Sprite:findChild(rootSprite, "noticeLbl")
+    Sprite:setProperty(noticeLblSprite, "text", "增量升级中...")
+    -- 删除缓存
+    IO:dirRemove('CACHE:\\com_wondertek_aqyc', 1)
+    -- 隐藏登录和版本检查进度条
+    local scrollBarNode = Sprite:findChild(rootSprite, 'scrollBarNode')
+    Sprite:setVisible(scrollBarNode, 0)
+    Sprite:setEnable(scrollBarNode, 0)
+     -- 显示下载进度
+    local downloadingNode = Sprite:findChild(rootSprite, 'downloadingNode')
+    Sprite:setVisible(downloadingNode, 1)
+    Sprite:setEnable(downloadingNode, 1)
+    local progress = Sprite:findChild(downloadingNode, 'progressImg')
+    local startX,startY,_,startH = Sprite:getRect(progress)
+    -- 开始下载
+    Log:write("采用增量升级方式")
+    g_updateMethod = 1   
+    if IO:fileExist(g_localPatchPath) == true then 
+        IO:fileRemove(g_localPatchPath)
+        Log:write("增量升级：删除旧的补丁文件")
+    end
+    Download:append(g_localPatchPath, 'intallPackageName', g_patchUrl, true)
+    onGetDownloadStatus()
+end
+-- 显示下载状态
+function onGetDownloadStatus()
+    local count = Download:getCount(true)
+    -- Log:write('the download count is ',count)
+    g_downloadTime = g_downloadTime + 0.5
+    local progressImg = Sprite:findChild(rootSprite, 'progressImg') -- 下载进度
+    local speedLab = Sprite:findChild(rootSprite, 'speedLab')       -- 下载速度
+    local proLab = Sprite:findChild(rootSprite, 'proLab')           -- 总体下载进度
+    local noticeLbl = Sprite:findChild(rootSprite, "noticeLbl")     -- 通知信息
+    
+    -- 迭代下载队列
+    for i = 1, count do
+        local task = Download:getStatus(i, true)
+        if task.title == 'intallPackageName' then   
+            if task.status == 3 then Download:start(i, true) end
+            -- 计算当前的下载百分比
+            -- Log:write('the task size is ',task.size)
+            local percent = 0
+            if task.size and task.maxsize and task.maxsize ~= 0 then
+                percent = math.floor(task.size / task.maxsize * 100)
+            end
+            -- Log:write('the task status is ',Download.status.Downloading)
+            if task.status == Download.status.Downloading then -- 下载中
+                local x, y, _, h = Sprite:getRect(progressImg)
+                Sprite:setRect(progressImg, x, y, g_progressWidth * percent / 100, h)
+                Sprite:setProperty(speedLab, 'text', math.floor(task.size / 1024 / g_downloadTime) .. 'KB/S')
+                Sprite:setProperty(proLab, 'text', math.floor(task.size/1024) .. 'KB/' .. math.floor(task.maxsize/1024) .. 'KB')
+            elseif task.status == Download.status.Finished then -- 下载完毕
+                g_downloadTime = 0
+                Sprite:setProperty(noticeLbl, 'text', '完成')
+                Download:delete(i, false, true)
+                Sprite:setProperty(speedLab,'text', '0KB/S')
+                Sprite:setProperty(proLab, 'text', math.floor(task.maxsize/1024) .. 'KB/' .. math.floor(task.maxsize/1024) .. 'KB')
+                local x, y, _, h = Sprite:getRect(progressImg)
+                Sprite:setRect(progressImg, x, y, g_progressWidth * percent / 100, h)
+                Http:stopNetwork()
+                -- 下载完成
+                if g_updateMethod == 0 then 
+                    Util:installApp(g_localpath)
+                else
+                    -- 补丁升级
+                    Sprite:setProperty(noticeLbl, 'text', '正在进行补丁合成...')
+                    AppManager:applyPatchToOldApk(g_localpath, g_localPatchResult, 
+                        g_localPatchPath)
+                    -- 删除旧的安装文件
+                    if IO:fileExist(g_localpath) == true then 
+                        IO:fileRemove(g_localpath)
+                        Log:write("删除旧的安装文件成功")
+                    end  
+                    -- 重命名新的安装文件
+                    if IO:fileExist(g_localPatchResult) == true then 
+                        IO:fileRename(g_localPatchResult, g_localpath)
+                        Log:write("重命名新的安装文件")
+                    end
+                    -- 安装更新
+                    Util:installApp(g_localpath)
+                end
+                Timer:cancel(111)
+                -- 安装成功，清除cache
+                IO:dirRemove('CACHE:\\com_wondertek_aqyc', 1)
+                IO:dirCreate('CACHE:\\com_wondertek_aqyc')
+                IO:dirCreate('CACHE:\\com_wondertek_aqyc\\image')
+            end
+            break
+        end
+    end
+    Timer:set(111, 500, 'onGetDownloadStatus')
+end
+-- 获取http文件大小, 需要先下载到本地
+function getHttpFileSize(url, localPath)
+    __remove_all_download()
+    if IO:fileExist(localPath) ==  true then 
+        IO:fileRemove(localPath)
+    end
+    if url == nil or url == "" then 
+        Log:write("getHttpFileSize: url 地址为空")
+        return getReadableSize(0)
+    end
+    Download:append(localPath, 'packagesize', url, true)
+    local count = Download:getCount(true)
+    for i=1, count do 
+        for j=1, 10000 do -- 尝试取10次
+            local task = Download:getStatus(i, true)
+            --Log:write("task", task) -- 有一定的延时作用
+            if task.title == 'packagesize' and task.maxsize ~= 0 then
+                local maxsize = task.maxsize
+                __remove_all_download()
+                return getReadableSize(maxsize)
+            elseif task.title == "packagesize" then 
+                Download:start(i, true)
+            end
+        end
+    end
+    __remove_all_download()
+    return getReadableSize(0)
+end
+
+-- 格式化文件大小，转换为可读的格式
+function getReadableSize(size)
+    Log:write("当前文件大小:"..size)
+    local strFileSize = "0B"
+    if size < 1024 then 
+        strFileSize = tostring(size).."B"
+    elseif size / 1024 < 1024 then 
+        strFileSize = string.format("%.2fKB", size / 1024)
+    elseif size / 1048576 < 1024 then 
+        strFileSize = string.format("%.2fMB", size / 1048576)
+    else
+        strFileSize = string.format("%.2fGB", size / 1073741824)
+    end
+    return strFileSize
+end
+
+-- 清空下载队列
+function __remove_all_download()
+    -- 删除以前的下载信息
+    local count = Download:getCount(true)
+    for i = 1, count do
+        local task = Download:getStatus(i, true)
+        if task.title == "packagesize"  then 
+            Download:delete(i, true, true) 
+        end 
+    end
+end
+function hidenUpdateNode()
+    setSpriteVisible(updateNode, 0)
+end
+]]>
+</root>
