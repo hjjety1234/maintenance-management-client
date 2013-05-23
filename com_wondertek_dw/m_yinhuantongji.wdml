@@ -191,6 +191,7 @@ local dangjidu
 local g_sum
 local date = ''
 local g_regionid = ''        -- 当前查询的区域纬度，空为全省
+local g_regionname = '全省'        -- 当前查询的区域名称，默认为全省
 ---------------------------------------系统回调函数列表--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -303,6 +304,7 @@ function cityOn(sprite)
     -- 刷新界面
     g_type = 0
     g_regionid = ''
+    g_regionname = '全省'
     local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
     Sprite:setProperty(mainTitle, 'text', '隐患情况(全省)')
     request()
@@ -547,7 +549,7 @@ end
 -- @brief 适用于地市纬度的进一步查询
 function request2(regionid)
     chgDateButtonBg()
-    local param = string.format("cmd=dangerreport&type=%d&page=1&pagesize=30&usercode=%s&date=%s&regionid=%s", 
+    local param = string.format("cmd=dangerreport&type=%d&page=1&pagesize=2&usercode=%s&date=%s&regionid=%s", 
         g_type, Config:get('username'),date, regionid)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write("[request] 请求地址为: ", reqURL)
@@ -626,27 +628,46 @@ function cityItemBtnOnselect(sprite)
     local regionText = Sprite:getText(dimName)
     Sprite:setProperty(dimension, 'text', regionText)
     Sprite:setProperty(mainTitle, 'text', '隐患情况('..regionText..')')
+    g_regionname = regionText
     request2(regionid)
 end
 -- 隐患详情查询响应函数
 function detailBtnOnselect(sprite)
+    -- 获取所需控件
     local ItemSprite = Sprite:getParent(sprite) 
     local dimBtn = Sprite:findChild(ItemSprite,'dimBtn')
+    local dimName = Sprite:findChild(ItemSprite,'dimName')
     local btndata = Sprite:getData(dimBtn)
+    local btnName = Sprite:getText(dimName)
+    -- 建立数据仓库
+    local regHandle = Reg:create("m_yinhuantongji")
+    Reg:setString(regHandle, 'date', date)   --放入时间参数
     Log:write("btndata=="..btndata)
-    if g_type == 0 then
-        Log:write("regionid=="..btndata)
-        Log:write("regionid=="..btndata)
-        Log:write("date="..date)
+    Log:write("btnName=="..btnName)
+    if g_type == 0 then     --如果在第一种纬度
+        Reg:setString(regHandle, 'regionid', btndata)
+        Reg:setString(regHandle, 'regionname', btnName)
+        Reg:setString(regHandle, 'orgid', '')
+        Reg:setString(regHandle, 'orgname', '')
+        Reg:setString(regHandle, 'codevalue', '')
+        Reg:setString(regHandle, 'codename', '')
     elseif g_type == 1 then
-        Log:write("orgid=="..btndata)
-        Log:write("regionid=="..g_regionid)
-        Log:write("date="..date)
+        Reg:setString(regHandle, 'regionid', g_regionid)
+        Reg:setString(regHandle, 'regionname', g_regionname)
+        Reg:setString(regHandle, 'orgid', btndata)
+        Reg:setString(regHandle, 'orgname', btnName)
+        Reg:setString(regHandle, 'codevalue', '')
+        Reg:setString(regHandle, 'codename', '')
     elseif g_type == 2 then
-        Log:write("codevalue=="..btndata)
-        Log:write("regionid=="..g_regionid)
-        Log:write("date="..date)
+        Reg:setString(regHandle, 'regionid', g_regionid)
+        Reg:setString(regHandle, 'regionname', g_regionname)
+        Reg:setString(regHandle, 'orgid', '')
+        Reg:setString(regHandle, 'orgname', '')
+        Reg:setString(regHandle, 'codevalue', btndata)
+        Reg:setString(regHandle, 'codename', btnName)
     end
+    Scene:setReturn(Alias.m_yinhuantongji, Alias.m_yinhuanTongjiDetail)
+    Scene:go(Alias.m_yinhuanTongjiDetail, true)
 
 end
 
