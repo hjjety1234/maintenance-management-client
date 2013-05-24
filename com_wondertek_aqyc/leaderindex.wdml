@@ -78,11 +78,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-    local url = Config:get('serverUrl')..':'..Config:get('port')..'/zyJava/mobile/'
-    Http:request('docCount', url..'getDocCount?usercode='..Config:get('username')..'&token='..Config:get('token'),101, {useCache=false})
-    Http:request('xxCount',url..'getReadNewsCount?usercode='..Config:get('username')..'&token='..Config:get('token'),102,{useCache=false})
-    local wps = AppManager:getInfoById("cn.wps.moffice")
-    local pdf = AppManager:getInfoById("com.adobe.reader")
+  
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -97,15 +93,7 @@ end
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
     if msg == 101 then
-        local docCountData = Http:jsonDecode('docCount')
-        if tonumber(docCountData.value) ~= 0 then
-            setAllShoworHide(iconCount, 1)
-            Sprite:setProperty(num, "text", docCountData.value)
-            else
-            setAllShoworHide(iconCount, 0)
-            Sprite:setProperty(num, "text", "")
-        end
-    return
+      
     elseif msg == 102 then
            local xxCountData = Http:jsonDecode('xxCount')
            local item = List:getItem(cateList, 2)
@@ -138,26 +126,14 @@ end
         Sprite:releaseCapture(sprite)
         local bdata = Sprite:getData(sprite)
         if bdata == 'weifatj' then
-            Scene:setReturn(Alias.leaderindex, Alias.weifaDetails)
-            Scene:go(Alias.weifaDetails,true)
-            elseif bdata == 'shichangxinxi' then
-              Scene:setReturn(Alias.kaoqinindex, Alias.m_marking_info)
-              Scene:go(Alias.m_marking_info,true)
-            elseif bdata == 'more' then
-              Scene:setReturn(Alias.kaoqinindex, Alias.more)
-              Scene:go(Alias.more,true)
-            elseif bdata == 'shoujixinwen' then
-              Scene:setReturn(Alias.kaoqinindex, Alias.mobilenews)
-              Scene:go(Alias.mobilenews,true)
-            elseif bdata=="youjian" then
-              local mailuser=Config:get('mailuser')
-              if mailuser=="" or mailuser==nil then
-                Scene:setReturn(Alias.kaoqinindex,Alias.mail)
-                Scene:go(Alias.mail)
-              else
-                Scene:setReturn(Alias.kaoqinindex,Alias.mailList)
-                Scene:go(Alias.mailList, true)
-              end
+            Scene:setReturn(Alias.leaderindex, Alias.weifaqingkuangtongji)
+            Scene:go(Alias.weifaqingkuangtongji,true)
+            elseif bdata == 'kehutj' then
+              Scene:setReturn(Alias.leaderindex, Alias.kehujingliqiandaotongji)
+              Scene:go(Alias.kehujingliqiandaotongji,true)
+            elseif bdata == 'jichatj' then
+              Scene:setReturn(Alias.leaderindex, Alias.jiheqiandaotongji)
+              Scene:go(Alias.jiheqiandaotongji,true)
         end
     end
 function zhuxiaoOnselect(sprite)

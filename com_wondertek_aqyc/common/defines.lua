@@ -34,7 +34,14 @@ Alias = {
     zhuanmaiweifa = 'MODULE:\\com_wondertek_aqyc\\zhuanmaiweifa.wdml',--专卖违法信息
     zhuanmaiadd = 'MODULE:\\com_wondertek_aqyc\\zhuanmaiadd.wdml',--专卖违法信息增加表单
     leaderindex = 'MODULE:\\com_wondertek_aqyc\\leaderindex.wdml',
-    weifaDetails = 'MODULE:\\com_wondertek_aqyc\\weifaDetails.wdml', --违法统计
+    --统计详情
+    weifaDetails = 'MODULE:\\com_wondertek_aqyc\\weifaDetails.wdml', --违法统计详情
+    qiandaoDetails = 'MODULE:\\com_wondertek_aqyc\\qiandaoDetails.wdml', --签到统计详情
+
+	jiheqiandaotongji = 'MODULE:\\com_wondertek_aqyc\\jiheqiandaotongji.wdml',--稽核人员签到统计
+    kehujingliqiandaotongji = 'MODULE:\\com_wondertek_aqyc\\kehujingliqiandaotongji.wdml',--客户经理签到统计
+    weifaqingkuangtongji = 'MODULE:\\com_wondertek_aqyc\\weifaqingkuangtongji.wdml',--违法情况统
+    dateDialog = 'MODULE:\\com_wondertek_aqyc\\dateDialog.wdml',--时间控件
 }
 
 Urls = {

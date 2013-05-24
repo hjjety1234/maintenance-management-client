@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<node name="mainNode" rect="0,81,480,390"  enable="true" active="true"
+			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+			<image name="downloadBgImg" rect="10,0,460,390"
+               src="file://image/cookbook/alert_bg.png" style="sudoku-auto"
+               extendstyle="1111" sudoku="20,20,20,20">
+               <image name="image2" rect="26,25,48,48" border="false"
+                   src="file://image/cookbook/shijian.png" style="autosize"
+                   extendstyle="1111"></image>
+               <label name="label1" rect="80,25,100,58" border="false" text="选择时间"
+                   h-align="left" v-align="center" color="#FFFFFF" font-size="25"
+                   extendstyle="1111"></label>
+               <image name="image2" rect="0,90,460,2" border="false"
+                   src="file://image/cookbook/line.png" style="autosize"
+                   extendstyle="1111"></image>
+               <image name="image2" rect="17,502,446,60" border="false"
+                   src="file://image/cookbook/alert_btn_bg.png" style="sudoku-auto"
+                   extendstyle="1111" sudoku="10,10,10,10"></image>
+           </image>
+			<node name="nodeYear" rect="100,100,110,185" enable="true"
+                 active="true" layouttype="1" extendstyle="1111">
+                 <image name="image1" rect="0,0,110,185" border="false"
+                     src="file://image/cookbook/addsubtraction_bg.png" style="autosize"
+                     extendstyle="1111"></image>
+                 <button name="addBtn" rect="1,0,108,56" layouttype="3"
+                     OnSelect="onAddSelect" normal="style:autosize;src:file://image/cookbook/add_nor.png"
+                     sel="style:autosize;src:file://image/cookbook/add_act.png"
+                     extendstyle="1111">
+                     <image name="addImg" rect="40,14,28,28" border="false"
+                         src="file://image/cookbook/add.png" style="autosize"
+                         extendstyle="1111"></image>
+                 </button>
+                 <button name="subtractionBtn" rect="1,129,108,56"
+                     layouttype="3" OnSelect="onSubtractionSelect"
+                     normal="style:autosize;src:file://image/cookbook/subtraction_nor.png"
+                     sel="style:autosize;src:file://image/cookbook/subtraction_act.png"
+                     extendstyle="1111">
+                     <image name="subtractionImg" rect="40,18,27,6" border="false"
+                         src="file://image/cookbook/subtraction.png" style="autosize"
+                         extendstyle="1111"></image>
+                 </button>
+                 <label name="content" rect="0,56,110,73" border="false"
+                     text="2012" h-align="center" v-align="center" color="#000000"
+                     font-size="38" extendstyle="1111"></label>
+             </node>
+
+             <node name="nodeMonth" rect="270,100,110,185" enable="true"
+                 active="true" layouttype="1" extendstyle="1111">
+                 <image name="image1" rect="0,0,110,185" border="false"
+                     src="file://image/cookbook/addsubtraction_bg.png" style="autosize"
+                     extendstyle="1111"></image>
+                 <button name="addBtn" rect="1,0,108,56" layouttype="3"
+                     OnSelect="onAddSelect" normal="style:autosize;src:file://image/cookbook/add_nor.png"
+                     sel="style:autosize;src:file://image/cookbook/add_act.png"
+                     extendstyle="1111">
+                     <image name="addImg" rect="40,14,28,28" border="false"
+                         src="file://image/cookbook/add.png" style="autosize"
+                         extendstyle="1111"></image>
+                 </button>
+                 <button name="subtractionBtn" rect="1,129,108,56"
+                     layouttype="3" OnSelect="onSubtractionSelect"
+                     normal="style:autosize;src:file://image/cookbook/subtraction_nor.png"
+                     sel="style:autosize;src:file://image/cookbook/subtraction_act.png"
+                     extendstyle="1111">
+                     <image name="subtractionImg" rect="40,18,27,6" border="false"
+                         src="file://image/cookbook/subtraction.png" style="autosize"
+                         extendstyle="1111"></image>
+                 </button>
+                 <label name="content" rect="0,56,110,73" border="false"
+                     text="2012" h-align="center" v-align="center" color="#000000"
+                     font-size="38" extendstyle="1111"></label>
+             </node>
+
+             <button name="okBtn" rect="40,300,190,62" layouttype="3"
+                 OnSelect="onOKSelect" normal="src:file://image/cookbook/d1.png;style:autosize"
+                 sel="src:file://image/cookbook/d2.png;style:autosize"
+                 extendstyle="1111" text="" color="#ffffff" font-size="24">
+             </button>
+             <button name="cancelBtn" rect="245,300,190,62" layouttype="3"
+                 OnSelect="onCancelSelect"
+                 normal="src:file://image/cookbook/q1.png;style:autosize"
+                 sel="src:file://image/cookbook/q2.png;style:autosize"
+                 extendstyle="1111" text="" color="#ffffff" font-size="24">
+             </button>
+		</node>
+	</body>
+    <![CDATA[
+
+    require 'com_wondertek_aqyc.common.framework'
+    local rootSprite
+    local YEAR_NODE = '1'
+    local MONTH_NODE = '2'
+    local MAX_DAY = 31
+    local typeCode=nil
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+      
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+              local nodeYear = Sprite:findChild(rootSprite, 'nodeYear')
+              local nodeMonth = Sprite:findChild(rootSprite, 'nodeMonth')
+              Sprite:setProperty(nodeYear, 'data', YEAR_NODE)
+              Sprite:setProperty(nodeMonth, 'data', MONTH_NODE)
+              local regHandle = Reg:create('dateDialog')
+              local yearText = Reg:getString(regHandle, 'year')
+              local monthText = Reg:getString(regHandle, 'month')
+              typeCode = Reg:getString(regHandle, 'type')
+              Reg:release('dateDialog');
+              Sprite:setProperty(Sprite:findChild(nodeYear, 'content'), 'text', os.date("*t")["year"])
+              Sprite:setProperty(Sprite:findChild(nodeMonth, 'content'), 'text', os.date("*t")["month"])
+        elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if msg == 101 then
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            onCancelSelect()
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    function onAddSelect(sprite)
+        local node = Sprite:getParent(sprite)
+        local data = Sprite:getData(node)
+        local content = Sprite:findChild(node, 'content')
+        if data == YEAR_NODE then
+            yearChange(content, 1)
+        elseif data == MONTH_NODE then
+            monthChange(content, 1)
+        end
+    end
+    function onSubtractionSelect(sprite)
+        local node = Sprite:getParent(sprite)
+        local data = Sprite:getData(node)
+        local content = Sprite:findChild(node, 'content')
+        if data == YEAR_NODE then
+            yearChange(content, 2)
+        elseif data == MONTH_NODE then
+            monthChange(content, 2)
+        end
+    end
+    function yearChange(sprite, type)
+        local year = tonumber(Sprite:getText(sprite))
+        if type == 1 then --add
+            if year < 2100 then
+                Sprite:setProperty(sprite, 'text', year + 1)
+            end
+            else
+            if year > 1900 then
+                Sprite:setProperty(sprite, 'text', year - 1)
+            end
+        end
+        local nodeMonth = Sprite:findChild(rootSprite, 'nodeMonth')
+        local monthContent = Sprite:findChild(nodeMonth, 'content')
+        local month = Sprite:getText(monthContent)
+    end
+    function monthChange(sprite, type)
+        local month = tonumber(Sprite:getText(sprite))
+        if type == 1 then --add
+            if month < 12 then
+                Sprite:setProperty(sprite, 'text', month + 1)
+            end
+            else
+            if month > 1 then
+                Sprite:setProperty(sprite, 'text', month - 1)
+            end
+        end
+    end
+    
+    function onOKSelect()
+        local nodeYear = Sprite:findChild(rootSprite, 'nodeYear')
+        local nodeMonth = Sprite:findChild(rootSprite, 'nodeMonth')
+        local yearContent = Sprite:findChild(nodeYear, 'content')
+        local monthContent = Sprite:findChild(nodeMonth, 'content')
+        local year = Sprite:getText(yearContent)
+        local month = Sprite:getText(monthContent)
+        local regHandle = Reg:create("dateTime")
+        if tonumber(month) < 10 then
+            Reg:setString(regHandle, "time", year..'-0'..month)
+        else
+            Reg:setString(regHandle, "time", year..'-'..month)
+        end
+        Reg:setString(regHandle, "type", typeCode)
+        Scene:back()
+    end
+    function onCancelSelect()
+        local regHandle = Reg:create('dateDialog')
+        typeCode = Reg:getString(regHandle, 'type')
+        local regHandle = Reg:create("dateTime")
+        Reg:setString(regHandle, "time", '')
+        Reg:setString(regHandle, "type", typeCode)
+        Scene:back()
+    end
+]]>
+</root>

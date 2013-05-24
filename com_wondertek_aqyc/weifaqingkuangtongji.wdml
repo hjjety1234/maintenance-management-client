@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+             <shadow rect="0,0,480,800" color="#ffffff" alpha="255"
+                extendstyle="1111" />
+            <!-- 设置背景 -->
+            <image rect="0,80,480,720" src="" style="autosize"
+               extendstyle="1111" />
+            <!-- 设置头部 -->
+            <node name="baseSprite" rect="0,0,480,87" extendstyle="1111">
+                    <image name="title" rect="0,0,480,87" border="false" src="file://image/top-a.png" 
+                        style="autosize" extendstyle="1111">
+                        <label name="titleLabel" rect="0,0,480,80" text="违法情况统计" color="#ffffff" v-align="center"  
+                          h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />
+                    </image>
+                <!-- 返回 -->
+                <button rect="20,18,84,51" OnSelect="doBack" normal="src:file://image/button-a.png;"
+                    sel="src:file://image/button-b.png;" style="autosize" extendstyle="1111">
+                </button>
+            </node> 
+   -------------------------------------选择区域---------------------------------------------------
+            <node name="xuanze" rect="0,83,480,717" extendstyle="1111">          
+                <label name="area" rect="10,13,100,50" text="区      域"  v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="28" extendstyle="1111"  />
+                <button name="areabtn" rect="123,14,271,50" OnSelect="chooseQuYu" normal="normal" sel="sel" extendstyle="1111" style='autosize'>
+                    <image name="normal" rect="0,5,271,42" border="false" src="file://image/quyushuru.png" 
+                            style="autosize" extendstyle="1111" />
+                    <image name="sel" rect="0,5,271,42" border="false" src="file://image/quyushuru.png" 
+                            style="autosize" extendstyle="1111" />
+                </button>
+                <label name="areaname" rect="80,13,300,50" text="请选择区域" color="#6c6c6c"   v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="26" extendstyle="1111" />
+                <label name="areaID" text="" type="hidden" />
+                <!--间隔线-->
+                <image rect="0,75,480,1" src="file://image/line.png"
+                            style='autosize' extendstyle="1111"/>
+            -----------------------------------选择月份-------------------------------------------------------------
+                <label name="yuefen" rect="10,87,100,50" text="月      份"  v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="28" extendstyle="1111" style='autosize' />
+                <button name="yuefenbtn" rect="123,87,271,50" OnSelect="chooseyuefen" normal="normal" sel="sel" extendstyle="1111" style='autosize'>
+                    <image name="normal" rect="0,5,271,42" border="false" src="file://image/quyushuru.png" 
+                            style="autosize" extendstyle="1111" />
+                    <image name="sel" rect="0,5,271,42" border="false" src="file://image/quyushuru.png" 
+                            style="autosize" extendstyle="1111" />
+                </button>
+                <label name="yuefenname" rect="80,87,300,50" text="请选择时间" color="#6c6c6c"  v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="26" style="autosize" extendstyle="1111" />
+                <button name="search" style="autosize" OnSelect="seatchStore" rect="403,87,72,50" normal="src:file://image/research_d.png;" sel="src:file://image/research_s.png;" extendstyle="1111" />
+                <!--间隔线-->
+                <image rect="0,150,480,1" src="file://image/line.png"
+                            style='autosize' extendstyle="1111"/>                            
+                <image name="bg" rect="0,151,480,79" src="file://image/weifaqingkuangtongjibiao1.png"
+                            style='autosize' extendstyle="1111"/>
+                <label rect="0,151,99,79" font-size="24" font-family="微软雅黑"
+                    text="序号" style='autosize' extendstyle="1111" v-align="center" h-align="center" />
+                <label rect="99,151,99,79" font-size="24"  font-family="微软雅黑"
+                    text="区域" style='autosize' extendstyle="1111" v-align="center" h-align="center" />
+                <label rect="198,151,141,79" font-size="24"  font-family="微软雅黑"
+                    text="统计月份" style='autosize' extendstyle="1111" v-align="center" h-align="center" />
+                <label rect="339,151,141,79" font-size="24"  font-family="微软雅黑"
+                    text="违法次数" style='autosize' extendstyle="1111" v-align="center" h-align="center"  />      
+                <node rect="0,230,480,560" extendstyle="1111">
+                    <listview name="sampleList" rect="0,0,480,560" extendstyle="1177" col="1" auto-adjust="true" />   
+                </node>
+                <node rect="0,0,480,80" name="listitem" visible="false" enable="false" active="false" extendstyle="1011">
+                    <button name="btnclick" rect='0,0,480,80' OnSelect="itemclick" extendstyle="1111" style='autosize' >
+                    <image name="bg1" rect="0,0,480,79" src="file://image/weifaqingkuangtongjibiao2.png"
+                            style='autosize' extendstyle="1111"/>
+                    <scrolltext name="xuhao" rect="0,0,99,79" font-size="20" color="#666666" font-family="微软雅黑"
+                        text="" extendstyle="1111" v-align="center" h-align="center" scroll="true" step="4"/>
+                    <scrolltext name="quyu" rect="99,0,99,79"  font-size="20" color="#666666" font-family="微软雅黑"
+                        text="" extendstyle="1111" v-align="center" h-align="center" scroll="true" step="4"/>
+                    <scrolltext name="tongjiyuefen" rect="198,0,141,79"  font-size="20" color="#666666" font-family="微软雅黑"
+                        text="" extendstyle="1111" v-align="center" h-align="center" scroll="true" step="4"/>
+                    <scrolltext name="weifacishu" rect="339,0,141,79"  font-size="20" color="#666666" font-family="微软雅黑"
+                        text="" extendstyle="1111" v-align="center" h-align="center" scroll="true" step="4"/>
+                    <label name="quyuId" text="" type="hidden" />
+                    </button>
+                </node>
+            </node>                
+        </node>
+    </body>
+    <![CDATA[
+
+require('framework.common')
+require 'com_wondertek_aqyc.common.framework'
+local rootSprite
+local ID=''
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    areaname = Sprite:findChild(rootSprite,'areaname')
+    yuefenname = Sprite:findChild(rootSprite,'yuefenname')
+    urlRequestServer = Config:get('server_url')..':'..Config:get('port')
+    listview = Sprite:findChild(rootSprite, 'sampleList')
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+         local regHandle = Reg:create("dateTime")           
+        retuenTime = Reg:getString(regHandle, "time")
+        retuenType = Reg:getString(regHandle, "type") 
+        Reg:clear(Reg:create("dateTime"))  
+        yemian1 = Reg:getString(Reg:create("yemian1"),'yemian1')
+        Reg:clear(Reg:create("yemian1")) 
+        quyuList = Reg:getString(Reg:create("quyu"),"quyuList")
+        Reg:clear(Reg:create("quyu"))          
+        quyuIDList = Reg:getString(Reg:create("quyuID"),"quyuIDList")
+        Log:write("quyuIDList",quyuIDList)
+        Reg:clear(Reg:create("quyuID"))   
+        if retuenType =='weifaqingkuang' then
+               local content = Sprite:findChild(rootSprite, 'yuefenname')                           
+               if retuenTime ~= '' and retuenTime ~= nil then                                             
+                   Sprite:setProperty(content, 'text', retuenTime)
+               else
+                   Sprite:setProperty(content, 'text', '请选择时间')
+               end
+        elseif yemian1 == "9" then
+               local areaname = Sprite:findChild(rootSprite, 'areaname')
+               local areaID = Sprite:findChild(rootSprite, 'areaID')
+               if quyuList ~= "" and quyuList ~= nil then
+                   Sprite:setProperty(areaname, 'text', quyuList)
+               else
+                   Sprite:setProperty(areaname, 'text', '请选择区域')
+               end    
+               if quyuIDList ~= "" and quyuIDList ~= nil then
+                   Sprite:setProperty(areaID, 'text', quyuIDList)
+               end
+        else
+            local content = Sprite:findChild(rootSprite, 'areaname')
+            local areaID = Sprite:findChild(rootSprite, 'areaID')
+            Sprite:setProperty(content, 'text', "请选择区域")
+            Sprite:setProperty(areaID, 'text', "")
+            local time = Sprite:findChild(rootSprite, 'yuefenname')
+            Sprite:setProperty(time, 'text', "请选择时间")
+             ListView:removeAllItems(listview, true)
+        end     
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+        kaoqinData =  Http:jsonDecode('chaxun')
+        if(kaoqinData == '' or kaoqinData == nil) then
+            Dialog:show('提醒','返回数据错误！','ok')
+            return
+        else
+            local Total = kaoqinData['Total'] 
+            if (Total == '' or Total == nil or Total == 0 or Total < 0) then
+                Dialog:show('提醒','未搜索到数据！','ok')
+                return 
+            else
+                ListView:removeAllItems(listview)
+                ListView:loadItem(listview, Sprite:findChild(rootSprite, 'listitem'), Total, 'loadListItem')
+                ListView:adjust(listview) 
+                ID = ''
+            end
+        end             
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+         Scene:go(Alias.leaderindex,true)
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function myfunc()
+
+end
+
+--进入区域列表
+function chooseQuYu()
+    -- body
+    Reg:setString(Reg:create("yemian1"), 'yemian1', "9")
+    Scene:setReturn(Alias.weifaqingkuangtongji, Alias.quyuList)
+    Scene:go(Alias.quyuList,true)
+end
+
+function doBack()
+    Scene:go(Alias.leaderindex,true)
+end
+
+function chooseyuefen(sprite)
+       local weifaqingkuangTime = Sprite:findChild(rootSprite, 'yuefenbtn')
+       local content = Sprite:findChild(Sprite:getParent(sprite), 'yuefenname') 
+        --local date = Sprite:getText(content)
+        --构造请求地址
+        --local stringDate = Split(date, '-')
+       local regHandle = Reg:create('dateDialog')
+       if tonumber(weifaqingkuangTime) == tonumber(sprite) then
+           Reg:setString(regHandle, 'type', 'weifaqingkuang')     
+       else
+           return
+       end
+       -- Reg:setString(regHandle, 'year', stringDate[1])
+       Reg:setString(regHandle, 'year', "")
+       Reg:setString(regHandle, 'month', "")
+       Scene:setReturn(Alias.weifaqingkuangtongji, Alias.dateDialog)
+       Scene:go(Alias.dateDialog,true)
+end
+
+function seatchStore()
+    -- body
+    local time = Sprite:findChild(rootSprite, 'yuefenname') 
+    local areaname = Sprite:findChild(rootSprite,'areaname')
+    local areaID = Sprite:findChild(rootSprite,'areaID')
+    Log:write("areaID,",Sprite:getText(areaID))
+    if Sprite:getText(time) == "请选择时间" then
+       Dialog:show('','未选择查询时间！','ok')
+       return
+    end
+    if Sprite:getText(areaname) == "请选择区域" then
+       Dialog:show('','未选择查询区域！','ok')
+       return
+    end
+    if Sprite:getText(areaID) == "" or Sprite:getText(areaID) == nil then
+       Dialog:show('','查询区域编码为空，请重选！','ok')
+       return
+    end
+    ID = Sprite:getText(areaID)
+    local url = urlRequestServer..'/mobileSale/report/getBLByCondition.htm?'
+    local param = 'page=1&rows=10000&breaklawDate='..Sprite:getText(time)..'&area='..Sprite:getText(areaID)
+    Http:request('chaxun', url, 101, {useCache = false, method = 'post', postData=param})
+end
+
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0,0,480,79)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local xuhao = Sprite:findChild(item, 'xuhao')
+    local quyu = Sprite:findChild(item, 'quyu')
+    local quyuId = Sprite:findChild(item,"quyuId")
+    local tongjiyuefen = Sprite:findChild(item, 'tongjiyuefen')
+    local weifacishu = Sprite:findChild(item, 'weifacishu')
+    if (kaoqinData ~= nil) then 
+        local value = kaoqinData['Rows'][index]
+        if value.area_content~=nil then
+               Sprite:setProperty(quyu, 'text', value.area_content)              
+        end
+        if value.breaklawDate~=nil then
+               Sprite:setProperty(tongjiyuefen, 'text', value.breaklawDate)              
+        end
+        if value.cnt~=nil then
+               Sprite:setProperty(weifacishu, 'text', value.cnt)              
+        end
+        Sprite:setProperty(xuhao, 'text', index+1)
+        Sprite:setProperty(quyuId, 'text', ID)
+
+    end
+end
+
+function itemclick(sprite)
+        local time = Sprite:findChild(sprite, 'tongjiyuefen') 
+        local areaname = Sprite:findChild(sprite,'quyu')
+        local quyuId = Sprite:findChild(rootSprite,'quyuId')
+        local regHandle = Reg:create('chuanzhi')
+        if Sprite:getText(time) ~= nil and Sprite:getText(time) ~= '' then          
+           Reg:setString(regHandle,'date',Sprite:getText(time))
+        else
+           Dialog:show('','时间为空，不能查看详情！','ok')
+           return
+        end
+        if Sprite:getText(quyuId) ~= nil and Sprite:getText(quyuId) ~= '' then
+           Reg:setString(regHandle,'ID',Sprite:getText(quyuId))
+        else
+           Dialog:show('','区域编码为空，不能查看详情！','ok')
+           return
+        end
+        if Sprite:getText(areaname) ~= nil and Sprite:getText(areaname) ~= '' then
+           Reg:setString(regHandle,'area',Sprite:getText(areaname))
+        else
+           Dialog:show('','区域名称为空，不能查看详情！','ok')
+           return
+        end
+        Scene:setReturn(Alias.weifaqingkuangtongji,Alias.weifaDetails)
+        Scene:go(Alias.weifaDetails,true)
+end
+
+    ]]>
+</root>
