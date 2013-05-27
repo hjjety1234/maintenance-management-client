@@ -211,6 +211,7 @@ public class FloatRelativeLayout extends RelativeLayout {
 		}
 		if (scaleFactor < 1) {
 			mScaleFactor = scaleFactor;
+			setTipTextVisiblity(false);
 		} else {
 			mScaleFactor = 1;
 		}
@@ -361,7 +362,6 @@ public class FloatRelativeLayout extends RelativeLayout {
 			Log.d(TAG, ">>>onScale<<<");
 			scale(detector.getCurrentSpan() / startingSpan, startFocusX,
 					startFocusY);
-			setTipTextVisiblity(false);
 			return true;
 		}
 	}
