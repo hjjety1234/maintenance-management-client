@@ -76,7 +76,7 @@ public class FloatRelativeLayout extends RelativeLayout {
 			canvas.restore();
 			return;
 		}
-		
+
 		// get SharedPreferences and editor
 		SharedPreferences popupPos = mContext.getSharedPreferences(
 				PhoneStatReceiver.POPUP_POS, Context.MODE_PRIVATE);
@@ -103,7 +103,7 @@ public class FloatRelativeLayout extends RelativeLayout {
 		canvas.setMatrix(m);
 
 		// save scale pivotX and pivotY
-		int nfactor = (int)(mScaleFactor * 100);
+		int nfactor = (int) (mScaleFactor * 100);
 		Log.d(TAG, "[dispatchDraw] write scale factor: " + nfactor);
 		ConfigUtil.setValue(String.valueOf(nfactor));
 		editor.putFloat("pivotX", px);
@@ -120,20 +120,18 @@ public class FloatRelativeLayout extends RelativeLayout {
 		}
 		editor.commit();
 
-		//do scale text
-		try{
+		// do scale text
+		try {
 			scaleText(mScaleFactor);
-		}
-		catch(Exception ex)
-		{
-			Log.d(TAG, "error message"+ex.getMessage());
+		} catch (Exception ex) {
+			Log.d(TAG, "error message" + ex.getMessage());
 		}
 		// do scale
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
 		canvas.scale(mScaleFactor, mScaleFactor, px, py);
 		super.dispatchDraw(canvas);
 		canvas.restore();
-		
+
 		// set layout's width and height
 		wmParams.width = (int) (width * mScaleFactor);
 		wmParams.height = (int) (height * mScaleFactor);
@@ -144,18 +142,63 @@ public class FloatRelativeLayout extends RelativeLayout {
 		Log.d(TAG, "[dispatchDraw] width: " + getWidth());
 		Log.d(TAG, "[dispatchDraw] height: " + getHeight());
 	}
-	
+
 	/**
 	 * scale the pop's text
 	 */
-	public void scaleText(float mScaleFactor)
-	{
+	public void scaleText(float mScaleFactor) {
 		TextView callerName = (TextView) findViewById(R.id.caller_name);
 		TextView headship = (TextView) findViewById(R.id.headship);
 		TextView dept = (TextView) findViewById(R.id.deptinfo);
 		callerName.setTextScaleX(mScaleFactor);
 		headship.setTextScaleX(mScaleFactor);
 		dept.setTextScaleX(mScaleFactor);
+	}
+
+	/**
+	 * show tip text if this it the first time
+	 */
+	public void showTipText() {
+		// get SharedPreferences and editor
+		SharedPreferences popupPos = mContext.getSharedPreferences(
+				PhoneStatReceiver.POPUP_POS, Context.MODE_PRIVATE);
+		TextView tipText = (TextView) findViewById(R.id.tip_text);
+		ImageView iv = (ImageView) findViewById(R.id.tip_bg);
+
+		if (tipText == null || iv == null)
+			return;
+
+		if (popupPos.getBoolean("showTip", true)) {
+			Log.d(TAG, "[showTipText] true");
+			iv.setVisibility(VISIBLE);
+			tipText.setVisibility(VISIBLE);
+		} else {
+			Log.d(TAG, "[showTipText] false");
+			iv.setVisibility(INVISIBLE);
+			tipText.setVisibility(INVISIBLE);
+		}
+	}
+
+	/**
+	 * set tip text visibility
+	 */
+	public void setTipTextVisiblity(boolean visibility) {
+		Log.d(TAG, "[setTipTextVisiblity] visibility: " + visibility);
+		// get SharedPreferences and editor
+		SharedPreferences popupPos = mContext.getSharedPreferences(
+				PhoneStatReceiver.POPUP_POS, Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = popupPos.edit();
+		editor.putBoolean("showTip", visibility);
+		editor.commit();
+		if (visibility == false) {
+			TextView tipText = (TextView) findViewById(R.id.tip_text);
+			ImageView iv = (ImageView) findViewById(R.id.tip_bg);
+			if (tipText == null || iv == null)
+				return;
+			iv.setVisibility(INVISIBLE);
+			tipText.setVisibility(INVISIBLE);
+			
+		}
 	}
 
 	public void scale(float scaleFactor, float pivotX, float pivotY) {
@@ -198,6 +241,9 @@ public class FloatRelativeLayout extends RelativeLayout {
 		// set caller department information
 		TextView dept = (TextView) findViewById(R.id.deptinfo);
 		dept.setText(employee.getDepartment());
+
+		// show tip text if this is the first time
+		showTipText();
 
 		// set caller picture
 		if (employee.getPicutre() != null
@@ -315,6 +361,7 @@ public class FloatRelativeLayout extends RelativeLayout {
 			Log.d(TAG, ">>>onScale<<<");
 			scale(detector.getCurrentSpan() / startingSpan, startFocusX,
 					startFocusY);
+			setTipTextVisiblity(false);
 			return true;
 		}
 	}
