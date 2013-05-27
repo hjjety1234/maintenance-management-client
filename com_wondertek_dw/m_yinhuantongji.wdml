@@ -137,7 +137,7 @@
                         <label rect="90,5,120,25" text="上报隐患数" font-family='微软雅黑'
                             extendstyle="1111" font-size="22" h-align="center" v-align="center"
                             color="#e33a10" />
-                        <label  rect="230,5,120,25" text="解决率" font-family='微软雅黑'
+                        <label  rect="240,5,120,25" text="解决率" font-family='微软雅黑'
                             extendstyle="1111" font-size="22" h-align="center" v-align="center"
                             color="#e33a10" />
                     </image>
@@ -150,7 +150,7 @@
                     <!-- 解决率排序 -->
                     <button name="fdseqBtn" rect="280,15,120,30" normal="normal" sel="sel"
                         OnSelect="fdSeqOnselect" extendstyle="1111"  data="0"  >
-                        <image name="triangleFD" rect="80,7,20,12" src="file://image/triangle_down.png"
+                        <image name="triangleFD" rect="90,7,20,12" src="file://image/triangle_down.png"
                             style="autosize" extendstyle="1111" />
                     </button>
                 </node> 
@@ -168,7 +168,7 @@
                     <label name='dangerCount' rect="140,5,80,25" text="100" font-family='微软雅黑'
                         extendstyle="1111" font-size="20" h-align="right" v-align="center"
                         color="#5a5a5a" />
-                    <label name='dealDangerRatio' rect="250,5,100,25" text="100" font-family='微软雅黑'
+                    <label name='dealDangerRatio' rect="260,5,100,25" text="100" font-family='微软雅黑'
                         extendstyle="1111" font-size="20" h-align="right" v-align="center"
                         color="#5a5a5a" />
                     <button name="detailBtn" rect="420,11,25,18" normal="src:file://image/yinhuan/godetail.png" sel="sel"
@@ -380,9 +380,14 @@ function loadListItem(list, item, index)
         Sprite:setProperty(dimBtn,'data', g_respValue[index].regionid)
         local regTag = string.sub(regionid, 5)
         Log:write('regionid=='..regTag)
-        if regTag == '00' then
-            Sprite:setProperty(dimBtn,'enable', 'true')
-        end
+
+    if string.sub(g_regionid,5) == '00' or g_regionid ==''then
+        Sprite:setProperty(dimBtn,'enable', 'true')
+        --companyOn()
+    else 
+        Sprite:setProperty(dimBtn,'enable', 'false')
+    end
+
     elseif g_type == 1 then
         Sprite:setProperty(dimBtn,'data', g_respValue[index].orgid)
         --Sprite:setProperty(dimBtn,'enable', 'true')
@@ -392,8 +397,8 @@ function loadListItem(list, item, index)
     end
     Sprite:setProperty(dimName,'text', g_respValue[index].name)
     Sprite:setProperty(dangerCount,'text', g_respValue[index].dangercount)
-    Sprite:setProperty(dealDangerRatio,'text', 
-        string.format('%.1f',g_respValue[index].dealdangercount).."%")
+    Sprite:setProperty(dealDangerRatio,'text', string.format('%.1f',g_respValue[index].dealdangercount).."%")
+   
 end
 function addloadListItem(list, item, index)
     Log:write('++++',g_sum)
@@ -418,10 +423,7 @@ function addloadListItem(list, item, index)
     Sprite:setProperty(dimBtn,'enable', 'false')
     Sprite:setProperty(dimName,'text', g_sum.name)
     Sprite:setProperty(dangerCount,'text', g_sum.dangercount)
-    Sprite:setProperty(dealDangerRatio,'text', 
-        string.format('%.1f',g_sum.dealdangercount).."%")
-    --Sprite:setProperty(detailBtn,'enable', 'false')
-    --Sprite:setProperty(detailBtn,'visible', 'false')
+    Sprite:setProperty(dealDangerRatio,'text', string.format('%.1f',g_sum.dealdangercount).."%")
 end
 
 -- @brief 上报隐患数排序
@@ -619,17 +621,21 @@ function getSelectedMonth()
 end
 -- 地市纬度进一步查询响应函数
 function cityItemBtnOnselect(sprite)
-    --dimBtn
-    local dimName = Sprite:findChild(sprite,'dimName')                    -- 地市名称
-    local dimension = Sprite:findChild(rootSprite,'dimension')            -- 维度名称
-    local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
-    local regionid = Sprite:getData(sprite)
-    g_regionid = regionid
-    local regionText = Sprite:getText(dimName)
-    Sprite:setProperty(dimension, 'text', regionText)
-    Sprite:setProperty(mainTitle, 'text', '隐患情况('..regionText..')')
-    g_regionname = regionText
-    request2(regionid)
+    
+      local dimName = Sprite:findChild(sprite,'dimName')                    -- 地市名称
+      local dimension = Sprite:findChild(rootSprite,'dimension')            -- 维度名称
+      local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+      local regionid = Sprite:getData(sprite)
+      g_regionid = regionid
+      if string.sub(g_regionid,5) ~= '00' and g_regionid ~=''  then
+        companyOn()
+      else
+      local regionText = Sprite:getText(dimName)
+      Sprite:setProperty(dimension, 'text', regionText)
+      Sprite:setProperty(mainTitle, 'text', '隐患情况('..regionText..')')
+      g_regionname = regionText
+      request2(regionid)
+     end
 end
 -- 隐患详情查询响应函数
 function detailBtnOnselect(sprite)
@@ -666,8 +672,8 @@ function detailBtnOnselect(sprite)
         Reg:setString(regHandle, 'codevalue', btndata)
         Reg:setString(regHandle, 'codename', btnName)
     end
-    Scene:setReturn(Alias.m_yinhuantongji, Alias.m_yinhuanTongjiDetail)
-    Scene:go(Alias.m_yinhuanTongjiDetail, true)
+        Scene:setReturn(Alias.m_yinhuantongji, Alias.m_yinhuanTongjiDetail)
+        Scene:go(Alias.m_yinhuanTongjiDetail, true)
 
 end
 
