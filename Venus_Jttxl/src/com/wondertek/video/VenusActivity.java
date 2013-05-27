@@ -146,16 +146,19 @@ import com.wondertek.video.connection.SystemConnectionManager;
 import com.wondertek.video.email.EmailObserver;
 import com.wondertek.video.gps.GPSObserver;
 //add pj
-//import com.wondertek.video.ifly.VoiceInputManager;
+// import com.wondertek.video.ifly.VoiceInputManager;
 //Map
 //import com.wondertek.video.map.MapPluginMgr;
+import com.wondertek.video.luatojava.LuaManager;
 import com.wondertek.video.monitor.MonitorCommon;
 import com.wondertek.video.monitor.MonitorHeadset;
 import com.wondertek.video.monitor.MonitorManager;
 import com.wondertek.video.monitor.MonitorScreen;
 import com.wondertek.video.msgpush.MsgPushManager;
 import com.wondertek.video.msgpush.mqtt.MsgBomb;
-//import com.wondertek.video.phonegap.PhonegapObserver;
+// import com.wondertek.video.phonegap.PhonegapObserver;
+//add pj
+// import com.wondertek.video.sangforvpn.SangforvpnPlugin;
 import com.wondertek.video.sensor.SensorObserver;
 import com.wondertek.video.smsspam.SMSSpamMgr;
 //import com.wondertek.video.sysplayer.SysMediaPlayerMgr;
@@ -335,13 +338,14 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public AlarmObserver alarmObserver;
 
 	public CalendarObserver calendarObserver;
-	//add pj
-//	public PhonegapObserver phonegapObserver;
+
+	// public PhonegapObserver phonegapObserver;
 	
 	public ContactsObserver contactsObserver;
 	public AbsoluteLayout webViewRoot = null;
 
 	public AppManager	appManager;
+	public LuaManager	luaManager;
 	public static final int CAMERA_RESULT = 100;
 	public static final int CALL_RESULT = 101;
 	public static final int REQUEST_PICKER_ALBUM = 102;
@@ -352,10 +356,10 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	//FractalADPlugin
 	//public FractalADPlugin fractalADPlugin = null;
 	//AuthPlugin
-//	public AuthPlugin authPlugin = null;
+	//public AuthPlugin authPlugin = null;
 	//TODO VoiceInput
 	//add pj
-//	public VoiceInputManager viManager;
+	// public VoiceInputManager viManager;
 
 	//Manage the KeyQuard
 	//private KeyguardLock keyguardLock = null;
@@ -381,6 +385,8 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	//for plugin lotuseed
 	//public LotuseedObserver lotuseedObserver = null;
+	//add pj
+	// public SangforvpnPlugin sangforvpnPlugin = null;
 
 	public MediaRecorder mRecorder = null;
 
@@ -640,7 +646,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		}
 		else
 		{
-			String dirname = VenusApplication.appAbsPath + "/lib2/WD/";
+			String dirname = VenusApplication.appAbsPath + "lib2/WD/";
 			if(sdk <= Util.SDK_ANDROID_21 || sdk == Util.SDK_OMS_20)	
 				System.load(dirname + "sdk21/libskiaref.so");
 			else if(sdk <= Util.SDK_ANDROID_23 || sdk == Util.SDK_OMS_25 || sdk == Util.SDK_OMS_26)
@@ -952,9 +958,9 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		emailObserver = EmailObserver.getInstance(this);
 		alarmObserver = AlarmObserver.getInstance(this);
 		calendarObserver = CalendarObserver.getInstance(this);
-		//add pj
-//		phonegapObserver = PhonegapObserver.getInstance(this);
+		// phonegapObserver = PhonegapObserver.getInstance(this);
 		contactsObserver = ContactsObserver.getInstance(this);
+		luaManager = LuaManager.getInstance();
 
 		//safetyAuthentic: for plugin CA, now it's not used
 		//authenticObserver = AuthenticObserver.getInstance(this);
@@ -964,7 +970,9 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 		//for plugin lotuseed
 		//lotuseedObserver = LotuseedObserver.getInstance(this);
-
+		//for plugin sangforvpn
+		//add pj
+		// sangforvpnPlugin = SangforvpnPlugin.getInstance(this);
 		//SMSSpam
 		if (smsSpamMgr == null)
 			smsSpamMgr = SMSSpamMgr.getInstance(appActivity);
@@ -1110,8 +1118,8 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		//        }
 		
 		//AuthPlugin
-//		if(authPlugin == null)
-//			authPlugin = AuthPlugin.getInstance(this);
+		//if(authPlugin == null)
+		//	authPlugin = AuthPlugin.getInstance(this);
 		
 		//FractalADPlugin
 		//if(fractalADPlugin == null)
@@ -1119,7 +1127,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		//	fractalADPlugin = FractalADPlugin.getInstance(this);
 		//	al.addView(fractalADPlugin.GetFractalADView());
 		//}
-		
+
 		sysState = SYS_STATE_RUN;
 	}
 
@@ -1230,7 +1238,9 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	public void onDestroy() {
 		Util.Trace(TAG+"::"+"onDestroy");
-
+		//add pj
+		// if(sangforvpnPlugin!=null)
+		//	sangforvpnPlugin.javaVpnQuit();
 		if(sysState == SYS_STATE_RUN)
 		{
 			MonitorManager.getInstance(this).UnRegisterMonitor(MonitorCommon.MONITOR_TYPE_BATTERY);
@@ -1827,6 +1837,8 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	public native int  nativeExec(String methodName, Object[] paramArray, int paramNum);
 
+	public native String nativeExecScript(String script, int type);
+
 	public static native void nativesendsmsevent();
 
 	public native void nativeupdatemaincanvas(Surface surface,int sdkint);
@@ -2263,6 +2275,21 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		Util.getInstance().getAsyncTask().execute("GetEachContactsGroupInfo",groupId);
 	}
 	
+	public void javaAddContactAsync(String name, String phone)
+	{
+		Util.getInstance().getAsyncTask().execute("AddContact", name, phone);
+	}
+	
+	public void javaDeleteContactAsync(String name)
+	{
+		Util.getInstance().getAsyncTask().execute("DeleteContact",name );
+	}
+
+	public void javaEditContactAsync(String oldName, String oldPhone, String newName, String newPhone)
+	{
+		Util.getInstance().getAsyncTask().execute("EditContact",oldName, oldPhone, newName, newPhone);
+	}
+	
 	public String getContacts()
 	{
 		if(contactsObserver!=null)
@@ -2291,6 +2318,20 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		return contactsObserver.getEachContactsGroupInfo(groupId);
 	}
 	
+	public void addContact(String name, String phone)
+	{
+		 contactsObserver.addContact(name,  phone);
+	}
+	
+	public void deleteContact(String name)
+	{
+		 contactsObserver.deleteContact(name);
+	}
+	
+	public void editContact(String oldName, String oldPhone, String newName, String newPhone)
+	{
+		 contactsObserver.editContact(oldName, oldPhone, newName, newPhone);
+	}
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// get machine info.
 	public static int EMachineInfo_Serial 			= 0; // ID,
@@ -3882,6 +3923,17 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			return -1;
 		return (int) (GetTotalTxBytes() - tolTxTraffic);
 	}
+	
+	public int javaGetCurNetworkType()
+	{
+		return Util.getCurNetworkType();
+	}
+	
+	public void javaOpenSettingForType(String strType)
+	{
+		Util.OpenSettingForType(strType);
+	}
+	
 	public void onSaveInstanceState(Bundle outState) {
 		// TODO Auto-generated method stub
 		Util.Trace("onSaveInstanceState");

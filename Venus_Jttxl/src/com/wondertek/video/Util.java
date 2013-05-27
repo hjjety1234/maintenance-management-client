@@ -16,6 +16,7 @@ import java.net.URLDecoder;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
+import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -117,7 +118,7 @@ public class Util {
 	public final static int ENetworkStatus_UnKnownError			= 5;
 	public final static int ENetworkStatus_KeepConnected		= 6;
 	public final static int ENetworkStatus_ConnectionExp		= 7;
-	
+
 	public final static int ENetworkError_Trans_Fail				= 0;
 	public final static int ENetworkError_Trans_Login				= 1;
 	public final static int ENetworkError_Trans_InvalidAPN			= 2;
@@ -321,6 +322,11 @@ public class Util {
 	private static boolean   mGetContactsFinish = true;
 	private static String    mSearchcondition = null;
 	
+	private static  String params1 = null;
+	private static  String params2 = null;
+	private static  String params3 = null;
+	private static  String params4 = null;
+	
 	public static void SetContactsChange(boolean change)
 	{
 		mContactsChange = change; 
@@ -376,7 +382,7 @@ public class Util {
 				{
 					mGetContactsFinish = false;
 					new Thread(new Runnable(){
-						@Override
+
 						public void run() {
 							if(mContactsChange)
 							{
@@ -580,6 +586,55 @@ public class Util {
 								}
 							}
 							VenusActivity.getInstance().nativesendevent(Util.WDM_EACHCONTACTSGROUPINFO, 0, 0);
+							mGetContactsFinish = true;
+						}}).start();
+				}
+			}else if( "AddContact".equals(params[0]))
+			{
+				 params1 = params[1];
+				 params2 = params[2];
+				if(mGetContactsFinish)
+				{
+					mGetContactsFinish = false;
+					new Thread(new Runnable(){
+
+						public void run() {
+							Util.Trace("---AddContact--run-");
+							android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+							VenusActivity.getInstance().addContact(params1,  params2);
+							mGetContactsFinish = true;
+						}}).start();
+				}
+			}else if( "DeleteContact".equals(params[0]))
+			{
+			    params1 = params[1];
+				if(mGetContactsFinish)
+				{
+					mGetContactsFinish = false;
+					new Thread(new Runnable(){
+
+						public void run() {
+							Util.Trace("---DeleteContact--run-");
+							android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+							VenusActivity.getInstance().deleteContact(params1);
+							mGetContactsFinish = true;
+						}}).start();
+				}
+			}else if( "EditContact".equals(params[0]))
+			{
+			    params1 = params[1];
+			    params2 = params[2];
+			    params3 = params[3];
+				params4 = params[4];
+				if(mGetContactsFinish)
+				{
+					mGetContactsFinish = false;
+					new Thread(new Runnable(){
+
+						public void run() {
+							Util.Trace("---EditContact-run--");
+							android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+							VenusActivity.getInstance().editContact(params1, params2, params3, params4);
 							mGetContactsFinish = true;
 						}}).start();
 				}
@@ -1219,5 +1274,37 @@ public class Util {
     	Util.Trace("VenusActivity.startParam strMsg = " + VenusActivity.startParam);
     	//TODO
     }
+    
+    public static int getCurNetworkType()
+    {
+    	int nType = -1;
+    	NetworkInfo ni = Util.getConnectivityManager().getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+    	if(ni != null)
+    		nType = ni.getSubtype();
+    	return nType;
+    }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	public static void OpenSettingForType(String strType) {
+		// TODO Auto-generated method stub
+		if(strType.trim().equalsIgnoreCase("GPS"))
+		{
+			Intent intent = new Intent();
+	        intent.setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+	        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	        try
+	        {
+	        	VenusActivity.getInstance().appActivity.startActivity(intent);
+	                   
+	           
+	        } catch(ActivityNotFoundException ex)
+	        {
+	            intent.setAction(Settings.ACTION_SETTINGS);
+	            try {
+	            	VenusActivity.getInstance().appActivity.startActivity(intent);
+	            } catch (Exception e) {
+	            }
+	        }
+		}
+	}
 }
