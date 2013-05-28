@@ -131,7 +131,7 @@
                                  extendstyle="1111" style='autosize'/>
                         <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
                             extendstyle="1111" style='autosize' >
-                            <label name='cityName' rect="-10,5,90,25" text="全省" font-family='微软雅黑'
+                            <label name='dimension' rect="-10,5,110,25" text="全省" font-family='微软雅黑'
                                     extendstyle="1111" font-size="22" h-align="center" v-align="center"
                                     color="#e33a10" />
                             <label name='change1' rect="87,5,150,25" text="铁塔总基数" font-family='微软雅黑'
@@ -286,9 +286,9 @@ function cityOn(sprite)
     Sprite:setProperty(cityTxt,'color','#ffffff')
     Sprite:setProperty(companyTxt,'color','#5a5a5a')
     ---设置列表项名称
-    local cityName = Sprite:findChild(rootSprite,'cityName')
+    local dimension = Sprite:findChild(rootSprite,'dimension')
     local cityName1 = Sprite:findChild(rootSprite,'cityName1')
-    Sprite:setProperty(cityName,'text','市公司')
+    Sprite:setProperty(dimension,'text','市公司')
     Sprite:setProperty(cityName1,'text','市公司')
     --设置两列不显示
     local change1 = Sprite:findChild(rootSprite,'change1')
@@ -323,9 +323,9 @@ function companyOn(sprite)
     Sprite:setProperty(cityTxt,'color','#5a5a5a')
     Sprite:setProperty(companyTxt,'color','#ffffff') 
     ---设置列表项名称
-    local cityName = Sprite:findChild(rootSprite,'cityName')
+    local dimension = Sprite:findChild(rootSprite,'dimension')
     local cityName1 = Sprite:findChild(rootSprite,'cityName1')
-    Sprite:setProperty(cityName,'text','代维单位')
+    Sprite:setProperty(dimension,'text',"       "..'代维单位')
     Sprite:setProperty(cityName1,'text','代维单位')
     --设置两列不显示
     local change1 = Sprite:findChild(rootSprite,'change1')
@@ -751,10 +751,13 @@ function cityItemBtnOnselect(sprite)
     local companyBtn = Sprite:findChild(rootSprite,'companyBtn')            -- 页面标题
     local regionid = Sprite:getData(sprite)
     g_regionid = regionid
+    local regionText = Sprite:getText(dimName)
     if string.sub(g_regionid,5) ~= '00' and g_regionid ~=''  then
         companyOn(companyBtn)
+        Sprite:setProperty(dimension, 'text', regionText)
+        Sprite:setProperty(mainTitle, 'text', '资源代维('..regionText..')')
     else
-        local regionText = Sprite:getText(dimName)
+        
         Sprite:setProperty(dimension, 'text', regionText)
         Sprite:setProperty(mainTitle, 'text', '资源代维('..regionText..')')
         g_regionname = regionText
