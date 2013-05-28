@@ -473,19 +473,16 @@ public class ContactsObserver {
 		}
 		return contactsList;
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	private String getContactsHighSDK()
 	{
-		String contactsList = "";
+		StringBuffer contactsList = new StringBuffer("");
 		String oldname = "";
 		String oldphone = "";
-		String oldfullSpell = "";
-		String line = "";
+		String oldsortkey = "";
 		if(Contact_Map == null) Contact_Map = new HashMap<String, String>();
 		Contact_Map.clear();
-		HashMap<String, String> name_Map = new HashMap<String, String>();
-		name_Map.clear();
 		Cursor phones = venusHandle.appActivity.getContentResolver().query(
 				ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
 				null,
@@ -500,55 +497,46 @@ public class ContactsObserver {
 				phones.moveToNext();
 				String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
 				String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-				String contactId = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
-				String firstspell = PinYinUtil.getFirstSpell(name);
-				String fullspell = PinYinUtil.getFullSpell(name);
-				String groupId =  VenusActivity.getGroupId(contactId);
-				String groupName = VenusActivity.getGroupName(groupId); 
-				if (i == 0) {
-					line = phone + ";" + groupName + ";" + fullspell + ";" + firstspell;
-					if ( c == 1) {
-						Contact_Map.put(fullspell + "###" + i, line);
-						name_Map.put(fullspell + "###" + i, name);
-					}	
-				}else if (i == c - 1) {
-					if (oldname.equals(name)) {
-						line = oldphone + ":" + line;
-					}else {
-						line = phone + ";" + groupName + ";" + fullspell + ";" + firstspell;
-					}
-					Contact_Map.put(fullspell + "###" + i, line);
-					name_Map.put(fullspell + "###" + i, name);
-				}else if (oldname.equals(name)) {
-					line = oldphone + ":" + line;
-				}else {
-					Contact_Map.put(oldfullSpell + "###" + i, line);
-					name_Map.put(oldfullSpell + "###" + i, oldname);
-					line = phone + ";" + groupName + ";" + fullspell + ";" + firstspell;
+				String sortkey = phones.getString(phones.getColumnIndex("sort_key"));
+				if(!oldname.equals("") && !name.equals("") && !oldname.equals(name))
+				{
+					oldphone = oldphone + "\n" + oldsortkey;
+					Contact_Map.put(oldsortkey + "##" + i, oldname + "\n" + oldphone + "\n");
+					oldname = "";
+					oldphone = "";
+					oldsortkey = "";
 				}
-				oldphone = phone;
-				oldname = name;
-				oldfullSpell = fullspell;
-			}
-
-			//Sort the contacts by full spell
-			Comparator cmp = Collator.getInstance(java.util.Locale.CHINA);
-			int elementN = Contact_Map.size();
-			int j = 0;
-			String[] nameArray = new String[elementN];
-			Set<String> set = Contact_Map.keySet();
-			for(String key : set)
-			{
-				nameArray[j++] = key;
-			}
-			Arrays.sort(nameArray, cmp);
-	
-			//Build the contacts list
-			for(j=0; j<elementN; j++)
-			{
-				contactsList = contactsList + name_Map.get(nameArray[j]) + "\n" + Contact_Map.get(nameArray[j]) + "\n";
+				oldname = name; 
+				oldsortkey = sortkey; 
+				if(!oldphone.equals(""))
+					oldphone += "," + phone;
+				else
+					oldphone += phone; 
 			}
 		}
-		return contactsList;
+		phones.close();
+		if(!oldname.equals(""))
+		{
+			Contact_Map.put(oldsortkey + "##" + c, oldname + "\n" + oldphone + "\n" + oldsortkey + "\n");
+		}
+
+		//Sort the contacts by name
+		Comparator cmp = Collator.getInstance(java.util.Locale.CHINA);
+		int elementN = Contact_Map.size();
+		int j = 0;
+		String[] nameArray = new String[elementN];
+		Set<String> set = Contact_Map.keySet();
+		for(String key : set)
+		{
+			nameArray[j++] = key;
+		}
+		Arrays.sort(nameArray, cmp);
+
+		//Build the contacts list
+		for(j=0; j<elementN; j++)
+		{
+			contactsList.append(Contact_Map.get(nameArray[j]));
+		}
+		return contactsList.toString();
 	}
 }
