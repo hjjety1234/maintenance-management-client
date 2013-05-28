@@ -31,7 +31,7 @@
                         <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
                     </button>  
-                    <scrolltext name="title" rect="105,5,280,40" text="资源代维" font-family='微软雅黑'
+                    <scrolltext name="mainTitle" rect="105,5,280,40" text="资源代维（全省）" font-family='微软雅黑'
                         extendstyle="1111" font-size="36" h-align="center" v-align="center"
                         color="#ffffff" scroll="true"  step="2" />
                 </node>
@@ -131,7 +131,7 @@
                                  extendstyle="1111" style='autosize'/>
                         <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
                             extendstyle="1111" style='autosize' >
-                            <label name='cityName' rect="-10,5,90,25" text="市公司" font-family='微软雅黑'
+                            <label name='dimension' rect="-10,5,90,25" text="全省" font-family='微软雅黑'
                                     extendstyle="1111" font-size="22" h-align="center" v-align="center"
                                     color="#e33a10" />
                             <label name='change1' rect="85,5,150,25" text="家客总户数" font-family='微软雅黑'
@@ -165,9 +165,12 @@
                         visible="false" enable="false" active="false" extendstyle="1111">
                             <image name="listItem_bg" rect="31,0,418,38" src=""
                             extendstyle="1111" style='autosize' />
-                            <scrolltext  name='dimension' rect="40,5,80,25" text="市公司" font-family='微软雅黑'
+                             <button name="dimBtn" rect="30,0,120,38" OnSelect="cityItemBtnOnselect" enable='true'
+                                extendstyle="1111" data='' >
+                                <scrolltext  name='dimName' rect="20,5,100,25" text="" font-family='微软雅黑'
                                     extendstyle="1111" font-size="20" h-align="left" v-align="center"
                                     color="#5a5a5a" step="2" scroll="true"/>
+                            </button>
                             <label name='home' rect="130,5,80,25" text="100" font-family='微软雅黑'
                                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
                                     color="#5a5a5a" />
@@ -208,7 +211,7 @@ require 'com_wondertek_dw.common.framework'
 require 'framework.umsagent'
 local rootSprite
 local city_data
-local dimension = 'city' --初始市公司维度
+local g_dimension ='city' --初始市公司维度
 local g_sum
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -267,7 +270,7 @@ end
 
 -------点击市公司统计标签
 function cityOn(sprite)
-     dimension = Sprite:getData(sprite)
+     g_dimension = Sprite:getData(sprite)
     --设置两个button背景色和字体
     local cityImg = Sprite:findChild(rootSprite,'cityImg')
     local companyImg = Sprite:findChild(rootSprite,'companyImg')
@@ -284,12 +287,16 @@ function cityOn(sprite)
     Sprite:setProperty(cityName,'text','市公司')
     Sprite:setProperty(cityName1,'text','市公司')
     Sprite:setProperty(cityName2,'text','市公司')
-
-    request()
+    g_type = 0
+    g_regionid = ''
+    g_regionname = '全省'
+    local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+    Sprite:setProperty(mainTitle, 'text', '资源代维(全省)')
+    request(g_dimension)
 end
 -------点击代维单位公司统计标
 function companyOn(sprite)
-    dimension = Sprite:getData(sprite)
+    g_dimension = Sprite:getData(sprite)
     --设置两个button背景色和字体
     local cityImg = Sprite:findChild(rootSprite,'cityImg')
     local companyImg = Sprite:findChild(rootSprite,'companyImg')
@@ -306,14 +313,29 @@ function companyOn(sprite)
     Sprite:setProperty(cityName,'text','代维单位')
     Sprite:setProperty(cityName1,'text','代维单位')
     Sprite:setProperty(cityName2,'text','代维单位')
-
+    g_type = 1
     request()
 end
 
 --获取统计数据返回地址（市公司）
 function request()
     Loading:show(rootSprite)
-    local param = 'cmd=wlbhomeresources&dimension='..dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="
+    local date = getSelectedMonth()
+    if  date =='2013-1' or date =='2013-2' then 
+        date ='2013-3'
+    end
+    local param = 'cmd=wlbhomeresources&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..date.."&regionid="
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Http:request('city_data', reqURL, 101, {useCache = false})
+end
+--获取统计数据返回地址（市公司）
+function request2(regionid)
+    Loading:show(rootSprite)
+    local date = getSelectedMonth()
+    if  date =='2013-1' or date =='2013-2' then 
+        date ='2013-3'
+    end
+    local param = 'cmd=wlbhomeresources'..'&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..date.."&regionid="..regionid
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Http:request('city_data', reqURL, 101, {useCache = false})
 end
@@ -325,6 +347,8 @@ function loadListItem(list, item, index)
        Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
     end
     -- 读取返回的数据
+    local dimName = Sprite:findChild(item,'dimName')
+    local dimBtn = Sprite:findChild(item,'dimBtn')
     local dimensionData = Sprite:findChild(item,'dimension')
     local home = Sprite:findChild(item,'home')
     local maintenance = Sprite:findChild(item,'maintenance')
@@ -335,7 +359,7 @@ function loadListItem(list, item, index)
     local fgxqsl = Sprite:findChild(item,'fgxqsl')
     local szyhs = Sprite:findChild(item,'szyhs')
     local jwhs = Sprite:findChild(item,'jwhs')
-    Sprite:setProperty(dimensionData,'text',city_data.value[index].dimension)
+    Sprite:setProperty(dimName,'text',city_data.value[index].dimension)
     Sprite:setProperty(dimension1,'text',city_data.value[index].dimension)
     Sprite:setProperty(dimension2,'text',city_data.value[index].dimension)
     Sprite:setProperty(maintenance,'text',city_data.value[index].maintenance)
@@ -343,8 +367,11 @@ function loadListItem(list, item, index)
     Sprite:setProperty(fgxqsl,'text',city_data.value[index].fgxqsl)
     Sprite:setProperty(szyhs,'text',city_data.value[index].szyhs)
     Sprite:setProperty(jwhs,'text',city_data.value[index].jwhs)
-    if dimension == 'city' then
+    if g_dimension == 'city' then
         --设置两列显示
+         local regionid = city_data.value[index].regionid
+        Sprite:setProperty(dimBtn,'data', regionid)
+        Sprite:setProperty(dimBtn,'enable', 'true')
         local cityName = Sprite:findChild(rootSprite,'cityName')
         Sprite:setProperty(cityName,'rect','-10,5,90,25')
         local change1 = Sprite:findChild(rootSprite,'change1')
@@ -362,6 +389,9 @@ function loadListItem(list, item, index)
         Sprite:setProperty(home,'text',city_data.value[index].home)
         Sprite:setProperty(ratio,'text',string.format('%.1f',city_data.value[index].ratio)..'%')
     else
+        local orgid = city_data.value[index].orgid
+        Sprite:setProperty(dimBtn,'data', orgid)
+        Sprite:setProperty(dimBtn,'enable', 'false')
         --设置两列不显示
         local cityName = Sprite:findChild(rootSprite,'cityName')
         Sprite:setProperty(cityName,'rect','3,5,100,25')
@@ -388,6 +418,8 @@ function addloadListItem(list, item, index)
        Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
     end
     -- 读取返回的数据
+    local dimName = Sprite:findChild(item,'dimName')
+    local dimBtn = Sprite:findChild(item,'dimBtn')
     local dimensionData = Sprite:findChild(item,'dimension')
     local home = Sprite:findChild(item,'home')
     local maintenance = Sprite:findChild(item,'maintenance')
@@ -398,7 +430,7 @@ function addloadListItem(list, item, index)
     local fgxqsl = Sprite:findChild(item,'fgxqsl')
     local szyhs = Sprite:findChild(item,'szyhs')
     local jwhs = Sprite:findChild(item,'jwhs')
-    Sprite:setProperty(dimensionData,'text',g_sum.dimension)
+    Sprite:setProperty(dimName,'text',g_sum.dimension)
     Sprite:setProperty(dimension1,'text',g_sum.dimension)
     Sprite:setProperty(dimension2,'text',g_sum.dimension)
     Sprite:setProperty(maintenance,'text',g_sum.maintenance)
@@ -406,8 +438,9 @@ function addloadListItem(list, item, index)
     Sprite:setProperty(fgxqsl,'text',g_sum.fgxqsl)
     Sprite:setProperty(szyhs,'text',g_sum.szyhs)
     Sprite:setProperty(jwhs,'text',g_sum.jwhs)
-    if dimension == 'city' then
+    if g_dimension == 'city' then
         --设置两列显示
+        local regionid = city_data.value[index].regionid
         local cityName = Sprite:findChild(rootSprite,'cityName')
         Sprite:setProperty(cityName,'rect','-10,5,90,25')
         local change1 = Sprite:findChild(rootSprite,'change1')
@@ -425,6 +458,7 @@ function addloadListItem(list, item, index)
         Sprite:setProperty(home,'text',g_sum.home)
         Sprite:setProperty(ratio,'text',string.format('%.1f',g_sum.ratio)..'%')
     else
+           local orgid = city_data.value[index].orgid
         --设置两列不显示
         local cityName = Sprite:findChild(rootSprite,'cityName')
         Sprite:setProperty(cityName,'rect','3,5,100,25')
@@ -642,6 +676,25 @@ function getSelectedMonth()
     local month = Sprite:getText(monthLabel)
     return year.."-"..month
 end
-
+-- 地市纬度进一步查询响应函数
+function cityItemBtnOnselect(sprite)
+    Log:write('=========qwerrrrrr============')
+    local dimName = Sprite:findChild(sprite,'dimName')                    -- 地市名称
+    local dimension = Sprite:findChild(rootSprite,'dimension')            -- 维度名称
+    local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+    local companyBtn = Sprite:findChild(rootSprite,'companyBtn')            -- 页面标题
+    local regionid = Sprite:getData(sprite)
+    g_regionid = regionid
+    if string.sub(g_regionid,5) ~= '00' and g_regionid ~=''  then
+        companyOn(companyBtn)
+    else
+        local regionText = Sprite:getText(dimName)
+        Sprite:setProperty(dimension, 'text', regionText)
+        Sprite:setProperty(mainTitle, 'text', '资源代维('..regionText..')')
+        g_regionname = regionText
+        g_dimension = 'city'
+        request2(regionid)
+    end
+end
 ]]>
 </root>
