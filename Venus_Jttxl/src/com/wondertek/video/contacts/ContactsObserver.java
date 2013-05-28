@@ -170,9 +170,9 @@ public class ContactsObserver {
 	
 	public String getEachContactsGroupInfo(String groupId)
 	{
-		String contactsList = "";
+		StringBuffer contactsList = new StringBuffer("");
 		if (groupId == null || groupId.equals(""))
-			return contactsList;
+			return contactsList.toString();
 		String groupSelection = Data.MIMETYPE + " = ?" + " AND "
 				+ GroupMembership.GROUP_ROW_ID + " = ?";
 		String[] groupSelectionArgs = new String[] {
@@ -214,12 +214,14 @@ public class ContactsObserver {
 				phones.moveToNext();
 				String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
 				String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-				contactsList = contactsList + name + "\n"+ phone + "\n";
+				// add pj
+				String sortkey = phones.getString(phones.getColumnIndex("sort_key"));
+				contactsList.append(name).append("\n").append(phone).append("\n").append(sortkey).append("\n");
 			}
 		}
 		phones.close();
 
-		return contactsList;
+		return contactsList.toString();
 	}
     
 	public void addContact(String name, String phone)
