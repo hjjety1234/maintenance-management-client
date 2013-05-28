@@ -383,7 +383,7 @@ function request()
     if  date =='2013-1' or date =='2013-2' then 
         date ='2013-3'
     end
-    local param = 'cmd=wlblineresources&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..date.."&regionid="
+    local param = 'cmd=wlblineresources&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..date.."&regionid="..g_regionid
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Http:request('city_data', reqURL, 101, {useCache = false})
 end
@@ -715,7 +715,7 @@ end
 function cityItemBtnOnselect(sprite)
     
     local dimName = Sprite:findChild(sprite,'dimName')                    -- 地市名称
-    local dimension = Sprite:findChild(rootSprite,'dimension')            -- 维度名称
+    local cityName = Sprite:findChild(rootSprite,'cityName')            -- 维度名称
     local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
     local companyBtn = Sprite:findChild(rootSprite,'companyBtn')            -- 页面标题
     local regionid = Sprite:getData(sprite)
@@ -724,7 +724,7 @@ function cityItemBtnOnselect(sprite)
         companyOn(companyBtn)
     else
         local regionText = Sprite:getText(dimName)
-        Sprite:setProperty(dimension, 'text', regionText)
+        Sprite:setProperty(cityName, 'text', regionText)
         Sprite:setProperty(mainTitle, 'text', '资源代维('..regionText..')')
         g_regionname = regionText
         g_dimension = 'city'
