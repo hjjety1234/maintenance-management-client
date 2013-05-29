@@ -301,10 +301,10 @@ function cityOn(sprite)
     local cityName1 = Sprite:findChild(rootSprite,'cityName1')
     local cityName2 = Sprite:findChild(rootSprite,'cityName2')
     local cityName3 = Sprite:findChild(rootSprite,'cityName3')
-    Sprite:setProperty(dimension,'text','市公司')
-    Sprite:setProperty(cityName1,'text','市公司')
-    Sprite:setProperty(cityName2,'text','市公司')
-    Sprite:setProperty(cityName3,'text','市公司')
+    Sprite:setProperty(dimension,'text','全省')
+    Sprite:setProperty(cityName1,'text','全省')
+    Sprite:setProperty(cityName2,'text','全省')
+    Sprite:setProperty(cityName3,'text','全省')
     --设置两列显示
     local line1 = Sprite:findChild(rootSprite,'line1')
     local ratio1 = Sprite:findChild(rootSprite,'ratio1')
@@ -373,6 +373,7 @@ function companyOn(sprite)
     Sprite:setActive(line,0)
     Sprite:setVisible(radio,0)
     Sprite:setActive(radio,0)
+      g_type = 1
     request()
 end
 
@@ -383,7 +384,7 @@ function request()
     if  date =='2013-1' or date =='2013-2' then 
         date ='2013-3'
     end
-    local param = 'cmd=wlblineresources&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..date.."&regionid="..g_regionid
+    local param = 'cmd=wlblineresources&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..date.."&regionid="
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Http:request('city_data', reqURL, 101, {useCache = false})
 end
@@ -424,7 +425,7 @@ function loadListItem(list, item, index)
     local zhudw = Sprite:findChild(item,'zhudw')
     local guand = Sprite:findChild(item,'guand')
 
-    Sprite:setProperty(dimension1,'text',city_data.value[index].dimension)
+    Sprite:setProperty(dimName,'text',city_data.value[index].dimension)
     Sprite:setProperty(dimension2,'text',city_data.value[index].dimension)
     Sprite:setProperty(dimension3,'text',city_data.value[index].dimension)
     Sprite:setProperty(maintenance,'text',string.format('%.1f',city_data.value[index].maintenance))
@@ -476,7 +477,7 @@ function addloadListItem(list, item, index)
     local jierc = Sprite:findChild(item,'jierc')
     local zhudw = Sprite:findChild(item,'zhudw')
     local guand = Sprite:findChild(item,'guand')
-    Sprite:setProperty(dimension1,'text',g_sum.dimension)
+    Sprite:setProperty(dimName,'text',g_sum.dimension)
     Sprite:setProperty(dimension2,'text',g_sum.dimension)
     Sprite:setProperty(dimension3,'text',g_sum.dimension)
     Sprite:setProperty(maintenance,'text',string.format('%.1f',g_sum.maintenance))
@@ -720,10 +721,12 @@ function cityItemBtnOnselect(sprite)
     local companyBtn = Sprite:findChild(rootSprite,'companyBtn')            -- 页面标题
     local regionid = Sprite:getData(sprite)
     g_regionid = regionid
+    local regionText = Sprite:getText(dimName)
     if string.sub(g_regionid,5) ~= '00' and g_regionid ~=''  then
         companyOn(companyBtn)
+        Sprite:setProperty(cityName, 'text', regionText)
+        Sprite:setProperty(mainTitle, 'text', '资源代维('..regionText..')')
     else
-        local regionText = Sprite:getText(dimName)
         Sprite:setProperty(cityName, 'text', regionText)
         Sprite:setProperty(mainTitle, 'text', '资源代维('..regionText..')')
         g_regionname = regionText
