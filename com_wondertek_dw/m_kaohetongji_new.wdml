@@ -32,7 +32,7 @@
                         <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
                     </button>  
-                    <scrolltext name="title" rect="105,5,280,40" text="考核统计" font-family='微软雅黑'
+                    <scrolltext name="mainTitle" rect="105,5,280,40" text="考核统计(全省)" font-family='微软雅黑'
                         extendstyle="1111" font-size="36" h-align="center" v-align="center"
                         color="#ffffff" scroll="true"  step="2" />
                 </node>
@@ -180,10 +180,12 @@
                 visible="false" enable="false" active="false" extendstyle="1111">
                 <image name="listItem_bg" rect="31,0,418,38" src=""
                     extendstyle="1111" style='autosize' />
-                <scrolltext name="dimension" rect="45,5,90,25" text="" color="#303030" 
-                    font-family='微软雅黑' font-size="20" scroll="true" h-align="left"
-                    v-align="center" style="autosize" extendstyle="1111" >
-                </scrolltext> 
+                <button name="dimBtn" rect="45,0,100,30" OnSelect="cityItemBtnOnselect" enable='false'
+                    extendstyle="1111" data='' >
+                    <scrolltext  name='dimName' rect="0,5,100,25" text="" font-family='微软雅黑'
+                        extendstyle="1111" font-size="20" h-align="left" v-align="center"
+                        color="#303030" step="2" scroll="true"/>
+                </button>
                 <label name='score' rect="300,5,160,25" text="" font-family='微软雅黑'
                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
                     color="#5a5a5a" />
@@ -197,7 +199,7 @@
                     OnSelect="cityOn" extendstyle="1111" data='city'>
                     <image name='cityImg' rect="30,10,75,37" src="file://image/city_bg.png"
                          extendstyle="1111" style='autosize'/>
-                    <label name="cityTxt" rect="20,5,95,37" text="市公司" font-family='微软雅黑'
+                    <label name="cityTxt" rect="20,5,95,37" text="全省" font-family='微软雅黑'
                         extendstyle="1111" font-size="23" h-align="center" v-align="center"
                         color="#ffffff" />
                 </button> 
@@ -214,10 +216,14 @@
             <!-- 考核信息列表项模板 -->
             <node name="listItem2" rect="0,400,480,80" border="false"
                 visible="false" enable="false" active="false" extendstyle="1111">
-                <textarea name="newCity" rect="12,0,105,70" text="" color="#303030" border="false"
-                    font-family='微软雅黑' font-size="18" h-align="center"
-                    v-align="center" style="autosize" extendstyle="1111" >
-                </textarea> 
+
+                <button name="dimBtn2" rect="12,0,105,70" OnSelect="cityItemBtnOnselect2" enable='false'
+                    extendstyle="1111" data='' >
+                    <textarea name="newCity" rect="0,0,105,70" text="" color="#303030" border="false"
+                        font-family='微软雅黑' font-size="18" h-align="center"
+                        v-align="center" style="autosize" extendstyle="1111" >
+                    </textarea> 
+                </button>
                 <shadow name='newShadow' rect="10,48,400,45" color="#916747" alpha="200" border="false"
                  extendstyle="1111"/>
                 <textarea name="newRatio" rect="345,20,90,25" text="" color="#ffffff" 
@@ -252,6 +258,9 @@ local plus = 0
 local values = 0
 local mean = 0
 local len
+local g_dimension = 'city' ----初始市公司维度
+local g_regionid = '' ----当前查询的区域编号，空为全省
+local g_regionname = '全省'  --区域名称
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -307,7 +316,7 @@ function getMaxAndMin()
         else 
             values = 240
         end
-         Log:write('2',2)
+        Log:write('2',2)
         --取平均值
         local total = 0  --计算总值
         for i=1 ,getJsonArrayCount(g_response.value)-1 do
@@ -353,10 +362,11 @@ function loadListItem(list, item, index)
         end
         -- 读取返回的数据
         local value = g_response.value
-        local dimension = Sprite:findChild(item,'dimension')         -- 地市
         local score = Sprite:findChild(item,'score')          -- 得分
         local faceName = Sprite:findChild(item,'faceName')          -- 笑脸、哭脸
-        Sprite:setProperty(dimension, 'text', value[index].dimension)
+        local dimName = Sprite:findChild(item,'dimName')   --获取名称sprite
+        local dimBtn = Sprite:findChild(item,'dimBtn')     --获取按钮
+        Sprite:setProperty(dimName,'text',value[index].dimension)
         Sprite:setProperty(score, 'text', value[index].score)
         --Log:write('----',faceName,value[index].score)
         if  tonumber(value[index].score)>=tonumber(max) then 
@@ -364,19 +374,29 @@ function loadListItem(list, item, index)
         elseif tonumber(value[index].score)<=tonumber(min) then 
             Sprite:setProperty(faceName,'src','file://image/cryface.png')
         end
+
+        if g_dimension == 'city' then
+            local regionid = value[index].regionid
+            Sprite:setProperty(dimBtn,'data', regionid)
+            Sprite:setProperty(dimBtn,'enable', 'true')
+        else
+            Sprite:setProperty(dimBtn,'enable', 'false')
+        end
     end
-    -- 读取返回的数据
+        -- 读取返回的数据
     local value = g_response.value
-    local dimension = Sprite:findChild(item,'dimension')         -- 地市
     local score = Sprite:findChild(item,'score')          -- 得分
     local faceName = Sprite:findChild(item,'faceName')          -- 笑脸、哭脸
-    Sprite:setProperty(dimension, 'text', value[index].dimension)
+    local dimName = Sprite:findChild(item,'dimName')   --获取名称sprite
+    Sprite:setProperty(dimName, 'text', value[index].dimension)
     Sprite:setProperty(score, 'text', string.format('%.1f',value[index].score))
 
 end
+
 function loadListItem2(list, item, index)
     Log:write('len+++++++',len)
     -- 读取返回的数据
+    local dimBtn2 = Sprite:findChild(item,'dimBtn2')     --获取按钮
     local value = g_response.value
     local newCity = Sprite:findChild(item,'newCity')         -- 地市
     local newRatio = Sprite:findChild(item,'newRatio')         -- 巡检率
@@ -386,6 +406,13 @@ function loadListItem2(list, item, index)
     Sprite:setProperty(newCity, 'text', value[index+1].dimension)
     Sprite:setProperty(newRatio, 'text', string.format('%.1f',value[index+1].score))
     Log:write('shadownum',shadownum)
+    if g_dimension == 'city' then
+        local regionid = value[index+1].regionid
+        Sprite:setProperty(dimBtn2,'data', regionid)
+        Sprite:setProperty(dimBtn2,'enable', 'true')
+    else
+        Sprite:setProperty(dimBtn2,'enable', 'false')
+    end
     if len <=2 then 
         local meanNode  =Sprite:findChild(rootSprite,'meanNode')
         local meanName  =Sprite:findChild(item,'meanName')
@@ -421,7 +448,6 @@ function loadListItem2(list, item, index)
     Sprite:setRect(meanImage,meannum-4,20,3,80)
     Sprite:setRect(meanShadow,120,20,meannum-124,45)
     Log:write('total is ',getJsonArrayCount(g_response.value)-1,total,mean)
-
 
     if meannum>200 then 
         Sprite:setRect(meanRatio,meannum-50,30,80,30)
@@ -604,8 +630,8 @@ end
 -- 请求统计数据
 function request(major)
     local month = getSelectedMonth()
-    local param = string.format('cmd=wlbassessment&usercode=%s&date=%s&major=%s&page=1&pagesize=100&dimension=%s', 
-        Config:get('username'), month, major,kaohedata)
+    local param = string.format('cmd=wlbassessment&usercode=%s&date=%s&major=%s&page=1&pagesize=100&dimension=%s&regionid=%s', 
+        Config:get('username'), month, major,g_dimension,g_regionid)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     --Log:write("[request] reqURL: ", reqURL)
     Http:request('assessment', reqURL, 101, {useCache = false})
@@ -613,7 +639,7 @@ function request(major)
 end
 --切换代维公司和市公司
 function cityOn(sprite)
-    kaohedata = Sprite:getData(sprite)
+    g_dimension = Sprite:getData(sprite)
     --设置两个button背景色和字体
     local cityImg = Sprite:findChild(rootSprite,'cityImg')
     local companyImg = Sprite:findChild(rootSprite,'companyImg')
@@ -626,13 +652,17 @@ function cityOn(sprite)
     local cityName = Sprite:findChild(rootSprite,'cityName')
     Sprite:setProperty(cityName,'text','市公司')
     Sprite:setProperty(cityName,'rect','0,5,90,25')
+    g_regionid = ''
+    g_regionname = '全省'
+    local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+    Sprite:setProperty(mainTitle, 'text', '考核统计(全省)')
     request(g_major)
     Loading:show()
 end
 
 function companyOn(sprite)
 
-    kaohedata = Sprite:getData(sprite)
+    g_dimension = Sprite:getData(sprite)
 
     --Log:write('dimension',dimension)
     --设置两个button背景色和字体
@@ -644,7 +674,7 @@ function companyOn(sprite)
     Sprite:setProperty(companyImg,'src','file://image/city_bg.png')
     Sprite:setProperty(cityTxt,'color','#5a5a5a')
     Sprite:setProperty(companyTxt,'color','#ffffff') 
-    Log:write('kaohedata',kaohedata)
+    Log:write('g_dimension',g_dimension)
     local cityName = Sprite:findChild(rootSprite,'cityName')
     Sprite:setProperty(cityName,'text','代维单位')
     Sprite:setProperty(cityName,'rect','10,5,90,25')
@@ -653,37 +683,93 @@ function companyOn(sprite)
 end
 
 function msgLoad()
-        if Loading:isShow() then Loading:close() end
-        g_response = Http:jsonDecode('assessment')
-        Log:write('g_response++++',g_response)
-        Log:write('1+',1)
-        if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.code == '50' or getJsonArrayCount(g_response.value) == 0 then 
-            local meanLine = Sprite:findChild(rootSprite,'meanLine')
-            local meanNode = Sprite:findChild(rootSprite,'meanNode')
-            Sprite:setProperty(meanLine,'visible','false')
-            Sprite:setProperty(meanNode,'visible','false')
-            Dialog:show('', '暂无考核数据!', 'ok')
-        else
-            local meanLine = Sprite:findChild(rootSprite,'meanLine')
-            local meanNode = Sprite:findChild(rootSprite,'meanNode')
-            Sprite:setProperty(meanLine,'visible','true')
-            Sprite:setProperty(meanNode,'visible','true')
-        end
-        Log:write('2+',2)
-        getMaxAndMin()
-        Log:write('3+',3)
-        len = getJsonArrayCount(g_response.value)
-        --Log:write('g_response_value is ',g_response.value)
-        Log:write('len',len)
-        --Log:write('=====len===',len)
-        local listView1 = Sprite:findChild(rootSprite,'sampleList1')
-        local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
-        ListView:removeAllItems(listView1,1,1)
-        ListView:removeAllItems(listView2,1,1)
-        ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
-        ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len-1, 'loadListItem2')
-        ListView:adjust(listView1)
-        ListView:adjust(listView2)
+    if Loading:isShow() then Loading:close() end
+    g_response = Http:jsonDecode('assessment')
+    Log:write('g_response++++',g_response)
+    Log:write('1+',1)
+
+    local listView1 = Sprite:findChild(rootSprite,'sampleList1')
+    local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
+    ListView:removeAllItems(listView1,1,1)
+    ListView:removeAllItems(listView2,1,1)
+    if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.code == '50' or getJsonArrayCount(g_response.value) == 0 then 
+        local meanLine = Sprite:findChild(rootSprite,'meanLine')
+        local meanNode = Sprite:findChild(rootSprite,'meanNode')
+        Sprite:setProperty(meanLine,'visible','false')
+        Sprite:setProperty(meanNode,'visible','false')
+        Dialog:show('', '暂无考核数据!', 'ok')
+        return
+    else
+        local meanLine = Sprite:findChild(rootSprite,'meanLine')
+        local meanNode = Sprite:findChild(rootSprite,'meanNode')
+        Sprite:setProperty(meanLine,'visible','true')
+        Sprite:setProperty(meanNode,'visible','true')
+    end
+    Log:write('2+',2)
+    getMaxAndMin()
+    Log:write('3+',3)
+    len = getJsonArrayCount(g_response.value)
+    --Log:write('g_response_value is ',g_response.value)
+    Log:write('len',len)
+    --Log:write('=====len===',len)
+
+    ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
+    ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len-1, 'loadListItem2')
+    ListView:adjust(listView1)
+    ListView:adjust(listView2)
 end
+
+-- 地市纬度进一步查询响应函数
+function cityItemBtnOnselect(sprite)
+    Log:write("cityItemBtnOnselect")
+    local dimName = Sprite:findChild(sprite,'dimName')                    -- 地市名称
+    local cityName = Sprite:findChild(rootSprite,'cityName')            -- 维度名称
+    local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+    local companyBtn = Sprite:findChild(rootSprite,'companyBtn')            -- 按代维公司按钮
+    local regionid = Sprite:getData(sprite)
+    g_regionid = regionid
+    if string.sub(g_regionid,5) ~= '00' and g_regionid ~=''  then
+        local regionText = Sprite:getText(dimName)
+        Sprite:setProperty(cityName, 'text', regionText)
+        g_regionname = regionText
+        Sprite:setProperty(mainTitle, 'text', '考核统计('..regionText..')')
+        companyOn(companyBtn)
+    else
+        local regionText = Sprite:getText(dimName)
+        Sprite:setProperty(cityName, 'text', regionText)
+        Sprite:setProperty(mainTitle, 'text', '考核统计('..regionText..')')
+        g_regionname = regionText
+        g_dimension = 'city'
+        Loading:show(rootSprite)
+        request(g_major)
+    end
+end
+
+-- 地市纬度进一步查询响应函数
+function cityItemBtnOnselect2(sprite)
+    Log:write("cityItemBtnOnselect")
+    local newCity = Sprite:findChild(sprite,'newCity')                    -- 地市名称
+    local cityName = Sprite:findChild(rootSprite,'cityName')            -- 维度名称
+    local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+    local companyBtn = Sprite:findChild(rootSprite,'companyBtn')            -- 按代维公司按钮
+    local regionid = Sprite:getData(sprite)
+    g_regionid = regionid
+    if string.sub(g_regionid,5) ~= '00' and g_regionid ~=''  then
+        local regionText = Sprite:getText(newCity)
+        Sprite:setProperty(cityName, 'text', regionText)
+        g_regionname = regionText
+        Sprite:setProperty(mainTitle, 'text', '考核统计('..regionText..')')
+        companyOn(companyBtn)
+    else
+        local regionText = Sprite:getText(newCity)
+        Sprite:setProperty(cityName, 'text', regionText)
+        Sprite:setProperty(mainTitle, 'text', '考核统计('..regionText..')')
+        g_regionname = regionText
+        g_dimension = 'city'
+        Loading:show(rootSprite)
+        request(g_major)
+    end
+end
+
 ]]>
 </root>
