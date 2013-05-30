@@ -214,7 +214,7 @@ function bodyOnSpriteEvent(msg, param)
       --  Loading:show()
         UmsAgent:OnActivate(string.match(Alias.m_renchepeizhi, 
             'MODULE:\\(.*)'), "人车配置（代维）")
-        local dateData=getSelectedMonth()
+        local dateData= getSelectedMonth()
         local param = 'cmd=wlbcompanyrc&page=1&pagesize=50&usercode='..Config:get('username').."&date="..dateData
         local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
         Log:write('reqURL: ',reqURL)
@@ -226,8 +226,8 @@ end
 
 -- 插件消息方法
 function bodyOnPluginEvent(msg, param)
-  --  if Loading:isShow() then Loading:close() end 
     if msg == 101 then
+        if Loading:isShow() then Loading:close() end 
         renyuandata = Http:jsonDecode('renyuandata')
         Log:write("人员信息",renyuandata )
         OnSelectShowMap()
@@ -444,7 +444,7 @@ function prevMonthOnSelect(sprite)
     Sprite:setProperty(yearLabel, "text", tostring(year))
     Sprite:setProperty(monthLabel, "text", tostring(month))
     date = getSelectedMonth()
-    request()
+    request(date)
 end
 
 -- 下个月份
@@ -462,7 +462,7 @@ function nextMonthOnSelect(sprite)
     Sprite:setProperty(yearLabel, "text", tostring(year))
     Sprite:setProperty(monthLabel, "text", tostring(month))
     date = getSelectedMonth()
-    request()
+    request(date)
 end
 
 -- 获取当前选择的月份
@@ -472,6 +472,15 @@ function getSelectedMonth()
     local year = Sprite:getText(yearLabel)
     local month = Sprite:getText(monthLabel)
     return year.."-"..month
+end
+--获取统计数据返回地址（按地市）
+function request(date)
+    Loading:show(rootSprite)
+    Log:write("当前月份",date)
+    local param = 'cmd=wlbcompanyrc&page=1&pagesize=50&usercode='..Config:get('username').."&date="..date
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Log:write('reqURL1010110: ',reqURL)
+    Http:request('renyuandata', reqURL, 101, {useCache = false})
 end
 ]]>
 </root>

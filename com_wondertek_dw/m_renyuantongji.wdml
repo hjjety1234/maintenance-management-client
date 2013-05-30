@@ -327,7 +327,7 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_renyuantongji, 'MODULE:\\(.*)'), "人员统计")
-        local dateData=getSelectedMonth()
+        local dateData = getSelectedMonth()
         Log:write("当前月份",dateData)
         local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode='..Config:get('username').."&date="..dateData
         local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
@@ -577,7 +577,8 @@ function prevMonthOnSelect(sprite)
     Sprite:setProperty(yearLabel, "text", tostring(year))
     Sprite:setProperty(monthLabel, "text", tostring(month))
     date = getSelectedMonth()
-    request()
+    request(date)
+  
 end
 
 -- 下个月份
@@ -595,7 +596,8 @@ function nextMonthOnSelect(sprite)
     Sprite:setProperty(yearLabel, "text", tostring(year))
     Sprite:setProperty(monthLabel, "text", tostring(month))
     date = getSelectedMonth()
-    request()
+    request(date)
+  
 end
 
 -- 获取当前选择的月份
@@ -605,6 +607,15 @@ function getSelectedMonth()
     local year = Sprite:getText(yearLabel)
     local month = Sprite:getText(monthLabel)
     return year.."-"..month
+end
+--获取统计数据返回地址（按地市）
+function request(date)
+    Loading:show(rootSprite)
+    Log:write("当前月份",date)
+    local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode='..Config:get('username').."&date="..date
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Log:write("reqURLreqURL11111133333",reqURL)
+    Http:request('renyuandata', reqURL, 101, {useCache = false})
 end
     ]]>
 </root>
