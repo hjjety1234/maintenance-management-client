@@ -32,7 +32,7 @@
                         <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
                     </button>  
-                    <scrolltext name="title" rect="105,5,280,40" text="巡检完成情况" font-family='微软雅黑'
+                    <scrolltext name="mainTitle" rect="105,5,280,40" text="巡检完成情况(全省)" font-family='微软雅黑'
                         extendstyle="1111" font-size="36" h-align="center" v-align="center"
                         color="#ffffff" scroll="true"  step="2" />
                 </node>
@@ -126,7 +126,7 @@
                         OnSelect="cityOn" extendstyle="1111" data='city'>
                         <image name='cityImg' rect="30,10,75,37" src="file://image/city_bg.png"
                              extendstyle="1111" style='autosize'/>
-                        <label name="cityTxt" rect="20,5,95,37" text="市公司" font-family='微软雅黑'
+                        <label name="cityTxt" rect="20,5,95,37" text="全省" font-family='微软雅黑'
                             extendstyle="1111" font-size="23" h-align="center" v-align="center"
                             color="#ffffff" />
                     </button> 
@@ -165,7 +165,7 @@
                             <image name="listButtonImage" rect="31,9,418,38" 
                                 src="file://image/ziyuan_bg.png"
                                 extendstyle="1111" style='autosize' >
-                                <label name='cityName' rect="0,5,100,25" text="市公司" font-family='微软雅黑'
+                                <label name='dimension' rect="0,5,100,25" text="全省" font-family='微软雅黑'
                                     extendstyle="1111" font-size="21" h-align="center" v-align="center"
                                     color="#e33a10" />
                                 <label rect="60,5,160,25" text="计划站点" font-family='微软雅黑'
@@ -208,10 +208,12 @@
                 visible="false" enable="false" active="false" extendstyle="1111">
                 <image name="listItem_bg" rect="31,0,418,38" src=""
                     extendstyle="1111" style='autosize' />
-                <scrolltext name="dimension" rect="45,5,90,25" text="" color="#303030" 
-                    font-family='微软雅黑' font-size="20" scroll="true" h-align="left"
-                    v-align="center" style="autosize" extendstyle="1111" >
-                </scrolltext> 
+                <button name="dimBtn" rect="30,0,120,38" OnSelect="cityItemBtnOnselect" enable='true'
+                    extendstyle="1111" data='' >
+                 <scrolltext  name='dimName' rect="20,5,100,25" text="" font-family='微软雅黑'
+                    extendstyle="1111" font-size="20" h-align="left" v-align="center"
+                       color="#5a5a5a" step="2" scroll="true"/>
+                </button>
                 <label name='plan' rect="75,5,180,25" text="100" font-family='微软雅黑'
                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
                     color="#5a5a5a" />
@@ -227,10 +229,13 @@
             <!-- 考核信息列表项模板 -->
             <node name="listItem2" rect="0,400,480,80" border="false"
                 visible="false" enable="false" active="false" extendstyle="1111">
-                <textarea name="newCity" rect="8,22,120,70" text="" color="#303030" border="false"
+                <button name="newCityBtn" rect="30,0,120,38" OnSelect="newCityBtnOnselect" 
+                    extendstyle="1111" data='' >
+                  <textarea name="newCity" rect="0,22,100,70" text="" color="#303030" border="false"
                     font-family='微软雅黑' font-size="17" h-align="center"
                     v-align="top" style="autosize" extendstyle="1111" >
-                </textarea> 
+                  </textarea> 
+                </button>
                 <shadow name='newShadow' rect="10,48,400,30" color="#a93446" alpha="200" border="false"
                  extendstyle="1111"/>
                 <textarea name="newRatio" rect="345,20,90,25" text="" color="#ffffff" 
@@ -258,7 +263,7 @@ local meanNum = 0
 local spendTime = 0 --从季度初到结束耗费的日期
 local currentYear = 0  --当前年份
 local currentMonth = 0 --当前月份
-
+local g_dimension ='city' --初始市公司维度
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -305,7 +310,7 @@ function addSumToListItem( list, item, index )
     local newShadow = Sprite:findChild(item,'newShadow')         -- 背景色
     local meanName = Sprite:findChild(item,'meanName')         -- 平均线
     local averageValue = spendTime/90*100
-    Log:write('进度完成率',averageValue)
+   
     local shadownum = math.floor(tonumber(string.format('%.2f',averageValue))*3.4)
     meanNum = shadownum+120
     Sprite:setProperty(newCity, 'text', '计划进度')
@@ -346,11 +351,11 @@ function addSumToListItem1( list, item, index )
     end
     -- 读取返回的数据
     local value = g_response.value
-    local dimension = Sprite:findChild(item,'dimension')         -- 地市
+    local dimName = Sprite:findChild(item,'dimName')         -- 地市
     local plan = Sprite:findChild(item,'plan')        -- 计划巡检站点
     local complete = Sprite:findChild(item,'complete')          -- 实际巡检站点
     local ratio = Sprite:findChild(item,'ratio')          -- 巡检率
-    Sprite:setProperty(dimension, 'text', g_sum.dimension)
+    Sprite:setProperty(dimName, 'text', g_sum.dimension)
     Sprite:setProperty(plan, 'text', g_sum.plan)
     Sprite:setProperty(complete, 'text', g_sum.complete)
     Sprite:setProperty(ratio, 'text', string.format('%.2f',g_sum.ratio).."%")
@@ -380,14 +385,24 @@ function loadListItem(list, item, index)
     end
     -- 读取返回的数据
     local value = g_response.value
-    local dimension = Sprite:findChild(item,'dimension')         -- 地市
+    local dimBtn = Sprite:findChild(item,'dimBtn')
+    local dimName = Sprite:findChild(item,'dimName')         -- 地市
     local plan = Sprite:findChild(item,'plan')        -- 计划巡检站点
     local complete = Sprite:findChild(item,'complete')          -- 实际巡检站点
     local ratio = Sprite:findChild(item,'ratio')          -- 巡检率
-    Sprite:setProperty(dimension, 'text', value[index].dimension)
+    Sprite:setProperty(dimName, 'text', value[index].dimension)
     Sprite:setProperty(plan, 'text', value[index].plan)
     Sprite:setProperty(complete, 'text', value[index].complete)
     Sprite:setProperty(ratio, 'text', string.format('%.2f',value[index].ratio).."%")
+    if g_dimension == 'city' then
+        local regionid = value[index].regionid
+        Sprite:setProperty(dimBtn,'data', regionid)
+        Sprite:setProperty(dimBtn,'enable', 'true')
+    else
+        local orgid = value[index].orgid
+        Sprite:setProperty(dimBtn,'data', orgid)
+        Sprite:setProperty(dimBtn,'enable', 'false')
+    end
     -- 前三名显示笑脸，后三名显示哭脸
     showRank1(item, index)
 end
@@ -396,6 +411,7 @@ function loadListItem2(list, item, index)
     Sprite:setRect(item, 0, 0, 480, 60)
     -- 读取返回的数据
     local value = g_response.value
+    local newCityBtn = Sprite:findChild(item,'newCityBtn')
     local newCity = Sprite:findChild(item,'newCity')         -- 地市
     local newRatio = Sprite:findChild(item,'newRatio')         -- 巡检率
     local newShadow = Sprite:findChild(item,'newShadow')         -- 背景色
@@ -403,7 +419,15 @@ function loadListItem2(list, item, index)
     Sprite:setProperty(newCity, 'text', value[index].dimension)
     Sprite:setProperty(newRatio, 'text', string.format('%.2f',value[index].ratio).."%")
     Sprite:setRect(newShadow,120,10,shadownum,45)
-    Log:write('shadownum',shadownum)
+    if g_dimension == 'city' then
+        local regionid = value[index].regionid
+        Sprite:setProperty(newCityBtn,'data', regionid)
+        Sprite:setProperty(newCityBtn,'enable', 'true')
+    else
+        local orgid = value[index].orgid
+        Sprite:setProperty(newCityBtn,'data', orgid)
+        Sprite:setProperty(newCityBtn,'enable', 'false')
+    end
     --平均线
     local meanName = Sprite:findChild(item,'meanName')         -- 平均线
     Sprite:setRect(meanName,meanNum,0,3,60)
@@ -439,17 +463,14 @@ function showRank1(item, index)
     if ratio=='' or ratio==nil  then 
         ratio=0
     end
-
-    --Log:write('当前巡检率的值',ratio)
     -- 统计巡检率的排名
     local rank = 1
     for i=0,getJsonArrayCount(g_response.value)-1 do
         local compare = g_response.value[i].ratio
-    --Log:write('compare',compare)
+ 
         if tonumber(ratio) < tonumber(compare) then 
             rank =  rank + 1
         end 
-    --Log:write('排名',rank)
     end 
     -- 获取笑脸和哭脸的Sprite
     local faceName = Sprite:findChild(item, 'faceName')
@@ -459,9 +480,7 @@ function showRank1(item, index)
     elseif getJsonArrayCount(g_response.value) - rank <= 2 or ratio==0 then
         Sprite:setProperty(faceName, 'src', 'file://image/cryface.png')
     end
-    --[[if ratio >= 100.0 then 
-        Sprite:setProperty(faceName, 'src', 'file://image/smileface.png')
-    end--]]
+    
 end
 -- 计划巡检站点排序
 function doPlanSort(sprite)
@@ -711,6 +730,9 @@ end
 ---------------------------------------服务端请求函数--------------------------------
 -- 选择专业消息处理
 function OnMajorSelect(sprite)
+    local dimension = Sprite:findChild(rootSprite,'dimension')
+    Sprite:setProperty(dimension,'text','全省')
+    Sprite:setRect(dimension,0,5,70,25)
     local data = Sprite:getData(sprite)
     Log:write("[OnMajorSelect] data: ", data)
     if data == nil then 
@@ -751,20 +773,29 @@ function setMajorSelectOn(sprite)
     Sprite:setProperty(group, 'src', 'file://image/major.png')
     Sprite:setProperty(home, 'src', 'file://image/major.png')
     Sprite:setProperty(tower, 'src', 'file://image/major.png')
-
     Sprite:setProperty(sprite, 'src', 'file://image/major_on.png')
 end
 
 -- 请求统计数据
 function request(major)
     local month = getSelectedMonth()
-    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=%s&page=1&pagesize=100&dimension=%s', 
+    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=%s&page=1&pagesize=100&dimension=%s&regionid=', 
         Config:get('username'), month, major,xunjiandata)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
-    --Log:write("[request] reqURL: ", reqURL)
+   
     UmsAgent:onLoadStart()
     Http:request('patrol', reqURL, 101, {useCache = false})
     Loading:show()
+end
+--获取统计数据返回地址（市公司）
+function request2(g_major,regionid)
+    Loading:show(rootSprite)
+    local date = getSelectedMonth()
+    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=%s&page=1&pagesize=100&dimension=%s&regionid=%s', 
+        Config:get('username'), date, g_major,xunjiandata,regionid)
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Log:write("巡检维度请求地址",reqURL)
+    Http:request('patrol', reqURL, 101, {useCache = false})
 end
 --切换代维公司和市公司
 function cityOn(sprite)
@@ -778,15 +809,19 @@ function cityOn(sprite)
     Sprite:setProperty(companyImg,'src','file://image/content_center.png')
     Sprite:setProperty(cityTxt,'color','#ffffff')
     Sprite:setProperty(companyTxt,'color','#5a5a5a')
-    local cityName = Sprite:findChild(rootSprite,'cityName')
-    Sprite:setProperty(cityName,'text','市公司')
-    Sprite:setRect(cityName,0,5,70,25)
+    local dimension = Sprite:findChild(rootSprite,'dimension')
+    Sprite:setProperty(dimension,'text','全省')
+    Sprite:setRect(dimension,0,5,70,25)
+    g_type = 0
+    g_regionid = ''
+    g_regionname = '全省'
+    local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+    Sprite:setProperty(mainTitle, 'text', '资源代维(全省)')
     request(g_major)
 end
 
 function companyOn(sprite)
     xunjiandata = Sprite:getData(sprite)
-    --Log:write('dimension',dimension)
     --设置两个button背景色和字体
     local cityImg = Sprite:findChild(rootSprite,'cityImg')
     local companyImg = Sprite:findChild(rootSprite,'companyImg')
@@ -796,9 +831,10 @@ function companyOn(sprite)
     Sprite:setProperty(companyImg,'src','file://image/city_bg.png')
     Sprite:setProperty(cityTxt,'color','#5a5a5a')
     Sprite:setProperty(companyTxt,'color','#ffffff') 
-    local cityName = Sprite:findChild(rootSprite,'cityName')
-    Sprite:setProperty(cityName,'text','代维单位')
-    Sprite:setRect(cityName,10,5,70,25)
+    local dimension = Sprite:findChild(rootSprite,'dimension')
+    Sprite:setProperty(dimension,'text','代维单位')
+    Sprite:setRect(dimension,10,5,70,25)
+    g_type = 1
     request(g_major)
 end
 
@@ -806,7 +842,7 @@ end
 function msgLoad()
     if Loading:isShow() then Loading:close() end
         g_response = Http:jsonDecode('patrol')
-        --Log:write('[bodyOnPluginEvent] g_response', g_response)
+        Log:write("巡检完成",g_response)
         if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.value == nil or g_response.code == '50' or getJsonArrayCount(g_response.value) == 0 then 
             Dialog:show('', '暂无巡检数据!', 'ok')
             local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
@@ -815,8 +851,6 @@ function msgLoad()
             ListView:removeAllItems(listView2, 1, 1)
         end
         local len = getJsonArrayCount(g_response.value)
-        Log:write('len+++++',len)
-        --Log:write("g_response.value", g_response.value)
 
         g_sum = g_response.value[len - 1]
         g_response.value[len - 1] = nil
@@ -835,6 +869,50 @@ function msgLoad()
             len - 1, 'loadListItem2')
         ListView:adjust(listView1)
         ListView:adjust(listView2)
+end
+
+-- 地市纬度进一步查询响应函数
+function cityItemBtnOnselect(sprite)
+    local dimName = Sprite:findChild(sprite,'dimName')                    -- 地市名称
+    local dimension = Sprite:findChild(rootSprite,'dimension')            -- 维度名称
+    local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+    local companyBtn = Sprite:findChild(rootSprite,'companyBtn')            -- 页面标题
+    local regionid = Sprite:getData(sprite)
+    Log:write("获取不到吗",g_major)
+    g_regionid = regionid
+    local regionText = Sprite:getText(dimName)
+    if string.sub(g_regionid,5) ~= '00' and g_regionid ~=''  then
+        companyOn(companyBtn)
+        Sprite:setProperty(dimension, 'text', regionText)
+        Sprite:setProperty(mainTitle, 'text', '巡检完成情况('..regionText..')')
+    else
+        Sprite:setProperty(dimension, 'text', regionText)
+        Sprite:setProperty(mainTitle, 'text', '巡检完成情况('..regionText..')')
+        g_regionname = regionText
+        g_dimension = 'city'
+        request2(g_major,regionid)
+    end
+end
+function newCityBtnOnselect(sprite)
+    local newCity = Sprite:findChild(sprite,'newCity')
+    local dimension = Sprite:findChild(rootSprite,'dimension')            -- 维度名称
+    local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+    local companyBtn = Sprite:findChild(rootSprite,'companyBtn')   
+    local regionid = Sprite:getData(sprite)
+    local regionText = Sprite:getText(newCity)
+    g_regionid = regionid
+     if string.sub(g_regionid,5) ~= '00' and g_regionid ~=''  then
+       companyOn(companyBtn)
+       Sprite:setProperty(dimension, 'text', regionText)
+       Sprite:setProperty(mainTitle, 'text', '巡检完成情况('..regionText..')')
+    else
+       Sprite:setProperty(dimension, 'text', regionText)
+       Sprite:setProperty(mainTitle, 'text', '巡检完成情况('..regionText..')')
+       g_regionname = regionText
+       g_dimension = 'city'
+       request2(g_major,regionid)
+    end
+
 end
 ]]>
 </root>
