@@ -164,6 +164,7 @@ local g_updateMethod = 0            -- 更新方法：0为全新升级，1为差
 
 local g_downloadTime = 0            -- 记录下载所花的时间
 local g_progressWidth = 154         -- 进度条长度
+--local appkey = '5af2f40e1bf4e13cdbafbea1057affd0'
 
 
 ---------------------------------------回调函数列表--------------------------------
@@ -345,7 +346,7 @@ function checkClientVersion()
     local appKey = UmsAgent:getAppKey()
     local appVer = Config:get('app_version')
     local requestURL = string.format('http://%s/webcloud/sso/sso_upgrade.html?appkey=%s&version=%s', 
-        webcloud, appKey, appVer)
+        webcloud, '5af2f40e1bf4e13cdbafbea1057affd0', appVer)
     Log:write('info: checkClientVersion() requestURL=', requestURL)
     Http:request('index_checkversion', requestURL, 102, {useCache = false})
 end
@@ -355,7 +356,7 @@ function doUpgrade(md5sum)
     Log:write("存在升级信息，开始升级...")
     local bDiffUpdate = true
     getDownloadPath()
-    -- g_patchUrl = "http://120.209.131.146/patch_dir/Venus_DW.patch"
+    g_patchUrl = "http://120.209.138.173:8080/resources/Venus_DW.patch"
     -- 检查差分包的URL地址
     if g_patchUrl == nil or g_patchUrl == "" then 
         Log:write("差分包的URL地址为空！")
@@ -366,6 +367,7 @@ function doUpgrade(md5sum)
         Log:write("本地文件不存在！")
         bDiffUpdate =  false
     end
+    Log:write('bDiffUpdate',bDiffUpdate)
     -- 开始升级
     if bDiffUpdate == true then
         Log:write("显示增量升级对话框")

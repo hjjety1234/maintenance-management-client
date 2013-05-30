@@ -148,10 +148,12 @@
                         visible="false" enable="false" active="false" extendstyle="1111">
                             <image name="listItem_bg" rect="31,0,418,38" src=""
                                     extendstyle="1111" style='autosize' />
-                            <scrolltext name="cityName" rect="45,5,90,25" text="" color="#303030" 
+                            <button name="dimBtn" rect="30,0,120,38" OnSelect="cityItemBtnOnselect" enable='false' extendstyle="1111" data='' >
+                                <scrolltext name="cityName" rect="45,5,90,25" text="" color="#303030" 
                                     font-family='微软雅黑' font-size="20" scroll="true" h-align="left"
                                     v-align="center" style="autosize" extendstyle="1111" >
-                            </scrolltext> 
+                                </scrolltext>
+                            </button> 
                             <label name='residential' rect="120,5,160,25" text="100" font-family='微软雅黑'
                                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
                                     color="#5a5a5a" />
@@ -199,7 +201,7 @@ local selectData = 'wlbcityquality'  --选择页签data属性,默认为市公司
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     setDefaultMonth()
-    
+  
 end
 
 -- @brief root节点消息方法
@@ -335,6 +337,10 @@ function loadListItem(list, item, index)
     Sprite:setProperty(residential,'text',string.format('%.2f',cityDataValue[index].residential).."%")
     Sprite:setProperty(fault,'text',string.format('%.1f',cityDataValue[index].fault).."%")
     Sprite:setProperty(inspection,'text',string.format('%.1f',cityDataValue[index].inspection).."%")
+    --地市维度按钮
+    local dimBtn = Sprite:findChild(item,'dimBtn') 
+    Sprite:setProperty(dimBtn,'enable','true')
+    
 end
 ----选择专业按钮
 function lineOn(sprite)
@@ -485,5 +491,21 @@ function getSelectedMonth()
     return year.."-"..month
 end
 
+-- 地市纬度进一步查询响应函数
+function cityItemBtnOnselect(sprite)
+      Log:write("质量指标地市点击")
+      local dimName = Sprite:findChild(sprite,'dimName')                    -- 地市名称
+      local dimension = Sprite:findChild(rootSprite,'dimension')            -- 维度名称
+     -- local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+      local regionid = Sprite:getData(sprite)
+     -- g_regionid = regionid
+      
+      local regionText = Sprite:getText(dimName)
+      Sprite:setProperty(dimension, 'text', regionText)
+      Sprite:setProperty(mainTitle, 'text', '质量指标('..regionText..')')
+     -- g_regionname = regionText
+     -- request2(regionid)
+     --end
+end
 ]]>
 </root>
