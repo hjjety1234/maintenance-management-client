@@ -29,6 +29,9 @@ public class DbHelper extends SQLiteOpenHelper {
 
 	// system user table
 	private static final String TABLE_SYSTEM = "tb_c_system";
+	
+	// company table
+	public static final String TABLE_COMPANY = "tb_c_company";
 
 	// Department Table Columns names
 	private static final String KEY_DEPARTMENT_ID = "department_id";
@@ -50,6 +53,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String KEY_EMPLOYEE_PICTURE = "picture";
 	private static final String KEY_EMPLOYEE_FIRSTWORD = "employee_firstword";
 	private static final String KEY_EMPLOYEE_DEPARTMENT_FAX = "department_fax";
+	private static final String KEY_EMPLOYEE_COMPANY_ID = "company_id";
 
 	// Call history table Columns names
 	private static final String KEY_CALLHIS_ID = "callhis_id";
@@ -70,6 +74,10 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String KEY_SYSTEM_EMPLOYEE_NAME = "employee_name";
 	private static final String KEY_SYSTEM_DEPARTMENT_NAME = "department_name";
 	private static final String KEY_SYSTEM_DEPARTMENT_LEVEL = "department_level";
+	
+	// company table columns names
+	private static final String KEY_COMPANY_ID = "company_id";
+	private static final String KEY_COMPANY_INDEX_LOGO = "index_logo";
 
 	private static Employee systemUser = null;
 
@@ -501,5 +509,57 @@ public class DbHelper extends SQLiteOpenHelper {
 				database.close();
 		}
 		return true;
+	}
+	
+	/**
+	 * 获取LOGO图标的名称
+	 * @return 图标名称
+	 */
+	public static String getLogoImg(String employeeId) {
+		Log.d(TAG, "[getLogoImg] employeeId: " + employeeId);
+		if (employeeId == null || employeeId.trim().equals("")) return null;
+		
+		SQLiteDatabase db = null;
+		try {
+			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, password,
+					null, SQLiteDatabase.NO_LOCALIZED_COLLATORS
+							| SQLiteDatabase.CREATE_IF_NECESSARY);
+			Cursor cursor = db.query(TABLE_EMPLOYEE,
+					new String[] { KEY_EMPLOYEE_COMPANY_ID }, 
+					KEY_EMPLOYEE_ID + "=?", new String[]{employeeId}, null, null, null);
+			
+			// try to find company id for this employee 
+			String companyId = null;
+			if (cursor != null && cursor.moveToFirst()) {
+				companyId = cursor.getString(cursor.getColumnIndex(KEY_EMPLOYEE_COMPANY_ID));
+				Log.d(TAG, "[getLogoImg] companyId: " + companyId);
+				cursor.close();
+			}
+			
+			// get this company's logo file name 
+			if (companyId != null){
+				cursor = db.query(TABLE_COMPANY, 
+						new String[] {KEY_COMPANY_INDEX_LOGO}, KEY_COMPANY_ID + "=?", 
+						new String[]{companyId}, null, null, null);
+				if (cursor != null && cursor.moveToFirst()) {
+					String indexLogo = cursor.getString(cursor.getColumnIndex(KEY_COMPANY_INDEX_LOGO));
+					cursor.close();
+					Log.i(TAG, "[getLogoImg] index logo is: " + indexLogo);
+					return indexLogo;
+				}else {
+					Log.w(TAG, "[getLogoImg] can't find index logo for company: " + companyId);
+					return null;
+				}
+			}else {
+				Log.w(TAG, "[getLogoImg] can't find company for employee: " + employeeId);
+				return null;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			if (db != null && db.isOpen())
+				db.close();
+		}
 	}
 }

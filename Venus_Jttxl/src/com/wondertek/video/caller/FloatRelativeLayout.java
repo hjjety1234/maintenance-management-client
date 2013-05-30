@@ -257,6 +257,8 @@ public class FloatRelativeLayout extends RelativeLayout {
 			if (pic.exists() == true) {
 				Log.d(TAG, "[initLayout] show custom layout.");
 				initCustomLayout();
+				ImageView iv = (ImageView)findViewById(R.id.small_logo_icon);
+				showCustomLogo(iv, employee.getEmpid());
 			} else {
 				Log.d(TAG, "[initLayout] trying to async download picture...");
 				final DownloadFileTask downloadFile = new DownloadFileTask(
@@ -275,12 +277,55 @@ public class FloatRelativeLayout extends RelativeLayout {
 						}
 					}
 				}.start();
+				ImageView iv = (ImageView)findViewById(R.id.m_logo);
+				showCustomLogo(iv, employee.getEmpid());
 			}
 		} else {
 			Log.w(TAG, "[initLayout] picture path is null.");
+			ImageView iv = (ImageView)findViewById(R.id.m_logo);
+			showCustomLogo(iv, employee.getEmpid());
+		}
+	}
+	
+	/**
+	 * 显示自定义Logo
+	 * @param iv 待显示的ImageView
+	 * @param employeeId 员工编号
+	 */
+	private void showCustomLogo(ImageView iv, String employeeId) {
+		Log.d(TAG, "[showCustomLogo] 员工编号: " + employeeId);
+		String logoImg = DbHelper.getLogoImg(employeeId);
+		if (logoImg == null) return;
+		// 获取本地图标的路径
+		String logoImgPath = Constants.LOC_PIC_DIR + logoImg;
+		File pic = new File(logoImgPath);
+		if (pic.exists() == true) {
+			// 本地LOGO文件存在，直接显示
+			Log.d(TAG, "[showCustomLogo] 本地LOGO文件已找到!");
+			Uri uri = Uri.parse(logoImgPath);
+			iv.setImageURI(uri);
+		}else {
+			// 本地LOGO文件存在，下载LOGO文件
+			Log.d(TAG, "[showCustomLogo] 本地LOGO文件未找到，尝试下载图标文件!");
+			final DownloadFileTask downloadFile = new DownloadFileTask(logoImg);
+			new Thread() {
+				@Override
+				public void run() {
+					String requestUri = downloadFile.requestResourceUri();
+					if (requestUri != null) {
+						String resourceUri = Constants.RES_PIC_URL_PREFIX
+								+ requestUri;
+						downloadFile.execute(resourceUri);
+					} else {
+						Log.w(TAG,
+								"[showCustomLogo] 获取图标URL地址失败!");
+					}
+				}
+			}.start();
 		}
 	}
 
+	
 	private void initCustomLayout() {
 		Log.d(TAG, "[initCustomLayout]");
 		// change popup window background
