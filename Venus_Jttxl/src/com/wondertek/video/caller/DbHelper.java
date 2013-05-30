@@ -78,6 +78,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	// company table columns names
 	private static final String KEY_COMPANY_ID = "company_id";
 	private static final String KEY_COMPANY_INDEX_LOGO = "index_logo";
+	private static final String KEY_COMPANY_NAME = "company_name";
 
 	private static Employee systemUser = null;
 
@@ -167,7 +168,8 @@ public class DbHelper extends SQLiteOpenHelper {
 						KEY_EMPLOYEE_NAME, KEY_DEPARTMENT_ID,
 						KEY_DEPARTMENT_NAME, KEY_EMPLOYEE_HEADSHIP_NAME,
 						KEY_EMPLOYEE_MOBILE, KEY_EMPLOYEE_PICTURE,
-						KEY_EMPLOYEE_ID, KEY_EMPLOYEE_DEPARTMENT_FAX },
+						KEY_EMPLOYEE_ID, KEY_EMPLOYEE_DEPARTMENT_FAX, 
+						KEY_EMPLOYEE_COMPANY_ID },
 						KEY_EMPLOYEE_MOBILE + "=? or " + KEY_EMPLOYEE_TEL
 								+ "=?", new String[] { number, number }, null,
 						null, null, null);
@@ -180,13 +182,25 @@ public class DbHelper extends SQLiteOpenHelper {
 				Log.d(TAG, "[getEmployee] departmentId: " + departmentId);
 				String departmentName = cursor.getString(2);
 				Log.d(TAG, "[getEmployee] departmentName: " + departmentName);
-				String qualifiedDeptName = getQualifiedDeptName(db,
-						departmentId);
-				if (qualifiedDeptName.substring(0, 1).equals("\\"))
-					qualifiedDeptName = qualifiedDeptName.substring(1,
-							qualifiedDeptName.length());
-				Log.d(TAG, "[getEmployee] qualifiedDeptName: "
-						+ qualifiedDeptName);
+				String qualifiedDeptName = "";
+				if (departmentId != null && !departmentId.trim().equals("")) {
+					qualifiedDeptName = getQualifiedDeptName(db, departmentId);
+					if (qualifiedDeptName.substring(0, 1).equals("\\"))
+						qualifiedDeptName = qualifiedDeptName.substring(1, qualifiedDeptName.length());
+				}else {
+					// no department info, see if we can find any company information
+					qualifiedDeptName = "未知群组";
+					String companyId = cursor.getString(cursor.getColumnIndex(KEY_EMPLOYEE_COMPANY_ID));
+					if (companyId != null && !companyId.equals("")) {
+						Cursor c = db.query(TABLE_COMPANY, new String[]{KEY_COMPANY_ID, KEY_COMPANY_NAME}, 
+								KEY_COMPANY_ID + "=?", new String[]{ companyId }, null, null, null);
+						if (c != null && c.moveToFirst()) {
+							qualifiedDeptName = c.getString(c.getColumnIndex(KEY_COMPANY_NAME));
+						}
+						c.close();
+					}
+				}
+				Log.d(TAG, "[getEmployee] qualifiedDeptName: " + qualifiedDeptName);
 				String headshipName = cursor.getString(3);
 				Log.d(TAG, "[getEmployee] headshipName: " + headshipName);
 				String mobile = cursor.getString(4);
@@ -319,13 +333,13 @@ public class DbHelper extends SQLiteOpenHelper {
 					Log.d(TAG, "[getSystemUser] name: " + name);
 					String departmentId = cursor.getString(1);
 					Log.d(TAG, "[getSystemUser] departmentId: " + departmentId);
-					String qualifiedDeptName = getQualifiedDeptName(db,
-							departmentId);
-					if (qualifiedDeptName.substring(0, 1).equals("\\"))
-						qualifiedDeptName = qualifiedDeptName.substring(1,
-								qualifiedDeptName.length());
-					Log.d(TAG, "[getSystemUser] qualifiedDeptName: "
-							+ qualifiedDeptName);
+					String qualifiedDeptName = "";
+					if (departmentId != null && !departmentId.trim().equals("")) {
+						qualifiedDeptName = getQualifiedDeptName(db, departmentId);
+						if (qualifiedDeptName.substring(0, 1).equals("\\"))
+							qualifiedDeptName = qualifiedDeptName.substring(1, qualifiedDeptName.length());
+					}
+					Log.d(TAG, "[getSystemUser] qualifiedDeptName: " + qualifiedDeptName);
 					String headshipName = cursor.getString(3);
 					Log.d(TAG, "[getSystemUser] headshipName: " + headshipName);
 					String mobile = cursor.getString(4);
