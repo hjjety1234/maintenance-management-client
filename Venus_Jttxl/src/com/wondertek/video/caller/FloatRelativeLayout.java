@@ -299,13 +299,13 @@ public class FloatRelativeLayout extends RelativeLayout {
 		// 获取本地图标的路径
 		String logoImgPath = Constants.LOC_PIC_DIR + logoImg;
 		File pic = new File(logoImgPath);
-		if (pic.exists() == true) {
+		if (pic.isFile() && pic.exists() == true) {
 			// 本地LOGO文件存在，直接显示
 			Log.d(TAG, "[showCustomLogo] 本地LOGO文件已找到!");
 			Uri uri = Uri.parse(logoImgPath);
 			iv.setImageURI(uri);
 		}else {
-			// 本地LOGO文件存在，下载LOGO文件
+			// 本地LOGO文件不存在，下载LOGO文件
 			Log.d(TAG, "[showCustomLogo] 本地LOGO文件未找到，尝试下载图标文件!");
 			final DownloadFileTask downloadFile = new DownloadFileTask(logoImg);
 			new Thread() {

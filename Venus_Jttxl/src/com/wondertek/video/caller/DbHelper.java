@@ -559,6 +559,7 @@ public class DbHelper extends SQLiteOpenHelper {
 					String indexLogo = cursor.getString(cursor.getColumnIndex(KEY_COMPANY_INDEX_LOGO));
 					cursor.close();
 					Log.i(TAG, "[getLogoImg] index logo is: " + indexLogo);
+					if (indexLogo != null && indexLogo.trim().equals("")) return null;
 					return indexLogo;
 				}else {
 					Log.w(TAG, "[getLogoImg] can't find index logo for company: " + companyId);
