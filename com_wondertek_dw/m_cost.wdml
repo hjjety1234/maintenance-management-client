@@ -29,7 +29,7 @@
                         <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
                     </button>  
-                    <scrolltext name="title" rect="105,5,280,40" text="费用统计" font-family='微软雅黑'
+                    <scrolltext name="mainTitle" rect="105,5,280,40" text="费用统计(全省)" font-family='微软雅黑'
                         extendstyle="1111" font-size="36" h-align="center" v-align="center"
                         color="#ffffff" scroll="true"  step="2" />
                 </node>
@@ -44,7 +44,7 @@
                     OnSelect="cityOn" extendstyle="1111" data='city'>
                     <image name='cityImg1' rect="0,0,160,49" src="file://image/city_on.png"
                          extendstyle="1111" style='autosize'/>
-                    <label name="cityTxt1" rect="0,0,160,49" text="市公司" font-family='微软雅黑'
+                    <label name="cityTxt1" rect="0,0,160,49" text="全省" font-family='微软雅黑'
                         extendstyle="1111" font-size="28" h-align="center" v-align="center"
                         color="#0062ab" />
                 </button> 
@@ -134,7 +134,7 @@
                         <listview name="sampleList" rect="0,45,480,505" extendstyle="1111" auto-scroll='true' limit='true' />
                         <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
                             extendstyle="1111" style='autosize' >
-                            <label name='dimension' rect="17,5,140,25" text="市公司" font-family='微软雅黑'
+                            <label name='dimension' rect="17,5,140,25" text="全省" font-family='微软雅黑'
                                     extendstyle="1111" font-size="22" h-align="left" v-align="center"
                                     color="#e33a10" />
                             <label name='dimension1'rect="135,5,120,25" text="工单次数" font-family='微软雅黑'
@@ -161,9 +161,13 @@
                         visible="false" enable="false" active="false" extendstyle="1111">
                             <image name="listItem_bg" rect="31,0,418,38" src=""
                             extendstyle="1111" style='autosize' />
-                            <scrolltext name='cityName' rect="50,5,130,25" text="市公司" font-family='微软雅黑'
+
+                            <button name="dimBtn" rect="50,0,130,30" OnSelect="cityItemBtnOnselect" enable='false'
+                                extendstyle="1111" data='' >
+                                <scrolltext  name='dimName' rect="0,5,130,25" text="" font-family='微软雅黑'
                                     extendstyle="1111" font-size="20" h-align="left" v-align="center"
-                                    color="#5a5a5a" step="2" scroll="true" />
+                                    color="#5a5a5a" step="2" scroll="true"/>
+                            </button>
                             <image name="KFPic" rect="384,12,16,15" src="" style="autosize"  extendstyle="1111"/>
                             <label name='costName' rect="155,6,90,25" text="100" font-family='微软雅黑'
                                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
@@ -192,7 +196,7 @@ local yuelabel2
 local nianlabel1
 local nianlabel2
 local majorData='' --专业编号
-local cmd='city' --接口标示
+
 local city_data --jeason数据
 local listView1
 local max
@@ -204,6 +208,9 @@ local jidulabel1
 local nian
 local jidu
 local yueLab
+local g_dimension = 'city' ----初始市公司维度
+local g_regionid = '' ----当前查询的区域编号，空为全省
+local g_regionname = '全省'  --区域名称
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -243,13 +250,15 @@ function bodyOnPluginEvent(msg)
     if msg == 101 then
         UmsAgent:onLoadFinish() 
         if Loading:isShow() then Loading:close() end
+        local listView = Sprite:findChild(rootSprite, 'sampleList')
         city_data = Http:jsonDecode('city_data')
         if  city_data.total == '0' or city_data == nil  or city_data.value == nil then 
+            ListView:removeAllItems(listView,1,1)
+            ListView:adjust(listView)
             Dialog:show('', '暂无费用数据!', 'ok')
             return
         end
      
-        local listView = Sprite:findChild(rootSprite, 'sampleList')
         local len = getJsonArrayCount(city_data.value)
         g_sum = city_data.value[len - 1]
         Log:write('g_sum++++',g_sum)
@@ -295,7 +304,7 @@ end
 function cityOn(sprite)
     local dimension = Sprite:findChild(rootSprite,'dimension')
     Sprite:setProperty(dimension,'text','市公司')
-    cmd = Sprite:getData(sprite)
+    g_dimension = Sprite:getData(sprite)
     local cityImg1 = Sprite:findChild(rootSprite,'cityImg1')
     local cityImg2 = Sprite:findChild(rootSprite,'cityImg2')
     local cityImg3 = Sprite:findChild(rootSprite,'cityImg3')
@@ -308,6 +317,11 @@ function cityOn(sprite)
     Sprite:setProperty(cityTxt1,'color','#0062ab')
     Sprite:setProperty(cityTxt2,'color','#5a5a5a')
     Sprite:setProperty(cityTxt3,'color','#5a5a5a')
+    ---一些参数初始化
+    g_regionid = ''
+    g_regionname = '全省'
+    local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+    Sprite:setProperty(mainTitle, 'text', '费用统计(全省)')
     Loading:show(rootSprite)
     request()
 end
@@ -315,7 +329,7 @@ end
 function companyOn(sprite)
     local dimension = Sprite:findChild(rootSprite,'dimension')
     Sprite:setProperty(dimension,'text','代维单位')
-    cmd = Sprite:getData(sprite)
+    g_dimension = Sprite:getData(sprite)
     local cityImg1 = Sprite:findChild(rootSprite,'cityImg1')
     local cityImg2 = Sprite:findChild(rootSprite,'cityImg2')
     local cityImg3 = Sprite:findChild(rootSprite,'cityImg3')
@@ -328,6 +342,7 @@ function companyOn(sprite)
     Sprite:setProperty(cityTxt1,'color','#5a5a5a')
     Sprite:setProperty(cityTxt2,'color','#0062ab')
     Sprite:setProperty(cityTxt3,'color','#5a5a5a')
+    --local g_regionid = '' ----当前查询的区域编号，空为全省
     Loading:show(rootSprite)
     request()
 end
@@ -335,7 +350,7 @@ end
 function majorOn(sprite)
     local dimension = Sprite:findChild(rootSprite,'dimension')
     Sprite:setProperty(dimension,'text','专业')
-    cmd = Sprite:getData(sprite)
+    g_dimension = Sprite:getData(sprite)
     local cityImg1 = Sprite:findChild(rootSprite,'cityImg1')
     local cityImg2 = Sprite:findChild(rootSprite,'cityImg2')
     local cityImg3 = Sprite:findChild(rootSprite,'cityImg3')
@@ -669,6 +684,7 @@ function youdianjiOnSelect(sprite)
 end 
 --获取统计数据返回地址（按地市）
 function request()
+    Log:write("request")
     --获取起始时间
     local startyear=Sprite:getText(nianlabel1)
     local startmonth=Sprite:getText(yuelabel1)
@@ -679,7 +695,25 @@ function request()
     local starttime=startyear..'-'..startmonth..'-'..startday
     local endtime=endyear..'-'..endmonth..'-'..endday
     --Log:write('starttime',starttime,endtime)
-    local param = 'cmd=wlbcitycost'..'&dimension='..cmd..'&starttime='..starttime..'&endtime='..endtime..'&page=1&pagesize=300&usercode='..Config:get('username')
+    local param = 'cmd=wlbcitycost'..'&dimension='..g_dimension..'&starttime='..starttime..'&endtime='..endtime..'&page=1&pagesize=300&usercode='..Config:get('username')..'&regionid='..g_regionid
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Log:write('reqURL',reqURL) 
+    Http:request('city_data', reqURL, 101, {useCache = false})
+end
+
+--获取统计数据返回地址（按地市）
+function request2(regionid)
+    --获取起始时间
+    local startyear=Sprite:getText(nianlabel1)
+    local startmonth=Sprite:getText(yuelabel1)
+    local startday=Sprite:getText(rilabel1)
+    local endyear=Sprite:getText(nianlabel2)
+    local endmonth=Sprite:getText(yuelabel2)
+    local endday=Sprite:getText(rilabel2)
+    local starttime=startyear..'-'..startmonth..'-'..startday
+    local endtime=endyear..'-'..endmonth..'-'..endday
+    --Log:write('starttime',starttime,endtime)
+    local param = 'cmd=wlbcitycost'..'&dimension='..g_dimension..'&starttime='..starttime..'&endtime='..endtime..'&page=1&pagesize=300&usercode='..Config:get('username')..'&regionid='..regionid
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write('reqURL',reqURL) 
     Http:request('city_data', reqURL, 101, {useCache = false})
@@ -692,16 +726,28 @@ function loadListItem(list, item, index)
        Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
     end
     -- 读取返回的数据
-    local cityName = Sprite:findChild(item,'cityName')
+    local dimBtn = Sprite:findChild(item,'dimBtn')
+    local dimName = Sprite:findChild(item,'dimName')
     local costName = Sprite:findChild(item,'costName')
     local deductedName = Sprite:findChild(item,'deductedName')
     local deductedButton = Sprite:findChild(item,'KFBtn')
     local KFPic = Sprite:findChild(item,'KFPic')
-    Sprite:setProperty(cityName,'text',city_data.value[index].dimension)
+    Sprite:setProperty(dimName,'text',city_data.value[index].dimension)
     Sprite:setProperty(costName,'text',city_data.value[index].order)
     Log:write('1+++',string.format('%.2f',city_data.value[index].cost/10000))
     Sprite:setProperty(deductedName,'text',tonumber(string.format('%.2f',city_data.value[index].cost/10000)))
     Sprite:setProperty(deductedButton,'data',index)
+    Log:write('g_dimension==='..g_dimension)
+    if g_dimension == 'city' then
+        local regionid = city_data.value[index].id
+        Sprite:setProperty(dimBtn,'data', regionid)
+        Sprite:setProperty(dimBtn,'enable', 'true')
+    else
+        local orgid = city_data.value[index].id
+        Sprite:setProperty(dimBtn,'data', orgid)
+        Sprite:setProperty(dimBtn,'enable', 'false')
+    end
+
     -- 前三名显示笑脸，后三名显示哭脸
     showRank1(item, index)
 end
@@ -712,15 +758,25 @@ function addloadListItem(list, item, index)
        Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
     end
     -- 读取返回的数据
-    local cityName = Sprite:findChild(item,'cityName')
+    local dimBtn = Sprite:findChild(item,'dimBtn')
+    local dimName = Sprite:findChild(item,'dimName')
     local costName = Sprite:findChild(item,'costName')
     local deductedName = Sprite:findChild(item,'deductedName')
     local deductedButton = Sprite:findChild(item,'KFBtn')
     local KFPic = Sprite:findChild(item,'KFPic')
-    Sprite:setProperty(cityName,'text',g_sum.dimension)
+    Sprite:setProperty(dimName,'text',g_sum.dimension)
     Sprite:setProperty(costName,'text',g_sum.order)
     Sprite:setProperty(deductedName,'text',tonumber(string.format('%.2f',g_sum.cost/10000)))
     Sprite:setProperty(deductedButton,'data',index)
+    if g_dimension == 'city' then
+        local regionid = city_data.value[index].regionid
+        Sprite:setProperty(dimBtn,'data', regionid)
+        Sprite:setProperty(dimBtn,'enable', 'true')
+    else
+        local orgid = city_data.value[index].orgid
+        Sprite:setProperty(dimBtn,'data', orgid)
+        Sprite:setProperty(dimBtn,'enable', 'false')
+    end
 end
 -- 对前三名显示笑脸，后三名显示哭脸
 function showRank1(item, index)
@@ -857,5 +913,32 @@ function kfSeqOnSelect(sprite)
         end
     end
 end
+
+-- 地市纬度进一步查询响应函数
+function cityItemBtnOnselect(sprite)
+    Log:write("cityItemBtnOnselect")
+    local dimName = Sprite:findChild(sprite,'dimName')                    -- 地市名称
+    local dimension = Sprite:findChild(rootSprite,'dimension')            -- 维度名称
+    local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+    local companyBtn = Sprite:findChild(rootSprite,'companyBtn')            -- 页面标题
+    local regionid = Sprite:getData(sprite)
+    g_regionid = regionid
+    if string.sub(g_regionid,5) ~= '00' and g_regionid ~=''  then
+        local regionText = Sprite:getText(dimName)
+        Sprite:setProperty(dimension, 'text', regionText)
+        g_regionname = regionText
+        Sprite:setProperty(mainTitle, 'text', '费用统计('..regionText..')')
+        companyOn(companyBtn)
+    else
+        local regionText = Sprite:getText(dimName)
+        Sprite:setProperty(dimension, 'text', regionText)
+        Sprite:setProperty(mainTitle, 'text', '费用统计('..regionText..')')
+        g_regionname = regionText
+        g_dimension = 'city'
+        Loading:show(rootSprite)
+        request2(regionid)
+    end
+end
+
     ]]>
 </root>
