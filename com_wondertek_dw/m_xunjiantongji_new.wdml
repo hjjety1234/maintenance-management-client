@@ -32,7 +32,7 @@
                         <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
                     </button>  
-                    <scrolltext name="mainTitle" rect="105,5,280,40" text="巡检完成情况(全省)" font-family='微软雅黑'
+                    <scrolltext name="mainTitle" rect="90,5,330,40" text="巡检完成情况(全省)" font-family='微软雅黑'
                         extendstyle="1111" font-size="36" h-align="center" v-align="center"
                         color="#ffffff" scroll="true"  step="2" />
                 </node>
@@ -165,10 +165,10 @@
                             <image name="listButtonImage" rect="31,9,418,38" 
                                 src="file://image/ziyuan_bg.png"
                                 extendstyle="1111" style='autosize' >
-                                <label name='dimension' rect="0,5,100,25" text="全省" font-family='微软雅黑'
+                                <label name='dimension' rect="0,5,110,25" text="全省" font-family='微软雅黑'
                                     extendstyle="1111" font-size="21" h-align="center" v-align="center"
-                                    color="#e33a10" />
-                                <label rect="60,5,160,25" text="计划站点" font-family='微软雅黑'
+                                    color="#e33a10"/>
+                                <label rect="65,5,160,25" text="计划站点" font-family='微软雅黑'
                                     extendstyle="1111" font-size="21" h-align="center" v-align="center"
                                     color="#e33a10" />
                                 <label rect="170,5,160,25" text="巡检站点" font-family='微软雅黑'
@@ -208,13 +208,13 @@
                 visible="false" enable="false" active="false" extendstyle="1111">
                 <image name="listItem_bg" rect="31,0,418,38" src=""
                     extendstyle="1111" style='autosize' />
-                <button name="dimBtn" rect="30,0,120,38" OnSelect="cityItemBtnOnselect" enable='true'
+                <button name="dimBtn" rect="30,0,120,40" OnSelect="cityItemBtnOnselect" enable='true'
                     extendstyle="1111" data='' >
-                 <scrolltext  name='dimName' rect="20,5,100,25" text="" font-family='微软雅黑'
+                 <scrolltext  name='dimName' rect="15,5,100,30" text="" font-family='微软雅黑'
                     extendstyle="1111" font-size="20" h-align="left" v-align="center"
-                       color="#5a5a5a" step="2" scroll="true"/>
+                       color="#5a5a5a" step="2" scroll="true" />
                 </button>
-                <label name='plan' rect="75,5,180,25" text="100" font-family='微软雅黑'
+                <label name='plan' rect="85,5,180,25" text="100" font-family='微软雅黑'
                     extendstyle="1111" font-size="20" h-align="center" v-align="center"
                     color="#5a5a5a" />
                 <label name='complete' rect="200,5,160,25" text="100" font-family='微软雅黑'
@@ -229,11 +229,11 @@
             <!-- 考核信息列表项模板 -->
             <node name="listItem2" rect="0,400,480,80" border="false"
                 visible="false" enable="false" active="false" extendstyle="1111">
-                <button name="newCityBtn" rect="30,0,120,38" OnSelect="newCityBtnOnselect" 
-                    extendstyle="1111" data='' >
-                  <textarea name="newCity" rect="0,22,100,70" text="" color="#303030" border="false"
+                <button name="newCityBtn" rect="20,0,100,60" OnSelect="newCityBtnOnselect" 
+                    extendstyle="1111" data=''>
+                  <textarea name="newCity" rect="10,5,90,60" text="" color="#303030" 
                     font-family='微软雅黑' font-size="17" h-align="center"
-                    v-align="top" style="autosize" extendstyle="1111" >
+                    v-align="center" style="autosize" extendstyle="1111" >
                   </textarea> 
                 </button>
                 <shadow name='newShadow' rect="10,48,400,30" color="#a93446" alpha="200" border="false"
@@ -305,6 +305,7 @@ function addSumToListItem( list, item, index )
     -- 读取返回的数据
     --Log:write("addSumToListItem g_sum", g_sum)
     local value = g_response.value
+    local newCityBtn = Sprite:findChild(item,'newCityBtn') 
     local newCity = Sprite:findChild(item,'newCity')         -- 地市
     local newRatio = Sprite:findChild(item,'newRatio')         -- 巡检率
     local newShadow = Sprite:findChild(item,'newShadow')         -- 背景色
@@ -314,6 +315,7 @@ function addSumToListItem( list, item, index )
     local shadownum = math.floor(tonumber(string.format('%.2f',averageValue))*3.4)
     meanNum = shadownum+120
     Sprite:setProperty(newCity, 'text', '计划进度')
+    Sprite:setProperty(newCityBtn,'enable', 'false')
     Sprite:setProperty(newRatio, 'text', string.format('%.2f',averageValue).."%")
     Sprite:setRect(newShadow,120,10,shadownum,45)
     Sprite:setRect(meanName,meanNum,10,3,60)
@@ -385,23 +387,23 @@ function loadListItem(list, item, index)
     end
     -- 读取返回的数据
     local value = g_response.value
-    local newCityBtn = Sprite:findChild(item,'newCityBtn')
-    local newCity = Sprite:findChild(item,'newCity')         -- 地市
+    local dimBtn = Sprite:findChild(item,'dimBtn')
+    local dimName = Sprite:findChild(item,'dimName')         -- 地市
     local plan = Sprite:findChild(item,'plan')        -- 计划巡检站点
     local complete = Sprite:findChild(item,'complete')          -- 实际巡检站点
     local ratio = Sprite:findChild(item,'ratio')          -- 巡检率
-    Sprite:setProperty(newCity, 'text', value[index].dimension)
+    Sprite:setProperty(dimName, 'text', value[index].dimension)
     Sprite:setProperty(plan, 'text', value[index].plan)
     Sprite:setProperty(complete, 'text', value[index].complete)
     Sprite:setProperty(ratio, 'text', string.format('%.2f',value[index].ratio).."%")
     if g_dimension == 'city' then
         local regionid = value[index].regionid
-        Sprite:setProperty(newCityBtn,'data', regionid)
-        Sprite:setProperty(newCityBtn,'enable', 'true')
+        Sprite:setProperty(dimBtn,'data', regionid)
+        Sprite:setProperty(dimBtn,'enable', 'true')
     else
         local orgid = value[index].orgid
-        Sprite:setProperty(newCityBtn,'data', orgid)
-        Sprite:setProperty(newCityBtn,'enable', 'false')
+        Sprite:setProperty(dimBtn,'data', orgid)
+        Sprite:setProperty(dimBtn,'enable', 'false')
     end
     -- 前三名显示笑脸，后三名显示哭脸
     showRank1(item, index)
@@ -709,7 +711,6 @@ function nextMonthOnSelect(sprite)
     else
         month = month + 1
     end
-    Log:write('比较月份',month,currentMonth)
     if year<=currentYear and month*3<=currentMonth then 
         spendTime=90
     elseif year<currentYear then
@@ -882,7 +883,6 @@ function cityItemBtnOnselect(sprite)
     local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
     local companyBtn = Sprite:findChild(rootSprite,'companyBtn')            -- 页面标题
     local regionid = Sprite:getData(sprite)
-    Log:write("获取不到吗",g_major)
     g_regionid = regionid
     local regionText = Sprite:getText(dimName)
     if string.sub(g_regionid,5) ~= '00' and g_regionid ~=''  then
