@@ -294,7 +294,7 @@ public class FloatRelativeLayout extends RelativeLayout {
 	 */
 	private void showCustomLogo(ImageView iv, String employeeId) {
 		Log.d(TAG, "[showCustomLogo] 员工编号: " + employeeId);
-		String logoImg = DbHelper.getLogoImg(employeeId);
+		final String logoImg = DbHelper.getLogoImg(employeeId);
 		if (logoImg == null) return;
 		// 获取本地图标的路径
 		String logoImgPath = Constants.LOC_PIC_DIR + logoImg;
@@ -311,15 +311,8 @@ public class FloatRelativeLayout extends RelativeLayout {
 			new Thread() {
 				@Override
 				public void run() {
-					String requestUri = downloadFile.requestResourceUri();
-					if (requestUri != null) {
-						String resourceUri = Constants.RES_PIC_URL_PREFIX
-								+ requestUri;
-						downloadFile.execute(resourceUri);
-					} else {
-						Log.w(TAG,
-								"[showCustomLogo] 获取图标URL地址失败!");
-					}
+					String resourceUri = Constants.RES_LOGO_URL_PREFIX + logoImg;
+					downloadFile.execute(resourceUri);
 				}
 			}.start();
 		}
