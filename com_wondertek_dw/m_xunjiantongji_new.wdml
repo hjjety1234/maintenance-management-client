@@ -385,23 +385,23 @@ function loadListItem(list, item, index)
     end
     -- 读取返回的数据
     local value = g_response.value
-    local dimBtn = Sprite:findChild(item,'dimBtn')
-    local dimName = Sprite:findChild(item,'dimName')         -- 地市
+    local newCityBtn = Sprite:findChild(item,'newCityBtn')
+    local newCity = Sprite:findChild(item,'newCity')         -- 地市
     local plan = Sprite:findChild(item,'plan')        -- 计划巡检站点
     local complete = Sprite:findChild(item,'complete')          -- 实际巡检站点
     local ratio = Sprite:findChild(item,'ratio')          -- 巡检率
-    Sprite:setProperty(dimName, 'text', value[index].dimension)
+    Sprite:setProperty(newCity, 'text', value[index].dimension)
     Sprite:setProperty(plan, 'text', value[index].plan)
     Sprite:setProperty(complete, 'text', value[index].complete)
     Sprite:setProperty(ratio, 'text', string.format('%.2f',value[index].ratio).."%")
     if g_dimension == 'city' then
         local regionid = value[index].regionid
-        Sprite:setProperty(dimBtn,'data', regionid)
-        Sprite:setProperty(dimBtn,'enable', 'true')
+        Sprite:setProperty(newCityBtn,'data', regionid)
+        Sprite:setProperty(newCityBtn,'enable', 'true')
     else
         local orgid = value[index].orgid
-        Sprite:setProperty(dimBtn,'data', orgid)
-        Sprite:setProperty(dimBtn,'enable', 'false')
+        Sprite:setProperty(newCityBtn,'data', orgid)
+        Sprite:setProperty(newCityBtn,'enable', 'false')
     end
     -- 前三名显示笑脸，后三名显示哭脸
     showRank1(item, index)
@@ -419,15 +419,7 @@ function loadListItem2(list, item, index)
     Sprite:setProperty(newCity, 'text', value[index].dimension)
     Sprite:setProperty(newRatio, 'text', string.format('%.2f',value[index].ratio).."%")
     Sprite:setRect(newShadow,120,10,shadownum,45)
-    if g_dimension == 'city' then
-        local regionid = value[index].regionid
-        Sprite:setProperty(newCityBtn,'data', regionid)
-        Sprite:setProperty(newCityBtn,'enable', 'true')
-    else
-        local orgid = value[index].orgid
-        Sprite:setProperty(newCityBtn,'data', orgid)
-        Sprite:setProperty(newCityBtn,'enable', 'false')
-    end
+  
     --平均线
     local meanName = Sprite:findChild(item,'meanName')         -- 平均线
     Sprite:setRect(meanName,meanNum,0,3,60)
@@ -454,6 +446,18 @@ function loadListItem2(list, item, index)
     elseif index == 7 or index == 15 then
         Sprite:setProperty(newShadow,'color','#6028c1')
     end 
+    Log:write("1231234",value[index].regionid)
+    Log:write("3333333",g_dimension)
+    Log:write("4444444",value[index].orgid)
+    if g_dimension == 'city' then
+        local regionid = value[index].regionid
+        Sprite:setProperty(newCityBtn,'data', regionid)
+        Sprite:setProperty(newCityBtn,'enable', 'true')
+    else
+        local orgid = value[index].orgid
+        Sprite:setProperty(newCityBtn,'data', orgid)
+        Sprite:setProperty(newCityBtn,'enable', 'false')
+    end
 end
 
 -- 对前三名显示笑脸，后三名显示哭脸
