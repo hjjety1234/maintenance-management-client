@@ -13,12 +13,6 @@ import android.os.Message;
 import android.view.Window;
 import android.view.WindowManager;
 
-/**
- * 
- * @author yuhongwei
- *
- */
-
 public class SMSSpamDetailActivity extends Activity {
 	
 	@Override

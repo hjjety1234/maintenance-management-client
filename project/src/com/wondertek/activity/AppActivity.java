@@ -1,17 +1,22 @@
 package com.wondertek.activity;
 
-//baidu
+//BDMAP
 //import com.baidu.mapapi.MapActivity;
 
 //import com.phonegap.DroidGap;
 import android.widget.AbsoluteLayout;
+//import com.umeng.analytics.MobclickAgent;
+//import com.umeng.analytics.ReportPolicy;
 //GDMAP
+//add pj
 import com.mapabc.mapapi.map.MapActivity;
-//import com.wondertek.plugins.alipay.AlixDemo;
+//for plugin lotuseed
+//import com.lotuseed.android.Lotuseed;
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -20,7 +25,10 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
+//phonegap
+//public class AppActivity extends DroidGap {
 //Map
+//add pj
 public class AppActivity extends MapActivity {
 //public class AppActivity extends Activity{
 	private static String SELF	= "AppActivity ";
@@ -50,6 +58,8 @@ public class AppActivity extends MapActivity {
 
 		VenusApplication.getInstance().addActivity(this);
 		//VenusApplication.getInstance().addActivity(AlixDemo.getInstance());
+		//MobclickAgent.setDefaultReportPolicy(this, ReportPolicy.REALTIME);
+		//MobclickAgent.setDebugMode(false);
 	}
 
 	@Override
@@ -57,14 +67,20 @@ public class AppActivity extends MapActivity {
 	{
 		Util.Trace( SELF+"onPause");
 		VenusActivity.getInstance().onPause();
+		//MobclickAgent.onPause(this);
 		super.onPause();
+		//for plugin lotuseed
+		//Lotuseed.onPause(this);
 	}
 	
 	@Override
 	protected void onResume() {
 		Util.Trace( SELF+"onResume");
 		VenusActivity.getInstance().onResume();
+		//MobclickAgent.onResume(this);
 		super.onResume();
+		//for plugin lotuseed
+		//Lotuseed.onResume(this);
 	}
 
 	@Override
@@ -78,7 +94,6 @@ public class AppActivity extends MapActivity {
 		Util.Trace( SELF+"onDestroy");
 		VenusActivity.getInstance().onDestroy();
 		super.onDestroy();
-		Util.exit();
 	}
 	
 	@Override
@@ -140,12 +155,19 @@ public class AppActivity extends MapActivity {
 		}
 	}
 	
-//baidu
+//BDMAP
 //	@Override
 //	protected boolean isRouteDisplayed() {
 //		return false;
 //	}
-    
+
+@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		// TODO Auto-generated method stub
+		VenusActivity.getInstance().onSaveInstanceState(outState);
+		super.onSaveInstanceState(outState);
+	}
+//add pj
 	public int getResID(String name, String defType)
 	{
 		return getResources().getIdentifier(name, defType, getPackageName());

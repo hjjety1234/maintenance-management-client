@@ -54,7 +54,7 @@ public class ConnectionOMS extends ConnectionImpl{
 				while (currentTimes-- > 0) {
 					if(apnIsConnected())
 					{
-						VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
+						VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_Connected, 0);
 						return;
 					}
 					Util.Trace("connected currentTimes=" + currentTimes);
@@ -67,7 +67,7 @@ public class ConnectionOMS extends ConnectionImpl{
 				
 				Util.Trace("...Failure...2");
 				Util.m_nNetwork_Connected_Type = Util.Network_Connected_Unknown;
-				VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_InvalidAPN, 0);
+				VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_InvalidAPN, 0);
 			}
 		};
 		
@@ -131,7 +131,7 @@ public class ConnectionOMS extends ConnectionImpl{
 						
 						Util_WaitforConnConnected = true;
 						//VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_Fail, 0);
-						VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)0, (short)0));
+						VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)0, (short)0));
 					}
 				}
 				else
@@ -141,7 +141,7 @@ public class ConnectionOMS extends ConnectionImpl{
 						Util.Trace(Util.currentWifiSSID +" Send ENetworkStatus_ConnectionExp (0, 1)");
 						Util_WaitforConnConnected = false;
 						Util.WIFI_STATE = Util.WIFI_STATE_CONNECTED;
-						VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)0, (short)1));
+						VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)0, (short)1));
 
 					}
 				}
@@ -161,7 +161,7 @@ public class ConnectionOMS extends ConnectionImpl{
 					else
 						Util.Trace( " NET Send ENetworkStatus_ConnectionExp (2, 0)");
 					Util_WaitforConnConnected = true;
-					VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)net_type, (short)0));
+					VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)net_type, (short)0));
 				}
 				else
 				{
@@ -169,7 +169,7 @@ public class ConnectionOMS extends ConnectionImpl{
 					{
 						Util.Trace("OMS WAP Send ENetworkStatus_ConnectionExp (1, 1)");
 						Util_WaitforConnConnected = false;
-						VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)1, (short)1));
+						VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)1, (short)1));
 
 					}
 				}
@@ -189,7 +189,7 @@ public class ConnectionOMS extends ConnectionImpl{
 			{
 				on = 1;
 			}
-			VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_AIRPLANE_MODE_CHANGED, on, 0);
+			VenusActivity.getInstance().nativesendevent(Util.WDM_AIRPLANE, on, 0);
 			break;
 		}
 		default :

@@ -146,9 +146,14 @@ public class WifiObserver {
 	public boolean SetWifiEnable(boolean enable)
 	{
 		Util.Trace("SetWifiEnable:: enable="+enable);
-		return Util.getWifiManager().setWifiEnabled(enable);
+		boolean bWifiEnabled = false;
+		try {
+			bWifiEnabled = Util.getWifiManager().setWifiEnabled(enable);
+		} catch (Exception e) {
+		}
+		
+		return bWifiEnabled;
 	}
-	
 
 	public String GetScanResults() {
 		mStrScanResult = "";
@@ -221,15 +226,15 @@ public class WifiObserver {
 			if (null == ssid || ssid.length() <= 0) {
 				Util.WIFI_STATE	= Util.WIFI_STATE_IDLE;
 				if(Util.isWifiAutoConnected())
-					venusHandle.nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_Fail, 0);
+					venusHandle.nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_Fail, 0);
 				else
-					venusHandle.nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_WLanAutoConnClosed, 0);
+					venusHandle.nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_WLanAutoConnClosed, 0);
 				return false;
 			}
 			
 			//Judge the current connection is the DEST connection or not.
 			if (Util.wifiIsConnected( destSSID) ) {
-				venusHandle.nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
+				venusHandle.nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_Connected, 0);
 				Util.detectNetworkChip();
 				Util.m_nNetwork_Connected_Type = Util.Network_Connected_WiFi;
 				Util.setCurrentWifiSSID(destSSID);
@@ -242,9 +247,9 @@ public class WifiObserver {
 			if (null == srList) {
 				Util.WIFI_STATE	= Util.WIFI_STATE_IDLE;
 				if(Util.isWifiAutoConnected())
-					venusHandle.nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_Fail, 0);
+					venusHandle.nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_Fail, 0);
 				else
-					venusHandle.nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_WLanAutoConnClosed, 0);
+					venusHandle.nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_WLanAutoConnClosed, 0);
 				return false;
 			}
 			ScanResult sr = null;
@@ -260,9 +265,9 @@ public class WifiObserver {
 			{
 				Util.WIFI_STATE	= Util.WIFI_STATE_IDLE;
 				if(Util.isWifiAutoConnected())
-					venusHandle.nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_Fail, 0);
+					venusHandle.nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_Fail, 0);
 				else
-					venusHandle.nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_WLanAutoConnClosed, 0);
+					venusHandle.nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_WLanAutoConnClosed, 0);
 				return false;
 			}
 			sr = srList.get(resIndex);
@@ -286,7 +291,7 @@ public class WifiObserver {
 								if(++wifiStableCnt >= 3)
 								{
 									Util.Trace("Connect ["+destSSID+"] SUCCESS");
-									venusHandle.nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
+									venusHandle.nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_Connected, 0);
 									Util.detectNetworkChip();
 									Util.m_nNetwork_Connected_Type = Util.Network_Connected_WiFi;
 									Util.setCurrentWifiSSID(destSSID);
@@ -310,9 +315,9 @@ public class WifiObserver {
 								{
 									Util.WIFI_STATE	= Util.WIFI_STATE_IDLE;
 									if(Util.isWifiAutoConnected())
-										venusHandle.nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_Fail, 0);
+										venusHandle.nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_Fail, 0);
 									else
-										venusHandle.nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_WLanAutoConnClosed, 0);
+										venusHandle.nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_WLanAutoConnClosed, 0);
 									return ;
 								}
 							} catch (InterruptedException e) {
@@ -327,16 +332,16 @@ public class WifiObserver {
 						if(Util.isWifiAutoConnected())
 						{
 							if(Wifi.getPwdWrong())
-								venusHandle.nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_Password, 0);
+								venusHandle.nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_Password, 0);
 							else
-								venusHandle.nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_Fail, 0);
+								venusHandle.nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_Fail, 0);
 						}
 						else
 						{
 							if(Wifi.getPwdWrong())
-								venusHandle.nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_Password, 0);
+								venusHandle.nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_Password, 0);
 							else
-								venusHandle.nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_WLanAutoConnClosed, 0);
+								venusHandle.nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_WLanAutoConnClosed, 0);
 						}
 					}
 				}
@@ -462,9 +467,15 @@ public class WifiObserver {
 		ScanResult sr = null;
 		for (int i = 0; i < srList.size(); i++) {
 			sr = srList.get(i);
-			if( sr.SSID.equals(mWifiInfo.getSSID()) ) {
-				break;
-			}
+            String ssid = mWifiInfo.getSSID();
+            int sdk = Util.GetSDK();
+            if (sdk == Util.SDK_ANDROID_42 && ssid.startsWith("\"") && ssid.endsWith("\""))
+            {
+                ssid = ssid.substring(1, ssid.length()-1);
+            }
+            if( sr.SSID.equals(ssid) ) {
+                break;
+            }
 		}
 		if (null == sr) {
 			Util.Trace("javaGetWifiInfo: The dest WiFi configuration isn't in scan-result");
@@ -534,20 +545,16 @@ public class WifiObserver {
 		Util.getInstance().getAsyncTask().execute("NetworkStop");
 	}
 
-	public void dealWithWLan(char eventType)
+	public void dealWithWLan(int eventType)
 	{
-		if(eventType == VenusActivity.EVENT_PAUSE)
-		{
-			
-		}
-		else if(eventType == VenusActivity.EVENT_RESUME)
+		if(eventType == Util.WDM_SYSRESUME)
 		{
 			if(bWLanPortalFlag)
 			{
 				if(G3WLANHttp.getInstance().wlanHaveLogin())
 				{
 					Util.Trace("ENetworkStatus_Connected");
-					venusHandle.nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
+					venusHandle.nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_Connected, 0);
 					Util.detectNetworkChip();
 					Util.m_nNetwork_Connected_Type = Util.Network_Connected_WiFi;
 					Util.setCurrentWifiSSID(destSSID);
@@ -558,7 +565,7 @@ public class WifiObserver {
 					Util.Trace("ENetworkError_Trans_Login");
 					Util.setCurrentWifiSSID(null);
 					Util.WIFI_STATE	= Util.WIFI_STATE_IDLE;
-					venusHandle.nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_Login/*ENetworkError_Trans_Fail*/, 0);
+					venusHandle.nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_Login/*ENetworkError_Trans_Fail*/, 0);
 				}
 				bWLanPortalFlag = false;
 			}

@@ -6,11 +6,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
-/**
- * 
- * @author yuhongwei
- *
- */
 public class SMSSpamMgr {
 	
 	private static SMSSpamMgr instance = null;

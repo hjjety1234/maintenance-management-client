@@ -1,10 +1,11 @@
 package com.wondertek.video.map;
 
+import com.wondertek.video.VenusApplication;
+//add pj
+import com.wondertek.video.map.gdmap.GDMapManager;
+
 import android.content.Context;
 import android.view.View;
-
-import com.wondertek.video.VenusApplication;
-import com.wondertek.video.map.gdmap.GDMapManager;
 
 /**
  * 
@@ -31,6 +32,7 @@ public class MapPluginMgr {
 				map = GDMapManager.getInstance(mContext);
 				break;
 			case MAP_PLUGIN_BDMAP :
+			//add pj
 //				map = BDMapManager.getInstance(mContext);
 				break;
 			default :

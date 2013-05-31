@@ -1,11 +1,5 @@
 package com.wondertek.video.sysplayer;
 
-/**
- * 
- * @author yuhongwei
- *
- */
-
 public class SysMPConstants {
 	// ==============================================
 	//   player status

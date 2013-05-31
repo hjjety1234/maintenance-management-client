@@ -127,7 +127,7 @@ public class WDViewClient extends WebViewClient {
                         LOG.e(TAG, "Error loading url "+url, e);
                     }
                 }*/
-            	if(url.startsWith("http://"))
+            	if(url.startsWith("http://")||url.startsWith("https://"))
             		view.loadUrl(url);
             	else
             	{
@@ -139,7 +139,7 @@ public class WDViewClient extends WebViewClient {
                     }
             	}
             }
-            Util.Trace("@@@@@@@@@@@shouldOverrideUrlLoading:url:" + url);
+            
             WDViewClient.nativebrowserreturn(url, 0);
             
             return true;

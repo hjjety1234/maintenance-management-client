@@ -9,12 +9,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
-/**
- * 
- * @author yuhongwei
- *
- */
-
 public class SysMediaPlayerMgr {
 	public static final String libpath = VenusApplication.appAbsPath	+ "lib2/sysplayer/libsysplayer.so";
 	static {

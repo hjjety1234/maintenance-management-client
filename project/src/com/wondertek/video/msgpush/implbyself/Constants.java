@@ -6,9 +6,7 @@ package com.wondertek.video.msgpush.implbyself;
  *
  */
 public class Constants {
-    /** 
-     *  PolllingThread
-     */
+    
     public static final String MSG_ID = "MsgId";
     public static final String MSG_ISNEW = "IsNew";
 	public static final String MSG_TITLE = "Title";
@@ -38,13 +36,14 @@ public class Constants {
 	
 	public static final String ACTION_SHOW_NOTIFICATION = "com.wondertek.video.msgpush.implbyself.SHOW_NOTIFICATION";
 	public static final String SERVICENAME = "com.wondertek.video.msgpush.implbyself.MsgPushService";
+	//add pj
 	public static final String MQTT_SERVICENAME = "com.wondertek.video.msgpush.mqtt.MqttPushService";
 
 	public static final int TIMEOUT = 6 * 1000; 
 	public static final int BUFFER = 1024;	
 
 	public static final int RETRY = 5;
-    
+    //add pj
 	/**
 	 *  HeartSendThread
 	 */

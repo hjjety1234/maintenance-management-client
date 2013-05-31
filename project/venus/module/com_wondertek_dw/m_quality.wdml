@@ -31,7 +31,7 @@
                         <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
                     </button>  
-                    <scrolltext name="title" rect="105,5,280,40" text="质量指标" font-family='微软雅黑'
+                    <scrolltext name="mainTitle" rect="105,5,280,40" text="质量指标(全省)" font-family='微软雅黑'
                         extendstyle="1111" font-size="36" h-align="center" v-align="center"
                         color="#ffffff" scroll="true"  step="2" />
                 </node>
@@ -120,7 +120,7 @@
                                  extendstyle="1111" style='autosize'/>
                         <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
                             extendstyle="1111" style='autosize' >
-                            <label name='dimension' rect="0,5,90,25" text="市公司" font-family='微软雅黑'
+                            <label name='dimension' rect="0,5,90,25" text="全省" font-family='微软雅黑'
                                     extendstyle="1111" font-size="22" h-align="center" v-align="center"
                                     color="#e33a10" />
                            
@@ -149,9 +149,9 @@
                             <image name="listItem_bg" rect="31,0,418,38" src=""
                                     extendstyle="1111" style='autosize' />
                             <button name="dimBtn" rect="30,0,120,38" OnSelect="cityItemBtnOnselect" enable='false' extendstyle="1111" data='' >
-                                <scrolltext name="cityName" rect="45,5,90,25" text="" color="#303030" 
+                                <scrolltext name="dimName" rect="15,5,90,25" text="" color="#303030" 
                                     font-family='微软雅黑' font-size="20" scroll="true" h-align="left"
-                                    v-align="center" style="autosize" extendstyle="1111" >
+                                    v-align="center" style="autosize" extendstyle="1111">
                                 </scrolltext>
                             </button> 
                             <label name='residential' rect="120,5,160,25" text="100" font-family='微软雅黑'
@@ -195,7 +195,8 @@ require 'framework.umsagent'
 local rootSprite
 local city_data
 local selectData = 'wlbcityquality'  --选择页签data属性,默认为市公司统计
-
+local g_regionid=''
+local g_dimension ='city' --初始市公司维度
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -274,11 +275,17 @@ function cityOn(sprite)
     local dimension = Sprite:findChild(rootSprite,'dimension')
     local dimension1 = Sprite:findChild(rootSprite,'dimension1')
     local dimension2 = Sprite:findChild(rootSprite,'dimension2')
-    Sprite:setProperty(dimension,'text','市公司')
-    Sprite:setProperty(dimension1,'text','市公司')
-    Sprite:setProperty(dimension2,'text','市公司')
+    Sprite:setProperty(dimension,'text','全省')
+    Sprite:setProperty(dimension1,'text','全省')
+    Sprite:setProperty(dimension2,'text','全省')
     Loading:show(rootSprite)
-    request()
+    g_type = 0
+    g_regionid = ''
+    g_regionname = '全省'
+    local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+    Sprite:setProperty(mainTitle, 'text', '质量指标(全省)')
+    request(g_dimension)
+    
 end
 -------点击代维单位公司统计标签
 function companyOn(sprite)
@@ -310,7 +317,18 @@ function request()
     if  date =='2013-1' or date =='2013-2' then 
         date ='2013-3'
     end
-    local param = 'cmd='..selectData..'&major=C31&page=1&pagesize=100&usercode='..Config:get('username').."&date="..date
+    local param = 'cmd='..selectData..'&major=C31&page=1&pagesize=100&usercode='..Config:get('username').."&date="..date..'&regionid='..g_regionid
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Http:request('city_data', reqURL, 101, {useCache = false})
+    Loading:show()
+end
+--获取统计数据返回地址（市公司）
+function request2(regionid)
+    local date = getSelectedMonth()
+    if  date =='2013-1' or date =='2013-2' then 
+        date ='2013-3'
+    end
+    local param = 'cmd='..selectData..'&major=C31&page=1&pagesize=100&usercode='..Config:get('username').."&date="..date..'&regionid='..regionid
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Http:request('city_data', reqURL, 101, {useCache = false})
     Loading:show()
@@ -329,18 +347,25 @@ function loadListItem(list, item, index)
     end
     -- 读取返回的数据
     local cityDataValue = city_data.value
-    local cityName = Sprite:findChild(item,'cityName')          --市公司
+    local dimBtn = Sprite:findChild(item,'dimBtn') 
+    local dimName = Sprite:findChild(item,'dimName')          --市公司
     local residential = Sprite:findChild(item,'residential')    --小区完好率
     local fault = Sprite:findChild(item,'fault')                --故障处理及时率  
     local inspection = Sprite:findChild(item,'inspection')      --巡检率
-    Sprite:setProperty(cityName,'text',cityDataValue[index].dimension)
+    Sprite:setProperty(dimName,'text',cityDataValue[index].dimension)
     Sprite:setProperty(residential,'text',string.format('%.2f',cityDataValue[index].residential).."%")
     Sprite:setProperty(fault,'text',string.format('%.1f',cityDataValue[index].fault).."%")
     Sprite:setProperty(inspection,'text',string.format('%.1f',cityDataValue[index].inspection).."%")
     --地市维度按钮
-    local dimBtn = Sprite:findChild(item,'dimBtn') 
-    Sprite:setProperty(dimBtn,'enable','true')
-    
+    if g_dimension == 'city' then
+        local regionid = cityDataValue[index].regionid
+        Sprite:setProperty(dimBtn,'data', regionid)
+        Sprite:setProperty(dimBtn,'enable', 'true')
+    else
+        local orgid = cityDataValue[index].orgid
+        Sprite:setProperty(dimBtn,'data', orgid)
+        Sprite:setProperty(dimBtn,'enable', 'false')
+    end
 end
 ----选择专业按钮
 function lineOn(sprite)
@@ -493,19 +518,26 @@ end
 
 -- 地市纬度进一步查询响应函数
 function cityItemBtnOnselect(sprite)
-      Log:write("质量指标地市点击")
-      local dimName = Sprite:findChild(sprite,'dimName')                    -- 地市名称
-      local dimension = Sprite:findChild(rootSprite,'dimension')            -- 维度名称
-     -- local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
-      local regionid = Sprite:getData(sprite)
-     -- g_regionid = regionid
-      
-      local regionText = Sprite:getText(dimName)
-      Sprite:setProperty(dimension, 'text', regionText)
-      Sprite:setProperty(mainTitle, 'text', '质量指标('..regionText..')')
-     -- g_regionname = regionText
-     -- request2(regionid)
-     --end
+    Log:write('=========qwerrrrrr============')
+    local dimName = Sprite:findChild(sprite,'dimName')                    -- 地市名称
+    local dimension = Sprite:findChild(rootSprite,'dimension')            -- 维度名称
+    local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+    local companyBtn = Sprite:findChild(rootSprite,'companyBtn')            -- 页面标题
+    local regionid = Sprite:getData(sprite)
+    g_regionid = regionid
+    local regionText = Sprite:getText(dimName)
+    if string.sub(g_regionid,5) ~= '00' and g_regionid ~=''  then
+        companyOn(companyBtn)
+        Sprite:setProperty(dimension, 'text', regionText)
+        Sprite:setProperty(mainTitle, 'text', '质量指标('..regionText..')')
+    else
+        
+        Sprite:setProperty(dimension, 'text', regionText)
+        Sprite:setProperty(mainTitle, 'text', '质量指标('..regionText..')')
+        g_regionname = regionText
+        g_dimension = 'city'
+        request2(regionid)
+    end
 end
 ]]>
 </root>

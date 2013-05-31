@@ -22,6 +22,15 @@ import java.io.LineNumberReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+//import java.io.RandomAccessFile;
+//import java.io.InputStream;
+//import java.net.HttpURLConnection;
+//import java.net.InetSocketAddress;
+//import java.net.Proxy;
+//import java.net.SocketAddress;
+//import java.net.URL;
+//add pj
+import android.os.Build;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -112,9 +121,18 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
+//import com.google.ads.Ad;
+//import com.google.ads.AdListener;
+//import com.google.ads.AdRequest;
+//import com.google.ads.AdRequest.ErrorCode;
+//import com.google.ads.AdSize;
+//import com.google.ads.AdView;
+//import com.wondertek.activity.R;
+import com.wondertek.video.Util;
 import com.wondertek.video.alarm.AlarmObserver;
 import com.wondertek.video.appmanager.AppManager;
+//AuthPlugin
+//import com.wondertek.video.auth.AuthPlugin;
 import com.wondertek.video.browser.SysBrowserObserver;
 import com.wondertek.video.calendar.CalendarObserver;
 import com.wondertek.video.call.CallObserver;
@@ -123,22 +141,43 @@ import com.wondertek.video.connection.ConnectionImpl;
 import com.wondertek.video.connection.SystemConnectionManager;
 import com.wondertek.video.email.EmailObserver;
 import com.wondertek.video.gps.GPSObserver;
+//add pj
+//Map
 import com.wondertek.video.map.MapPluginMgr;
 import com.wondertek.video.monitor.MonitorCommon;
 import com.wondertek.video.monitor.MonitorHeadset;
 import com.wondertek.video.monitor.MonitorManager;
 import com.wondertek.video.monitor.MonitorScreen;
 import com.wondertek.video.msgpush.MsgPushManager;
+//add pj
 import com.wondertek.video.sensor.SensorObserver;
 import com.wondertek.video.smsspam.SMSSpamMgr;
+//add pj
 import com.wondertek.video.sysplayer.SysMediaPlayerMgr;
 import com.wondertek.video.telephone.PhoneObserver;
 import com.wondertek.video.update.UpdateMan;
 import com.wondertek.video.wifi.WifiObserver;
+//fractalad: for plugin FractalAD, now it's not used
+//import com.wondertek.video.fractalad.FractalADPlugin;
+
+//safetyAuthentic: for plugin CA, now it's not used
+//add pj
 import com.wondertek.video.authentic.AuthenticObserver;
+
+//safetyAuthentic: for plugin CA, now it's not used
+//import com.wondertek.video.authentic2.Authentic2Observer;
+
+//lotuseed
+//import com.wondertek.video.lotuseed.LotuseedObserver;
+import com.wondertek.video.contacts.ContactsObserver;
 
 public class VenusActivity implements SurfaceHolder.Callback {
 	static String TAG = "VenusActivity";
+	public static String startParam = "";
+	
+	private static final String FAKE_WIDTH = "fakeScreenWidth";
+	private static final String FAKE_HEIGHT= "fakeScreenHeight";
+	private static final String FAKE_ORIENTATION = "fakeScreenorientation";
 
 	public static int PHONE_PLATFORM = 0;	//0-ANDROID, 1-OPHONE
 
@@ -147,6 +186,8 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	private static VenusActivity sInstance = null;
 	private VenusView venusview = null;
+    //add pj	
+	public SurfaceHolder VenusViewHolder = null;
 	private static SurfaceView videoview = null;
 	private SurfaceHolder mHolder = null;
 	private Surface mSurface = null;
@@ -155,8 +196,13 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	private Rect mRectDest;
 	private Matrix mMatrix;
 	private int[] mRrawPicture;
-	
+
+	//pj382 add by fgx
+	//private AdView adView = null;
+	//private AdRequest adRequest  = null;
+
 	private boolean mHaveStatusBar = true;				//Indicate that whether the application has status bar or not. 
+	//private boolean mVideoIsFull = false;
 	
 	private static final int DISPLAY_MODE_PORTAIT		= 0;	//Portait
 	private static final int DISPLAY_MODE_LANDSCAPE		= 1;	//Landscape
@@ -167,12 +213,18 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	protected static final int GUIUPDATEIDENTIFIER = 0x101;
 
-	static int screenWidth = 0;
-	static int screenHeight = 0;
-	static int statusHeight = 0;
+	//	static int screenWidth = 0;
+	//	static int screenHeight = 0;
+	//	static int statusHeight = 0;
+
+	static int fakeScreenWidth = 0;
+	static int fakeScreenHeight = 0;
+	static int fakeScreenStatusBarHeight = 0;
+	static int fakeScreenorientation = 0;
 
 	private int videoSurfaceWidth = 1;
 	private int videoSurfaceHeight = 1;
+	private boolean bAutoRotateScreen = true; 
 
 	private int videoRawWidth;
 	private int videoRawHeight;
@@ -190,9 +242,9 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	private int sysState								= SYS_STATE_IDLE;
 
 	private boolean mKeyPrepared		= false;
-	
+
 	private boolean bViewCreated = false;
-		
+
 	private Button Edit_yes;
 	private Button Edit_no;
 	private TextView Edit_title;
@@ -211,13 +263,14 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	private int m_top;
 	private int m_width;
 	private int m_height;
+	//private Button closeAdBtn;
 
-	private Button Contact_yes;
-	private Button Contact_no;
-	private TextView Contact_title;
-	private ListView Contact_list;
-	private RelativeLayout Contact_buttonView;
-	private LinearLayout Contact_view;
+//	private Button Contact_yes;
+//	private Button Contact_no;
+//	private TextView Contact_title;
+//	private ListView Contact_list;
+//	private RelativeLayout Contact_buttonView;
+//	private LinearLayout Contact_view;
 	WebView webView;
 	private LinearLayout webView_LinearLayout;
 	private LinearLayout webView_Center;
@@ -229,20 +282,12 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	private AbsoluteLayout webView_Left2;
 	private AbsoluteLayout webView_Right;
 	private AbsoluteLayout webView_Right2;
-	
+
 	boolean bCleanHistory;
 	ImageView imageView;
 	Animation animation;
 	Stack<String> oldurls = new Stack<String>();
-    private Stack<String> perurls = new Stack<String>();
-	private Cursor Contact_cursor;
-	private HashSet<Integer> Contact_positions;
-	private ContactAdapter Contact_adapter;
-	private int Contact_Count = 0;
-	private ArrayList<String> Contact_NumberList;
-	private ArrayList<String> Contact_NameList;
-	private ArrayList<Integer> Contact_SelectedList;
-	private HashMap<String, String> Contact_Map ;
+	private Stack<String> perurls = new Stack<String>();
 
 	/**
 	 * Must select a player.
@@ -253,6 +298,15 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	private static final int TMPC_MEDIA_PLAYER_PublicSurface	= 3;
 	private static final int PE_MEDIA_PALYER_OVERLEY			= 4;
 	private static final int WD_MEDIA_PLAYER_PublicSurface      = 5;
+	
+	public static final char Enum_StringEventID_VOICE					= 1;
+	public static final char Enum_StringEventID_NOTIFICATION_TEXT		= 2;
+	public static final char Enum_StringEventID_NOTIFICATION_PROCESS	= 3;
+	public static final char Enum_StringEventID_APPCALLBACK				= 4;
+	public static final char Enum_StringEventID_WAPSTART				= 5;
+	public static final char Enum_StringEventID_INTENT_DATA				= 6;
+	public static final char Enum_StringEventID_VEDIO_DATA				= 7;
+	public static final char Enum_StringEventID_VEDIO					= 8;
 
 	//Listen the event of G-SENSOR
 	private static VenusOrientation venusOrientation;
@@ -273,41 +327,61 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public SysBrowserObserver browserObserver;
 
 	public EmailObserver emailObserver;
-	
+
 	public AlarmObserver alarmObserver;
-	
+
 	public CalendarObserver calendarObserver;
+	//add pj
 	
+	public ContactsObserver contactsObserver;
 	public AbsoluteLayout webViewRoot = null;
 
 	public AppManager	appManager;
 	public static final int CAMERA_RESULT = 100;
 	public static final int CALL_RESULT = 101;
 	public static final int REQUEST_PICKER_ALBUM = 102;
+	
+	public static long tolRxTraffic = -1;
+	public static long tolTxTraffic = -1;
 
+	//FractalADPlugin
+	//public FractalADPlugin fractalADPlugin = null;
+	//AuthPlugin
+//	public AuthPlugin authPlugin = null;
 	//TODO VoiceInput
+//add pj
 //	public VoiceInputManager viManager;
 
 	//Manage the KeyQuard
 	//private KeyguardLock keyguardLock = null;
-	
+
 	//MsgPush
+	//add PJ
 	private MsgPushManager msgPushMgr = null;
-	
+
 	//SMSSpam
 	public SMSSpamMgr smsSpamMgr = null;
-    
+
 	//TODO SysPlayer
+	//add pj
 	public SysMediaPlayerMgr sysMediaPlayer = null;
     
 	//Map
+	//add pj
 	public MapPluginMgr mapPluginMgr = null;
 	
-	//TODO authenticObserver
+	//safetyAuthentic: for plugin CA, now it's not used
+	//add pj
 	public AuthenticObserver authenticObserver = null;
-	
+
+	//safetyAuthentic2: for plugin CA, now it's not used
+	//public Authentic2Observer authentic2Observer = null;
+
+	//for plugin lotuseed
+	//public LotuseedObserver lotuseedObserver = null;
+
 	public MediaRecorder mRecorder = null;
-	
+	//add pj
 	//ArPlugin
 	// public ArPluginMgr arPluginMgr = null;
     
@@ -325,6 +399,13 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	public static VenusActivity getInstance() {
 		return sInstance;
+	}
+
+	public static void SetFakeScreen(int width, int height, int orientation) {
+		// TODO Auto-generated method stub
+		fakeScreenWidth = width;
+		fakeScreenHeight = height;
+		fakeScreenorientation = orientation;
 	}
 
 	Handler refashHandler = new Handler() {
@@ -348,7 +429,14 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	/** Called when the activity is first created. */
 	public void onCreate(Bundle savedInstanceState) {
 		Util.Trace(TAG+"::"+"onCreate");
-		
+		if(savedInstanceState != null)
+		{
+			Util.Trace(TAG+"::"+"onCreate savedInstanceState != null");
+			fakeScreenWidth = savedInstanceState.getInt(FAKE_WIDTH);
+			fakeScreenHeight = savedInstanceState.getInt(FAKE_HEIGHT);
+			fakeScreenorientation = savedInstanceState.getInt(FAKE_ORIENTATION);
+		}
+
 		appActivity.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		if(VenusApplication.getInstance().getDownVenusZip())
@@ -368,9 +456,13 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public static final int MSG_ID_BOOT_APP_ASYNCHRONOUS	= 3;
 	public static final int MSG_ID_EXIT						= 4;
 	public static final int MSG_ID_CONTACT_VIEW_BACK		= 5;
-	public static final int MSG_ID_EDIT		= 6;
-	public static final int MSG_ID_EDIT_SELECT		= 7;
-
+	public static final int MSG_ID_EDIT						= 6;
+	public static final int MSG_ID_EDIT_SELECT				= 7;
+	public static final int MSG_ID_EDIT_TEXTCHANGE  		= 8;
+	public static final int MSG_ID_FILE_EXPLORERES  		= 9;
+	public static final int MSG_ID_ADVIEW_STATE				= 10;
+	public static final int MSG_ID_Changed_VideoWindow		= 11;
+	
     private Handler venusEventHandler =new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
@@ -425,8 +517,8 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				else
 				{
 					Edit_viewone.setVisibility(View.VISIBLE);
-					Edit_viewone.setLayoutParams(new AbsoluteLayout.LayoutParams(screenWidth,
-							screenHeight, 0, m_top+20));
+					Edit_viewone.setLayoutParams(new AbsoluteLayout.LayoutParams(fakeScreenWidth,
+							fakeScreenHeight, 0, m_top+20));
 					Edit_textone.setMaxWidth(m_width);
 					if(!bmultiLines)
 						Edit_textone.setMaxLines(1);
@@ -439,7 +531,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 					Edit_textone.setText(m_defaultText);
 					Edit_inputone.showSoftInput(Edit_textone, 0);
 				}
-				
+
 				break;
 			}
 			case MSG_ID_EDIT_SELECT:
@@ -454,13 +546,35 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				Edit_inputone.showSoftInput(Edit_textone, 0);
 				break;
 			}
+			case MSG_ID_EDIT_TEXTCHANGE:
+			{
+				String text = (String) msg.obj;
+				Edit_textone.setText(text);
+				break;
+			}
 			case MSG_ID_EXIT :
 			{
 				nativeexit();
 				VenusApplication.getInstance().exit();
 				break;
 			}
-			
+			case MSG_ID_FILE_EXPLORERES:
+			{
+				Bundle bundle = msg.getData();
+				String filePathName = bundle.getString("filePathName");
+				long fileSize = bundle.getLong("fileSize");
+				int allFileNum = bundle.getInt("allFileNum");
+				int fileExplorePercent = bundle.getInt("fileExplorePercent");
+				Util.Trace("@@handler--MSG_ID_FILE_EXPLORERES--" + filePathName + "," + fileSize + "," + allFileNum + "," + fileExplorePercent);
+				nativefileexplorereturn(filePathName, fileSize, allFileNum, fileExplorePercent);
+				break;
+			}
+			case MSG_ID_ADVIEW_STATE:
+			{
+				//Util.Trace("@@nativeadmobviewreturn--IN");
+				//adView.setVisibility(View.INVISIBLE);
+				//nativeadmobviewreturn(1);
+			}
 			default:
 				break;
 			}
@@ -492,7 +606,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				} else { 
 					break; 
 				}
-		} 
+			} 
 		} catch (IOException ex) { 
 			ex.printStackTrace(); 
 		} 
@@ -510,7 +624,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		MonitorManager.getInstance(this).RegisterMonitor(MonitorCommon.MONITOR_TYPE_SD);
 		MonitorManager.getInstance(this).RegisterMonitor(MonitorCommon.MONITOR_TYPE_CONTACTS);
 		MonitorManager.getInstance(this).RegisterMonitor(MonitorCommon.MONITOR_TYPE_HEADSET);
-
 
 		/*
 		 * Create a VenusView and set its content. the view is retrieved by
@@ -533,8 +646,10 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				System.load(dirname + "sdk33/libskiaref.so");
 			else if(sdk <= Util.SDK_ANDROID_40)
 				System.load(dirname + "sdk40/libskiaref.so");
-			else
+			else if(sdk <= Util.SDK_ANDROID_41)
 				System.load(dirname + "sdk41/libskiaref.so");
+			else
+				System.load(dirname + "sdk42/libskiaref.so");
 
 			File apiV7 = new File(dirname + "armv7/libapi.so");
 			if (checkCPUArmV7() && apiV7.exists())
@@ -544,22 +659,25 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			System.load(dirname + "libcomrepository.so");
 			System.load(dirname + "liblua.so");
 			System.load(dirname + "liblauncher.so");
+			//add pj
 			System.load(VenusApplication.appAbsPath + "/lib2/webbrowser/" + "libwebbrowser.so");
 		}
+		//GDMAP
+		//System.load(VenusApplication.appAbsPath + "/lib2/mapview/libmapview.so");
 		// use for c call java find this activity.
 		mActivityFullName = this.getClass().getName().replace('.', '/');
 
 		SystemConnectionManager.getInstance().Init();
 
 		al = new RootLayout(appActivity);
-		
+
 		al.setOnResizeListener(new RootLayout.OnResizeListener() {
-			
+
 			@Override
 			public void OnResize(int maxh, int h) {
 				// TODO Auto-generated method stub
 				int autoh = m_top -  (maxh - h) + Edit_textone.getHeight();
-				
+
 				if(autoh < 0 || h == 0 || mDispalyMode != mOldDispalyMode)
 				{
 					mOldDispalyMode = mDispalyMode;
@@ -567,25 +685,34 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				}
 
 				venusview.setLayoutParams(new AbsoluteLayout.LayoutParams(javaGetRenderWidth(),javaGetRenderHeight(), 0, -autoh));
-				
+
 				nativeKeyboardSize(h);
 			}
 		});
 
-		DisplayMetrics dm = new DisplayMetrics();
-		WindowManager wm = appActivity.getWindowManager();
-		wm.getDefaultDisplay().getMetrics(dm);
-		screenWidth = dm.widthPixels;
-		screenHeight = dm.heightPixels;
+		if(fakeScreenWidth>0)
+		{
+			int h = 0;
+			try
+			{
+				Class c = Class.forName("com.android.internal.R$dimen");
+				Object obj = c.newInstance();
+				java.lang.reflect.Field field = c.getField("status_bar_height");
+				int x = Integer.parseInt(field.get(obj).toString());
+				h = appActivity.getResources().getDimensionPixelSize(x);
+			}
+			catch(Exception e)
+			{
 
-		Rect rect = new Rect();
-		appActivity.getWindow().findViewById(Window.ID_ANDROID_CONTENT).getWindowVisibleDisplayFrame(rect);
-		statusHeight = rect.top;
+			}
+			Util.Trace("fakeScreenStatusBarHeight=" +h); 
+			fakeScreenStatusBarHeight = h;
+		}
 
 		Edit_view = new LinearLayout(appActivity);
 		Edit_view.setOrientation(LinearLayout.VERTICAL);
-		Edit_view.setLayoutParams(new AbsoluteLayout.LayoutParams(screenWidth,
-				screenHeight, 0, 0));
+		Edit_view.setLayoutParams(new AbsoluteLayout.LayoutParams(fakeScreenWidth,
+				fakeScreenHeight, 0, 0));
 		Edit_view.setBackgroundColor(Color.parseColor("#000000"));
 
 		Edit_buttonView = new RelativeLayout(appActivity);
@@ -599,19 +726,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 		pLeft.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
 		pRight.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
-
-		Edit_yes = new Button(appActivity);
-		Edit_yes.setText(VenusApplication.getInstance().getResString("common_ok"));
-		Edit_yes.setOnClickListener(listener);
-		Edit_yes.setLayoutParams(pLeft);
-
-		Edit_no = new Button(appActivity);
-		Edit_no.setText(VenusApplication.getInstance().getResString("common_cancel"));
-		Edit_no.setOnClickListener(listener);
-		Edit_no.setLayoutParams(pRight);
-
-		Edit_buttonView.addView(Edit_yes);
-		Edit_buttonView.addView(Edit_no);
 
 		Edit_title = new TextView(appActivity);
 		Edit_text = new EditText(appActivity);
@@ -631,8 +745,8 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				LayoutParams.WRAP_CONTENT));
 		Edit_textone = new EditText(appActivity);
 		Edit_inputone = (InputMethodManager)appActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
-		Edit_textone.setMaxHeight(screenHeight);
-		Edit_textone.setMaxWidth(screenWidth);
+		Edit_textone.setMaxHeight(fakeScreenHeight);
+		Edit_textone.setMaxWidth(fakeScreenWidth);
 		Edit_viewone.addView(Edit_textone);
 		Edit_textone.addTextChangedListener(new TextWatcher() {
 
@@ -641,7 +755,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				// TODO Auto-generated method stub
 				try
 				{
-					if(count ==1)
+					if(count - before ==1)
 					{
 						String str = s.toString().substring(start, start+1);
 						if(str.equals("\n")&&!bmultiLines)
@@ -650,7 +764,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 								nativeneweditreturn(s.toString().substring(0, start), count, false);
 							else if(start < (s.toString().length()-1))
 								nativeneweditreturn(s.toString().substring(0, start)+s.toString().substring(start+1,s.toString().length()), count, false);
-	
+
 							Edit_textone.clearFocus();
 							Edit_inputone.hideSoftInputFromWindow(Edit_textone.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 							Edit_viewone.setVisibility(View.GONE);
@@ -668,7 +782,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 							Edit_textone.clearFocus();
 							Edit_inputone.hideSoftInputFromWindow(Edit_textone.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 							Edit_viewone.setVisibility(View.GONE);
-							
+
 						}
 					}
 					else
@@ -677,7 +791,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 							bRunSetText = false;
 						else
 							nativeneweditreturn(s.toString(), (count<maxCounts)?(count-before):0, true);
-	
+
 					}
 				}
 				catch(IndexOutOfBoundsException  ex)
@@ -699,55 +813,12 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		});
 		Edit_viewone.setVisibility(View.GONE);
 
-		Contact_positions = new HashSet<Integer>();
-
-		Contact_view = new LinearLayout(appActivity);
-		Contact_view.setOrientation(LinearLayout.VERTICAL);
-		Contact_view.setLayoutParams(new AbsoluteLayout.LayoutParams(
-				screenWidth, screenHeight, 0, 0));
-		Contact_view.setBackgroundColor(Color.parseColor("#000000"));
-
-		Contact_buttonView = new RelativeLayout(appActivity);
-		Contact_buttonView.setLayoutParams(new LinearLayout.LayoutParams(
-				LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-
-		Contact_yes = new Button(appActivity);
-		Contact_yes.setText(VenusApplication.getInstance().getResString("common_ok"));
-		Contact_yes.setOnClickListener(listener);
-		Contact_yes.setLayoutParams(pLeft);
-
-		Contact_no = new Button(appActivity);
-		Contact_no.setText(VenusApplication.getInstance().getResString("common_cancel"));
-		Contact_no.setOnClickListener(listener);
-		Contact_no.setLayoutParams(pRight);
-
-		Contact_buttonView.addView(Contact_yes);
-		Contact_buttonView.addView(Contact_no);
-
-		Contact_title = new TextView(appActivity);
-
-		Contact_list = new ListView(appActivity);
-		Contact_list.setLayoutParams(new LinearLayout.LayoutParams(
-				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-
-//		appActivity.startManagingCursor(Contact_cursor);
-		Contact_adapter = new ContactAdapter(appActivity);
-		Contact_list.setAdapter(Contact_adapter);
-
-		Contact_NumberList = new ArrayList<String>();
-		Contact_NameList  = new ArrayList<String>();
-		Contact_SelectedList = new ArrayList<Integer>();
-		Contact_view.addView(Contact_buttonView);
-		Contact_view.addView(Contact_title);
-		Contact_view.addView(Contact_list);
-		Contact_view.setVisibility(View.GONE);
-
 		/////////////////////////////////////
 		webView_LinearLayout = new LinearLayout(appActivity);
 		webView_LinearLayout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
 				LayoutParams.WRAP_CONTENT));
 		webView_LinearLayout.setOrientation(LinearLayout.VERTICAL);
-		
+
 		webView = new WebView(appActivity);
 		webView.setId(100);
 
@@ -761,14 +832,14 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		//webView.setHttpAuthUsernamePassword("10.0.0.172", "", "", "");
 		webView.setDownloadListener(new MyWebViewDownLoadListener());
 
-        // Enable JavaScript
-        WebSettings settings = webView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setJavaScriptCanOpenWindowsAutomatically(true);
-        settings.setLayoutAlgorithm(LayoutAlgorithm.NORMAL);
-        settings.setPluginsEnabled(true);
-        if(sdk >= Util.SDK_ANDROID_22)
-        {
+		// Enable JavaScript
+		WebSettings settings = webView.getSettings();
+		settings.setJavaScriptEnabled(true);
+		settings.setJavaScriptCanOpenWindowsAutomatically(true);
+		settings.setLayoutAlgorithm(LayoutAlgorithm.NORMAL);
+		settings.setPluginsEnabled(true);
+		if(sdk >= Util.SDK_ANDROID_22)
+		{
 			Class<?> cls;
 			try {
 				cls = Class.forName("android.webkit.WebSettings");
@@ -789,81 +860,81 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				e.printStackTrace();
 			}
 		}
-        
-        //Set the nav dump for HTC
-        settings.setNavDump(true);
 
-        // Enable database
-        settings.setDatabaseEnabled(true);
-        String databasePath = appActivity.getApplicationContext().getDir("database", Context.MODE_PRIVATE).getPath();
-        settings.setDatabasePath(databasePath);
+		//Set the nav dump for HTC
+		settings.setNavDump(true);
 
-        // Enable DOM storage
-        settings.setDomStorageEnabled(true);
+		// Enable database
+		settings.setDatabaseEnabled(true);
+		String databasePath = appActivity.getApplicationContext().getDir("database", Context.MODE_PRIVATE).getPath();
+		settings.setDatabasePath(databasePath);
 
-        // Enable built-in geolocation
-        settings.setGeolocationEnabled(true);
-        settings.setBuiltInZoomControls(true);
-        settings.setAllowFileAccess(true);
+		// Enable DOM storage
+		settings.setDomStorageEnabled(true);
 
-        webView_UP = new AbsoluteLayout(appActivity);
+		// Enable built-in geolocation
+		settings.setGeolocationEnabled(true);
+		settings.setBuiltInZoomControls(true);
+		settings.setAllowFileAccess(true);
+
+		webView_UP = new AbsoluteLayout(appActivity);
 		webView_UP.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
 				LayoutParams.WRAP_CONTENT));
 		webView_UP2 = new AbsoluteLayout(appActivity);
-		
-        webView.setVisibility(View.INVISIBLE);
-        webView_UP.addView(webView_UP2);
-        webView_LinearLayout.addView(webView_UP);
-        
-        webView_Center = new LinearLayout(appActivity);
-        webView_Center.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
-				LayoutParams.WRAP_CONTENT));
-        webView_Center.setOrientation(LinearLayout.HORIZONTAL);
-        
-        webView_Left = new AbsoluteLayout(appActivity);
-        webView_Left.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
-				LayoutParams.WRAP_CONTENT));
-        webView_Left2 = new AbsoluteLayout(appActivity);
-        webView_Left.addView(webView_Left2);
-        
-        webView_Center.addView(webView_Left);
-        
-        webView_Center.addView(webView);
-        
-        webView_Right = new AbsoluteLayout(appActivity);
-        webView_Right.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
-				LayoutParams.WRAP_CONTENT));
-        webView_Right2 = new AbsoluteLayout(appActivity);
-        webView_Right.addView(webView_Right2);
-        
-        webView_Center.addView(webView_Right);
-        
-        webView_LinearLayout.addView(webView_Center);
-        
-        webView_Down = new AbsoluteLayout(appActivity);
-        webView_Down.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
-				LayoutParams.WRAP_CONTENT));
-        webView_Down2 = new AbsoluteLayout(appActivity);
-        webView_Down.addView(webView_Down2);
 
-        webView_LinearLayout.addView(webView_Down);
-		
-        animation = new RotateAnimation(0.0f, +3600.0f, Animation.RELATIVE_TO_SELF,0.5f,Animation.RELATIVE_TO_SELF, 0.5f);
-        animation.setDuration(20000);
-        animation.setRepeatCount(2);
-        
+		webView.setVisibility(View.INVISIBLE);
+		webView_UP.addView(webView_UP2);
+		webView_LinearLayout.addView(webView_UP);
+
+		webView_Center = new LinearLayout(appActivity);
+		webView_Center.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT));
+		webView_Center.setOrientation(LinearLayout.HORIZONTAL);
+
+		webView_Left = new AbsoluteLayout(appActivity);
+		webView_Left.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT));
+		webView_Left2 = new AbsoluteLayout(appActivity);
+		webView_Left.addView(webView_Left2);
+
+		webView_Center.addView(webView_Left);
+
+		webView_Center.addView(webView);
+
+		webView_Right = new AbsoluteLayout(appActivity);
+		webView_Right.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT));
+		webView_Right2 = new AbsoluteLayout(appActivity);
+		webView_Right.addView(webView_Right2);
+
+		webView_Center.addView(webView_Right);
+
+		webView_LinearLayout.addView(webView_Center);
+
+		webView_Down = new AbsoluteLayout(appActivity);
+		webView_Down.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT));
+		webView_Down2 = new AbsoluteLayout(appActivity);
+		webView_Down.addView(webView_Down2);
+
+		webView_LinearLayout.addView(webView_Down);
+
+		animation = new RotateAnimation(0.0f, +3600.0f, Animation.RELATIVE_TO_SELF,0.5f,Animation.RELATIVE_TO_SELF, 0.5f);
+		animation.setDuration(20000);
+		animation.setRepeatCount(2);
+
 		imageView = new ImageView(appActivity);
 		imageView.setLayoutParams(new AbsoluteLayout.LayoutParams(50, 50, 10, 10));
 		imageView.setImageResource(appActivity.getResources().getIdentifier("loading", "drawable", appActivity.getPackageName()));
-//		imageView.setImageResource(R.drawable.loading);
+		//		imageView.setImageResource(R.drawable.loading);
 		imageView.setVisibility(View.INVISIBLE);
-//		imageView.setAnimation(animation);
-//		imageView.setVisibility(View.VISIBLE);
-//      javaBrowserCreateWindow(0,100,480,400);
-//  	javaBrowserOpenUrl("http://192.168.1.19/main.htm");
-// 		javaShowWebBrowser(true);
-    
-        PhoneObserver.getInstance(appActivity); 
+		//		imageView.setAnimation(animation);
+		//		imageView.setVisibility(View.VISIBLE);
+		//      javaBrowserCreateWindow(0,100,480,400);
+		//  	javaBrowserOpenUrl("http://192.168.1.19/main.htm");
+		// 		javaShowWebBrowser(true);
+
+		PhoneObserver.getInstance(appActivity); 
 		wifiObserver = WifiObserver.getInstance(this);
 		cameraObserver = CameraObserver.getInstance(this);
 		callObserver = CallObserver.getInstance(this);
@@ -873,25 +944,110 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		emailObserver = EmailObserver.getInstance(this);
 		alarmObserver = AlarmObserver.getInstance(this);
 		calendarObserver = CalendarObserver.getInstance(this);
+		//add pj
+		contactsObserver = ContactsObserver.getInstance(this);
 		
+		//add pj
 		authenticObserver = AuthenticObserver.getInstance(this);
 		
+		//safetyAuthentic: for plugin CA, now it's not used
+		//authentic2Observer = Authentic2Observer.getInstance(this);
+
+		//for plugin lotuseed
+		//lotuseedObserver = LotuseedObserver.getInstance(this);
+
 		//SMSSpam
 		if (smsSpamMgr == null)
 			smsSpamMgr = SMSSpamMgr.getInstance(appActivity);
 		
         // Add web view but make it invisible while loading URL
 		/////////////////////////////////////
+		
+		////adView_LinearLayout = new LinearLayout(appActivity);
+		////adView_LinearLayout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,
+		////		LayoutParams.FILL_PARENT));
+
+		//adView = new AdView(appActivity, AdSize.BANNER, "a150da56d5a5621");
+		//adView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,
+		//		LayoutParams.WRAP_CONTENT));
+
+		////adView.setLayoutParams(new AbsoluteLayout.LayoutParams(480, 100, 0, 0));
+        //adRequest = new AdRequest();
+        ////adRequest.addTestDevice("8E452640BC83C672B070CDCA8AB9B06B");
+        //adView.loadAd(adRequest);
+
+        ////adView.setBackgroundColor(Color.RED);
+        ////adView.setVisibility(View.VISIBLE);
+		////adView_LinearLayout.addView(adView);
+
+		//closeAdBtn = new Button(appActivity);
+		////closeAdBtn.setText(VenusApplication.getInstance().getResString("open?"));
+		//closeAdBtn.setBackgroundResource(R.drawable.adbutton);
+		//closeAdBtn.setLayoutParams(pRight);
+
+		//closeAdBtn.setOnClickListener(new View.OnClickListener()
+		//{
+		//	@Override
+		//	public void onClick(View v) {
+		//		if (v.equals(closeAdBtn)) {
+		//			//adView.setVisibility(View.INVISIBLE);
+		//			//nativeadmobviewreturn(1);
+		//			Message msg = new Message();
+		//			msg.what = MSG_ID_ADVIEW_STATE;
+		//			venusEventHandler.sendMessage(msg);
+		//	}
+		//	}		
+		//});
+
+		////adView.addView(closeAdBtn);
+		//adView.setVisibility(View.INVISIBLE);
+		////adView_LinearLayout.addView(closeAdBtn);
+		////adView_LinearLayout.setBackgroundColor(Color.RED);
+        ////adView_LinearLayout.setVisibility(View.VISIBLE);
+        //adView.setAdListener(new AdListener(){
+
+		//	@Override
+		//	public void onDismissScreen(Ad arg0) {
+		//		// TODO Auto-generated method stub
+
+		//	}
+
+		//	@Override
+		//	public void onFailedToReceiveAd(Ad arg0, ErrorCode arg1) {
+		//		// TODO Auto-generated method stub
+
+		//		Util.Trace("@@fgx_adviewconnect---fail!!!");
+		//	}
+
+		//	@Override
+		//	public void onLeaveApplication(Ad arg0) {
+		//		// TODO Auto-generated method stub
+
+		//	}
+
+		//	@Override
+		//	public void onPresentScreen(Ad arg0) {
+		//		// TODO Auto-generated method stub
+
+		//	}
+
+		//	@Override
+		//	public void onReceiveAd(Ad arg0) {
+		//		// TODO Auto-generated method stub
+		//		Util.Trace("@@fgx_adviewconnect---ok!!!");
+		//	}
+
+        //});
 
 		venusview = new VenusView(this, appActivity);
-		venusview.setLayoutParams(new AbsoluteLayout.LayoutParams(screenWidth,screenHeight, 0, 0));
+		venusview.setLayoutParams(new AbsoluteLayout.LayoutParams(fakeScreenWidth,fakeScreenHeight, 0, 0));
 		venusview.setVisibility(View.VISIBLE);
-		
+
 		videoview = new SurfaceView(appActivity);
 		videoview.setLayoutParams(new AbsoluteLayout.LayoutParams(videoSurfaceWidth, videoSurfaceHeight, 0, 0));
-//		videoview.setVisibility(View.INVISIBLE);
+		//		videoview.setVisibility(View.INVISIBLE);
 		videoview.setVisibility(View.VISIBLE);
-		
+
 		SurfaceHolder sh = videoview.getHolder();
 		sh.setType(SurfaceHolder.SURFACE_TYPE_NORMAL);
 		sh.addCallback(this);
@@ -900,11 +1056,14 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		al.addView(Edit_viewone);
 		al.addView(venusview);
 		al.addView(Edit_view);
-		al.addView(Contact_view);
+		//al.addView(Contact_view);
 		al.addView(webView_LinearLayout);
 		al.addView(imageView);
+		//al.addView(adView);
+
+
 		venusview.setZOrderMediaOverlay(true);
-		
+
 
 		appActivity.setContentView(al);
 		if(mHaveStatusBar)
@@ -920,37 +1079,51 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 
 		appManager = AppManager.getInstance(this);
-
+//add pj
 //		viManager = VoiceInputManager.getInstance();
 
 		Util.saveMachineSettings(appActivity.getContentResolver());
 
 
 		//MsgPush
+		//add PJ
 		if (msgPushMgr == null)
 			msgPushMgr = MsgPushManager.getInstance(appActivity);
 		msgPushMgr.init();
-        
+        //add pj
 		if (sysMediaPlayer == null)
 			sysMediaPlayer = new SysMediaPlayerMgr(appActivity);
         
+		//Map
+		//add pj
 		if (mapPluginMgr == null) {
 			mapPluginMgr = MapPluginMgr.getInstance(appActivity);
 			al.addView(mapPluginMgr.getMapView());
 		}
         
+		//AuthPlugin
+//		if(authPlugin == null)
+//			authPlugin = AuthPlugin.getInstance(this);
+		
+		//FractalADPlugin
+		//if(fractalADPlugin == null)
+		//{
+		//	fractalADPlugin = FractalADPlugin.getInstance(this);
+		//	al.addView(fractalADPlugin.GetFractalADView());
+		//}
+//add pj
 //		if (arPluginMgr == null) {
 //			arPluginMgr = new ArPluginMgr(appActivity);
 //		}
 //		
 		sysState = SYS_STATE_RUN;
 	}
-	
+
 	private void clearViewLayout()
 	{
 		appActivity.setContentView(new AbsoluteLayout(appActivity));
 	}
-	
+
 	public ViewGroup GetBaseView()
 	{
 		if(al != null)
@@ -958,7 +1131,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		Log.e(TAG,"not init VenusActivity");
 		return null;
 	}
-	
+
 	private void restoreViewLayout()
 	{
 		appActivity.setContentView(al);
@@ -966,7 +1139,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			appActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		else
 			appActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			
+
 		appActivity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 	}
 
@@ -978,69 +1151,45 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public final static int SYS_WINDOW_NORMAL		= 2;
 	public static int sys_window_state = SYS_WINDOW_NORMAL;
 	public static int ResumeCount = 0;
-	
-	public final static char EVENT_PAUSE 		= 0;
-	public final static char EVENT_RESUME 		= 1;
 
-	public final static char SysEvent_Size 			= 0;
-	public final static char SysEvent_Paint			= 1;
-	public final static char SysEvent_SMS				= 2;
-	public final static char SysEvent_DialUp			= 3;
-	public final static char SysEvent_Network			= 4;
-	public final static char SysEvent_AppStart			= 5;
-	public final static char SysEvent_TimeSlice		= 6;
-	public final static char SysEvent_WLanSearch		= 7;
-	public final static char SysEvent_HttpPipe			= 8;
-	public final static char SysEvent_ScreenRotate 	= 9;
-	public final static char SysEvent_TurnBackLight	= 10;
-	public final static char SysEvent_SysPause			= 11;
-	public final static char SysEvent_SysResume		= 12;
-	public final static char SysEvent_ScreenLock		= 13;
-	public final static char SysEvent_WLan				= 14;
-    public final static char SysEvent_AppInstall      = 15;
-    public final static char SysEvent_AppUnInstall    = 16;
-    public final static char SysEvent_AIRPLANE        = 17;
-    public final static char SysEvent_SD              = 18;
-	public final static char SysEvent_Contacts			= 19;
-
-	
 	public int javaGetSysState()
 	{
 		return sys_window_state;
 	}
-	
+
 	public void javaSetSysState(int sysState)
 	{
 		sys_window_state = sysState;
 	}
-	
+
 	public boolean javaGetScreenState()
 	{
 		return MonitorScreen.getScreenState();
 	}
-	
+
 	public void onPause()
 	{
 		Util.Trace(TAG+"::"+"onPause");
-		
+
 		if(sysState == SYS_STATE_RUN)
 		{
 			sys_window_state = SYS_WINDOW_MAX2MIN;
-			nativesendevent(SysEvent_SysPause, 0, 0);
+			nativesendevent(Util.WDM_SYSPAUSE, 0, 0);
 			SystemConnectionManager.getInstance().PostEvent(ConnectionImpl.EVENT_ID_SYSTEM_PAUSE, null);
-			WifiObserver.getInstance(this).dealWithWLan(EVENT_PAUSE);
-			AppManager.getInstance(this).dealWithAppManager(EVENT_PAUSE);
+			WifiObserver.getInstance(this).dealWithWLan(Util.WDM_SYSPAUSE);
+			AppManager.getInstance(this).dealWithAppManager(Util.WDM_SYSPAUSE);
 			PhoneObserver.getInstance().disablePhoneStateListener();
+			//add pj 
 			mapPluginMgr.stop();
 		}
 	}
 
 	public void onResume() {
 		Util.Trace(TAG+"::"+"onResume");
-		
+
 		if(sysState == SYS_STATE_RUN)
 		{
-		    restoreViewLayout();
+			restoreViewLayout();
 			if (ResumeCount == 0)
 			{
 				sys_window_state = SYS_WINDOW_NORMAL;
@@ -1054,14 +1203,19 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				appActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 			else
 				appActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			nativesendevent(SysEvent_SysResume, 0, 0);
+			//add pj
+			venusview.setVisibility(View.VISIBLE);
+			nativesendevent(Util.WDM_SYSRESUME, 0, 0);
 			SystemConnectionManager.getInstance().PostEvent(ConnectionImpl.EVENT_ID_SYSTEM_RESUME, null);
-			WifiObserver.getInstance(this).dealWithWLan(EVENT_RESUME);
-			AppManager.getInstance(this).dealWithAppManager(EVENT_RESUME);
-            PhoneObserver.getInstance().enablePhoneStateListener(PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-            mapPluginMgr.start();
-
+			WifiObserver.getInstance(this).dealWithWLan(Util.WDM_SYSRESUME);
+			AppManager.getInstance(this).dealWithAppManager(Util.WDM_SYSRESUME);
+			PhoneObserver.getInstance().enablePhoneStateListener(PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+            //add pj
+			mapPluginMgr.start();
+            //add pj
+			sendredraw();
 			//MsgPush
+            //add PJ
 			if (msgPushMgr != null) {
 				msgPushMgr.notificationCallBack();
 			}
@@ -1074,7 +1228,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	public void onDestroy() {
 		Util.Trace(TAG+"::"+"onDestroy");
-		
+
 		if(sysState == SYS_STATE_RUN)
 		{
 			MonitorManager.getInstance(this).UnRegisterMonitor(MonitorCommon.MONITOR_TYPE_BATTERY);
@@ -1086,13 +1240,28 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			Util.restoreMachineSettings(appActivity.getContentResolver());
 			AppManager.getInstance(this).UnRegisterReceiver();
 			SystemConnectionManager.getInstance().DeInit();
-            mapPluginMgr.destroyMap();
+            //add pj
+			mapPluginMgr.destroyMap();
             javaStopRecoder();
 			//Util.exitApp();
 			System.exit(0);
 		}
 	}
-
+    //add pj
+	private boolean redrawall = true;
+	public void sendredraw()
+	{
+		{
+			if( VenusViewHolder!= null)
+			{
+				redrawall = false;
+				nativeupdatemaincanvas(VenusViewHolder.getSurface(), Build.VERSION.SDK_INT);
+			}
+			else
+				redrawall = true;
+		}
+	}
+	
 	public boolean javaInstallApp(String apkPath)
 	{
 		Util.Trace("javaInstallApp:: " + apkPath);
@@ -1157,10 +1326,11 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public String javaGetInstalledAppInfoById(String id) {
 		return AppManager.getInstance(this).getInstalledAppInfoById(id);
 	}
-    
-	public boolean javaDealWithShare(int type, String value, String subject, String title) {
-		return AppManager.getInstance(this).dealWithShare(type, value, subject, title);
+
+	public boolean javaDealWithShare(String imagepath, String text, String subject, String title, String packagename, String activityname) {
+		return AppManager.getInstance(this).dealWithShare(imagepath, text, subject, title,packagename,activityname);
 	}
+	//add pj
     
 	public boolean javaOpenFileByApplication(String fileType, String filePath) {
 		return AppManager.getInstance(this).openFileByApplication(fileType, filePath);
@@ -1175,12 +1345,12 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	////////////Public interface methods for Java///////////////////////
 	public int getScreenWidth()
 	{
-		return screenWidth;
+		return fakeScreenWidth;
 	}
 
 	public int getScreenHeight()
 	{
-		return screenHeight;
+		return fakeScreenHeight;
 	}
 
 	public SurfaceView getSurfaceView()
@@ -1192,18 +1362,19 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 
 	//Be match with the cmd type in TMPCPlayer.cpp
-	public static final char Enum_CmdType_MP_Create			= 0;
+	public static final char Enum_CmdType_MP_Create				= 0;
 	public static final char Enum_CmdType_MP_SetHandle		    = 1;
 	public static final char Enum_CmdType_MP_SetInfo		    = 2;
-	public static final char Enum_CmdType_MP_Normal			= 3;
-	public static final char Enum_CmdType_MP_FullScreen		= 4;
-	public static final char Enum_CmdType_MP_AudioTrack		= 5;
+	public static final char Enum_CmdType_MP_Normal				= 3;
+	public static final char Enum_CmdType_MP_FullScreen			= 4;
+	public static final char Enum_CmdType_MP_AudioTrack			= 5;
 	public static final char Enum_CmdType_MP_Stop			    = 6;
-	public static final char Enum_CmdType_MP_Visble			= 7;
-	public static final char Enum_CmdType_MP_Hidden			= 8;
+	public static final char Enum_CmdType_MP_Visble				= 7;
+	public static final char Enum_CmdType_MP_Hidden				= 8;
 	public static final char Enum_CmdType_MP_UrlRoute		    = 9;
-	public static final char Enum_CmdType_MP_MoveWindow       = 10;
-	
+	public static final char Enum_CmdType_MP_MoveWindow       	= 10;
+	public static final char Enum_CmdType_MP_SetAutoRotateScreen= 11;
+
 	public static int bFullScreen = 0;
 	public int JavaCreateElement(int type, String title, int width,
 			int height, int x, int y) {
@@ -1240,7 +1411,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			else if (MEDIA_PLAYER_TYPE == PE_MEDIA_PALYER_OVERLEY)
 			{
 			}
-			
+
 			videoview.setVisibility(View.VISIBLE);
 
 			break;
@@ -1276,7 +1447,8 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 			if(MEDIA_PLAYER_TYPE == PE_MEDIA_PALYER_OVERLEY)
 			{
-				appActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+				if(bAutoRotateScreen)
+					appActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			}
 			else if(MEDIA_PLAYER_TYPE == PE_MEDIA_PLAYER || MEDIA_PLAYER_TYPE == TMPC_MEDIA_PLAYER)
 			{
@@ -1319,11 +1491,12 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			if(MEDIA_PLAYER_TYPE == PE_MEDIA_PALYER_OVERLEY || MEDIA_PLAYER_TYPE == WD_MEDIA_PLAYER_PublicSurface)
 			{
 				bFullScreen = Enum_CmdType_MP_FullScreen;
-				appActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+				if(bAutoRotateScreen)
+					appActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 			}
 			else
 			{
-				videoview.setLayoutParams(new AbsoluteLayout.LayoutParams(screenWidth,	screenHeight, 0, 0));
+				videoview.setLayoutParams(new AbsoluteLayout.LayoutParams(fakeScreenWidth,	fakeScreenHeight + fakeScreenStatusBarHeight, 0, 0));
 			}
 			videoSurfaceWidth = rect.width();
 			videoSurfaceHeight =  rect.height();
@@ -1335,12 +1508,13 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			if(mHaveStatusBar)
 				if(appActivity != null)
 					appActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			else
-				if(appActivity != null)
-					appActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+				else
+					if(appActivity != null)
+						appActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 			if(MEDIA_PLAYER_TYPE == PE_MEDIA_PALYER_OVERLEY || MEDIA_PLAYER_TYPE == WD_MEDIA_PLAYER_PublicSurface)
 			{
-				appActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+				if(bAutoRotateScreen)
+					appActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			}
 			videoview.setLayoutParams(new AbsoluteLayout.LayoutParams(width, height, x, y));
 			videoSurfaceWidth = width;
@@ -1355,20 +1529,21 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			if(mHaveStatusBar)
 				if(appActivity != null)
 					appActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			else
-				if(appActivity != null)
-					appActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+				else
+					if(appActivity != null)
+						appActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 			if(MEDIA_PLAYER_TYPE == PE_MEDIA_PALYER_OVERLEY)
 			{
-				appActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+				if(bAutoRotateScreen)
+					appActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			}
 			if(mRedrawHandler != null)
 			{
 				mRedrawHandler.enable(false);
 			}
-			
+
 			if (MEDIA_PLAYER_TYPE == PE_MEDIA_PLAYER || MEDIA_PLAYER_TYPE == TMPC_MEDIA_PLAYER
-			 || MEDIA_PLAYER_TYPE == WD_MEDIA_PLAYER_PublicSurface)
+					|| MEDIA_PLAYER_TYPE == WD_MEDIA_PLAYER_PublicSurface)
 			{
 				cleanSurface(rawWidth, rawHeight);
 			}
@@ -1386,7 +1561,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		}
 		case Enum_CmdType_MP_MoveWindow:
 		{
-			
+
 			videoview.setLayoutParams(new AbsoluteLayout.LayoutParams(width, height, x, y));
 			videoSurfaceWidth = width;
 			videoSurfaceHeight = height;
@@ -1399,9 +1574,17 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				Message msgupdate = mRedrawHandler.obtainMessage(11);
 				mRedrawHandler.sendMessageDelayed(msgupdate, 0);
 			}
-			
+
 			videoview.setVisibility(View.VISIBLE);
 			break;
+		}
+		case Enum_CmdType_MP_SetAutoRotateScreen:
+		{
+			if(width==0)
+				bAutoRotateScreen = false;
+
+			if(width==1)
+				bAutoRotateScreen = true;
 		}
 		default:
 			break;
@@ -1422,9 +1605,13 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	{
 		MEDIA_PLAYER_TYPE = type;
 	}
-	
+
 	private int realWidth = 0;
 	private int realHeight = 0;
+	//public int initWidth = 0;
+	//public int initHeight = 0;
+	//public int initX = 0;
+	//public int initY = 0;
 	public void GetRealSurfaceSize(int width, int height)
 	{
 		realWidth = width;
@@ -1433,46 +1620,92 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			public void run() {
 				mHolder.setFixedSize(realWidth, realHeight);
 				videoview.invalidate();
+				
+//				WDPictureSizeChanged(initWidth, initHeight, initX, initY);
 			}
 		});
 	}
+
+	//public void WDPictureSizeChanged(int width, int height, int x, int y)
+	//{
+	//	float h_scale = 0;
+	//	float v_scale = 0;
+	//	float scale = 0;	
+	//	int fullScreenWidth = 0;
+	//	int fullScreenHeight = 0;
+	//	int fullScreenX = 0;
+	//	int fullScreenY = 0;
+	//	if(realWidth > 0 && realHeight > 0)
+	//	{	
+	//		v_scale = (float)width/realWidth;
+	//		h_scale = (float)height/realHeight;
+	//		scale = h_scale < v_scale ? h_scale : v_scale;
+	//		fullScreenWidth = new Float(realWidth*scale).intValue();
+	//		fullScreenHeight = new Float(realHeight*scale).intValue();
+    //		if (fullScreenWidth < width) {
+    //			fullScreenX = x + (width - fullScreenWidth)/2;  
+    //		} else {
+    //			fullScreenX = x;
+    //		}
+    //		if (fullScreenHeight < height) {
+    //			fullScreenY = y + (height - fullScreenHeight)/2;
+    //		} else {
+    //			fullScreenY = y;
+    //		}
+    //		Util.Trace("WDPictureSizeChanged====fullScreenX:" + fullScreenX + ",fullScreenY:" + fullScreenY);
+	//		if (videoview != null)
+	//		{
+	//			Util.Trace("WDPictureSizeChanged0====width" + width + ",height:" + height + ",fullScreenWidth:" + fullScreenWidth + ",fullScreenHeight:" + fullScreenHeight);
+	//			videoview.setLayoutParams(new AbsoluteLayout.LayoutParams(fullScreenWidth, fullScreenHeight, fullScreenX, fullScreenY));
+	//		}
+	//	}
+	//	else
+	//	{
+	//		if (videoview != null)
+	//		{
+	//			Util.Trace("WDPictureSizeChanged1====width" + width + ",height:" + height + ",realWidth:" + realWidth + ",realHeight:"
+	//					+ realHeight + ",fullScreenWidth:" + fullScreenWidth + ",fullScreenHeight:" + fullScreenHeight);
+	//			videoview.setLayoutParams(new AbsoluteLayout.LayoutParams(width, height, 0, 0));
+	//		}
+	//	}
+	//}
 	
 	static Rect rect = null;
 	public int javaGetSurfaceViewWidth()
 	{
 		if (mHolder != null)
 			rect = mHolder.getSurfaceFrame();
-		
+
 		if (sys_window_state == SYS_WINDOW_MIN2MAX)
 		{
 			return videoSurfaceWidth;
 		}
-		
+
 		if (rect != null)
 			return rect.width();
 		else
 			return 0;
 	}
-	
+
 	public int javaGetSurfaceViewHeight()
 	{
 		if (mHolder != null)
 			rect = mHolder.getSurfaceFrame();
-		
+
 		if (sys_window_state == SYS_WINDOW_MIN2MAX)
 			return videoSurfaceHeight;
-		
+
 		if (rect != null)
 			return rect.height();
 		else
 			return 0;
 	}
-	
+
 	public String javaGetInterfaceName()
 	{
 		return SystemConnectionManager.getInstance().GetInterfaceName();
 	}
-	
+
 	static class VenusOrientation extends OrientationEventListener {
 		private static final int ANGLE_DELTA = 30;
 
@@ -1486,11 +1719,11 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		private static final char ANGLE_360		= 4;
 
 		private static final int vValidAngle[] = {	0, ANGLE_DELTA,
-													anglePoint[ANGLE_360]-ANGLE_DELTA, anglePoint[ANGLE_360],
-													anglePoint[ANGLE_180]-ANGLE_DELTA, anglePoint[ANGLE_180]+ANGLE_DELTA};
+			anglePoint[ANGLE_360]-ANGLE_DELTA, anglePoint[ANGLE_360],
+			anglePoint[ANGLE_180]-ANGLE_DELTA, anglePoint[ANGLE_180]+ANGLE_DELTA};
 
 		private static final int hValidAngle[] = {	anglePoint[ANGLE_90]-ANGLE_DELTA, anglePoint[ANGLE_90]+ANGLE_DELTA,
-													anglePoint[ANGLE_270]-ANGLE_DELTA, anglePoint[ANGLE_270]+ANGLE_DELTA};
+			anglePoint[ANGLE_270]-ANGLE_DELTA, anglePoint[ANGLE_270]+ANGLE_DELTA};
 
 		//Orientation of device
 		private static final int Orientation_HORIZEN	= 0;
@@ -1551,10 +1784,10 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				if (ua.equals("t89_android_A505")) {
 					int realOrientation = 1 - currOrientation;
 					Util.Trace("--->Send DEVICE ORIENTATION: " + realOrientation);
-					VenusActivity.getInstance().nativesendevent(SysEvent_ScreenRotate, realOrientation, 0);
+					VenusActivity.getInstance().nativesendevent(Util.WDM_SCREENROTATE, realOrientation, 0);
 				} else {
 					Util.Trace("--->Send DEVICE ORIENTATION: " + currOrientation);
-					VenusActivity.getInstance().nativesendevent(SysEvent_ScreenRotate, currOrientation, 0);
+					VenusActivity.getInstance().nativesendevent(Util.WDM_SCREENROTATE, currOrientation, 0);
 				}
 			}
 		}
@@ -1562,7 +1795,11 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	public native void nativeupdatesurface();
 
+	public native void nativesendtouchevent(int touch[]);
+
 	public native void nativesendevent(int keytype, int x, int y);
+	
+	public native void nativesendeventstring(int eventID, String strContent);
 
 	public native void nativesendkeyevent(int keyValue, int param1, int param2);
 
@@ -1571,13 +1808,13 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public native void nativeinit(int screenWidth, int screenHeight, int statusHeight, String interfaceName, String activityName, String appPath, int appPassiveStart);
 
 	public native int  nativetouchevent( int nCount, int nType, int id0, int x0, int y0, int id1, int x1, int y1 );
-	
+
 	public native void nativeexit();
 
 	public native void nativeeditreturn(String editReturn, boolean flag);
 
 	public native void nativeneweditreturn(String editReturn, int count, boolean flag);
-	
+
 	public native void nativeKeyboardSize(int nHeight);
 
 	public native void nativecontactreturn(String contactReturn, boolean flag);
@@ -1589,8 +1826,12 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public static native void nativesendsmsevent();
 
 	public native void nativeupdatemaincanvas(Surface surface,int sdkint);
-	
+
 	public native void nativebrowserreturn(String strUrl, int uType);
+
+	//public native void nativeadmobviewreturn(int uType);
+
+	public static native void nativefileexplorereturn(String filePathName, long fileSize, int allFileNum, int fileExplorePercent);
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
 	{
@@ -1620,7 +1861,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			Rect rect = holder.getSurfaceFrame();
 			videoSurfaceWidth = rect.right - rect.left;
 			videoSurfaceHeight = rect.bottom - rect.top;
-		
+
 			nativeupdatesurface();
 		}
 		else if(MEDIA_PLAYER_TYPE == WD_MEDIA_PLAYER_PublicSurface)
@@ -1677,16 +1918,16 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			nativeupdatesurface();
 		}
 	}
-	
+
 	public void cleanSurface(int width, int height){
 		Rect rectDest = mHolder.getSurfaceFrame();
 		Matrix matrix = new Matrix();
 		int rectw = rectDest.right - rectDest.left;
 		int recth = rectDest.bottom - rectDest.top;
 		float scale = 1;
-    	float h_scale = (float)rectw/width;
-    	float v_scale = (float)recth/height;
-    	scale = h_scale < v_scale ? h_scale : v_scale;
+		float h_scale = (float)rectw/width;
+		float v_scale = (float)recth/height;
+		scale = h_scale < v_scale ? h_scale : v_scale;
 		pictureW = new Float(width*scale).intValue();
 		pictureH = new Float(height*scale).intValue();
 		pictureX = 0;
@@ -1720,7 +1961,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 					if (mSurface != null && rectDest != null)
 					{
 						try {
-							 mCanvas = mSurface.lockCanvas(rectDest);
+							mCanvas = mSurface.lockCanvas(rectDest);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -1776,22 +2017,22 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				nativesendkeyevent(keyCode, 1, 0);
 				return true;
 			}
-            else if(keyCode == KeyEvent.KEYCODE_VOLUME_UP)
-            {
-                    mKeyPrepared = true;
-                    if(mDispalyMode == DISPLAY_MODE_LANDSCAPE)
-                            return true;
-                    else
-                            return false;
-            }
-            else if(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
-            {
-                    mKeyPrepared = true;
-                    if(mDispalyMode == DISPLAY_MODE_LANDSCAPE)
-                            return true;
-                    else
-                            return false;
-            }
+			else if(keyCode == KeyEvent.KEYCODE_VOLUME_UP)
+			{
+				mKeyPrepared = true;
+				if(mDispalyMode == DISPLAY_MODE_LANDSCAPE)
+					return true;
+				else
+					return false;
+			}
+			else if(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
+			{
+				mKeyPrepared = true;
+				if(mDispalyMode == DISPLAY_MODE_LANDSCAPE)
+					return true;
+				else
+					return false;
+			}
 			else if(   keyCode == KeyEvent.KEYCODE_0
 					|| keyCode == KeyEvent.KEYCODE_1
 					|| keyCode == KeyEvent.KEYCODE_2
@@ -1822,7 +2063,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		if(sysState == SYS_STATE_RUN && mKeyPrepared == true)
 		{
 			mKeyPrepared = false;
-			if( Edit_view.getVisibility() == View.VISIBLE || Contact_view.getVisibility() == View.VISIBLE ||
+			if( Edit_view.getVisibility() == View.VISIBLE ||
 					(webViewRoot!=null && webViewRoot.getVisibility() == View.VISIBLE))
 			{
 				//Filter the KEY_BACK when we are in EDIT VIEW form.
@@ -1848,30 +2089,30 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				nativesendkeyevent(keyCode, 0, 0);
 				return true;
 			}
-            else if(keyCode == KeyEvent.KEYCODE_VOLUME_UP)
-            {
-                    if(mDispalyMode == DISPLAY_MODE_LANDSCAPE)
-                    {
-                            nativesendkeyevent(KeyEvent.KEYCODE_VOLUME_UP, 0, 0);
-                            return true;
-                    }
-                    else
-                    {
-                            nativesendkeyevent(KeyEvent.KEYCODE_VOLUME_UP, 0, 0);
-                    }
-            }
-            else if(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
-            {
-                    if(mDispalyMode == DISPLAY_MODE_LANDSCAPE)
-                    {
-                            nativesendkeyevent(KeyEvent.KEYCODE_VOLUME_DOWN, 0, 0);
-                            return true;
-                    }
-                    else
-                    {
-                            nativesendkeyevent(KeyEvent.KEYCODE_VOLUME_DOWN, 0, 0);
-                    }
-            }
+			else if(keyCode == KeyEvent.KEYCODE_VOLUME_UP)
+			{
+				if(mDispalyMode == DISPLAY_MODE_LANDSCAPE)
+				{
+					nativesendkeyevent(KeyEvent.KEYCODE_VOLUME_UP, 0, 0);
+					return true;
+				}
+				else
+				{
+					nativesendkeyevent(KeyEvent.KEYCODE_VOLUME_UP, 0, 0);
+				}
+			}
+			else if(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
+			{
+				if(mDispalyMode == DISPLAY_MODE_LANDSCAPE)
+				{
+					nativesendkeyevent(KeyEvent.KEYCODE_VOLUME_DOWN, 0, 0);
+					return true;
+				}
+				else
+				{
+					nativesendkeyevent(KeyEvent.KEYCODE_VOLUME_DOWN, 0, 0);
+				}
+			}
 			else if(   keyCode == KeyEvent.KEYCODE_0
 					|| keyCode == KeyEvent.KEYCODE_1
 					|| keyCode == KeyEvent.KEYCODE_2
@@ -1910,9 +2151,9 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			venusview.setLayoutParams(new AbsoluteLayout.LayoutParams(dm.widthPixels, dm.heightPixels, 0, 0));
 		}
 		else if(Configuration.ORIENTATION_PORTRAIT == newConfig.orientation)
-			venusview.setLayoutParams(new AbsoluteLayout.LayoutParams(screenWidth, screenHeight, 0, 0));
+			venusview.setLayoutParams(new AbsoluteLayout.LayoutParams(fakeScreenWidth>fakeScreenHeight?fakeScreenWidth:fakeScreenHeight, fakeScreenWidth>fakeScreenHeight?fakeScreenWidth:fakeScreenHeight, 0, 0));
 	}
-	
+
 	private void releaseEdit() {
 		venusview.setVisibility(View.VISIBLE);
 		Edit_view.setVisibility(View.GONE);
@@ -1923,12 +2164,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		imm.hideSoftInputFromWindow(Edit_text.getWindowToken(), 0);
 	}
 
-	private void releaseContact() {
-		Contact_positions.clear();
-		ContactClose(Contact_cursor);
-		venusview.setVisibility(View.VISIBLE);
-		Contact_view.setVisibility(View.GONE);
-	}
 
 	public void initEdit(int type, int maxSize, String titleText, String defaultText) {
 		// edit.setInputType(type);
@@ -1945,23 +2180,31 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	{
 		if(npos<0)
 			npos=0;
-		
+
 		Message msg = new Message();
 		msg.what = MSG_ID_EDIT_SELECT;
 		msg.obj = npos;
 		venusEventHandler.sendMessage(msg);
 	}
-	
+
 	public void setNewEditText(String strText)
 	{
 		if(strText.length()>maxCounts)
 			strText=strText.substring(0,maxCounts);
 		bRunSetText = true;
-		Edit_textone.setText(strText);	
+		Message msg = new Message();
+		msg.what = MSG_ID_EDIT_TEXTCHANGE;
+		msg.obj = strText;
+		venusEventHandler.sendMessage(msg);
+
+		//		if(strText.length()>maxCounts)
+		//			strText=strText.substring(0,maxCounts);
+		//		
+		//		Edit_textone.setText(strText);	
 	}
 
 	public void initNewEdit(int type, int maxSize, int multiLines, String titleText, String defaultText, int top, int width, int height, int uflags) {
-		Log.d(TAG,"top="+top + ", width=" + width + ",height=" + height);
+		Log.d(TAG,"top="+top + ", width=" + width + ",height=" + height + ",maxSize=" + maxSize);
 		Message msg = new Message();
 		bmultiLines = (multiLines == 1)?true:false;;
 		maxCounts = maxSize;
@@ -1989,441 +2232,75 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			msg.obj = true;
 			venusEventHandler.sendMessage(msg);
 		}
-        if (uflags == 0x0001) {
-        	Edit_textone.setInputType(EditorInfo.TYPE_CLASS_PHONE);
-        } else {
-        	Edit_textone.setInputType(EditorInfo.TYPE_CLASS_TEXT);
-        }
-	}
-
-	private boolean initContact(String titleText) {
-		Contact_cursor = ContactRefresh();
-		
-		Contact_Count = 0;
-		Contact_NameList.clear();
-		Contact_NumberList.clear();
-		//Contact_SelectedList.clear();
-		
-		int i = 0;
-		int c = Contact_cursor.getCount();
-		if(c > 0)
-		{
-			Contact_cursor.moveToFirst();
-			for(; i<c; i++)
-			{
-				String name = Contact_cursor.getString(Contact_cursor.getColumnIndex("display_name"));
-				String id = Contact_cursor.getString(Contact_cursor.getColumnIndex("_id"));
-				String hasPhone = Contact_cursor.getString( Contact_cursor.getColumnIndex("has_phone_number") );
-				if( hasPhone.equals("1") )
-				{
-					Cursor phones = appActivity.getContentResolver().query(
-							phoneUri,
-							null,
-							"contact_id" +" = ?",
-							new String[] { id }, 
-							null);
-					while(phones != null && phones.moveToNext())
-					{
-						String phone = phones.getString(phones.getColumnIndex("data1"));
-						Contact_NameList.add(name);
-						Contact_NumberList.add(phone);
-						Contact_Count++;
-					}
-					phones.close();
-				}
-			
-				Contact_cursor.moveToNext();	
-			}
+		if (uflags == 0x0001) {
+			Edit_textone.setInputType(EditorInfo.TYPE_CLASS_PHONE);
+		} else {
+			Edit_textone.setInputType(EditorInfo.TYPE_CLASS_TEXT);
 		}
-		
-		if(Contact_Count > 0)
-		{
-			Contact_title.setText(titleText);
-			Contact_view.setVisibility(View.VISIBLE);
-			venusview.setVisibility(View.GONE);
-			Contact_adapter.notifyDataSetChanged();
-			Contact_list.setSelection(0);
-			ContactClose(Contact_cursor);
-			return true;
-		}
-		else
-		{
-			ContactClose(Contact_cursor);
-			return false;
-		}
-	}
-
-	private String getContactReturn() {
-		String contactReturn = "";
-		int i = 0;
-		int c = Contact_SelectedList.size();
-		for(; i<c; i++) {
-			String name = Contact_NameList.get( Contact_SelectedList.get(i).intValue() );
-			String number = Contact_NumberList.get( Contact_SelectedList.get(i).intValue() );
-			number = number.replace("-", ""); // Remove the character "-", such as "XXX-XXXX-XXXX"
-			contactReturn += name + "," + number + ";";
-		}
-
-		return contactReturn;
 	}
 
 	public void getContactsAsync()
 	{
 		Util.getInstance().getAsyncTask().execute("GetContacts");
 	}
+	
+	public void javaGetSearchContactsAsync(String condition)
+	{
+		Util.getInstance().getAsyncTask().execute("GetSearchContacts",condition);
+	}
+	
+	public void javaGetContactsGroupAsync()
+	{
+		Util.getInstance().getAsyncTask().execute("GetContactsGroup");
+	}
 
+	public void javaGetEachContactsGroupInfoAsync(String groupId)
+	{
+		Util.getInstance().getAsyncTask().execute("GetEachContactsGroupInfo",groupId);
+	}
+	
 	public String getContacts()
 	{
-		int sdk = Util.GetSDK();
-		if(sdk == Util.SDK_ANDROID_15 || sdk == Util.SDK_ANDROID_16 || sdk == Util.SDK_OMS_15 || sdk == Util.SDK_OMS_16)
-		{
-			return getContactsLowSDK();
-		}
+		if(contactsObserver!=null)
+			return contactsObserver.getContacts();
 		else
-		{
-			return getContactsHighSDK();
-		}
+			return "";
 	}
 	
-	private final Uri CONTACT_PHONE_URI = Uri.parse("content://contacts/people"); // People.CONTENT_URI;
-	private final Uri CONTACT_SIM_URI = Uri.parse("content://icc/adn"); // sim
-	private String getContactsLowSDK()
+	public boolean initContact(String str)
 	{
-		Uri uri = null;
-		String contactsList = "";
-		ContentResolver resolver = appActivity.getContentResolver();
-		String columns[] = new String[] { People._ID, People.NAME, People.NUMBER };
-		Cursor cur = null;
-		
-		if(Contact_Map == null) Contact_Map = new HashMap<String, String>();
-		Contact_Map.clear();
-		
-		for(int i=0; i<2; i++)
-		{
-			if(i == 0) 
-				uri = CONTACT_PHONE_URI;
-			else if(i == 1)
-				uri = CONTACT_SIM_URI;
-			else
-				break;
-			
-			try {
-				cur = resolver.query(uri, columns, null, null, People.NAME);
-				if (cur.moveToFirst()) {
-					do {
-						String name = cur.getString(cur.getColumnIndex(People.NAME));
-						String temp = cur.getString(cur.getColumnIndex(People.NUMBER));
-						//phoneNumberfilter(name, temp);
-						Contact_Map.put(name, temp);
-					} while (cur.moveToNext());
-				}
-			} catch (Exception e) {
-			} finally {
-				if (cur != null) {
-					cur.close();
-					cur = null;
-				}
-			}
-		}
-		
-		//Build the contacts list
-		int elementN = Contact_Map.size();
-		int j = 0;
-		String[] nameArray = new String[elementN];
-		Set<String> set = Contact_Map.keySet();
-		for(String key : set)
-		{
-			nameArray[j++] = key;
-		}
-		for(j=0; j<elementN; j++)
-		{
-			contactsList = contactsList + nameArray[j] + "\n" + Contact_Map.get(nameArray[j]) + "\n";
-		}
-		return contactsList;
+		return true;
+	}
+
+	public String getSearchContacts(String condition)
+	{
+		return contactsObserver.getSearchContacts(condition);
+	}
+
+	public String getContactsGroup()
+	{
+		return contactsObserver.getContactsGroup();
 	}
 	
-	private String getContactsHighSDK()
+	public String getEachContactsGroupInfo(String groupId)
 	{
-		Contact_cursor = ContactRefresh();
-		String contactsList = "";
-		Contact_Count = 0;
-		if(Contact_Map == null) Contact_Map = new HashMap<String, String>();
-		Contact_Map.clear();
-		Cursor phones = appActivity.getContentResolver().query(
-				ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-				null,
-				null,
-				null,
-				null);
-		int c = phones.getCount();
-		if(c > 0)
-		{
-			Contact_cursor.moveToFirst();
-			for(int i = 0; i<c; i++)
-			{
-				phones.moveToNext();
-				String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-				String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-				Contact_Map.put(name+"###" + i, phone);
-				Contact_Count++;
-			}
-		}
-		
-		//Sort the contacts by name
-		Comparator cmp = Collator.getInstance(java.util.Locale.CHINA);
-		int elementN = Contact_Map.size();
-		int j = 0;
-		String[] nameArray = new String[elementN];
-		Set<String> set = Contact_Map.keySet();
-		for(String key : set)
-		{
-			nameArray[j++] = key;
-		}
-		Arrays.sort(nameArray, cmp);
-
-		//Build the contacts list
-		for(j=0; j<elementN; j++)
-		{
-			contactsList = contactsList + nameArray[j].substring(0,nameArray[j].lastIndexOf("###")) + "\n" + Contact_Map.get(nameArray[j]) + "\n";
-		}
-		ContactClose(Contact_cursor);
-		return contactsList;
-	}
-
-	private void phoneNumberfilter(String name, String temp) {
-		if (temp != null) {
-			String phoneNo = temp;
-			if (temp.contains(" ") || temp.contains("-") || temp.contains("_")) {
-				phoneNo = temp.replaceAll("-|\\s|_", "");
-			}
-			if (checkMobilePhone(phoneNo)) {
-				Pattern pattern = Pattern.compile("1(3[4-9]|5[012789]|8[278])\\d{8}$");
-				Matcher matcher = pattern.matcher(phoneNo);
-				StringBuffer phoneNoMached = new StringBuffer();
-				while (matcher.find()) {
-					phoneNoMached.append(matcher.group());
-				}
-				String phoneNoMachedString = phoneNoMached.toString();
-//				if (!phoneMap.containsKey(phoneNoMachedString)) {
-//					if (name != null && !"".equals(name)) {
-//						personsArrayList.add(phoneNoMachedString.concat("[")
-//								.concat(name).concat("]"));
-//
-//					} else {
-//						personsArrayList.add(phoneNoMachedString);
-//					}
-//					phoneMap.put(phoneNoMachedString, 1);
-//				}
-			}
-		}
+		return contactsObserver.getEachContactsGroupInfo(groupId);
 	}
 	
-	private boolean checkMobilePhone(String phone) {
-		/*
-		 * Matcher China Mobile "^1(3[4-9]|5[012789]|8[78])\d{8}$"
-		 * 
-		 * Matcher China Telecom "^18[09]\d{8}$"
-		 * 
-		 * Matcher China Unicom "^1(3[0-2]|5[56]|8[56])\d{8}$"
-		 * 
-		 * Matcher CDMA "^1[35]3\d{8}$"
-		 */
-		Pattern pattern = Pattern
-				.compile("^(\\+86)?1(3[4-9]|5[012789]|8[278])\\d{8}$");
-		Matcher matcher = pattern.matcher(phone);
-
-		if (matcher.matches()) {
-			return true;
-		}
-		return false;
-	}
-	
-	private Uri contactsUri = null;
-	private Uri phoneUri = null;
-	private Cursor ContactRefresh()
-	{
-		if(contactsUri == null || phoneUri == null)
-		{
-			try {
-				Class<?> clazz = Class.forName("android.provider.ContactsContract$Contacts");
-				Field f1 = clazz.getField("CONTENT_URI");
-				contactsUri = (Uri) (f1.get(null));
-
-				Class<?> clazz2 = Class.forName("android.provider.ContactsContract$CommonDataKinds$Phone");
-				Field f2 = clazz2.getField("CONTENT_URI");
-				phoneUri = (Uri) (f2.get(null));
-			} catch (Exception e) {
-				Util.Trace(e.toString());
-			}
-		}
-		Cursor c = appActivity.getContentResolver().query(contactsUri/*Phones.CONTENT_URI*/, null, null, null, null);
-		return c;
-	}
-
-	private void ContactClose(Cursor c)
-	{
-		c.deactivate();
-		c.close();
-	}
-
-	View.OnClickListener listener = new View.OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			if (v.equals(Edit_yes)) {
-				nativeeditreturn(Edit_text.getText().toString(), true);
-				releaseEdit();
-			} else if (v.equals(Edit_no)) {
-				nativeeditreturn(null, false);
-				releaseEdit();
-			} else if (v.equals(Contact_yes)) {
-				nativecontactreturn(getContactReturn(), true);
-				releaseContact();
-			} else if (v.equals(Contact_no)) {
-				nativecontactreturn(null, false);
-				releaseContact();
-			}
-		}
-	};
-
-	//Adapter for contacts
-	public class ContactAdapter extends BaseAdapter {
-		private Context context;
-
-		public ContactAdapter(Context context) {
-			this.context = context;
-		}
-
-		@Override
-		public int getCount() {
-			//return Contact_cursor.getCount();
-			return Contact_Count;
-		}
-
-		@Override
-		public Object getItem(int position) {
-			return position;
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			ViewHolder holder;
-			//Contact_cursor.moveToPosition(position);
-
-			if (convertView == null) {
-				convertView = new LinearLayout(context);
-				convertView.setLayoutParams(new AbsListView.LayoutParams(
-						LinearLayout.LayoutParams.WRAP_CONTENT,
-						LinearLayout.LayoutParams.WRAP_CONTENT));
-
-				RelativeLayout relative = new RelativeLayout(context);
-				relative.setLayoutParams(new LinearLayout.LayoutParams(
-						LinearLayout.LayoutParams.FILL_PARENT,
-						LinearLayout.LayoutParams.WRAP_CONTENT));
-
-				TextView name = new TextView(context);
-				RelativeLayout.LayoutParams pName = new RelativeLayout.LayoutParams(
-						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-				pName.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
-						RelativeLayout.TRUE);
-				pName.leftMargin = 4;
-				name.setLayoutParams(pName);
-				name.setTextSize(20);
-				name.setTextColor(Color.parseColor("#FFFFFF"));
-
-				TextView number = new TextView(context);
-				RelativeLayout.LayoutParams pNumber = new RelativeLayout.LayoutParams(
-						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-				pNumber.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
-						RelativeLayout.TRUE);
-				pNumber.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,
-						RelativeLayout.TRUE);
-				pNumber.leftMargin = 4;
-				pNumber.topMargin = 1;
-				number.setLayoutParams(pNumber);
-				number.setTextSize(14);
-				number.setTextColor(Color.parseColor("#FFFFFF"));
-
-				CheckBox check = new CheckBox(context);
-				RelativeLayout.LayoutParams pCheck = new RelativeLayout.LayoutParams(
-						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-				pCheck.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,
-						RelativeLayout.TRUE);
-				pCheck.addRule(RelativeLayout.ALIGN_PARENT_TOP,
-						RelativeLayout.TRUE);
-				check.setLayoutParams(pCheck);
-
-				relative.addView(name);
-				relative.addView(number);
-				relative.addView(check);
-				((LinearLayout) convertView).addView(relative);
-
-				holder = new ViewHolder();
-				holder.name = name;
-				holder.number = number;
-				holder.check = check;
-
-				convertView.setTag(holder);
-			} else {
-				holder = (ViewHolder) convertView.getTag();
-			}
-
-			String name = Contact_NameList.get(position);
-			String number = Contact_NumberList.get(position);
-			holder.name.setText(name);
-			holder.number.setText(number);
-			holder.check.setTag(position);
-
-			//if (Contact_positions.contains(new Integer(position))) {
-			if(Contact_SelectedList.contains(new Integer(position))) {
-				holder.check.setChecked(true);
-			} else {
-				holder.check.setChecked(false);
-			}
-
-			holder.check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-						@Override
-						public void onCheckedChanged(CompoundButton Contact_buttonView,	boolean isChecked) {
-							if (isChecked) {
-								//Contact_positions
-								//		.add((Integer) Contact_buttonView
-								//				.getTag());
-								if(!Contact_SelectedList.contains((Integer) Contact_buttonView.getTag()))
-									Contact_SelectedList.add((Integer) Contact_buttonView.getTag());
-							} else {
-								//Contact_positions
-								//		.remove((Integer) Contact_buttonView
-								//				.getTag());
-								Contact_SelectedList.remove((Integer) Contact_buttonView.getTag());
-							}
-						}
-					});
-
-			return convertView;
-		}
-
-		public class ViewHolder {
-			TextView name;
-			TextView number;
-			CheckBox check;
-		}
-	}
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// get machine info.
 	public static int EMachineInfo_Serial 			= 0; // ID,
 	public static int EMachineInfo_Signal 			= 1; // Sinal, 0 ~ 100
-	public static int EMachineInfo_Battery 		= 2; // Battery energy
-	public static int EMachineInfo_PhoneNumber 	= 3; // Phone Number,
+	public static int EMachineInfo_Battery 			= 2; // Battery energy
+	public static int EMachineInfo_PhoneNumber 		= 3; // Phone Number,
 	public static int EMachineInfo_IMEI 			= 4; // IMEI,
 	public static int EMachineInfo_IMSI 			= 5; // IMSI,
-	public static int EMachineInfo_Count 			= 6; // Boundary check 
+	public static int EMachineInfo_OperatorID		= 6; // OperatorID
+	public static int EMachineInfo_NetWorkType		= 7; // Network type
+	public static int EMachineInfo_SignalStrength	= 8; // Sinal ,dBm, 
+	public static int EMachineInfo_GSMCellId		= 9; // Cell Id
+	public static int EMachineInfo_MacAddress		= 10;// WIFI Mac Address
+	public static int EMachineInfo_Count 			= 11;// Boundary check 
 
 	//Field create
 	public CBatteryInfo batteryInfo = null;
@@ -2439,7 +2316,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				imei = android.provider.Settings.System.getString(appActivity.getContentResolver(),android.provider.Settings.System.ANDROID_ID);
 			}
 			imei = (imei == null) ? "":imei;
-			Util.Trace("@@ imei =" +imei);
+
 			return imei;
 		}
 		else if(EMachineInfo_IMSI == index)
@@ -2457,24 +2334,58 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		{
 			return batteryInfo;
 		}
+		else if (EMachineInfo_OperatorID == index)
+		{
+			int simState = telephonyManager.getSimState();
+			if(simState == TelephonyManager.SIM_STATE_READY)
+			{
+				String operator = telephonyManager.getNetworkOperator();
+				operator = operator == null?"":operator;
+
+				return operator;
+			}
+		}
+		else if (EMachineInfo_NetWorkType == index)
+		{
+			Integer networkType = telephonyManager.getNetworkType();
+			return networkType.toString();
+		}
+		else if (EMachineInfo_Signal == index)
+		{
+			return "100";
+		}
+		else if (EMachineInfo_SignalStrength == index)
+		{
+			Integer signal = PhoneObserver.getInstance().getSignalStrength();
+			return signal.toString();
+		}
+		else if (EMachineInfo_GSMCellId == index)
+		{
+			Integer cellId = PhoneObserver.getInstance().getCellId();
+			return cellId.toString();
+		}
+		else if (EMachineInfo_MacAddress == index)
+		{
+			return PhoneObserver.getInstance().getMacAddress();
+		}
 
 		return "";
 	}
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	public int javaGetRenderWidth()
 	{
 		int width = 0;
 		if(mDispalyMode == DISPLAY_MODE_PORTAIT)
 		{
-			width = screenWidth;
+			width = fakeScreenWidth;
 		}
 		else
 		{
-			width = screenHeight;
+			width = fakeScreenHeight + fakeScreenStatusBarHeight;
 		}
 		return width;
 	}
@@ -2482,52 +2393,63 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public int javaGetRenderHeight()
 	{
 		int height = 0;
+		Util.Trace("javaGetRenderHeight use fake");
 		if(mDispalyMode == DISPLAY_MODE_PORTAIT)
 		{
 			if(mHaveStatusBar)
 			{
-				DisplayMetrics dm = new DisplayMetrics();
-				WindowManager wm = appActivity.getWindowManager();
-				wm.getDefaultDisplay().getMetrics(dm);
-				int statusBarHeight = (int) Math.ceil(25 * dm.density);
-				height = screenHeight - statusBarHeight;
+				height = fakeScreenHeight;
 			}
 			else
 			{
-				height = screenHeight;
+				height = fakeScreenHeight + fakeScreenStatusBarHeight;
 			}
 		}
 		else
 		{
 			if(mHaveStatusBar)
 			{
-				DisplayMetrics dm = new DisplayMetrics();
-				WindowManager wm = appActivity.getWindowManager();
-				wm.getDefaultDisplay().getMetrics(dm);
-				int statusBarHeight = (int) Math.ceil(25 * dm.density);
-				height = screenWidth - statusBarHeight;
+				height = fakeScreenWidth - fakeScreenStatusBarHeight;
 			}
 			else
 			{
-				height = screenWidth;
+				height = fakeScreenWidth;
 			}
 		}
 		return height;
 	}
 
-	
+
 	public int javaGetStatusHeight() {
 		View v = appActivity.getWindow().findViewById(Window.ID_ANDROID_CONTENT);
 		Rect rect = new Rect();
 
 		v.getWindowVisibleDisplayFrame(rect);
 		if (null != rect) {
-			return 0;//rect.top; TODO
+			return rect.top;
 		}
 
 		return 0;
 	}
-	
+
+	public int GetstatusBarHeight()
+	{
+		int h = 0;
+		try
+		{
+			Class c = Class.forName("com.android.internal.R$dimen");
+			Object obj = c.newInstance();
+			java.lang.reflect.Field field = c.getField("status_bar_height");
+			int x = Integer.parseInt(field.get(obj).toString());
+			h = appActivity.getResources().getDimensionPixelSize(x);
+		}
+		catch(Exception e)
+		{
+
+		}
+		return h;
+	}
+
 	public void javaScreenRotate(int mode)
 	{
 		if(mode == 0)
@@ -2552,7 +2474,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		if (bSilentMode) {
 			SmsManager smsManager = SmsManager.getDefault();
 			if (messageAddress.trim().length() != 0
-				&& messageContent.trim().length() != 0) {
+					&& messageContent.trim().length() != 0) {
 				try {
 					Util.Trace("SMS: ADDRESS="+messageAddress+ "   CONTENT="+messageContent);
 					smsManager.sendMultipartTextMessage(messageAddress, null, smsManager.divideMessage(messageContent), null, null);
@@ -2573,33 +2495,33 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	// Set volume of system
 	private AudioManager audioMgr = null;
 	//pj382 add fgx
-    public boolean javaSetVolume(int nVolume)
-    {
-        Util.Trace("javaSetVolume:" + nVolume);
+	public boolean javaSetVolume(int nVolume)
+	{
+		Util.Trace("javaSetVolume:" + nVolume);
 		audioMgr = (AudioManager) appActivity.getSystemService(Context.AUDIO_SERVICE);
-        if (nVolume < 0)
-            audioMgr.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
-        else 
+		if (nVolume < 0)
+			audioMgr.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+		else 
 		{
-            int maxStreamVolume = audioMgr.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-            Util.Trace("javaSetVolume0:" + maxStreamVolume);
-            if ((maxStreamVolume*nVolume)/4 > maxStreamVolume)
-                audioMgr.setStreamVolume(AudioManager.STREAM_MUSIC, maxStreamVolume, 0);
-            else
+			int maxStreamVolume = audioMgr.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+			Util.Trace("javaSetVolume0:" + maxStreamVolume);
+			if ((maxStreamVolume*nVolume)/4 > maxStreamVolume)
+				audioMgr.setStreamVolume(AudioManager.STREAM_MUSIC, maxStreamVolume, 0);
+			else
 				audioMgr.setStreamVolume(AudioManager.STREAM_MUSIC, (maxStreamVolume*nVolume)/4, 0);
-            
-            Util.Trace("javaSetVolume1:" + (maxStreamVolume*nVolume)/4);
-         }
+
+			Util.Trace("javaSetVolume1:" + (maxStreamVolume*nVolume)/4);
+		}
 		return true;
 	}
 	//pj382 add fgx
-    public int javaGetVolume()
-    {
-        audioMgr = (AudioManager) appActivity.getSystemService(Context.AUDIO_SERVICE);
-        int maxStreamVolume = audioMgr.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        int curStreamVolume = audioMgr.getStreamVolume(AudioManager.STREAM_MUSIC);
-        Util.Trace("javaGetVolume:" + (curStreamVolume*5)/maxStreamVolume);
-        return curStreamVolume/(maxStreamVolume/4);
+	public int javaGetVolume()
+	{
+		audioMgr = (AudioManager) appActivity.getSystemService(Context.AUDIO_SERVICE);
+		int maxStreamVolume = audioMgr.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+		int curStreamVolume = audioMgr.getStreamVolume(AudioManager.STREAM_MUSIC);
+		Util.Trace("javaGetVolume:" + (curStreamVolume*5)/maxStreamVolume);
+		return curStreamVolume/(maxStreamVolume/4);
 	}
 	// ////////////////////////////////////////////////////////////////////////////////
 	// Set Bluetooth
@@ -2613,7 +2535,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				cls = Class.forName("android.bluetooth.BluetoothAdapter");
 				Method m_getDefaultAdapter = cls.getDeclaredMethod("getDefaultAdapter");
 				Object blueAdapter = m_getDefaultAdapter.invoke(null);
-				
+
 				if(blueAdapter != null)
 				{
 					Method m_isEnabled = cls.getDeclaredMethod("isEnabled");
@@ -2626,20 +2548,20 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		}
 		return on;
 	}
-	
+
 	public boolean javaSetBluetoothState(boolean bstate)
 	{
 		boolean result = false;
-		
+
 		if(Util.GetSDK() != Util.SDK_ANDROID_15 && Util.GetSDK() != Util.SDK_ANDROID_16 && Util.GetSDK() != Util.SDK_OMS_15 && Util.GetSDK() != Util.SDK_OMS_16)
 		{
 			try {
 				Class<?> cls;
 				cls = Class.forName("android.bluetooth.BluetoothAdapter");
-				
+
 				Method m_getDefaultAdapter = cls.getDeclaredMethod("getDefaultAdapter");
 				Object blueAdapter = m_getDefaultAdapter.invoke(null);
-				
+
 				if(blueAdapter != null)
 				{
 					if(javaGetBluetoothState())
@@ -2651,7 +2573,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 							Method m_disable = cls.getDeclaredMethod("disable");
 							result = ((Boolean)m_disable.invoke(blueAdapter)).booleanValue();
 						}
-							
+
 					}
 					else
 					{
@@ -2674,49 +2596,49 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	}
 
 	public String javagetLanguage() {
-        Locale[] mLocales = Locale.getAvailableLocales();
-        Locale defaultLocale = Locale.getDefault();
-        String language=new String();
-        for (Locale l : mLocales) {
-            String sl = l.toString();
-            if (sl.equals("zh_CN"))
-                    language += "SIMPLIFIED_CHINESE;";
-            else if (sl.equals("zh_TW"))
-                    language += "TRADITIONAL_CHINESE;";
-            else if (sl.equals("en"))
-                    language += "ENGLISH;";
-            else if (sl.equals("fr"))
-                    language += "FRENCH;";
-            else if (sl.equals("de"))
-                    language += "GERMAN;";
-            else if (sl.equals("it"))
-                    language += "ITALIAN;";
-            else if (sl.equals("ja"))
-                    language += "JAPANESE;";
-            else if (sl.equals("ko"))
-                    language += "KOREAN;";
-        }
+		Locale[] mLocales = Locale.getAvailableLocales();
+		Locale defaultLocale = Locale.getDefault();
+		String language=new String();
+		for (Locale l : mLocales) {
+			String sl = l.toString();
+			if (sl.equals("zh_CN"))
+				language += "SIMPLIFIED_CHINESE;";
+			else if (sl.equals("zh_TW"))
+				language += "TRADITIONAL_CHINESE;";
+			else if (sl.equals("en"))
+				language += "ENGLISH;";
+			else if (sl.equals("fr"))
+				language += "FRENCH;";
+			else if (sl.equals("de"))
+				language += "GERMAN;";
+			else if (sl.equals("it"))
+				language += "ITALIAN;";
+			else if (sl.equals("ja"))
+				language += "JAPANESE;";
+			else if (sl.equals("ko"))
+				language += "KOREAN;";
+		}
 
-        String sl = defaultLocale.toString();
-        if (sl.equals("zh_CN"))
-            language += "SIMPLIFIED_CHINESE";
-	    else if (sl.equals("zh_TW"))
-	            language += "TRADITIONAL_CHINESE";
-	    else if (sl.equals("en"))
-	            language += "ENGLISH";
-	    else if (sl.equals("fr"))
-	            language += "FRENCH";
-	    else if (sl.equals("de"))
-	            language += "GERMAN";
-	    else if (sl.equals("it"))
-	            language += "ITALIAN";
-	    else if (sl.equals("ja"))
-	            language += "JAPANESE";
-	    else if (sl.equals("ko"))
-	            language += "KOREAN";
+		String sl = defaultLocale.toString();
+		if (sl.equals("zh_CN"))
+			language += "SIMPLIFIED_CHINESE";
+		else if (sl.equals("zh_TW"))
+			language += "TRADITIONAL_CHINESE";
+		else if (sl.equals("en"))
+			language += "ENGLISH";
+		else if (sl.equals("fr"))
+			language += "FRENCH";
+		else if (sl.equals("de"))
+			language += "GERMAN";
+		else if (sl.equals("it"))
+			language += "ITALIAN";
+		else if (sl.equals("ja"))
+			language += "JAPANESE";
+		else if (sl.equals("ko"))
+			language += "KOREAN";
 
-        return language;
-    }
+		return language;
+	}
 
 	public boolean javasetLanguage(String language) {
 		if (language == null)
@@ -2726,52 +2648,52 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		boolean isSuccessful = false;
 		Util.Trace("javasetLanguage language=" +language);
 		if (language.equals("SIMPLIFIED_CHINESE")) {
-		        l = Locale.SIMPLIFIED_CHINESE;
-		        isSuccessful = true;
+			l = Locale.SIMPLIFIED_CHINESE;
+			isSuccessful = true;
 		} else if (language.equals("TRADITIONAL_CHINESE")) {
-		        l = Locale.TRADITIONAL_CHINESE;
-		        isSuccessful = true;
+			l = Locale.TRADITIONAL_CHINESE;
+			isSuccessful = true;
 		} else if (language.equals("ENGLISH")) {
-		        l = Locale.ENGLISH;
-		        Util.Trace("l = Locale.ENGLISH");
-		        isSuccessful = true;
+			l = Locale.ENGLISH;
+			Util.Trace("l = Locale.ENGLISH");
+			isSuccessful = true;
 		} else if (language.equals("FRENCH")) {
-		        l = Locale.FRENCH;
-		        isSuccessful = true;
+			l = Locale.FRENCH;
+			isSuccessful = true;
 		} else if (language.equals("GERMAN")) {
-		        l = Locale.GERMAN;
-		        isSuccessful = true;
+			l = Locale.GERMAN;
+			isSuccessful = true;
 		} else if (language.equals("ITALIAN")) {
-		        l = Locale.ITALIAN;
-		        isSuccessful = true;
+			l = Locale.ITALIAN;
+			isSuccessful = true;
 		} else if (language.equals("JAPANESE")) {
-		        l = Locale.JAPANESE;
-		        isSuccessful = true;
+			l = Locale.JAPANESE;
+			isSuccessful = true;
 		} else if (language.equals("KOREAN")) {
-		        l = Locale.KOREAN;
-		        isSuccessful = true;
+			l = Locale.KOREAN;
+			isSuccessful = true;
 		} else {
-		        isSuccessful = false;
+			isSuccessful = false;
 		}
 		try
 		{
-	        Class<?> clzIActMag = Class.forName("android.app.IActivityManager");
-	        Class<?> clzActMagNative = Class.forName("android.app.ActivityManagerNative");
-	        Method mtdActMagNative$getDefault = clzActMagNative.getDeclaredMethod("getDefault");
-	        Object objIActMag = mtdActMagNative$getDefault.invoke(clzActMagNative);
-	        Method mtdIActMagNative$getConfiguration = clzIActMag.getDeclaredMethod("getConfiguration");
+			Class<?> clzIActMag = Class.forName("android.app.IActivityManager");
+			Class<?> clzActMagNative = Class.forName("android.app.ActivityManagerNative");
+			Method mtdActMagNative$getDefault = clzActMagNative.getDeclaredMethod("getDefault");
+			Object objIActMag = mtdActMagNative$getDefault.invoke(clzActMagNative);
+			Method mtdIActMagNative$getConfiguration = clzIActMag.getDeclaredMethod("getConfiguration");
 
-	        Configuration config = (Configuration) mtdIActMagNative$getConfiguration.invoke(objIActMag);
+			Configuration config = (Configuration) mtdIActMagNative$getConfiguration.invoke(objIActMag);
 
-	        config.locale = l;
+			config.locale = l;
 
-	        @SuppressWarnings("rawtypes")
+			@SuppressWarnings("rawtypes")
 			Class[] clzParams = {Configuration.class};
-	        Method mtdIActMag$updateConfiguration = clzIActMag.getDeclaredMethod("updateConfiguration", clzParams);
-	        mtdIActMag$updateConfiguration.invoke(objIActMag, config);
+			Method mtdIActMag$updateConfiguration = clzIActMag.getDeclaredMethod("updateConfiguration", clzParams);
+			mtdIActMag$updateConfiguration.invoke(objIActMag, config);
 		}
 		catch (Exception e) {
-		     e.printStackTrace();
+			e.printStackTrace();
 
 		}
 
@@ -2784,12 +2706,12 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public String javagetInputMethod() {
 		String strAllInputMethodList = new String();
 
-	    InputMethodManager inputMethodManager = (InputMethodManager)appActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+		InputMethodManager inputMethodManager = (InputMethodManager)appActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
 		List<InputMethodInfo> inputTypewritings = inputMethodManager.getInputMethodList();
 
 		for(InputMethodInfo inputTypewriting : inputTypewritings)
 		{
-		     strAllInputMethodList += inputTypewriting.getId() + ";";
+			strAllInputMethodList += inputTypewriting.getId() + ";";
 		}
 
 		String defaultID = Settings.Secure.getString(appActivity.getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
@@ -2800,45 +2722,44 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	public boolean javasetInputMethod(String inputMethodId) {
 		int is = appActivity.checkCallingOrSelfPermission(android.Manifest.permission.WRITE_SECURE_SETTINGS);
-	    if(is!=0)
-	    	return false;
+		if(is!=0)
+			return false;
 
-	    String enableID = Settings.Secure.getString(appActivity.getContentResolver(), Settings.Secure.ENABLED_INPUT_METHODS);
+		String enableID = Settings.Secure.getString(appActivity.getContentResolver(), Settings.Secure.ENABLED_INPUT_METHODS);
 
-        if (!enableID.contains(inputMethodId)) {
-            Settings.Secure.putString(appActivity.getContentResolver(), Settings.Secure.ENABLED_INPUT_METHODS, enableID + ":" +inputMethodId);
-        }
+		if (!enableID.contains(inputMethodId)) {
+			Settings.Secure.putString(appActivity.getContentResolver(), Settings.Secure.ENABLED_INPUT_METHODS, enableID + ":" +inputMethodId);
+		}
 
-	    String defaultID = Settings.Secure.getString(appActivity.getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
+		String defaultID = Settings.Secure.getString(appActivity.getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
 
-	    if (is == 0 && !inputMethodId.equals(defaultID)) {
-	        Settings.Secure.putString(appActivity.getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD, inputMethodId);
-	    }
+		if (is == 0 && !inputMethodId.equals(defaultID)) {
+			Settings.Secure.putString(appActivity.getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD, inputMethodId);
+		}
 
-	    return true;
+		return true;
 	}
 	// ////////////////////////////////////////////////////////////////////////////////
 	// Set brightness of LCD
 
 	public boolean javaSetBrightness(int brightness)
 	{
-		Log.i(TAG, TAG+"::"+"javaSetBrightness");
 		final int BRIGHTNESS_MAX = 100;
 		final int BRIGHTNESS_MIN = 0;
 
 		if(brightness < 10)
 			brightness =10;
-		
+
 		if( brightness<=BRIGHTNESS_MAX && brightness>=BRIGHTNESS_MIN )
 		{
 			stopAutoBrightness(appActivity.getContentResolver());
 			WindowManager.LayoutParams lp = appActivity.getWindow().getAttributes();
-			 /**
-			  * This can be used to override the user's preferred brightness of
-			  * the screen.  A value of less than 0, the default, means to use the
-			  * preferred screen brightness.  0 to 1 adjusts the brightness from
-			  * dark to full bright.
-			  */
+			/**
+			 * This can be used to override the user's preferred brightness of
+			 * the screen.  A value of less than 0, the default, means to use the
+			 * preferred screen brightness.  0 to 1 adjusts the brightness from
+			 * dark to full bright.
+			 */
 			lp.screenBrightness = (float)brightness/BRIGHTNESS_MAX;
 			appActivity.getWindow().setAttributes(lp);
 
@@ -2848,11 +2769,11 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 		return false;
 	}
-	
+
 	public int javaGetBrightness()
 	{	
 		WindowManager.LayoutParams lp = appActivity.getWindow().getAttributes();
-		
+
 		int brightness = (int)(lp.screenBrightness*100);
 
 		if(brightness<0)
@@ -2865,40 +2786,39 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				e.printStackTrace();
 			}
 		}
-		Log.i(TAG, "return value =" +brightness);
 		return brightness;
 	}
 
 	private void stopAutoBrightness(ContentResolver aContentResolver) {
 		boolean automicBrightness = false;
 		try {
-		    automicBrightness = Settings.System.getInt(aContentResolver, "screen_brightness_mode"/*Settings.System.SCREEN_BRIGHTNESS_MODE*/) == 1/*Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC*/;
-		    if(automicBrightness == true)
+			automicBrightness = Settings.System.getInt(aContentResolver, "screen_brightness_mode"/*Settings.System.SCREEN_BRIGHTNESS_MODE*/) == 1/*Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC*/;
+			if(automicBrightness == true)
 			{
 				Settings.System.putInt(aContentResolver, "screen_brightness_mode"/*Settings.System.SCREEN_BRIGHTNESS_MODE*/, 0/*Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL*/);
 			}
 		} catch (SettingNotFoundException e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		}
-    }
+	}
 
 	private int getScreenBrightness(ContentResolver aContentResolver) {
 		int nowBrightnessValue = 0;
-        try {
-        	nowBrightnessValue = Settings.System.getInt(aContentResolver, Settings.System.SCREEN_BRIGHTNESS);
-        } catch (SettingNotFoundException e) {
-            e.printStackTrace();
-        }
-        return nowBrightnessValue;
-    }
+		try {
+			nowBrightnessValue = Settings.System.getInt(aContentResolver, Settings.System.SCREEN_BRIGHTNESS);
+		} catch (SettingNotFoundException e) {
+			e.printStackTrace();
+		}
+		return nowBrightnessValue;
+	}
 
 	private void saveBrightness(ContentResolver resolver, int brightness) {
-        Uri uri = Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS);
-        Settings.System.putInt(resolver, Settings.System.SCREEN_BRIGHTNESS, brightness);
-        // resolver.registerContentObserver(uri, true, myContentObserver);
-        resolver.notifyChange(uri, null);
-    }
-	
+		Uri uri = Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS);
+		Settings.System.putInt(resolver, Settings.System.SCREEN_BRIGHTNESS, brightness);
+		// resolver.registerContentObserver(uri, true, myContentObserver);
+		resolver.notifyChange(uri, null);
+	}
+
 	//////////////////////////////////////////////////////////////////////////////////
 	//Append Appointment Alert
 	public boolean javaAppendAppointment(String programID, String timeInterval, String programName, String programUrl)
@@ -2908,36 +2828,59 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		DameonService.Service_addAppointment(programID, timeInterval, programName, programUrl);
 		return true;
 	}
-	
+
 	//Delete Appointment Alert
 	public boolean javaDeleteAppointment(String programID)
 	{
 		DameonService.Service_DeleteAppointment(programID);
 		return true;
 	}
+
+	public void javaOpenAdView()
+	{
+		//Util.Trace("fgx_javaOpenAdView---IN:" + adView.getWidth() + "," + adView.getHeight());
+		//adView.loadAd(adRequest);
+		//adView.setLayoutParams(new AbsoluteLayout.LayoutParams(480,78, 0, 0));
+		//adView.setVisibility(View.VISIBLE);
+	}
 	
+	//Delete Appointment Alert
+	public void javaCloseAdView()
+	{
+		//Util.Trace("fgx_javaCloseAdView---IN ");
+		//adView.setVisibility(View.GONE);
+	}
+	
+	public void javaMoveAdView(int nX, int nY, int nWidth, int nHeight)
+	{
+		//add pj
+		//Util.Trace("fgx_javaMoveAdView---IN: " +nX + "," + nY + "," + nWidth + "," + nHeight);
+		//adView.loadAd(adRequest);
+		//adView.setLayoutParams(new AbsoluteLayout.LayoutParams(480,78, nX, nY));
+		//adView.setVisibility(View.VISIBLE);
+	}
 	//////////////////////////////////////////////////////////////////////////////
 	//run native 
-	
+
 	// Set screen time-out  of cell phone
 
 	public boolean javaSetScreenTimeOut(int timeout/*unit: s*/)
 	{
 		Util.Trace(TAG+"::"+"javaSetScreenTimeOut" + timeout);
-	    try {
+		try {
 			//int t = Settings.System.getInt(appActivity.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT);
-	    	if(timeout == 0){
-	    		//Settings.System.putInt(appActivity.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, -1);
-	    		appActivity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-	    	}
-	    	else
-	    	{
-	    		Settings.System.putInt(appActivity.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, timeout*1000);
-	    	//	appActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-	    	}
-	    } catch (Exception e) {
-	    	e.printStackTrace();
-	    }
+			if(timeout == 0){
+				//Settings.System.putInt(appActivity.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, -1);
+				appActivity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+			}
+			else
+			{
+				Settings.System.putInt(appActivity.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, timeout*1000);
+				//	appActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return true;
 	}
@@ -2948,39 +2891,39 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public int javaGetScreenTimeOut(/*unit: s*/)
 	{
 		int screentimeout  = 0;
-	    try {
-	    	screentimeout = Settings.System.getInt(appActivity.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT);
+		try {
+			screentimeout = Settings.System.getInt(appActivity.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT);
 
-	    } catch (Exception e) {
-	    	e.printStackTrace();
-	    }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return screentimeout/1000;
 	}
 
 	// ////////////////////////////////////////////////////////////////////////////////
 	// Get RINGER NOTIFICATION Vibrate  of cell phone
-	
+
 	public boolean javaSetVibrate(int nVibrate)
 	{
 		if(audioMgr == null)
 			audioMgr = (AudioManager)appActivity.getSystemService(Context.AUDIO_SERVICE);
 		if(audioMgr == null)
 			return false;
-		
+
 		if(nVibrate == 1)
 		{
 			Vibrator VibrateMgr = (Vibrator) appActivity.getSystemService(Context.VIBRATOR_SERVICE);
 			VibrateMgr.vibrate(1000);
 		}
-		
+
 		audioMgr.setVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER, nVibrate);
 		audioMgr.setVibrateSetting(AudioManager.VIBRATE_TYPE_NOTIFICATION, nVibrate);
 
 		return true;
 	}
-	
-	
+
+
 	public boolean javaGetVibrate()
 	{
 		if(audioMgr == null)
@@ -2990,7 +2933,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 		if(audioMgr.getVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER) == AudioManager.VIBRATE_SETTING_ON)
 			return true;
-			
+
 		if(audioMgr.getVibrateSetting(AudioManager.VIBRATE_TYPE_NOTIFICATION) == AudioManager.VIBRATE_SETTING_ON)
 			return true;
 
@@ -3085,10 +3028,10 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	private int pictureW;
 	private int pictureH;
 
-    private void rawPictureSizeChanged(int width, int height) {
-    	if ( (rawWidth == width && rawHeight == height) || (width<=0) || (height<=0) ) {
-    		return;
-    	}
+	private void rawPictureSizeChanged(int width, int height) {
+		if ( (rawWidth == width && rawHeight == height) || (width<=0) || (height<=0) ) {
+			return;
+		}
 
 		rawWidth = width;
 		rawHeight = height;
@@ -3106,7 +3049,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 		SurfaceHolder holder = videoview.getHolder();
 		setPictureFixToHolder(rawWidth, rawHeight, holder);
-    }
+	}
 
 	private void rawPictureSizeChanged2(int width, int height) {
 		if ( (rawWidth == width && rawHeight == height) || (width<=0) || (height<=0) ) {
@@ -3122,86 +3065,86 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		}
 	}
 
-    private void setPictureFixToHolder(int width, int height, SurfaceHolder holder) {
-    	if (holder == null) {
-    		Util.Trace("TMPCPlayer::setPictureFixToHolder: holder = null");
-    		return;
-    	}
-    	if (width <= 0 || height <= 0) {
-    		Util.Trace("TMPCPlayer::setPictureFixToHolder: width = " + width + "; height = " + height);
-    		return;
-    	}
-    	Util.Trace(TAG + ": setPictureFixToHolder0");
-    	synchronized (surfaceLock) {
-    		Util.Trace("setPictureFixToHolder1");
-    		surface = null;
+	private void setPictureFixToHolder(int width, int height, SurfaceHolder holder) {
+		if (holder == null) {
+			Util.Trace("TMPCPlayer::setPictureFixToHolder: holder = null");
+			return;
+		}
+		if (width <= 0 || height <= 0) {
+			Util.Trace("TMPCPlayer::setPictureFixToHolder: width = " + width + "; height = " + height);
+			return;
+		}
+		Util.Trace(TAG + ": setPictureFixToHolder0");
+		synchronized (surfaceLock) {
+			Util.Trace("setPictureFixToHolder1");
+			surface = null;
 			surface = holder.getSurface();
-    		rectDest = null;
-    		rectDest = holder.getSurfaceFrame();
-    		matrix = null;
-        	matrix = new Matrix();
-    		int rectw = rectDest.right - rectDest.left;
-    		int recth = rectDest.bottom - rectDest.top;
-    		Util.Trace("rect = "+rectDest.left+" "+rectDest.top+" "+rectDest.right+" "+rectDest.bottom);
+			rectDest = null;
+			rectDest = holder.getSurfaceFrame();
+			matrix = null;
+			matrix = new Matrix();
+			int rectw = rectDest.right - rectDest.left;
+			int recth = rectDest.bottom - rectDest.top;
+			Util.Trace("rect = "+rectDest.left+" "+rectDest.top+" "+rectDest.right+" "+rectDest.bottom);
 
-    		int rotation = 0;
+			int rotation = 0;
 
-    		Util.Trace(TAG + ": setPictureFixToHolder2 :"+rectw+"*"+recth+" => "+width+"*"+height);
-    		if (((width > height) && (rectw < recth)) || ((width < height) && (rectw > recth))) {
-    			rotation = 90;
-    			Util.Trace(TAG + ": rotation = 90");
-    		}
+			Util.Trace(TAG + ": setPictureFixToHolder2 :"+rectw+"*"+recth+" => "+width+"*"+height);
+			if (((width > height) && (rectw < recth)) || ((width < height) && (rectw > recth))) {
+				rotation = 90;
+				Util.Trace(TAG + ": rotation = 90");
+			}
 
-    		float scale = 1;
-    		if (rotation == 0) {
-        		float h_scale = (float)rectw/width;
-        		float v_scale = (float)recth/height;
-        		scale = h_scale < v_scale ? h_scale : v_scale;
+			float scale = 1;
+			if (rotation == 0) {
+				float h_scale = (float)rectw/width;
+				float v_scale = (float)recth/height;
+				scale = h_scale < v_scale ? h_scale : v_scale;
 
-        		pictureW = new Float(width*scale).intValue();
-        		pictureH = new Float(height*scale).intValue();
-        		if (pictureW < rectw) {
-            		pictureX = (rectw - pictureW)/2;
-        		} else {
-        			pictureX = 0;
-        		}
-        		if (pictureH < recth) {
-        			pictureY = (recth - pictureH)/2;
-        		} else {
-        			pictureY = 0;
-        		}
-    		} else if (rotation == 90) {
-    			float h_scale = (float)recth/width;
-        		float v_scale = (float)rectw/height;
-        		scale = h_scale < v_scale ? h_scale : v_scale;
+				pictureW = new Float(width*scale).intValue();
+				pictureH = new Float(height*scale).intValue();
+				if (pictureW < rectw) {
+					pictureX = (rectw - pictureW)/2;
+				} else {
+					pictureX = 0;
+				}
+				if (pictureH < recth) {
+					pictureY = (recth - pictureH)/2;
+				} else {
+					pictureY = 0;
+				}
+			} else if (rotation == 90) {
+				float h_scale = (float)recth/width;
+				float v_scale = (float)rectw/height;
+				scale = h_scale < v_scale ? h_scale : v_scale;
 
-        		pictureW = new Float(width*scale).intValue();
-        		pictureH = new Float(height*scale).intValue();
-        		if (pictureW < recth) {
-            		pictureX = (recth - pictureW)/2;
-        		} else {
-        			pictureX = 0;
-        		}
-        		if (pictureH < rectw) {
-        			pictureY = (rectw - pictureH)/2 - rectw;
-        		} else {
-        			pictureY = - rectw;
-        		}
-    		}
+				pictureW = new Float(width*scale).intValue();
+				pictureH = new Float(height*scale).intValue();
+				if (pictureW < recth) {
+					pictureX = (recth - pictureW)/2;
+				} else {
+					pictureX = 0;
+				}
+				if (pictureH < rectw) {
+					pictureY = (rectw - pictureH)/2 - rectw;
+				} else {
+					pictureY = - rectw;
+				}
+			}
 
-    		pictureX = new Float(pictureX/scale).intValue();
-    		pictureY = new Float(pictureY/scale).intValue();
+			pictureX = new Float(pictureX/scale).intValue();
+			pictureY = new Float(pictureY/scale).intValue();
 
-    		paint = null;
-    		if (scale != 1) {
-    			paint = new Paint();
-    			paint.setFlags(Paint.FILTER_BITMAP_FLAG);
-    		}
+			paint = null;
+			if (scale != 1) {
+				paint = new Paint();
+				paint.setFlags(Paint.FILTER_BITMAP_FLAG);
+			}
 
-    		matrix.postScale(scale, scale);
-    		matrix.postRotate(rotation);
-    	}
-    }
+			matrix.postScale(scale, scale);
+			matrix.postRotate(rotation);
+		}
+	}
 
 
 
@@ -3211,7 +3154,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 		private boolean HandlerRun = false;
 		public static final int SLEEP_TIME = 5;
-		
+
 		// since 1.3.4
 		public RefreshHandler(Looper l) {
 			super(l);
@@ -3314,7 +3257,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		long updatetime = System.currentTimeMillis();
 
 		tmpcState = tmpcGetPlayerState(g_player_handle);
-		
+
 		state = tmpcState;
 
 		if (!bViewCreated)
@@ -3322,10 +3265,10 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			videoview.setBackgroundColor(Color.TRANSPARENT);
 			bViewCreated = true;
 		}
-		
+
 		if (state > PLAYER_STOPED) {			
 			rawPictureSizeChanged(videoRawWidth, videoRawHeight);
-			
+
 			if (tmpcBeginShow()) {		
 				if (rawPicture == null || rawPicture.length == 0) {
 					tmpcEndShow();
@@ -3421,13 +3364,13 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	//TODO webview
 	public void javaBrowserCreateWindow(int nX,int nY,int nWidth, int nHeight)
 	{
-		Log.d(TAG,"javaBrowserCreateWindow nX"+nX+",int nY="+nY+",int nWidth="+nWidth+", int nHeight" + nHeight);
+		Util.Trace("javaBrowserCreateWindow nX"+nX+",int nY="+nY+",int nWidth="+nWidth+", int nHeight" + nHeight);
 		webView_UP2.setLayoutParams(new AbsoluteLayout.LayoutParams(nX,nY, 0, 0));
 		webView_Left2.setLayoutParams(new AbsoluteLayout.LayoutParams(nX,nHeight, 0, nY));
-		if(screenWidth>=nX+nWidth)
-			webView_Right2.setLayoutParams(new AbsoluteLayout.LayoutParams(screenWidth-nX-nWidth,nHeight, nX+nWidth, nY));
-		if(screenHeight>=nY+nHeight)
-			webView_Down2.setLayoutParams(new AbsoluteLayout.LayoutParams(nWidth,screenHeight - nY -nHeight, nX, nY+nHeight));
+		if(fakeScreenWidth>=nX+nWidth)
+			webView_Right2.setLayoutParams(new AbsoluteLayout.LayoutParams(fakeScreenWidth-nX-nWidth,nHeight, nX+nWidth, nY));
+		if(fakeScreenHeight>=nY+nHeight)
+			webView_Down2.setLayoutParams(new AbsoluteLayout.LayoutParams(nWidth,fakeScreenHeight - nY -nHeight, nX, nY+nHeight));
 		webView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,
 				LayoutParams.FILL_PARENT));
 		//webView_LinearLayout.setLayoutParams(new AbsoluteLayout.LayoutParams(nWidth,nHeight, nX, nY));
@@ -3442,7 +3385,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		webView.clearView();
 		webView.loadUrl(url);
 		webView.clearHistory();
-		 Log.d(TAG,"javaBrowserOpenUrl url=" +url);
 		imageView.setVisibility(View.VISIBLE);
 		animation.setDuration(20000);
 		imageView.setAnimation(animation);
@@ -3451,9 +3393,9 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public boolean javaIsBrowserRun()
 	{
 		if(webView.getVisibility() == View.VISIBLE)
-            return true;
+			return true;
 		else
-            return false;
+			return false;
 	}
 
 	public boolean javabackHistory()
@@ -3484,35 +3426,35 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		{
 			webView.setVisibility(View.INVISIBLE);
 			imageView.setVisibility(View.INVISIBLE);
-        	animation.setDuration(0);
-        	Edit_inputone.hideSoftInputFromWindow(Edit_textone.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+			animation.setDuration(0);
+			Edit_inputone.hideSoftInputFromWindow(Edit_textone.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 		}
 	}
 
 	public void javaSetWebViewRect(int nX,int nY,int nWidth, int nHeight)
 	{
-		Log.d(TAG,"javaSetWebViewRect nX"+nX+",int nY="+nY+",int nWidth="+nWidth+", int nHeight" + nHeight);
+		Util.Trace("javaSetWebViewRect nX"+nX+",int nY="+nY+",int nWidth="+nWidth+", int nHeight" + nHeight);
 		webView_UP2.setLayoutParams(new AbsoluteLayout.LayoutParams(nX,nY, 0, 0));
 		webView_Left2.setLayoutParams(new AbsoluteLayout.LayoutParams(nX,nHeight, 0, nY));
-		if(screenWidth>=nX+nWidth)
-			webView_Right2.setLayoutParams(new AbsoluteLayout.LayoutParams(screenWidth-nX-nWidth,nHeight, nX+nWidth, nY));
-		if(screenHeight>=nY+nHeight)
-			webView_Down2.setLayoutParams(new AbsoluteLayout.LayoutParams(nWidth,screenHeight - nY -nHeight, nX, nY+nHeight));
+		if(fakeScreenWidth>=nX+nWidth)
+			webView_Right2.setLayoutParams(new AbsoluteLayout.LayoutParams(fakeScreenWidth-nX-nWidth,nHeight, nX+nWidth, nY));
+		if(fakeScreenHeight>=nY+nHeight)
+			webView_Down2.setLayoutParams(new AbsoluteLayout.LayoutParams(nWidth,fakeScreenHeight - nY -nHeight, nX, nY+nHeight));
 		webView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,
 				LayoutParams.FILL_PARENT));
 		//webView_LinearLayout.setLayoutParams(new AbsoluteLayout.LayoutParams(nWidth,nHeight, nX, nY));
 	}
-	
+
 	public void javaSetCookie(String url,String cookie)
 	{
 		Log.d(TAG,"javaSetCookie");
 		CookieSyncManager.createInstance(appActivity);
 		CookieManager cookieManager = CookieManager.getInstance();
-//		cookieManager.setAcceptCookie(true);
+		//		cookieManager.setAcceptCookie(true);
 		cookieManager.setCookie(url, cookie);
 		CookieSyncManager.getInstance().sync();
 	}
-	
+
 	public void javaRemoveCookie()
 	{
 		Log.d(TAG,"javaSetCookie");
@@ -3521,7 +3463,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		cookieManager.removeAllCookie();
 		CookieSyncManager.getInstance().sync();
 	}
-	
+
 	public String javaGetCookies(String url)
 	{	
 		String strjson = "{";
@@ -3533,7 +3475,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			List<Cookie> cookies = httpclient.getCookieStore().getCookies();
 			if(entity != null)
 				entity.consumeContent();
-			
+
 			if(!cookies.isEmpty()){
 				strjson +="\"data\":{";
 				for(int i = 0; i< cookies.size();i++)
@@ -3548,13 +3490,12 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		}
 		catch(Exception e)
 		{
-			
+
 		}
-		Log.d(TAG,"javaGetCookies strjson" + strjson);
 		strjson += "}";
 		return strjson;
 	}
-	
+
 	public class MyWebViewDownLoadListener implements DownloadListener{
 
 		@Override
@@ -3565,7 +3506,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 			appActivity.startActivity(intent);
 		}
-		
+
 	}
 
 	public void setWebViewRoot(AbsoluteLayout view)
@@ -3577,80 +3518,371 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			webViewRoot.setVisibility(View.VISIBLE);
 		}
 	}
-	
+
 	public native void nativeWDPageEvent(int msgId, String url);
-	
+
 	public void sendWDPageEvent(int msgId, String uri)
 	{
 		nativeWDPageEvent(msgId, uri);
 	}
-	
+
 	public void javaVibrate(long milliseconds) {
 		Vibrator vibrator = (Vibrator) appActivity.getSystemService(Context.VIBRATOR_SERVICE);
 		vibrator.vibrate(milliseconds);
 	}
-	
+
 	public boolean javaGetHeadsetStatus() {
 		return MonitorHeadset.getHeadsetStatus();
 	}
-	
+
 	public void javaPlaySoundEffect(int ntype)	{
 		if(al != null)
 			al.playSoundEffect(ntype);
 	}
-    
+
 	public boolean javaMakeRecord(String filePath) {
-        Log.d("MediaRecorder", ">>>Record Start<<<");
-        if (mRecorder ==  null) {
-        	mRecorder = new MediaRecorder();
+		if (mRecorder ==  null) {
+			mRecorder = new MediaRecorder();
 			mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 			mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
 			mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        }
-        try {
-        	mRecorder.setOutputFile(filePath);
-        	mRecorder.prepare();
-        	mRecorder.start();
-        } catch (Exception e) {
-        	e.printStackTrace();
-        	mRecorder.reset();
-        	mRecorder.release();
-        	mRecorder = null;
-            return false;
-        }
-        return true;
+		}
+		try {
+			mRecorder.setOutputFile(filePath);
+			mRecorder.prepare();
+			mRecorder.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+			mRecorder.reset();
+			mRecorder.release();
+			mRecorder = null;
+			return false;
+		}
+		return true;
 	}
-    
+
 	public void javaStopRecoder() {
-        Log.d("MediaRecorder", ">>>Record Stop<<<");
 		if (mRecorder != null) {
-            try {
+			try {
 				mRecorder.stop();
 				mRecorder.release();
 				mRecorder = null;
-            } catch (Exception e) {
-            	e.printStackTrace();
-            	mRecorder.reset();
-            	mRecorder.release();
-            	mRecorder = null;
-            }
+			} catch (Exception e) {
+				e.printStackTrace();
+				mRecorder.reset();
+				mRecorder.release();
+				mRecorder = null;
+			}
 		}
 	}
     
-	public int javaGetSignalStrength() {
-		return PhoneObserver.getInstance().getSignalStrength();
-	}
+	//public int javaGetSignalStrength() {
+	//	return PhoneObserver.getInstance().getSignalStrength();
+	//}
 	
-	public int javaGetGSMCellId() {
-		return PhoneObserver.getInstance().getCellId();
-	}
+	//public int javaGetGSMCellId() {
+	//	return PhoneObserver.getInstance().getCellId();
+	//}
     
-	public String javaGetMacAddress() {
-		return PhoneObserver.getInstance().getMacAddress();
-	}
+	//public String javaGetMacAddress() {
+	//	return PhoneObserver.getInstance().getMacAddress();
+	//}
 
 	public byte[] javaCharSetConvert(byte[] src, String srcCharSet, String desCharSet, int bufferSize) throws UnsupportedEncodingException{
 		String convert = new String(src, 0, bufferSize, srcCharSet);
 		return convert.getBytes(desCharSet);
+	}
+	
+	private class threadFileExplore extends Thread { 
+		private String strFilePath; 
+		private String strFileType;
+
+		public threadFileExplore(String strFilePath, String strFileType) { 
+			this.strFilePath = strFilePath; 
+			this.strFileType = strFileType;
+		} 
+
+		@Override 
+		public void run() { 
+			while(isStart)
+			{
+				File myFile = new File(strFilePath);
+				Message msg = new Message();
+				msg.what = MSG_ID_FILE_EXPLORERES;
+				Bundle bunble = new Bundle();
+				bunble.putString("filePathName", "");
+				bunble.putLong("fileSize", 0);
+				bunble.putInt("allFileNum", GetFileSum(myFile));
+				bunble.putInt("fileExplorePercent", 0);
+				msg.setData(bunble);
+				venusEventHandler.sendMessage(msg);
+				searchFile(myFile, strFileType);
+				javaCancelFileExplore();
+			}
+		} 
+
+	} 
+	private boolean isStart = true;
+	private Thread threadFileExplore = null;
+	public void javaFileExplore(String strFilePath, String strFileType)
+	{
+		/*Runnable fileExplore = new Runnable(){
+			public void run() 
+			{
+			    Looper.prepare();	
+			    searchFile(strFilePath, strFileType);
+			    Looper.loop();
+			}
+		};
+		Thread threadFileExplore = new Thread(fileExplore);
+		threadFileExplore.start();*/
+		if(threadFileExplore == null)
+		{
+			isStart = true;
+			nFileSum = 0;
+			curFileNum = 0;
+			threadFileExplore = new threadFileExplore(strFilePath, strFileType);
+			threadFileExplore.start(); 
+		}
+	}
+
+	public void javaCancelFileExplore()
+	{
+		if(threadFileExplore != null)
+		{
+			isStart = false;
+			threadFileExplore.interrupt();
+			threadFileExplore = null;
+		}
+	}
+
+	private static int nFileSum = 0;
+	private int GetFileSum(File myFile)
+	{
+		if (myFile != null && isStart)
+		{
+			File[] files = myFile.listFiles();
+			nFileSum += files.length;
+			if (files.length > 0) 
+			{
+				for (File file : files)
+				{
+					if (file.isDirectory())
+					{
+						if (file.canRead())
+						{
+							GetFileSum(file); 
+						}
+					}
+				}
+			}
+		}
+		Util.Trace("@@GetFileSum1--in:" + nFileSum);
+		return nFileSum;
+	}
+
+	private int curFileNum = 0;
+	private void searchFile(File myFile,String fileType)
+	{ 
+		//if (Environment.getExternalStorageState().equals(
+		//Environment.MEDIA_MOUNTED))
+		//{
+		if (myFile != null && isStart) {
+			File[] files = myFile.listFiles();
+
+			if (files.length > 0) {
+				for (File file : files) {
+					if(isStart)
+					{
+						curFileNum++;
+						Util.Trace("@@@@FileFind1 success!!!curFileNum:"+ curFileNum + "," + file.getPath());
+						if(nFileSum < 20)
+						{
+							Message msg = new Message();
+							msg.what = MSG_ID_FILE_EXPLORERES;
+							Bundle bunble = new Bundle();
+							bunble.putString("filePathName", "");
+							bunble.putLong("fileSize", 0);
+							bunble.putInt("allFileNum", nFileSum);	
+							bunble.putInt("fileExplorePercent", (curFileNum * 100)/nFileSum);
+							Util.Trace("@@@@FileFind2 success!!!curFileNum:"+ curFileNum + ",per:" + (curFileNum * 100)/nFileSum
+									+ "," + file.getPath());
+							msg.setData(bunble);
+
+							venusEventHandler.sendMessage(msg);
+						}
+						else 
+						{
+							for(int i = 1; i <= 20; i++)
+							{
+								if(curFileNum == (nFileSum*i)/20)
+								{
+									Message msg = new Message();
+									msg.what = MSG_ID_FILE_EXPLORERES;
+									Bundle bunble = new Bundle();
+									bunble.putString("filePathName", "");
+									bunble.putLong("fileSize", 0);
+									bunble.putInt("allFileNum", nFileSum);	
+									bunble.putInt("fileExplorePercent", (curFileNum * 100)/nFileSum);
+									Util.Trace("@@@@FileFind2 success!!!:"+ (curFileNum * 100)/nFileSum);
+									msg.setData(bunble);
+
+									venusEventHandler.sendMessage(msg);
+									break;
+								}
+							}
+						}
+						if (file.isDirectory()) {
+							if (file.canRead()) {
+								searchFile(file, fileType); 
+							}
+						} else {
+							try {
+								//String bFileType = file.getName().substring(file.getName().indexOf(".") + 1);
+								if ( file.getName().substring(file.getName().indexOf(".") + 1).equals(fileType) || fileType.equals("*.*"))
+								{
+									Message msg = new Message();
+									msg.what = MSG_ID_FILE_EXPLORERES;
+									Bundle bunble = new Bundle();
+									bunble.putString("filePathName", file.getPath());
+									bunble.putLong("fileSize", file.length());
+									bunble.putInt("allFileNum", nFileSum);	
+									bunble.putInt("fileExplorePercent", (curFileNum * 100)/nFileSum);
+									Util.Trace("@@@@FileFind3 success!!!:"+ file.getPath() +  file.getName() + "," + 
+											file.length() + "," + (curFileNum * 100)/nFileSum);
+									msg.setData(bunble);
+
+									venusEventHandler.sendMessage(msg);
+								}
+							} catch (Exception e) {
+								Util.Trace("@@@@FileFind fail!!!");
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public String javaGetPhoneNumber()
+	{
+		String strRt = "";
+		TelephonyManager phoneMgr=(TelephonyManager)appActivity.getSystemService(Context.TELEPHONY_SERVICE);
+	               
+		strRt = phoneMgr.getLine1Number();
+
+		return strRt;
+	}
+	
+	public String javaGetSimOperator()
+	{
+		String strRt = "";
+		TelephonyManager phoneMgr=(TelephonyManager)appActivity.getSystemService(Context.TELEPHONY_SERVICE);
+	               
+		strRt = phoneMgr.getSimOperator();
+
+		return strRt;
+	}
+	public void javaBackgroundApp()
+	{
+        Util.Trace("=======javaBackgroundApp=======");
+        Intent home = new Intent(Intent.ACTION_MAIN);  
+        home.addCategory(Intent.CATEGORY_HOME);   
+        appActivity.startActivity(home);
+    }
+	
+	private String JavaGetAppStartParamString()
+    {
+    	return startParam;
+    }
+	
+	public long GetTotalRxBytes()
+	{
+		int sdk = Util.GetSDK();
+		long RL = -1;
+		if(sdk >= Util.SDK_ANDROID_22)
+		{
+			Class<?> cls;
+			try {
+				cls = Class.forName("android.net.TrafficStats");
+				Util.Trace("GetTotalRxBytes cls =" + cls);
+				Method m_getTotalRxBytes = cls.getMethod("getTotalRxBytes");
+				Util.Trace("GetTotalRxBytes m_getTotalRxBytes =" + m_getTotalRxBytes);
+				RL = (Long) m_getTotalRxBytes.invoke(RL);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		Util.Trace("GetTotalBytes :" + RL);
+		return RL;
+	}
+	
+	public long GetTotalTxBytes()
+	{
+		int sdk = Util.GetSDK();
+		long TL = -1;
+		if(sdk >= Util.SDK_ANDROID_22)
+		{
+			Class<?> cls;
+			try {
+				cls = Class.forName("android.net.TrafficStats");
+				Util.Trace("GetTotalRxBytes cls =" + cls);
+				Method m_getTotalTxBytes = cls.getMethod("getTotalTxBytes");
+				Util.Trace("GetTotalTxBytes m_getTotalTxBytes =" + m_getTotalTxBytes);
+				TL = (Long) m_getTotalTxBytes.invoke(TL);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		Util.Trace("GetTotalTxBytes :" + TL);
+		return TL;
+	}
+	
+	public long GetMobilRxBytes()
+	{
+		int sdk = Util.GetSDK();
+		long RL = -1;
+		if(sdk >= Util.SDK_ANDROID_22)
+		{
+			Class<?> cls;
+			try {
+				cls = Class.forName("android.net.TrafficStats");
+				Util.Trace("GetMobilBytes cls =" + cls);
+				Method m_getMobileRxBytes = cls.getMethod("getMobileRxBytes");
+				Util.Trace("GetMobilBytes m_getMobileRxBytes =" + m_getMobileRxBytes);
+				RL = (Long) m_getMobileRxBytes.invoke(RL);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		Util.Trace("GetMobilBytes :" + RL);
+		return RL;
+	}
+	
+	public void javaStartFlux()
+	{
+		tolRxTraffic = GetTotalRxBytes();
+		tolTxTraffic = GetTotalTxBytes();
+	}
+	
+	public int javaGetRxFlux()
+	{
+		if(tolRxTraffic == -1)
+			return -1;
+		return (int) (GetTotalRxBytes() - tolRxTraffic);
+	}
+	
+	public int javaGetTxFlux()
+	{
+		if(tolTxTraffic == -1)
+			return -1;
+		return (int) (GetTotalTxBytes() - tolTxTraffic);
+	}
+	public void onSaveInstanceState(Bundle outState) {
+		// TODO Auto-generated method stub
+		Util.Trace("onSaveInstanceState");
+		outState.putInt(FAKE_WIDTH, fakeScreenWidth);
+		outState.putInt(FAKE_HEIGHT, fakeScreenHeight);
+		outState.putInt(FAKE_ORIENTATION, fakeScreenorientation);
 	}
 }

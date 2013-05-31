@@ -2,16 +2,23 @@ package com.wondertek.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.AbsoluteLayout;
+import android.widget.LinearLayout;
 
 import com.wondertek.video.Util;
+import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;
 
 
 public class AppFakeActivity extends Activity {
 	private static String SELF	= "AppFakeActivity ";
 	private static AppActivity instance = null;
+	private LinearLayout al;
+	private AppFakeActivity appFakeActivity = null;
 	
 	public AppFakeActivity()
 	{
@@ -31,16 +38,39 @@ public class AppFakeActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		Util.Trace( SELF+"onCreate");
 		super.onCreate(savedInstanceState);
-		
-		Message msg = new Message();
-		VenusApplication.getInstance();
-		msg.what = VenusApplication.MSG_ID_BOOT_APPACTIVITY;
-		Bundle bundle = new Bundle();
-		bundle.putInt("ID", 0);
-		msg.setData(bundle);
-		VenusApplication.getInstance().addActivity(this);
-		VenusApplication.getInstance();
-		VenusApplication.applicationHandler.sendMessage( msg );
+		al = new LinearLayout(this);
+		al.setOrientation(LinearLayout.VERTICAL);
+		al.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,
+				LayoutParams.FILL_PARENT));
+		setContentView(al);
+		appFakeActivity = this;
+		new Thread(new Runnable(){
+
+			public void run() {
+				while(true)
+				{
+					if(al.getWidth()>0 && al.getHeight()>0)
+					{
+						int orientation = getResources().getConfiguration().orientation;
+						int width = al.getWidth();
+						int height = al.getHeight();
+						Message msg = new Message();
+						VenusApplication.getInstance();
+						msg.what = VenusApplication.MSG_ID_BOOT_APPACTIVITY;
+						Bundle bundle = new Bundle();
+						bundle.putInt("ID", 0);
+						bundle.putInt("orientation", orientation);
+						bundle.putInt("Width", al.getWidth());
+						bundle.putInt("Height", al.getHeight());
+						msg.setData(bundle);
+						VenusApplication.getInstance().addActivity(appFakeActivity);
+						VenusApplication.getInstance();
+						VenusApplication.applicationHandler.sendMessage( msg );
+						break;
+					}
+				}
+			}
+		}).start();
 	}
 	
 	@Override
@@ -53,6 +83,8 @@ public class AppFakeActivity extends Activity {
 	@Override
 	protected void onResume() {
 		Util.Trace( SELF+"onResume");
+		Util.SetIntentData(getIntent());
+		Util.executeIntentData();
 		super.onResume();
 	}
 

@@ -1,5 +1,5 @@
 package com.wondertek.video.map.gdmap;
-
+//all add pj
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;

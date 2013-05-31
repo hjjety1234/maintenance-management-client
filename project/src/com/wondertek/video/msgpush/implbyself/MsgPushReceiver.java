@@ -80,15 +80,17 @@ public class MsgPushReceiver extends BroadcastReceiver {
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
             intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            
-            PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
+			
+            Random random = new Random(System.currentTimeMillis());
+			int id = random.nextInt();
+            PendingIntent contentIntent = PendingIntent.getActivity(context, id,
                     intent, PendingIntent.FLAG_UPDATE_CURRENT);
             notification.setLatestEventInfo(context, title, summary,
                     contentIntent);
             NotificationManager notificationManager = (NotificationManager) context
     				.getSystemService(Context.NOTIFICATION_SERVICE);
-            Random random = new Random(System.currentTimeMillis());
-            notificationManager.notify(random.nextInt(), notification);
+            //Random random = new Random(System.currentTimeMillis());
+            notificationManager.notify(id, notification);
 		}
 	}
 

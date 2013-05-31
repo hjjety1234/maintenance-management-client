@@ -1,5 +1,5 @@
 package com.wondertek.video.msgpush.implbyself;
-
+//all add pj
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;

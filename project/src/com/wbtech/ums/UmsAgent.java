@@ -73,6 +73,7 @@ public class UmsAgent {
 	
 	public static String curVersion = null;// 程序版本
 	public static String packagename = null;// 应用程序的包名
+	//add pj
 	public static String sdk_version = null;// Sdk 的版本号
 	
 	private static UmsAgent umsAgentEntity = new UmsAgent();
@@ -340,6 +341,7 @@ public class UmsAgent {
 		String deviceid = tm.getDeviceId();
 		end_millis = CommonUtil.getTime();// 结束的时间点
 		end = Long.valueOf(System.currentTimeMillis());// 结束时间点毫秒表示
+		//add pj
 		duration = end - start + "";
 		appkey = CommonUtil.getAppKey(context);
 		// 数据上传 或 保存

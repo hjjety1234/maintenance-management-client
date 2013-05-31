@@ -69,12 +69,14 @@ public class GDRouteSearch implements RouteMessageHandler {
 				try {
 					result = Route.calculateRoute((Activity) context, ft, mode);
 					if (result != null && result.size() > 0) {
-                        if (dialog.isShowing())
+                        if (dialog.isShowing()) {
                         	dialog.dismiss();
+                        }
 						Handler handler = GDMapManager.getInstance(context).getHandler();
 						handler.sendMessage(Message.obtain(handler, GDMapConstants.GDMAP_ROUTESEARCH_RESULT));
 					}
 				} catch (Exception e) {
+					//add pj
                     if (dialog.isShowing())
                     	dialog.dismiss();
 					e.printStackTrace();
@@ -105,6 +107,7 @@ public class GDRouteSearch implements RouteMessageHandler {
 	        	return;
 	        
 	        mMapView.getController().setZoom(15);
+			//add pj
 	        mMapView.getController().animateTo(route.getStartPos());
 			routeOverlay = new RouteOverlay((MapActivity)context, route);
             routeOverlay.enableDrag(false);
@@ -118,15 +121,12 @@ public class GDRouteSearch implements RouteMessageHandler {
 			carLine.setAntiAlias(true);
 			switch (getRouteType(mode)) {
 				case GDMapConstants.GDMAP_BUS_ROUTE:
-					Log.d(TAG, "drawRouteOnMap: GDMAP_BUS_ROUTE, mode=" + mode);
 					routeOverlay.setBusLinePaint(carLine);
 					break;
 				case GDMapConstants.GDMAP_CAR_ROUTE:
-					Log.d(TAG, "drawRouteOnMap: GDMAP_CAR_ROUTE, mode=" + mode);
 					routeOverlay.setCarLinePaint(carLine);
 					break;
 				default:
-					Log.d(TAG, "drawRouteOnMap: Default, mode=" + mode);
 					routeOverlay.setFootLinePaint(carLine);
 					break;
 			}
@@ -243,7 +243,7 @@ public class GDRouteSearch implements RouteMessageHandler {
 		data.append("]}");
 		return data.toString();
 	}
-	
+
 	private int getRouteType(int mode) {
 		switch (mode) {
 		case GDMapConstants.GDMAP_BUS_Default:

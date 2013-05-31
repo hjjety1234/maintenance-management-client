@@ -12,12 +12,6 @@ import android.telephony.SmsMessage;
 import android.util.Log;
 import android.widget.Toast;
 
-/**
- * 
- * @author yuhongwei
- *
- */
-
 public class SMSSapmReceiver extends BroadcastReceiver {
 	
 	private static final String TAG = "SMSSapmReceiver";

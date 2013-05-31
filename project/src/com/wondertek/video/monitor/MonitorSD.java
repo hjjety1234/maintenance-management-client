@@ -25,7 +25,7 @@ public class MonitorSD extends MonitorBase{
 	public void onReceive(Context context, Intent intent)
 	{
 		Util.Trace("MonitorSD:: " + intent.getAction());
-		VenusActivity.getInstance().nativesendevent(VenusActivity.SysEvent_SD, 0, 0);
+		VenusActivity.getInstance().nativesendevent(Util.WDM_SD, 0, 0);
 	}
 	
 	@Override

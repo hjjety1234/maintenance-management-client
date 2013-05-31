@@ -15,16 +15,20 @@ class VenusView extends SurfaceView implements SurfaceHolder.Callback
 	 * 
 	 */
 	private final VenusActivity venusActivity;
+	private final int MAX_TOUCHCOUNT = 10;
 	private int sdkint;
-	private SurfaceHolder holder;
+	private int touch[];
 	public VenusView(VenusActivity venusActivity, Context context) {
 		super(context);
 		this.venusActivity = venusActivity;
-		holder = this.getHolder();
-		holder.addCallback(this);
 		sdkint= Build.VERSION.SDK_INT;
+		touch = new int[2+MAX_TOUCHCOUNT*3];
+		SurfaceHolder holder = this.getHolder();
+		holder.addCallback(this);
+		holder.setType(SurfaceHolder.SURFACE_TYPE_NORMAL);
+		holder.setFormat(PixelFormat.RGBA_8888);
 		this.setFocusableInTouchMode(true);
-		this.venusActivity.nativeinit(VenusActivity.screenWidth, VenusActivity.screenHeight, VenusActivity.statusHeight, null, VenusActivity.mActivityFullName, VenusApplication.appAbsPath, VenusApplication.appPassiveStart);
+		this.venusActivity.nativeinit(VenusActivity.fakeScreenWidth, VenusActivity.fakeScreenHeight, VenusActivity.fakeScreenStatusBarHeight, null, VenusActivity.mActivityFullName, VenusApplication.appAbsPath, VenusApplication.appPassiveStart);
 		this.venusActivity.refashHandler.sendEmptyMessageDelayed(VenusActivity.GUIUPDATEIDENTIFIER, 50);
 
         mLongPressRunnable = new Runnable() {
@@ -32,28 +36,28 @@ class VenusView extends SurfaceView implements SurfaceHolder.Callback
             @Override
             public void run() {
             	Util.Trace("LongClick: (" + mLastMotionX + "," + mLastMotionY + ")");
-            	VenusView.this.venusActivity.nativesendevent(3, mLastMotionX, mLastMotionY);
+            	VenusView.this.venusActivity.nativesendevent(Util.WDM_MOUSELONGPRESS, mLastMotionX, mLastMotionY);
             }
         };
 	}
 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,int height) {
-		holder.setType(SurfaceHolder.SURFACE_TYPE_NORMAL);
-		holder.setFormat(PixelFormat.RGBA_8888);
 		this.venusActivity.nativeupdatemaincanvas(holder.getSurface(),sdkint);
 
 	}
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		holder.setType(SurfaceHolder.SURFACE_TYPE_NORMAL);
-		holder.setFormat(PixelFormat.RGBA_8888);
+		//add pj
+		venusActivity.VenusViewHolder = holder;
 		this.venusActivity.nativeupdatemaincanvas(holder.getSurface(),sdkint);
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
+		//add pj
+		venusActivity.VenusViewHolder = holder;
 		this.venusActivity.nativeupdatemaincanvas(null,sdkint);
 	}
 
@@ -86,9 +90,67 @@ class VenusView extends SurfaceView implements SurfaceHolder.Callback
         return 0; 
     }
 
+	public void sendTouchEvent(MotionEvent event)
+	{
+		int count = event.getPointerCount();
+		int action = (event.getAction() & 0xff);
+
+		int type = touch[0];
+		int actionIndex = ((event.getAction()>>8) & 0xff);
+		switch(action)
+		{
+		case MotionEvent.ACTION_DOWN:
+		case 0x5:	// ACTION_POINTER_DOWN
+			type = Util.TOUCH_DOWN;
+			touch[1] = event.getPointerId(actionIndex);
+			touch[2] = 1;
+			touch[3] = event.getPointerId(actionIndex);
+			touch[4] = (int) event.getX(actionIndex);
+			touch[5] = (int) event.getY(actionIndex);
+			break;
+		case MotionEvent.ACTION_UP:
+		case 0x6:	// ACTION_POINTER_UP
+			type = Util.TOUCH_UP;
+			touch[1] = event.getPointerId(actionIndex);
+			touch[2] = 1;
+			touch[3] = event.getPointerId(actionIndex);
+			touch[4] = (int) event.getX(actionIndex);
+			touch[5] = (int) event.getY(actionIndex);
+			break;
+		case MotionEvent.ACTION_MOVE:
+			type = Util.TOUCH_MOVE;
+			touch[1] = event.getPointerId(actionIndex);
+			touch[2] = count;
+			for (actionIndex = 0; actionIndex < count; actionIndex++)
+			{
+				touch[actionIndex*3+3] = event.getPointerId(actionIndex);
+				touch[actionIndex*3+4] = (int) event.getX(actionIndex);
+				touch[actionIndex*3+5] = (int) event.getY(actionIndex);
+			}
+			break;
+		case MotionEvent.ACTION_CANCEL:
+			type = Util.TOUCH_CANCEL;
+			touch[1] = 0;
+			touch[2] = 0;
+			break;
+		}
+		touch[0] = type;
+
+		//Util.Trace("serializeTouchEvent "+action);
+		this.venusActivity.nativesendtouchevent(touch);
+	}
+
+	long moveTick = 0;
+	int moveX = 0;
+	int moveY = 0;
+	final int moveSense = 2;
+	final long moveDelay = 25;	//ms
 	public boolean onTouchEvent(MotionEvent event) {
 		int count = event.getPointerCount(); 
-		int nType = getTouchType(event.getAction()); 
+		int nType = getTouchType(event.getAction());
+		if (nType != MotionEvent.ACTION_DOWN)
+			sendTouchEvent(event);
+
 		if ( count == 1 )
 		{   
 			if ( this.venusActivity.nativetouchevent( count, nType, event.getPointerId(0), (int)event.getX(0), (int)event.getY(0),
@@ -107,7 +169,19 @@ class VenusView extends SurfaceView implements SurfaceHolder.Callback
 		}
 
 		int x = (int) event.getX();
-        int y = (int) event.getY();
+		int y = (int) event.getY();
+
+		if (event.getAction() == MotionEvent.ACTION_MOVE) {
+			long tick = System.currentTimeMillis();
+			if (Math.abs(moveTick-tick) < moveDelay || (Math.abs(moveX-x) +  Math.abs(moveY-y)) < moveSense)
+				return true;
+			else {
+				moveTick = tick;
+				moveX = x;
+				moveY = y;
+			}
+		}
+
 		this.venusActivity.nativesendevent(event.getAction(), x, y);
 
 		switch(event.getAction()) {
@@ -129,6 +203,9 @@ class VenusView extends SurfaceView implements SurfaceHolder.Callback
             removeCallbacks(mLongPressRunnable);
             break;
         }
+
+		if (nType == MotionEvent.ACTION_DOWN)
+			sendTouchEvent(event);
 		return true;
 	}
 

@@ -6,12 +6,6 @@ import android.content.IntentFilter;
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
 
-/**
- * 
- * @author yuhongwei
- *
- */
-
 public class MonitorHeadset extends MonitorBase {
 
 	private static final String FILTER_ACTION = "android.intent.action.HEADSET_PLUG";

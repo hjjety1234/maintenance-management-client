@@ -31,6 +31,7 @@ import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;
 import com.wondertek.video.appmanager.AES;
+//add pj
 
 public class AppManager {
 
@@ -40,12 +41,12 @@ public class AppManager {
 	private static final int STATE_IDLE = 0;
 	private static final int STATE_INSTALLING = 1;
 	private static final int STATE_UNINSTALLING = 2;
-	
+
 	private static final int SHARE_TEXT = 1;
 	private static final int SHARE_IMAGE = 2;
-	
+
 	private static final String AES_PASSWORD = "wondertek";
-	
+	//add pj
 	static {
 		System.loadLibrary("Bsdiff");
 	}
@@ -75,7 +76,7 @@ public class AppManager {
 		filter.addDataScheme("package");
 		VenusApplication.getInstance().getApplicationContext().registerReceiver(mReceiver, filter);
 	}
-	
+
 	public boolean UnRegisterReceiver()
 	{
 		if(mReceiver != null)
@@ -117,7 +118,7 @@ public class AppManager {
 			return false;
 		}
 	}
-	
+
 	public boolean InstallAppSilent(String path) {
 		if (path == null || path.equals("")) {
 			onPackageInstalled(false, null);
@@ -130,7 +131,7 @@ public class AppManager {
 		Process process;
 		InputStream errIs;
 		InputStream inIs;
-		
+
 		args = new String[] {"pm", "getInstallLocation"};
 		processBuilder = new ProcessBuilder(args);
 		process = null;
@@ -171,7 +172,7 @@ public class AppManager {
 				process.destroy();
 			}
 		}
-		
+
 		Util.Trace("pm: " + result);
 		int loc;
 		try {
@@ -230,37 +231,37 @@ public class AppManager {
 			return false;
 		}
 	}
-	
+
 	public void AnalyAppString(String name, StringBuffer packageName, List<String> Param ) {
 		int nlen = name.indexOf('?');
 		if ( nlen == -1 ) {
 			packageName.append(name);
 		}else {
 			packageName.append(name.substring(0, nlen));
-			
+
 			String startArg; 
 			startArg 	= name.substring(nlen+1, name.length());
-			
+
 			int nlen1 = startArg.indexOf('&');
 			while( nlen1 != -1 ) {
 				String strParam = startArg.substring(0, nlen1);
 				Param.add(strParam);
-				
+
 				startArg 	= startArg.substring(nlen1+1, startArg.length());
 				nlen1 = startArg.indexOf('&');
 			}
-			
+
 			if( 0 != startArg.length() ) {
 				Param.add(startArg);
 			}
 		}
 	}
-	
+
 	public boolean RunApp(String name) {
 		if (name == null || name.equals("")) {
 			return false;
 		} 
-		
+
 		StringBuffer packageName = new StringBuffer();
 		List<String> Param = new ArrayList<String>();
 		AnalyAppString( name, packageName, Param );
@@ -325,7 +326,7 @@ public class AppManager {
 		mPackageName = "";
 		return true;
 	}
-	
+
 	public boolean createShortcut(String pkgName) {
 		if (pkgName == null || pkgName.equals("")
 				|| getAppName(pkgName) == null)
@@ -343,7 +344,7 @@ public class AppManager {
 
 			ComponentName comp = new ComponentName(pkgName, appClass);
 			shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(action)
-					.setComponent(comp));
+			.setComponent(comp));
 
 			ShortcutIconResource iconRes = new ShortcutIconResource();
 			iconRes.packageName = pkgName;
@@ -374,7 +375,7 @@ public class AppManager {
 
 			ComponentName comp = new ComponentName(pkgName, appClass);
 			shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(action)
-					.setComponent(comp));
+			.setComponent(comp));
 
 			VenusActivity.appActivity.sendBroadcast(shortcut);
 			return true;
@@ -466,10 +467,8 @@ public class AppManager {
 		return (stbid != null) ? stbid : "";
 	}
 
-	public void dealWithAppManager(char eventType) {
-		if (eventType == VenusActivity.EVENT_PAUSE) {
-
-		} else if (eventType == VenusActivity.EVENT_RESUME) {
+	public void dealWithAppManager(int eventType) {
+         if (eventType == Util.WDM_SYSRESUME) {
 			if (mState == STATE_INSTALLING) {
 				onPackageInstalled(!mPackageName.equals(""), mPackageName);
 			}
@@ -482,205 +481,221 @@ public class AppManager {
 
 	private void onPackageInstalled(boolean result, String name) {
 		if (result) {
-			VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_APP_Installed, 1, 0);
+			VenusActivity.getInstance().nativesendevent(Util.WDM_APPINSTALL, 1, 0);
 			Util.Trace("[onPackageInstalled] success: " + name);
 		} else {
-			VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_APP_Installed, 0, 0);
+			VenusActivity.getInstance().nativesendevent(Util.WDM_APPINSTALL, 0, 0);
 			Util.Trace("[onPackageInstalled] failed");
 		}
 	}
 
 	private void onPackageUninstalled(boolean result, String name) {
 		if (result) {
-			VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_APP_UnInstalled, 1, 0);
+			VenusActivity.getInstance().nativesendevent(Util.WDM_APPUNINSTALL, 1, 0);
 			Util.Trace("[onPackageUninstalled] success: " + name);
 		} else {
-			VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_APP_UnInstalled, 0, 0);
+			VenusActivity.getInstance().nativesendevent(Util.WDM_APPUNINSTALL, 0, 0);
 			Util.Trace("[onPackageUninstalled] failed");
 		}
 	}
-	
+
 	public String getInstalledAppInfo() {
 		String appInfo = "";
 		PackageManager pm = VenusActivity.appActivity.getPackageManager();
 		List<PackageInfo> packages = pm.getInstalledPackages(0);
-		
-        for(int i=0;i<packages.size();i++) { 
-            PackageInfo packageInfo = packages.get(i); 
-            if((packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM)==0)
-            {
-            	String dir = packageInfo.applicationInfo.dataDir;
-            	DecimalFormat format = new DecimalFormat("#0.0");
-            	String apkDir = packageInfo.applicationInfo.publicSourceDir;
-            	String size = format.format((new File(apkDir)).length()/(1024*1024.0)).toString() + "MB";
-            	String iconPath = getAppIconFile(packageInfo.packageName);
-            	appInfo += packageInfo.applicationInfo.loadLabel(pm).toString() + ","+ packageInfo.packageName
-            		+ "," + packageInfo.versionName + "," + dir + "," + iconPath + "," + size + ";";
-            }
-        }
-        
-        return appInfo;
+
+		for(int i=0;i<packages.size();i++) { 
+			PackageInfo packageInfo = packages.get(i); 
+			if((packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM)==0)
+			{
+				String dir = packageInfo.applicationInfo.dataDir;
+				DecimalFormat format = new DecimalFormat("#0.0");
+				String apkDir = packageInfo.applicationInfo.publicSourceDir;
+				String size = format.format((new File(apkDir)).length()/(1024*1024.0)).toString() + "MB";
+				String iconPath = getAppIconFile(packageInfo.packageName);
+				appInfo += packageInfo.applicationInfo.loadLabel(pm).toString() + ","+ packageInfo.packageName
+						+ "," + packageInfo.versionName + "," + dir + "," + iconPath + "," + size + ";";
+			}
+		}
+
+		return appInfo;
 	}
-	
+
 	public String getInstalledAppInfoById(String id) {
 		String appInfo = "";
 		PackageManager pm = VenusActivity.appActivity.getPackageManager();
 		List<PackageInfo> packages = pm.getInstalledPackages(0);
-		
-        for(int i=0;i<packages.size();i++) { 
-            PackageInfo packageInfo = packages.get(i); 
-            if(packageInfo.packageName.equals(id)
-            	&& (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM)==0 )
-            {
-            	String dir = packageInfo.applicationInfo.dataDir;
-            	DecimalFormat format = new DecimalFormat("#0.0");
-            	String apkDir = packageInfo.applicationInfo.publicSourceDir;
-            	String size = format.format((new File(apkDir)).length()/(1024*1024.0)).toString() + "MB";
-            	String iconPath = getAppIconFile(packageInfo.packageName);
-            	appInfo += packageInfo.applicationInfo.loadLabel(pm).toString() + ","+ packageInfo.packageName
-            		+ "," + packageInfo.versionName + "," + dir + "," + iconPath + "," + size + ";";
-            }
-        }
-        
-        return appInfo;
+
+		for(int i=0;i<packages.size();i++) { 
+			PackageInfo packageInfo = packages.get(i); 
+			if(packageInfo.packageName.equals(id)
+					&& (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM)==0 )
+			{
+				String dir = packageInfo.applicationInfo.dataDir;
+				DecimalFormat format = new DecimalFormat("#0.0");
+				String apkDir = packageInfo.applicationInfo.publicSourceDir;
+				String size = format.format((new File(apkDir)).length()/(1024*1024.0)).toString() + "MB";
+				String iconPath = getAppIconFile(packageInfo.packageName);
+				appInfo += packageInfo.applicationInfo.loadLabel(pm).toString() + ","+ packageInfo.packageName
+						+ "," + packageInfo.versionName + "," + dir + "," + iconPath + "," + size + ";";
+			}
+		}
+
+		return appInfo;
 	}
-	
-    private String getAppIconFile(String pkgName) {
-        final String iconPath = VenusActivity.appActivity.getFilesDir() + "/";
-        final int BUFFER = 4096;
 
-        String iconName = (pkgName.hashCode() & 0x7fffffff) + ".png";
-        File file = new File(iconPath, iconName);
-        if (file.exists()) {
-                return iconPath + iconName;
-        }
+	private String getAppIconFile(String pkgName) {
+		final String iconPath = VenusActivity.appActivity.getFilesDir() + "/";
+		final int BUFFER = 4096;
 
-        PackageManager pm = VenusActivity.appActivity.getPackageManager();
-        try {
-                PackageInfo paInfo = pm.getPackageInfo(pkgName, 0);
-                int icon = paInfo.applicationInfo.icon;
-                Resources res = pm.getResourcesForApplication(pkgName);
+		String iconName = (pkgName.hashCode() & 0x7fffffff) + ".png";
+		File file = new File(iconPath, iconName);
+		if (file.exists()) {
+			return iconPath + iconName;
+		}
 
-                InputStream istream = res.openRawResource(icon);
-                OutputStream ostream = VenusActivity.appActivity.openFileOutput(iconName,
-                                Context.MODE_WORLD_READABLE);
-                byte[] b = new byte[BUFFER];
+		PackageManager pm = VenusActivity.appActivity.getPackageManager();
+		try {
+			PackageInfo paInfo = pm.getPackageInfo(pkgName, 0);
+			int icon = paInfo.applicationInfo.icon;
+			Resources res = pm.getResourcesForApplication(pkgName);
 
-                int count = 0;
-                while ((count = istream.read(b, 0, BUFFER)) != -1) {
-                        ostream.write(b, 0, count);
-                }
-                ostream.flush();
-                ostream.close();
-                istream.close();
-        } catch (Exception e) {
-                e.printStackTrace();
-        }
-        return iconPath + iconName;
-    }
-    
-    public boolean dealWithShare(int type, String value, String subject, String title) {
-        Util.Trace(">>>dealWithShare<<< type : " + type + "  Value: " + value + "  Subject: " + subject + "  Title: " + title);
-        Intent intent = new Intent(Intent.ACTION_SEND);
-    	switch (type) {
-    		case SHARE_TEXT: 
-                intent.setType("text/plain");
-                intent.putExtra(Intent.EXTRA_TEXT, value); 
-    			break;
-    		case SHARE_IMAGE: 
-                intent.setType("image/png");
-                File file = new File(value);
-                Uri uri = Uri.fromFile(file);
-                intent.putExtra(Intent.EXTRA_STREAM, uri);
-    			break;
-            default:
-            	return false;
-    	}
-        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        final PackageManager packageManager = VenusActivity.appActivity.getPackageManager();
-        List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.GET_ACTIVITIES);
-        if (list.size() > 0) {
-        	VenusActivity.appActivity.startActivity(Intent.createChooser(intent, title));
-        	return true;
-        } else {
-        	return false;
-        }
-    }
-    
-    public boolean openFileByApplication(String fileType, String filePath) {
-        Util.Trace(">>>openFileByApplication<<<  fileType: " + fileType + "  filePath: " + filePath);
-    	EFile_Type type = getFileType(fileType);
-        Intent intent = new Intent("android.intent.action.VIEW");
-        switch (type) {
-        	case FILE_TYPE_HTML:
-        		Uri htmlUri = Uri.parse(filePath).buildUpon().encodedAuthority("com.android.htmlfileprovider")
-    				.scheme("content").encodedPath(filePath).build();
-        		intent.setDataAndType(htmlUri, "text/html");
-				break;
-        	case FILE_TYPE_IMAGE:
-                intent.addCategory("android.intent.category.DEFAULT");
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                Uri imageUri = Uri.fromFile(new File(filePath));
-                intent.setDataAndType(imageUri, "image/*");
-				break;
-        	case FILE_TYPE_PDF:
-        		intent.addCategory("android.intent.category.DEFAULT");
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                Uri pdfUri = Uri.fromFile(new File(filePath));
-                intent.setDataAndType(pdfUri, "application/pdf");
-				break;
-        	case FILE_TYPE_TEXT:
-        		intent.addCategory("android.intent.category.DEFAULT");
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                Uri textUri = Uri.fromFile(new File(filePath));
-                intent.setDataAndType(textUri, "text/plain");
-				break;
-        	case FILE_TYPE_AUDIO:
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                intent.putExtra("oneshot", 0);
-                intent.putExtra("configchange", 0);
-                Uri audioUri = Uri.fromFile(new File(filePath));
-                intent.setDataAndType(audioUri, "audio/*");
-				break;
-        	case FILE_TYPE_VIDEO:
-        		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                intent.putExtra("oneshot", 0);
-                intent.putExtra("configchange", 0);
-                Uri videoUri = Uri.fromFile(new File(filePath));
-                intent.setDataAndType(videoUri, "video/*");
-				break;
-        	case FILE_TYPE_CHM:
-        		intent.addCategory("android.intent.category.DEFAULT");
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                Uri chmUri = Uri.fromFile(new File(filePath));
-                intent.setDataAndType(chmUri, "application/x-chm");
-				break;
-        	case FILE_TYPE_WORD:
-        		intent.addCategory("android.intent.category.DEFAULT");
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                Uri wordUri = Uri.fromFile(new File(filePath));
-                intent.setDataAndType(wordUri, "application/msword");
-				break;
-        	case FILE_TYPE_EXCEL:
-        		intent.addCategory("android.intent.category.DEFAULT");
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                Uri excelUri = Uri.fromFile(new File(filePath));
-                intent.setDataAndType(excelUri, "application/vnd.ms-excel");
-				break;
-        	case FILE_TYPE_PPT:
-        		intent.addCategory("android.intent.category.DEFAULT");
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                Uri pptUri = Uri.fromFile(new File(filePath));
-                intent.setDataAndType(pptUri, "application/vnd.ms-powerpoint");
-				break;
-			default :
+			InputStream istream = res.openRawResource(icon);
+			OutputStream ostream = VenusActivity.appActivity.openFileOutput(iconName,
+					Context.MODE_WORLD_READABLE);
+			byte[] b = new byte[BUFFER];
+
+			int count = 0;
+			while ((count = istream.read(b, 0, BUFFER)) != -1) {
+				ostream.write(b, 0, count);
+			}
+			ostream.flush();
+			ostream.close();
+			istream.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return iconPath + iconName;
+	}
+
+	public boolean dealWithShare(String imagepath, String text, String subject, String title, String packagename, String activityname) {
+		Util.Trace(">>>dealWithShare<<< imagepath : " + imagepath + "  text: " + text + "  Subject: " + subject + "  Title: " + title);
+		Intent intent = new Intent(Intent.ACTION_SEND);
+		imagepath = imagepath.trim();
+		if(!imagepath.equals(""))
+		{
+			intent.setType("image/png");
+			File file = new File(imagepath);
+			Uri uri = Uri.fromFile(file);
+			intent.putExtra(Intent.EXTRA_STREAM, uri);
+		}
+		
+		text = text.trim();
+		if(!text.equals(""))
+		{
+			intent.setType("text/plain");
+			intent.putExtra(Intent.EXTRA_TEXT, text);
+		}
+		
+		packagename = packagename.trim();
+		activityname = activityname.trim();
+		if(!packagename.equals("")&&!activityname.equals(""))
+		{
+			ComponentName component = new ComponentName(packagename, activityname);
+			intent.setComponent(component);
+			VenusActivity.appActivity.startActivity(intent);
+			return true;
+		}
+		else
+		{
+			intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			final PackageManager packageManager = VenusActivity.appActivity.getPackageManager();
+			List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.GET_ACTIVITIES);
+
+			if (list.size() > 0) {
+				VenusActivity.appActivity.startActivity(Intent.createChooser(intent, title));
+				return true;
+			} else {
 				return false;
+			}
+		}
+	}
+//add pj
+    
+	public boolean openFileByApplication(String fileType, String filePath) {
+		Util.Trace(">>>openFileByApplication<<<  fileType: " + fileType + "  filePath: " + filePath);
+		EFile_Type type = getFileType(fileType);
+		Intent intent = new Intent("android.intent.action.VIEW");
+		switch (type) {
+		case FILE_TYPE_HTML:
+			Uri htmlUri = Uri.parse(filePath).buildUpon().encodedAuthority("com.android.htmlfileprovider")
+			.scheme("content").encodedPath(filePath).build();
+			intent.setDataAndType(htmlUri, "text/html");
+			break;
+		case FILE_TYPE_IMAGE:
+			intent.addCategory("android.intent.category.DEFAULT");
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			Uri imageUri = Uri.fromFile(new File(filePath));
+			intent.setDataAndType(imageUri, "image/*");
+			break;
+		case FILE_TYPE_PDF:
+			intent.addCategory("android.intent.category.DEFAULT");
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			Uri pdfUri = Uri.fromFile(new File(filePath));
+			intent.setDataAndType(pdfUri, "application/pdf");
+			break;
+		case FILE_TYPE_TEXT:
+			intent.addCategory("android.intent.category.DEFAULT");
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			Uri textUri = Uri.fromFile(new File(filePath));
+			intent.setDataAndType(textUri, "text/plain");
+			break;
+		case FILE_TYPE_AUDIO:
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			intent.putExtra("oneshot", 0);
+			intent.putExtra("configchange", 0);
+			Uri audioUri = Uri.fromFile(new File(filePath));
+			intent.setDataAndType(audioUri, "audio/*");
+			break;
+		case FILE_TYPE_VIDEO:
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			intent.putExtra("oneshot", 0);
+			intent.putExtra("configchange", 0);
+			Uri videoUri = Uri.fromFile(new File(filePath));
+			intent.setDataAndType(videoUri, "video/*");
+			break;
+		case FILE_TYPE_CHM:
+			intent.addCategory("android.intent.category.DEFAULT");
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			Uri chmUri = Uri.fromFile(new File(filePath));
+			intent.setDataAndType(chmUri, "application/x-chm");
+			break;
+		case FILE_TYPE_WORD:
+			intent.addCategory("android.intent.category.DEFAULT");
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			Uri wordUri = Uri.fromFile(new File(filePath));
+			intent.setDataAndType(wordUri, "application/msword");
+			break;
+		case FILE_TYPE_EXCEL:
+			intent.addCategory("android.intent.category.DEFAULT");
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			Uri excelUri = Uri.fromFile(new File(filePath));
+			intent.setDataAndType(excelUri, "application/vnd.ms-excel");
+			break;
+		case FILE_TYPE_PPT:
+			intent.addCategory("android.intent.category.DEFAULT");
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			Uri pptUri = Uri.fromFile(new File(filePath));
+			intent.setDataAndType(pptUri, "application/vnd.ms-powerpoint");
+			break;
+		default :
+			return false;
 		}
         final PackageManager packageManager = VenusActivity.appActivity.getPackageManager();
         List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.GET_ACTIVITIES);
         if (list.size() > 0) {
-        	VenusActivity.appActivity.startActivity(Intent.createChooser(intent, "ѡ��Ӧ��"));
+        	VenusActivity.appActivity.startActivity(Intent.createChooser(intent, "选择应用"));
         	return true;
         } else {
         	return false;

@@ -21,6 +21,7 @@ import android.telephony.TelephonyManager;
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;
+import com.wondertek.video.appmanager.AppManager;
 
 public class ConnectionGeneral extends ConnectionImpl{
 
@@ -51,8 +52,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 	
 	@Override
 	public void OpenDataConnection(int networktype) {
-		
-		if(m_APN_Switch_Type == APN_SWITCH_TYPE_DYNAMIC)
+		if(m_APN_Switch_Type == APN_SWITCH_TYPE_DYNAMIC && Util.GetSDK() != Util.SDK_ANDROID_42)
 		{
 			//Util.queryDefaultAPNId();
 			//Util.EnumerateAPNs();
@@ -61,7 +61,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 				IsDataConnectionOpened();
 	            if (!bDCConnected)
 	            {
-	            	VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_DataConnected, 0);
+	            	VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_DataConnected, 0);
 	            	return;
 	            }
 			} catch (Exception e) {
@@ -69,6 +69,50 @@ public class ConnectionGeneral extends ConnectionImpl{
 			}
 			
 			SetCurrentAPN(destApnId, true);
+		}
+		else if(Util.GetSDK() == Util.SDK_ANDROID_42)
+		{
+			new Thread(new Runnable(){
+
+				public void run() {
+					int detectCount = 5;
+					while(detectCount>0)
+					{
+						
+						queryDefaultAPNId();
+						if(defaultAPNType == APN_TYPE_WAP)
+						{
+							if(apnIsConnected())
+							{
+								Util.Trace("Open APN successfully... 2");
+								VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_Connected, 0);
+								Util.m_nNetwork_Connected_Type = Util.Network_Connected_WAP;
+								Util_WaitforConnConnected = false;
+								return;
+							}
+							
+						}
+						else if(defaultAPNType == APN_TYPE_NET)
+						{
+							if(apnIsConnected())
+							{
+								Util.Trace("Now connect Net");
+								VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_ShowNetSetting, 0);
+								return;
+							}
+						}
+						detectCount--;
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+						}
+					}
+					Util.Trace("Send message ENetworkError_Trans_ShowNetSetting out...2");
+					VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_ShowNetSetting, 0);
+					
+				}
+			}).start();
+			
 		}
 		else
 		{
@@ -98,8 +142,8 @@ public class ConnectionGeneral extends ConnectionImpl{
 						Util.WIFI_STATE = Util.WIFI_STATE_IDLE;
 						
 						Util_WaitforConnConnected = true;
-						//VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_Fail, 0);
-						VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)0, (short)0));
+						//VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_Fail, 0);
+						VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)0, (short)0));
 					}
 				}
 				else
@@ -109,7 +153,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 						Util.Trace(Util.currentWifiSSID +" Send ENetworkStatus_ConnectionExp (0, 1)");
 						Util_WaitforConnConnected = false;
 						Util.WIFI_STATE = Util.WIFI_STATE_CONNECTED;
-						VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)0, (short)1));
+						VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)0, (short)1));
 
 					}
 				}
@@ -124,7 +168,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 				IsDataConnectionOpened();
 				if (!bDCConnected)
 				{
-	            	VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_DataConnected, 0);
+	            	VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_DataConnected, 0);
 	            	break;
 				}
 				
@@ -137,7 +181,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 					else
 						Util.Trace( " NET Send ENetworkStatus_ConnectionExp (2, 0)");
 					Util_WaitforConnConnected = true;
-					VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)net_type, (short)0));
+					VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)net_type, (short)0));
 				}
 				else
 				{
@@ -147,7 +191,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 						{
 							Util.Trace("WAP Send ENetworkStatus_ConnectionExp (1, 1)");
 							Util_WaitforConnConnected = false;
-							VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)1, (short)1));
+							VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)1, (short)1));
 
 						}
 					}
@@ -159,7 +203,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 							Util.Trace("NET Send ENetworkStatus_ConnectionExp (2, 1)");
 							
 						Util_WaitforConnConnected = false;
-						VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)net_type, (short)1));
+						VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)net_type, (short)1));
 					}
 				}
 			}
@@ -178,7 +222,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 			{
 				on = 1;
 			}
-			VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_AIRPLANE_MODE_CHANGED, on, 0);
+			VenusActivity.getInstance().nativesendevent(Util.WDM_AIRPLANE, on, 0);
 			break;
 		}
 		default :
@@ -188,6 +232,32 @@ public class ConnectionGeneral extends ConnectionImpl{
 
 	//[_id, name, numeric, mcc, mnc, apn, user, server, password, proxy, port, mmsproxy, mmsport, mmsc, authtype, type, current, preset]
 	public void queryDefaultAPNId() {
+		int sdk = Util.GetSDK();
+		if(sdk == Util.SDK_ANDROID_42)
+		{
+			Context context = VenusApplication.getInstance().getApplicationContext();
+			ConnectivityManager connectivity = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo interestInfo = connectivity.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+			if(interestInfo!=null)
+			{
+				String str = interestInfo.getExtraInfo();
+				if(str!=null && str.toLowerCase().contains("cmwap"))
+				{
+					m_Device_APN_Proxy	= "10.0.0.172";
+					m_Device_APN_Port	= "80";
+					defaultAPNType = APN_TYPE_WAP;
+				}
+				else if(str!=null && str.toLowerCase().contains("cmnet"))
+				{
+					defaultAPNType = APN_TYPE_NET;
+				}else
+				{
+					defaultAPNType = APN_TYPE_UNKNOWN;
+				}
+			}
+			Util.Trace("ANDROID_42 is not queryDefaultAPNId defaultAPNType=" + defaultAPNType);
+			return;
+		}
 		String proxy 	= "";
 		String port		= "";
 		String current	= "";
@@ -270,6 +340,19 @@ public class ConnectionGeneral extends ConnectionImpl{
 	}
 
 	public int EnumerateAPNs() {
+		int sdk = Util.GetSDK();
+		if(sdk == Util.SDK_ANDROID_42)
+		{
+			Util.Trace("ANDROID_42 is not EnumerateAPNs");
+			destApnId = -1;
+			return destApnId;
+		}
+		if(!DetectSimcard())
+		{
+			destApnId = -1;
+			return destApnId;
+		}
+		
 		boolean findApn = false;
 		Cursor c = VenusApplication.getInstance().getContentResolver().query(
 				APN_TABLE_URI, null, null, null, null);
@@ -414,7 +497,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 							Util.Trace("Open APN failure...");
 							m_Device_APN_Proxy	= "";
 							m_Device_APN_Port	= "";
-							VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_InvalidAPN, 0);
+							VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_InvalidAPN, 0);
 							return ;
 						}
 					} catch (InterruptedException e) {
@@ -425,7 +508,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 						Util.Trace("Open APN successfully... 1");
 						m_Device_APN_Proxy	= TAG_TYPE_WAP_PROXY;
 						m_Device_APN_Port	= TAG_TYPE_WAP_PORT;
-						VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
+						VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_Connected, 0);
 						Util.m_nNetwork_Connected_Type = Util.Network_Connected_WAP;
 						Util_WaitforConnConnected = false;
 						return ;
@@ -439,6 +522,12 @@ public class ConnectionGeneral extends ConnectionImpl{
 
 	private boolean isAPNSelected(int apnType)
 	{
+		int sdk = Util.GetSDK();
+		if(sdk == Util.SDK_ANDROID_42)
+		{
+			Util.Trace("ANDROID_42 is not isAPNSelected");
+			return true;
+		}
 		boolean ret =false;
 		String proxy 	= "";
 		String port		= "";
@@ -480,26 +569,50 @@ public class ConnectionGeneral extends ConnectionImpl{
 	}
 
 	private void UseCurrentAPN() {
-		if(apnIsConnected())
-		{
-			if(defaultAPNType == APN_TYPE_WAP)
-			{
-				VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
-				Util.m_nNetwork_Connected_Type = Util.Network_Connected_WAP;
-			}
-			else if(defaultAPNType == APN_TYPE_NET)
-			{
-				VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
-				Util.m_nNetwork_Connected_Type = Util.Network_Connected_NET;
-			}
-			else
-			{
-				VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_InvalidAPN, 0);
-			}
-		}else
-		{
-			VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_InvalidAPN, 0);
-		}
+		 Util.Trace("UseCurrentAPN:: " + IsDataConnectionOpened());
+        if (!IsDataConnectionOpened())
+        {
+        	VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_DataConnected, 0);
+        	return;
+        }
+        
+        if(apnIsConnected())
+        {
+    		if(Util.GetSDK() == Util.SDK_ANDROID_42)
+    			VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_Connected, 0);
+    		else
+    		{
+	    		if(defaultAPNType == APN_TYPE_WAP)
+	    		{
+	    			VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_Connected, 0);
+	    			Util.m_nNetwork_Connected_Type = Util.Network_Connected_WAP;
+	    		}
+	    		else if(defaultAPNType == APN_TYPE_NET)
+	    		{
+	    			VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_Connected, 0);
+	    			Util.m_nNetwork_Connected_Type = Util.Network_Connected_NET;
+	    		}
+	    		else
+	    			VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_InvalidAPN, 0);
+    		}
+        }
+        else
+        	VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_DisConnected, 0);
+        	
+//		if(defaultAPNType == APN_TYPE_WAP)
+//		{
+//			VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
+//			Util.m_nNetwork_Connected_Type = Util.Network_Connected_WAP;
+//		}
+//		else if(defaultAPNType == APN_TYPE_NET)
+//		{
+//			VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
+//			Util.m_nNetwork_Connected_Type = Util.Network_Connected_NET;
+//		}
+//		else
+//		{
+//			VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_InvalidAPN, 0);
+//		}
 	}
 	
 	private static boolean isApnCfg_TypeCorrect(String apnDefaultType)
@@ -550,13 +663,19 @@ public class ConnectionGeneral extends ConnectionImpl{
 	}
 	
 	public boolean SetCurrentAPN(int id, boolean detectNetwork) {
+		int sdk = Util.GetSDK();
+		if(sdk == Util.SDK_ANDROID_42)
+		{
+			Util.Trace("ANDROID_42 is not SetCurrentAPN");
+			return false;
+		}
 		boolean res = false;
 		Util.initPhoneManufaturer();
 
 		ContentResolver resolver = VenusApplication.getInstance().getContentResolver();
 		ContentValues values = new ContentValues();
 		
-		if(Util.GetSDK() != Util.SDK_ANDROID_40 && Util.GetSDK() != Util.SDK_ANDROID_41 && !Util.getUserAgent().startsWith("yulong_7260_android"))
+		if(Util.GetSDK() != Util.SDK_ANDROID_40 && Util.GetSDK() != Util.SDK_ANDROID_41 && Util.GetSDK() != Util.SDK_ANDROID_42 && !Util.getUserAgent().startsWith("yulong_7260_android"))
 		{
 			if (defaultAPNType != APN_TYPE) {
 				if(id > 0)
@@ -597,10 +716,11 @@ public class ConnectionGeneral extends ConnectionImpl{
 		}
 		else
 		{
+			queryDefaultAPNId();
 			if(defaultAPNType != APN_TYPE)
 			{
 				Util.Trace("Send message ENetworkError_Trans_ShowNetSetting out...1");
-				VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_ShowNetSetting, 0);
+				VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_ShowNetSetting, 0);
 			}
 			else
 			{
@@ -614,6 +734,13 @@ public class ConnectionGeneral extends ConnectionImpl{
 	
 	private int createCmwapAPNCfg(String apn, String name, String proxy, String port, String current)
 	{
+		int sdk = Util.GetSDK();
+		if(sdk == Util.SDK_ANDROID_42)
+		{
+			Util.Trace("ANDROID_42 is not createCmwapAPNCfg");
+			destApnId = -1;
+			return destApnId;
+		}
 		ContentResolver resolver = VenusApplication.getInstance().getContentResolver();
 		
 		//One record format:
@@ -759,7 +886,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 			}
 		}
 		queryDefaultAPNId();
-		if(Util.GetSDK() != Util.SDK_ANDROID_40 && Util.GetSDK() != Util.SDK_ANDROID_41)
+		if(Util.GetSDK() != Util.SDK_ANDROID_40 && Util.GetSDK() != Util.SDK_ANDROID_41 && Util.GetSDK() != Util.SDK_ANDROID_42)
 		{
 			EnumerateAPNs();
 		}
@@ -866,7 +993,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 								IsDataConnectionOpened();
 					            if (!bDCConnected)
 					            {
-					            	VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_DataConnected, 0);
+					            	VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_DataConnected, 0);
 					            	return;
 					            }
 					            else
@@ -886,7 +1013,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 
 			}
 			
-			if(Util.GetSDK() == Util.SDK_ANDROID_40 || Util.GetSDK() == Util.SDK_ANDROID_41 || Util.getUserAgent().startsWith("yulong_7260_android"))
+			if(Util.GetSDK() == Util.SDK_ANDROID_40 || Util.GetSDK() == Util.SDK_ANDROID_41 || Util.GetSDK() == Util.SDK_ANDROID_42 || Util.getUserAgent().startsWith("yulong_7260_android"))
 			{
 				if(bSettingShowFlag)
 				{
@@ -896,7 +1023,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 						new Thread(new Runnable(){
 
 							public void run() {
-								int detectCount = 10;
+								int detectCount = 5;
 								while(detectCount>0)
 								{
 									try {
@@ -909,7 +1036,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 										if(apnIsConnected())
 										{
 											Util.Trace("Open APN successfully... 2");
-											VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
+											VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_Connected, 0);
 											Util.m_nNetwork_Connected_Type = Util.Network_Connected_WAP;
 											Util_WaitforConnConnected = false;
 											return;
@@ -918,7 +1045,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 									detectCount--;
 								}
 								Util.Trace("Send message ENetworkError_Trans_ShowNetSetting out...2");
-								VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_ShowNetSetting, 0);
+								VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_ShowNetSetting, 0);
 								
 							}
 						}).start();
@@ -941,66 +1068,96 @@ public class ConnectionGeneral extends ConnectionImpl{
 		
 	}
 
-	/**
-	 * To show the UI of APN list
-	 * @param 
-	 * @param 
-	 * @param
-	 * @return
-	 */
-	@Override
+	@Override        
 	public void OpenNetSetting() {
-		//Show the Setting view for user
-		Intent intent = new Intent(android.provider.Settings.ACTION_APN_SETTINGS);
-		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		VenusActivity.appContext.startActivity(intent);
-		bSettingShowFlag = true;
-	}
-	
-	/**
-	 * To show the UI of Data Connection Switch
-	 * @param 
-	 * @param 
-	 * @param
-	 * @return
-	 */
-	@Override
-	public void OpenDataConnectionSetting()
-	{
-		Intent intent = null;
-        if (Util.getUserAgent().startsWith("htc"))
+        //Show the Setting view for user
+        String ua = Util.getUserAgent();
+        Intent intent = null;
+        if (ua.startsWith("vivo_s12_android") || ua.startsWith("philips_w732_android"))
         {
-        	intent = new Intent(android.provider.Settings.ACTION_AIRPLANE_MODE_SETTINGS);
-        }
-        else if(Util.GetSDK() == Util.SDK_ANDROID_23 || Util.GetSDK() == Util.SDK_ANDROID_40
-        		|| Util.getUserAgent().startsWith("samsung_gt-s5570_android"))
-        {
-        	try {
+            try {
             	intent = new Intent(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS);
             	ComponentName cName = new ComponentName("com.android.phone", "com.android.phone.Settings");
             	intent.setComponent(cName);
             } catch (Exception e) {
-                e.printStackTrace();
+            	e.printStackTrace();
             }
         }
-        else if(Util.GetSDK() == Util.SDK_ANDROID_22)
+        else
         {
-        	try {
-            	intent = new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS);
-            } catch (Exception e) {        
-                e.printStackTrace();
-            }
+            intent = new Intent(android.provider.Settings.ACTION_APN_SETTINGS);
         }
-        else if(Util.GetSDK() == Util.SDK_ANDROID_41)
-        {
-        	try {
-            	intent = new Intent(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         VenusActivity.appContext.startActivity(intent);
+        bSettingShowFlag = true;
+	}
+	
+	@Override
+	public void OpenDataConnectionSetting()
+	{
+		int sdk = Util.GetSDK();
+		String ua = Util.getUserAgent();
+		
+		if (ua.startsWith("motorola_mb520_android"))
+		{
+			AppManager.getInstance(VenusActivity.getInstance()).RunApp("com.motorola.blur.datamanager.app");
+		}
+		else
+		{
+			Intent intent = null;
+	        if (ua.startsWith("htc") || ua.startsWith("huawei_u8815_android"))
+	        {
+	        	intent = new Intent(android.provider.Settings.ACTION_AIRPLANE_MODE_SETTINGS);
+	        }
+	        else if (ua.startsWith("d68x_android") || ua.startsWith("zte_v889m_android")
+                    || ua.startsWith("lenovo_p700i_android"))
+	        {
+	        	intent = new Intent();                
+	        	intent.setAction("com.android.settings.SIM_MANAGEMENT_ACTIVITY");
+	        }
+	        else if(sdk == Util.SDK_ANDROID_23 || sdk == Util.SDK_ANDROID_40)
+	        {
+	        	try {                            
+	        		intent = new Intent(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS);
+	        		ComponentName cName = null;
+	        		if(ua.startsWith("k-touch_t619+_android") || ua.startsWith("yusun_t29_android")
+	        			|| ua.startsWith("v915_android") || ua.startsWith("tg300l_android")
+	        			|| ua.startsWith("changhongw6_android") || ua.startsWith("zteu793_android")
+	        			|| ua.startsWith("yusun_t22_android") || ua.startsWith("k-touch_c660t_android"))
+	        		{
+                        cName = new ComponentName("com.android.settings", "com.android.settings.WirelessSettings");
+	        		}
+	        		else
+	        		{
+                        cName = new ComponentName("com.android.phone", "com.android.phone.Settings");
+	        		}
+	        		if (ua.startsWith("coolpad_8056_android"))
+                        intent.putExtra("sub_id", Settings.System.getInt(VenusActivity.appActivity.getContentResolver(), "multi_sim_data_call" , 0));
+	        		intent.setComponent(cName);
+	        	} catch (Exception e) {
+	        		e.printStackTrace();
+	        	}
+	        }
+	        else if(sdk == Util.SDK_ANDROID_22)
+	        {
+	        	try {
+	            	intent = new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS);
+	            } catch (Exception e) {        
+	                e.printStackTrace();
+	            }
+	        }
+	        else if(sdk == Util.SDK_ANDROID_41 || sdk == Util.SDK_ANDROID_42)
+	        {
+	        	try {
+	            	intent = new Intent(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS);
+	            } catch (Exception e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	        VenusActivity.appContext.startActivity(intent);
+		}
         
         bDCSettingShowFlag = true;
 	}
@@ -1017,6 +1174,46 @@ public class ConnectionGeneral extends ConnectionImpl{
 		}
 
 		return bDCConnected;
+	}
+	
+	private boolean DetectSimcard()
+	{
+		boolean bSimcardExist = false;
+		
+		TelephonyManager telephonyManager = (TelephonyManager) VenusActivity.appActivity.getSystemService(Context.TELEPHONY_SERVICE);
+		int simState = telephonyManager.getSimState();
+		
+		String ua = Util.getUserAgent();
+		if (ua.startsWith("lenovo_s680_android") || ua.startsWith("htc_t528t_android")
+				|| ua.startsWith("r811_android"))
+		{
+			if (simState == TelephonyManager.SIM_STATE_UNKNOWN || simState == TelephonyManager.SIM_STATE_ABSENT)
+			{
+				String imsi = telephonyManager.getSubscriberId();
+				if (imsi != null)
+					bSimcardExist = true;
+			}
+		}
+		
+		if(simState == TelephonyManager.SIM_STATE_READY)
+		{
+			String imsi = telephonyManager.getSubscriberId();
+			imsi = imsi == null?"":imsi;
+			if ( (imsi.equalsIgnoreCase("")) && ua.startsWith("lenovo_s868t_android") )
+			{
+				try {
+					Class<?> cls = Class.forName("android.telephony.TelephonyManager");
+					Method method1 = cls.getDeclaredMethod("getSubscriberIdMSMS", int.class);
+                    imsi = (String) method1.invoke(telephonyManager, 1);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			if (imsi != null)
+				bSimcardExist = true;
+		}
+		
+		return bSimcardExist;
 	}
 	
 	public int GetDataConnectionState()

@@ -16,7 +16,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.mapabc.mapapi.core.GeoPoint;
 import com.mapabc.mapapi.core.PoiItem;
 import com.mapabc.mapapi.map.MapView;

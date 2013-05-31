@@ -12,11 +12,13 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.URLDecoder;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -29,7 +31,6 @@ import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
 
-//import com.android.internal.telephony.ITelephony;
 import com.wondertek.video.connection.SystemConnectionManager;
 import com.wondertek.video.g3wlan.client.G3WLANHttp;
 
@@ -46,14 +47,66 @@ public class Util {
 	private static String WLAN_PORTAL__URL			= "http://www.10086.com/index.html";
 
 	//Message to the engine
-	public final static int MsgFromJava_WLan_DialUp 			= 0x00010001;
-	public final static int MsgFromJava_WLan_Network			= 0x00010002;
-	public final static int MsgFromJava_APP_Installed 			= 0x00010003;
-	public final static int MsgFromJava_APP_UnInstalled  		= 0x00010004;
-	public final static int MsgFromJava_AIRPLANE_MODE_CHANGED	= 0x00010005;
-	public final static int MsgFromJava_VoiceInput_End			= 0x00010007;
+	
+	
+    //////////////////////////////////////////////////////////////////////////
+    //Base Event
+	public final static int  WDM_NULL =           0x0000;
+	public final static int  WDM_RUN  =           0x0001;
+	public final static int  WDM_STOP   =         0x0002;
+	public final static int  WDM_ACTIVATE  =      0x0004;
+	public final static int  WDM_MOUSEDOWN =      0x0005;
+	public final static int  WDM_MOUSEUP   =      0x0006;
+	public final static int  WDM_MOUSEMOVE  =     0x0007;
+	public final static int  WDM_MOUSELONGPRESS=  0x0008;
+	public final static int  WDM_KEYDOWN    =     0x0009;
+	public final static int  WDM_KEYUP      =     0x000a;
+	public final static int  WDM_KEYLONGPRESS =   0x000b;
+	public final static int  WDM_KEYSYSTEM  =     0x000c;
+	public final static int  WDM_TIMER      =     0x000d;
+	public final static int  WDM_DRAW       =     0x000e;
 
+	public final static int  WDM_GestureBegin =   0x000f;
+	public final static int  WDM_GestureMove  =   0x0010;
+	public final static int  WDM_GestureEnd   =   0x0011;
 
+   //Custom SysEvent
+	public final static int  WDM_SYSPAUSE     =   0x0100;
+	public final static int  WDM_SYSRESUME    =   0x0101;
+	public final static int  WDM_SCREENLOCK   =   0x0102;
+	public final static int  WDM_SCREENROTATE =   0x0103;
+	public final static int  WDM_DIALUP       =   0x0104 ;//  use WDM_NETWORK
+	public final static int  WDM_NETWORK     =    0x0105;
+	public final static int  WDM_HTTPPIPE     =   0x0106;
+	public final static int  WDM_TURNBACKLIGHT=   0x0107;
+	public final static int  WDM_SMS         =    0x0108;
+	public final static int  WDM_WLAN        =    0x0109;
+	public final static int  WDM_APPSTART       = 0x010a;
+	public final static int  WDM_APPINSTALL     = 0x010b;
+	public final static int  WDM_APPUNINSTALL    =0x010c;
+	public final static int  WDM_AIRPLANE       = 0x010e;
+	public final static int  WDM_SD           =   0x010f;
+	public final static int  WDM_CONTACTS       = 0x0110;
+	public final static int  WDM_VOICEINPUT    =  0x0111;
+	public final static int  WDM_PHONEGAPMSG    = 0x0112;
+	public final static int  WDM_STRINGEVENT    = 0x0113;
+	public final static int  WDM_SEARCHCONTACTS = 0x0114;
+	public final static int  WDM_CONTACTSGROUP    = 0x0115;
+	public final static int  WDM_EACHCONTACTSGROUPINFO = 0x0116;
+	
+//Engine Event 
+	public final static int  WDM_ENGINE_0      =  0x0800;
+	public final static int  WDM_ENGINE_MAX    =  0x0fff;
+
+//User Event
+	public final static int  WDM_USER         =   0x1000;
+
+//Touch Event
+	public final static int  TOUCH_CANCEL     =   0x0000;
+	public final static int  TOUCH_DOWN       =   0x0005;
+	public final static int  TOUCH_UP         =   0x0006;
+	public final static int  TOUCH_MOVE       =   0x0007;
+	public final static int  TOUCH_LONGPRESS  =   0x0008;
 
 	//Status of Network
 	public final static int ENetworkStatus_Connecting 			= 0;
@@ -114,6 +167,7 @@ public class Util {
 	public  final static int SDK_OMS_25				= 12;
 	public  final static int SDK_OMS_26				= 13;
 	public  final static int SDK_ANDROID_41			= 14;
+	public  final static int SDK_ANDROID_42			= 15;
 	
 	private static int mSDK							= SDK_ANDROID_21;
 	
@@ -193,6 +247,10 @@ public class Util {
 			{
 				mSDK = SDK_ANDROID_41;
 			}
+			else if(sdk == 17)
+			{
+				mSDK = SDK_ANDROID_42;
+			}
 		}
 		else if(VenusActivity.PHONE_PLATFORM == Util.PHONE_PLATFORM_OMS)
 		{
@@ -261,6 +319,7 @@ public class Util {
 
 	private static boolean   mContactsChange = true;
 	private static boolean   mGetContactsFinish = true;
+	private static String    mSearchcondition = null;
 	
 	public static void SetContactsChange(boolean change)
 	{
@@ -293,23 +352,23 @@ public class Util {
 			{
 				if( G3WLANHttp.getInstance().wlanHaveLogin() )
 				{
-					VenusActivity.getInstance().nativesendevent(VenusActivity.SysEvent_WLan, WLanEventType_HaveLogin, 1);
+					VenusActivity.getInstance().nativesendevent(Util.WDM_WLAN, WLanEventType_HaveLogin, 1);
 				}
 				else
 				{
-					VenusActivity.getInstance().nativesendevent(VenusActivity.SysEvent_WLan, WLanEventType_HaveLogin, 0);
+					VenusActivity.getInstance().nativesendevent(Util.WDM_WLAN, WLanEventType_HaveLogin, 0);
 				}
 			}
 			else if( "WLanIsPortal".equals(params[0]) )
 			{
 				Object paramArray[] = {params[1],};
 				int result = VenusActivity.getInstance().nativeExec("WLan_IsPortal", paramArray, paramArray.length);
-				VenusActivity.getInstance().nativesendevent(VenusActivity.SysEvent_WLan, WLanEventType_IsPortal, result);
+				VenusActivity.getInstance().nativesendevent(Util.WDM_WLAN, WLanEventType_IsPortal, result);
 			}
 			else if( "NetworkStop".equals(params[0]))
 			{
 				int result = VenusActivity.getInstance().nativeExec("NetworkStop", null, 0);
-				VenusActivity.getInstance().nativesendevent(VenusActivity.SysEvent_WLan, WLanEventType_NetworkStop, result);
+				VenusActivity.getInstance().nativesendevent(Util.WDM_WLAN, WLanEventType_NetworkStop, result);
 			}
 			else if( "GetContacts".equals(params[0]))
 			{
@@ -361,7 +420,159 @@ public class Util {
 									}
 								}
 							}
-							VenusActivity.getInstance().nativesendevent(VenusActivity.SysEvent_Contacts, 0, 0);
+							VenusActivity.getInstance().nativesendevent(Util.WDM_CONTACTS, 0, 0);
+							mGetContactsFinish = true;
+						}}).start();
+				}
+			}else if( "GetSearchContacts".equals(params[0]))
+			{
+				mSearchcondition = params[1];
+				if(mGetContactsFinish)
+				{
+					mGetContactsFinish = false;
+					new Thread(new Runnable(){
+
+						public void run() {
+							Util.Trace("---Contacts have been changed---");
+							android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+							boolean error = false;
+							FileWriter writer = null;
+							File contactFile = new File(VenusApplication.getInstance().appAbsPath, "searchcontacts.txt");
+							if (contactFile.exists()) {
+								contactFile.delete();
+							}
+							String contactsList = VenusActivity.getInstance().getSearchContacts(mSearchcondition);
+							if(contactsList.length() > 0)
+							{
+								contactsList = contactsList.substring(0, contactsList.length()-1);
+								try {
+									contactFile.createNewFile();
+									writer = new FileWriter(contactFile, true);
+									writer.write(contactsList);
+								} catch (IOException e) {
+									error = true;
+									Util.Trace(e.toString());
+								} finally {
+									try {
+										if(writer != null) writer.close();
+										if(error && contactFile.exists())
+										{
+											contactFile.delete();
+										}
+										if(contactFile.exists())
+										{
+											Util.Trace("Get contacts SUCCESS");
+										}
+										else
+										{
+											Util.Trace("Get contacts FAIL");
+										}
+									} catch (IOException e) {
+									}
+								}
+							}
+							VenusActivity.getInstance().nativesendevent(Util.WDM_SEARCHCONTACTS, 0, 0);
+							mGetContactsFinish = true;
+						}}).start();
+				}
+			}else if( "GetContactsGroup".equals(params[0]))
+			{
+				if(mGetContactsFinish)
+				{
+					mGetContactsFinish = false;
+					new Thread(new Runnable(){
+
+						public void run() {
+							Util.Trace("---Contacts have been changed---");
+							android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+							boolean error = false;
+							FileWriter writer = null;
+							File contactFile = new File(VenusApplication.getInstance().appAbsPath, "contactsgroup.txt");
+							if (contactFile.exists()) {
+								contactFile.delete();
+							}
+							String contactsList = VenusActivity.getInstance().getContactsGroup();
+							if(contactsList.length() > 0)
+							{
+								contactsList = contactsList.substring(0, contactsList.length()-1);
+								try {
+									contactFile.createNewFile();
+									writer = new FileWriter(contactFile, true);
+									writer.write(contactsList);
+								} catch (IOException e) {
+									error = true;
+									Util.Trace(e.toString());
+								} finally {
+									try {
+										if(writer != null) writer.close();
+										if(error && contactFile.exists())
+										{
+											contactFile.delete();
+										}
+										if(contactFile.exists())
+										{
+											Util.Trace("Get contacts SUCCESS");
+										}
+										else
+										{
+											Util.Trace("Get contacts FAIL");
+										}
+									} catch (IOException e) {
+									}
+								}
+							}
+							VenusActivity.getInstance().nativesendevent(Util.WDM_CONTACTSGROUP, 0, 0);
+							mGetContactsFinish = true;
+						}}).start();
+				}
+			}else if( "GetEachContactsGroupInfo".equals(params[0]))
+			{
+				mSearchcondition = params[1];
+				if(mGetContactsFinish)
+				{
+					mGetContactsFinish = false;
+					new Thread(new Runnable(){
+
+						public void run() {
+							Util.Trace("---Contacts have been changed---");
+							android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+							boolean error = false;
+							FileWriter writer = null;
+							File contactFile = new File(VenusApplication.getInstance().appAbsPath, "eachcontactsgroupinfo.txt");
+							if (contactFile.exists()) {
+								contactFile.delete();
+							}
+							String contactsList = VenusActivity.getInstance().getEachContactsGroupInfo(mSearchcondition);
+							if(contactsList.length() > 0)
+							{
+								contactsList = contactsList.substring(0, contactsList.length()-1);
+								try {
+									contactFile.createNewFile();
+									writer = new FileWriter(contactFile, true);
+									writer.write(contactsList);
+								} catch (IOException e) {
+									error = true;
+									Util.Trace(e.toString());
+								} finally {
+									try {
+										if(writer != null) writer.close();
+										if(error && contactFile.exists())
+										{
+											contactFile.delete();
+										}
+										if(contactFile.exists())
+										{
+											Util.Trace("Get contacts SUCCESS");
+										}
+										else
+										{
+											Util.Trace("Get contacts FAIL");
+										}
+									} catch (IOException e) {
+									}
+								}
+							}
+							VenusActivity.getInstance().nativesendevent(Util.WDM_EACHCONTACTSGROUPINFO, 0, 0);
 							mGetContactsFinish = true;
 						}}).start();
 				}
@@ -492,9 +703,16 @@ public class Util {
 		WifiInfo wifiInfo = getWifiManager().getConnectionInfo();
 		
 		if(wifiInfo != null)
-			 SSID = getWifiManager().getConnectionInfo().getSSID();
+		{
+			SSID = wifiInfo.getSSID();
+            int sdk = Util.GetSDK();
+            if (sdk == Util.SDK_ANDROID_42 && SSID.startsWith("\"") && SSID.endsWith("\""))
+            {
+                SSID = SSID.substring(1, SSID.length()-1);
+            }
+		}
 
-		if(state != null && SSID != null && state.equals(NetworkInfo.State.CONNECTED) && SSID.equals(ssid))
+		if(state != null && SSID != null && state == NetworkInfo.State.CONNECTED && SSID.equals(ssid))
 			return true;
 		return false;
 	}
@@ -545,7 +763,7 @@ public class Util {
 	            
 	        }
 	    } catch (SocketException ex) {
-	        Trace(LOG_TAG + ": " +  ex.toString());
+	        Trace(TAG + ": " +  ex.toString());
 	    }
 	    return null;
 	}
@@ -583,19 +801,6 @@ public class Util {
 		//SCREEN_TIME_OUT
 		Settings.System.putInt(aContentResolver, Settings.System.SCREEN_OFF_TIMEOUT, SCREEN_TIME_OUT);
 	}
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-
-	public static void exit() {
-//		SystemConnectionManager.getInstance().DeInit();
-//		ActivityManager activityManager = (ActivityManager) VenusApplication
-//				.getInstance().getSystemService(Context.ACTIVITY_SERVICE);
-//		activityManager.restartPackage(VenusApplication.getInstance()
-//				.getPackageName());
-	}
-	
-	public static final String LOG_TAG = "WriteLogs";
-	
-	public static final int		TRACE_TYPE = 0;			//0 - Console, 1 - ComponentView, 2 - ...
 	
 	private static int debug = 0;
 	
@@ -606,43 +811,26 @@ public class Util {
 			return;
 		}
 
-		switch(TRACE_TYPE)
-		{
-		case 0 :
-			Log.d(LOG_TAG, format==null?"Error: null String!!!":format);
-			
-			String logfilePath = "/sdcard/Dresden.log";//VenusApplication.getInstance().appAbsPath + "/module/error_log.txt";
-			File logFile = new File(logfilePath);
+		Log.d(TAG, format==null?"Error: null String!!!":format);
+		
+		String logfilePath = "/sdcard/Dresden.log";//VenusApplication.getInstance().appAbsPath + "/module/error_log.txt";
+		File logFile = new File(logfilePath);
 
-			if(logFile.exists())
-			{
-				
-				try {
-					BufferedWriter output = new BufferedWriter(new FileWriter(logFile, true/*Append write*/));
-					output.append(format==null?"Error: null String!!!":format);
-					output.append("\n");
-					output.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
+		if(logFile.exists())
+		{
+			
+			try {
+				BufferedWriter output = new BufferedWriter(new FileWriter(logFile, true/*Append write*/));
+				output.append(format==null?"Error: null String!!!":format);
+				output.append("\n");
+				output.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			
-			break;
-		case 1 :
-//			Message msg = new Message();
-//			msg.what = VenusActivity.MSG_TYPE_SHOW_LOG;
-//			Bundle bundle = new Bundle();
-//			bundle.putString(VenusActivity.MSG_ELEMENT_KEY_LOG, format);
-//			msg.setData(bundle);
-//			VenusActivity.getInstace().sendEvent(msg);
-			break;
-		case 2 :
-			break;
-		default :
-			break;
 		}
+
 	}
 	
 	public static void deleteDir(File dir) {
@@ -721,32 +909,6 @@ public class Util {
 		"TCL", 			"MEIZU", 	"LG", 		"LENOVO", 	"ASUS",			"ACER", 			"YULONG", 			"CoolPad", 	"Toshiba",	"Philips", 
 		"NEWLAND",		"LGE", 		"K-Touch", 	"Haier", 	"HISENSE", 		"Amoi", 			"SHARP",			"T-SMART",
 		};
-	private static final int PHONE_TYPE_MOTOROLA				= 0;
-	private static final int PHONE_TYPE_MOTO					= 1;
-	private static final int PHONE_TYPE_DOPOD					= 2;
-	private static final int PHONE_TYPE_HTC						= 3;
-	private static final int PHONE_TYPE_SAMSUNG					= 4;
-	private static final int PHONE_TYPE_SONYERICSSON			= 5;
-	private static final int PHONE_TYPE_SONY_ERICSSON			= 6;
-	private static final int PHONE_TYPE_DELL					= 7;
-	private static final int PHONE_TYPE_ZTE						= 8;
-	private static final int PHONE_TYPE_HUAWEI					= 9;
-	private static final int PHONE_TYPE_TCL						= 10;
-	private static final int PHONE_TYPE_MEIZU					= 11;
-	private static final int PHONE_TYPE_LG						= 12;
-	private static final int PHONE_TYPE_LENOVO					= 13;
-	private static final int PHONE_TYPE_ASUS					= 14;
-	private static final int PHONE_TYPE_ACER					= 15;
-	private static final int PHONE_TYPE_YULONG					= 16;
-	private static final int PHONE_TYPE_CoolPad					= 17;
-	private static final int PHONE_TYPE_Toshiba					= 18;
-	private static final int PHONE_TYPE_Philips					= 19;
-	private static final int PHONE_TYPE_NEWLAND					= 20;
-	private static final int PHONE_TYPE_LGE						= 21;
-	private static final int PHONE_TYPE_K_Touch					= 22;
-	private static final int PHONE_TYPE_Haier					= 23;
-	private static final int PHONE_TYPE_HS						= 24;
-	private static final int PHONE_TYPE_Amoi					= 25;
 	
 	private static final int PHONE_TYPE_COUNT					= 26;
 
@@ -756,6 +918,8 @@ public class Util {
 	private static String brandStr = "";
 	private static final String KEYSTRING_USER_AGENT = "user_agent_key"; 	//For OMS
 	private static String User_Agent = null;
+
+	private static String content_id = "";
 
 	/**
 	 * Get the platform mold, such as Android and OMS
@@ -1027,5 +1191,26 @@ public class Util {
 		return mSDK;
 	}
 
+	public static void SetIntentData(Intent intent)
+    {
+    	content_id  = intent.getStringExtra("content_id") != null ? intent.getStringExtra("content_id") : "";
+    	Util.Trace("SetIntentData content_id: " + content_id);
+    }
+    
+    public static void executeIntentData()
+    {
+    	if(!content_id.equals(""))
+    	{
+    		String strMsg = "content_id|" + content_id;
+			if ( VenusActivity.getInstance() != null 
+					&& VenusApplication.getInstance().bAppActivityIsRunning == true )
+				VenusActivity.getInstance().nativesendeventstring(VenusActivity.Enum_StringEventID_INTENT_DATA, strMsg);
+			else
+				VenusActivity.startParam = strMsg;
+
+    	}
+    	Util.Trace("VenusActivity.startParam strMsg = " + VenusActivity.startParam);
+    	//TODO
+    }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }

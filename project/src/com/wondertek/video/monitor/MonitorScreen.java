@@ -40,17 +40,17 @@ public class MonitorScreen extends MonitorBase{
 		if(Intent.ACTION_SCREEN_OFF.equals(action))
 		{
 			bScreenPresent = false;
-			VenusActivity.getInstance().nativesendevent(VenusActivity.SysEvent_ScreenLock, ScreenLockEventType_OFF, 0);
+			VenusActivity.getInstance().nativesendevent(Util.WDM_SCREENLOCK, ScreenLockEventType_OFF, 0);
 		}
 		else if(Intent.ACTION_SCREEN_ON.equals(action))
 		{
 			bScreenPresent = false;
-			VenusActivity.getInstance().nativesendevent(VenusActivity.SysEvent_ScreenLock, ScreenLockEventType_ON, 0);
+			VenusActivity.getInstance().nativesendevent(Util.WDM_SCREENLOCK, ScreenLockEventType_ON, 0);
 		}
 		else if(Intent.ACTION_USER_PRESENT.equals(action))
 		{
 			bScreenPresent = true;
-			VenusActivity.getInstance().nativesendevent(VenusActivity.SysEvent_ScreenLock, ScreenLockEventType_PRESENT, 0);
+			VenusActivity.getInstance().nativesendevent(Util.WDM_SCREENLOCK, ScreenLockEventType_PRESENT, 0);
 		}
 	}
 	

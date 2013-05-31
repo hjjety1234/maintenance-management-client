@@ -15,12 +15,6 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-/**
- * 
- * @author yuhongwei
- *
- */
-
 public class SystemMediaPlayerService extends Service
 		implements OnErrorListener, OnBufferingUpdateListener, OnInfoListener,
 			OnCompletionListener, OnPreparedListener, OnSeekCompleteListener {

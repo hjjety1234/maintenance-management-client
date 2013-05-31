@@ -221,7 +221,7 @@ public class ConnectionMultiplex extends ConnectionImpl{
 								IsDataConnectionOpened();
 					            if (!bDCConnected)
 					            {
-					            	VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_DataConnected, 0);
+					            	VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_DataConnected, 0);
 					            	if (bHaveUsingNetworkFeature)
 					            	{
 					            		//connMan.stopUsingNetworkFeature(ConnectivityManager.TYPE_MOBILE, feature);
@@ -238,7 +238,7 @@ public class ConnectionMultiplex extends ConnectionImpl{
 							if ( ((Util.GetSDK() == Util.SDK_ANDROID_40) || (Util.GetSDK() == Util.SDK_ANDROID_41)) && !bInWapFeatureList && (currentAPNType != APN_TYPE_WAP) )
 							{
 								Util.Trace("Send message ENetworkError_Trans_ShowNetSetting out...1");
-								VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_ShowNetSetting, 0);
+								VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_ShowNetSetting, 0);
 							}
 							else
 							{
@@ -275,7 +275,7 @@ public class ConnectionMultiplex extends ConnectionImpl{
 					VenusActivity.getInstance().nativeSetParam("interfaceName", interfaceValue, interfaceValue.length());
 					
 					Util.Trace("...Success...");
-					VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
+					VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_Connected, 0);
 
 					Util.m_nNetwork_Connected_Type = Util.Network_Connected_WAP;
 					Util_WaitforConnConnected = false;
@@ -285,7 +285,7 @@ public class ConnectionMultiplex extends ConnectionImpl{
 					Util.Trace("...Failure...1");
 
 					Util.m_nNetwork_Connected_Type = Util.Network_Connected_Unknown;
-					VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_InvalidAPN, 0);
+					VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_InvalidAPN, 0);
 				}
 			}
 		};
@@ -316,7 +316,7 @@ public class ConnectionMultiplex extends ConnectionImpl{
 						
 						Util_WaitforConnConnected = true;
 						//VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_Fail, 0);
-						VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)0, (short)0));
+						VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)0, (short)0));
 					}
 				}
 				else
@@ -326,7 +326,7 @@ public class ConnectionMultiplex extends ConnectionImpl{
 						Util.Trace(Util.currentWifiSSID +" Send ENetworkStatus_ConnectionExp (0, 1)");
 						Util_WaitforConnConnected = false;
 						Util.WIFI_STATE = Util.WIFI_STATE_CONNECTED;
-						VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)0, (short)1));
+						VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)0, (short)1));
 					}
 				}
 			}
@@ -340,7 +340,7 @@ public class ConnectionMultiplex extends ConnectionImpl{
 					else
 						Util.Trace( " NET Send ENetworkStatus_ConnectionExp (2, 0)");
 					Util_WaitforConnConnected = true;
-					VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)net_type, (short)0));
+					VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)net_type, (short)0));
 				}
 				else
 				{
@@ -348,7 +348,7 @@ public class ConnectionMultiplex extends ConnectionImpl{
 					{
 						Util.Trace("Custom WAP Send ENetworkStatus_ConnectionExp (1, 1)");
 						Util_WaitforConnConnected = false;
-						VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)1, (short)1));
+						VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_ConnectionExp, Util.buildInt32((short)1, (short)1));
 
 					}
 				}
@@ -368,7 +368,7 @@ public class ConnectionMultiplex extends ConnectionImpl{
 			{
 				on = 1;
 			}
-			VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_AIRPLANE_MODE_CHANGED, on, 0);
+			VenusActivity.getInstance().nativesendevent(Util.WDM_AIRPLANE, on, 0);
 			break;
 		}
 		default :
@@ -537,7 +537,7 @@ public class ConnectionMultiplex extends ConnectionImpl{
 					if(Util.GetSDK() == Util.SDK_ANDROID_40 || Util.GetSDK() == Util.SDK_ANDROID_41)
 					{
 						Util.Trace("Send message ENetworkError_Trans_ShowNetSetting out...3");
-						VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_ShowNetSetting, 0);
+						VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_ShowNetSetting, 0);
 					}
 					else
 					{
@@ -648,7 +648,7 @@ public class ConnectionMultiplex extends ConnectionImpl{
 		
 		if (!IsDataConnectionOpened())
 		{
-        	VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_DataConnected, 0);
+        	VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_DataConnected, 0);
         	if (bHaveUsingNetworkFeature)
         	{
         		closeDC();
@@ -1277,7 +1277,7 @@ public class ConnectionMultiplex extends ConnectionImpl{
 								IsDataConnectionOpened();			            
 					            if (!bDCConnected)
 					            {
-					            	VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_DataConnected, 0);
+					            	VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_DataConnected, 0);
 					            	return;
 					            }
 					            else
@@ -1319,7 +1319,7 @@ public class ConnectionMultiplex extends ConnectionImpl{
 									if(apnIsConnected())
 									{
 										Util.Trace("Open APN successfully... 2");
-										VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_DialUp, Util.ENetworkStatus_Connected, 0);
+										VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_Connected, 0);
 										Util.m_nNetwork_Connected_Type = Util.Network_Connected_WAP;
 										Util_WaitforConnConnected = false;
 										return;
@@ -1328,7 +1328,7 @@ public class ConnectionMultiplex extends ConnectionImpl{
 								detectCount--;
 							}
 							Util.Trace("Send message ENetworkError_Trans_ShowNetSetting out...2");
-							VenusActivity.getInstance().nativesendevent(Util.MsgFromJava_WLan_Network, Util.ENetworkError_Trans_ShowNetSetting, 0);
+							VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_ShowNetSetting, 0);
 							
 						}
 					}).start();

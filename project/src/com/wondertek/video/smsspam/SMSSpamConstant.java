@@ -1,11 +1,5 @@
 package com.wondertek.video.smsspam;
 
-/**
- * 
- * @author yuhongwei
- *
- */
-
 public class SMSSpamConstant {
 	public static final String SMS_SPAM_MGR = "SMS_Spam_Manager";
 	public static final String SMS_SPAM_ADDR = "SMS_Spam_Address";

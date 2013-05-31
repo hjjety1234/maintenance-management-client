@@ -33,6 +33,8 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 
 import com.wondertek.video.update.Config;
+//for plugin lotuseed
+//import com.lotuseed.android.Lotuseed;
 
 public class VenusApplication  extends Application {
 
@@ -45,7 +47,7 @@ public class VenusApplication  extends Application {
 
 	private boolean mDownVenusZip = false;
 
-	private static boolean bAppActivityIsRunning = false;
+	public static boolean bAppActivityIsRunning = false;
 	
 	private String ts;
 	private String tslocal;
@@ -185,7 +187,10 @@ public class VenusApplication  extends Application {
 				 }
 			 }
 		}
-
+		//for plugin lotuseed
+		//Lotuseed.init(this);
+		//Lotuseed.onCrashLog();
+		//Lotuseed.tryUpdateSlient();
 		DameonService.start(this);
 	}
 
@@ -371,6 +376,10 @@ public class VenusApplication  extends Application {
 				Util.Trace("MSG_ID_BOOT_APPACTIVITY, id = " + id);
 				if(id == 0)		//Message from AppVolunteerActivity
 				{
+					int width = message.getData().getInt("Width");
+					int height = message.getData().getInt("Height");
+					int orientation = message.getData().getInt("orientation");
+					VenusActivity.SetFakeScreen(width,height,orientation);
 					startAppActivity(false);
 				}
 				break;
@@ -383,7 +392,7 @@ public class VenusApplication  extends Application {
 				}
 				else
 				{
-					startAppActivity(true);
+					startAppFakeActivity();
 				}
 				break;
 			}
@@ -441,6 +450,29 @@ public class VenusApplication  extends Application {
 		VenusApplication.getInstance().setAppRunning(true);
 	}
 
+	public static void startAppFakeActivity()
+	{
+		if(VenusApplication.bAppActivityIsRunning)
+		{
+			Intent intent = new Intent();
+			intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			intent.setClassName(VenusApplication.getInstance().getApplicationContext(), activityPackage + ".AppActivity");
+			PendingIntent mIntent = PendingIntent.getActivity(VenusApplication.getInstance().getApplicationContext(), 0, intent, 0);
+			try {
+				mIntent.send();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			Intent mIntent = new Intent();
+			mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			mIntent.setClassName(VenusApplication.getInstance().getApplicationContext(), activityPackage + ".AppFakeActivity");
+			VenusApplication.getInstance().getApplicationContext().startActivity(mIntent);
+		}
+	}
 	//Manager for the exit of application
 	private static List<Activity> activityList = new LinkedList<Activity>();
 
@@ -458,7 +490,6 @@ public class VenusApplication  extends Application {
     public void exit()   
     {   
     	Util.restoreMachineSettings(VenusActivity.appActivity.getContentResolver());
-		Util.exit();
 
 		Activity activity = null;
 
