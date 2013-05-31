@@ -97,7 +97,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 							if(apnIsConnected())
 							{
 								Util.Trace("Now connect Net");
-								VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_ShowNetSetting, 0);
+								VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_Connected, 0);
 								return;
 							}
 						}
