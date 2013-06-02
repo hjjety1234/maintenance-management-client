@@ -257,7 +257,6 @@ require 'framework.umsagent'
 local rootSprite
 local g_response = nil
 local g_major = nil
-local xunjiandata= 'city'
 local g_sum = nil
 local meanNum = 0
 local spendTime = 0 --从季度初到结束耗费的日期
@@ -396,6 +395,7 @@ function loadListItem(list, item, index)
     Sprite:setProperty(plan, 'text', value[index].plan)
     Sprite:setProperty(complete, 'text', value[index].complete)
     Sprite:setProperty(ratio, 'text', string.format('%.2f',value[index].ratio).."%")
+     Log:write("33333333####$$$$",g_dimension)
     if g_dimension == 'city' then
         local regionid = value[index].regionid
         Sprite:setProperty(dimBtn,'data', regionid)
@@ -785,7 +785,7 @@ end
 function request(major)
     local month = getSelectedMonth()
     local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=%s&page=1&pagesize=100&dimension=%s&regionid=', 
-        Config:get('username'), month, major,xunjiandata)
+        Config:get('username'), month, major,g_dimension)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
    
     UmsAgent:onLoadStart()
@@ -797,14 +797,14 @@ function request2(g_major,regionid)
     Loading:show(rootSprite)
     local date = getSelectedMonth()
     local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=%s&page=1&pagesize=100&dimension=%s&regionid=%s', 
-        Config:get('username'), date, g_major,xunjiandata,regionid)
+        Config:get('username'), date, g_major,g_dimension,regionid)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write("巡检维度请求地址",reqURL)
     Http:request('patrol', reqURL, 101, {useCache = false})
 end
 --切换代维公司和市公司
 function cityOn(sprite)
-    xunjiandata = Sprite:getData(sprite)
+    g_dimension = Sprite:getData(sprite)
     --设置两个button背景色和字体
     local cityImg = Sprite:findChild(rootSprite,'cityImg')
     local companyImg = Sprite:findChild(rootSprite,'companyImg')
@@ -826,7 +826,7 @@ function cityOn(sprite)
 end
 
 function companyOn(sprite)
-    xunjiandata = Sprite:getData(sprite)
+    g_dimension = Sprite:getData(sprite)
     --设置两个button背景色和字体
     local cityImg = Sprite:findChild(rootSprite,'cityImg')
     local companyImg = Sprite:findChild(rootSprite,'companyImg')
