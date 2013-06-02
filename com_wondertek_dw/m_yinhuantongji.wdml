@@ -373,6 +373,7 @@ function loadListItem(list, item, index)
     local dimName = Sprite:findChild(item,'dimName')                    -- 维度名称
     local dangerCount = Sprite:findChild(item,'dangerCount')            -- 上报隐患数
     local dealDangerRatio = Sprite:findChild(item,'dealDangerRatio')    -- 解决率
+    local detailBtn = Sprite:findChild(item,'detailBtn')  
     --判断如果是地市纬度，则开启可点击查看
     if g_type == 0 then
         local regionid = g_respValue[index].regionid
@@ -397,7 +398,13 @@ function loadListItem(list, item, index)
     Sprite:setProperty(dimName,'text', g_respValue[index].name)
     Sprite:setProperty(dangerCount,'text', g_respValue[index].dangercount)
     Sprite:setProperty(dealDangerRatio,'text', string.format('%.1f',g_respValue[index].dealdangercount).."%")
-   
+    if Sprite:getText(dangerCount) == '0' then
+        Sprite:setVisible(detailBtn,0)
+        Sprite:setEnable(detailBtn,0)
+    else 
+        Sprite:setVisible(detailBtn,1)
+        Sprite:setEnable(detailBtn,1)
+    end
 end
 function addloadListItem(list, item, index)
     Log:write('++++',g_sum)
