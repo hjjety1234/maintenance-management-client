@@ -194,11 +194,23 @@ local city_data
 local selectData = 'wlbcityquality'  --选择页签data属性,默认为市公司统计
 local g_regionid=''
 local g_dimension ='city' --初始市公司维度
+local regionid
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    --setDefaultMonth()
+    --获取角色编号
+    local role = Config:get('role')
+    regionid = Config:get('regionid')
+    Log:write('角色和区域+',role,regionid)
+    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
+        g_regionid = regionid
+    else
+        g_regionid = ''
+        regionid = ''
+    end
+    Log:write('角色和区域-',role,g_regionid)
+
     timelink()
 end
 
@@ -282,7 +294,7 @@ function cityOn(sprite)
     Sprite:setProperty(dimension,'text','区域')
     Sprite:setProperty(dimension1,'text','区域')
     Loading:show(rootSprite)
-    g_regionid = ''
+    g_regionid = regionid
     g_regionname = '区域'
     local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
     Sprite:setProperty(mainTitle, 'text', '质量指标')
@@ -317,18 +329,14 @@ function request()
     if  date =='2013-1' or date =='2013-2' then 
         date ='2013-3'
     end
-    local param = 'cmd='..selectData..'&major=C37&page=1&pagesize=100&usercode='..Config:get('username').."&date="..Config:get('quality_date')..'&regionid='..g_regionid
+    local param = 'cmd='..selectData..'&major=C37&page=1&pagesize=100&usercode='..Config:get('username').."&date="..Config:get('quality_date')..'&regionid='..regionid
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Http:request('city_data', reqURL, 101, {useCache = false})
     Loading:show()
 end
 
-function request2(regionid)
-    local date = getSelectedMonth()
-    if  date =='2013-1' or date =='2013-2' then 
-        date ='2013-3'
-    end
-    local param = 'cmd='..selectData..'&major=C37&page=1&pagesize=100&usercode='..Config:get('username').."&date="..Config:get('quality_date')..'&regionid='..regionid
+function request2()
+    local param = 'cmd='..selectData..'&major=C37&page=1&pagesize=100&usercode='..Config:get('username').."&date="..Config:get('quality_date')..'&regionid='..g_regionid
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Http:request('city_data', reqURL, 101, {useCache = false})
     Loading:show()
