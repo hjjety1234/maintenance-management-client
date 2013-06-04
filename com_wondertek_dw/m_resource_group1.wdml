@@ -216,6 +216,7 @@ local g_dimension ='city' --初始市公司维度
 local g_sum
 local g_regionid=''
 local g_regionname = '区域'     -- 当前查询的区域名称，默认为全省
+local regionid=''
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -223,10 +224,14 @@ function bodyBuildChildrenFinished(sprite)
     --setDefaultMonth()
 --获取角色编号
     local role = Config:get('role')
-    local regionid = Config:get('regionid')
-    if role ~= 'M000' or role ~= 'M001' or role ~= 'M002' or role ~= 'M003' or role ~= 'M004' then
-        g_regionid=regionid
+    regionid = Config:get('regionid')
+    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
+        g_regionid = regionid
+    else
+        g_regionid = ''
+        regionid = ''
     end
+    Log:write('角色和区域',role,g_regionid)
     timelink()
 end
 
@@ -308,7 +313,7 @@ function cityOn(sprite)
     Sprite:setProperty(cityName1,'text','区域')
     Sprite:setProperty(cityName2,'text','区域')
     g_type = 0
-    g_regionid = ''
+    g_regionid = regionid
     g_regionname = '区域'
     local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
     Sprite:setProperty(mainTitle, 'text', '资源代维')
@@ -348,7 +353,7 @@ end
 --获取统计数据返回地址（市公司）
 function request2(regionid)
     Loading:show(rootSprite)
-    local param = 'cmd=wlbgroupresources'..'&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..Config:get('resource_date').."&regionid="..regionid
+    local param = 'cmd=wlbgroupresources'..'&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..Config:get('resource_date').."&regionid="..g_regionid
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Http:request('city_data', reqURL, 101, {useCache = false})
 end

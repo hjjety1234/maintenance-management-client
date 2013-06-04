@@ -219,7 +219,17 @@ local g_regionid=''
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
    -- setDefaultMonth()
-   timelink()
+--获取角色编号
+    local role = Config:get('role')
+    regionid = Config:get('regionid')
+    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
+        g_regionid = regionid
+    else
+        g_regionid = ''
+        regionid = ''
+    end
+    Log:write('角色和区域',role,g_regionid)
+    timelink()
 end
 
 -- @brief root节点消息方法
@@ -312,7 +322,7 @@ function cityOn(sprite)
     Sprite:setVisible(fdseqBtn1,1)
     Sprite:setEnable(fdseqBtn1,1)
     g_type = 0
-    g_regionid = ''
+    g_regionid = regionid
     g_regionname = '区域'
     local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
     Sprite:setProperty(mainTitle, 'text', '资源代维')
@@ -367,7 +377,7 @@ end
 --获取统计数据返回地址（市公司）
 function request2(regionid)
     Loading:show(rootSprite)
-    local param = 'cmd=wlbwlanresources'..'&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..Config:get('resource_date').."&regionid="..regionid
+    local param = 'cmd=wlbwlanresources'..'&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..Config:get('resource_date').."&regionid="..g_regionid
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Http:request('city_data', reqURL, 101, {useCache = false})
 end
