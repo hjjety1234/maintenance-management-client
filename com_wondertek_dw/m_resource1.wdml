@@ -216,10 +216,19 @@ local g_type = 0       --统计查询的类型，0表示按区域，1表示按�
 local g_regionid = ''  --当前查询的区域编号，空为全省
 local g_regionname = '区域'     -- 当前查询的区域名称，默认为全省
 local date = ''        --当前日期
+local regionid
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+--获取角色编号
+    local role = Config:get('role')
+    regionid = Config:get('regionid')
+    if role ~= 'M000' or role ~= 'M001' or role ~= 'M002' or role ~= 'M003' or role ~= 'M004' then
+        g_regionid=regionid
+    end
+    Log:write('角色和区域',role,regionid)
+
     setDefaultMonth()
     local dateData = getSelectedMonth()
     Config:set("resource_date", dateData)
@@ -303,7 +312,7 @@ function cityOn(sprite)
     Sprite:setProperty(dimension2,'text','区域')
 
     g_type = 0
-    g_regionid = ''
+    g_regionid = regionid
     g_regionname = '区域'
     local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
     Sprite:setProperty(mainTitle, 'text', '资源代维')
