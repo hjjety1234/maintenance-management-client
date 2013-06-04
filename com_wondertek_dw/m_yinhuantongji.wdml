@@ -191,10 +191,21 @@ local g_sum
 local date = ''
 local g_regionid = ''        -- 当前查询的区域纬度，空为全省
 local g_regionname = '区域'        -- 当前查询的区域名称，默认为全省
+local regionid=''
 ---------------------------------------系统回调函数列表--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+--获取角色编号
+    local role = Config:get('role')
+    regionid = Config:get('regionid')
+    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
+        g_regionid = regionid
+    else
+        g_regionid = ''
+        regionid = ''
+    end
+    Log:write('角色和区域',role,g_regionid)
     dangyue = Sprite:findChild(rootSprite,'dangyue')
     dangjidu = Sprite:findChild(rootSprite,'dangjidu')
     setDefaultMonth()
@@ -302,7 +313,7 @@ function cityOn(sprite)
     Sprite:setProperty(dimension,'text','区域')
     -- 刷新界面
     g_type = 0
-    g_regionid = ''
+    g_regionid = regionid
     g_regionname = '区域'
     local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
     Sprite:setProperty(mainTitle, 'text', '隐患情况')
@@ -565,7 +576,7 @@ end
 function request2(regionid)
     chgDateButtonBg()
     local param = string.format("cmd=dangerreport&type=%d&page=1&pagesize=30&usercode=%s&date=%s&regionid=%s", 
-        g_type, Config:get('username'),date, regionid)
+        g_type, Config:get('username'),date, g_regionid)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write("[request] 请求地址为: ", reqURL)
     Http:request('city_data', reqURL, 101, {useCache = false})
