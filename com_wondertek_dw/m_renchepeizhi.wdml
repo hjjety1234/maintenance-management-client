@@ -205,7 +205,8 @@ local renDia
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     renDia =Sprite:findChild(rootSprite,'renDia')
-    setDefaultMonth()
+    --setDefaultMonth()
+    timelink()
 end
 
 -- root节点消息方法
@@ -214,8 +215,8 @@ function bodyOnSpriteEvent(msg, param)
       --  Loading:show()
         UmsAgent:OnActivate(string.match(Alias.m_renchepeizhi, 
             'MODULE:\\(.*)'), "人车配置（代维）")
-        local dateData= getSelectedMonth()
-        local param = 'cmd=wlbcompanyrc&page=1&pagesize=50&usercode='..Config:get('username').."&date="..dateData
+        timelink()
+        local param = 'cmd=wlbcompanyrc&page=1&pagesize=50&usercode='..Config:get('username').."&date="..Config:get("car_date")
         local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
         Log:write('reqURL: ',reqURL)
         Http:request('renyuandata', reqURL, 101, {useCache = false})
@@ -229,7 +230,6 @@ function bodyOnPluginEvent(msg, param)
     if msg == 101 then
         if Loading:isShow() then Loading:close() end 
         renyuandata = Http:jsonDecode('renyuandata')
-        Log:write("人员信息",renyuandata )
         OnSelectShowMap()
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
@@ -252,7 +252,15 @@ end
 function doBack()
     Scene:back()
 end
-
+--时间联动显示
+function timelink()
+    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
+    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
+    local len= string.len (Config:get("car_date"))
+    local i,j = string.find(Config:get("car_date"), '-', 1)
+    Sprite:setProperty(yearLabel, 'text', string.sub(Config:get("car_date"),1,i-1))
+    Sprite:setProperty(monthLabel, 'text', string.sub(Config:get("car_date"),j+1,len))
+end
 ----------------------------------服务端交互函数列表---------------------------------
 -- @brief 区域点击按钮消息处理
 function doRegionClick(sprite)
@@ -415,26 +423,26 @@ function detailOnSelect()
 end
 
 -- 设置默认的月份
-function setDefaultMonth()
+--function setDefaultMonth()
     -- 获取当前月份
-    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
-    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
-    Sprite:setProperty(yearLabel, "text", 
-        os.date("*t", os.time()+86400 )["year"])      
-    Sprite:setProperty(monthLabel, "text", 
-        os.date("*t", os.time()+86400 )["month"])
+  --  local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
+  --  local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
+   -- Sprite:setProperty(yearLabel, "text", 
+   --     os.date("*t", os.time()+86400 )["year"])      
+   -- Sprite:setProperty(monthLabel, "text", 
+   --     os.date("*t", os.time()+86400 )["month"])
     -- 往前推一个月
-    local year = tonumber(Sprite:getText(yearLabel))
-    local month = tonumber(Sprite:getText(monthLabel))
-    if  month == 1 then 
-        year = year - 1 
-        month = 12
-    else
-        month = month - 1
-    end
-    Sprite:setProperty(yearLabel, "text", tostring(year))
-    Sprite:setProperty(monthLabel, "text", tostring(month))
-end
+    --local year = tonumber(Sprite:getText(yearLabel))
+    --local month = tonumber(Sprite:getText(monthLabel))
+    --if  month == 1 then 
+    --    year = year - 1 
+    --    month = 12
+    --else
+     --   month = month - 1
+    --end
+    --Sprite:setProperty(yearLabel, "text", tostring(year))
+    --Sprite:setProperty(monthLabel, "text", tostring(month))
+--end
 -- 上个月份
 function prevMonthOnSelect(sprite)
     local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
@@ -450,7 +458,8 @@ function prevMonthOnSelect(sprite)
     Sprite:setProperty(yearLabel, "text", tostring(year))
     Sprite:setProperty(monthLabel, "text", tostring(month))
     date = getSelectedMonth()
-    request(date)
+    Config:set("car_date", date)
+    request()
 end
 
 -- 下个月份
@@ -468,7 +477,8 @@ function nextMonthOnSelect(sprite)
     Sprite:setProperty(yearLabel, "text", tostring(year))
     Sprite:setProperty(monthLabel, "text", tostring(month))
     date = getSelectedMonth()
-    request(date)
+    Config:set("car_date", date)
+    request()
 end
 
 -- 获取当前选择的月份
@@ -480,10 +490,9 @@ function getSelectedMonth()
     return year.."-"..month
 end
 --获取统计数据返回地址（按地市）
-function request(date)
+function request()
     Loading:show(rootSprite)
-    Log:write("当前月份",date)
-    local param = 'cmd=wlbcompanyrc&page=1&pagesize=50&usercode='..Config:get('username').."&date="..date
+    local param = 'cmd=wlbcompanyrc&page=1&pagesize=50&usercode='..Config:get('username').."&date="..Config:get("car_date")
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write('reqURL1010110: ',reqURL)
     Http:request('renyuandata', reqURL, 101, {useCache = false})

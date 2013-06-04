@@ -277,8 +277,7 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_xunjiantongji_new, 'MODULE:\\(.*)'), "巡检统计")
-        msgLoad()
-        --request(g_major)
+        request(g_major)
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
@@ -313,7 +312,7 @@ function addSumToListItem( list, item, index )
    
     local shadownum = math.floor(tonumber(string.format('%.2f',averageValue))*3.4)
     meanNum = shadownum+120
-    Sprite:setProperty(newCity, 'text', '计划进度')
+    Sprite:setProperty(newCity, 'text', '时间进度')
     Sprite:setProperty(newCityBtn,'enable', 'false')
     Sprite:setProperty(newRatio, 'text', string.format('%.2f',averageValue).."%")
     Sprite:setRect(newShadow,120,10,shadownum,45)
@@ -787,8 +786,7 @@ function request(major)
     local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=%s&page=1&pagesize=100&dimension=%s&regionid=', 
         Config:get('username'), month, major,g_dimension)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
-   
-    UmsAgent:onLoadStart()
+     UmsAgent:onLoadStart()
     Http:request('patrol', reqURL, 101, {useCache = false})
     Loading:show()
 end
@@ -856,7 +854,6 @@ function msgLoad()
             ListView:removeAllItems(listView2, 1, 1)
         end
         local len = getJsonArrayCount(g_response.value)
-
         g_sum = g_response.value[len - 1]
         g_response.value[len - 1] = nil
         g_response.value = sortTable(g_response.value, 'ratio', true)
