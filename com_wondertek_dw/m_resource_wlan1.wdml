@@ -218,7 +218,8 @@ local g_regionid=''
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    setDefaultMonth()
+   -- setDefaultMonth()
+   timelink()
 end
 
 -- @brief root节点消息方法
@@ -227,6 +228,7 @@ function bodyOnSpriteEvent(msg, param)
        UmsAgent:OnActivate(string.match(Alias.m_resource_wlan1, 'MODULE:\\(.*)'), "资源统计-wlan")
        UmsAgent:onLoadStart()
        --初始化加载按地市统计数据
+       timelink()
        request()
     elseif msg == MSG_DEACTIVATE then
        UmsAgent:OnDeactivate()
@@ -268,6 +270,15 @@ end
 -- 返回上一个页面
 function doBack()
     Scene:back()
+end
+--时间联动显示
+function timelink()
+   local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
+   local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
+   local len= string.len (Config:get("resource_date"))
+   local i,j = string.find(Config:get("resource_date"), '-', 1)
+   Sprite:setProperty(yearLabel, 'text', string.sub(Config:get("resource_date"),1,i-1))
+   Sprite:setProperty(monthLabel, 'text', string.sub(Config:get("resource_date"),j+1,len))
 end
 
 -------点击按地市统计标签
@@ -349,22 +360,14 @@ end
 --获取统计数据返回地址（按地市）
 function request()
     Loading:show(rootSprite)
-    local date = getSelectedMonth()
-    if  date =='2013-1' or date =='2013-2' then 
-        date ='2013-3'
-    end
-    local param = 'cmd=wlbwlanresources&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..date.."&regionid="..g_regionid
+    local param = 'cmd=wlbwlanresources&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..Config:get('resource_date').."&regionid="..g_regionid
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Http:request('city_data', reqURL, 101, {useCache = false})
 end
 --获取统计数据返回地址（市公司）
 function request2(regionid)
     Loading:show(rootSprite)
-    local date = getSelectedMonth()
-    if  date =='2013-1' or date =='2013-2' then 
-        date ='2013-3'
-    end
-    local param = 'cmd=wlbwlanresources'..'&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..date.."&regionid="..regionid
+    local param = 'cmd=wlbwlanresources'..'&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..Config:get('resource_date').."&regionid="..regionid
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Http:request('city_data', reqURL, 101, {useCache = false})
 end
@@ -617,6 +620,8 @@ function prevMonthOnSelect(sprite)
     end
     Sprite:setProperty(yearLabel, "text", tostring(year))
     Sprite:setProperty(monthLabel, "text", tostring(month))
+    local date1 = getSelectedMonth()
+    Config:set("resource_date", date1)
     request(g_major)
 end
 
@@ -634,6 +639,8 @@ function nextMonthOnSelect(sprite)
     end
     Sprite:setProperty(yearLabel, "text", tostring(year))
     Sprite:setProperty(monthLabel, "text", tostring(month))
+    local date1 = getSelectedMonth()
+    Config:set("resource_date", date1)
     request(g_major)
 end
 
