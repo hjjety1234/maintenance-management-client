@@ -261,10 +261,22 @@ local len
 local g_dimension = 'city' ----初始市公司维度
 local g_regionid = '' ----当前查询的区域编号，空为全省
 local g_regionname = '区域'  --区域名称
+local regionid=''
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    --获取角色编号
+    local role = Config:get('role')
+    regionid = Config:get('regionid')
+    Log:write('角色和区域+',role,regionid)
+    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
+        g_regionid = regionid
+    else
+        g_regionid = ''
+        regionid = ''
+    end
+    Log:write('角色和区域-',role,g_regionid)
     local regHandle=Reg:create('kaohe_data')
     assessment = Reg:getTable(regHandle, "kaohe")
     --Log:write('++++++222',assessment)
@@ -652,7 +664,7 @@ function cityOn(sprite)
     local cityName = Sprite:findChild(rootSprite,'cityName')
     Sprite:setProperty(cityName,'text','区域')
     Sprite:setProperty(cityName,'rect','0,5,90,25')
-    g_regionid = ''
+    g_regionid = regionid
     g_regionname = '区域'
     local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
     Sprite:setProperty(mainTitle, 'text', '考核统计')
@@ -661,10 +673,7 @@ function cityOn(sprite)
 end
 
 function companyOn(sprite)
-
     g_dimension = Sprite:getData(sprite)
-
-    --Log:write('dimension',dimension)
     --设置两个button背景色和字体
     local cityImg = Sprite:findChild(rootSprite,'cityImg')
     local companyImg = Sprite:findChild(rootSprite,'companyImg')
@@ -685,9 +694,6 @@ end
 function msgLoad()
     if Loading:isShow() then Loading:close() end
     g_response = Http:jsonDecode('assessment')
-    Log:write('g_response++++',g_response)
-    Log:write('1+',1)
-
     local listView1 = Sprite:findChild(rootSprite,'sampleList1')
     local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
     ListView:removeAllItems(listView1,1,1)
@@ -709,9 +715,6 @@ function msgLoad()
     getMaxAndMin()
     Log:write('3+',3)
     len = getJsonArrayCount(g_response.value)
-    --Log:write('g_response_value is ',g_response.value)
-    Log:write('len',len)
-    --Log:write('=====len===',len)
 
     ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
     ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len-1, 'loadListItem2')

@@ -211,10 +211,22 @@ local yueLab
 local g_dimension = 'city' ----初始市公司维度
 local g_regionid = '' ----当前查询的区域编号，空为全省
 local g_regionname = '区域'  --区域名称
+local regionid
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    --获取角色编号
+    local role = Config:get('role')
+    regionid = Config:get('regionid')
+    Log:write('角色和区域+',role,regionid)
+    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
+        g_regionid = regionid
+    else
+        g_regionid = ''
+        regionid = ''
+    end
+    Log:write('角色和区域-',role,g_regionid)
     --设置标签节点
     companyBtn = Sprite:findChild(rootSprite,'companyBtn')
     cityBtn    = Sprite:findChild(rootSprite,'cityBtn')
@@ -318,7 +330,7 @@ function cityOn(sprite)
     Sprite:setProperty(cityTxt2,'color','#5a5a5a')
     Sprite:setProperty(cityTxt3,'color','#5a5a5a')
     ---一些参数初始化
-    g_regionid = ''
+    g_regionid = regionid
     g_regionname = '区域'
     local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
     Sprite:setProperty(mainTitle, 'text', '费用统计')
@@ -702,7 +714,7 @@ function request()
 end
 
 --获取统计数据返回地址（按地市）
-function request2(regionid)
+function request2()
     --获取起始时间
     local startyear=Sprite:getText(nianlabel1)
     local startmonth=Sprite:getText(yuelabel1)
@@ -713,7 +725,7 @@ function request2(regionid)
     local starttime=startyear..'-'..startmonth..'-'..startday
     local endtime=endyear..'-'..endmonth..'-'..endday
     --Log:write('starttime',starttime,endtime)
-    local param = 'cmd=wlbcitycost'..'&dimension='..g_dimension..'&starttime='..starttime..'&endtime='..endtime..'&page=1&pagesize=300&usercode='..Config:get('username')..'&regionid='..regionid
+    local param = 'cmd=wlbcitycost'..'&dimension='..g_dimension..'&starttime='..starttime..'&endtime='..endtime..'&page=1&pagesize=300&usercode='..Config:get('username')..'&regionid='..g_regionid
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write('reqURL',reqURL) 
     Http:request('city_data', reqURL, 101, {useCache = false})
