@@ -152,6 +152,7 @@ import com.wondertek.video.monitor.MonitorHeadset;
 import com.wondertek.video.monitor.MonitorManager;
 import com.wondertek.video.monitor.MonitorScreen;
 import com.wondertek.video.msgpush.MsgPushManager;
+import com.wondertek.video.notification.CNotificationCustom;
 //import com.wondertek.video.notification.CNotificationCustom;
 //import com.wondertek.video.notification.CNotificationCustom;
 //import com.wondertek.video.phonegap.PhonegapObserver;
@@ -3947,44 +3948,44 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		outState.putInt(FAKE_ORIENTATION, fakeScreenorientation);
 	}
 	
-//	 public static void javaSetNotificationFunction(
-//			int nNotificationID,
-//			int nNotificatioinType,
-//			int nProcess,
-//			int enableSound,
-//			int enableVibrate,
-//			int enableDelete,
-//			int clickHide,
-//			String tick,
-//			String strContent,
-//			String strURL,
-//			String strContentSecond,
-//			String packetName,
-//			String startParam,
-//			String iconFile,
-//			String strEvent)
-//	{	
-//		CNotificationCustom.getInstance().setStartInfo(packetName, startParam);
-//		if ( enableDelete != 0 )
-//		{
-//			CNotificationCustom.getInstance().DeleteNotification(nNotificationID);
-//			return;
-//		}
-//		
-//		if ( nNotificatioinType == 0 )
-//		{	// text
-//			CNotificationCustom.getInstance().ShowNotificationText(nNotificationID, tick, strContent, 
-//					strURL, iconFile, enableSound, enableVibrate, clickHide, strEvent);
-//		}
-//		else if ( nNotificatioinType == 1 )
-//		{
-//			CNotificationCustom.getInstance().showNotificationProcess(nNotificationID, tick, strContent, 
-//					strURL, nProcess, iconFile, enableSound, enableVibrate, clickHide);
-//		}
-//		else if ( nNotificatioinType == 2 )
-//		{
-//			CNotificationCustom.getInstance().ShowNotificationStandardText(nNotificationID, tick, strContent, 
-//					strURL, iconFile, enableSound, enableVibrate, clickHide, strContentSecond, strEvent);
-//		}
-//	}
+	 public static void javaSetNotificationFunction(
+			int nNotificationID,
+			int nNotificatioinType,
+			int nProcess,
+			int enableSound,
+			int enableVibrate,
+			int enableDelete,
+			int clickHide,
+			String tick,
+			String strContent,
+			String strURL,
+			String strContentSecond,
+			String packetName,
+			String startParam,
+			String iconFile,
+			String strEvent)
+	{	
+		CNotificationCustom.getInstance().setStartInfo(packetName, startParam);
+		if ( enableDelete != 0 )
+		{
+			CNotificationCustom.getInstance().DeleteNotification(nNotificationID);
+			return;
+		}
+		
+		if ( nNotificatioinType == 0 )
+		{	// text
+			CNotificationCustom.getInstance().ShowNotificationText(nNotificationID, tick, strContent, 
+					strURL, iconFile, enableSound, enableVibrate, clickHide, strEvent);
+		}
+		else if ( nNotificatioinType == 1 )
+		{
+			CNotificationCustom.getInstance().showNotificationProcess(nNotificationID, tick, strContent, 
+					strURL, nProcess, iconFile, enableSound, enableVibrate, clickHide);
+		}
+		else if ( nNotificatioinType == 2 )
+		{
+			CNotificationCustom.getInstance().ShowNotificationStandardText(nNotificationID, tick, strContent, 
+					strURL, iconFile, enableSound, enableVibrate, clickHide, strContentSecond, strEvent);
+		}
+	}
 }
