@@ -49,9 +49,9 @@ public class FloatRelativeLayout extends RelativeLayout {
 		bIsCustomLayout = false;
 		if (employee.getPicutre() != null
 				&& !employee.getPicutre().trim().equals("")) {
-			File dir = new File(Constants.LOC_PIC_DIR);
+			File dir = new File(Constants.getLocPicDir());
 			dir.mkdir();
-			String localPicPath = Constants.LOC_PIC_DIR + employee.getPicutre();
+			String localPicPath = Constants.getLocPicDir() + employee.getPicutre();
 			Log.d(TAG, "[initLayout] local picture path: " + localPicPath);
 			File pic = new File(localPicPath);
 			if (pic.exists() == true) {
@@ -249,9 +249,9 @@ public class FloatRelativeLayout extends RelativeLayout {
 		// set caller picture
 		if (employee.getPicutre() != null
 				&& !employee.getPicutre().trim().equals("")) {
-			File dir = new File(Constants.LOC_PIC_DIR);
+			File dir = new File(Constants.getLocPicDir());
 			dir.mkdir();
-			String localPicPath = Constants.LOC_PIC_DIR + employee.getPicutre();
+			String localPicPath = Constants.getLocPicDir() + employee.getPicutre();
 			Log.d(TAG, "[initLayout] local picture path: " + localPicPath);
 			File pic = new File(localPicPath);
 			if (pic.exists() == true) {
@@ -297,7 +297,7 @@ public class FloatRelativeLayout extends RelativeLayout {
 		final String logoImg = DbHelper.getLogoImg(employeeId);
 		if (logoImg == null) return;
 		// 获取本地图标的路径
-		String logoImgPath = Constants.LOC_PIC_DIR + logoImg;
+		String logoImgPath = Constants.getLocPicDir() + logoImg;
 		File pic = new File(logoImgPath);
 		if (pic.isFile() && pic.exists() == true) {
 			// 本地LOGO文件存在，直接显示
@@ -323,7 +323,7 @@ public class FloatRelativeLayout extends RelativeLayout {
 		Log.d(TAG, "[initCustomLayout]");
 		// change popup window background
 		ImageView bg = (ImageView) findViewById(R.id.incoming_bg);
-		Uri uri = Uri.parse(Constants.LOC_PIC_DIR + employee.getPicutre());
+		Uri uri = Uri.parse(Constants.getLocPicDir() + employee.getPicutre());
 		bg.setImageURI(uri);
 
 		// set caller info background visible

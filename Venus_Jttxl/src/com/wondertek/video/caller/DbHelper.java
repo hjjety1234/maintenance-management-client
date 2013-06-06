@@ -83,7 +83,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static Employee systemUser = null;
 
 	public DbHelper(Context context) {
-		super(context, Constants.DATABASE_NAME, null, DATABASE_VERSION);
+		super(context, Constants.getDatabaseName(), null, DATABASE_VERSION);
 		systemUser = getSystemUser();
 	}
 
@@ -134,7 +134,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		Log.d(TAG, "[getEmployee] number: " + number);
 		try {
 			// db = this.getReadableDatabase();
-			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, password,
+			db = SQLiteDatabase.openDatabase(Constants.getDatabaseName(), password,
 					null, SQLiteDatabase.NO_LOCALIZED_COLLATORS
 							| SQLiteDatabase.CREATE_IF_NECESSARY);
 			Cursor cursor = null;
@@ -238,7 +238,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		Log.d(TAG, "[getEmployeeId] number: " + number);
 		try {
 			// db = this.getReadableDatabase();
-			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, password,
+			db = SQLiteDatabase.openDatabase(Constants.getDatabaseName(), password,
 					null, SQLiteDatabase.NO_LOCALIZED_COLLATORS
 							| SQLiteDatabase.CREATE_IF_NECESSARY);
 			Cursor cursor = null;
@@ -310,7 +310,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		SQLiteDatabase db = null;
 		try {
 			// db = this.getReadableDatabase();
-			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, password,
+			db = SQLiteDatabase.openDatabase(Constants.getDatabaseName(), password,
 					null, SQLiteDatabase.NO_LOCALIZED_COLLATORS
 							| SQLiteDatabase.CREATE_IF_NECESSARY);
 			Cursor cursor = db.query(TABLE_SYSTEM,
@@ -386,7 +386,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		Log.d(TAG, ">>>getHisCount<<<");
 		SQLiteDatabase db = null;
 		try {
-			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, password,
+			db = SQLiteDatabase.openDatabase(Constants.getDatabaseName(), password,
 					null, SQLiteDatabase.NO_LOCALIZED_COLLATORS
 							| SQLiteDatabase.CREATE_IF_NECESSARY);
 
@@ -422,7 +422,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ " employee id: " + empid);
 		SQLiteDatabase db = null;
 		try {
-			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, password,
+			db = SQLiteDatabase.openDatabase(Constants.getDatabaseName(), password,
 					null, SQLiteDatabase.NO_LOCALIZED_COLLATORS
 							| SQLiteDatabase.CREATE_IF_NECESSARY);
 
@@ -502,8 +502,8 @@ public class DbHelper extends SQLiteOpenHelper {
 
 	// encrypt plain text database
 	public static boolean encryptPlainTextDatabase() {
-		File unencryptedDatabase = new File(Constants.DATABASE_NAME);
-		File encryptedDatabase = new File(Constants.TEMP_DATABASE_NAME);
+		File unencryptedDatabase = new File(Constants.getDatabaseName());
+		File encryptedDatabase = new File(Constants.getTempDatabaseName());
 		SQLiteDatabase database = null;
 		try {
 			database = SQLiteDatabase.openOrCreateDatabase(unencryptedDatabase,
@@ -535,7 +535,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		
 		SQLiteDatabase db = null;
 		try {
-			db = SQLiteDatabase.openDatabase(Constants.DATABASE_NAME, password,
+			db = SQLiteDatabase.openDatabase(Constants.getDatabaseName(), password,
 					null, SQLiteDatabase.NO_LOCALIZED_COLLATORS
 							| SQLiteDatabase.CREATE_IF_NECESSARY);
 			Cursor cursor = db.query(TABLE_EMPLOYEE,

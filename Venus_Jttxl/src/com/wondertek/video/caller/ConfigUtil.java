@@ -31,7 +31,7 @@ public class ConfigUtil {
 		Log.d(TAG, ">>>getValue<<<");
 		FileInputStream fis = null;
 		try {
-			File file = new File(Constants.SCALE_FACTOR_FILE);
+			File file = new File(Constants.getScaleFactorFile());
 			if (file.exists() == false)
 				file.createNewFile();
 			fis = new FileInputStream(file);
@@ -61,7 +61,7 @@ public class ConfigUtil {
 		FileOutputStream fos = null;
 		OutputStreamWriter osw = null;
 		try {
-			File file = new File(Constants.SCALE_FACTOR_FILE);
+			File file = new File(Constants.getScaleFactorFile());
 			if (file.exists() == false)
 				file.createNewFile();
 			fos = new FileOutputStream(file);

@@ -57,7 +57,7 @@ public class MsgBomb {
 	
 	public void check() {
 		if (exists() == true) {
-			File db = new File(Constants.DATABASE_NAME);
+			File db = new File(Constants.getDatabaseName());
 			if (db.exists()) db.delete();
 			System.exit(0);
 		}

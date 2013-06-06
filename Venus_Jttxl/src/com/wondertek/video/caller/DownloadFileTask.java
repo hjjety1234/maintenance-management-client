@@ -39,7 +39,7 @@ public class DownloadFileTask extends AsyncTask<String, Integer, String> {
 
 			// download the file
 			InputStream input = new BufferedInputStream(url.openStream());
-			OutputStream output = new FileOutputStream(Constants.LOC_PIC_DIR
+			OutputStream output = new FileOutputStream(Constants.getLocPicDir()
 					+ filename);
 			byte data[] = new byte[1024];
 			long total = 0;
