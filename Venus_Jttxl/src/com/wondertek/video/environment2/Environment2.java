@@ -504,12 +504,14 @@ public class Environment2  {
 		if (!scanVold("vold.fstab")) scanVold("vold.conf");
 
     	// zeigen /mnt/sdcard und /data auf denselben Speicher?
+		/*
     	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
     		mExternalEmulated = Environment.isExternalStorageEmulated();
     	} else {
     		// vor Honeycom gab es den unified memory noch nicht
     		mExternalEmulated = false; 
     	}
+    	*/
 
 		// Pfad zur zweiten SD-Karte suchen; bisher nur Methode 1 implementiert
 		// Methode 1: einfach der erste Eintrag in vold.fstab, ggf. um ein /mnt/sdcard-Doppel bereinigt
