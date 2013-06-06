@@ -14,9 +14,9 @@ import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.Intent.ShortcutIconResource;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.Intent.ShortcutIconResource;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -30,8 +30,6 @@ import android.os.Bundle;
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;
-import com.wondertek.video.appmanager.AES;
-//add pj
 
 public class AppManager {
 
@@ -46,11 +44,7 @@ public class AppManager {
 	private static final int SHARE_IMAGE = 2;
 
 	private static final String AES_PASSWORD = "wondertek";
-	//add pj
-	static {
-		System.loadLibrary("Bsdiff");
-	}
-	
+
 	enum EFile_Type{
 		FIEL_TYPE_UNKOWN,
 		FILE_TYPE_HTML,
@@ -621,8 +615,17 @@ public class AppManager {
 			}
 		}
 	}
-//add pj
-    
+	
+//	public boolean shareWebByWX(String url, String title, String imagePath, String desc, boolean isFriendCircle) {
+//		File file = new File(imagePath);
+//		if (file.exists()) {
+//			IWXManager.getInstance(VenusActivity.appActivity).shareWebPage(url, title, imagePath, desc, isFriendCircle);
+//			return true;
+//		} else {
+//			return false;
+//		}
+//	}
+
 	public boolean openFileByApplication(String fileType, String filePath) {
 		Util.Trace(">>>openFileByApplication<<<  fileType: " + fileType + "  filePath: " + filePath);
 		EFile_Type type = getFileType(fileType);

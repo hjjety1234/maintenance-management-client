@@ -74,7 +74,7 @@ public class GDMapPointOverlay extends Overlay {
 			if (addressList.size()>0) {
 				address = addressList.get(0);
 				//add pj
-				textView.setText(address.getAdminArea()+address.getFeatureName()+'\n'+"���ȷ��");
+				textView.setText(address.getAdminArea()+address.getFeatureName()+'\n'+"附近");
 				mapView.addView(pointPopView, new LayoutParams(
 						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
 						point, 0, 0, LayoutParams.CENTER));

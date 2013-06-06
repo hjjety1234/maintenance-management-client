@@ -29,7 +29,7 @@
                         <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
                     </button>  
-                    <scrolltext name="mainTitle" rect="105,5,280,40" text="费用统计(全省)" font-family='微软雅黑'
+                    <scrolltext name="mainTitle" rect="105,5,280,40" text="按次费用统计" font-family='微软雅黑'
                         extendstyle="1111" font-size="36" h-align="center" v-align="center"
                         color="#ffffff" scroll="true"  step="2" />
                 </node>
@@ -44,7 +44,7 @@
                     OnSelect="cityOn" extendstyle="1111" data='city'>
                     <image name='cityImg1' rect="0,0,160,49" src="file://image/city_on.png"
                          extendstyle="1111" style='autosize'/>
-                    <label name="cityTxt1" rect="0,0,160,49" text="全省" font-family='微软雅黑'
+                    <label name="cityTxt1" rect="0,0,160,49" text="市公司" font-family='微软雅黑'
                         extendstyle="1111" font-size="28" h-align="center" v-align="center"
                         color="#0062ab" />
                 </button> 
@@ -134,7 +134,7 @@
                         <listview name="sampleList" rect="0,45,480,505" extendstyle="1111" auto-scroll='true' limit='true' />
                         <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
                             extendstyle="1111" style='autosize' >
-                            <label name='dimension' rect="17,5,140,25" text="全省" font-family='微软雅黑'
+                            <label name='dimension' rect="17,5,140,25" text="区域" font-family='微软雅黑'
                                     extendstyle="1111" font-size="22" h-align="left" v-align="center"
                                     color="#e33a10" />
                             <label name='dimension1'rect="135,5,120,25" text="工单次数" font-family='微软雅黑'
@@ -210,11 +210,23 @@ local jidu
 local yueLab
 local g_dimension = 'city' ----初始市公司维度
 local g_regionid = '' ----当前查询的区域编号，空为全省
-local g_regionname = '全省'  --区域名称
+local g_regionname = '区域'  --区域名称
+local regionid
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    --获取角色编号
+    local role = Config:get('role')
+    regionid = Config:get('regionid')
+    Log:write('角色和区域+',role,regionid)
+    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
+        g_regionid = regionid
+    else
+        g_regionid = ''
+        regionid = ''
+    end
+    Log:write('角色和区域-',role,g_regionid)
     --设置标签节点
     companyBtn = Sprite:findChild(rootSprite,'companyBtn')
     cityBtn    = Sprite:findChild(rootSprite,'cityBtn')
@@ -303,7 +315,7 @@ end
 -------点击按地市统计标签
 function cityOn(sprite)
     local dimension = Sprite:findChild(rootSprite,'dimension')
-    Sprite:setProperty(dimension,'text','市公司')
+    Sprite:setProperty(dimension,'text','区域')
     g_dimension = Sprite:getData(sprite)
     local cityImg1 = Sprite:findChild(rootSprite,'cityImg1')
     local cityImg2 = Sprite:findChild(rootSprite,'cityImg2')
@@ -318,10 +330,10 @@ function cityOn(sprite)
     Sprite:setProperty(cityTxt2,'color','#5a5a5a')
     Sprite:setProperty(cityTxt3,'color','#5a5a5a')
     ---一些参数初始化
-    g_regionid = ''
-    g_regionname = '全省'
+    g_regionid = regionid
+    g_regionname = '区域'
     local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
-    Sprite:setProperty(mainTitle, 'text', '费用统计(全省)')
+    Sprite:setProperty(mainTitle, 'text', '费用统计')
     Loading:show(rootSprite)
     request()
 end
@@ -702,7 +714,7 @@ function request()
 end
 
 --获取统计数据返回地址（按地市）
-function request2(regionid)
+function request2()
     --获取起始时间
     local startyear=Sprite:getText(nianlabel1)
     local startmonth=Sprite:getText(yuelabel1)
@@ -713,7 +725,7 @@ function request2(regionid)
     local starttime=startyear..'-'..startmonth..'-'..startday
     local endtime=endyear..'-'..endmonth..'-'..endday
     --Log:write('starttime',starttime,endtime)
-    local param = 'cmd=wlbcitycost'..'&dimension='..g_dimension..'&starttime='..starttime..'&endtime='..endtime..'&page=1&pagesize=300&usercode='..Config:get('username')..'&regionid='..regionid
+    local param = 'cmd=wlbcitycost'..'&dimension='..g_dimension..'&starttime='..starttime..'&endtime='..endtime..'&page=1&pagesize=300&usercode='..Config:get('username')..'&regionid='..g_regionid
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write('reqURL',reqURL) 
     Http:request('city_data', reqURL, 101, {useCache = false})
@@ -771,7 +783,7 @@ function addloadListItem(list, item, index)
     if g_dimension == 'city' then
         local regionid = city_data.value[index].regionid
         Sprite:setProperty(dimBtn,'data', regionid)
-        Sprite:setProperty(dimBtn,'enable', 'true')
+        Sprite:setProperty(dimBtn,'enable', 'false')
     else
         local orgid = city_data.value[index].orgid
         Sprite:setProperty(dimBtn,'data', orgid)
@@ -923,14 +935,12 @@ function cityItemBtnOnselect(sprite)
     local companyBtn = Sprite:findChild(rootSprite,'companyBtn')            -- 页面标题
     local regionid = Sprite:getData(sprite)
     g_regionid = regionid
+     local regionText = Sprite:getText(dimName)
     if string.sub(g_regionid,5) ~= '00' and g_regionid ~=''  then
-        local regionText = Sprite:getText(dimName)
-        Sprite:setProperty(dimension, 'text', regionText)
-        g_regionname = regionText
-        Sprite:setProperty(mainTitle, 'text', '费用统计('..regionText..')')
         companyOn(companyBtn)
+        Sprite:setProperty(dimension, 'text', regionText)
+        Sprite:setProperty(mainTitle, 'text', '费用统计('..regionText..')')
     else
-        local regionText = Sprite:getText(dimName)
         Sprite:setProperty(dimension, 'text', regionText)
         Sprite:setProperty(mainTitle, 'text', '费用统计('..regionText..')')
         g_regionname = regionText

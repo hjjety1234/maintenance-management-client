@@ -159,10 +159,12 @@ function bodyOnPluginEvent(msg)
             local regionid = loginData.value[0].regionid
             Config:set('username',username)
             Config:set('regionid',regionid)
+            Config:set('role',role)
+            Log:write('返回的角色',role)
             if(loginData['simid'] ~= nil) then
               Config:set('simid',loginData['simid'])
             else
-            Config:set('simid','-1')
+            Config:set('simid',username)
             end
             Config:set('realname', loginData.userName)
             Config:set('tasknum', loginData.taskNum)
@@ -178,6 +180,8 @@ function bodyOnPluginEvent(msg)
                 Scene:go(Alias.home_sheng) 
             elseif role=='MM005' or role=='MM006' or role=='MM009' or role=='MM010'then 
                 Scene:go(Alias.home_sheng_city) 
+            elseif username=='fanbingheng' then
+                Scene:go(Alias.home_sheng) 
             elseif role=='MM003' or role=='MM004' or role=='MM007' or role=='MM008'
             or role=='MM011' then 
                 Scene:go(Alias.home_sheng_leader) 

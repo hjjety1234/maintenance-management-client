@@ -10,6 +10,7 @@ import android.widget.AbsoluteLayout;
 //GDMAP
 //add pj
 import com.mapabc.mapapi.map.MapActivity;
+
 //for plugin lotuseed
 //import com.lotuseed.android.Lotuseed;
 import com.wondertek.video.Util;
@@ -25,11 +26,12 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
+
 //phonegap
 //public class AppActivity extends DroidGap {
-//Map
+//MAP
 //add pj
-public class AppActivity extends MapActivity {
+public class AppActivity extends MapActivity  {
 //public class AppActivity extends Activity{
 	private static String SELF	= "AppActivity ";
 	private static AppActivity instance = null;
@@ -167,7 +169,25 @@ public class AppActivity extends MapActivity {
 		VenusActivity.getInstance().onSaveInstanceState(outState);
 		super.onSaveInstanceState(outState);
 	}
-//add pj
+
+	//phonegap	
+	public void loadUrl(String url)
+	{
+//		super.loadUrl(url);		
+	}
+
+	public void setviewsize(int x,int y, int width, int height)
+	{
+//		super.setviewsize(x,y,width,height);
+	}
+	
+	public AbsoluteLayout GetWebViewRoot()
+    {
+//		super.GetWebViewRoot().setBackgroundColor(0);
+//    	return super.GetWebViewRoot();
+		return null;
+    }
+	
 	public int getResID(String name, String defType)
 	{
 		return getResources().getIdentifier(name, defType, getPackageName());

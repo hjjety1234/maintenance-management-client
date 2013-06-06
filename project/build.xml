@@ -74,8 +74,8 @@ build.xml完成的具体环节：
     <property name="native-dir" value="libs" />   
    
     <property name="src-dir-ospath" value="${basedir}/${src-dir}" />   
-   
-    <property name="native-dir-ospath" value="${basedir}/${native-dir}" />
+	
+    <property name="native-dir-ospath" value="${basedir}/${native-dir}" />    
    
     <!-- 输出目录 -->   
    
@@ -94,6 +94,7 @@ build.xml完成的具体环节：
     <property name="out-package" value="${outdir}/${ant.project.name}.apk" />   
    
     <!-- 要使用的工具 --> 
+	<property name="android-framework-aidl" value="${sdk}/platforms/android-${target.version}/framework.aidl" />
 	<property name="sdk-platform" value="${sdk}/platforms/android-${target.version}" />
 	<property name="sdk-platform-tools" value="${sdk-platform}/tools" />
 	<property name="sdk-tools" value="${sdk}/tools" />
@@ -200,7 +201,7 @@ build.xml完成的具体环节：
    
         <apply executable="${aidl}" failonerror="true">   
    
-            <arg value="-p${android-framework}" />   
+            <arg value="-p${android-framework-aidl}" />   
    
             <arg value="-I${src-dir}" />   
    
@@ -354,10 +355,11 @@ build.xml完成的具体环节：
             <arg value="-rf" />   
    
             <arg value="${src-dir-ospath}" />   
+			
+			<arg value="-nf" />   
    
-            <arg value="-nf" />   
+            <arg value="${native-dir-ospath}" /> 
    
-            <arg value="${native-dir-ospath}" />  
         </exec>   
    
     </target>   

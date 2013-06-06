@@ -31,7 +31,7 @@
                         <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
                     </button>  
-                    <scrolltext name="mainTitle" rect="80,5,320,40" text="隐患情况(全省)" font-family='微软雅黑'
+                    <scrolltext name="mainTitle" rect="80,5,320,40" text="隐患情况" font-family='微软雅黑'
                         extendstyle="1111" font-size="36" h-align="center" v-align="center"
                         color="#ffffff" scroll="true"  step="2" />
                 </node>
@@ -100,7 +100,7 @@
                         OnSelect="cityOn" extendstyle="1111" data='wlbcityquality'>
                         <image name='cityImg' rect="30,10,95,37" src="file://image/city_bg.png"
                             extendstyle="1111" style='autosize' />
-                        <label name="cityTxt" rect="25,5,95,37" text="全省" font-family='微软雅黑'
+                        <label name="cityTxt" rect="25,5,95,37" text="市公司" font-family='微软雅黑'
                             extendstyle="1111" font-size="23" h-align="center" v-align="center"
                             color="#ffffff" />
                     </button> 
@@ -131,7 +131,7 @@
                         extendstyle="1111" style='autosize'/>
                     <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
                         extendstyle="1111" style='autosize' >
-                        <label name='dimension' rect="0,5,90,25" text="市公司" font-family='微软雅黑'
+                        <label name='dimension' rect="0,5,90,25" text="区域" font-family='微软雅黑'
                            extendstyle="1111" font-size="22" h-align="center" v-align="center"
                            color="#e33a10" />
                         <label rect="90,5,120,25" text="上报隐患数" font-family='微软雅黑'
@@ -190,11 +190,22 @@ local dangjidu
 local g_sum
 local date = ''
 local g_regionid = ''        -- 当前查询的区域纬度，空为全省
-local g_regionname = '全省'        -- 当前查询的区域名称，默认为全省
+local g_regionname = '区域'        -- 当前查询的区域名称，默认为全省
+local regionid=''
 ---------------------------------------系统回调函数列表--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+--获取角色编号
+    local role = Config:get('role')
+    regionid = Config:get('regionid')
+    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
+        g_regionid = regionid
+    else
+        g_regionid = ''
+        regionid = ''
+    end
+    Log:write('角色和区域',role,g_regionid)
     dangyue = Sprite:findChild(rootSprite,'dangyue')
     dangjidu = Sprite:findChild(rootSprite,'dangjidu')
     setDefaultMonth()
@@ -299,13 +310,13 @@ function cityOn(sprite)
     Sprite:setProperty(majorTxt,'color','#5a5a5a')
     --- 设置列表项名称
     local dimension = Sprite:findChild(rootSprite,'dimension')
-    Sprite:setProperty(dimension,'text','市公司')
+    Sprite:setProperty(dimension,'text','区域')
     -- 刷新界面
     g_type = 0
-    g_regionid = ''
-    g_regionname = '全省'
+    g_regionid = regionid
+    g_regionname = '区域'
     local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
-    Sprite:setProperty(mainTitle, 'text', '隐患情况(全省)')
+    Sprite:setProperty(mainTitle, 'text', '隐患情况')
     request()
 end
 
@@ -373,6 +384,7 @@ function loadListItem(list, item, index)
     local dimName = Sprite:findChild(item,'dimName')                    -- 维度名称
     local dangerCount = Sprite:findChild(item,'dangerCount')            -- 上报隐患数
     local dealDangerRatio = Sprite:findChild(item,'dealDangerRatio')    -- 解决率
+    local detailBtn = Sprite:findChild(item,'detailBtn')  
     --判断如果是地市纬度，则开启可点击查看
     if g_type == 0 then
         local regionid = g_respValue[index].regionid
@@ -397,7 +409,13 @@ function loadListItem(list, item, index)
     Sprite:setProperty(dimName,'text', g_respValue[index].name)
     Sprite:setProperty(dangerCount,'text', g_respValue[index].dangercount)
     Sprite:setProperty(dealDangerRatio,'text', string.format('%.1f',g_respValue[index].dealdangercount).."%")
-   
+    if Sprite:getText(dangerCount) == '0' then
+        Sprite:setVisible(detailBtn,0)
+        Sprite:setEnable(detailBtn,0)
+    else 
+        Sprite:setVisible(detailBtn,1)
+        Sprite:setEnable(detailBtn,1)
+    end
 end
 function addloadListItem(list, item, index)
     Log:write('++++',g_sum)
@@ -411,7 +429,7 @@ function addloadListItem(list, item, index)
     local dimName = Sprite:findChild(item,'dimName')                    -- 维度名称
     local dangerCount = Sprite:findChild(item,'dangerCount')            -- 上报隐患数
     local dealDangerRatio = Sprite:findChild(item,'dealDangerRatio')    -- 解决率
-    local detailBtn = Sprite:findChild(item,'detailBtn')                -- 解决率
+    local detailBtn = Sprite:findChild(item,'detailBtn')                
     if g_type == 0 then
         Sprite:setProperty(dimBtn,'data', g_regionid)
     elseif g_type == 1 then
@@ -423,6 +441,13 @@ function addloadListItem(list, item, index)
     Sprite:setProperty(dimName,'text', g_sum.name)
     Sprite:setProperty(dangerCount,'text', g_sum.dangercount)
     Sprite:setProperty(dealDangerRatio,'text', string.format('%.1f',g_sum.dealdangercount).."%")
+    if Sprite:getText(dangerCount) == '0' then
+        Sprite:setVisible(detailBtn,0)
+        Sprite:setEnable(detailBtn,0)
+    else 
+        Sprite:setVisible(detailBtn,1)
+        Sprite:setEnable(detailBtn,1)
+    end
 end
 
 -- @brief 上报隐患数排序
@@ -551,7 +576,7 @@ end
 function request2(regionid)
     chgDateButtonBg()
     local param = string.format("cmd=dangerreport&type=%d&page=1&pagesize=30&usercode=%s&date=%s&regionid=%s", 
-        g_type, Config:get('username'),date, regionid)
+        g_type, Config:get('username'),date, g_regionid)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write("[request] 请求地址为: ", reqURL)
     Http:request('city_data', reqURL, 101, {useCache = false})
@@ -624,6 +649,7 @@ function cityItemBtnOnselect(sprite)
       local dimName = Sprite:findChild(sprite,'dimName')                    -- 地市名称
       local dimension = Sprite:findChild(rootSprite,'dimension')            -- 维度名称
       local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+      local companyBtn = Sprite:findChild(rootSprite,'companyBtn') 
       local regionid = Sprite:getData(sprite)
       g_regionid = regionid
       local regionText = Sprite:getText(dimName)
@@ -631,10 +657,15 @@ function cityItemBtnOnselect(sprite)
       Sprite:setProperty(mainTitle, 'text', '隐患情况('..regionText..')')
       g_regionname = regionText
       if string.sub(g_regionid,5) ~= '00' and g_regionid ~=''  then
-        companyOn()
+        companyOn(companyBtn)
+        Sprite:setProperty(dimension, 'text', regionText)
+        Sprite:setProperty(mainTitle, 'text', '隐患情况('..regionText..')')
       else
-
-      request2(regionid)
+        Sprite:setProperty(dimension, 'text', regionText)
+        Sprite:setProperty(mainTitle, 'text', '隐患情况('..regionText..')')
+        g_regionname = regionText
+        g_dimension = 'city'
+        request2(regionid)
      end
 end
 -- 隐患详情查询响应函数

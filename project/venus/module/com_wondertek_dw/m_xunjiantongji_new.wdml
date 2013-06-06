@@ -32,7 +32,7 @@
                         <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
                     </button>  
-                    <scrolltext name="mainTitle" rect="90,5,330,40" text="巡检完成情况(全省)" font-family='微软雅黑'
+                    <scrolltext name="mainTitle" rect="90,5,330,40" text="巡检完成情况" font-family='微软雅黑'
                         extendstyle="1111" font-size="36" h-align="center" v-align="center"
                         color="#ffffff" scroll="true"  step="2" />
                 </node>
@@ -126,7 +126,7 @@
                         OnSelect="cityOn" extendstyle="1111" data='city'>
                         <image name='cityImg' rect="30,10,75,37" src="file://image/city_bg.png"
                              extendstyle="1111" style='autosize'/>
-                        <label name="cityTxt" rect="20,5,95,37" text="全省" font-family='微软雅黑'
+                        <label name="cityTxt" rect="20,5,95,37" text="市公司" font-family='微软雅黑'
                             extendstyle="1111" font-size="23" h-align="center" v-align="center"
                             color="#ffffff" />
                     </button> 
@@ -165,7 +165,7 @@
                             <image name="listButtonImage" rect="31,9,418,38" 
                                 src="file://image/ziyuan_bg.png"
                                 extendstyle="1111" style='autosize' >
-                                <label name='dimension' rect="0,5,110,25" text="全省" font-family='微软雅黑'
+                                <label name='dimension' rect="0,5,110,25" text="区域" font-family='微软雅黑'
                                     extendstyle="1111" font-size="21" h-align="center" v-align="center"
                                     color="#e33a10"/>
                                 <label rect="65,5,160,25" text="计划站点" font-family='微软雅黑'
@@ -257,16 +257,27 @@ require 'framework.umsagent'
 local rootSprite
 local g_response = nil
 local g_major = nil
-local xunjiandata= 'city'
 local g_sum = nil
 local meanNum = 0
 local spendTime = 0 --从季度初到结束耗费的日期
 local currentYear = 0  --当前年份
 local currentMonth = 0 --当前月份
 local g_dimension ='city' --初始市公司维度
+local g_regionid = ''  --当前查询的区域编号，空为全省
+local regionid=''
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
+--获取角色编号
+    local role = Config:get('role')
+    regionid = Config:get('regionid')
+    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
+        g_regionid = regionid
+    else
+        g_regionid = ''
+        regionid = ''
+    end
+    Log:write('角色和区域',role,g_regionid)
     rootSprite = sprite
     local regHandle=Reg:create('xunjian_data')
     patrol = Reg:getTable(regHandle, "xunjian")
@@ -278,8 +289,7 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_xunjiantongji_new, 'MODULE:\\(.*)'), "巡检统计")
-        msgLoad()
-        --request(g_major)
+        request(g_major)
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
@@ -314,7 +324,7 @@ function addSumToListItem( list, item, index )
    
     local shadownum = math.floor(tonumber(string.format('%.2f',averageValue))*3.4)
     meanNum = shadownum+120
-    Sprite:setProperty(newCity, 'text', '计划进度')
+    Sprite:setProperty(newCity, 'text', '时间进度')
     Sprite:setProperty(newCityBtn,'enable', 'false')
     Sprite:setProperty(newRatio, 'text', string.format('%.2f',averageValue).."%")
     Sprite:setRect(newShadow,120,10,shadownum,45)
@@ -396,6 +406,7 @@ function loadListItem(list, item, index)
     Sprite:setProperty(plan, 'text', value[index].plan)
     Sprite:setProperty(complete, 'text', value[index].complete)
     Sprite:setProperty(ratio, 'text', string.format('%.2f',value[index].ratio).."%")
+    Log:write("33333333####$$$$",g_dimension)
     if g_dimension == 'city' then
         local regionid = value[index].regionid
         Sprite:setProperty(dimBtn,'data', regionid)
@@ -736,7 +747,7 @@ end
 -- 选择专业消息处理
 function OnMajorSelect(sprite)
     local dimension = Sprite:findChild(rootSprite,'dimension')
-    Sprite:setProperty(dimension,'text','全省')
+    Sprite:setProperty(dimension,'text','区域')
     Sprite:setRect(dimension,0,5,70,25)
     local data = Sprite:getData(sprite)
     Log:write("[OnMajorSelect] data: ", data)
@@ -784,11 +795,10 @@ end
 -- 请求统计数据
 function request(major)
     local month = getSelectedMonth()
-    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=%s&page=1&pagesize=100&dimension=%s&regionid=', 
-        Config:get('username'), month, major,xunjiandata)
+    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=%s&page=1&pagesize=100&dimension=%s&regionid=%s', 
+        Config:get('username'), month, major,g_dimension,g_regionid)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
-   
-    UmsAgent:onLoadStart()
+     UmsAgent:onLoadStart()
     Http:request('patrol', reqURL, 101, {useCache = false})
     Loading:show()
 end
@@ -797,14 +807,14 @@ function request2(g_major,regionid)
     Loading:show(rootSprite)
     local date = getSelectedMonth()
     local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=%s&page=1&pagesize=100&dimension=%s&regionid=%s', 
-        Config:get('username'), date, g_major,xunjiandata,regionid)
+        Config:get('username'), date, g_major,g_dimension,g_regionid)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write("巡检维度请求地址",reqURL)
     Http:request('patrol', reqURL, 101, {useCache = false})
 end
 --切换代维公司和市公司
 function cityOn(sprite)
-    xunjiandata = Sprite:getData(sprite)
+    g_dimension = Sprite:getData(sprite)
     --设置两个button背景色和字体
     local cityImg = Sprite:findChild(rootSprite,'cityImg')
     local companyImg = Sprite:findChild(rootSprite,'companyImg')
@@ -815,18 +825,18 @@ function cityOn(sprite)
     Sprite:setProperty(cityTxt,'color','#ffffff')
     Sprite:setProperty(companyTxt,'color','#5a5a5a')
     local dimension = Sprite:findChild(rootSprite,'dimension')
-    Sprite:setProperty(dimension,'text','全省')
+    Sprite:setProperty(dimension,'text','区域')
     Sprite:setRect(dimension,0,5,70,25)
     g_type = 0
-    g_regionid = ''
-    g_regionname = '全省'
+    g_regionid = regionid
+    g_regionname = '区域'
     local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
-    Sprite:setProperty(mainTitle, 'text', '巡检完成情况(全省)')
+    Sprite:setProperty(mainTitle, 'text', '巡检完成情况')
     request(g_major)
 end
 
 function companyOn(sprite)
-    xunjiandata = Sprite:getData(sprite)
+    g_dimension = Sprite:getData(sprite)
     --设置两个button背景色和字体
     local cityImg = Sprite:findChild(rootSprite,'cityImg')
     local companyImg = Sprite:findChild(rootSprite,'companyImg')
@@ -838,7 +848,7 @@ function companyOn(sprite)
     Sprite:setProperty(companyTxt,'color','#ffffff') 
     local dimension = Sprite:findChild(rootSprite,'dimension')
     Sprite:setProperty(dimension,'text','代维单位')
-    Sprite:setRect(dimension,10,5,70,25)
+    Sprite:setRect(dimension,10,5,100,25)
     g_type = 1
     request(g_major)
 end
@@ -856,7 +866,6 @@ function msgLoad()
             ListView:removeAllItems(listView2, 1, 1)
         end
         local len = getJsonArrayCount(g_response.value)
-
         g_sum = g_response.value[len - 1]
         g_response.value[len - 1] = nil
         g_response.value = sortTable(g_response.value, 'ratio', true)

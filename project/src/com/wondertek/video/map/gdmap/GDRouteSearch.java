@@ -107,8 +107,7 @@ public class GDRouteSearch implements RouteMessageHandler {
 	        	return;
 	        
 	        mMapView.getController().setZoom(15);
-			//add pj
-	        mMapView.getController().animateTo(route.getStartPos());
+	        mMapView.getController().animateTo(route.getTargetPos());
 			routeOverlay = new RouteOverlay((MapActivity)context, route);
             routeOverlay.enableDrag(false);
 			Paint  carLine = new Paint();

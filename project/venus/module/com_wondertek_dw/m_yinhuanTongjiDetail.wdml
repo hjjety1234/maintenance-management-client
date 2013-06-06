@@ -56,15 +56,15 @@
                     font-size="23" h-align="left" v-align="center" extendstyle="1111" border="false" />
                 <label rect="20,52,100,44" text="处理状态:" color="#aaaaaa" font-family="微软雅黑"
                     font-size="23" h-align="left" v-align="center" extendstyle="1111" border="false" />
-                <button name="zhongdaBtn" rect="125,8,70,44" OnSelect="jibieBtnOnselect" extendstyle="1111">
+                <button name="zhongdaBtn" rect="125,8,70,44" OnSelect="jibieBtnOnselect" data='1' extendstyle="1111">
                     <label rect="0,0,74,44" text="重大" color="#ffffff" font-family="微软雅黑"
                         font-size="22" h-align="left" v-align="center" extendstyle="1111" border="false" />
                 </button>
-                <button name="zhongdaBtn" rect="195,8,70,44" OnSelect="jibieBtnOnselect" extendstyle="1111">
+                <button name="zhongdaBtn" rect="195,8,70,44" OnSelect="jibieBtnOnselect" data='2' extendstyle="1111">
                     <label rect="0,0,74,44" text="严重" color="#ffffff" font-family="微软雅黑"
                         font-size="22" h-align="left" v-align="center" extendstyle="1111" border="false" />
                 </button>
-                <button name="zhongdaBtn" rect="265,8,70,44" OnSelect="jibieBtnOnselect" extendstyle="1111">
+                <button name="zhongdaBtn" rect="265,8,70,44" OnSelect="jibieBtnOnselect"  data='3' extendstyle="1111">
                     <label rect="0,0,74,44" text="一般" color="#ffffff" font-family="微软雅黑"
                         font-size="22" h-align="left" v-align="center" extendstyle="1111" border="false" />
                 </button>  
@@ -125,7 +125,7 @@
                         font-size="21" h-align="left" v-align="left" extendstyle="1111"
                         border="false" />
                     <textarea  name="miaoshuLabel" rect="120,58,320,54" text="" color="#303030" font-family="微软雅黑"
-                        font-size="21" h-align="left" v-align="left" extendstyle="1111" step="2"
+                        font-size="21" h-align="left" v-align="left" extendstyle="1111" step="2" line-height='20' 
                         border="false" />
                     <label  rect="20,107,110,30" text="代维单位:" color="#0062ab" font-family="微软雅黑"
                         font-size="21" h-align="left" v-align="center" extendstyle="1111"
@@ -224,6 +224,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        shaixuanBtnOnselect()
         loadRequest()
     elseif msg == MSG_DEACTIVATE then
     end
@@ -409,6 +410,13 @@ function picOnSelect(sprite)
     Reg:setString(regHandle, "recordUrl", '')
     Scene:setReturn(Alias.m_yinhuanTongjiDetail, Alias.imageDetail)
     Scene:go(Alias.imageDetail, 1)
+end
+
+function jibieBtnOnselect( sprite )
+    -- body
+    local data= Sprite:getData(sprite)
+    dangerlevel = data
+    loadRequest()
 end
 
 

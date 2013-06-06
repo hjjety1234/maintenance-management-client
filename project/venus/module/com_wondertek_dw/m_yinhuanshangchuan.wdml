@@ -390,7 +390,7 @@ function bodyOnPluginEvent(msg, param)
         Log:write("data:", selectData)
 	    Log:write("selectData.code = "..selectData.code)
         if selectData.code == "0" then
-            fillSelect()  
+            fillSelect()
         end
    
     elseif msg == 103 then
@@ -536,12 +536,20 @@ end
 -- 巡检类别选择
 function xunjianOnSelect(sprite)
     --@Log:write('tempid===', tempid)
+    local typeBtnText = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'typeBtn'), 'name'), 'text')
+    if typeBtnText and typeBtnText == '' then
+        Dialog:show('提示', '对不起，请先选择所属专业！', 'ok')
+        return
+    end
     local xunjianData = Sprite:getData(sprite)
     curXunjianBtn = sprite
+    local typeBtn = Sprite:findChild(rootSprite, 'typeBtn')
+    local zhuanyeCode = Sprite:getData(typeBtn)
+    Log:write("zhuanyeCode=="..zhuanyeCode)
      --@Log:write('tempid===', tempid)
     selectIndex = 1
     
-    local param = 'cmd=wlbyhtypelist&usercode=' .. Config:get('username')
+    local param = 'cmd=wlbyhtypelist&usercode=' .. Config:get('username')..'&businesstype='..zhuanyeCode
     local url = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
     Http:request('select', url, 102, {useCache = true})
     Loading:show(rootSprite)
@@ -551,12 +559,20 @@ end
 -- 巡检级别选择
 function levelOnSelect(sprite)
     --@Log:write('tempid===', tempid)
+    local typeBtnText = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'typeBtn'), 'name'), 'text')
+    if typeBtnText and typeBtnText == '' then
+        Dialog:show('提示', '对不起，请先选择所属专业！', 'ok')
+        return
+    end
     local xunjianData = Sprite:getData(sprite)
-    curXunjianBtn = sprite
+    curXunjianBtn = sprite   
+    local typeBtn = Sprite:findChild(rootSprite, 'typeBtn')
+    local zhuanyeCode = Sprite:getData(typeBtn)
+    Log:write("zhuanyeCode=="..zhuanyeCode)
      --@Log:write('tempid===', tempid)
     selectIndex = 2
     
-    local param = 'cmd=wlbyhlevellist&usercode=' .. Config:get('username')
+    local param = 'cmd=wlbyhlevellist&usercode=' .. Config:get('username')..'&businesstype='..zhuanyeCode
     local url = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
     Http:request('select', url, 102, {useCache = true, method = 'post'})
     Loading:show(rootSprite)
@@ -566,9 +582,13 @@ end
 -- 所属专业选择
 function typeOnSelect(sprite)
     --@Log:write('tempid===', tempid)
+    Sprite:setProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'typeBtn'), 'name'), 'text', '')
+    Sprite:setProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'zhuanyeBtn'), 'name'), 'text', '')
+    Sprite:setProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'levelBtn'), 'name'), 'text', '')
+
     local xunjianData = Sprite:getData(sprite)
-     curXunjianBtn = sprite
-     --@Log:write('tempid===', tempid)
+    curXunjianBtn = sprite
+    --@Log:write('tempid===', tempid)
     selectIndex = 3
     local param = 'cmd=wlbzytypelist&usercode=' .. Config:get('username')
     local url = getWholeUrl('nbspweb/webservice/dic!doWebservice.action', param)
@@ -596,7 +616,7 @@ end
 
 function xunjianGroupOnSelect(sprite)
     local xunjianData = Sprite:getData(sprite)
-   
+    Log:write("xunjianData == "..xunjianData)
     local xunjianText = Sprite:findChild(curXunjianBtn, 'name')
 
     local index = ListView:getItemIndex(Sprite:getParent(sprite))
@@ -623,7 +643,7 @@ function xunjianGroupOnSelect(sprite)
         title = selectData.value[index].itemname
         zhandianValue =xunjianData
     end
-    Sprite:setProperty(curXunjianBtn, 'data', Sprite:getProperty(sprite, 'data'))
+    Sprite:setProperty(curXunjianBtn, 'data', Sprite:getData(sprite))
     Sprite:setProperty(xunjianText, 'text', title)
     setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 0)
     if Sprite:getText(typeLab)=="传输线路" then 

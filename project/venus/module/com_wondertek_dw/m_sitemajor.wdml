@@ -156,7 +156,7 @@ function bodyBuildChildrenFinished(sprite)
     
 
     -- 获取当前日期
-    local now = os.date("*t",os.time())
+    local now = os.date("*t",os.time()+86400)
     local TimeNode = Sprite:findChild(rootSprite, "TimeNode")
     local timeContent=Sprite:findChild(TimeNode,"timeContent")
     local currentMonthString = string.format('%s-%s-%s', now['year'], now['month'], now["day"])
@@ -183,11 +183,13 @@ function bodyOnPluginEvent(msg)
 	Loading:close()
     if msg == 101 then
     major_data = Http:jsonDecode('muban_data')
+    Log:write('major_data',major_data)
     --若只有一个专业则不显示全选
     if major_data.value == nil or  major_data.value == '' then 
         Dialog:show('','服务端无数据','ok')
     end
     num = #(major_data.value[0].contractor)+1
+    Log:write('num',num)
     if num==1  then
         local allBtn =  Sprite:findChild(rootSprite,'allBtn')
         Sprite:setProperty(allBtn,'visible','false')

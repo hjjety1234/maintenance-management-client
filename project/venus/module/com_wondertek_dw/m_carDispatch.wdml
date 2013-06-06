@@ -245,11 +245,15 @@ function submitOnSelect(sprite)
     local user = Sprite:getText(userInfo)
     local reason=Sprite:getText(Content)
     local timeEnd = Sprite:getText(timeContentEnd)
-
-    local param = 'cmd=wlbcarapply&usercode='..Config:get("usercode")..'&startdate='..time..'&enddate='..timeEnd..'&caruser='..user..'&reason='..reason
-    local url= getWholeUrl('nbspweb/webservice/car!doWebservice.action',param)
-    Log:write('===新故障工单列表提交按钮响应======', url)
-    Http:request('carapply_data', url, 101, {useCache = false, method = 'post', postData=''})
+    if user==nil or user==''or reason==nil or reason=='' then
+        Dialog:show(rootSprite, '用车人员和用车原因不允许为空！', 'ok')
+        return
+    else
+        local param = 'cmd=wlbcarapply&usercode='..Config:get("usercode")..'&startdate='..time..'&enddate='..timeEnd..'&caruser='..user..'&reason='..reason
+        local url= getWholeUrl('nbspweb/webservice/car!doWebservice.action',param)
+        Log:write('===新故障工单列表提交按钮响应======', url)
+        Http:request('carapply_data', url, 101, {useCache = false, method = 'post', postData=''})
+    end
 end
 
     ]]>

@@ -31,7 +31,7 @@
                         <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
                              extendstyle="1111" />
                     </button>  
-                    <scrolltext name="mainTitle" rect="105,5,280,40" text="资源代维（全省）" font-family='微软雅黑'
+                    <scrolltext name="mainTitle" rect="105,5,280,40" text="资源代维" font-family='微软雅黑'
                         extendstyle="1111" font-size="36" h-align="center" v-align="center"
                         color="#ffffff" scroll="true"  step="2" />
                 </node>
@@ -131,7 +131,7 @@
                                  extendstyle="1111" style='autosize'/>
                         <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
                             extendstyle="1111" style='autosize' >
-                            <label name='dimension' rect="-10,5,120,25" text="全省" font-family='微软雅黑'
+                            <label name='dimension' rect="-10,5,120,25" text="区域" font-family='微软雅黑'
                                     extendstyle="1111" font-size="22" h-align="center" v-align="center"
                                     color="#e33a10" />
                             <label name='change1' rect="95,5,150,25" text="专线总数" font-family='微软雅黑'
@@ -188,7 +188,7 @@
                             OnSelect="cityOn" extendstyle="1111" data='city'>
                             <image name='cityImg' rect="30,10,75,37" src="file://image/city_bg.png"
                                  extendstyle="1111" style='autosize'/>
-                            <label name="cityTxt" rect="20,5,95,37" text="全省" font-family='微软雅黑'
+                            <label name="cityTxt" rect="20,5,95,37" text="市公司" font-family='微软雅黑'
                                 extendstyle="1111" font-size="23" h-align="center" v-align="center"
                                 color="#ffffff" />
                         </button> 
@@ -215,11 +215,24 @@ local city_data
 local g_dimension ='city' --初始市公司维度
 local g_sum
 local g_regionid=''
+local g_regionname = '区域'     -- 当前查询的区域名称，默认为全省
+local regionid=''
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    setDefaultMonth()
+    --setDefaultMonth()
+--获取角色编号
+    local role = Config:get('role')
+    regionid = Config:get('regionid')
+    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
+        g_regionid = regionid
+    else
+        g_regionid = ''
+        regionid = ''
+    end
+    Log:write('角色和区域',role,g_regionid)
+    timelink()
 end
 
 -- @brief root节点消息方法
@@ -228,6 +241,7 @@ function bodyOnSpriteEvent(msg, param)
        UmsAgent:OnActivate(string.match(Alias.m_resource_group1, 'MODULE:\\(.*)'), "资源统计-集客")
        UmsAgent:onLoadStart()
        --初始化加载市公司统计数据
+       timelink()
        request()
     elseif msg == MSG_DEACTIVATE then
        UmsAgent:OnDeactivate()
@@ -269,6 +283,15 @@ end
 function doBack()
     Scene:back()
 end
+--时间联动显示
+function timelink()
+   local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
+   local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
+   local len= string.len (Config:get("resource_date"))
+   local i,j = string.find(Config:get("resource_date"), '-', 1)
+   Sprite:setProperty(yearLabel, 'text', string.sub(Config:get("resource_date"),1,i-1))
+   Sprite:setProperty(monthLabel, 'text', string.sub(Config:get("resource_date"),j+1,len))
+end
 
 -------点击市公司统计标签
 function cityOn(sprite)
@@ -286,14 +309,14 @@ function cityOn(sprite)
     local dimension = Sprite:findChild(rootSprite,'dimension')
     local cityName1 = Sprite:findChild(rootSprite,'cityName1')
     local cityName2 = Sprite:findChild(rootSprite,'cityName2')
-    Sprite:setProperty(dimension,'text','全省')
-    Sprite:setProperty(cityName1,'text','全省')
-    Sprite:setProperty(cityName2,'text','全省')
+    Sprite:setProperty(dimension,'text','区域')
+    Sprite:setProperty(cityName1,'text','区域')
+    Sprite:setProperty(cityName2,'text','区域')
     g_type = 0
-    g_regionid = ''
-    g_regionname = '全省'
+    g_regionid = regionid
+    g_regionname = '区域'
     local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
-    Sprite:setProperty(mainTitle, 'text', '资源代维(全省)')
+    Sprite:setProperty(mainTitle, 'text', '资源代维')
     request(g_dimension)
 end
 -------点击代维单位公司统计标签
@@ -323,22 +346,14 @@ end
 --获取统计数据返回地址（市公司）
 function request(majorData)
     Loading:show(rootSprite)
-    local date = getSelectedMonth()
-    if  date =='2013-1' or date =='2013-2' then 
-        date ='2013-3'
-    end
-    local param = 'cmd=wlbgroupresources&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..date.."&regionid="..g_regionid
+    local param = 'cmd=wlbgroupresources&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..Config:get('resource_date').."&regionid="..g_regionid
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Http:request('city_data', reqURL, 101, {useCache = false})
 end
 --获取统计数据返回地址（市公司）
 function request2(regionid)
     Loading:show(rootSprite)
-    local date = getSelectedMonth()
-    if  date =='2013-1' or date =='2013-2' then 
-        date ='2013-3'
-    end
-    local param = 'cmd=wlbgroupresources'..'&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..date.."&regionid="..regionid
+    local param = 'cmd=wlbgroupresources'..'&dimension='..g_dimension..'&page=1&pagesize=100&usercode='..Config:get('username').."&date="..Config:get('resource_date').."&regionid="..g_regionid
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Http:request('city_data', reqURL, 101, {useCache = false})
 end
@@ -654,6 +669,8 @@ function prevMonthOnSelect(sprite)
     end
     Sprite:setProperty(yearLabel, "text", tostring(year))
     Sprite:setProperty(monthLabel, "text", tostring(month))
+    local date1 = getSelectedMonth()
+    Config:set("resource_date", date1)
     request(g_major)
 end
 
@@ -671,6 +688,8 @@ function nextMonthOnSelect(sprite)
     end
     Sprite:setProperty(yearLabel, "text", tostring(year))
     Sprite:setProperty(monthLabel, "text", tostring(month))
+    local date1 = getSelectedMonth()
+    Config:set("resource_date", date1)
     request(g_major)
 end
 

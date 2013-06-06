@@ -159,11 +159,22 @@ local year = '' --年
 local quarter = ''--季
 local month  = ''--月
 local isFavContextMenuVisible = false
-
+local g_regionid = ''  --当前查询的区域编号，空为全省
+local regionid=''
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+--获取角色编号
+    local role = Config:get('role')
+    regionid = Config:get('regionid')
+    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
+        g_regionid = regionid
+    else
+        g_regionid = ''
+        regionid = ''
+    end
+    Log:write('角色和区域',role,g_regionid)
     local xjwcqk = Sprite:findChild(rootSprite,'xjwcqk')
     local yhclqk = Sprite:findChild(rootSprite,'yhclqk')
     local zlzb = Sprite:findChild(rootSprite,'zlzb')
@@ -206,10 +217,10 @@ function request()
     setDefaultMonth()
     local date = year..'-'..quarter--巡检季度
     local date1 = year..'-'..month--考核月份
-    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=C31&page=1&pagesize=100&dimension=city', 
-        Config:get('username'), date)
-    local param1 = string.format('cmd=wlbassessment&usercode=%s&date=%s&major=C31&page=1&pagesize=100&dimension=city', 
-        Config:get('username'), date1)
+    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=C31&page=1&pagesize=100&dimension=city&regionid=%s', 
+        Config:get('username'), date, g_regionid)
+    local param1 = string.format('cmd=wlbassessment&usercode=%s&date=%s&major=C31&page=1&pagesize=100&dimension=city&regionid=%s', 
+        Config:get('username'), date1, g_regionid)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     local reqURL1 = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param1
     Log:write("[request] reqURL1: ", reqURL1)

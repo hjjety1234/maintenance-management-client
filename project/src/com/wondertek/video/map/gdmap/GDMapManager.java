@@ -1,7 +1,5 @@
-
-
 package com.wondertek.video.map.gdmap;
-//all add pj
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +45,7 @@ import com.mapabc.mapapi.map.PoiOverlay;
 import com.mapabc.mapapi.map.RouteMessageHandler;
 import com.mapabc.mapapi.map.RouteOverlay;
 import com.mapabc.mapapi.poisearch.PoiTypeDef;
+import com.wondertek.video.Util;
 import com.wondertek.video.map.IMapPlugin;
 import com.wondertek.video.map.MapPluginMgr;
 import com.wondertek.video.map.gdmap.GDPoiSearch.GDPoiOverlay;
@@ -163,13 +162,6 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 		Log.d(TAG, ">>>GDMapManager<<<");
 		mContext = cxt;
 		mMapView = new MapView(mContext, GDMapConstants.GDMAP_API_KEYS);
-		
-		// 修改栅格地图地址为省内GIS平台服务
-		// ServerUrlSetting serverUrlSetting = new ServerUrlSetting();
-		// serverUrlSetting.strTileUrl  = "http://221.130.163.121:8088";
-		// serverUrlSetting.strPoiSearchUrl = "http://221.130.163.121:7001/";
-		// mMapView.setServerUrl(serverUrlSetting);
-		
 		mMapView.setLayoutParams(new AbsoluteLayout.LayoutParams(0,0,0,0));
 		mMapView.setBuiltInZoomControls(true);
 		mMapView.setMapGestureRotate(false);
@@ -264,7 +256,6 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 			if (provider == null || provider.equals("")) {
 				provider = LocationProviderProxy.MapABCNetwork;
 			}
-			Log.d(TAG, "getCurrentPosition: provider " + provider);
 			locationManager.requestLocationUpdates(provider, GDMapConstants.GDMAP_LOCATION_UPDATE_MIN_TIME,
 					GDMapConstants.GDMAP_LOCATION_UPDATE_MIN_DISTANCE, listener);
 		} else {
@@ -301,10 +292,13 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 
 	@Override
 	public void showPoisPopView(String pois, boolean bRemoveCover) {
-		Log.d(TAG, "showPoisPopView  pois: " + pois + " RemoveCover: " + bRemoveCover);
+		//Log.d(TAG, "@@@showPoisPopView  pois: " + pois + " RemoveCover: " + bRemoveCover);
 		try {
 			JSONObject jsObject = new JSONObject(pois);
+			String showType = jsObject.optString("showType");
 			JSONArray poisArray = jsObject.getJSONArray("pois");
+			//Log.d(TAG, " @@@length: "  +poisArray.length());
+			//Log.d(TAG, " @@@showType: "  +showType);
 			if (bRemoveCover ==  true) {
 				removeAllPopViews();
 				removeAllOverlays();
@@ -315,24 +309,46 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 					getIdentifier("gdmap_icon_mis", "drawable", mContext.getPackageName()));
 			Drawable markerEx = mContext.getResources().getDrawable(mContext.getResources().
 					getIdentifier("dingwei", "drawable", mContext.getPackageName()));
+			Drawable markerpic1 = mContext.getResources().getDrawable(mContext.getResources().
+					getIdentifier("gdmap_pois_pic1", "drawable", mContext.getPackageName()));
 			List<PoiItem> items = new ArrayList<PoiItem>();
-			boolean isLineInspect = false;	// 是否是线路巡检
 			for (int i = 0; i < poisArray.length(); ++i) {
 				JSONObject poi = poisArray.getJSONObject(i);
-				int longitude = poi.getInt("longitude");
-				int latitude = poi.getInt("latitude");
-				String desc = poi.getString("desc");
-                String poiId = poi.getString("id");
-                if (poiId.equals("-1")) {
-                	isLineInspect = true;
-                }
-            	PoiItem poiItem = new PoiItem(poiId, new GeoPoint(latitude, longitude), desc, "");
+				int longitude = poi.optInt("longitude");
+				int latitude = poi.optInt("latitude");
+				String desc = poi.optString("desc");
+                String poiId = poi.optString("id");
+                String company = poi.optString("company");
+                String major = poi.optString("major");
+                String  name= poi.optString("name");
+                String status = poi.optString("status");
+                String bugname = poi.optString("bugname");
+                String  buggrade= poi.optString("buggrade");
+                String bugstatus = poi.optString("bugstatus");
+               //Log.d(TAG, " @@@company: "  +company);
+               // Log.d(TAG, " @@@name: "  +name);
+               // Log.d(TAG, " @@@bugname: "  +bugname);
+               // Log.d(TAG, " @@@buggrade: "  +buggrade);
+                PoiItem poiItem;
+                if (showType.equals("3")){
+            	   poiItem = new PoiItem(poiId, new GeoPoint(latitude, longitude), desc+";"+company+";"+major+";"+name+";"+status, "");
+                }else  if (showType.equals("4")){
+                	poiItem = new PoiItem(poiId, new GeoPoint(latitude, longitude), desc+";"+bugname+";"+buggrade+";"+bugstatus, "");
+    			}else {
+    				poiItem = new PoiItem(poiId, new GeoPoint(latitude, longitude), desc, "");
+    			}
 				items.add(poiItem);
 			}
-			if (isLineInspect == false) {
-				poiOverlay = new GDPoiOverlayEx(markerEx, items);
-			}else {
+			if (showType.equals("1")) {
 				poiOverlay = new GDPoiOverlay(marker, items);
+			}else  if (showType.equals("2")){
+				poiOverlay = new GDPoiOverlayEx(markerEx, items);
+			}else  if (showType.equals("3")){
+				poiOverlay = new GDPoiOverlayPerson(markerpic1, items);
+			}else  if (showType.equals("4")){
+				poiOverlay = new GDPoiOverlayBug(markerpic1, items);
+			}else {
+				poiOverlay = new GDPoiOverlayEx(markerEx, items);
 			}
 			poiOverlay.addToMap(mMapView);
 			mMapView.invalidate();
@@ -346,7 +362,7 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 	public void poiSearch(String key, int latitude, int longitude, int radius) {
 		Log.d(TAG, "poiSearch  key: " + key + " latitude: " + latitude + " longitude: " + longitude + " radius: " + radius);
 		if (!key.trim().equals("")) {
-            removeAllPopViews();
+			removeAllOverlays();
             removeAllPopViews();
 			GDPoiSearch poiSearch = GDPoiSearch.getInstance(mContext, mMapView);
 			GeoPoint point = new GeoPoint(latitude, longitude);
@@ -358,8 +374,8 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 	public void poiSearch(String key, String city) {
 		Log.d(TAG, "poiSearch cityName: " + city + " key: " + key);
         if (!key.trim().equals("")) {
+        	removeAllOverlays();
         	removeAllPopViews();
-            removeAllPopViews();
         	GDPoiSearch poiSearch = GDPoiSearch.getInstance(mContext, mMapView);
         	poiSearch.search(key, PoiTypeDef.All, city);
         }
@@ -488,7 +504,6 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 			autoLocationOverlay = MyLocationOverlayProxy.getInstance(mContext, mMapView);
 			mMapView.getOverlays().add(autoLocationOverlay);
 			autoLocationOverlay.enableMyLocation();
-            autoLocationOverlay.enableCompass();
 		} 
 		if (currentPoint != null) {
 			mMapController.animateTo(currentPoint);
@@ -523,14 +538,12 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 						data.append("\","+"\"city\":\""+ad.getAdminArea() +"\"}");
 						handler.sendMessage(Message.obtain(handler, GDMapConstants.GDMAP_GEOCODER_RESULT, data.toString()));
 					} else {
-                        if (progDialog.isShowing())
-                        	progDialog.dismiss();
+                        progDialog.dismiss();
 						Log.d(TAG,"geoCoder: [" + mLat + "," + mLog + "] result is null!");
 						handler.sendMessage(Message.obtain(handler, GDMapConstants.GDMAP_GEOCODER_RESULT, "{}"));
 					}
 				} catch (Exception e) {
-                    if (progDialog.isShowing())
-                    	progDialog.dismiss();
+                    progDialog.dismiss();
 					handler.sendMessage(Message.obtain(handler, GDMapConstants.GDMAP_ERROR));
 					handler.sendMessage(Message.obtain(handler, GDMapConstants.GDMAP_GEOCODER_RESULT, "{}"));
 					e.printStackTrace();
@@ -574,7 +587,6 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 	private void disableAutoLocation() {
 		if (autoLocationOverlay != null) {
 			autoLocationOverlay.disableMyLocation();
-            autoLocationOverlay.disableCompass();
 			autoLocationOverlay = null;
 		}
 	}
@@ -583,10 +595,10 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
         GDMapPointOverlay.getInstance(mContext, mMapView).removePointOverlay();
         GDPoiSearch.getInstance(mContext, mMapView).removeAllPOIs();
 		GDRouteSearch.getInstance(mContext, mMapView).removeRouteOnMap();
-		if (poiOverlay != null) {
-			poiOverlay.removeFromMap();
-			poiOverlay = null;
-		}
+//		if (poiOverlay != null) {
+//			poiOverlay.removeFromMap();
+//			poiOverlay = null;
+//		}
 	}
 
 	private void removeAllPopViews() {
@@ -734,5 +746,122 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 			return view;
 		}
 	}
-}
+	
+	/**
+	 * 扩展的Poi点Overlay，支持查看人员。
+	 */
+	class GDPoiOverlayPerson extends GDPoiOverlay {
+		public GDPoiOverlayPerson(Drawable marker, List<PoiItem> items) {
+			super(marker, items);
+		}
 
+		@Override
+		protected Drawable getPopupBackground() {
+			return mContext.getResources().getDrawable(mContext.getResources().
+					getIdentifier("gdmap_qp_bg", "drawable", mContext.getPackageName()));
+		}
+
+		@Override
+		protected Drawable getPopupMarker(PoiItem item) {
+			return super.getPopupMarker(item);
+		}
+		
+		/**
+		 * 获取POI点的view
+		 */
+		@Override
+		protected View getPopupView(final PoiItem item) {
+			String []strs = item.getTitle().split(";");
+			View view = ((Activity) mContext).getLayoutInflater().inflate(mContext.getResources().
+					getIdentifier("gdmap_popview_item_person", "layout", mContext.getPackageName()), null);
+			final TextView title1 = (TextView) view.findViewById(mContext.getResources().
+					getIdentifier("gdmap_item_personname1", "id", mContext.getPackageName()));
+			title1.setText(strs[1]+"-"+strs[2]);
+			final TextView title2 = (TextView) view.findViewById(mContext.getResources().
+					getIdentifier("gdmap_item_personname2", "id", mContext.getPackageName()));
+			title2.setText(strs[3]);
+			final TextView title3 = (TextView) view.findViewById(mContext.getResources().
+					getIdentifier("gdmap_item_personname3", "id", mContext.getPackageName()));
+			title3.setText(strs[4]);
+			
+			// 设置右侧导航按钮的点击消息处理
+			final ImageButton btn_right= (ImageButton) view.findViewById(mContext.getResources().
+					getIdentifier("gdmap_item_personbtn", "id", mContext.getPackageName()));
+			btn_right.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Log.d(TAG, ">>>+++++gdmap_item_personbtn+++++<<<");
+					String str = String.format("{\"PoiId\":\"%s\", \"cmd\":\"%s\"}", item.getPoiId(), "Person");
+					handler.sendMessage(Message.obtain(handler, GDMapConstants.GDMAP_POIPRESSED, str));
+				}
+			});
+			
+			return view;
+		}
+	}
+	
+	/**
+	 * 扩展的Poi点Overlay，支持查看故障。
+	 */
+	class GDPoiOverlayBug extends GDPoiOverlay {
+		public GDPoiOverlayBug(Drawable marker, List<PoiItem> items) {
+			super(marker, items);
+		}
+
+		@Override
+		protected Drawable getPopupBackground() {
+			return mContext.getResources().getDrawable(mContext.getResources().
+					getIdentifier("gdmap_qp_bg", "drawable", mContext.getPackageName()));
+		}
+
+		@Override
+		protected Drawable getPopupMarker(PoiItem item) {
+			return super.getPopupMarker(item);
+		}
+		
+		/**
+		 * 获取POI点的view
+		 */
+		@Override
+		protected View getPopupView(final PoiItem item) {
+			String []strs = item.getTitle().split(";");
+			View view = ((Activity) mContext).getLayoutInflater().inflate(mContext.getResources().
+					getIdentifier("gdmap_popview_item_bug", "layout", mContext.getPackageName()), null);
+			final TextView title1 = (TextView) view.findViewById(mContext.getResources().
+					getIdentifier("gdmap_item_bugname1", "id", mContext.getPackageName()));
+			title1.setText(strs[1]);
+			final TextView title2 = (TextView) view.findViewById(mContext.getResources().
+					getIdentifier("gdmap_item_bugname2", "id", mContext.getPackageName()));
+			title2.setText(strs[2]);
+			final TextView title3 = (TextView) view.findViewById(mContext.getResources().
+					getIdentifier("gdmap_item_bugname3", "id", mContext.getPackageName()));
+			title3.setText(strs[3]);
+			
+			// 设置左侧详情按钮的消息响应
+			ImageButton btnLeft = (ImageButton)view.findViewById(mContext.getResources().
+					getIdentifier("gdmap_item_bugbtn1", "id", mContext.getPackageName()));
+			btnLeft.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Log.d(TAG, ">>>+++++gdmap_item_bugbtn1+++++<<<");
+					String str = String.format("{\"PoiId\":\"%s\", \"cmd\":\"%s\"}", item.getPoiId(), "Bug");
+					handler.sendMessage(Message.obtain(handler, GDMapConstants.GDMAP_POIPRESSED, str));
+				}
+			});
+			
+			// 设置右侧导航按钮的点击消息处理
+			final ImageButton btn_right= (ImageButton) view.findViewById(mContext.getResources().
+					getIdentifier("gdmap_item_bugbtn2", "id", mContext.getPackageName()));
+			btn_right.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Log.d(TAG, ">>>+++++gdmap_item_bugbtn2+++++<<<");
+					String str = String.format("{\"PoiId\":\"%s\", \"cmd\":\"%s\"}", item.getPoiId(), "Person");
+					handler.sendMessage(Message.obtain(handler, GDMapConstants.GDMAP_POIPRESSED, str));
+				}
+			});
+			
+			return view;
+		}
+	}
+}

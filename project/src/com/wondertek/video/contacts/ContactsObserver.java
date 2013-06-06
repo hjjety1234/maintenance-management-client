@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.Contacts.People;
@@ -123,7 +124,6 @@ public class ContactsObserver {
 			String photo_id = cur.getString(cur.getColumnIndex(Phone.PHOTO_ID));
 			String sort_key = cur.getString(cur.getColumnIndex("sort_key"));
 		
-			Util.Trace("contacts>>> name:" + name + "number:" + number + "photo:"+photo_id + "sort_key" + sort_key);
 			boolean show = true;
 			if (isPinYin(condition) ) {
 				if(containCn(sort_key)) {
@@ -135,7 +135,6 @@ public class ContactsObserver {
 						show = false;
 				}
 			}
-			Util.Trace("is show " + show);
 			
 			if (show) {
 				contactsList = contactsList + name + "\n" + number + "\n";
@@ -143,7 +142,6 @@ public class ContactsObserver {
 			cur.moveToNext();
 		}
 		cur.close();
-		Util.Trace("is contactsList= " + contactsList);
 		return contactsList;
 	}
 	
@@ -161,7 +159,7 @@ public class ContactsObserver {
 		while(cur.getCount() > cur.getPosition()) {
 			String groups_id = cur.getString(cur.getColumnIndex(Groups._ID));
 			String groups_title = cur.getString(cur.getColumnIndex(Groups.TITLE));
-			Util.Trace("contactsgroup>>> groups_id:" + groups_id + "groups_title:" + groups_title);
+//			Util.Trace("contactsgroup>>> groups_id:" + groups_id + "groups_title:" + groups_title);
 			contactsGroup = contactsGroup + groups_id + "\n" + groups_title + "\n";
 			cur.moveToNext();
 		}
@@ -172,71 +170,128 @@ public class ContactsObserver {
 	
 	public String getEachContactsGroupInfo(String groupId)
 	{
-		    String contactsList = "";
-		    if (groupId == null || groupId.equals(""))
-				return contactsList;
-		    Uri uri = ContentUris.withAppendedId(Groups.CONTENT_URI, Long.parseLong(groupId));
-		    //Util.Trace("Uri : " + uri);
-		    // 查询Data中与该group相关的信息
-			String groupSelection = Data.MIMETYPE + " = ?" + " AND "
-					+ GroupMembership.GROUP_ROW_ID + " = ?";
-			String[] groupSelectionArgs = new String[] {
-					GroupMembership.CONTENT_ITEM_TYPE, String.valueOf(groupId) };
-			Cursor groupCursor = venusHandle.appActivity.getContentResolver().query(Data.CONTENT_URI, null,
-					groupSelection, groupSelectionArgs, null);
-			int count = groupCursor.getCount();
-			//Util.Trace("count of rawcontacts in this group:" + count);
-			sb = new StringBuilder();
-			long rawContactId;
-			long contactId;
-			for (int i = 0; i < count; i++) 
-			{
-				groupCursor.moveToPosition(i);
-				rawContactId = groupCursor.getLong(groupCursor
-						.getColumnIndex(GroupMembership.RAW_CONTACT_ID));
-				contactId = queryForContactId(venusHandle.appActivity.getContentResolver(), rawContactId);
-				sb.append(contactId);
-				if (i != count - 1) {
-					sb.append(',');
-				}
+		String contactsList = "";
+		if (groupId == null || groupId.equals(""))
+			return contactsList;
+		String groupSelection = Data.MIMETYPE + " = ?" + " AND "
+				+ GroupMembership.GROUP_ROW_ID + " = ?";
+		String[] groupSelectionArgs = new String[] {
+				GroupMembership.CONTENT_ITEM_TYPE, String.valueOf(groupId) };
+		Cursor groupCursor = venusHandle.appActivity.getContentResolver().query(Data.CONTENT_URI, null,
+				groupSelection, groupSelectionArgs, null);
+		int count = groupCursor.getCount();
+		Util.Trace("count = " + count);
+		sb = new StringBuilder();
+		long rawContactId;
+		long contactId;
+		for (int i = 0; i < count; i++) 
+		{
+			groupCursor.moveToPosition(i);
+			rawContactId = groupCursor.getLong(groupCursor
+					.getColumnIndex(GroupMembership.RAW_CONTACT_ID));
+			contactId = queryForContactId(venusHandle.appActivity.getContentResolver(), rawContactId);
+			sb.append(contactId);
+			if (i != count - 1) {
+				sb.append(',');
 			}
-			groupCursor.close();
-			//Util.Trace("所有的ContactId: " + sb.toString());
-			// 构造查询条件
-			String selection = Contacts._ID + " in ( " + sb.toString() + " )";
-			String sortOrder = Contacts.DISPLAY_NAME + "  COLLATE LOCALIZED ASC ";
-			Cursor mCursor = venusHandle.appActivity.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null,
-					selection, null, sortOrder);
-		  Util.Trace("单个分组的联系人数量： " + mCursor.getCount());
-		  mCursor.moveToFirst();
-		  while(mCursor.getCount() > mCursor.getPosition())
-		  {
-			   //根据id查number
-			   String id = mCursor.getString(mCursor.getColumnIndex(ContactsContract.Contacts._ID));
-				Util.Trace("contactsgroup>>> id:" + id);
-				Cursor uriIdCursor = venusHandle.appActivity.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-						ContactsContract.CommonDataKinds.Phone.CONTACT_ID+"="+ id, null, null);
-				//Util.Trace("contactsgroup>>> uriIdCursorgetCount:" + uriIdCursor.getCount());
-				uriIdCursor.moveToFirst();
-				String number = "";
-				while(uriIdCursor.getCount() > uriIdCursor.getPosition())
-				{
-					String singleNumber = uriIdCursor.getString(uriIdCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-					number = number + singleNumber + ";" ;
-					uriIdCursor.moveToNext();
-				}
-				uriIdCursor.close();
-				String name = mCursor.getString(mCursor.getColumnIndex(Contacts.DISPLAY_NAME));
-				String photo_id = mCursor.getString(mCursor.getColumnIndex(Contacts.PHOTO_ID));
-				String sort_key = mCursor.getString(mCursor.getColumnIndex("sort_key"));
-			    contactsList = contactsList + name + "\n"+ number + "\n";
-				mCursor.moveToNext();
-		 }
-		mCursor.close();
-		//Util.Trace("contactsgroup>>> contactsList:" + contactsList);
+		}
+		groupCursor.close();
+
+		String selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " in ( " + sb.toString() + " )";
+		String sortOrder = Contacts.DISPLAY_NAME + "  COLLATE LOCALIZED ASC ";
+
+
+		Cursor phones = venusHandle.appActivity.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+				selection, null, sortOrder);
+
+
+		int c = phones.getCount();
+		Util.Trace("c = " + c);
+		if(c > 0)
+		{
+			for(int i = 0; i<c; i++)
+			{
+				phones.moveToNext();
+				String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+				String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+				contactsList = contactsList + name + "\n"+ phone + "\n";
+			}
+		}
+		phones.close();
+
 		return contactsList;
 	}
     
+	public void addContact(String name, String phone)
+	{		
+		//插入raw_contacts表，并获取_id属性
+		Uri uri = Uri.parse("content://com.android.contacts/raw_contacts");
+		ContentResolver resolver =venusHandle.appActivity.getContentResolver();
+		ContentValues values = new ContentValues();
+		long contact_id = ContentUris.parseId(resolver.insert(uri, values));
+		//插入data表
+		uri = Uri.parse("content://com.android.contacts/data");
+		//add Name
+		values.put("raw_contact_id", contact_id);
+		values.put(Data.MIMETYPE,"vnd.android.cursor.item/name");
+		values.put("data2", name);
+		values.put("data1", name);
+		resolver.insert(uri, values);
+		values.clear();
+		//add Phone
+		values.put("raw_contact_id", contact_id);
+		values.put(Data.MIMETYPE,"vnd.android.cursor.item/phone_v2");
+		values.put("data2", phone);	//手机
+		values.put("data1", phone);
+		resolver.insert(uri, values);
+		Util.Trace("@@@addContact success!!!:");
+	}
+	
+	public void deleteContact(String name)
+	{
+		//根据姓名求id
+		Uri uri = Uri.parse("content://com.android.contacts/raw_contacts");
+		ContentResolver resolver = venusHandle.appActivity.getContentResolver();
+		Cursor cursor = resolver.query(uri, new String[]{Data._ID},"display_name=?", new String[]{name}, null);
+		if(cursor.moveToFirst()){
+			int id = cursor.getInt(0);
+			//根据id删除data中的相应数据
+			resolver.delete(uri, "display_name=?", new String[]{name});
+			uri = Uri.parse("content://com.android.contacts/data");
+			resolver.delete(uri, "raw_contact_id=?", new String[]{id+""});
+		}
+		Util.Trace("@@@deleteContact success!!!:");
+	}
+	
+	public void editContact(String oldName, String oldPhone, String newName, String newPhone)
+	{
+		//根据姓名求id
+		Uri uri = Uri.parse("content://com.android.contacts/raw_contacts");
+		ContentResolver resolver = venusHandle.appActivity.getContentResolver();
+		Cursor cursor = resolver.query(uri, new String[]{Data._ID},"display_name=?", new String[]{oldName}, null);
+		if(cursor.moveToFirst()){
+			 int id = cursor.getInt(0);
+			 Util.Trace("@@@id!!!:"+id);
+			 //根据id修改data中的相应数据
+			 ContentValues values = new ContentValues();
+			 String Where = Data.RAW_CONTACT_ID + " = ?" + " AND "
+						+ Data.MIMETYPE + " = ?";
+		    values.put("data2", newName);
+			values.put("data1", newName);
+			String[] WhereParams = new String[] {
+					id+"", "vnd.android.cursor.item/name" };
+		    venusHandle.appActivity.getContentResolver().update(ContactsContract.Data.CONTENT_URI, values, Where, WhereParams);
+		    values.clear();
+		    
+		    values.put(Phone.NUMBER, newPhone);
+		    values.put(Phone.TYPE, Phone.TYPE_MOBILE);
+		    String[] WhereParams2 = new String[] {
+					id+"", Phone.CONTENT_ITEM_TYPE };
+		    venusHandle.appActivity.getContentResolver().update(ContactsContract.Data.CONTENT_URI, values, Where, WhereParams2);
+		    Util.Trace("@@@editContact success!!!:");
+		}
+	}
+	
 	/**
 	 * 查询RawContacts中_id等于rawContactId的记录的contact_id字段的值
 	 */
@@ -425,6 +480,7 @@ public class ContactsObserver {
 		String contactsList = "";
 		String oldname = "";
 		String oldphone = "";
+		String oldsortkey = "";
 		if(Contact_Map == null) Contact_Map = new HashMap<String, String>();
 		Contact_Map.clear();
 		Cursor phones = venusHandle.appActivity.getContentResolver().query(
@@ -441,14 +497,26 @@ public class ContactsObserver {
 				phones.moveToNext();
 				String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
 				String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+				String sortkey = phones.getString(phones.getColumnIndex("sort_key"));
+				phone = phone.replaceAll(" ", "");
 				if(!oldname.equals("") && !name.equals("") && !oldname.equals(name))
 				{
-					Contact_Map.put(oldname+"###" + i, oldphone);
+					if(phones.getColumnIndex("sort_key") != -1)
+						{
+							oldphone = oldphone + "\n" +oldsortkey ;
+							Contact_Map.put(oldsortkey + "##" + i, oldname + "\n" + oldphone + "\n");
+						}
+					else 
+						{
+							Contact_Map.put(oldname+"###" + i, oldphone);
+						}
 					oldname = "";
 					oldphone = "";
+					oldsortkey = "";
 				}
 
 				oldname = name; 
+				oldsortkey = sortkey; 
 				if(!oldphone.equals(""))
 					oldphone += "," + phone;
 				else
@@ -457,7 +525,8 @@ public class ContactsObserver {
 		}
 		if(!oldname.equals(""))
 		{
-			Contact_Map.put(oldname+"###" + c, oldphone);
+			//Contact_Map.put(oldname+"###" + c, oldphone);
+			Contact_Map.put(oldsortkey + "##" + c, oldname + "\n" + oldphone + "\n" + oldsortkey + "\n");
 		}
 
 		//Sort the contacts by name
@@ -475,7 +544,8 @@ public class ContactsObserver {
 		//Build the contacts list
 		for(j=0; j<elementN; j++)
 		{
-			contactsList = contactsList + nameArray[j].substring(0,nameArray[j].lastIndexOf("###")) + "\n" + Contact_Map.get(nameArray[j]) + "\n";
+			//contactsList = contactsList + nameArray[j].substring(0,nameArray[j].lastIndexOf("###")) + "\n" + Contact_Map.get(nameArray[j]) + "\n";
+			contactsList = contactsList + Contact_Map.get(nameArray[j]);
 		}
 		return contactsList;
 	}

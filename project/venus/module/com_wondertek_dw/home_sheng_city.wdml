@@ -42,7 +42,7 @@
                 </node>
           </button>
           
-         <!-- 人车配置  -->
+         <!-- 标杆管理  -->
          <button name="buttonTodoList" rect="10,125,226,180" border="false" 
             normal="normal" extendstyle="1111" data="01" OnSelect="listItemOnSelect" >
              <node name="normal" rect="0,0,226,180" extendstyle="1111">
@@ -148,11 +148,22 @@ local year = '' --年
 local quarter = ''--季
 local month  = ''--月
 local isFavContextMenuVisible = false
-
+local g_regionid = ''  --当前查询的区域编号，空为全省
+local regionid=''
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+--获取角色编号
+    local role = Config:get('role')
+    regionid = Config:get('regionid')
+    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
+        g_regionid = regionid
+    else
+        g_regionid = ''
+        regionid = ''
+    end
+    Log:write('角色和区域',role,g_regionid)
     local xjwcqk = Sprite:findChild(rootSprite,'xjwcqk')
     local yhclqk = Sprite:findChild(rootSprite,'yhclqk')
     local zlzb = Sprite:findChild(rootSprite,'zlzb')
@@ -195,10 +206,10 @@ function request()
     setDefaultMonth()
     local date = year..'-'..quarter--巡检季度
     local date1 = year..'-'..month--考核月份
-    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=C31&page=1&pagesize=100&dimension=city', 
-        Config:get('username'), date)
-    local param1 = string.format('cmd=wlbassessment&usercode=%s&date=%s&major=C31&page=1&pagesize=100&dimension=city', 
-        Config:get('username'), date1)
+    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=C31&page=1&pagesize=100&dimension=city&regionid=%s', 
+        Config:get('username'), date, g_regionid)
+    local param1 = string.format('cmd=wlbassessment&usercode=%s&date=%s&major=C31&page=1&pagesize=100&dimension=city&regionid=%s', 
+        Config:get('username'), date1, g_regionid)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     local reqURL1 = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param1
     Log:write("[request] reqURL1: ", reqURL1)
@@ -286,29 +297,29 @@ end
 function listItemOnSelect(sprite)
     local dataInfo = Sprite:getData(sprite)
     if dataInfo == '01' then    -- 标杆管理
-        Scene:setReturn(Alias.home_sheng, Alias.m_biaoganGuanLi)
+        Scene:setReturn(Alias.home_sheng_city, Alias.m_biaoganGuanLi)
         Scene:go(Alias.m_biaoganGuanLi)
     elseif dataInfo == '02' then -- 巡检完成情况
         Log:write('资源统计_clicked')
-        Scene:setReturn(Alias.home_sheng, m_xunjiantongji_new)
+        Scene:setReturn(Alias.home_sheng_city, m_xunjiantongji_new)
         Scene:go(Alias.m_xunjiantongji_new)
     elseif dataInfo == '03' then -- 资源代维情况
-        Scene:setReturn(Alias.home_sheng, Alias.m_resource1)
+        Scene:setReturn(Alias.home_sheng_city, Alias.m_resource1)
         Scene:go(Alias.m_resource1)
     elseif dataInfo == '04' then -- 隐患处理情况
-        Scene:setReturn(Alias.home_sheng, Alias. m_yinhuantongji)
+        Scene:setReturn(Alias.home_sheng_city, Alias. m_yinhuantongji)
         Scene:go(Alias. m_yinhuantongji)
     elseif dataInfo == '05' then --质量指标
-        Scene:setReturn(Alias.home_sheng, Alias.m_quality)
+        Scene:setReturn(Alias.home_sheng_city, Alias.m_quality)
         Scene:go(Alias.m_quality)
     elseif dataInfo == '06' then --考核情况
-        Scene:setReturn(Alias.home_sheng, Alias.m_kaohetongji_new)
+        Scene:setReturn(Alias.home_sheng_city, Alias.m_kaohetongji_new)
         Scene:go(Alias.m_kaohetongji_new)
     elseif dataInfo == '07' then --费用统计
-        Scene:setReturn(Alias.home_sheng, Alias.m_cost)
+        Scene:setReturn(Alias.home_sheng_city, Alias.m_cost)
         Scene:go(Alias.m_cost)
     elseif dataInfo == '09' then --系统设置
-        Scene:setReturn(Alias.home_sheng, Alias.m_system_manager)
+        Scene:setReturn(Alias.home_sheng_city, Alias.m_system_manager)
         Scene:go(Alias.m_system_manager)
     else
     end
