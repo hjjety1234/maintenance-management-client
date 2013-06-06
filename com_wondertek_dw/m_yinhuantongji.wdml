@@ -649,6 +649,7 @@ function cityItemBtnOnselect(sprite)
       local dimName = Sprite:findChild(sprite,'dimName')                    -- 地市名称
       local dimension = Sprite:findChild(rootSprite,'dimension')            -- 维度名称
       local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+      local companyBtn = Sprite:findChild(rootSprite,'companyBtn') 
       local regionid = Sprite:getData(sprite)
       g_regionid = regionid
       local regionText = Sprite:getText(dimName)
@@ -656,8 +657,14 @@ function cityItemBtnOnselect(sprite)
       Sprite:setProperty(mainTitle, 'text', '隐患情况('..regionText..')')
       g_regionname = regionText
       if string.sub(g_regionid,5) ~= '00' and g_regionid ~=''  then
-        companyOn()
+        companyOn(companyBtn)
+        Sprite:setProperty(dimension, 'text', regionText)
+        Sprite:setProperty(mainTitle, 'text', '隐患情况('..regionText..')')
       else
+        Sprite:setProperty(dimension, 'text', regionText)
+        Sprite:setProperty(mainTitle, 'text', '隐患情况('..regionText..')')
+        g_regionname = regionText
+        g_dimension = 'city'
         request2(regionid)
      end
 end
