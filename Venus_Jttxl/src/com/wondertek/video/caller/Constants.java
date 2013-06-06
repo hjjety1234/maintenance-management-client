@@ -1,5 +1,7 @@
 package com.wondertek.video.caller;
 
+import java.io.File;
+
 import android.util.Log;
 
 import com.wondertek.video.VenusActivity;
@@ -23,25 +25,12 @@ public class Constants {
 	public static final String RES_LOGO_URL_PREFIX = "http://120.209.138.173:8080/resources/mobileImg/";
 
 	private static String getAbsolutePath(String filename) {
-		/*
-		if (Environment2.isSecondaryExternalStorageAvailable()
-				&& Environment2.isExternalStorageEmulated() == true) {
-			try {
-				filename = Environment2.getSecondaryExternalStorageDirectory()
-						.getAbsolutePath() + "/" + filename;
-				Log.d(TAG, "[getAbsolutePath] secondary storage: " + filename);
-				return filename;
-			} catch (Exception e) {
-				Log.d(TAG, "[getAbsolutePath] exception: " + e.getMessage());
-			}
-		}*/
-		String internalStorage = VenusActivity.getInstance().javaGetSDPath();
-		if (!internalStorage.equals("")) {
-			filename = internalStorage + "/" + filename;
-			Log.d(TAG, "[getAbsolutePath] internal storage: " + filename);
+		if (new File("/mnt/sdcard/" + filename).exists() == true) {
+			filename = "/mnt/sdcard/" + filename;
+			Log.d(TAG, "[getAbsolutePath] sdcard storage: " + filename);
 		} else {
-			filename = VenusApplication.appAbsPath + "module/com_wondertek_tx/" + filename;
-			Log.d(TAG, "[getAbsolutePath] application private storage: "
+			filename = "/data/data/com.wondertek.jttxl/module/com_wondertek_tx/" + filename;
+			Log.d(TAG, "[getAbsolutePath] private storage: "
 					+ filename);
 		}
 		return filename;
