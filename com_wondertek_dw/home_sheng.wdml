@@ -161,12 +161,14 @@ local month  = ''--月
 local isFavContextMenuVisible = false
 local g_regionid = ''  --当前查询的区域编号，空为全省
 local regionid=''
+
+local role
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
---获取角色编号
-    local role = Config:get('role')
+    --获取角色编号
+    role = Config:get('role')
     regionid = Config:get('regionid')
     if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
         g_regionid = regionid
@@ -308,8 +310,13 @@ end
 function listItemOnSelect(sprite)
     local dataInfo = Sprite:getData(sprite)
     if dataInfo == '01' then    -- 人车配置
-        Scene:setReturn(Alias.home_sheng, Alias.m_renyuantongji)
-        Scene:go(Alias.m_renyuantongji)
+        if role=='MM000' or role=='MM001' or role=='MM002' then
+            Scene:setReturn(Alias.home_sheng, Alias.m_renyuantongji)
+            Scene:go(Alias.m_renyuantongji)
+        elseif role=='MM005' or role=='MM006' or role=='MM009' or role=='MM010'then 
+            Scene:setReturn(Alias.home_sheng, Alias.m_renyuantongji_city)
+            Scene:go(Alias.m_renyuantongji_city)
+        end      
     elseif dataInfo == '02' then -- 巡检完成情况
         Log:write('资源统计_clicked')
         Scene:setReturn(Alias.home_sheng, m_xunjiantongji_new)
