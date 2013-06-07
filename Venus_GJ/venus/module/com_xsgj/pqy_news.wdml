@@ -1,0 +1,424 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+			<!-- 设置背景 -->
+			<shadow rect="0,0,480,800" alpha="255" extendstyle="1111">
+				<image name="titleBg" rect="0,0,480,800" src="file://pics/main_bg.png" extendstyle="1111" style="autosize"></image>
+			</shadow>
+			<!-- 信息头部 -->
+			<node rect="0,0,480,80" extendstyle="1111" border="0">
+				<image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png" extendstyle="1111" style="autosize"></image>
+				<!-- 返回按钮 -->
+				<button name="backBtn" rect="9,14,52,52" OnSelect="doBack"
+					border="false" normal="src:file://pics/icon_home_d.png;" sel="src:file://pics/icon_home_s.png;"
+					style="autosize" extendstyle="1111">
+				</button>
+				<image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png"extendstyle="1111"></image>
+				<!-- 二级菜单标题 -->
+				<scrolltext name="title" rect="100,0,280,70" text="通知公告"
+					font-family="微软雅黑" extendstyle="1111" font-size="32" h-align="center"
+					v-align="center" color="#ffffff" scroll="true" step="2"></scrolltext>
+				<!--刷新 -->
+				<image name="normal" rect="410,0,2,80" src="file://pics/sub_top_line.png" extendstyle="1111"></image>
+				<button name="refreshBtn" rect="419,14,52,52" OnSelect="refreshOnSelect"
+					border="false" normal="src:file://pics/icon_refresh_d.png;" sel="src:file://pics/icon_refresh_s.png;"
+					style="autosize" extendstyle="1111">
+				</button>
+			</node>
+            <node name="searchBar" rect="0,80,480,70" extendstyle="1111">
+				<image name="Image1" rect="0,0,480,70" src="file://pics/search_bg.png"extendstyle="1111" style="autosize"></image>
+				<image name="Image1" rect="10,10,400,52" src="file://pics/input_search.png" sudoku="50,0,50,0" style="sudoku-auto" extendstyle="1111"></image>
+				<edit name="keywordEdit" rect="45,15,350,40" extendstyle='1111' v-align="center" h-align="left" color="#c5c6c5" font-size="24" text="搜索新闻标题" OnLostFocus="editOnTextChanged" OnSetFocus="initText" font-family="微软雅黑"></edit>
+				<button name="appBtn" rect="420,15,40,40" style="autosize" normal="src:file://pics/button_search_d.png;" sel="src:file://pics/button_search_s.png;" OnSelect="OnSearchButtonClicked" extendstyle="1111" />
+			</node>
+			<!-- 公告列表视图  -->
+			<node rect="0,150,480,655" extendstyle="1111">
+				<listview name="listView1" rect="0,0,480,572" extendstyle="1111" border="false" visible="true" />
+				<button rect="0,571,480,74" border="false" text="点击查看更多"
+					color="#666666" OnSelect="addmore" name="morebtn" visible="false"
+					v-align="center" h-align="center" font-family="微软雅黑" font-size="24"
+					extendstyle="1110" />
+			</node>
+			<node name="listItem1" rect="0,0,480,98" border="false" visible="false" enable="false" active="false" extendstyle="1111">
+				<button name="btnname" rect="0,0,480,98" OnSelect="itemOnSelect"
+					normal="src:file://pics/list_news_s.jpg;" sel="src:file://pics/list_news_d.jpg;"
+					style="autosize" extendstyle="1111" sudoku="15,15,15,15">
+					<label name="noticeId" rect="0,0,20,65" border="false" text=""
+						h-align="right" v-align="center" color="#000000" font-size="24"
+						extendstyle="1111" visible="false" font-family="微软雅黑"></label>
+					<label name="isCollect" rect="0,0,20,65" border="false" text=""
+						h-align="right" v-align="center" color="#000000" font-size="24"
+						extendstyle="1111" visible="false" font-family="微软雅黑"></label>
+					<label name="noticeTitle" rect="20,0,360,60" border="false" h-align="left" v-align="center" color="#000000"
+						text="" font-size="24"  extendstyle="1111" postfix="..."
+						font-family="微软雅黑"></label>
+				   <label name="noticeDate" rect="20,30,130,65" text=""
+                        h-align="left" v-align="center" color="#8d8d8d" font-size="18"
+                        extendstyle="1111" font-family="微软雅黑"></label>
+                    <label name="newsman" rect="150,30,150,65" text="" h-align="left"
+						v-align="center" color="#8d8d8d" font-size="18" extendstyle="1111"
+						font-family="微软雅黑"></label>
+					<!-- 新公告提示按钮 -->
+					<node name="newNoticeImageNode" rect="410,25,42,42" extendstyle="1111" visible="false">
+						<image name="newNoticeImage" rect="0,10,38,27" src="file://pics/icon_new.png"
+							style="autosize" extendstyle="1111" v-align="center">
+						</image>
+					</node>
+					<!-- 收藏按钮 -->
+					<node name="MyFavNoticeNode" rect="445,35,38,27" extendstyle="1111" visible="false" enable="false">
+						<image name="newFavImage" rect="0,0,38,27" src="file://pics/top-shoucang.png" style="autosize" extendstyle="1111" v-align="center"></image>
+					</node>
+					<!-- 列表详情 -->
+					<node name="contentNode" visible="false">
+						<label name="content" text=""></label>
+					</node>
+					<node name="newsMan" visible="false">
+						<label name="newsman" text=""></label>
+					</node>
+					<shadow rect="0,96,480,1" color="#aaabae" alpha="255"extendstyle="1114" />
+				</button>
+			</node>
+
+			<!-- 收藏菜单  -->
+			<node name="ContextMenuNode" rect="0,720,480,80" border="false" visible="false" enable="false" extendstyle="1111">
+				<image name="ContextMenuNodeBgImage" style="autosize" rect="0,0,480,80"
+					src="file://pics/tab_n.png" extendstyle="1111" />
+				<node name="FavListImg" rect="0,0,480,80" extendstyle="1111" visible="true">
+					<button name="favListButton" rect="0,0,480,80"
+						OnSelect="ContextMenuListItemOnSelect" extendstyle="1111">
+						<image rect="180,18,40,40" src="file://pics/bookmark1.png"
+							style="autosize" border="false" extendstyle="1111" />
+						<label name="noticeDate" rect="325,75,90,20" border="false"
+							text="" h-align="right" v-align="center" color="#000000"
+							font-size="24" extendstyle="1111" font-family="微软雅黑"></label>
+						<label name="label2" rect="230,23,100,28" border="false"
+							text="我的收藏" h-align="center" color="#000000" font-family="微软雅黑"
+							font-size="24"></label>
+					</button>
+				</node>
+			</node>
+			<button visible="false" data="1" name="curpage"></button>
+			<node name="error" rect="0,170,480,624" visible="false" extendstyle="1111" style="autosize" >  
+                <image rect="120,140,239,234" src="file://pics/face.png" style="autosize" extendstyle="1111" />
+                <label rect="0,380,480,50" text="没有搜索到您要的数据" font-family="微软雅黑" font-size="32" h-align="center" v-align="center" color="#686464" style="autosize" extendstyle="0010" />
+            </node>
+		</node>
+	</body>
+    <![CDATA[
+
+    require 'com_xsgj.common.framework'
+    local rootSprite
+    local isSearchBarVisible = false
+    local nSearchBarWidth = 55
+    local jsonDecodedNotice = nil
+    local isFavContextMenuVisible = false
+    local MSG_NOTICE_NEW_FLAG = 102
+    local usercode=Config:get('username')
+    local curpage=1
+    local pagesize=6
+    local error
+  
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        Loading:show(rootSprite)
+        error = Sprite:findChild(rootSprite, 'error')    
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            curpage=Sprite:findChild(rootSprite, 'curpage')
+            morebtn=Sprite:findChild(rootSprite, 'morebtn')
+            pages=Sprite:getData(curpage)
+            requestNoticeList('notice', 101, usercode, '',  Sprite:getData(curpage), pagesize)
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if msg == 101 then
+            if Loading:isShow() then Loading:close() end
+            jsonDecodedNotice = Http:jsonDecode('notice')
+            Log:write('pqy:', jsonDecodedNotice)
+            -- 检查是否有返回结果
+            if (jsonDecodedNotice == nil or jsonDecodedNotice["Total"] == 0 or
+                jsonDecodedNotice["Total"] == '') then
+                Sprite:setVisible(error,1)
+            else 
+                Sprite:setVisible(error,0)
+            end
+            local totalPage = tonumber(jsonDecodedNotice["Total"])
+            local p=Sprite:getData(curpage)
+            if totalPage >p*6 then
+                setAllShoworHide(morebtn, 1)
+            end
+            local s=getJsonArrayCount(jsonDecodedNotice['Row']);
+            local list = Sprite:findChild(rootSprite, 'listView1')
+            -- ListView:removeAllItems(list)
+            -- 加载新的列表项
+            ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem1'),s, 'loadListItem')
+            ListView:adjust(list)
+            refresh(rootSprite)
+            --已读新闻返回数据
+            elseif msg==102 then
+            if Loading:isShow() then Loading:close() end
+            jsonDecodedNotice = Http:jsonDecode('notice')
+            Log:write('pqy:', jsonDecodedNotice)
+            -- 检查是否有返回结果
+            if (jsonDecodedNotice == nil or jsonDecodedNotice["Total"] == 0 or
+                jsonDecodedNotice["Total"] == '') then
+                 Sprite:setVisible(error,1)
+             else
+                Sprite:setVisible(error,0)
+            end
+            local totalPage = tonumber(jsonDecodedNotice["Total"])
+            local list = Sprite:findChild(rootSprite, 'listView1')
+            ListView:removeAllItems(list)
+            -- 加载新的列表项
+            ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem1'),totalPage, 'loadListItem')
+            ListView:adjust(list)
+            refresh(rootSprite)
+            elseif msg == MSG_NOTICE_NEW_FLAG then
+            Log:write('进入标记公告已读标志Response处理')
+            local jsonResp = Http:jsonDecode('NOTICE_NEW_FLAG')
+            -- if jsonResp["Rows"][0]["read"] == '1' then
+                -- Log:write('设置已读标志位成功!')
+                -- else
+                -- Log:write('设置已读标志位失败，返回码:'..jsonResp["Rows"][0]["read"])
+            -- end
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    --当进入编辑框时，修改文字为输入
+    function initText(sprite)
+        local txt= Sprite:getProperty(sprite, 'text')
+        if txt=='搜索新闻标题' then
+            Sprite:setProperty(sprite, 'text', '')
+            Sprite:setProperty(sprite, 'color', '#0')
+        end
+    end
+    --当未有任何输入时，初始化为提示
+    function editOnTextChanged(sprite)
+        local txt= Sprite:getProperty(sprite, 'text')
+        if txt=='' or txt ==nil then
+            Sprite:setProperty(sprite, 'color', '#8f8e8e')
+            Sprite:setProperty(sprite, 'text', '搜索新闻标题')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+            elseif kc == Key.F1 then -- 按下菜单键
+            local FavListNodeSprite = Sprite:findChild(rootSprite, "ContextMenuNode")
+            local enable= Sprite:getProperty(FavListNodeSprite, 'enable')
+            Log:write("是否有效=====",enable)
+            if (isFavContextMenuVisible == false) then
+                Sprite:setProperty(FavListNodeSprite, 'visible', 'true')
+                isFavContextMenuVisible = true
+                Sprite:setProperty(FavListNodeSprite, 'enable', 'true')
+            else
+                Sprite:setProperty(FavListNodeSprite, 'visible', 'false')
+                isFavContextMenuVisible = false
+                Sprite:setProperty(FavListNodeSprite, 'enable', 'false')
+            end
+            return 1
+        end
+    end
+    -- @brief 返回按钮处理
+    function doBack()
+        Scene:go(Alias.home,true)
+    end
+    ---------------------------------------util functions---------------------------
+ 
+    function loadListItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 98)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        -- 获取要创建的列表项Sprite
+        local noticeId = Sprite:findChild(item, 'noticeId')
+        local noticeTitle = Sprite:findChild(item, 'noticeTitle')
+        local noticeDate = Sprite:findChild(item, 'noticeDate')
+        local content=Sprite:findChild(item, 'content')
+        local newsMan=Sprite:findChild(item, 'newsman')
+        local isCollect = Sprite:findChild(item, 'isCollect')
+        local newNoticeImageNodeSprite = Sprite:findChild(item, 'newNoticeImageNode')
+        -- 设置列表项的内容
+        Sprite:setProperty(noticeId, 'text', tostring(index))
+        if (jsonDecodedNotice ~= nil) then
+            local value = jsonDecodedNotice['Row'][index]
+            if value["news_id"] then
+            Sprite:setProperty(noticeId, 'text', value["news_id"])
+            end
+            if value["title"] then
+            Sprite:setProperty(noticeTitle, 'text', value["title"])
+            end
+            if value["releaseDate"]then
+            Sprite:setProperty(noticeDate, 'text', value["releaseDate"])
+            end
+            if  value["content"] then
+            Sprite:setProperty(content, 'text', value["content"])
+            end
+            if value["releaseManName"] then
+            Sprite:setProperty(newsMan, 'text', value["releaseManName"])
+            end
+            if value["fav"] then
+            Sprite:setProperty(isCollect, 'text', value["fav"])
+            end
+            Log:write("阅读标志123@",value["read"])
+            if value["read"]==0 then 
+               Sprite:setVisible(newNoticeImageNodeSprite, 1)
+            else
+               Sprite:setVisible(newNoticeImageNodeSprite, 0)
+            end
+        end
+    end
+  
+    --@brief 请求搜索公告列表
+    function requestNoticeSearchList(tag, num, usercode, title, page, pagesize)
+        initList()
+        local requestURL= Alias.urlServer..'news/selAll?'..'title='..title..'&page='..Sprite:getData(curpage)..'&pagesize='..pagesize..'&userCode='..usercode
+        Http:request(tag, requestURL, num,{useCache=false, method = 'post', postData=param2})
+    end
+    -- @brief 列表项选择处理
+    function itemOnSelect(sprite)
+        -- 获取所选列表项数据
+        local noticeId = Sprite:findChild(sprite, 'noticeId')
+        local noticeTitle = Sprite:findChild(sprite, 'noticeTitle')
+        local noticeDate = Sprite:findChild(sprite, 'noticeDate')
+        local content=Sprite:findChild(sprite, 'content')
+        local newsMan=Sprite:findChild(sprite, 'newsman')
+        local noticeIdd =Sprite:getText(noticeId)
+        local isCollect=Sprite:findChild(sprite, 'isCollect')
+        
+        -- 将数据库中该条记录标记为已读
+        setNewFlagToZero(noticeIdd)
+        -- 创建数据仓库，并检查列表项ID在配置文件中的配置
+        local noticeDetailHandler = Reg:create("newsDetail")
+        -- 设置要发送到公告详情的数据
+        Reg:setString(noticeDetailHandler, 'noticeId', Sprite:getText(noticeId))
+        Reg:setString(noticeDetailHandler, 'noticeTitle', Sprite:getText(noticeTitle))
+        Reg:setString(noticeDetailHandler, 'noticeDate', Sprite:getText(noticeDate))
+        Reg:setString(noticeDetailHandler, 'noticeContent', Sprite:getText(content))
+        Reg:setString(noticeDetailHandler, 'noticeMan', Sprite:getText(newsMan))
+        Reg:setString(noticeDetailHandler, 'isCollect', Sprite:getText(isCollect))
+        -- 进行页面跳转
+        Scene:setReturn(Alias.news, Alias.newsDetail)
+        Scene:go(Alias.newsDetail,1)
+    end
+    -- @brief将数据库中该条记录标记为已读
+    function setNewFlagToZero(noticeId)
+        local reqURL = Alias.urlServer..'news/read?'..'newsId='..noticeId..'&userCode='..usercode
+        Log:write("标记:"..noticeId.."为已阅读:"..reqURL)
+        Http:request('NOTICE_NEW_FLAG', reqURL, MSG_NOTICE_NEW_FLAG,{useCache=false})
+    end
+    -- @brief 显示或者隐藏搜索条
+    function OnShowSearchBarButtonClicked(sprite)
+        local headerNodeSprite = Sprite:getParent(sprite)
+        local mainNodeSprite = Sprite:getParent(headerNodeSprite)
+        local listViewSprite = Sprite:findChild(mainNodeSprite, "listView1")
+        local searchBarSprite = Sprite:findChild(mainNodeSprite, "searchBar")
+        local x, y, width, height = Sprite:getRect(listViewSprite)
+        if (isSearchBarVisible == false) then
+            Sprite:setRect(listViewSprite, x, y + nSearchBarWidth, width, height)
+            Sprite:setVisible(searchBarSprite, 1)
+            isSearchBarVisible = true
+        else
+            Sprite:setRect(listViewSprite, x, y - nSearchBarWidth, width, height)
+            Sprite:setVisible(searchBarSprite, 0)
+            isSearchBarVisible = false
+        end
+    end
+    --@brief 点击搜索按钮消息处理函数
+    function OnSearchButtonClicked(sprite)
+        -- 获取用户输入
+        local keywordEditSprite = Sprite:findChild(rootSprite, "keywordEdit")
+        local title = Sprite:getText(keywordEditSprite)
+        -- 请求搜索
+        requestNoticeSearchList('notice', 101, usercode, title, pages,pagesize)
+    end
+    function refresh(rootSprite)
+        local jsonValue = jsonDecodedNotice["Row"]
+        local listViewSprite = Sprite:findChild(rootSprite, 'listView1')
+        local listItemCount = ListView:getItemCount(listViewSprite)
+        local i = 0
+        while (i < listItemCount) do
+            local listItemSprite = ListView:getItem(listViewSprite, i)
+            local noticeIdSprite = Sprite:findChild(listItemSprite, 'noticeId')
+            local newNoticeImageNodeSprite = Sprite:findChild(listItemSprite, 'newNoticeImageNode')
+            local myFavNoticeNodeSprite = Sprite:findChild(listItemSprite, 'MyFavNoticeNode')
+            -- 0 为未读
+            if (jsonValue[i]["read"] == 0) then
+                Sprite:setVisible(newNoticeImageNodeSprite, 1)
+            else
+                Sprite:setVisible(newNoticeImageNodeSprite, 0)
+            end
+            i = i + 1
+        end
+    end
+    --@brief 我的收藏弹出框
+    function ContextMenuListItemOnSelect(sprite)
+        Scene:setReturn(Alias.news, Alias.newsFav)
+        Scene:go(Alias.newsFav,true)
+    end
+    function refreshOnSelect(sprite)
+        Loading:show(rootSprite)
+        initList()
+        local txt= Sprite:findChild(rootSprite, 'keywordEdit')
+        Sprite:setProperty(txt, 'color', '#8f8e8e')
+        Sprite:setProperty(txt, 'text', '搜索新闻标题')
+        requestNoticeList('notice', 101, usercode, title, pages, pagesize)
+    end
+    --加载更多
+    function addmore()
+        local p=Sprite:getData(curpage)
+        setAllShoworHide(morebtn, 0)
+        p=p+1;
+        Sprite:setProperty(curpage, 'data',p)
+        local keywordEditSprite = Sprite:findChild(rootSprite, "keywordEdit")
+        local title = Sprite:getText(keywordEditSprite)
+        if title == nil or title =='' or title=='搜索新闻标题'then
+            Http:request('notice', Alias.urlServer..'news/selAll?'..'page='..Sprite:getData(curpage)..'&pagesize='..pagesize..'&userCode='..Config:get('username'), 101, {useCache = false, method = 'post'})
+        else
+            Http:request('notice', Alias.urlServer..'news/selAll?'..'title='..title..'&page='..Sprite:getData(curpage)..'&pagesize='..pagesize, 101, {useCache = false, method = 'post'})
+        end
+        Loading:show(rootSprite)
+    end
+    --@brief 请求服务器公告列表
+    function requestNoticeList(tag, num, usercode, title, pages, pagesize)
+        initList()
+        local requestURL = Alias.urlServer..'news/selAll?'..'page='..Sprite:getData(curpage)..'&pagesize='..pagesize..'&userCode='..usercode
+        Log:write("request11111", requestURL)
+        Http:request(tag, requestURL, num,{useCache=false})
+    end
+       --list界面初始化
+    function initList()
+        local list = Sprite:findChild(rootSprite, 'listView1')
+        ListView:removeAllItems(list) --初始化时去除已经显示的list
+        setAllShoworHide(morebtn, 0)--初始化时隐藏按钮
+        Sprite:setProperty(curpage, 'data',1)--初始化时重置curpage值为1
+    end
+ 
+]]>
+</root>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+			 <!-- 设置背景 -->
+           <image rect="0,0,480,800" src="file://pics/main_bg.png"
+                extendstyle="1111" />
+             <node rect="0,0,480,80" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png"
+                    extendstyle="1111" style="autosize">
+                </image>
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="9,14,52,52" OnSelect="doBack"
+                    extendstyle="1111" normal="normal" sel="sel">
+                     <image name="normal" rect="0,0,52,52"
+                        src="file://pics/icon_back_d.png" style="autosize"
+                        extendstyle="1111">
+                    </image>
+                     <image name="sel" rect="0,0,52,52"
+                        src="file://pics/icon_back_s.png" style="autosize"
+                        extendstyle="1111">
+                    </image>
+                </button>
+                <image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png"
+                        extendstyle="1111"/>
+                 <!-- 标题 -->
+                <scrolltext name="title" rect="100,0,280,70" text="位置查询" font-family="微软雅黑" 
+                    extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2">
+                </scrolltext>
+			</node>
+            <listview name="listView1" rect="0,110,480,683"  auto-scroll="true" 
+                            border="false" visible="true" extendstyle="1111"/> 
+			<node name="listitem1" rect="0,110,480,180" visible="false"
+			    border="false" enable="false" active="false" extendstyle="1111">
+                <image rect="0,0,480,160"  style="sudoku-auto" sudoku="10,10,10,10" 
+                   src="file://pics/input_textarea_bg.png" extendstyle="1111">
+                </image>               
+				<label name="name" rect="46,0,102,40" text="" v-align="bottom" h-align="left"
+                    font-family="微软雅黑" font-size="26" extendstyle="1111" font-weight="bold" />
+                <label name="job" rect="105,1,103,40" text="业务员" v-align="bottom" h-align="right"
+                    font-family="微软雅黑" font-size="20" extendstyle="1111" font-weight="bold" color="#666666"/>
+                <label name="mendian" rect="227,0,250,40" text="" v-align="bottom" h-align="center"
+                    font-family="微软雅黑" font-size="20" extendstyle="1111" color="#FF0000"/>
+                <label name="dingwei" rect="47,40,160,50" font-size="20"  text="定位成功！" h-align="left" v-align="center" color="#008000" extendstyle="1111"/>
+                <label name="ckweizhi" rect="45,89,422,54" border="false"  text="参考位置：合肥市长江西路691号" 
+                    font-family="微软雅黑" font-size="24" h-align="left" extendstyle="1111"/>
+             </node>
+		</node>	
+	</body>
+    <![CDATA[
+    require('com_xsgj.common.framework')
+    local rootSprite
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        --接收从人员信息传过来的参数
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+
+	            -- 从数据仓库中读取各字段的值
+	            local listPepHandler = Reg:create("listPep")
+	            local countNum=Reg:getInteger(listPepHandler,'count')--选中记录总数   
+	            Log:write('countNum=',countNum)
+                local list = Sprite:findChild(rootSprite, 'listView1')
+                ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem1'),countNum, 'loadListItem')
+                ListView:adjust(list)
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if msg == 101 then
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    function myfunc()
+    end
+    
+    ---加载listitem列表
+    function loadListItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 180)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        local name = Sprite:findChild(item, 'name')
+        local mendian = Sprite:findChild(item, 'mendian')
+	    -- 从数据仓库中读取各字段的值
+	    local listPepHandler = Reg:create("listPep")
+        local textName =Reg:getString(listPepHandler, 'textName'..(index+1)) 
+        Sprite:setProperty(name, "text",textName)
+        local storeName=Reg:getString(listPepHandler, 'textStoreName'..(index+1))
+        Sprite:setProperty(mendian, 'text', storeName)
+        Log:write(' 姓名:'..textName..'; 门店名:'..storeName)
+    end
+    -- @brief 返回按钮处理
+    function doBack()
+        Scene:back()
+    end
+]]>
+</root>

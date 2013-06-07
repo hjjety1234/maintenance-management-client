@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+			<!-- 设置背景 -->
+			<image name="main-bg" rect="0,0,480,800" visible='true'
+				src="file://pics/main_bg.png" style="autosize" extendstyle="0010">
+			</image>
+			<!-- 信息头部 -->
+			<node rect="0,0,480,80" extendstyle="1111">
+				<image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png"
+					extendstyle="0010" style="autosize">
+				</image>
+				<!-- 返回按钮 -->
+				<button name="backBtn" rect="9,14,52,52" normal="src:file://pics/icon_back_d.png"
+					sel="src:file://pics/icon_back_s.png" OnSelect="doBack" style="autosize"
+					extendstyle="0010">
+				</button>
+				<image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png"
+					style="autosize" extendstyle="1111">
+				</image>
+				<!-- 标题 -->
+				<scrolltext name="title" rect="100,0,280,70" text="新增即时拜访"
+					extendstyle="0010" font-size="30" h-align="center" v-align="center"
+					color="#ffffff" scroll="true" step="2">
+				</scrolltext>
+				<image name="normal" rect="410,0,2,80" src="file://pics/sub_top_line.png"
+					extendstyle="1111">
+				</image>
+				<!--提交按钮-->
+				<button name="addBtn" rect="419,14,52,52"
+					normal="src:file://pics/icon_submit_d.png" sel="src:file://pics/icon_submit_s.png"
+					OnSelect="submitOnSelect" style="autosize" extendstyle="0010">
+				</button>
+			</node>
+
+			<!-- 列表视图  -->
+			<listview rect="0,80,480,715" extendstyle="1017">
+
+				<!-- 内容部分-->
+				<node name="typetime" rect="0,0,480,72" extendstyle="0010">
+					<label rect="0,0,130,72" text="拜访时间" font-family="微软雅黑"
+						color="#000000" extendstyle="0010" style="autosize" h-align="right"
+						v-align="center" font-size="24"></label>
+					<label name="edittime" rect="160,0,251,72" text="2012-10-01"
+						font-family="微软雅黑" color="#0" extendstyle="0010" style="autosize"
+						h-align="left" v-align="center" font-size="24">
+					</label>
+				</node>
+				<node name="typeren" rect="0,160,480,72" extendstyle="0010">
+					<label rect="0,0,130,72" text="拜访人" font-family="微软雅黑" color="#000000"
+						extendstyle="0010" style="autosize" h-align="right" v-align="center"
+						font-size="24"></label>
+					<label name="lbname" rect="160,0,251,72" text="王二麻子"
+						font-family="微软雅黑" color="#0" extendstyle="0010" style="autosize"
+						h-align="left" v-align="center" font-size="24"></label>
+				</node>
+				<node name="typeweizhi" rect="0,240,480,72" extendstyle="0010">
+					<label rect="0,0,130,72" text="拜访位置" font-family="微软雅黑"
+						color="#0" extendstyle="0010" style="autosize" h-align="right"
+						v-align="center" font-size="24"></label>
+					<label name="lblLocation" rect="160,0,251,72" text="定位中。。。"
+						font-family="微软雅黑" color="#0" extendstyle="0010" style="autosize"
+						h-align="left" v-align="center" font-size="24"></label>
+				</node>
+				<node name="typerizhi" rect="0,320,480,251" extendstyle="0010">
+					<label rect="0,0,130,72" text="拜访日志" font-family="微软雅黑"
+						color="#0" extendstyle="0010" style="autosize" h-align="right"
+						v-align="center" font-size="24"></label>
+					<image name="normal" rect="147,0,325,245" sudoku="15,15,15,15"
+						style="sudoku-auto" src="file://pics/input_text_bg.png"
+						extendstyle="0010">
+					</image>
+					<edit name="editrizhi" rect="157,17,301,210" border="false"
+						font-family="微软雅黑" text="填写即时拜访日志内容..." color="#8f8e8e"
+						extendstyle="0010" h-align="center" v-center="top" font-size="24"
+						OnLostFocus="editOnTextChanged" OnSetFocus="initText"
+						>
+					</edit>
+				</node>
+				<!--信息提交成功提示-->
+				<image name="success" border="false" visible="false" rect="15,599,452,64"
+					src="file://pics/sucess.png" style="autosize" extendstyle="0010">
+					<label name="suc" rect="0,0,452,63" h-align="center" v-align="center"
+						text="信息提交成功!" color="#FFFFFF" extendstyle="0010" style="autosize"
+						font-size="28"></label>
+				</image>
+				<list-item rect="0,0,480,730" extebdstyle="1010">
+					<label rect="2,76,128,85" text="拜访客户" font-family="微软雅黑"
+						color="#000000" extendstyle="0010" style="autosize" h-align="right"
+						v-align="center" font-size="24"></label>
+					<button name="btnname" rect="149,87,320,71" sudoku="15,15,120,10"
+						style="sudoku-auto" normal="src:file://pics/input_select_btn_d.png"
+						sel="src:file://pics/input_select_btn_s.png" 
+						OnKeyUp="comboboxOnKeyup" OnSelect="comboboxOnSelect" extendstyle="1010" data="01">
+					</button>
+					<label name="comboboxLbl" rect="163,96,216,54" v-align="center"
+						font-family="微软雅黑" text="请点击选择" font-size="24" color="#000000"
+						extendstyle="0010" style="autosize" />
+				</list-item>
+			</listview>
+			<!-- 下拉框 -->
+            <node name="comboboxListview" rect="0,0,480,800" visible="false" enable="false">
+                <button name="bthide" rect="0,0,480,800" border="false" text="" 
+                    color="#ffffff" OnSelect="hidemendianSelected">
+                      <shadow rect="0,0,480,800"  alpha="150" color="#0"  extendstyle="1111">
+                      </shadow>                    
+                </button>
+                <node rect="66,240,368,68" extendstyle="1111"  border="false">
+                      <image rect="0,0,368,68" src="file://pics/Dialogs/top.png"  style="autosize" extendstyle="1111" />
+                      <image rect="20,30,31,32" src="file://pics/Dialogs/icon_arrow.png"  style="autosize" extendstyle="1111" />
+                      <label rect="40,10,120,68" border="false" color="#FFFFFF"
+                       text="选择客户" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                </node>
+                <image rect="66,308,368,277" src="file://pics/Dialogs/center.png"  style="autosize" extendstyle="1111" />
+                <listview name="listView1" rect="66,310,368,277" auto-scroll="true"
+                    auto-adjust="true" extendstyle="1111" />
+                <image rect="66,581,368,21" src="file://pics/Dialogs/bottom.png"  style="autosize" extendstyle="1111"/>
+            </node>
+			<!-- list item 动态加载设定 -->
+			<node name="comboboxItem" rect="0,0,368,72" visible="false" enable="false" active="false">		
+				<button name="itemBtn" rect="12,0,342,61" text="" h-align="left" v-align="center" font-family="微软雅黑" font-size="24" 
+                 extendstyle="1111" style="autosize" OnSelect="comboboxItemBtnOnSelect" 
+                             normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                            sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"				
+					>
+                    <label name="comboboxItemFocusLbl" rect="10,0,0,0" text=""  visible="false" type="hidden"
+                            font-family="微软雅黑" color="#FFFFFF" v-align="center" extendstyle="1010" />	
+                   	<image rect="0,70,342,2" src="file://pics/Dialogs/line.png"  style="autosize" extendstyle="1111" />			
+				</button>
+			</node>
+		</node>
+
+	</body>
+    <![CDATA[
+
+    require 'com_xsgj.common.framework'
+    require 'framework.Map'
+    local observer
+    local latitude
+    local longitude
+    local rootSprite
+    local urlRequestServer
+    local jsonDecodedDataGet = nil
+    local submitItem --取第几位客户clientCode用
+    local jsonDecodedData = nil
+    local curTime
+    local truename=Config:get('truename') --显示的用户名
+    local usercode=Config:get('username')--usercode=34522487 --登录人员addMan值
+    local comlist={'苏宁长江路店','合家福长江路店','沃尔玛合肥'}
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        urlRequestServer=Alias.urlServer
+        curTime=getCurDate() --获取系统当前日期
+        local date = Sprite:findChild(sprite, 'edittime')
+        local lbuser = Sprite:findChild(sprite, 'lbname')
+        Sprite:setProperty(date, 'text', curTime)
+        Sprite:setProperty(lbuser, 'text', truename)
+        --1.加载定位
+        observer = Plugin:getObserver()
+        --2.定位自己位置,连接网络
+        doLocation()
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            Http:startNetwork()
+            --1.loadRequest为combox加载用户名，获取数据库操作第一步，调用获取数据函数,取时用clientName,提交时用clientCode
+            loadRequest()
+            local success = Sprite:findChild(rootSprite, 'success')--隐藏提示信息
+            Sprite:setVisible(success, 0) --隐藏提示信息
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg,param)
+        if msg == 101 then
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+        ---102为提交后返回的消息值
+        if msg == 102 then
+            local len
+            local success = Sprite:findChild(rootSprite, 'success')--显示提示信息
+            --Sprite:setVisible(success, 1) --显示提示信息
+            --Timer:set(1,2000,'doBack')
+            if Loading:isShow() then Loading:close() end
+            jsonDecodedData = Http:jsonDecode('jishibaifangtijiao')
+            --if jsonDecodedData then
+                len = tonumber(jsonDecodedData.Total)
+                --else
+                --len=0
+            --end
+            --Log:write("data of 102 = ", jsonDecodedData.Rows[0])
+	    Log:write("即时拜访提交返回数据 ",jsonDecodedData)
+            Log:write("len or Total of jishibaifangtijiao records: "..len)
+            if len>0 then
+                --显示提交成功提示信息
+                --local success = Sprite:findChild(rootSprite, 'success')
+                Sprite:setVisible(success, 1)
+                Timer:set(1,2000,'doBack')
+            end
+            --if not jsonDecodedData or type(jsonDecodedData) ~= 'table' then
+               -- Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+               -- return
+            --end
+            --if jsonDecodedData== nil then
+                --Log:write('jsonDecodedData返回nil值！')
+            --end
+	    if len == 0 then
+		    Dialog:show('','提交失败','ok')
+		    return
+	    end
+        end
+        ---103为获取自己名下的客户名称
+        if msg == 103 then
+            jsonDecodedDataGet = Http:jsonDecode('jishibaifang_data')--2.103 get json object
+            --3.get kehu from database,取时用clientName,提交时用clientCode
+            local len=0
+            if jsonDecodedDataGet then
+                len = jsonDecodedDataGet["Total"]
+            end
+            Log:write("len of jsonDecodedDataGet.Total is: "..len)
+            Log:write("zbw_jishibaifang.wdml msg 103 jsonDecodedDataGet records: ",jsonDecodedDataGet)
+            if len>0 then
+                local comboboxListview = Sprite:findChild(rootSprite, 'listView1')
+                local comboboxListviewItem = Sprite:findChild(rootSprite, 'comboboxItem')
+                ListView:loadItem(comboboxListview, comboboxListviewItem, len, 'onLoadcomboboxList')
+                ListView:adjust(comboboxListview)
+            end
+        end
+        if msg == 1000 then--用来显示经纬度
+            local postDataString = Param:getString(param, 0)
+            local postData = Json:loadString2Table(postDataString)
+            if postData.latitude ~= nil then
+                latitude=postData.latitude
+            end
+            if postData.longitude ~= nil then
+                longitude=postData.longitude
+            end
+            if postData.longitude ~= nil and postData.latitude ~= nil then
+                Map:getLocation(observer, 1001, tonumber(postData.latitude), tonumber(postData.longitude))
+            end
+            elseif msg == 1001 then--用来显示定位的位置
+            local postDataString = Param:getString(param, 0)
+            local postData = Json:loadString2Table(postDataString)
+            local locInfo = Sprite:findChild(rootSprite, 'lblLocation')
+            if postData.address ~= nil then
+                Sprite:setProperty(locInfo, 'text', postData.address)
+            end
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    function myfunc()
+    end
+    --1.103发起http请求，获取数据
+    function loadRequest() --1.http 请求
+        --Http:connectCMWAP()
+        --local httpconnet=Http:getCurConnect()
+        --Log.write('zbw_jishibaifang.wdml -> loadRuest() -> getCurConnect: ','get connection:'..httpconnet)
+        --local url = 'http://120.209.131.143:9000/mobileSale/visitExec/getClientsInfo?userCode=34522487'
+        local list = Sprite:findChild(rootSprite, 'listView1')
+        ListView:removeAllItems(list)        
+        local url=urlRequestServer..'visitExec/getClientsInfo?'
+        local param=usercode --传递登录用户的userCode,Alias.login_name
+        Log.write('zbw_jishibaifang.wdml loadRequest() url=: '..url)
+        Log.write('zbw_jishibaifang.wdml loadRequest() param=: '..param)
+        Http:request('jishibaifang_data', url, 103, {useCache = false, method = 'post', postData='userCode='..param})
+    end
+    function submitOnSelect(sprites)
+        --判断拜访客户是否为空，不为空则允许提交
+        local comboboxname = Sprite:getText(Sprite:findChild(rootSprite, 'comboboxLbl'))
+        if (comboboxname ==nil or comboboxname =='') then
+            Dialog:show('','拜访客户不能为空!','ok')
+            else
+            Dialog:show('工单处理提示：','是否确定提交此工单？','ok_cancel','okCallback','cancelCallback')
+        end
+    end
+    --提交到数据库,组装url、数据提交
+    function okCallback()
+        jsonDecodedDataGet = Http:jsonDecode('jishibaifang_data')
+        local jsonKehu=jsonDecodedDataGet.Rows
+        local url=urlRequestServer..'visitExec/addInstantVisit?'
+        --local url='http://120.209.131.143:9000/mobileSale/visitExec/addInstantVisit?'
+        local param
+        local strdate= Sprite:getText(Sprite:findChild(rootSprite, 'edittime'))
+        --local name= Sprite:getText(Sprite:findChild(rootSprite, 'lbname'))
+        local weizhi= Sprite:getText(Sprite:findChild(rootSprite, 'lblLocation'))
+        --Log:write('okCallback() submitItem : '..submitItem)
+        local lbbaifangkehu= jsonKehu[tonumber(submitItem)].
+            clientId --取时用clientName,提交时用clientCode
+        local editRizhi=Sprite:getText(Sprite:findChild(rootSprite, 'editrizhi'))
+        param='visitDate='..strdate..'&clientId='..lbbaifangkehu..'&visitMan='..usercode..'&visitLocation='..weizhi..'&remark='..editRizhi..'&userCode='..usercode
+        Log:write("param = ", param)
+        Http:request('jishibaifangtijiao', url, 102, {useCache = false, method = 'post', postData=param})
+        --Http:request('jishibaifang', url, 102, {useCache = false, method = 'post', postData='visitDate=2012-09-11&clientCode=C0001&visitMan=余奇&visitLocation=长江西路908号&remark=拜访成功'})
+        Loading:show(rootSprite)
+    end
+    --提交结束
+    function cancelCallback()
+        if Dialog:isShow() then
+            Dialog:close()
+        end
+    end
+    function doBack()
+        Scene:back()
+    end
+    -- @brief 加载comboboxItem的回调函数
+    function onLoadcomboboxList(list, item, index)
+        Sprite:setRect(item, 0, 0, 342, 72) --set 宽度与控件保持一致
+        Sprite:setProperty(item, 'extendstyle', '1010')
+        --local comboboxItemNormalLbl = Sprite:findChild(item, 'comboboxItemNormalLbl')
+        local comboboxItemFocusLbl = Sprite:findChild(item, 'comboboxItemFocusLbl')
+        local itemBtn = Sprite:findChild(item, 'itemBtn')
+        --local len = jsonDecodedDataGet["Total"]
+        if jsonDecodedDataGet then
+            local jsonKehuAdd=jsonDecodedDataGet.Rows
+            --local jsonKehuAdd=jsonDecodedDataGet["Rows"][index+1].addMan,取时用clientName,提交时用clientCode,clientAddr
+           -- Sprite:setProperty(comboboxItemNormalLbl, 'text', jsonKehuAdd[index].clientName)
+            Sprite:setProperty(comboboxItemFocusLbl, 'text', jsonKehuAdd[index].clientName)
+            Sprite:setProperty(itemBtn, 'text', '    '..jsonKehuAdd[index].clientName) --设置btn显示内容
+            Sprite:setLayoutType(item,2,1)
+            Sprite:setLayoutType(itemBtn,3)
+            Sprite:setProperty(itemBtn,'data',index)--为itemBtn设置数值
+            --Log:write('itemBtn data: '..Sprite:getProperty(itemBtn,'data'))
+            Sprite:addKeyList(item,itemBtn)
+            else
+            --Sprite:setProperty(comboboxItemNormalLbl, 'text', 'item' .. index)
+            Sprite:setProperty(comboboxItemFocusLbl, 'text', 'item' .. index)
+            Sprite:setProperty(itemBtn, 'text', '    '..'item' .. index) --设置btn显示内容
+            Sprite:setLayoutType(item,2,1)
+            Sprite:setLayoutType(itemBtn,3)
+            Sprite:setProperty(itemBtn,'data',index)--为itemBtn设置数值
+            --Log:write('itemBtn data: '..Sprite:getProperty(itemBtn,'data'))
+            Sprite:addKeyList(item,itemBtn)
+        end
+        --local jsonKehuAdd=jsonDecodedDataGet.Rows[index+1].clientAddr --address
+    end
+    -- @brief 下拉框响应OnSelect事件
+    function comboboxOnSelect(sprite)
+        --local list = Sprite:findChild(rootSprite, 'sampleList')
+        --ListView:removeAllItems(list, true)
+        local comboboxListview = Sprite:findChild(rootSprite, 'comboboxListview')
+        if Sprite:isVisible(comboboxListview) == 1 then -- 如果显示则隐藏，如果隐藏则显示
+            Sprite:setVisible(comboboxListview, 0)
+            Sprite:setEnable(comboboxListview, 0)
+            else
+            Sprite:setVisible(comboboxListview, 1)
+            Sprite:setEnable(comboboxListview, 1)
+        end
+    end
+    -- @brief 下拉框列表选择项OnSelect事件
+    function comboboxItemBtnOnSelect(sprite)
+        local comboboxItemNormalLbl = Sprite:findChild(sprite, 'comboboxItemFocusLbl')
+        local comboboxLbl = Sprite:findChild(rootSprite, 'comboboxLbl')
+        local text = Sprite:getText(comboboxItemNormalLbl)
+        local curitem=Sprite:getData(sprite)--取出itemBtn值
+        submitItem=curitem --设置提交序号
+        Log:write('curitem: '..curitem)
+        Sprite:setProperty(comboboxLbl, 'text', text)
+        local comboboxListview = Sprite:findChild(rootSprite, 'comboboxListview')
+        Sprite:setVisible(comboboxListview, 0)
+        Sprite:setEnable(comboboxListview, 0)
+        setAllShoworHide(Sprite:findChild(rootSprite, 'comboboxListview'), 0)
+        --Sprite:setFocus(btnname)
+    end
+    -- @brief 下拉框之外的区域隐藏下拉框列表
+	function hidemendianSelected()
+	     setAllShoworHide(Sprite:findChild(rootSprite, 'comboboxListView'), 0)
+	end
+    -- 人员定位
+    function doLocation()
+        local locInfo = Sprite:findChild(rootSprite, 'lblLocation')
+        Sprite:setProperty(locInfo, 'text', '正在定位......')
+        Log:write('开始定位 ....')
+        Map:getCurPosition(observer, 1000)
+        Log:write('zbw_jishibaifang.wdml user name begin ')
+        Log:write('zbw_jishibaifang.wdml usercode: ',usercode)
+        Log:write('zbw_jishibaifang.wdml user name: ',truename)
+        Log:write('zbw_jishibaifang.wdml user name end')
+        Log:write('定位成功....')
+    end
+    -- 获取系统日期时间
+    function getCurDate()
+        local year = os.date("*t")["year"]
+        local month = os.date("*t")["month"]
+        local day = os.date("*t")["day"]
+        return string.format('%04s-%02s-%02s', year, month, day)
+    end
+    ---当进入编辑框时，修改文字为输入
+    function initText(sprite)
+        local txt= Sprite:getProperty(Sprite:findChild(rootSprite, 'editrizhi'), 'text')
+        if txt=='填写即时拜访日志内容...' then
+            Sprite:setProperty(Sprite:findChild(rootSprite, 'editrizhi'), 'text', '')
+            Sprite:setProperty(Sprite:findChild(rootSprite, 'editrizhi'), 'color', '#0')
+        end
+    end
+    ---当未有任何输入时，初始化为提示
+    function editOnTextChanged(sprite)
+        local txt= Sprite:getProperty(Sprite:findChild(rootSprite, 'editrizhi'), 'text')
+        if txt=='' or txt ==nil then
+            Sprite:setProperty(Sprite:findChild(rootSprite, 'editrizhi'), 'color', '#8f8e8e')
+            Sprite:setProperty(Sprite:findChild(rootSprite, 'editrizhi'), 'text', '填写即时拜访日志内容...')
+        end
+    end
+     
+]]>
+	-->
+</root>

@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+			<!-- 设置背景 -->
+			<image rect="0,0,480,800" src="file://pics/main_bg.png" style="autosize" extendstyle="1111" />
+			<!-- 头部 -->
+			<node rect="0,0,480,80" extendstyle="1111" style="autosize">
+				<image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png" extendstyle="1111" style="autosize">
+					<label rect="0,0,480,70" text="选择商品" color="#ffffff" v-align="center" h-align="center" font-size="30" extendstyle="1111" font-family="微软雅黑" />
+				</image>
+				<!-- 返回按钮 -->
+				<button name="backBtn" rect="9,14,52,52" OnSelect="doBack"  style="autosize" border="false" normal="src:file://pics/icon_back_d.png;" sel="src:file://pics/icon_back_s.png;" extendstyle="1111"> </button>
+				<image name="normal" rect="70,0,2,80" style="autosize" src="file://pics/sub_top_line.png" extendstyle="1111"></image>
+				<!-- 确定按钮 -->
+				<image name="normal" rect="410,0,2,80" src="file://pics/sub_top_line.png" style="autosize" extendstyle="1111"></image>
+				<button name="addBtn" rect="419,14,52,52" OnSelect="addGood" style="autosize"
+					extendstyle="1111" normal="src:file://pics/icon_submit_d.png;" sel="src:file://pics/icon_submit_s.png;">
+				</button>
+				<!-- 搜索按钮 -->
+				<node name="searchErweima" rect="0,80,480,65" extendstyle="1111">
+					<image name="Image1" rect="0,0,480,65" src="file://pics/search_bg.png" extendstyle="1111" style="autosize"></image>
+					<image name="Image1" rect="10,5,400,52" src="file://pics/input_search.png" sudoku="50,0,50,0" style="sudoku-auto" extendstyle="1111"></image>
+					<edit name="keywordEdit" rect="50,15,288,35" extendstyle='1111'
+						v-align="center" h-align="left" color="#8f8e8e" font-size="24"
+						text="请输入商品关键字" OnLostFocus="editOnTextChanged" OnSetFocus="initText"
+						font-family="微软雅黑">
+					</edit>
+					<button name="searchButton2" rect="420,20,52,25" OnSelect="saomiaoOnSelect" visible="true" style="autosize" enable="true" extendstyle="1111" normal="src:file://pics/button_barcode_d.png" sel="src:file://pics/button_barcode_s.png">
+                    </button>
+					<button name="searchButton" rect="420,15,40,40" OnSelect="OnSearchButtonClicked" visible="false"  style="autosize" enable="false" extendstyle="1111" normal="src:file://pics/button_search_d.png;" sel="src:file://pics/button_search_s.png;"></button>
+				</node>
+             </node>
+			<!-- 主体列表 -->
+			<node name="liebiao" rect="0,165,480,400" h-align="center" v-align="center" style="autosize" extendstyle="1111">
+				 <node rect="0,0,480,71" h-align="center" v-align="center" extendstyle="1111" style="autosize">
+					<image rect="17,0,446,50" src="file://pics/tab_t.png" style="sudoku-auto" sudoku="30,0,30,0" extendstyle="1111" />
+					<label rect="0,0,230,50" border="false" text="商 品" color="#FFFFFF" h-align="center" v-align="center" font-size="25" extendstyle="0010" font-style="bold" font-family="微软雅黑"></label>
+					<image rect="228,10,2,30" src="file://pics/dh_line.png" extendstyle="0010" />
+					<label rect="240,0,95,50" border="false" text="单 位" color="#FFFFFF" h-align="center" v-align="center" font-size="25" extendstyle="0010" font-style="bold" font-family="微软雅黑"></label>
+					<image rect="333,10,2,30" src="file://pics/dh_line.png" extendstyle="0010" />
+					<label rect="335,0,125,50" border="false" text="选 择" color="#FFFFFF" h-align="center" v-align="center" font-size="25" extendstyle="0010" font-style="bold" font-family="微软雅黑"></label>
+                </node>
+				<node rect="0,51,480,468" extendstyle="1111" style="autosize">
+				    <image rect="17,0,446,468" src="file://pics/tab_bj.png"  style="autosize" extendstyle="1111" />
+                    <listview name="sampleList" rect="0,0,480,460" auto-scroll="true" style="autosize" auto-adjust="true"></listview>
+                    <image name="tab_bottom" rect="17,468,446,14" src="file://pics/dh_tab_bottom.png" style="sudoku-auto" sudoku="30,0,30,0" extendstyle="1114" visible="true" />
+				    <label name="spNum" rect="30,500,210,50" border="false" text="已选中0个商品"  h-align="left"
+                        v-align="center" font-size="25" extendstyle="1111" font-style="bold"
+                        font-family="微软雅黑"></label>
+				</node>
+                <node name="listitem" visible="false" enable="false" active="false"  style="autosize"  extendstyle="1111" rect="0,0,480,66">
+                    <scrolltext name="shangpin" rect="20,0,200,66" text=""
+						extendstyle="1111" font-size="22" h-align="left" v-align="center"
+						scroll="true" step="2" ></scrolltext>
+					<scrolltext name="danwei" rect="210,0,150,66" text=""
+						extendstyle="1111" font-size="22" h-align="center" v-align="center"
+						scroll="true" step="2" ></scrolltext>
+					<label name="itemsCode" text="" visible="false"></label>
+					<button name="xuanzebtn" rect="365,0,100,66" border="false"
+						color="#ffffff" OnSelect="xuanzebtnonselect" data="0" h-align="center"
+						v-align="center">
+				    <image name="ckitm" rect="20,15,26,26" src="file://pics/item_unselected.png" style="sudoku-auto" extendstyle="1111" sudoku="15,15,15,15" data="111" />
+					</button>
+					<shadow rect="17,64,446,1" color="#aaabae" alpha="255" extendstyle="1114" />
+				</node>
+			</node>
+            <node name="error" rect="0,170,480,624" visible="false" extendstyle="1111" style="autosize" >  
+               <image rect="120,140,239,234" src="file://pics/face.png" style="autosize" extendstyle="1111" />
+               <label rect="0,380,480,50" text="没有搜索到您要的数据" font-family="微软雅黑" font-size="32" h-align="center" v-align="center" color="#686464" style="autosize" extendstyle="0010" />
+            </node>
+		</node>
+	</body>
+    <![CDATA[
+
+    require 'com_xsgj.common.framework'
+    require 'com_xsgj.common.barcode'
+    local rootSprite
+    local itemsCode
+    local usercode=Config:get('username')
+    local error
+    local list
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        Loading:show(rootSprite)
+        list = Sprite:findChild(rootSprite, 'sampleList')
+        error = Sprite:findChild(rootSprite, 'error')  
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            requestgoodChooseList('notice', 101, usercode, '', '1', '5')
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg,param)
+        if msg == 101 then
+            if Loading:isShow() then Loading:close() end
+            jsonDecodedgoodList = Http:jsonDecode('notice')
+            Log:write('pqy:', jsonDecodedgoodList)
+            
+            --检查是否有返回结果
+            if (jsonDecodedgoodList == nil or jsonDecodedgoodList["Total"] == nil or
+                jsonDecodedgoodList["Total"] == ''or  jsonDecodedgoodList["Total"] == 0) then
+                 Sprite:setVisible(error,1)
+            else
+                 Sprite:setVisible(error,0)
+            end
+            local totalPage = tonumber(jsonDecodedgoodList["Total"])
+            -- 删除原有列表项
+            ListView:removeAllItems(list)
+            -- 加载新的列表项
+            ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), totalPage, 'loadListItem')
+            ListView:adjust(list)
+            elseif msg == 1001 then
+            scanData = Param:getString(param,1)
+            local etSearch2 = Sprite:findChild(rootSprite,"erweima")
+            Sprite:setProperty(etSearch2, "text",scanData)
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+        if msg == 1001 then
+            scanData = Param:getString(param,1)
+            if scanData == nil or scanData == '' or scanData =="扫描商品" then
+                Dialog:show("", "无扫描产品编码，请重新扫描!", "ok")
+                return
+            else 
+              local search = Sprite:findChild(rootSprite,"searchErweima")
+              local keywordEdit = Sprite:findChild(search,"keywordEdit") 
+              Sprite:setProperty(keywordEdit,"text",scanData)
+            end
+            local requestURL = Alias.urlServer..'record/searchItem?record_man='..usercode..'&itemName=&barCode='..scanData
+            Http:request('notice', requestURL, 101,{useCache=false,method = 'post'})
+     
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+        end
+    end
+      function doBack()
+        Scene:back()
+    end
+    ---------------------------------------util functions---------------------------
+    --@brief 请求定货列表
+    function requestgoodChooseList(tag, num)
+        --local requestURL = Alias.urlServer..'record/item?record_man='..usercode
+        local requestURL = Alias.urlServer..'record/item?'
+        param2 = string.format("record_man=%s",usercode)
+        Log:write("++++++++++++++requestURL:", requestURL)
+        Http:request(tag, requestURL, num,{useCache=false ,method = 'post', postData=param2})
+        Log:write("+++++++++requst success!");
+    end
+    --@brief 当进入编辑框时，修改文字为输入
+    function initText(sprite)
+        local txt= Sprite:getProperty(sprite, 'text')
+        if txt=='请输入商品关键字' then
+            Sprite:setProperty(sprite, 'text', '')
+            Sprite:setProperty(sprite, 'color', '#0')
+        end
+        local SearchButton = Sprite:findChild(rootSprite, 'searchButton')
+        local erweimaButton =Sprite:findChild(rootSprite, 'searchButton2')
+        Sprite:setProperty(SearchButton, 'visible', 'true')
+        Sprite:setProperty(SearchButton, 'enable', 'true')
+        Sprite:setProperty(erweimaButton, 'visible', 'false')
+        Sprite:setProperty(erweimaButton, 'enable', 'false')
+    end
+    --@brief 当未有任何输入时，初始化为提示
+    function editOnTextChanged(sprite)
+        local txt= Sprite:getProperty(sprite, 'text')
+        if txt=='' or txt ==nil then
+            Sprite:setProperty(sprite, 'color', '#8f8e8e')
+            Sprite:setProperty(sprite, 'text', '请输入商品关键字')
+        end
+    end
+    function loadListItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 66)
+        local listItemBg = Sprite:findChild(item, 'listItemBg')
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        local shangpin = Sprite:findChild(item, 'shangpin')
+        local danwei = Sprite:findChild(item, 'danwei')
+        local itemsCode=Sprite:findChild(item, 'itemsCode')
+        local value = jsonDecodedgoodList['Rows'][index]
+         
+        Sprite:setProperty(shangpin, 'text', value["itemName"])
+        Sprite:setProperty(danwei, 'text', value["itemUnit"])
+        Sprite:setProperty(itemsCode, 'text', value["itemId"])
+    end
+  
+    function xuanzebtnonselect(sprite)
+        local flag = Sprite:getData(sprite)
+        local imgNode = Sprite:findChild(sprite,'ckitm')
+        if flag=='0' then
+            Sprite:setProperty(imgNode, 'src', 'file://pics/item_selected.png')
+            Sprite:setProperty(sprite,'data','1')
+            elseif flag=='1' then
+            Sprite:setProperty(imgNode, 'src', 'file://pics/item_unselected.png')
+            Sprite:setProperty(sprite,'data','0')
+        end
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        local count= ListView:getItemCount(list)
+        local num = 0
+        for i=1,count do
+            local itemNode = ListView:getItem(list, i-1)
+            local itemsCode =Sprite:findChild(itemNode,'itemsCode')
+            local itemsCode=Sprite:getText(itemsCode)
+            local xuanze = Sprite:findChild(itemNode,'xuanzebtn')
+            local flag = Sprite:getData(xuanze)
+            if flag =="1" then
+               num =  num + 1
+            end
+        end
+        local qsNum= Sprite:findChild(rootSprite,'spNum')
+        Sprite:setProperty(qsNum,'text','已选中'..num..'个商品')
+        Log:write("选中数目====",num)
+    end
+    function addGood(sprite)
+        local goodHandler =Reg:create("goodsChoose")
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        local count= ListView:getItemCount(list)
+        local changdu = 0
+        local zifuchuan = ''
+        for i=1,count do
+            local itemNode = ListView:getItem(list, i-1)
+            local shangpin =Sprite:findChild(itemNode,'shangpin')
+            local shangpinText= Sprite:getText(shangpin)
+            local danwei =Sprite:findChild(itemNode,'danwei')
+            local danweiText=Sprite:getText(danwei)
+            local itemsCode =Sprite:findChild(itemNode,'itemsCode')
+            local itemsCode=Sprite:getText(itemsCode)
+            local xuanze = Sprite:findChild(itemNode,'xuanzebtn')
+            local flag = Sprite:getData(xuanze)
+            if flag =="1" then
+                zifuchuan = zifuchuan..shangpinText..';'..danweiText..';'..itemsCode..';'
+                changdu = changdu + 1
+            end
+        end
+        Reg:setString(goodHandler, 'goods', zifuchuan)
+        Reg:setString(goodHandler, 'count', changdu)
+        -- 进行页面跳转
+        Scene:go(Alias.dinghuoApply,1)
+    end
+    --@brief 二维码扫面
+    function saomiaoOnSelect()
+        Log:write("1111")
+        local ret = BarCode:startCanner(Plugin:getObserver(), 1001)
+        if ret == 0 then
+            Dialog:show('提示', '扫描启动失败!', 'ok')
+        end
+    end
+    function OnSearchButtonClicked(sprite)
+        local keywordEditSprite = Sprite:findChild(rootSprite, "keywordEdit")
+        local good = Sprite:getText(keywordEditSprite)
+        local requestURL = Alias.urlServer..'record/searchItem?record_man='..usercode..'&itemName='..good..'&barCode='
+       -- local requestURL = Alias.urlServer..'record/searchItem?'
+       -- param2 = string.format("record_man=%s&itemName=&barCode=%s",usercode,good)
+        ListView:removeAllItems(list)
+        Log:write("++++++++++++++requestURL:", requestURL)
+        Http:request('notice', requestURL, 101,{useCache=false,method = 'post'})
+        Log:write("+++++++++requst success!");
+    end
+]]>
+</root>

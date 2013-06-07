@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <shadow rect="0,0,480,800" color="000" alpha="255"
+                extendstyle="1111"/>
+            <image name="imageBtn"  rect="0,0,480,800"  style="maxsize" extendstyle="1111" ></image>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_xsgj.common.framework'
+local rootSprite
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    local reg=Reg:create("PicReg")
+    local src=Reg:getString(reg, "pic")
+    Reg:release("PicReg")
+    Log:write('src。。。。。。。。。。。',src)
+    Sprite:setProperty(Sprite:findChild(rootSprite, "imageBtn"), "src", src) 
+    doAdjust()
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+ -- @brief 返回按钮处理
+    function doBack()
+        Scene:back(true)
+    end
+    function doAdjust()
+        local image = Sprite:findChild(rootSprite, 'imageBtn')
+        local w,h = Sprite:getProperty(image, 'src_size')
+        if w == nil or h == nil then
+            Timer:set(1, 3000, 'doAdjust')
+        else
+            local x = 460 / w
+            w = 460
+            h = x * h
+            Sprite:setRect(image, 10,(650-h)/2-66,w,h)
+        end
+    end
+    ]]>
+</root>

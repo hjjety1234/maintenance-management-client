@@ -1,0 +1,602 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+			<!-- 设置背景 -->
+			<image name="main-bg" rect="0,0,480,800" visible='true'
+				src="file://pics/main_bg.png" style="autosize" extendstyle="0010">
+			</image>
+			<!-- 信息头部 -->
+			<node rect="0,0,480,80" extendstyle="1111">
+				<image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png"
+					extendstyle="1111" style="autosize">
+				</image>
+
+				<!-- 返回按钮 -->
+				<button name="backBtn" rect="9,14,52,52" normal="src:file://pics/icon_home_d.png"
+					sel="src:file://pics/icon_home_s.png" OnSelect="doBack" style="autosize"
+					extendstyle="1111">
+				</button>
+				<image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png"
+					style="autosize" extendstyle="1111">
+				</image>
+				<!-- 二级菜单标题 -->
+				<scrolltext name="title" rect="100,0,280,70" text="拜访记录"
+					extendstyle="1111" font-size="30" h-align="center" v-align="center"
+					color="#ffffff" scroll="true" step="2"></scrolltext>
+				<image name="normal" rect="410,0,2,80" src="file://pics/sub_top_line.png"
+					style="autosize" extendstyle="1111">
+				</image>
+				<!--删除 -->
+				<button name="delete" rect="419,14,52,52"
+					normal="src:file://pics/icon_delete_d.png" sel="src:file://pics/icon_delete_s.png"
+					OnSelect="onDelete" style="autosize" extendstyle="1111">
+				</button>
+
+			</node>
+			<node rect="0,80,480,72" extendstyle="1111" border="false">
+				<image rect="0,0,480,72" src="file://pics/search_bg.png"
+					style="autosize" extendstyle="1111" />
+				<!-- 选择过滤拜访人、过滤拜访状态 -->
+				<button name="btnname1" rect="0,0,240,71" border="false"
+					extendstyle="1111"
+					normal="src:file://pics/input_select_btn_d.png;style:sudoku-auto;sudoku:15,0,94,0;color:#ffffff"
+					sel="src:file://pics/input_select_btn_s.png;style:sudoku-auto;sudoku:15,0,94,0;color:#000000"
+					OnSelect="comboboxOnSelect1">
+					<label name="comboboxlabel1" rect="10,0,150,71" border="false"
+						text="过滤拜访人" v-align="center" h-align="left" font-family="微软雅黑"
+						font-size="24"></label>
+				</button>
+				<button name="btnname2" rect="240,0,240,71" border="false"
+					extendstyle="1111"
+					normal="src:file://pics/input_select_btn_d.png;style:sudoku-auto;sudoku:15,0,94,0;color:#ffffff"
+					sel="src:file://pics/input_select_btn_s.png;style:sudoku-auto;sudoku:15,0,94,0;color:#000000"
+					OnSelect="comboboxOnSelect2">
+					<label name="comboboxlabel2" rect="10,0,150,71" border="false"
+						text="过滤拜访状态" v-align="center" h-align="left" font-family="微软雅黑"
+						font-size="24"></label>
+				</button>
+			</node>
+
+			<!-- 列表视图 -->
+			<node name="listNode" rect="0,152,480,639" extendstyle="1111">
+				<listview name="sampleList" rect="0,0,480,594" extendstyle="1111"
+					border="false" visible="true" />
+				<button name="morebtn" rect="0,592,480,52" border="false"
+					text="点击查看更多" color="#666666" OnSelect="addmore" visible="false"
+					v-align="center" h-align="center" font-family="微软雅黑" font-size="24"
+					extendstyle="1111" />
+			</node>
+			<node name="listitem" visible="false" rect="0,150,480,100"
+				border="false" enable="false" active="false" extendstyle="1111">
+				<button name="btnname" rect="0,0,478,100" OnSelect="itemOnSelect"
+					normal="src:file://pics/list_bg_d.png;" sel="src:file://pics/list_bg_s.png;"
+					style="autosize" border="false" extendstyle="1111">
+					<label name="lbtime" visible="true" rect="6,5,126,26" text="拜访时间"
+						font-family="微软雅黑" color="#0" font-size="22" h-align="left"
+						v-align="center" extendstyle="1111" border="false" />
+					<scrolltext name="lbkehu" rect="148,5,224,26" text="拜访客户"
+						font-family="微软雅黑" border="false" h-align="left" v-align="center"
+						color="#000000" font-size="22" scroll="true" step="4" extendstyle="1111"></scrolltext>
+					<label name="lbkehucode" rect="315,32,88,29" text=""
+						font-family="微软雅黑" color="#0" visible='ture' font-size="22"
+						h-align="left" v-align="center" extendstyle="1111" border="false" />
+					<label name="lbzhuangtai" rect="6,33,126,26" text="拜访状态"
+						font-family="微软雅黑" color="#0" font-size="22" h-align="left"
+						v-align="center" extendstyle="1111" border="false" />
+					<label name="lbren" rect="148,34,159,26" text="拜访人"
+						font-family="微软雅黑" color="#0" font-size="22" h-align="left"
+						v-align="center" extendstyle="1111" border="false" />
+					<scrolltext name="lbleirong" rect="6,65,452,26" text="拜访内容"
+						font-family="微软雅黑" border="false" h-align="left" v-align="center"
+						color="#000000" font-size="22" scroll="true" step="4" extendstyle="1111"></scrolltext>
+					<button name="delbtn" rect="410,0,70,100" border="false"
+						visible="true" color="#ffffff" OnSelect="ckitm">
+						<image name="ckitm" rect="0,30,26,26" src="file://pics/item_unselected.png"
+							style="sudoku-auto" extendstyle="1111" sudoku="15,15,15,15" data="0" />
+					</button>
+					<shadow rect="0,98,480,1" color="#aaabae" alpha="255"
+						extendstyle="1114" />
+				</button>
+			</node>
+			<button visible="false" data="1" name="curpage"></button>
+			<!-- 选择过滤人 -->
+			<node name="guolvren" rect="0,0,480,800" visible="false" enable="false">
+				<button name="bthide" rect="0,0,480,800" border="false" text=""
+					color="#ffffff" OnSelect="hideguluSelected">
+					  <shadow rect="0,0,480,800"  alpha="150" color="#0"  extendstyle="1111">
+                      </shadow>
+				</button>
+                <node rect="66,160,368,68" extendstyle="1111"  border="false">
+                      <image rect="0,0,368,68" src="file://pics/Dialogs/top.png"  style="autosize" extendstyle="1111" />
+                      <image rect="20,30,31,32" src="file://pics/Dialogs/icon_arrow.png"  style="autosize" extendstyle="1111" />
+                      <label rect="40,10,120,68" border="false" color="#FFFFFF"
+                       text="选择拜访人" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                </node>  				
+                <node rect="66,228,368,145" extendstyle="1111" border="false">
+                        <image rect="0,0,368,146" src="file://pics/Dialogs/center.png"  style="autosize" extendstyle="1111" />                        
+						<button name="btnall" rect="12,0,342,61" text="    全部人员" font-family="微软雅黑" h-align="left" 
+							color="#ffffff" extendstyle="1111" OnSelect="gulvOnSelect"
+							 normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                            sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+							font-size="24" data="01" />
+						<image rect="0,70,368,2" src="file://pics/Dialogs/line.png"  style="autosize" extendstyle="1111" />
+						<button name="btnowner" rect="12,73,342,61" text="    自己本人" font-family="微软雅黑" h-align="left" 
+							color="#ffffff" extendstyle="1111" OnSelect="gulvOnSelect"
+							 normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                            sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+							font-size="24" data="02" />
+				</node> 
+				<image rect="66,373,368,21" src="file://pics/Dialogs/bottom.png"  style="autosize" extendstyle="1111"/>
+			</node>
+			<!-- 选择拜访状态 -->
+			<node name="xundianTypeSelectNode" rect="0,0,480,800" visible="false"
+				enable="false">
+				<button name="bthide" rect="0,0,480,800" border="false" text=""
+					color="#ffffff" OnSelect="hidexundianSelected">
+					 <shadow rect="0,0,480,800"  alpha="150" color="#0"  extendstyle="1111">
+                      </shadow>
+				</button>
+				<node rect="66,160,368,68" extendstyle="1111"  border="false">
+                      <image rect="0,0,368,68" src="file://pics/Dialogs/top.png"  style="autosize" extendstyle="1111" />
+                      <image rect="20,30,31,32" src="file://pics/Dialogs/icon_arrow.png"  style="autosize" extendstyle="1111" />
+                      <label rect="40,10,120,68" border="false" color="#FFFFFF"
+                       text="选择状态" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                </node>   
+                 <node rect="66,228,368,216" extendstyle="1111" border="false">
+                        <image rect="0,0,368,216" src="file://pics/Dialogs/center.png"  style="autosize" extendstyle="1111" />
+						<button name="btnyibaifang" rect="12,0,342,61" text="    已拜访" h-align="left" font-family="微软雅黑"
+							color="#ffffff" extendstyle="1111" OnSelect="xundianTypeOnSelect"
+                            normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                            sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+							font-size="24" data="01" />
+					   <image rect="0,70,368,2" src="file://pics/Dialogs/line.png"  style="autosize" extendstyle="1111" />
+						<button name="btnweibaifang" rect="12,73,342,61" text="    未拜访" h-align="left" font-family="微软雅黑"
+							color="#ffffff" extendstyle="1111" OnSelect="xundianTypeOnSelect"
+                            normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                            sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+							font-size="24" data="02" />
+						<image rect="0,143,368,2" src="file://pics/Dialogs/line.png"  style="autosize" extendstyle="1111" />
+						<button name="btnyanqibaifang" rect="12,146,342,61" text="    延期拜访" h-align="left" font-family="微软雅黑"
+							color="#ffffff" extendstyle="1111" OnSelect="xundianTypeOnSelect"
+                            normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                            sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+							font-size="24" data="03" />
+				</node>
+				<image rect="66,443,368,21" src="file://pics/Dialogs/bottom.png"  style="autosize" extendstyle="1111"/>
+			</node>
+		</node>
+	</body>
+    <![CDATA[
+
+    require 'com_xsgj.common.framework'
+    local rootSprite
+    local urlRequestServer
+    local curxundianBtn
+    local jsonDecodedData = nil --获取列表数据
+    local lenRows=0
+    local strDate={'2012-09-20','2012-09-29','2012-09-30'}
+    local strKehu={'苏宁长江路店','合家福长江路店','沃尔玛合肥'}
+    local strZhuangtai={'已拜访','取消','延期'}
+    local strRen={'张三','李四','王二麻子'}
+    local strLeirong={'找崔总，谈合同续签事宜','寻找旺财','旺财几天没回家，是不是在王二麻子家里。。。？'}
+    local strTable={'','','','',''}
+    local visitcode
+    local searchRen='' --定义过滤人参数
+    local searchZhuangtai --定义过滤状态参数
+    local truename=Config:get('truename') --显示的用户名
+    local usercode=Config:get('username')--usercode=34522487 --登录人员addMan值
+    local curpage=1
+    local pagesizenumber=6
+    local morebtn=nil
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        urlRequestServer=Alias.urlServer
+        Log:write('truename:'..truename..'; usercode-addMan: '..usercode)
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        curpage=Sprite:findChild(rootSprite, 'curpage')--可能要放在页面激活位置
+        morebtn=Sprite:findChild(rootSprite, 'morebtn')
+        --固定值3个，演示用
+        --ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), 3, 'loadListItem')
+        --ListView:adjust(list)
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            --Http:startNetwork()
+            --loadRequest() --1.页面激活后，调用获取数据
+	    initList()
+            searchOnSelect() --返回拜访记录页面，刷新数据
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if Loading:isShow() then Loading:close() end
+        --Log:write('------zbw_baifangjilu bodyOnPluginEvent() bodyOnPluginEvent--------')
+        if msg == 101 then
+            --Log:write('------zbw_baifangjilu bodyOnPluginEvent() bodyOnPluginEvent msg 101--------')
+            elseif msg == 102 then
+            --页面初始化，loadRequest()
+            --use jsonDecode to decode http datas
+            Log:write('========run msg = ', msg)
+            jsonDecodedData = Http:jsonDecode('baifangjilu_data')
+            Log:write("jsonDecodedData of 102 = ",jsonDecodedData)
+            local len = tonumber(jsonDecodedData["Total"])
+            --Log:write("len or Total of jsonDecodedData: "..len)
+            local rows=jsonDecodedData.Raws
+            local clients=jsonDecodedData.clients
+            Log:write("len or Total of jsonDecodedData: "..len)
+            if not jsonDecodedData or type(jsonDecodedData) ~= 'table' then
+                Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+                return
+            end
+            if jsonDecodedData ~= nil then
+                if jsonDecodedData.Total == 0 then
+                    Log:write('数据为空！')
+                    Dialog:show(rootSprite, '数据为空！', 'ok')
+                end
+            end
+            if jsonDecodedData== nil then
+                Log:write('jsonDecodedData返回nil值！')
+            end
+            --如果记录大于n页，则显示翻页按钮
+            local p=Sprite:getData(curpage)
+            if len==pagesizenumber then
+                setAllShoworHide(morebtn, 1)
+            end
+            -- 加载新的列表项
+            if len>0 then
+                Log:write('will call loadListItem')
+                local list = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:removeAllItems(list) --can work
+                ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), len, 'loadListItem')
+                ListView:adjust(list)
+            end
+            elseif msg == 104 then
+            jsonDecodedData = Http:jsonDecode('notice')
+            Log:write('拜访记录返回数据   ', jsonDecodedData)
+            local totalPage = tonumber(jsonDecodedData["Total"])
+            Log:write('bodyOnPluginEvent(), len of jsonDecodedData.Total: ', totalPage)
+            local list = Sprite:findChild(rootSprite, 'sampleList')
+            --ListView:removeAllItems(list)
+            --如果记录大于n页，则显示翻页按钮
+            local p=Sprite:getData(curpage)
+            if totalPage==pagesizenumber then
+                setAllShoworHide(morebtn, 1)
+            end
+            -- 加载新的列表项
+            if totalPage>0 then
+                lenRows=totalPage
+                ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), totalPage, 'loadListItem')
+                ListView:adjust(list)
+            end
+            elseif msg==103 then
+            --'delete_records'
+            Log:write('----before jsonDecode---')
+            jsonDecodedData = Http:jsonDecode('delete_records')
+            Log:write('-----after jsonDecode------')
+            Log:write('------zbw_baifangjilu bodyOnPluginEvent() after run jsonDecodedData:',jsonDecodedData)
+            --Dialog:show('删除消息处理','处理结果。。。','ok')
+            if jsonDecodedData then
+                local deleteLen = tonumber(jsonDecodedData["Total"])
+                Log:write('bodyOnPluginEvent() delete msg 103, len of jsonDecodedData.Total: ', deleteLen)
+                if deleteLen > 0 then
+                    Dialog:show('删除成功','记录已经删除','ok')
+                    elseif deleteLen == 0 then
+                    Dialog:show('','已拜访记录无法删除','ok')
+                end
+                else
+                Dialog:show('无法删除!','数据异常，请与数据库管理员联系','ok')
+            end
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    function myfunc()
+    end
+    --1.发起http请求，获取数据
+    function loadRequest() --1.http 请求
+        --Http:connectCMWAP()
+        --local httpconnet=Http:getCurConnect()
+        local url = urlRequestServer..'visitExec/getAllVisit?'
+        local param='addMan='..usercode..'&page='..Sprite:getData(curpage)..'&pagesize='..pagesizenumber
+        --Log:write('zbw_baifangjilu.wdml loadRequest() url:',url)
+        --Log:write('zbw_baifangjilu.wdml loadRequest() param:',param)
+        Http:request('baifangjilu_data', url, 102, {useCache = false, method = 'post',postData=param})
+        Loading:show(rootSprite)
+    end
+    ---调用删除方法
+    function onDelete()
+        Dialog:show('','是否删除所选记录？','ok_cancel','okCallback','cancelCallback')
+    end
+    function okCallback()
+        --定义参数
+        --调用删除
+        deleteRecords('delete_records', 103, deleteKey, '1', '100')
+    end
+    --提交结束
+    function cancelCallback()
+        if Dialog:isShow() then
+            Dialog:close()
+        end
+    end
+    function doBack()
+        Scene:back()
+    end
+    ---删除选定记录
+    function deleteRecords(tag, num, deletekey, page, pagesize)
+        Log:write('in deleteRecords(),run...')
+        --http://120.209.131.143:9000/mobileSale/visitExec/deleteVisit?id=
+        --id为visitcode，每条记录的唯一标记
+        if jsonDecodedData~=nil then
+            if lenRows>0 then
+                Log:write("len or Total of jsonDecodedData: "..lenRows)
+                local listview=Sprite:findChild(rootSprite, 'sampleList')
+                for i=1,lenRows do
+                    --delbtn[i] data值如果不为空则删除
+                    local itemNode = ListView:getItem(listview, i-1)
+                    --local delbt=Sprite:findChild(itemNode,'btnname')
+                    local delVistcode=Sprite:getData(Sprite:findChild(itemNode,'delbtn'));
+                    Log:write("delete visitcode of jsonDecodedData: "..delVistcode)
+                    if delVistcode=='0' or delVistcode==nil or delVistcode=='' then
+                        --Dialog:show('未删除数据','请勾选需要删除的数据！','ok')
+                        else
+                        --Dialog:show('即将删除数据','确认需要删除选择的数据？','ok')
+                        local requestURL = string.format(urlRequestServer..'visitExec/deleteVisit?')
+                        local param='id='..delVistcode
+                        Log:write("++++++++++++++requestURL:", requestURL)
+                        Log:write("++++++++++++++param:", param)
+                        Http:request(tag, requestURL, num, {useCache = false, method = 'post',postData=param})
+                    end
+                end
+                initList()
+                searchOnSelect() --删除记录后，刷新数据
+                else
+                Dialog:show('无数据','当前列表没有数据！','ok')
+            end
+            else
+            Dialog:show('无数据','请先搜索数据！','ok')
+        end
+    end
+    ---根据查询条件发起查询
+    function searchOnSelect(sprite)
+        if searchZhuangtai==0 or searchZhuangtai==1 or searchZhuangtai==2 then
+            local searchKey ='visitMan='..searchRen..'&visitStatus='..searchZhuangtai
+            --Log:write('zbw_baifangjilu.wdml searchOnSelect() searchKey is '..searchKey)
+            if searchRen == '' then
+                local xundianText = Sprite:findChild(rootSprite, 'comboboxlabel1')
+                Sprite:setProperty(xundianText, 'text', '全部人员')
+            end
+            requestNoticeSearchList('notice', 104, 'xh', searchKey, Sprite:getData(curpage), pagesizenumber)
+        end
+    end
+    --@brief 请求搜索列表
+    function requestNoticeSearchList(tag, num, usercode, title, pagenum, pagesizenum)
+        Log:write('in requestNoticeSearchList(),search title: '..title)
+        --http://120.209.131.143:9000/mobileSale/visitExec/getByAddManVisitManAndVisitStatus?
+        --addMan=34522487&visitStatus=0&page=1&pagesize=5
+        --根据查询条件查询，title为查询条件,addMan为全部时值设为空''，或者不传,addMan=34522487
+        local paramet=title..'&page='..pagenum..'&pagesize='..pagesizenum
+	Log:write('拜访记录传递参数 = ',paramet)
+        local requestURL = string.format(urlRequestServer..'visitExec/getByAddManVisitManAndVisitStatus?')
+        -- Log:write("zbw_baifangjilu.wdml requestNoticeSearchList() ->requestURL:", requestURL)
+        -- Log:write("zbw_baifangjilu.wdml requestNoticeSearchList() ->paramet:", paramet)
+        Http:request(tag, requestURL, num, {useCache = false, method = 'post',postData=paramet})
+    end
+    function doBack()
+        Scene:back()
+    end
+    ---点选checkbox操作按钮
+    function ckitm(sprite)
+        local img=Sprite:findChild(sprite,'ckitm');
+        --local dt=Sprite:getData(img);
+        local dt=Sprite:getData(sprite);
+        Log:write('run ckitm() before set, dt: ',dt)
+        if dt=='0' or dt==nil or dt=='' then
+            Sprite:setProperty(sprite, 'data',Sprite:getData(img))
+            Sprite:setProperty(img, 'src', 'file://pics/item_selected.png')
+            --获取visitcode
+            --Log:write('dt=0 or dt=nil set data from img: ',Sprite:getData(sprite))
+            else
+            Sprite:setProperty(sprite, 'data','')
+            Sprite:setProperty(img, 'src', 'file://pics/item_unselected.png')
+            --释放visitcode
+            --Log:write('dt=visitecode set data as nil: ',Sprite:getData(sprite))
+        end
+        Log:write('run ckitm() after set, dt: ',Sprite:getData(sprite))
+    end
+    --显示拜访选择框
+    function xundianTypeOnSelect(sprite)
+        local xdData = Sprite:getData(sprite)
+        local xundianText = Sprite:findChild(rootSprite, 'comboboxlabel2')
+        Sprite:setProperty(curxundianBtn, 'data', xdData)
+        if xdData == '01' then
+            Sprite:setProperty(xundianText, 'text', '已拜访')
+            searchZhuangtai=1
+            elseif xdData == '02' then
+            Sprite:setProperty(xundianText, 'text', '未拜访')
+            searchZhuangtai=0
+            elseif xdData == '03' then
+            Sprite:setProperty(xundianText, 'text', '延期拜访')
+            searchZhuangtai=2
+        end
+        setAllShoworHide(Sprite:findChild(rootSprite, 'xundianTypeSelectNode'), 0)
+        ---选择后开始搜索,搜索前删除原列表
+        -- Log:write('zbw_baifangjilu.wdml run searchOnSelect(0...')
+        initList()
+        searchOnSelect()
+        -- Log:write('zbw_baifangjilu.wdml run searchOnSelect(0...')
+    end
+    --显示过滤选择框
+    function gulvOnSelect(sprite)
+        local xdData = Sprite:getData(sprite)
+        local xundianText = Sprite:findChild(rootSprite, 'comboboxlabel1')
+        Sprite:setProperty(curxundianBtn, 'data', xdData)
+        if xdData == '01' then
+            Sprite:setProperty(xundianText, 'text', '全部人员')
+            searchRen=''
+            elseif xdData == '02' then
+            Sprite:setProperty(xundianText, 'text', '自己本人')
+            searchRen=usercode
+        end
+        setAllShoworHide(Sprite:findChild(rootSprite, 'guolvren'), 0)
+        ---选择后开始搜索,搜索前删除原列表
+        initList()
+        searchOnSelect()
+    end
+    --过滤拜访状态
+    function comboboxOnSelect2(sprite)
+        local btnData = Sprite:getData(sprite)
+        curxundianBtn = sprite
+        setAllShoworHide(Sprite:findChild(rootSprite, 'xundianTypeSelectNode'), 1)
+    end
+    --过滤拜访人
+    function comboboxOnSelect1(sprite)
+        local btnData = Sprite:getData(sprite)
+        curxundianBtn = sprite
+        setAllShoworHide(Sprite:findChild(rootSprite, 'guolvren'), 1)
+    end
+    ---隐藏选择框
+    function hidexundianSelected(sprite)
+        setAllShoworHide(Sprite:findChild(rootSprite, 'xundianTypeSelectNode'), 0)
+    end
+    function hideguluSelected(sprite)
+        setAllShoworHide(Sprite:findChild(rootSprite, 'guolvren'), 0)
+    end
+    ---加载listitem列表
+    function loadListItem(list, item, index)
+        Log:write('---run loadListItem() function--- ')
+        Sprite:setRect(item, 0, 0, 480, 100)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        local listItemBg = Sprite:findChild(item, 'listItemBg')
+        local itemBtn = Sprite:findChild(item, 'btnname')--找到listitem里面的button: btnname
+        local imgItem = Sprite:findChild(item, 'ckitm')--找到listitem里面的ckitm,data填充visitcode
+        local textTime = Sprite:findChild(item, 'lbtime')
+        local textKehu = Sprite:findChild(item, 'lbkehu')
+        local textKehuCode = Sprite:findChild(item, 'lbkehucode')
+        local textZhuangtai = Sprite:findChild(item, 'lbzhuangtai')
+        local textRen = Sprite:findChild(item, 'lbren')
+        local textLeirong = Sprite:findChild(item, 'lbleirong')
+        -- 获取要创建的列表项Sprite
+        if index % 2 == 0 then
+            Sprite:setProperty(listItemBg, 'color', '#EFEBEF')
+            else
+            Sprite:setProperty(listItemBg, 'color', '#D3D5D5')
+        end
+        if jsonDecodedData.Total==nil then
+            Sprite:setProperty(textTime, 'text', strDate[index+1])
+            Sprite:setProperty(textKehu, 'text', strKehu[index+1])
+            Sprite:setProperty(textZhuangtai, 'text', strZhuangtai[index+1])
+            Sprite:setProperty(textRen, 'text', strRen[index+1])
+            Sprite:setProperty(textLeirong, 'text', strLeirong[index+1])
+            Sprite:setProperty(itemBtn,'data',index)--为itemBtn设置数值
+            else
+            local jsonTime=jsonDecodedData.Rows[index].visitDate --拜访日期：visitDate
+            local jsonRen=jsonDecodedData.Rows[index].visitMan--拜访人：visitMan
+            local jsonKehuAdd=jsonDecodedData.Rows[index].clientName --拜访客户名：clientName
+            local jsonKehuCode=jsonDecodedData.Rows[index].visitCode --传递客户参数
+            local jsonKehuStatus=jsonDecodedData.Rows[index].visitStatus --拜访状态：visitStatus
+            local jsonLeirong=jsonDecodedData.Rows[index].visitContent--拜访内容：visitContent
+            if jsonTime=='' or jsonTime==nil then jsonTime='2010-10-01' end
+            if jsonRen=='' or jsonRen==nil then jsonRen='旺财' end
+            if jsonKehuAdd=='' or jsonKehuAdd==nil then jsonKehuAdd='添加拜访客户名' end
+            if jsonKehuStatus=='' or jsonKehuStatus==nil then jsonKehuStatus=0 end
+            if jsonLeirong=='' or jsonLeirong==nil then jsonLeirong='拜访内容：无内容' end
+            if tonumber(jsonKehuStatus)==0 then jsonKehuStatus='未拜访' end
+            if tonumber(jsonKehuStatus)==1 then jsonKehuStatus='已拜访' end
+            if tonumber(jsonKehuStatus)==2 then jsonKehuStatus='延期拜访' end
+            if tonumber(jsonKehuStatus)==3 then jsonKehuStatus='取消拜访' end
+            Sprite:setProperty(textTime, 'text', jsonTime)
+            Sprite:setProperty(textRen, 'text', jsonRen)
+            Sprite:setProperty(textKehu, 'text', jsonKehuAdd)
+            --Sprite:setProperty(textKehuCode, 'text', jsonKehuCode) --传递jsonDecodedData.clients[index].clientCode
+            Sprite:setProperty(textZhuangtai, 'text', jsonKehuStatus)
+            Sprite:setProperty(textLeirong, 'text', jsonLeirong)
+            Sprite:setProperty(itemBtn,'data',index)--为itemBtn设置数值
+            Sprite:setProperty(imgItem,'data',jsonKehuCode)--为visitcode值
+            --Log:write('zbw_baifangzhixing.wdml LoadListItem -> jsonKehuStatus:',jsonKehuCode)
+        end
+    end
+    -- @brief 列表项选择处理
+    function itemOnSelect(sprite)
+        Log:write('run function: ', 'itemOnSelect()')
+        --visitCodelibiao
+        local curitem=Sprite:getData(sprite)
+        --jsonDecodedData = Http:jsonDecode('baifang_data')
+        local visitcode=jsonDecodedData.Rows
+        Log:write('curitem: '..curitem)
+        visitCodelibiao=visitcode[tonumber(curitem)].visitCode --获取visitCode传递到下个页面
+        Log:write('curitem: '..curitem..';visitCodelibiao:'..visitCodelibiao)
+        -- 设置要发送到信息详情的数据,数据仓库技术Reg
+        local textTime = Sprite:findChild(sprite, 'lbtime')
+        local textKehu = Sprite:findChild(sprite, 'lbkehu')
+        local textKehuCode = Sprite:findChild(sprite, 'lbkehucode')
+        local textZhuangtai = Sprite:findChild(sprite, 'lbzhuangtai')
+        local textRen = Sprite:findChild(sprite, 'lbren')
+        local textLeirong = Sprite:findChild(sprite, 'lbleirong')
+        strTable[1]=Sprite:getText(textTime) --拜访时间
+        strTable[2]=Sprite:getText(textKehu) --拜访客户
+        strTable[3]=Sprite:getText(textZhuangtai) --拜访状态
+        strTable[4]=Sprite:getText(textRen) --拜访人
+        strTable[5]=Sprite:getText(textLeirong) --拜访内容
+        --strTable[6]=Sprite:getText(textKehuCode) --jsonKehuCode=jsonDecodedData.clients[index].clientCode --拜访客户传递更新用
+        --Log:write('strTable[1]:',strTable[i])
+        for i=1,5 do
+            Log:write('strTable '..i..' is '.. strTable[i])
+        end
+        local date=Sprite:findChild(sprite, 'lbtime')
+        local text = Sprite:getText(date)
+        local regHandle = Reg:create("HelloWorld")
+        for i=1,5 do
+            Reg:setString(regHandle, "test_label"..i, strTable[i])--填入数据仓库
+        end
+        Reg:setString(regHandle,'visitCodelibiao',visitCodelibiao)--填入数据仓库
+        --Scene:setReturn(Alias.xinxi, Alias.xinxiDetail)
+        --Scene:go(Alias.xinxiDetail, true)
+        Scene:setReturn('MODULE:\\com_xsgj\\zbw_baifangjilu.wdml', 'MODULE:\\com_xsgj\\zbw_baifangjiluxiugai.wdml'..'?test_label1'..'?test_label2'..'?test_label3'..'?test_label4'..'?test_label5'..'?visitCodelibiao')
+        Scene:go('MODULE:\\com_xsgj\\zbw_baifangjiluxiugai.wdml')
+    end
+    --加载更多
+    function addmore()
+        local p=Sprite:getData(curpage)
+        setAllShoworHide(morebtn, 0)
+        p=p+1;
+        Sprite:setProperty(curpage, 'data',p)
+        searchOnSelect()
+        --Dialog:show(rootSprite, 'PC侧接口开发中！', 'ok')
+        --Http:request('kaoqin_data', server..'&page='..Sprite:getData(curpage)..'&userName='..Config:get('username'), 105, {useCache = false, method = 'post'})
+        --Loading:show(rootSprite)
+    end
+    --list界面初始化
+    function initList()
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list) --初始化时去除已经显示的list
+        setAllShoworHide(morebtn, 0)--初始化时隐藏按钮
+        Sprite:setProperty(curpage, 'data',1)--初始化时重置curpage值为1
+    end
+]]>
+</root>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- 1.Key值 2.投影坐标系 3.栅格图取图大小 4.栅格图取图地址、端口号 5.查询域名、端口号 6.矢量实时交通地址、端口号 7.矢量底图地址、端口号 
+	投影坐标系设置比较多，要注意要包含以下几点: float fMaxResolution; // 级别0对应的分辨率,默认为156543.0339,如果投影系为"location",则需要按实际指定 
+	// 北京54坐标 long nCutDirection; // 删格切分方位 0左上 1左下 // 北京54坐标 float fCutOriX; 
+	// 删格切分原点X坐标(在选定投影系中的坐标),默认为-20037508.34(-180度),如果投影系为"location",则需要按实际指定 
+	// 北京54坐标 float fCutOriY; // 删格切分原点Y坐标(在选定投影系中的坐标),默认为20037508.34(90度),如果投影系为"location",则需要按实际指定 
+	// 北京54坐标 char cProjection[20]; // 投影系,默认为900913,指定为"location"为地方坐标系(北京54或者西安80等) 
+	// 北京54坐标 需要注意的地方: 1.查询比较特殊，基本上只会变域名和端口号,所以是域名和端口号；其他因为变化比较多，所以是地址和端口号 2.栅格图取图地址、端口号有可能是多个，比如有底图，还有实时交通图，还有轨道交通图等 -->
+
+
+<Config>
+	<AuthKey></AuthKey><!--鉴权Key -->
+	<CoordinateSys>
+		<!--投影系,默认为900913,指定为"location"为地方坐标系(北京54或者西安80等) -->
+		<Projection>900913</Projection>
+		<!--级别0对应的分辨率,默认为156543.0339,如果投影系为"location",则需要按实际指定 -->
+		<MaxResolution>156543.0339</MaxResolution>
+		<!-- 删格切分方位 0左上 1左下 // 北京54坐标 -->
+		<CutDirection>0</CutDirection>
+		<!--删格切分原点X坐标(在选定投影系中的坐标),默认为-20037508.34(-180度),如果投影系为"location",则需要按实际指定 -->
+		<CutOriX>-20037508.34</CutOriX>
+		<!--删格切分原点Y坐标(在选定投影系中的坐标),默认为20037508.34(90度),如果投影系为"location",则需要按实际指定 -->
+		<CutOriY>20037508.34</CutOriY>
+	</CoordinateSys>
+	<!--栅格图参数 -->
+	<Grid>
+		<!--切片大小 -->
+		<TileSize>256</TileSize>
+		<!--栅格底图 -->
+		<GridMap>
+			<BaseLayer>true</BaseLayer>
+			<VectorRoad>false</VectorRoad>
+			<Cache>true</Cache>
+			<Language>0</Language>
+			<LayerName>GridMap</LayerName>
+			<UpdateTime>-1</UpdateTime>
+			<MinZoomLevel>3</MinZoomLevel>
+			<MaxZoomLevel>18</MaxZoomLevel>
+			<Url>http://emap.mapabc.com/mapabc/maptile?v=w2.61&amp;z=zoom&amp;x=x&amp;y=y</Url>
+		</GridMap>
+		<!--栅格卫星底图 -->
+		<SatelliteMap>
+			<BaseLayer>true</BaseLayer>
+			<VectorRoad>false</VectorRoad>
+			<Cache>true</Cache>
+			<Language>0</Language>
+			<LayerName>SatelliteMap</LayerName>
+			<UpdateTime>-1</UpdateTime>
+			<MinZoomLevel>3</MinZoomLevel>
+			<MaxZoomLevel>18</MaxZoomLevel>
+			<Url>http://si.mapabc.com:80/appmaptile?&amp;z=zoom&amp;x=x&amp;y=y&amp;lang=zh_cn&amp;size=1&amp;scale=1&amp;style=6
+			</Url>
+		</SatelliteMap>
+		<!--栅格实时交通 -->
+		<TrafficMap>
+			<BaseLayer>false</BaseLayer>
+			<VectorRoad>false</VectorRoad>
+			<Cache>false</Cache>
+			<Language>0</Language>
+			<LayerName>TrafficMap</LayerName>
+			<UpdateTime>50</UpdateTime>
+			<MinZoomLevel>10</MinZoomLevel>
+			<MaxZoomLevel>17</MaxZoomLevel>
+			<Url>http://tm.mapabc.com/trafficengine/mapabc/traffictile?v=w2.61&amp;zoom=zoom&amp;x=x&amp;y=y
+			</Url>
+		</TrafficMap>
+		<!--栅格轨道交通 -->
+		<RailwayMap>
+			<BaseLayer>false</BaseLayer>
+			<VectorRoad>false</VectorRoad>
+			<Cache>true</Cache>
+			<Language>0</Language>
+			<LayerName>RailwayMap</LayerName>
+			<UpdateTime>-1</UpdateTime>
+			<MinZoomLevel>0</MinZoomLevel>
+			<MaxZoomLevel>17</MaxZoomLevel>
+			<Url>http://emap0.mapabc.com:80/appmaptile?layer=subway?&amp;z=zoom&amp;x=x&amp;y=y
+			</Url>
+		</RailwayMap>
+	</Grid>
+
+	<!--矢量图参数 -->
+	<Vector>
+		<!--切片大小 -->
+		<TileSize>256</TileSize>
+		<!--矢量底图 -->
+		<VMap>
+			<BaseLayer>true</BaseLayer>
+			<VectorRoad>true</VectorRoad>
+			<Cache>true</Cache>
+			<Language>0</Language>
+			<LayerName>VMap</LayerName>
+			<UpdateTime>-1</UpdateTime>
+			<MinZoomLevel>3</MinZoomLevel>
+			<MaxZoomLevel>20</MaxZoomLevel>
+			<Url>http://ds.mapabc.com:8888</Url>
+		</VMap>
+		<!--矢量实时交通 -->
+		<VTMap>
+			<BaseLayer>false</BaseLayer>
+			<VectorRoad>false</VectorRoad>
+			<Cache>false</Cache>
+			<Language>0</Language>
+			<LayerName>VTMap</LayerName>
+			<UpdateTime>50</UpdateTime>
+			<MinZoomLevel>10</MinZoomLevel>
+			<MaxZoomLevel>19</MaxZoomLevel>
+			<Url>http://tmds.mapabc.com</Url>
+		</VTMap>
+	</Vector>
+	<!--查询地址 -->
+	<SearchAddress>
+		<!--XML搜索服务地址 -->
+		<XMLSearch>http://search1.mapabc.com:80</XMLSearch>
+		<!--PB搜索服务地址 -->
+		<PBSearch>http://apis.mapabc.com/sisserver</PBSearch>
+	</SearchAddress>
+</Config>

@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+    <!-- 设置背景 -->
+    <shadow rect="0,0,480,800" alpha="255" extendstyle="1111">
+        <image name="titleBg" rect="0,0,480,800" src="file://pics/main_bg.png" extendstyle="1111" style="autosize"></image>
+    </shadow>
+    <!-- 信息头部 -->
+    <node rect="0,0,480,80" extendstyle="1111" border="0">
+        <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png" extendstyle="1111" style="autosize"></image>
+        <!-- 返回按钮 -->
+        <button name="backBtn" rect="9,14,52,52" OnSelect="doBack"
+            border="false" normal="src:file://pics/icon_home_d.png;" sel="src:file://pics/icon_home_s.png;"
+            style="autosize" extendstyle="1111">
+        </button>
+        <image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png"extendstyle="1111"></image>
+        <!-- 二级菜单标题 -->
+        <scrolltext name="title" rect="100,0,280,70" text="注册"
+            font-family="微软雅黑" extendstyle="1111" font-size="32" h-align="center"
+            v-align="center" color="#ffffff" scroll="true" step="2"></scrolltext>
+        </node>
+        <image name="normal" rect="50,140,385,64" src="file://pics/password_input.png" style="autosize" extendstyle="1111"></image>
+        <edit name="phoneEdit" rect="60,140,360,60" extendstyle='1111' v-align="center" h-align="center" color="#c5c6c5" font-size="28" OnSetFocus="initText"  font-family="微软雅黑" >
+        <label name="wenben"  rect="0,0,360,60" text="输入您的手机号码"  font-size="28"  v-align="center" h-align="center" extendstyle="1111" color="#8f8e8e"  />
+        </edit>
+        <button name="messageBtn" rect="50,250,385,64" OnSelect="getmesOnclick" text="获取短信验证码" color="#ffffff" font-size="28" font-family="微软雅黑" v-align="center" h-align="center" border="false" normal="src:file://pics/message_d.png;" sel="src:file://pics/message_s.png;"
+            style="autosize" extendstyle="1111">
+        </button>
+        <image name="normal" rect="50,360,385,64" src="file://pics/password_input.png" style="autosize" extendstyle="1111"></image>
+        <edit name="yzmEdit" rect="60,360,360,60" extendstyle='1111' v-align="center" h-align="center" color="#c5c6c5" font-size="28"  OnSetFocus="initText1"  font-family="微软雅黑" >
+          <label name="wenben1"  rect="0,0,360,60" text="输入短信验证码"  font-size="28"  v-align="center" h-align="center" extendstyle="1111" color="#8f8e8e"  />
+        </edit>
+        <image name="sucess" rect="100,460,30,30" src="file://pics/regi_sucess.png" style="autosize" extendstyle="1111" visible="false"></image>
+        <image name="fail" rect="100,460,30,30" src="file://pics/fail.png" style="autosize" extendstyle="1111" visible="false"></image>
+        
+        <scrolltext name="zcjieguo" scroll="true"  rect="150,460,280,30" text=""  font-size="28"  v-align="center" h-align="left" extendstyle="1111"  font-family="微软雅黑"/>
+        <button name="registerBtn" rect="50,530,385,66"  normal="src:file://pics/back_d.png;style:sudoku-auto;sudoku:15,15,15,15;" text="注册" color="#ffffff" font-size="28"
+            sel="src:file://pics/back_s.png;style:sudoku-auto;sudoku:15,15,15,15;" OnSelect="registerOnclick" border="false"  style="autosize" extendstyle="1111" font-family="微软雅黑" visible="true" active="true"></button>
+        <button name="dengluBtn" rect="50,530,385,66"  normal="src:file://pics/back_d.png;style:sudoku-auto;sudoku:15,15,15,15;" text="继续登录" color="#ffffff" font-size="28"
+            sel="src:file://pics/back_s.png;style:sudoku-auto;sudoku:15,15,15,15;" OnSelect="dengluBtnOnSelected" border="false"  style="autosize" extendstyle="1111" font-family="微软雅黑" visible="false" active="false" enable="false"></button>
+        <label name="yanzhengma" visible="false"  rect="50,600,360,40" text="" border="true" font-size="24"  v-align="center" h-align="center" extendstyle="1111" color="#8f8e8e"  />
+         
+</node>
+    </body>
+    <![CDATA[
+
+require 'com_xsgj.common.framework'
+local rootSprite
+local usercode=Config:get('username')
+local timeNum = 50 --获取验证码倒计时秒数
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    Http:startNetwork()
+
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+     connectNet()
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+        registerData = Http:jsonDecode('register')
+        Log:write("注册数据",registerData)
+        --Dialog:show('提醒',registerData['retmsg'],'ok')
+        local fail=Sprite:findChild(rootSprite, 'fail')
+        local zcjieguo=Sprite:findChild(rootSprite, 'zcjieguo')
+        local sucess=Sprite:findChild(rootSprite, 'sucess')
+        Sprite:setVisible(fail,0)
+        Sprite:setVisible(sucess,1)
+        Sprite:setProperty(zcjieguo,'text',registerData['retmsg'])
+
+        local yanzhengma=Sprite:findChild(rootSprite, 'yanzhengma')
+        Sprite:setProperty(yanzhengma, 'text', registerData['retdata'].checkCode)
+        if registerData['retcode'] == '0' then
+            local messageBtn = Sprite:findChild(rootSprite,'messageBtn')
+            Sprite:setActive(messageBtn,0)
+            Sprite:setEnable(messageBtn,0)
+            Timer:set(222, 1000, 'getSmsCheckCodeTimer')
+        end
+    elseif msg==102 then
+        zhuceData = Http:jsonDecode('zhuce')
+        local zcjieguo=Sprite:findChild(rootSprite, 'zcjieguo')
+        local sucess=Sprite:findChild(rootSprite, 'sucess')
+        local fail=Sprite:findChild(rootSprite, 'fail')
+        local dengluBtn=Sprite:findChild(rootSprite, 'dengluBtn')
+        local registerBtn=Sprite:findChild(rootSprite, 'registerBtn')
+        Sprite:setProperty(zcjieguo, 'text',zhuceData["retmsg"])
+        if zhuceData["retmsg"]=="恭喜您,注册成功" then
+            Sprite:setVisible(sucess,1)
+            Sprite:setVisible(fail,0)
+            setAllShoworHide(registerBtn,0)
+            setAllShoworHide(dengluBtn,1)
+            --注册成功后，将相关信息写入配置
+            local phoneEdit = Sprite:findChild(rootSprite,'phoneEdit')
+            Config:set('ECCode',zhuceData["retdata"].ECCode) --企业编号
+            Config:set('username',Sprite:getText(phoneEdit)) --手机号码
+            Config:set('userName',Sprite:getText(phoneEdit))
+            --Timer:set(333,2000,'goHome')  --注册成功后，提醒用户继续登录，跳转到登录界面
+        else 
+           Sprite:setVisible(sucess,0)
+           Sprite:setVisible(fail,1)
+           Sprite:setActive(registerBtn, 1)
+           Sprite:setActive(dengluBtn, 0)
+        end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+function getSmsCheckCodeTimer()
+    local messageBtn = Sprite:findChild(rootSprite,'messageBtn')
+    if(timeNum>0) then
+        timeNum = timeNum - 1
+        Sprite:setProperty(messageBtn,'text','获取短信验证码('..timeNum..')')
+        Timer:set(222, 1000, 'getSmsCheckCodeTimer')
+    else
+        timeNum = 50
+        Sprite:setActive(messageBtn,1)
+        Sprite:setEnable(messageBtn,0)
+        Sprite:setProperty(messageBtn,'text','获取短信验证码')
+        Timer:cancel(222)
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        --Dialog:show('', '是否确定退出？', 'ok_cancel', 'doExit')   
+        return 1
+    end
+end
+function doBack()
+   Scene:back()
+end
+--@brief 当进入编辑框时，修改文字为输入
+    function initText(sprite)
+        local wenben=Sprite:findChild(rootSprite,'wenben')
+        local txt= Sprite:getProperty(wenben, 'text')
+        if txt=='输入您的手机号码' then
+            Sprite:setProperty(wenben, 'text', '')
+            Sprite:setProperty(wenben, 'color', '#0')
+        end
+    end
+--@brief新密码
+   function initText1(sprite)
+      local wenben=Sprite:findChild(rootSprite,'wenben1')
+      local txt= Sprite:getProperty(wenben, 'text')
+      if txt=='输入短信验证码' then
+          Sprite:setProperty(wenben, 'text', '')
+          Sprite:setProperty(wenben, 'color', '#0')
+      end
+  end
+  function connectNet()
+        WLAN:setUrl('http://www.baidu.com/', '')
+        if WLAN:isSwitchOn() then
+            local attach = WLAN:isAttach()
+            if attach then
+                curSSID = attach.ssid
+                Http:connectWLAN(attach.ssid)
+                else
+                connectToWAP()
+            end
+            else
+            connectToWAP()
+        end
+    end
+    -- @brief 连接移动网络
+    function connectToWAP()
+        local APNtype = Http:getCurrentAPNType()
+        if APNtype == 1 then -- Net网
+            Http:setProxy('')
+            elseif APNtype == 2 then --移动wap
+            Http:setProxy('http://10.0.0.172:80/')
+            elseif APNtype == 3 then --电信wap
+            Http:setProxy('http://10.0.0.200:80/')
+            elseif APNtype == 4 then --联通wap
+            Http:setProxy('http://10.0.0.172:80/')
+            else
+            Http:setProxy('')
+        end
+        Http:connectCMWAP()
+    end
+    
+---------------------------------------util functions---------------------------
+function getmesOnclick()
+  local phone= Sprite:findChild(rootSprite,'phoneEdit')
+  local url='http://'..Config:get('ssourl')..'/webcloud/sso/sso_obtainCode.action?mobile='..Sprite:getText(phone)..'&productKey=J0185'
+  Http:request('register', url, 101, {useCache = false})
+end
+--点击注册按钮
+function registerOnclick()
+   local phone= Sprite:findChild(rootSprite,'phoneEdit')
+   local yzm= Sprite:findChild(rootSprite,'yzmEdit')
+   local imsi=System:getMachineInfo(5) 
+   local imei=System:getMachineInfo(4)
+
+   if(imei == '' or imei == nil) then
+        imei = '000001'
+   end
+   if(imsi == '' or imsi == nil) then
+        imsi = '000001'
+   end
+
+   --local url=string.format('http://211.136.108.205:8003/webcloud/sso/sso_register.action?mobile='..Sprite:getText(phone)..'&productKey='..Config:get('productKey')..'&checkCode='..Sprite:getText(yzm)..'&imsi='..imsi..'&imei='..imei..'&mac=77777')
+   local url=string.format('http://'..Config:get('ssourl')..'/webcloud/sso/sso_register.action?mobile='..Sprite:getText(phone)..'&productKey='..Config:get('productKey')..'&checkCode='..Sprite:getText(yzm)..'&imsi='..imsi..'&imei='..imei..'&mac=77777')
+   Http:request('zhuce', url, 102, {useCache = false})
+end
+
+--点击登录按钮
+function dengluBtnOnSelected(sprite)
+    --Scene:go(Alias.login)
+    --注册成功后，再次跳转到Loading界面，以便于下载菜单信息
+    Scene:go('MODULE:\\com_xsgj\\index.wdml',true)
+end
+
+
+
+    ]]>
+</root>

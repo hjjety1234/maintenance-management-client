@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		== == | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+
+			<!-- 设置背景 -->
+			<image name="title" rect="0,0,480,800" border="false"
+				src="file://pics/main_bg.png" style="autosize" extendstyle="1111"></image>
+
+			<!-- 信息头部 -->
+			<node rect="0,0,480,80" extendstyle="1111" border="0">
+				<image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png"
+					extendstyle="1111" style="autosize">
+				</image>
+				<!-- 返回按钮 -->
+				<button name="backBtn" rect="9,14,52,52" OnSelect="doBack"
+					border="false" normal="src:file://pics/icon_home_d.png;" sel="src:file://pics/icon_home_s.png;"
+					style="autosize" extendstyle="1111">
+				</button>
+				<image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png"
+					extendstyle="1111">
+				</image>
+				<!-- 二级菜单标题 -->
+				<scrolltext name="title" rect="100,0,280,80" text="工作报告"
+					font-family="微软雅黑" extendstyle="1111" font-size="32" h-align="center"
+					v-align="center" color="#ffffff" scroll="true" step="2"></scrolltext>
+				<!--新增 -->
+				<image name="normal" rect="410,0,2,80" src="file://pics/sub_top_line.png"
+					extendstyle="1111">
+				</image>
+				<button name="addBtn" rect="419,14,52,52" OnSelect="add"
+					border="false" normal="src:file://pics/icon_add_d.png;" sel="src:file://pics/icon_add_s.png;"
+					style="autosize" extendstyle="1111">
+				</button>
+				
+			</node>
+			<!--搜索 -->
+            <node name="searchBar" rect="0,80,480,70" extendstyle="1111">
+                <image name="Image1" rect="0,0,480,70" src="file://pics/search_bg.png"extendstyle="1111" style="autosize"></image>
+                <image name="Image1" rect="10,10,400,52" src="file://pics/input_search.png" sudoku="50,0,50,0" style="sudoku-auto" extendstyle="1111"></image>
+                <edit name="keywordEdit" rect="45,15,350,40" extendstyle='1111' v-align="center" h-align="left" color="#c5c6c5" font-size="24" text="选择报告人" OnLostFocus="editOnTextChanged" OnSetFocus="initText" font-family="微软雅黑"></edit>
+                <button name="appBtn" rect="420,15,40,40" style="autosize" normal="src:file://pics/button_search_d.png;" sel="src:file://pics/button_search_s.png;" OnSelect="OnSearchButtonClicked" extendstyle="1111" />
+            </node>
+			<!-- 报告列表视图  -->
+			<node name="listViewNode" rect="0,150,480,650" extendstyle="1111">
+				<listview name="listView1" rect="0,0,480,588" extendstyle="1111"
+					border="false" visible="true" />
+				<button rect="0,600,475,50" border="false" text="点击查看更多" color="#666666" OnSelect="addmore" name="morebtn"
+                    visible="false"  v-align="center" h-align="center"  font-family="微软雅黑" font-size="24" extendstyle="1111"/> 
+			</node>
+			<!-- 报告列表项  -->
+			<node name="listItem1" rect="0,142,480,98" border="false" style="autosize"
+				visible="false" enable="false" active="false" extendstyle="1111">
+				<button name="btnname" rect="0,0,480,98" style="autosize"
+					normal="src:file://pics/list_bg_d.png" sel="src:file://pics/list_bg_s.png"
+					OnSelect="itemOnSelect" extendstyle="1111">
+					<!-- 报告内容详情 -->
+					<scrolltext name="noticeTitle" rect="10,5,400,40" font-family="微软雅黑"
+						border="false" h-align="left" v-align="center" color="#000000"
+						text="" font-size="26" scroll="true" step="4" extendstyle="1111"></scrolltext>
+					<label name="noticeDate" rect="10,50,163,30" border="false" font-family="微软雅黑"
+						text="" h-align="left" v-align="center" color="#666666"
+						font-size="20" extendstyle="1111"></label>
+                    <label  rect="176,50,80,30" border="false"
+                        font-family="微软雅黑" text="报告人:" v-align="center" color="#666666"
+                        font-size="20" extendstyle="1111"></label>
+                    <scrolltext name="newsman" rect="248,50,80,30" border="false"
+                        font-family="微软雅黑" text="" h-align="left" v-align="center" color="#666666" scroll="true" step="4"
+                        font-size="20" extendstyle="1111"></scrolltext>
+					<label name="type" rect="342,50,120,30" border="false" text="" font-family="微软雅黑"
+						h-align="left" v-align="center" color="#666666" font-size="20"
+						extendstyle="1111"></label>
+					<image rect="438,30,37,37" src="file://pics/icons_arrow_d.png" extendstyle="1111"></image>
+					<shadow rect="0,82,480,1" color="#aaabae" alpha="255"
+						extendstyle="1114">
+					</shadow>
+				</button>
+			</node>
+            <button visible="false" data="1" name="curpage1"></button>    
+            <button visible="false" data="1" name="curpage2"></button> 
+		</node>
+	</body>
+    <![CDATA[
+    require('com_xsgj.common.framework')
+    local rootSprite
+    local isSearchBarVisible = false
+    local nSearchBarWidth = 55
+    local jsonDecodedNotice = nil
+    local usercode=Config:get('username')
+    local truename=Config:get('truename')
+    local server1 = Alias.urlServer..'userReportMgr/getAllJson'
+    local curpage1=nil
+    local curpage2=nil
+    local morebtn=nil
+    local pagesizenumber=6
+    local keyword = ""
+    local flag
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        curpage1=Sprite:findChild(rootSprite, 'curpage1')
+        curpage2=Sprite:findChild(rootSprite, 'curpage2')
+        morebtn=Sprite:findChild(rootSprite, 'morebtn')
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+           local list = Sprite:findChild(rootSprite, 'listView1')
+           ListView:removeAllItems(list,true) 
+           pages=Sprite:getData(curpage1)
+           loadRequest(pages,pagesizenumber) --1.页面激活后，调用获取数据
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if msg == 101 then
+            if Loading:isShow() then Loading:close() end
+            jsonDecodedNotice = Http:jsonDecode('report_data')
+            Log:write('工作报告解析出的数据 ', jsonDecodedNotice)
+            if (jsonDecodedNotice.Total == 0) then
+               Dialog:show("", "工作报告列表记录为空", "ok")
+               setAllShoworHide(morebtn, 0)
+               keyword=""
+               return
+            end
+            local len = jsonDecodedNotice["Total"]
+            Log:write('长度 ', len)
+            local p=Sprite:getData(curpage1)
+            Log:write('p ', p)
+            local num = len
+            local listViewNode = Sprite:findChild(rootSprite, 'listView1')
+            if len > p*pagesizenumber then
+                setAllShoworHide(morebtn, 1)
+                num = pagesizenumber
+                flag = 1
+            else 
+                setAllShoworHide(morebtn, 0)
+                num = pagesizenumber - (p*pagesizenumber - len)
+                Sprite:setProperty(listViewNode, 'rect', '0,0,480,588')
+            end
+            if len>0 then
+                ListView:loadItem(listViewNode, Sprite:findChild(rootSprite, 'listItem1'), num, 'loadListItem')
+                ListView:adjust(listViewNode)
+            end
+        elseif msg == 104 then
+            if Loading:isShow() then Loading:close() end
+            jsonDecodedNotice = Http:jsonDecode('search_data')
+            Log:write('工作报告搜索出的数据 ', jsonDecodedNotice)
+            if (jsonDecodedNotice.Total == 0) then
+               Dialog:show("", "搜索结果为空", "ok")
+               setAllShoworHide(morebtn, 0)
+               keyword=""
+               return
+            end
+            local len = jsonDecodedNotice["Total"]
+            Log:write('长度 ', len)
+            local p=Sprite:getData(curpage2)
+            Log:write('p ', p)
+            local num = len
+            local listViewNode = Sprite:findChild(rootSprite, 'listView1')
+            if len > p*pagesizenumber then
+                setAllShoworHide(morebtn, 1)
+                num = pagesizenumber
+                flag = 2
+            else 
+                setAllShoworHide(morebtn, 0)
+                num = pagesizenumber - (p*pagesizenumber - len)
+                Sprite:setProperty(listViewNode, 'rect', '0,0,480,588')
+            end
+            if len>0 then
+                ListView:loadItem(listViewNode, Sprite:findChild(rootSprite, 'listItem1'), num, 'loadListItem')
+                ListView:adjust(listViewNode)
+            end
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+     --1.发起http请求，获取数据
+    function loadRequest(pages, pagesize) --1.http 请求
+        local httpconnet=Http:getCurConnect()
+        local server =server1..'?reportUserCode='..usercode..'&keyword='..keyword..'&page='..pages..'&pagesize='..pagesizenumber
+        Log:write("server = "..server)
+        Http:request('report_data', server, 101,{useCache=false})
+        Loading:show(rootSprite)
+    end
+    function loadListItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 98)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        local listItemBg = Sprite:findChild(item, 'listItemBg')
+        Sprite:setRect(listItemBg, 0, 0, 480, 98)
+        -- 获取要创建的列表项Sprite
+        local noticeTitle = Sprite:findChild(item, 'noticeTitle')
+        local noticeDate = Sprite:findChild(item, 'noticeDate')
+        local type=Sprite:findChild(item, 'type')
+        local newsman=Sprite:findChild(item, 'newsman')
+        -- 设置列表项的内容
+        if (jsonDecodedNotice ~= nil) then
+            local value = jsonDecodedNotice['Rows'][index]
+            Sprite:setProperty(noticeTitle, 'text', value.userreportContent)
+            Sprite:setProperty(noticeDate, 'text','时间:'..value.userreportDate)
+            Sprite:setProperty(type, 'text','类型:'..value.userreportType)
+            Sprite:setProperty(newsman, 'text',value.approveMan)
+        end
+    end
+    -- @brief 返回按钮处理
+    function doBack()
+        Scene:go(Alias.home, true)
+        Sprite:setProperty(Sprite:findChild(rootSprite,'curpage1'), 'data','1')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'curpage2'), 'data','1')
+    end
+    function add()
+        Sprite:setProperty(Sprite:findChild(rootSprite,'curpage1'), 'data','1')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'curpage2'), 'data','1')
+        Scene:setReturn(Alias.baogao, Alias.addbaogao)
+        Scene:go(Alias.addbaogao, true)
+    end
+    -- @brief 列表项选择处理
+    function itemOnSelect(sprite)
+        Sprite:setProperty(Sprite:findChild(rootSprite,'curpage1'), 'data','1')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'curpage2'), 'data','1')
+        -- 获取所选列表项数据
+        local noticeTitle = Sprite:findChild(sprite, 'noticeTitle')
+        local noticeDate = Sprite:findChild(sprite, 'noticeDate')
+        local type=Sprite:findChild(sprite, 'type')
+        local newsman=Sprite:findChild(sprite, 'newsman')
+        -- 创建数据仓库，并检查列表项ID在配置文件中的配置
+        local noticeDetailHandler = Reg:create("baogaoDetail")
+        -- 设置要发送到公告详情的数据
+        Reg:setString(noticeDetailHandler, 'noticeTitle', Sprite:getText(noticeTitle))
+        Reg:setString(noticeDetailHandler, 'noticeDate', Sprite:getText(noticeDate))
+        Reg:setString(noticeDetailHandler, 'type', Sprite:getText(type))
+        Reg:setString(noticeDetailHandler, 'newsman', Sprite:getText(newsman))
+        -- 进行页面跳转
+        Scene:setReturn(Alias.baogao, Alias.baogaoDetail)
+        Scene:go(Alias.baogaoDetail, true)
+    end
+    function requestNoticeSearchList(keyword)
+        local list = Sprite:findChild(rootSprite, 'listView1')
+        ListView:removeAllItems(list,true) 
+        Sprite:setProperty(Sprite:findChild(rootSprite,'curpage2'), 'data','1')
+        local requestURL = string.format(Alias.urlServer..'userReportMgr/getAllJson?')
+        Log:write("搜索请求地址:"..requestURL)
+        local param = 'reportUserCode='..usercode..'&keyword='..keyword
+                      ..'&page=1&pagesize='..pagesizenumber
+        Http:request('search_data', requestURL, 104,{useCache=false,method = 'post',postData=param})
+        Loading:show(rootSprite)
+    end
+    function OnSearchButtonClicked(sprite)
+        local keywordEditSprite = Sprite:findChild(rootSprite, "keywordEdit")
+        local keyword = Sprite:getText(keywordEditSprite)
+        -- 请求搜索
+        requestNoticeSearchList(keyword)
+    end
+     ---当未有任何输入时，初始化为提示
+    function editOnTextChanged(sprite)
+       local txt= Sprite:getProperty(sprite, 'text')
+       if txt=='' or txt ==nil then
+        Sprite:setProperty(sprite, 'color', '#c5c6c5')
+        Sprite:setProperty(sprite, 'text', '选择报告人')
+       end
+    end  
+    ---当进入编辑框时，修改文字为输入
+   function initText(sprite)
+       local txt= Sprite:getProperty(sprite, 'text')
+       if txt=='选择报告人' then
+        Sprite:setProperty(sprite, 'text', '')
+        Sprite:setProperty(sprite, 'color', '#0')
+       end
+   end 
+      --加载更多
+    function addmore()
+    setAllShoworHide(morebtn, 0)
+        if flag == 1 then
+            local p1=Sprite:getData(curpage1)
+            p1 = p1+1
+            Sprite:setProperty(curpage1, 'data',p1)
+            Log:write('列表记录页数',Sprite:getData(curpage1))
+            local url = address_port..'mtour/getAll?'     
+            local param2 = "reportUserCode="..usercode.."&page="..Sprite:getData(curpage1).."&pagesize="..pagesizenumber
+            Http:request("report_data", url, 101,{useCache = false, method = 'post', postData=param2})                 
+            Loading:show(rootSprite)
+        elseif flag == 2 then
+            local p2=Sprite:getData(curpage2)
+            p2 = p2+1
+            Sprite:setProperty(curpage2, 'data',p2)
+            Log:write('p2=',Sprite:getData(curpage2))
+            local keywordEditSprite = Sprite:findChild(rootSprite, "keywordEdit")
+            local keyword = Sprite:getText(keywordEditSprite)
+            Log:write('搜索关键字=',keyword)
+            local requestURL = string.format(Alias.urlServer..'userReportMgr/getAllJson?')
+            Log:write("搜索请求地址:"..requestURL)
+            local param = 'reportUserCode='..usercode..'&keyword='..keyword
+                          ..'&page=1&pagesize='..pagesizenumber
+            Http:request('search_data', requestURL, 104,{useCache=false,method = 'post',postData=param})
+            Loading:show(rootSprite)
+        end
+    end
+]]>
+</root>

@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+		
+		内容比较全的首页
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<!-- 背景图片 -->
+		<image name="title" rect="0,0,480,800" border="false"
+            src="file://pics/main_bg.png" style="autosize" extendstyle="1111"></image>
+
+		<!-- 主页面 -->
+		<node name="mainNode" rect="0,0,480,800" active="true" enable="true"
+			layouttype="1" OnKeyUp="mainNodeOnKeyUp" extendstyle="1111">
+			<!-- 页面标题部分  -->
+			<node rect="0,0,480,100" name="titleNode" extendstyle="1111">
+				<!-- 标题背景图片 -->
+				<image name="title" rect="0,-10,480,110" border="false"
+					src="file://pics/sub_top_bg.png" style="autosize" extendstyle="1111">
+				  <image rect="23,39,49,49" border="false" extendstyle="1111" src="file://pics/icon_home_title.png" style="autosize"></image>
+				
+				</image>
+			    
+				<scrolltext name="title" rect="110,0,280,100" text="安徽移动销售管家" font-family="微软雅黑" 
+                    extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2"></scrolltext>
+			</node>
+
+			<!--页面中间主体  -->
+			<node rect="0,100,480,600" extendstyle="1111">				
+				<node name="listNode" rect="0,0,480,600" extendstyle="1111">
+					<list name="listview1" rect="0,0,480,600" extendstyle="1111"
+						line="4" col="4" auto-adjust="true" offset="0,0">
+						
+					</list>
+				</node>				
+			</node>
+            <node name="listitem1" rect="0,0,120,165" extendstyle="1111" enable="false" active="false" visible="false">
+                <button name="listitemBtn" rect="7,17,90,100" OnSelect="listItemOnSelect" frame="false"
+                    normal="normal" sel="sel" color="#2d547b" data=""
+                    extendstyle="1111">
+                    <label name="txtlabel" rect="0,0,90,100" text="test1" extendstyle="1111" visible="false"></label>
+                    <label name="txtDataUrl" rect="0,0,90,100" text="" extendstyle="1111" visible="false"></label>
+                    <label name="txtName" rect="0,0,90,100" text="" extendstyle="1111" visible="false"></label>
+                    <label name="txtPackge" rect="0,0,90,100" text="" extendstyle="1111" visible="false"></label>
+                    <node name="normal" extendstyle="1111">
+                        <image name="listitemImgNormal" rect="7,17,90,100" src="" style="autosize"
+                            extendstyle="1111" />
+                    </node>
+                    <node name="sel" extendstyle="1111">
+                        <image name="listitemImgSel" rect="7,17,90,100" src="" style="autosize"
+                            extendstyle="1111" />
+                    </node>
+                </button>
+            </node>
+			<!-- 页面底部 -->
+			<node name="bottom" rect="0,700,478,100" extendstyle="1111"
+				visible="false">
+				
+			</node>
+		</node>
+	</body>
+    <![CDATA[
+    
+    require 'com_xsgj.common.framework'
+    require('framework.appmanager')
+    require 'framework.download'
+
+    local rootSprite
+    local menuData;
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        menuData = t_S2T(Config:get('menu'))
+        Log:write("the menu is ",menuData)
+        inteMenu()
+    end
+    --动态加载菜单
+    function inteMenu()
+        Log:write('the menu is ',table.getn(menuData))
+        local list = Sprite:findChild(rootSprite,'listview1')
+        local listitem = Sprite:findChild(rootSprite,'listitem1')
+        List:loadItem(list,listitem,table.getn(menuData)+1,'loadlistItem')
+        List:adjust(list)
+    end
+    function loadlistItem(list, item, index)
+        Sprite:setRect(item,0,0,120,165)
+        setAllShoworHide(item,1)
+        local listitemBtn = Sprite:findChild(item,'listitemBtn')
+        if(menuData[index].menuKey) then
+            Sprite:setProperty(listitemBtn,'data',menuData[index].menuKey)
+        end
+        local listitemImgNormal = Sprite:findChild(listitemBtn,'listitemImgNormal')
+        local listitemImgSel = Sprite:findChild(listitemBtn,'listitemImgSel')
+        Log:write('icon url is ',menuData[index].iconUrl)
+        Log:write('the pic path is ',getDownloadIconPath()..string.match(menuData[index].iconUrl,".+/(.+)"))
+        Sprite:setProperty(listitemImgNormal,'src',getDownloadIconPath()..string.match(menuData[index].iconUrl,".+/(.+)"))
+        Sprite:setProperty(listitemImgSel,'src',getDownloadIconPath()..string.match(menuData[index].iconUrl,".+/(.+)"))
+        Log:write('the icon is ',Sprite:getProperty(listitemImgNormal,'src'))
+        local txtlabel = Sprite:findChild(item,'txtlabel')
+        Sprite:setProperty(txtlabel,'text',menuData[index].menuType)
+        Sprite:setProperty(Sprite:findChild(item,'txtName'),'text',menuData[index].name)
+        if(menuData[index].menuType == 'webview') or menuData[index].menuType =='app' then
+            local txtDataUrl = Sprite:findChild(item,'txtDataUrl')
+            Sprite:setProperty(txtDataUrl,'text',menuData[index].dataUrl)
+        elseif(menuData[index].menuType == 'app') then
+            local txtPackge = Sprite:findChild(item,'txtPackge')
+            Log:write('the package is ',menuData[index].package)
+            Sprite:setProperty(txtPackge,'text',menuData[index].package)
+        end
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if msg == 101 then
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        Log:write("the key is ..............")
+        if kc == Key.F2 then -- 按下返回键
+            if Loading:isShow() then
+                Loading:close()
+            else
+                Dialog:show('提示', '是否确定退出？', 'ok_cancel', 'doExit')
+            end
+            return 1
+            elseif kc==Key.F1 then
+            	setAllShoworHide(Sprite:findChild(rootSprite,'bottom'),1)
+                Timer:set(11, '5000', 'HideMenu') 
+                return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    --隐藏菜单
+    function HideMenu(menuShow)
+        local menuNode = Sprite:findChild(rootSprite, 'bottom')
+        Log:write('111111111111111111111111121212')
+        --Dialog:show('', '是否确定退出？', 'ok_cancel', 'doExit')
+        setAllShoworHide(menuNode,0)
+        Timer:cancel(menuShow)
+    end
+    function goToPath(filePath)
+        Scene:setReturn(Alias.home,filePath)
+        Scene:go(filePath, true)
+    end
+    function listItemOnSelect(sprite)
+        local dataInfo = Sprite:getData(sprite)
+        Log:write('========',dataInfo)
+        local txtlabel = Sprite:findChild(sprite,'txtlabel')
+        Log:write('------------',Sprite:getText(txtlabel))
+        local viewType = Sprite:getText(txtlabel)
+        if viewType == 'local' then --本地数据
+            goToPath(dataInfo)
+        elseif viewType == 'webview' then
+            local dataUrl = Sprite:findChild(sprite,'txtDataUrl')
+            local txtName = Sprite:findChild(sprite,'txtName')
+            --将url保存在数据仓库中
+            local dataUrlHandler = Reg:create("dataUrl")
+            Reg:clear(dataUrlHandler)
+            Reg:setString(dataUrlHandler, 'url', Sprite:getText(dataUrl))
+            Reg:setString(dataUrlHandler,'name',Sprite:getText(txtName))
+            goToPath(Alias.browserView)
+        elseif viewType == 'app' then --第三方应用
+            local dataUrl = Sprite:findChild(sprite,'txtDataUrl')
+            local txtName = Sprite:findChild(sprite,'txtName')
+            local txtPackge = Sprite:findChild(sprite,'txtPackge')
+            local appId = Sprite:getText(txtPackge)
+            --先判断应用是否安装
+            if AppManager:getInfoById(appId) then
+                Log:write('start to open app')
+                local returnNum = AppManager:runApp(appId)
+                Log:write('returnNum is ',returnNum)
+            else
+                --下载应用
+                Util:openURL(dataUrl)
+            end
+        end
+    end
+    
+    function shezhi_OnSelect(sprite)
+        Dialog:show('提醒', '是否确定退出？', 'ok_cancel', 'doExit')   
+    end
+    
+    function btnExit_OnSelect(sprite)
+        Log:write("exit clicked")
+        Dialog:show('提醒', '是否确定退出？', 'ok_cancel', 'doExit')        
+    end
+    
+    function tuichu()
+        Scene:go('MODULE:\\com_xsgj\\index.wdml',true)
+    end
+    --获取SD卡上的Download目录
+    function getDownloadIconPath()
+        local iconPath = ''
+        local downloadPath = System:getFlashCardName(1) 
+        if downloadPath == nil or downloadPath == "" then 
+            Log:write("SD卡不存在,使用内部存储！")
+            downloadPath = System:getFlashCardName(0)
+            --在SD卡不存在的话，如果是htc_t327t_android_A001，则使用缓存
+            if(System:getUserAgent() == 'htc_t327t_android_A001') then
+                downloadPath = "MODULE:\\com_xsgj\\"
+            end
+        end
+        iconPath = downloadPath.."download"
+        Log:write("getDownloadPath: localDir="..iconPath)
+        -- 如果路径不存在，创建下载目录
+        if IO:dirExist(iconPath) == false then 
+            IO:dirCreate(iconPath)
+        end
+        -- 如果apk已经存在，删除之
+        iconPath = iconPath.."/"
+        Log:write("getDownloadPath: iconPath="..iconPath)
+        if IO:fileExist(iconPath) == true then 
+            IO:fileRemove(iconPath)
+        end
+        return iconPath
+    end
+ 
+]]>
+</root>

@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+
+            <shadow rect="0,0,480,900"  alpha="255" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,800" src="file://pics/main_bg.png"
+                    extendstyle="1111" style="autosize">
+                </image>
+             </shadow>
+            <!-- 标题开始 -->    
+            <node rect="0,0,480,80" extendstyle="1111" border="0" >
+                <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png"
+                    extendstyle="1111" style="autosize">
+                </image>
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="9,14,52,52" OnSelect="doBack" border="false"
+                    normal="src:file://pics/icon_back_d.png;"
+                    sel="src:file://pics/icon_back_s.png;"  style="autosize"
+                    extendstyle="1111">
+                </button>
+                <image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png"
+                        extendstyle="1111">
+                </image>
+                <!-- 二级菜单标题 -->
+                <scrolltext name="title" rect="100,0,280,70" text="位置标记" font-family="微软雅黑" 
+                    extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2"></scrolltext>
+            </node>
+            <!-- 标题结束 -->
+            <!-- 信息列表视图  -->
+             <node rect="0,90,480,96" extendstyle="1111" >
+                <button name="btnname" rect="0,0,480,96" style="autosize"
+                    normal="src:file://pics/list_bg_d.png" sel="src:file://pics/list_bg_s.png"
+                    extendstyle="1111">
+                    <scrolltext name="kehumingcheng" rect="30,3,300,40"
+                        border="false" h-align="left" v-align="center" color="#000000"
+                        font-family="微软雅黑" text="" font-size="25" scroll="true" step="4"
+                        extendstyle="1111"></scrolltext>
+                    <label name="hezuozhuangtai" rect="30,43,100,25" border="false"
+                        font-family="微软雅黑" text="" h-align="left" v-align="center" color="#ff0000"
+                        font-size="22" extendstyle="1111"></label>
+                    <label name="lianxiren" rect="140,43,80,25" border="false"
+                        font-family="微软雅黑" text="" h-align="left" v-align="center" color="#666666"
+                        font-size="22" extendstyle="1111"></label>
+                    <label name="lianxidianhua" rect="230,43,150,25" border="false"
+                        font-family="微软雅黑" text="" h-align="left" v-align="center" color="#666666"
+                        font-size="22" extendstyle="1111"></label>
+                    <label name="biaojizhuangtai" rect="30,68,100,25" border="false"
+                        font-family="微软雅黑" text="" h-align="left" v-align="center" color="#00ff00"
+                        font-size="22" extendstyle="1111"></label>
+                    <label name="mendiandizhi" rect="140,68,280,25" border="false"
+                        font-family="微软雅黑" text="" h-align="left" v-align="center" color="#000000"
+                        font-size="22" extendstyle="1111"></label>
+                </button>
+            </node>
+            
+            <label name="dingwei" rect="150,250,180,50" text=""  v-align="center" h-align="center" color="#000000" font-size="25"
+                        extendstyle="1111" visible="true" font-family="微软雅黑" ></label>
+            
+            <!-- 信息列表项  -->
+            <image name="success" border="succes" visible="false" rect="37,380,398,58" src="file://image/wodekehu/tishichengong.png"
+             style="autosize" extendstyle="1111">
+                <label name="hideLabel" rect="0,0,398,58" text="位置标记成功"
+                        color="#FFFFFF" extendstyle="1111" style="autosize" h-align="center"
+                        v-align="center" font-family="微软雅黑" font-size="24"></label>
+             </image>
+             
+             <image name="error" border="false" visible="false" rect="37,380,398,58" src="file://image/wodekehu/tishichengong.png"
+             style="autosize" extendstyle="1111">
+                <label name="hideLabel" rect="0,0,398,58" text="位置标记失败"
+                        color="#FFFFFF" extendstyle="1111" style="autosize" h-align="center"
+                        v-align="center" font-family="微软雅黑" font-size="24"></label>
+             </image>
+        </node>
+    </body>
+    <![CDATA[
+
+require('com_xsgj.common.framework')
+require('com_xsgj.common.map')
+local rootSprite = nil
+
+    --local rootSprite
+    local jsonDecodedData = nil
+    local server=Alias.urlServer..'myClient/location?clientCode='
+    local curpage =nil
+    local latitude =nil
+    local longitude =nil
+    local observer
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        --1.链接网络
+        local regHandle = Reg:create('dingweidata')
+        local clientcode = Reg:getString(regHandle, "clientcode")
+        local kehumingcheng = Reg:getString(regHandle, "kehumingcheng")
+        local hezuozhuangtai = Reg:getString(regHandle, "hezuozhuangtai")
+        local lianxiren = Reg:getString(regHandle, "lianxiren")
+        local lianxidianhua = Reg:getString(regHandle, "lianxidianhua")
+        local biaojizhuangtai = Reg:getString(regHandle, "biaojizhuangtai")
+        local mendiandizhi = Reg:getString(regHandle, "mendiandizhi")
+        Reg:clear(Reg:create('dingweidata'))
+        
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'kehumingcheng'), 'text', kehumingcheng)
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'hezuozhuangtai'), 'text', hezuozhuangtai)
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'lianxiren'), 'text', lianxiren)
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'lianxidianhua'), 'text', lianxidianhua)
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'biaojizhuangtai'), 'text',  biaojizhuangtai)
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'mendiandizhi'), 'text',  mendiandizhi)
+        
+        server=server..clientcode
+        Log:write('1101'..server)
+        --Loading:show(rootSprite)
+        doLocation()
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+     if msg == 1000 then--用来显示经纬度
+            local postDataString = Param:getString(param, 0)
+            local postData = Json:loadString2Table(postDataString)
+            if postData.latitude ~= nil then
+                latitude=postData.latitude
+            end
+            if postData.longitude ~= nil then
+                longitude=postData.longitude
+            end
+            if postData.longitude ~= nil and postData.latitude ~= nil then
+                Map:getLocation(observer, 1001, tonumber(postData.latitude), tonumber(postData.longitude))  
+            end
+        end
+        if msg == 1001 then--用来显示定位的位置
+            local postDataString = Param:getString(param, 0)
+            local postData = Json:loadString2Table(postDataString)
+            local locInfo = Sprite:findChild(rootSprite, 'dingwei')
+            if postData.address ~= nil then
+                server=server..'&longitude='..longitude..'&latitude='..latitude..'&location='..postData.address
+                --server=server..'&longitude=89.0&latitude=67.9&location=hefei'
+                Log:write('1122331111111111111'..server)
+                Http:request('json_data', server, 101, {useCache = false, method = 'post'})
+                Loading:show(rootSprite)
+                --Sprite:setProperty(locInfo, 'text', postData.address)
+                --dosuccess()
+            end
+        end
+        if msg == 101 then -- 定位
+            if Loading:isShow() then Loading:close() end 
+            jsonDecodedData = Http:jsonDecode('json_data')
+            if (jsonDecodedData == nil or jsonDecodedData["total"] == nil or
+                jsonDecodedData["total"] == '') then
+                setAllShoworHide(Sprite:findChild(rootSprite, 'error'), 1)
+                --Timer:set(1,1000,'doBack')
+                --Dialog:show("", "位置标记失败", "ok")
+                return
+            else
+                --Dialog:show("", "位置标记成功", "ok")
+                setAllShoworHide(Sprite:findChild(rootSprite, 'success'), 1)
+                Timer:set(1,1000,'doBack')
+            end
+        end 
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back(true)
+        return 1
+    end
+end
+
+function doFile()
+   if Loading:isShow() then Loading:close() end 
+   setAllShoworHide(Sprite:findChild(rootSprite, 'error'), 1)
+end
+
+function dosuccess() 
+   if Loading:isShow() then Loading:close() end 
+   setAllShoworHide(Sprite:findChild(rootSprite, 'success'), 1)
+end
+
+function doLocation()
+        local locInfo = Sprite:findChild(rootSprite, 'dingwei')
+        Sprite:setProperty(locInfo, 'text', '正在定位......')
+        Map:getCurPosition(observer,  1000)
+end
+
+function doBack()
+        Scene:back(true)
+        return 1
+end
+
+---------------------------------------util functions---------------------------
+function myfunc()
+
+end
+
+    ]]>
+</root>

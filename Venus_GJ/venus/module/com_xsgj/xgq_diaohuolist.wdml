@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <!--
+        ==
+        ============================================================================
+        == | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+        ============================================================================
+        == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+        ============================================================================
+        == | Author: xxxx <xxxx@xxxx.com> ==
+        ============================================================================
+        == | Desc: 页面描述 ==
+        ============================================================================
+    -->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <shadow rect="0,0,480,900"  alpha="255" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,800" src="file://pics/main_bg.png"
+                    extendstyle="1111" style="autosize">
+                </image>
+             </shadow>
+            <!-- 标题开始 -->    
+            <node rect="0,0,480,80" extendstyle="1111" border="0" >
+                <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png"
+                    extendstyle="1111" style="autosize">
+                </image>
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="9,14,52,52" OnSelect="doBack" border="false"
+                    normal="src:file://pics/icon_home_d.png;"
+                    sel="src:file://pics/icon_home_s.png;"  style="autosize"
+                    extendstyle="1111">
+                </button>
+                <image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png"
+                        extendstyle="1111">
+                </image>
+                <!-- 二级菜单标题 -->
+                <scrolltext name="title" rect="100,0,280,70" text="我的调货" font-family="微软雅黑" 
+                    extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2"></scrolltext>
+                <!--新增 -->
+                <image name="normal" rect="410,0,2,80" src="file://pics/sub_top_line.png"
+                         extendstyle="1111">
+                </image>
+                <button name="addBtn" rect="419,14,52,52" OnSelect="goDiaohuoAdd" border="false"
+                    normal="src:file://pics/icon_add_d.png;" 
+                    sel="src:file://pics/icon_add_s.png;" style="autosize"
+                    extendstyle="1111">
+                </button>
+            </node>
+            <!-- 标题结束 -->
+            
+            <node rect="0,80,480,80" extendstyle="1111" border="false">
+                <image rect="0,0,480,80" src="file://pics/search_bg.png"
+                    style="autosize" extendstyle="1111" />
+                <!-- 选择过滤拜访人、过滤拜访状态 -->
+                <button name="mendianBtn" rect="0,4,240,71" border="false"
+                    extendstyle="1111"
+                    normal="src:file://pics/input_select_btn_d.png;style:sudoku-auto;sudoku:15,0,94,0;color:#ffffff"
+                    sel="src:file://pics/input_select_btn_s.png;style:sudoku-auto;sudoku:15,0,94,0;color:#000000"
+                    OnSelect="mendianBtnOnSelect">
+                    <label name="mendianLable" rect="10,0,150,71" border="false"
+                        text="过滤门店" v-align="center" h-align="left" font-family="微软雅黑"
+                        font-size="24"></label>
+                </button>
+                <button name="qsztBtn" rect="240,4,240,71" border="false"
+                    extendstyle="1111"
+                    normal="src:file://pics/input_select_btn_d.png;style:sudoku-auto;sudoku:15,0,94,0;color:#ffffff"
+                    sel="src:file://pics/input_select_btn_s.png;style:sudoku-auto;sudoku:15,0,94,0;color:#000000"
+                    OnSelect="qsztBtnOnSelect">
+                    <label name="qsztLable" rect="10,0,150,71" border="false"
+                        text="过滤签收状态" v-align="center" h-align="left" font-family="微软雅黑"
+                        font-size="24"></label>
+                </button>
+            </node>
+            
+            <!-- 信息列表视图  -->
+            <node name="listViewNode" rect="0,160,480,640" extendstyle="1111">
+                <listview name="listView1" rect="0,0,480,576" extendstyle="1111"
+                    border="false" visible="true" >
+                </listview>
+                <button name="moreclientBtn" rect="0,576,480,64" border="false" text="点击查看更多" color="#666666" OnSelect="moreBtnOnselect" 
+                    visible="false" v-align="center" h-align="center"  font-family="微软雅黑" font-size="24" extendstyle="1511"/>       
+            </node>
+            
+            <!-- 定单详情 -->
+            <node name="listItemNode" visible="false" enable="false" active="false" border="false"
+                extendstyle="1111" rect="0,0,480,96">
+                <button name="btnname" rect="0,0,480,96" style="autosize"
+                    normal="src:file://pics/list_bg_d.png" sel="src:file://pics/list_bg_s.png"
+                    OnSelect="itemOnSelect" extendstyle="1111">
+                    <label name="diaorubiaoji" rect="10,3,100,30" border="false"
+                        text="调入：" h-align="left" v-align="center" font-family="微软雅黑" color="#000000" font-size="24"
+                        extendstyle="1111"></label>
+                    <label name="diaorudoorName" rect="120,3,400,30" border="false"
+                        text="" h-align="left" v-align="center" font-family="微软雅黑" color="#000000" font-size="24"
+                        extendstyle="1111"></label>
+                    <label name="diaochubiaoji" rect="10,33,100,30" border="false"
+                        text="调出：" h-align="left" v-align="center" font-family="微软雅黑" color="#000000" font-size="24"
+                        extendstyle="1111"></label>
+                    <label name="diaochudoorName" rect="120,33,400,30" border="false"
+                        text="" h-align="left" v-align="center" font-family="微软雅黑" color="#000000" font-size="24"
+                        extendstyle="1111"></label>
+                    <label name="diaohuodanbiaoji" rect="10,63,80,30" border="false" text="调货单:"
+                        h-align="left" v-align="center" font-family="微软雅黑" font-size="24"  extendstyle="1111"></label>
+                    <label name="diaohuodan" rect="120,63,150,30" border="false"
+                        text="" h-align="left" v-align="center" font-family="微软雅黑" color="#000000" font-size="24"
+                        extendstyle="1111"></label>
+                    <label name="qsState" rect="280,63,130,30" border="false"
+                        text="" h-align="left" data="" v-align="center" font-family="微软雅黑" color="#FF0000" font-size="24"
+                        extendstyle="1111"></label>
+                    <!-- 分隔线 -->
+                    <shadow rect="0,96,480,1" color="#aaabae" alpha="255"
+                         extendstyle="1114">
+                    </shadow>
+                </button>
+            </node>
+
+            <!--门店名称-->
+            <node name="mendianlistShowNode" rect="0,0,480,800" visible="false" enable="false">
+                <button name="bthide" rect="0,0,480,800" border="false" text=""
+                    color="#ffffff" OnSelect="hidemendianSelected">
+                </button>
+                <node rect="66,160,368,68" extendstyle="1111"  border="false">
+                      <image rect="0,0,368,68" src="file://pics/Dialogs/top.png"  style="autosize" extendstyle="1111" />
+                      <image rect="20,30,31,32" src="file://pics/Dialogs/icon_arrow.png"  style="autosize" extendstyle="1111" />
+                      <label rect="40,10,120,68" border="false" color="#FFFFFF"
+                       text="选择门店" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                </node>
+                <image rect="66,228,368,216" src="file://pics/Dialogs/center.png"  style="autosize" extendstyle="1111" />
+                <listview name="mendianListview" rect="66,230,368,216"
+                    auto-adjust="true" extendstyle="1111" />
+                <image rect="66,442,368,21" src="file://pics/Dialogs/bottom.png"  style="autosize" extendstyle="1111"/>
+            </node>
+            
+            <!-- 选择签收状态 -->
+            <node name="qianshouTypeSelectNode" rect="0,0,480,800" visible="false" enable="false">
+                <button name="bthide" rect="0,0,480,800" border="false" text=""
+                    color="#ffffff" OnSelect="hideqianshouSelected">
+                </button>
+                <node rect="66,160,368,68" extendstyle="1111"  border="false">
+                      <image rect="0,0,368,68" src="file://pics/Dialogs/top.png"  style="autosize" extendstyle="1111" />
+                      <image rect="20,30,31,32" src="file://pics/Dialogs/icon_arrow.png"  style="autosize" extendstyle="1111" />
+                      <label rect="30,10,180,68" border="false" color="#FFFFFF"
+                       text="选择签收状态" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                </node>                 
+                <node rect="66,228,292,144" extendstyle="1111" border="false">
+                    <image rect="0,0,368,144" src="file://pics/Dialogs/center.png"  style="autosize" extendstyle="1111" />                        
+                    <button name="btnall" rect="12,0,342,61" text="    未签收" h-align="left"  font-family="微软雅黑"
+                        color="#ffffff" extendstyle="1111" OnSelect="qianshouTypeOnSelect"
+                         normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                        sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+                        font-size="24" data="0"  />
+                    <image rect="0,70,368,2" src="file://pics/Dialogs/line.png"  style="autosize" extendstyle="1111" />
+                    <button name="btnowner" rect="12,73,342,61" text="    已签收" h-align="left"  font-family="微软雅黑"
+                        color="#ffffff" extendstyle="1111" OnSelect="qianshouTypeOnSelect"
+                         normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                        sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+                        font-size="24" data="1" />
+                </node> 
+                <image rect="66,370,368,21" src="file://pics/Dialogs/bottom.png"  style="autosize" extendstyle="1111"/>
+            </node>
+        </node>
+            
+        <node name="mendianItemNode" rect="0,0,368,72" visible="false" enable="false" active="false">                   
+	        <button name="mendianItemBtn" rect="12,0,342,61" text="mendian" h-align="left" 
+	            color="#ffffff" extendstyle="1111" OnSelect="mendianItemOnSelect" font-family="微软雅黑"
+	             normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+	            sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+	            font-size="24" data="0"  />
+	        <image rect="0,70,368,2" src="file://pics/Dialogs/line.png"  style="autosize" extendstyle="1111" />
+        </node>
+    </body>
+    <![CDATA[
+
+    require 'com_xsgj.common.framework'
+    local rootSprite
+    local curmendianBtn
+    local errorListTotalHeight = 0
+    local curqianshouBtn
+    local jsonDecodedDiaohuolist = nil
+    local jsonDecodedDiaohuosearchlist = nil
+    local server_diaohuolist= nil
+    local server_mendianlist= nil
+    local usercode = 34522487
+    local mendianlistData
+    local pagesize = 6 
+    local moreclientBtn
+    local kehuNum 
+    local pagesize2 = 6 
+    local kehuNum2
+    local isSousuo = 0
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        moreclientBtn=Sprite:findChild(rootSprite, 'moreclientBtn')
+        server_diaohuolist=Alias.urlServer..'mfix/getAll?page=1'
+        server_diaohuosearchlist=Alias.urlServer..'mfix/searchfix?'
+        server_mendianlist = Alias.urlServer.."store/getAll?userCode="..Config:get('username')
+        pagesize = 6;
+        server_diaohuolist1 = server_diaohuolist..'&pagesize='..pagesize..'&fixMan='..Config:get('username')
+        Http:request("fanhui_data", server_diaohuolist1, 101, {useCache=false})
+        Loading:show(rootSprite)
+        Http:startNetwork()
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+           local mendianlistShowNode = Sprite:findChild(rootSprite, 'mendianlistShowNode')
+           setAllShoworHide(mendianlistShowNode, 0)
+           local qianshouTypeSelectNode = Sprite:findChild(rootSprite, 'qianshouTypeSelectNode') 
+           setAllShoworHide(qianshouTypeSelectNode, 0)
+        elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if msg == 101 then
+            if Loading:isShow() then Loading:close() end
+            jsonDecodedDiaohuolist = Http:jsonDecode('fanhui_data')
+            local list = Sprite:findChild(rootSprite, 'listView1')
+            ListView:removeAllItems(list)
+            Log:write('11111111pqy:', jsonDecodedDiaohuolist)
+            kehuNum = tonumber(jsonDecodedDiaohuolist["Total"])
+            if (kehuNum == 0 ) then
+                Dialog:show("", "调货列表为空", "ok")
+                return
+            end
+            if kehuNum > pagesize then
+	            setAllShoworHide(moreclientBtn, 1)
+	            Sprite:setProperty(moreclientBtn, 'text', '点击查看更多')
+	            ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItemNode'), pagesize, 'loadListItem')
+            else
+                setAllShoworHide(moreclientBtn, 0)
+                --Sprite:setProperty(moreclientBtn, 'text', '已显示完整')
+                ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItemNode'), kehuNum, 'loadListItem')
+            end
+            ListView:adjust(list)
+        elseif msg == 102 then
+            if Loading:isShow() then Loading:close() end
+            mendianlistData = Http:jsonDecode('mendianResult')
+            Log:write("data:", mendianlistData)
+            if mendianlistData.Rows ~= "" then
+                --local mendianListview= Sprite:findChild(rootSprite, 'mendianListview')
+                --local param2 = "66, "..110*mendianlistData.Total..", 368, 320"
+                --Sprite:setProperty(mendianListview, 'rect', param2)
+		        setAllShoworHide(Sprite:findChild(rootSprite, 'mendianlistShowNode'), 1)
+		        local count = mendianlistData.Total
+		        local list = Sprite:findChild(rootSprite, 'mendianListview')
+		        local item = Sprite:findChild(rootSprite, 'mendianItemNode')
+		        ListView:removeAllItems(list)
+		        Log:write("count:    ", count)
+		        ListView:loadItem(list, item, count, 'loadmendianSelectItem')
+		        ListView:adjust(list)
+            end
+
+        elseif msg == 103 then -- 101请求的数据有更新
+	            if Loading:isShow() then Loading:close() end
+	            jsonDecodedDiaohuosearchlist = Http:jsonDecode('fanhui_data')
+	            Log:write('11111111pqy:', jsonDecodedDiaohuosearchlist)
+	            local kehuNum2 = tonumber(jsonDecodedDiaohuosearchlist["Total"])
+	            local list = Sprite:findChild(rootSprite, 'listView1')
+                ListView:removeAllItems(list)
+	            if (kehuNum2 == 0 ) then
+                    Dialog:show("", "没有搜索到调货记录", "ok")
+                    ListView:adjust(list)
+                    return
+                end
+                if kehuNum2 > pagesize2 then
+	                setAllShoworHide(moreclientBtn, 1)
+	                Sprite:setProperty(moreclientBtn, 'text', '点击查看更多')
+	                Log:write("========load1===="..pagesize2)
+                    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItemNode'), pagesize2, 'loadListItem2')
+                else
+                    Log:write("========load1===="..kehuNum2)
+	                setAllShoworHide(moreclientBtn, 0)
+	                --Sprite:setProperty(moreclientBtn, 'text', '已显示完整')
+	                ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItemNode'), kehuNum2, 'loadListItem2')
+                end
+                Log:write("========load1====")
+	            ListView:adjust(list)
+	            
+        elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back(true)
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+function moreBtnOnselect()   
+    Log:write('------55555555555555555555---------------'..kehuNum..pagesize)
+    if isSousuo == 0 then
+	    if kehuNum > pagesize and kehuNum > pagesize+6 then
+	        pagesize = pagesize + 6
+	        setAllShoworHide(moreclientBtn, 1)
+	    else 
+	        pagesize = kehuNum
+	        setAllShoworHide(moreclientBtn, 0)
+	    end
+	    server_diaohuolist2 = server_diaohuolist..'&pagesize='..pagesize..'&fixMan='..Config:get('username')
+	    Http:request('fanhui_data', server_diaohuolist2, 101, {useCache=false})    
+	    Loading:show(rootSprite)
+	else
+	    pagesize2 = pagesize2+6
+	    OnSearchButtonClicked()
+	end
+
+end
+    function mendianBtnOnSelect(sprite)
+        local btnData = Sprite:getData(sprite)
+        curmendianBtn = sprite
+        Http:request('mendianResult', server_mendianlist, 102, {useCache = false, method = 'post'})
+        Loading:show(rootSprite)
+    end
+    function hidemendianSelected(sprite)
+        setAllShoworHide(Sprite:findChild(rootSprite, 'mendianlistShowNode'), 0)
+    end
+    function mendianItemOnSelect(sprite)
+        local btnData = Sprite:getData(sprite)
+        local mendianLable = Sprite:findChild(curmendianBtn, 'mendianLable')
+        local index = ListView:getItemIndex(Sprite:getParent(sprite))
+        local value = mendianlistData['Rows'][index]
+        isSousuo = 1
+        pagesize2 = 6
+        Sprite:setProperty(curmendianBtn, 'data', btnData)
+        Log:write("cu123123123123",btnData)
+        Sprite:setProperty(mendianLable, 'text', value["storeName"])
+        
+        setAllShoworHide(Sprite:findChild(rootSprite, 'mendianlistShowNode'), 0)
+        local checkStatus1= Sprite:findChild(rootSprite, 'qsztBtn')
+        local btnData2 = Sprite:getData(checkStatus1)
+        if btnData2==""  then 
+            Dialog:show("", "请继续选择签收状态", "ok")
+            return
+        else
+	        checkStatus = btnData2
+	        local param=""
+	        param=param.."storein="..btnData.."&checkstatus="..checkStatus
+	        Http:request("fanhui_data", server_diaohuosearchlist..param, 103, {useCache=false})
+	        Log:write("+++++++++"..server_diaohuosearchlist..param);
+	        Loading:show(rootSprite)
+        end
+    end
+    
+    function loadmendianSelectItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 368, 72)
+        Sprite:setProperty(item, 'extendstyle', '0010')
+        --local button = Sprite:findChildByClass(item, 'button')
+        local value = mendianlistData['Rows'][index]
+        local storeName=Sprite:findChild(item, 'mendianItemBtn')
+        Sprite:setProperty(storeName, 'text', '    '..value["storeName"])
+        Sprite:setProperty(storeName, 'data', value["storeCode"])
+    end
+    --签收状态设置
+    function qsztBtnOnSelect(sprite)
+        local btnData = Sprite:getData(sprite)
+        curqianshouBtn = sprite
+        Sprite:setProperty(curqianshouBtn, 'data', btnData)
+        Log:write("qsqsqsqs123123123123",btnData)
+        setAllShoworHide(Sprite:findChild(rootSprite, 'qianshouTypeSelectNode'), 1)
+    end
+    function hideqianshouSelected(sprite)
+        setAllShoworHide(Sprite:findChild(rootSprite, 'qianshouTypeSelectNode'), 0)
+    end
+
+    function qianshouTypeOnSelect(sprite)
+        local qsData = Sprite:getData(sprite)
+        local qianshouText = Sprite:findChild(curqianshouBtn, 'qsztLable')
+        isSousuo = 1
+        pagesize2 = 6
+        Sprite:setProperty(curqianshouBtn, 'data', qsData)        
+        if qsData == '1' then
+            --签收
+            Sprite:setProperty(qianshouText, 'text', '已签收')
+            elseif qsData == '0' then
+            --拒签
+            Sprite:setProperty(qianshouText, 'text', '未签收')
+        end
+        setAllShoworHide(Sprite:findChild(rootSprite, 'qianshouTypeSelectNode'), 0)
+
+        local mendianxuanxiang = Sprite:findChild(rootSprite, 'mendianBtn')
+        local btnData1 = Sprite:getData(mendianxuanxiang)
+        local checkStatus1= Sprite:findChild(rootSprite, 'qsztBtn')
+        local btnData2 = Sprite:getData(checkStatus1)
+        checkStatus = btnData2
+        local param=""
+        param=param.."storein="..btnData1.."&checkstatus="..checkStatus
+        Http:request("fanhui_data", server_diaohuosearchlist..param, 103, {useCache=false})
+        Log:write("+++++++++"..server_diaohuosearchlist..param);
+        Loading:show(rootSprite)
+    end
+    
+
+    --@brief 请求搜索到货列表
+    function requestDaohuoSearchList(tag, num, usercode,checkStatus,storeCode)
+        local requestURL = string.format('http://120.209.131.143:9000/mobileSale/itemIn/search?userCode=%s&checkStatus=%s&instore=%s',usercode,checkStatus,storeCode)
+        Log:write("++++++++++++++requestURL:", requestURL)
+        Http:request(tag, server_diaohuolist..Config:get('username'), num, {useCache=false})
+        Log:write("+++++++++requst success!");
+    end
+    -- @brief 返回按钮处理
+    function doBack()
+        Scene:back(true)
+    end
+    
+    function goDiaohuoAdd()
+        local noticeDetailHandler = Reg:create("diaohuoshenqingData")
+	    Reg:setString(noticeDetailHandler, 'diaorubiaoji', "")
+	    Reg:setString(noticeDetailHandler, 'diaochubiaoji', "")
+	    Reg:setString(noticeDetailHandler, 'shenherenbiaoji', "")
+	    Reg:setString(noticeDetailHandler, 'shangpinbiaoji', "")
+        Scene:setReturn(Alias.diaohuolist, Alias.diaohuoshenqing)
+        Scene:go(Alias.diaohuoshenqing, true)
+    end
+    -- @brief 详情展示
+    function loadListItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 96)
+        local diaorudoorName = Sprite:findChild(item, 'diaorudoorName')
+        local diaochudoorName = Sprite:findChild(item, 'diaochudoorName')
+        local diaohuodan = Sprite:findChild(item, 'diaohuodan')
+        local qsState=Sprite:findChild(item, 'qsState')
+        local value = jsonDecodedDiaohuolist['Rows'][index]
+        Sprite:setProperty(diaorudoorName, 'text', value[1])
+        Sprite:setProperty(diaochudoorName, 'text', value[2])
+        Sprite:setProperty(diaohuodan, 'text', value[0]["fixCode"])
+        if value[0]["approveFlag"]~="0" and value[0]["approveFlag"]~=nil then
+            Sprite:setProperty(qsState, 'text', '已签到收货')
+        else
+            Sprite:setProperty(qsState, 'text', '未签到收货')
+        end
+    end
+    
+    function loadListItem2(list, item, index)
+        Log:write("========loadListItem2====")
+        Sprite:setRect(item, 0, 0, 480, 96)
+        local diaorudoorName = Sprite:findChild(item, 'diaorudoorName')
+        local diaochudoorName = Sprite:findChild(item, 'diaochudoorName')
+        local diaohuodan = Sprite:findChild(item, 'diaohuodan')
+        local qsState=Sprite:findChild(item, 'qsState')
+        local value = jsonDecodedDiaohuosearchlist['Rows'][index]
+        Sprite:setProperty(diaorudoorName, 'text', value[1])
+        Sprite:setProperty(diaochudoorName, 'text', value[2])
+        Sprite:setProperty(diaohuodan, 'text', value[0]["fixCode"])
+        Log:write("========loadListItem3====")
+        if value[0]["approveFlag"]~="0" and value[0]["approveFlag"]~=nil then
+            Sprite:setProperty(qsState, 'text', '已签到收货')
+            Sprite:setProperty(qsState, 'data', '1')
+        else
+            Sprite:setProperty(qsState, 'text', '未签到收货')
+            Sprite:setProperty(qsState, 'data', '0')
+        end
+    end
+    
+    function itemOnSelect(sprite)
+        -- 设置要发送到到货详情的数据
+        Log:write("------12312313131222221-----")
+        local diaohuodan = Sprite:findChild(sprite, 'diaohuodan')
+        -- 创建数据仓库，并检查列表项ID在配置文件中的配置
+        local noticeDetailHandler = Reg:create("diaohuoDetailData")
+        -- 设置要发送到到货详情的数据
+        Log:write("------12312313131222221-----"..diaohuodan)
+        Reg:setString(noticeDetailHandler, 'diaohuodanId', Sprite:getText(Sprite:findChild(sprite, 'diaohuodan')))
+        Reg:setString(noticeDetailHandler, 'diaorudoorName', Sprite:getText(Sprite:findChild(sprite, 'diaorudoorName')))
+        Reg:setString(noticeDetailHandler, 'diaochudoorName', Sprite:getText(Sprite:findChild(sprite, 'diaochudoorName')))
+        Reg:setString(noticeDetailHandler, 'qianshouzhuangtai', Sprite:getText(Sprite:findChild(sprite, 'qsState')))
+        -- 进行页面跳转
+         local qianshouzhuangtai = Sprite:findChild(sprite, 'qsState')
+         
+         local qs=Sprite:getText(qianshouzhuangtai)
+         Log:write("------12312313131222221-----"..qs)
+         if qs=="未签到收货" then
+            Scene:setReturn(Alias.diaohuolist, Alias.diaohuodetail)
+            Scene:go(Alias.diaohuodetail,true)
+         end
+    end
+
+    --@brief 点击搜索按钮消息处理函数
+    function OnSearchButtonClicked(sprite)
+        -- 获取签收状态
+        local checkStatus1= Sprite:findChild(rootSprite, 'qsztBtn')
+        local btnData = Sprite:getData(checkStatus1)
+        local mendianxuanxiang = Sprite:findChild(rootSprite, 'mendianBtn')
+        local btnData2 = Sprite:getData(mendianxuanxiang)
+        if btnData==""  then 
+            Dialog:show("", "请至少选择签收状态", "ok")
+            return
+        end
+        Log:write("btnDatabtnDatabtnData",btnData)
+        --门店ID
+        --local store=Sprite:findChild(rootSprite, 'errorBtn')
+        --local storeCode=Sprite:getData(store)
+        --Log:write("storeDatastoreDatastoreDatastoreDatastoreDatae",storeCode)
+        if btnData == '1' then
+            checkStatus = "1"
+        elseif btnData == '0' then
+            checkStatus = "0"
+        end
+        -- 请求搜索
+        local param=""
+        param=param.."storein="..btnData2.."&checkstatus="..checkStatus
+        Http:request("fanhui_data", server_diaohuosearchlist..param, 103, {useCache=false})
+        Log:write("+++++++++"..server_diaohuosearchlist..param);
+        Loading:show(rootSprite)
+    end
+]]>
+</root>

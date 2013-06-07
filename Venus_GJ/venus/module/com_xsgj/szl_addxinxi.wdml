@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+			<!-- 设置背景 -->
+			<image name="title" rect="0,0,480,800" border="false"
+            src="file://pics/main_bg.png" style="autosize" extendstyle="1111"></image>
+
+			<!-- 信息头部 -->
+			<node rect="0,0,480,80" extendstyle="1111" border="0" >
+                <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png"
+                    extendstyle="1111" style="autosize">
+                </image>
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="9,14,52,52" OnSelect="doBack" border="false"
+                    normal="src:file://pics/icon_back_d.png;"
+                    sel="src:file://pics/icon_back_s.png;"  style="autosize"
+                    extendstyle="1111">
+                </button>
+                <image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png"
+                        extendstyle="1111">
+                </image>
+                <!-- 二级菜单标题 -->
+                <scrolltext name="title" rect="100,0,280,80" text="新增信息" font-family="微软雅黑" 
+                    extendstyle="1111" font-size="32" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2"></scrolltext>
+                <!--新增 -->
+                <image name="normal" rect="410,0,2,80" src="file://pics/sub_top_line.png"
+                         extendstyle="1111">
+                </image>
+                <button name="addBtn" rect="419,14,52,52" OnSelect="submitOnSelect" border="false"
+                    normal="src:file://pics/icon_submit_d.png;" 
+                    sel="src:file://pics/icon_submit_s.png;" style="autosize"
+                    extendstyle="1111">
+                </button>
+          </node>		
+		 </node>
+		 <!-- 类型 -->
+          <label rect="15,85,200,45" text="信息类型" color="#000000"  font-family="bold" 
+                extendstyle="1111" style="autosize" h-align="left" v-align="center" font-size="28">  
+          </label>
+          <button name="errorBtn" rect="10,130,450,71" border="false"  text="" color="#ffffff" OnSelect="errorOnSelect"
+                  normal="src:file://pics/input_select_btn_d.png;style:sudoku-auto;sudoku:15,15,84,15"
+                  sel="src:file://pics/input_select_btn_s.png;style:sudoku-auto;sudoku:15,15,84,15"
+                  extendstyle="1111" data="01"> 
+                  <label name="errorTypeName" rect="20,10,280,50" text="请选择信息类型" font-family="bold"
+                         color="#5d5c5c" extendstyle="1111" style="autosize" h-align="left" v-align="center" font-size="22">
+                  </label>
+          </button>
+          <!-- 信息内容 -->
+          <node name="content" rect="15,210,460,200" extendstyle="1111">
+              <label rect="0,0,200,45" text="信息内容" color="#000000" font-family="bold" 
+                    extendstyle="1111" style="autosize" h-align="left" v-align="center" font-size="28">
+              </label>
+              <button rect="0,50,450,200" 
+                    normal="src:file://pics/text_input.png;style:sudoku-auto;sudoku:20,20,40,20"
+                    extendstyle="1111">
+              </button>
+              <edit name="content1" rect="15,65,430,165" font-size="22" OnTextChanged="editOnTextChanged"
+                    font-family='bold' text="" color="#303030" extendstyle="1111"
+                    line-height='33' multiline="true" style="autosize" h-align="left"
+                    v-align="top">
+                    <label name="hideLabel" rect="5,0,400,125" text="请输入信息内容" color="#c0c0c0"
+                           extendstyle="1111" style="autosize" h-align="left" v-align="top" 
+                           font-size="22" />
+              </edit>
+         </node>
+         <!-- 信息类型 下拉框-->
+         <node name="errorTypeSelectNode" rect="0,0,480,800" visible="false"
+                enable="false">
+                <button name="bthide" rect="0,0,480,800" border="false" text=""
+                    color="#ffffff" OnSelect="hideErrorSelected">
+                </button>
+                <node rect="66,215,368,60" extendstyle="1111"  border="false">
+                      <image rect="0,0,368,60" src="file://pics/Dialogs/top.png"  style="autosize" extendstyle="1111" />
+                      <image rect="20,20,31,32" src="file://pics/Dialogs/icon_arrow.png"  style="autosize" extendstyle="1111" />
+                      <label rect="50,6,120,60" border="false" color="#FFFFFF"
+                       text="选择类型" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                </node>   
+                 <node rect="66,275,368,190" extendstyle="1111" border="false">
+                        <image rect="0,0,368,190" src="file://pics/Dialogs/center.png"  style="autosize" extendstyle="1111" />
+                        <button name="btnyibaifang" rect="12,0,342,61" text="    投诉建议" h-align="left"
+                            color="#ffffff" extendstyle="1111" OnSelect="errorTypeOnSelect"
+                            normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                            sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+                            font-family="微软雅黑" font-size="24" data="01" />
+                        <image rect="0,61,368,2" src="file://pics/Dialogs/line.png"  style="autosize" extendstyle="1111" />
+                        <button name="btnweibaifang" rect="12,63,342,61" text="    竞品信息" h-align="left"
+                            color="#ffffff" extendstyle="1111" OnSelect="errorTypeOnSelect"
+                            normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                            sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+                            font-family="微软雅黑" font-size="24" data="02" />
+                        <image rect="0,124,368,2" src="file://pics/Dialogs/line.png"  style="autosize" extendstyle="1111" />
+                        <button name="btnyanqibaifang" rect="12,126,342,61" text="    本品信息" h-align="left"
+                            color="#ffffff" extendstyle="1111" OnSelect="errorTypeOnSelect"
+                            normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                            sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+                            font-family="微软雅黑" font-size="24" data="03" />
+                </node>
+                <image rect="66,465,368,21" src="file://pics/Dialogs/bottom.png"  style="autosize" extendstyle="1111"/>
+         </node>
+        <node name="imageListItem" rect="0,480,480,98" extendstyle="1111" type="fallow">
+                <shadow rect="0,0,480,98"  alpha="150" color="#BEE3FF"  extendstyle="1111"/>
+                <button name="pic1" rect="20,0,98,98" border="false" enable="false" visible="false"
+                    color="#ffffff" OnSelect="topic" extendstyle="1111" style="autosize">
+                    <button name='delNode' rect="71,0,27,26" OnSelect="delPic" normal="src:file://pics/pic_delete_d.png;"  
+                    sel="src:file://pics/pic_delete_s.png;" data="pic1"/>
+                </button>
+                <button name="pic2" rect="125,0,98,98"  border="false" enable="false" visible="false"
+                    color="#ffffff" OnSelect="topic" extendstyle="1111" style="autosize">
+                    <button name='delNode' rect="71,0,27,26" OnSelect="delPic" normal="src:file://pics/pic_delete_d.png;"  
+                    sel="src:file://pics/pic_delete_s.png;" data="pic2"/>
+                </button>
+                <button name="pic3" rect="230,0,98,98"  border="false" enable="false" visible="false"
+                    color="#ffffff" OnSelect="topic" extendstyle="1111" style="autosize">
+                    <button name='delNode' rect="71,0,27,26" OnSelect="delPic" normal="src:file://pics/pic_delete_d.png;"  
+                    sel="src:file://pics/pic_delete_s.png;" data="pic3"/>
+                </button>
+                <button name="pic4" rect="335,0,98,98"  border="false" enable="false" visible="false"
+                    color="#ffffff" OnSelect="topic" extendstyle="1111" style="autosize">
+                    <button name='delNode' rect="71,0,27,26" OnSelect="delPic" normal="src:file://pics/pic_delete_d.png;"  
+                    sel="src:file://pics/pic_delete_s.png;" data="pic4"/>
+                </button>
+                <button name="addPic" rect="20,0,98,98" OnSelect="btnCamera_Click" border="false"
+                    normal="src:file://pics/addpic_d.png;" sel="src:file://pics/addpic_s.png;" 
+                    style="autosize" extendstyle="1111"/>
+          </node>
+         <!-- 信息提交成功标识 -->
+         <image name="success" border="false" visible="false" rect="68,730,344,58" src="file://pics/sucess.png"
+                style="autosize" extendstyle="1111">
+                <label name="successxinxi" rect="62,5,220,48" h-align="center" v-align="center" text="信息提交成功!" 
+                       color="#FFFFFF"  style="autosize" font-size="18" extendstyle="1111">
+                </label>
+         </image>
+
+	</body>
+    <![CDATA[
+
+    require 'com_xsgj.common.framework'
+    require 'framework.map'
+    require 'framework.upload'
+    require 'framework.umsagent'
+    local rootSprite
+    local server = Alias.urlServer..'news/mfeedBack/add?'
+    local type1
+    local usercode=Config:get('username')
+    local longitude
+    local piclist
+    local picitem
+    local curpic
+    local imgdata={}
+    local allimg=''
+   
+    local up_url =Alias.urlServer..'upload/UGC_GetUploadUrl'
+    local curitm
+    local nilNode
+    local nilImg
+    local addPic=nil
+    local n
+    
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        addPic= Sprite:findChild(rootSprite, 'addPic')
+        imgdata = {pic1='',
+            pic2='',
+            pic3='',
+            pic4=''
+        }
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            UmsAgent:OnActivate(string.match(Alias.addxinxi, 'MODULE:\\(.*)'), "新增信息")
+            elseif msg == MSG_DEACTIVATE then
+            UmsAgent:OnDeactivate()
+       
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if msg == 101 then
+           if Loading:isShow() then Loading:close() end
+           UmsAgent:onLoadFinish()
+           local xinxiData = Http:jsonDecode('addxinxi')
+           Log:write("xinxiData.record = "..xinxiData.record)
+           local successNode = Sprite:findChild(rootSprite, "success")
+           Sprite:setProperty(Sprite:findChild(successNode,'successxinxi'),'text','信息提交成功!')
+           Sprite:setVisible(successNode, 1)
+           Timer:set(1,2000,'doBack')
+        elseif msg>=504 and msg<=600 then--返回上传路径，并启动上传
+    		  local ii=(msg-504);
+    		  local uploadData = Http:xmlDecode('upload_url'..ii, 'RESULT')
+          Log:write("网达中间件图片上传返回数据uploadData: ", updateData)
+    		  local url = uploadData.URL
+          Log:write('网达中间件图片上传返回URL : ', url)
+          Log:write('豆豆1')
+    		  local param = uploadData.PARAM
+    		  if param then
+    		      param = param .. '&'
+    		  else
+    		      param = ''
+    		  end
+          local tmpSplitImage = Split(param,'&')
+          if string.len(allimg)>0 then
+              allimg=allimg..','..string.sub(tmpSplitImage[1],15,-1) 
+          else
+              allimg=string.sub(tmpSplitImage[1],15,-1)   
+          end
+          Log:write("allimg =========== ",allimg)
+          Log:write('豆豆2')
+          Log:write("imageData =  ",imgdata)
+          Log:write("ii =  ",ii)
+          -- local fname=string.sub(value,lastIndexof( value,'/')+1,string.len(value)-4)
+          local fname = string.sub(imgdata['pic'..ii],lastIndexof( imgdata['pic'..ii],'/')+1,string.len(imgdata['pic'..ii])-4)
+          Log:write("fname = ",fname)
+          local poststr = 'id=111' .. '&markid=&interfaceMainType=2&usercode=' .. Config:get('username') .. '&uploadFileName=' .. fname .. '.jpg'
+          Log:write("参数 param..poststr = ",param..poststr)
+          local result = Upload:append(url, param..poststr,imgdata['pic'..ii], fname .. '.jpg', 'test', 'jpg')
+          Log:write("result = ",result)
+          -- if imgdata['pic'..ii+1] == '' or imgdata['pic'..ii+1] == nil then 
+          --   subform()
+          -- end 
+          imgdata['pic'..ii]=''
+          Log:write("isok之前的imgdata为：",imgdata)
+          isok()
+        elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+        elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+        elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    function myfunc()
+          local successNode = Sprite:findChild(rootSprite, "success")
+          Sprite:setVisible(successNode,0) 
+    end
+    function errorOnSelect(sprite)
+          local btnData = Sprite:getData(sprite)
+          curErrorBtn = sprite
+          setAllShoworHide(Sprite:findChild(rootSprite, 'errorTypeSelectNode'), 1)
+   end
+   function hideErrorSelected(sprite)
+          setAllShoworHide(Sprite:findChild(rootSprite, 'errorTypeSelectNode'), 0)
+   end
+   function errorTypeOnSelect(sprite)
+        
+          local btnData = Sprite:getData(sprite)
+          local errorText = Sprite:findChild(curErrorBtn, 'errorTypeName')
+          Sprite:setProperty(errorText, 'color', '#0')
+          Sprite:setProperty(curErrorBtn, 'data', btnData)
+          if btnData == '01' then
+              --投诉建议
+              Sprite:setProperty(errorText, 'text', '投诉建议')
+              type1='1'
+              elseif btnData == '02' then
+              --竞品
+              Sprite:setProperty(errorText, 'text', '竞品信息')
+              type1='2'
+              
+              elseif btnData == '03' then
+              --其它
+               Sprite:setProperty(errorText, 'text', '本品信息')
+               type1='3'
+               
+          end
+          --@doChangeListHeight(curErrorBtn)
+          setAllShoworHide(Sprite:findChild(rootSprite, 'errorTypeSelectNode'), 0)
+    end
+    function submitOnSelect(sprite)
+        Loading:show(rootSprite)
+        local i=1
+        for key, value in pairs(imgdata) do
+            if value~=nil and value~='' then
+                n=tonumber(string.sub(key,4,-1)) 
+                Log:write("上传第"..n.."张图片！")
+                local fname=string.sub(value,lastIndexof( value,'/')+1,string.len(value)-4)
+                Log:write("图片上传第一次请求 fname = ",fname)
+                local param = 'FILE_NAME='..fname..'&C_TYPE=jpg&C_LEN=' .. IO:fileSize(value)
+                Http:request('upload_url'..n, up_url, 504+n, {useCache = false, method = 'post', postData= param})  
+                i=i+1
+            end
+        end
+        if i==1 then
+            subform()
+        end
+    end
+    function doBack()
+        Scene:back(true)
+    end
+    ---开启拍照
+    function btnCamera_Click(sprite)
+        local fileName = os.time()
+        --onCameraDialog('Img338655873', 'jpg')
+        local result = System:openCamera('onCameraDialog',  'file://image/' ..fileName.. '.jpg' , 'jpg')
+        if result == 0 then
+          Dialog:show('提示', '相机打开失败!', 'ok')
+          return 1
+        end
+    end
+    ---获取照片
+    function onCameraDialog(photoPath, photoType)
+        -- 添加图片压缩支持
+        local tmpSplitArray = Split(photoPath,'%.')
+        local dest = tmpSplitArray[1] .. 'temp' .. System:getTickTime() .. '.jpg'
+        Log:write('目标文件路径为:'..dest)
+        local ret = ScaleImageAsJpg(photoPath, dest, 480, 800, 0)
+        local r=nil;
+        if ret == 1 then
+            r= dest
+            Log:write('图片压缩成功，压缩后的图片位置为:'..dest)
+        else
+            r=photoPath
+            Log:write('警告：图片压缩失败，使用未压缩的图片:'..photoPath)
+        end
+        Log:write("第一次imgdata = ",imgdata)
+        for i=1,4 do 
+          if imgdata['pic'..i] == nil or imgdata['pic'..i] == '' then
+              imgdata['pic'..i]=r
+              Log:write("imgdata['pic'..i] = ",imgdata['pic'..i])
+              break
+          end 
+        end 
+         Log:write("第二次imgdata = ",imgdata)
+         reloadImages();
+    end
+     --重新显示图片列表
+    function reloadImages()
+        local j=20;
+        for key, value in pairs(imgdata) do
+            if value~=nil and value~='' then
+                local p=Sprite:findChild(rootSprite, key)
+                Sprite:setRect(p, j, 0, 98, 98);
+                Sprite:setProperty(p, "normal", 'src:'..value)
+                Sprite:setProperty(p, "data", value)
+            Sprite:setVisible(p,1)
+            Sprite:setEnable(p,1)
+                j=j+105;
+            end
+        end
+        if j>350 then
+            Sprite:setVisible(addPic,0)
+        else
+            Sprite:setVisible(addPic,1)
+        end
+        Sprite:setRect(addPic, j, 0, 98, 98);
+    end
+    --删除图片
+    function delPic(sprite)
+        local key=Sprite:getData(sprite);
+        imgdata[key]='';
+        local p=Sprite:findChild(rootSprite, key);
+        Sprite:setVisible(p,0)
+        Sprite:setEnable(p,0)
+        reloadImages()
+    end
+    --上传表单
+    function subform()
+        -- for key, value in pairs(imgdata) do
+        --    if value~=nil or value~='' then
+        --       imgdata[key] = ''
+        --    end
+        -- end
+         --上传结束就跳转
+        Log:write("上传图片url ：",allimg)
+        local content1 = Sprite:getText(Sprite:findChild(rootSprite, 'content1'))
+        Log:write("信息反馈类型：",type1)
+        if type1 == nil then
+           -- Dialog:show('提示', '请选择信息类型', 'ok')
+           local successNode = Sprite:findChild(rootSprite, "success")
+           Sprite:setProperty(Sprite:findChild(successNode,'successxinxi'),'text','请选择信息类型！')
+           Sprite:setVisible(successNode,1)
+           Timer:set(1,2000,'myfunc')
+           return
+        else
+        if content1 == '' or content1 == nil then
+           -- Dialog:show('提示', '请填写信息反馈内容', 'ok')
+           local successNode = Sprite:findChild(rootSprite, "success")
+           Sprite:setProperty(Sprite:findChild(successNode,'successxinxi'),'text','请填写信息采集内容！')
+           Sprite:setVisible(successNode,1)
+           Timer:set(1,2000,'myfunc')
+           return   
+        else
+            UmsAgent:onLoadStart()
+            local param1 = 'userCode='..Config:get('username') 
+                ..'&newsSort='..type1
+                ..'&content='..content1
+                
+                ..'&imageAddr='..allimg
+                ..'&title='
+                ..'&imageExplain='
+            Log:write("url = "..server..param1)
+            Http:request('addxinxi', server, 101,{useCache = false, method = 'post', postData= param1})
+            
+        end
+     end
+        
+    end
+    --成功上传
+    function isok()
+        --图片都已添加到队列
+        Log:write("isokisokisok")
+        for key, value in pairs(imgdata) do
+           if value~='' then
+            Log:write("键值不为空")
+            Log:write("isok函数中的imgdata为：",imgdata)
+            Log:write("此时的键为：",key)
+            Log:write("此时的键值为：",value)
+              return
+           end
+        end
+        Log:write("是否循环完毕")
+        subform()
+    end
+    --查找最后一个字符串
+    function lastIndexof(s,tag)
+        local index=-1
+        Log:write(tag)
+        while true do
+        local i = string.find(s,tag,index+1)
+        if i == nil then
+           return index
+        end
+          index = i
+        end
+    end
+    --显示原图
+    function topic(sprite)
+        --创建数据仓库
+        local yuantuNode = Sprite:findChild(sprite,'delNode')
+        local igsrc=Sprite:getData(yuantuNode)
+        Log:write("显示原图时此节点data值：",igsrc)
+        local reg=Reg:create("PicReg")
+        Reg:setString(reg, "pic", imgdata[igsrc])
+        Log:write("这张图片的url地址为：",imgdata[igsrc])
+        Scene:setReturn(Alias.addxinxi, Alias.orignImg)
+        Scene:go(Alias.orignImg,true)
+    end
+    function editOnTextChanged(sprite,ncount)
+        local hideLabel = Sprite:findChild(sprite, 'hideLabel')
+        if ncount > 0 then
+            setAllShoworHide(hideLabel, 0)
+        else
+            setAllShoworHide(hideLabel, 1)
+        end
+    end 
+]]>
+</root>

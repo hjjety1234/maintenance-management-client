@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置背景 -->
+            <image name="title" rect="0,0,480,800" border="false"
+                src="file://pics/main_bg.png" style="autosize" extendstyle="1111"></image>
+            <!-- 标题开始 -->    
+            <node rect="0,0,480,80" extendstyle="1111" border="0" >
+                <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png"
+                    extendstyle="1111" style="autosize">
+                </image>
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="9,14,52,52" OnSelect="goBack" border="false"
+                    normal="src:file://pics/icon_home_d.png;"
+                    sel="src:file://pics/icon_home_s.png;"  style="autosize"
+                    extendstyle="1111">
+                </button>
+                <image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png"
+                        extendstyle="1111">
+                </image>
+                <!-- 二级菜单标题 -->
+                <scrolltext name="title" rect="100,0,280,70" text="我的客户" font-family="微软雅黑" 
+                    extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2"></scrolltext>
+                <!--新增 -->
+                <image name="normal" rect="410,0,2,80" src="file://pics/sub_top_line.png"
+                         extendstyle="1111">
+                </image>
+                <button name="addBtn" rect="419,14,52,52" OnSelect="goAdd" border="false"
+                    normal="src:file://pics/icon_add_d.png;" visible="true" enable="true"
+                    sel="src:file://pics/icon_add_s.png;" style="autosize"
+                    extendstyle="1111"></button>
+            </node>
+            <!-- 标题结束 -->
+            
+
+            <!-- 下面的搜索框 -->
+            <node rect="0,80,480,80" extendstyle="1111" border="false" >
+               <image rect="0,0,480,80" src="file://pics/search_bg.png" style="autosize" extendstyle="1111"/>
+               <node name="sousuoNode" rect="5,10,365,58" extendstyle="1111">
+                   <image rect="10,0,380,56" src="file://pics/input_search.png"
+                    sudoku="50,10,50,0" style="sudoku-auto" extendstyle="1111">
+                    </image>
+                    <edit name="sousuoEdit" rect="50,3,310,55" border="false" text="请输入关键字" 
+                               OnLostFocus="OnsousuoInit" OnSetFocus="Onsousuofocus"
+                               extendstyle="1111" style="autosize" h-align="left" color="#8f8e8e" 
+                               v-align="center" font-family="微软雅黑" font-size="28">
+                     </edit>
+                </node>
+                <button name="searchBtn" rect="410,20,40,40" border="false"
+                    normal="src:file://pics/button_search_d.png;"
+                    sel="src:file://pics/button_search_s.png;" style="autosize"
+                    OnSelect="searchOnSelect" extendstyle="1111" />
+            </node>
+            
+            <!-- 信息列表视图  -->
+            <node name="listViewNode" rect="0,158,480,640" extendstyle="1111">
+                <listview name="listView1" rect="0,0,480,576" extendstyle="1111"
+                    border="false" visible="true" >
+                </listview>
+                <button name="moreclientBtn" rect="0,576,480,64" border="false" text="点击查看更多" color="#666666" OnSelect="moreclientBtnOnselect" 
+                    enable="false" visible="false" v-align="center" h-align="center"  font-family="微软雅黑" font-size="24" extendstyle="1511"/>
+            </node>
+            
+            <!-- 信息列表项  --> 
+            <node name="listItem1" rect="0,156,480,96" border="true"
+                visible="false" enable="false" active="false" extendstyle="1111">
+                <button name="newsitemBtn" rect="0,0,480,96" OnSelect="itemOnSelect"
+                    normal="node:normal" sel="node:select" style="autosize" extendstyle="1111" >
+                    <node name="normal" extendstyle="1177" rect="0,0,480,96">
+                        <image rect="0,0,480,94" extendstyle="1177"
+                            src="file://pics/list_news_s.jpg" style="autosize" />  line2
+                        <image rect="0,94,480,2" extendstyle="1177"
+                            src="file://pics/line2.png" style="autosize" />
+                        <label name="clientCodeLabel" rect="30,50,70,35" border="false"  text="" visible="false" enable="false" ></label>
+                        <label name="departmentLabel" rect="30,50,70,35" border="false"  text="" visible="false" enable="false" ></label>                            
+	                    <scrolltext name="kehumingcheng" rect="30,5,300,45"
+	                        border="false" h-align="left" v-align="center" color="#000000"
+	                        font-family="微软雅黑" text="" font-size="28" scroll="true" step="4"
+	                        extendstyle="1111"></scrolltext>
+	                    <label name="lianxiren" rect="30,50,70,35" border="false"
+	                        font-family="微软雅黑" text="" h-align="left" v-align="center" color="#666666"
+	                        font-size="25" extendstyle="1111"></label>
+	                    <label name="mendiandizhi" rect="120,50,280,35" border="false"
+	                        font-family="微软雅黑" text="" h-align="left" v-align="center" color="#666666"
+	                        font-size="25" extendstyle="1111"></label>  
+                    </node>
+                    <node name="select" extendstyle="1177" rect="0,0,480,96">
+                        <image rect="0,0,480,94" extendstyle="1177"
+                            src="file://pics/list_news_d.jpg" sudoku="15,15,15,15" style="autosize" />
+                        <image rect="0,94,480,2" extendstyle="1177"
+                            src="file://pics/line2.png" style="autosize" />
+                        <scrolltext name="kehumingcheng2" rect="30,5,300,45"
+                            border="false" h-align="left" v-align="center" color="#ffffff"
+                            font-family="微软雅黑" text="" font-size="28" scroll="true" step="4"
+                            extendstyle="1111"></scrolltext>
+                        <label name="lianxiren2" rect="30,50,70,35" border="false"
+                            font-family="微软雅黑" text="" h-align="left" v-align="center" color="#ffffff"
+                            font-size="25" extendstyle="1111"></label>
+                        <label name="mendiandizhi2" rect="120,50,280,35" border="false"
+                            font-family="微软雅黑" text="" h-align="left" v-align="center" color="#ffffff"
+                            font-size="25" extendstyle="1111"></label>
+                    </node>
+                </button>
+            </node>
+                              
+        </node>
+    </body>
+    <![CDATA[
+
+require('com_xsgj.common.framework')
+require('com_xsgj.common.map')
+local rootSprite
+local moreclientBtn
+local kehulistData = nil
+local kehuNum 
+local curpage
+local pagesize = 6 
+local flag 
+local server_kehulist=Alias.urlServer..'myClient/getAll?page=1&userName='..Config:get('username')
+
+local ItemBtn  --被选中的ItemBtn
+local sltData
+local keyword 
+
+local latitude =nil
+local longitude =nil
+local observer
+--local value = nil
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    moreclientBtn=Sprite:findChild(rootSprite, 'moreclientBtn')
+    curpage = 1
+    pagesize = 6 
+    kehuNum = 0
+    keyword = ""
+    server_kehulist1 = server_kehulist..'&pagesize='..pagesize..'&keyword='
+    Log:write('222222222',server_kehulist1)
+    Http:request('kehulist_data', server_kehulist1, 101, {useCache=false})  
+    Log:write('333333333',kehulist_data)
+    Loading:show(rootSprite)
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        initView()
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then  
+        if Loading:isShow() then Loading:close() end 
+        -- 删除原有列表项
+        local list = Sprite:findChild(rootSprite, 'listView1')
+        ListView:removeAllItems(list)
+        kehulistData = Http:jsonDecode('kehulist_data')
+         Log:write('111111111111111111',kehulistData)
+        if (kehulistData["Total"] == '' or kehulistData["Total"] == '0') then
+            Dialog:show("", "无客户记录", "ok")
+            return
+        end
+        kehuNum = kehulistData["Total"]
+        if kehuNum > pagesize then
+           setAllShoworHide(moreclientBtn, 1)
+           --Sprite:setProperty(moreclientBtn, 'text', '点击查看更多')
+           ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem1'), pagesize, 'loadkehuListItem')
+        else
+           setAllShoworHide(moreclientBtn, 0)
+           --Sprite:setProperty(moreclientBtn, 'text', '我的客户已显示完全')
+           ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem1'), kehuNum, 'loadkehuListItem')
+        end
+        -- 加载新的列表项
+        ListView:adjust(list)
+    elseif msg == 102 then -- shanchu 
+        
+    elseif msg == 103 then -- shanchu
+
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back(true)
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function myfunc()
+
+end
+
+function moreclientBtnOnselect()   
+    Log:write('------55555555555555555555-----------'..kehuNum..'----'..pagesize)
+    if kehuNum > pagesize and kehuNum > pagesize+6 then
+        pagesize = pagesize + 6
+        setAllShoworHide(moreclientBtn, 1)
+    else 
+        pagesize = kehuNum
+        setAllShoworHide(moreclientBtn, 0)
+    end
+    
+    if keyword=='' then
+        server_kehulist2 = server_kehulist..'&pagesize='..pagesize..'&keyword='
+    else 
+        server_kehulist2 = server_kehulist..'&pagesize='..pagesize..'&keyword='..keyword
+    end
+    
+    Http:request('kehulist_data', server_kehulist2, 101, {useCache=false})    
+    Loading:show(rootSprite)
+end
+
+function goBack()
+    --Scene:back(true)
+    Scene:back()
+end
+
+function goAdd()
+    Scene:setReturn(Alias.kehuguanli, Alias.xinzengkehu)
+    Scene:go(Alias.xinzengkehu, true)
+end
+
+function loadkehuListItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 96)
+        Log:write('22222222222:', index)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        -- 获取要创建的列表项Sprite
+        local clientcode = Sprite:findChild(item, 'clientcode')
+        local kehumingcheng = Sprite:findChild(item, 'kehumingcheng')
+        local lianxiren = Sprite:findChild(item, 'lianxiren')
+        local mendiandizhi = Sprite:findChild(item, 'mendiandizhi')
+        local kehumingcheng2 = Sprite:findChild(item, 'kehumingcheng2')
+        local lianxiren2 = Sprite:findChild(item, 'lianxiren2')
+        local mendiandizhi2 = Sprite:findChild(item, 'mendiandizhi2')
+        local clientCodeLabel = Sprite:findChild(item, 'clientCodeLabel')
+        local departmentLabel = Sprite:findChild(item, 'departmentLabel')
+        -- 设置列表项的内容      clientCodeLabel
+        if (kehulistData ~= nil and kehulistData['Rows'] ~= nil) then
+            Log:write('******'..index);
+            local value = kehulistData['Rows'][index]
+            if value ~= nil then
+		        Sprite:setProperty(kehumingcheng, 'text', value["client_name"])
+		        Sprite:setProperty(lianxiren, 'text', value["client_contacter"])
+		        Sprite:setProperty(mendiandizhi, 'text', value["client_addr"])
+		        Sprite:setProperty(kehumingcheng2, 'text', value["client_name"])
+		        Sprite:setProperty(lianxiren2, 'text', value["client_contacter"])
+		        Sprite:setProperty(mendiandizhi2, 'text', value["client_addr"])
+		        Sprite:setProperty(clientCodeLabel, 'text', value["client_id"])
+		        --Sprite:setProperty(departmentLabel, 'text', value["department_id"])
+            end
+        end
+end
+
+--搜索按钮
+function searchOnSelect()
+    pagesize = 6 
+    local txt= Sprite:getText(Sprite:findChild(rootSprite, 'sousuoEdit'))
+    keyword = txt
+    if txt=='请输入关键字' then
+        txt=''
+        keyword = ""
+    end
+    server_kehulist3 = server_kehulist..'&pagesize='..pagesize..'&keyword='..txt
+    Http:request('kehulist_data', server_kehulist3, 101, {useCache=false})
+    Loading:show(rootSprite)
+end
+
+---当进入编辑框时，修改文字为输入
+   function Onsousuofocus(sprite)
+       local txt= Sprite:getProperty(sprite, 'text')
+       if txt=='请输入关键字' then
+        Sprite:setProperty(sprite, 'text', '')
+        Sprite:setProperty(sprite, 'color', '#0')
+       end
+   end
+   ---当未有任何输入时，初始化为提示
+    function OnsousuoInit(sprite)
+       local txt= Sprite:getProperty(sprite, 'text')
+       if txt=='' or txt ==nil then
+            Sprite:setProperty(sprite, 'color', '#8f8e8e')
+            Sprite:setProperty(sprite, 'text', '请输入关键字')
+       end
+    end
+    
+    ---点选checkbox操作按钮
+    function ckitm(sprite)
+        local img=Sprite:findChild(sprite,'ckitm');        
+        local sltData1= Sprite:getData(sprite)
+        
+        if sltData1==nil or sltData1=='0' then
+            Log:write('111111111111111--------')
+            Sprite:setProperty(sprite, 'data', '1')
+            Sprite:setProperty(img, 'src', 'file://pics/item_selected.png')
+        else 
+            Log:write('111111111111111--------1111')
+            Sprite:setProperty(sprite, 'data','0')
+            Sprite:setProperty(img, 'src', 'file://pics/item_unselected.png')
+        end
+    end
+    
+    function add()
+        Scene:setReturn(Alias.kehuguanli, Alias.xinzengkehu)
+        Scene:go(Alias.xinzengkehu, true)
+    end
+    
+    --恢复初始状态
+    function  initView()
+
+    end
+    
+    function itemOnSelect(sprite)
+        local clientCodeLabel = Sprite:findChild(sprite, 'clientCodeLabel')
+        local noticeDetailHandler = Reg:create("kehudetailDataRoom")
+        Reg:setString(noticeDetailHandler, 'clientId', Sprite:getText(clientCodeLabel))
+        Reg:setString(noticeDetailHandler, 'clientId', Sprite:getText(clientCodeLabel))
+        Log:write('111111111111111--------'..Sprite:getText(clientCodeLabel))
+        Scene:setReturn(Alias.kehuguanli, Alias.chakankehu)
+        Scene:go(Alias.chakankehu, true)
+    end
+  
+  
+    ]]>
+</root>

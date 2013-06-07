@@ -1,0 +1,241 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root> 
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置页面背景 -->
+            <shadow rect="0,0,480,900"  alpha="255" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,800" src="file://pics/main_bg.png" extendstyle="1111" style="autosize"/>
+            </shadow>
+            <!-- 信息头部 -->
+            <node rect="0,0,480,80" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png" extendstyle="1111" style="autosize"/>
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="20,14,52,52" OnSelect="doBack" border="false"
+                    normal="src:file://pics/icon_home_d.png;"
+                    sel="src:file://pics/icon_home_s.png;"  style="autosize"
+                    extendstyle="1111"/>
+                <image name="normal" rect="92,0,2,80" src="file://pics/sub_top_line.png"  extendstyle="1111"/>
+                <!-- 二级菜单标题 -->
+                <scrolltext name="title" rect="0,0,480,80" text="签到记录" font-family="微软雅黑" 
+                    extendstyle="1111" font-size="32" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2"/>
+                <!--新增 -->
+                <button name="addBtn" rect="408,14,52,52" OnSelect="add" border="false"
+                    normal="src:file://pics/icon_add_d.png;" 
+                    sel="src:file://pics/icon_add_s.png;" style="autosize"
+                    extendstyle="1111"/>
+                <image name="normal" rect="388,0,2,80" src="file://pics/sub_top_line.png" extendstyle="1111"/>
+            </node>
+            <!-- 选择月份 -->
+            <node rect="0,80,480,72" extendstyle="1111" border="false" >
+                <button name="startTime" rect="11,6,223,60" border="false" extendstyle="1111" 
+                   normal="src:file://pics/input_select_btn_d.png;style:sudoku-auto;sudoku:15,0,84,0;color:#ffffff"
+                      sel="src:file://pics/input_select_btn_s.png;style:sudoku-auto;sudoku:15,0,84,0;color:#000000"
+                   OnSelect="timeOnSelect">
+                   <label name="timeContent" rect="0,0,150,60" border="false" text="开始时间"
+                    v-align="center" h-align="center" font-family="微软雅黑" font-size="24"></label>
+                </button>
+                <button name="endTime" rect="235,6,223,60" border="false" extendstyle="1111"
+                    normal="src:file://pics/input_select_btn_d.png;style:sudoku-auto;sudoku:15,0,84,0;color:#ffffff"
+                    sel="src:file://pics/input_select_btn_s.png;style:sudoku-auto;sudoku:15,0,84,0;color:#000000"
+                    OnSelect="timeOnSelect">
+                    <label name="timeContent" rect="0,0,150,60" border="false" text="结束时间"
+                     v-align="center" h-align="center"  font-family="微软雅黑" font-size="24"></label>
+                 </button>
+            </node>
+            <!-- 信息列表视图  -->
+            <node name="listViewNode" rect="0,152,480,648" extendstyle="1111" >
+                <listview name="listView1" rect="0,0,480,588" visible="true" border="false" extendstyle="1111" />
+                <button rect="0,570,480,75" border="false" text="点击查看更多" color="#666666" OnSelect="addmore" name="morebtn" visible="false"
+                    v-align="center" h-align="center" font-family="微软雅黑" font-size="24" extendstyle="1110" />
+            </node>
+            <!-- 信息列表项  -->
+            <node name="listItem1" rect="0,0,480,100" border="false" visible="false" enable="false" active="false" extendstyle="1111">
+                <button name="btnname" rect="0,0,480,98" style="autosize"
+                    normal="src:file://pics/list_bg_d.png" sel="src:file://pics/list_bg_s.png"
+                    OnSelect="itemOnSelect" extendstyle="1111">
+                    <image rect="20,17,64,64" name="icon"  extendstyle="1111" style="autosize"/>
+                    <label name="row1" rect="104,0,390,80" border="false" color="#0" scroll="true" style="autosize"
+                           h-align="left" v-align="center" font-family="微软雅黑" font-size="22"/>
+                    <label name="row2" rect="104,47,390,50" border="false" color="#0" postfix="..." style="autosize"
+                           h-align="left" v-align="center" font-family="微软雅黑" font-size="18"/>
+                </button>
+                <shadow rect="0,97,480,1" color="#aaabae" alpha="255"extendstyle="1114" />
+            </node>
+            <!-- 无数据的提示 -->
+            <node name="nomsg" rect="0,152,480,656" border="false" visible="false" enable="false" active="false" extendstyle="1111">
+                <image rect="120,216,239,234"  src="file://pics/face.png" extendstyle="1111" style="center" sudoku="15,15,15,15"/>
+                <label rect="0,470,480,48" extendstyle="1111" h-align="center" v-align="center"  
+                    font-family="微软雅黑" font-size="24" text="没有搜索到您需要的数据"></label>
+            </node>
+            <button visible="false" data="1" name="curpage"></button>
+        </node>
+    </body>
+    <![CDATA[
+    require 'com_xsgj.common.framework'
+    require 'com_xsgj.common.umsagent'
+    local rootSprite
+    local jsonDecodedData = nil
+    local server=Alias.urlServer..'attendence/attences?pagesize=6'
+    local curpage=1
+    local startContent=nil
+    local endContent=nil
+    local morebtn=nil
+    local nomsg=nil
+    -- 第一次创建页面事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite                
+        --2.获取数据
+        curpage=Sprite:findChild(rootSprite, 'curpage')
+        morebtn=Sprite:findChild(rootSprite, 'morebtn')
+        local startTime = Sprite:findChild(rootSprite, 'startTime')
+        local endTime = Sprite:findChild(rootSprite, 'endTime')
+        nomsg = Sprite:findChild(rootSprite, 'nomsg')
+        startContent = Sprite:findChild(startTime, 'timeContent')
+        endContent = Sprite:findChild(endTime, 'timeContent')
+    end
+    -- 页面加载事件
+    function bodyOnSpriteEvent(msg, param)
+       if msg == MSG_ACTIVATE then -- 添加时间参数
+           UmsAgent:OnActivate(string.match(Alias.kaoqinlist, 'MODULE:\\(.*)'), "签到记录")
+	       local regHandle = Reg:create("dateTime")
+	       retuenTime = Reg:getString(regHandle, "time")
+	       retuenType = Reg:getString(regHandle, "type")
+	       Reg:release("dateTime")
+	       if retuenTime ~= '' and retuenTime ~= nil then
+	           if retuenType == 'start' then
+	               Sprite:setProperty(startContent, 'text', retuenTime)
+	           elseif retuenType == 'end' then
+	               Sprite:setProperty(endContent, 'text', retuenTime)
+	           end
+	       end
+	       Sprite:setProperty(curpage, 'data','1')
+           newReq('1');
+       elseif msg == MSG_DEACTIVATE then
+           UmsAgent:OnDeactivate()
+       end
+    end
+    -- 获取接口返回时的反馈处理
+    function bodyOnPluginEvent(msg)
+         if msg == 105 then 
+            if Loading:isShow() then Loading:close() end
+            UmsAgent:onLoadFinish()
+            setAllShoworHide(morebtn, 0); 
+            local list = Sprite:findChild(rootSprite, 'listView1')
+            local p=Sprite:getData(curpage)
+            jsonDecodedData = Http:jsonDecode('kaoqin_data')
+            if (jsonDecodedData == nil or jsonDecodedData['rows']==nil or jsonDecodedData["total"] == nil or
+                jsonDecodedData["total"] == '') then
+                if '1'==p then
+                    Sprite:setActive(nomsg, 1)
+                    Sprite:setEnable(nomsg, 1)
+                    Sprite:setVisible(nomsg, 1)
+                end
+                return
+            end
+            Sprite:setActive(nomsg, 0)
+            Sprite:setEnable(nomsg, 0)
+            Sprite:setVisible(nomsg,0)
+            local len = jsonDecodedData["total"]
+            if len>p*6 then
+                setAllShoworHide(morebtn, 1)
+            end
+            -- 加载新的列表项
+            ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem1'),getJsonArrayCount(jsonDecodedData['rows']), 'loadListItem')
+            ListView:adjust(list)
+        end
+    end
+    -- 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc) 
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+        end
+    end
+    ---------------------------------------显示列表---------------------------
+    function loadListItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 98)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        -- 获取要创建的列表项Sprite
+        local row1 = Sprite:findChild(item, 'row1')
+        local row2 = Sprite:findChild(item, 'row2')
+        local icon = Sprite:findChild(item, 'icon')
+        -- 设置列表项的内容
+        if (jsonDecodedData ~= nil and jsonDecodedData['rows'] ~= nil) then
+            local value = jsonDecodedData['rows'][index]
+            Log:write('xx', value)
+            if value ~= nil then
+	            if '上班' == value["attenceTypeName"] then
+	              Sprite:setProperty(icon, 'src', 'file://pics/shangbang_liebiao.png')
+	            else
+	              Sprite:setProperty(icon, 'src', 'file://pics/xiabang_liebiao.png')
+	            end
+	            Sprite:setProperty(row1, 'text', value["date"]..'    '..value["time"]..'    '..value["attenceTypeName"])
+	            Sprite:setProperty(row2, 'text', value["locat_detail"])
+            end
+        end
+    end
+    ----选择时间
+    function timeOnSelect(sprite)
+        local startTime = Sprite:findChild(rootSprite, 'startTime')
+        local content = Sprite:findChild(sprite, 'timeContent')
+        local endTime = Sprite:findChild(rootSprite, 'endTime')
+        local date = Sprite:getText(content)
+        --构造请求地址
+        local regHandle = Reg:create('dateDialog')
+        if tonumber(startTime) == tonumber(sprite) then
+            Reg:setString(regHandle, 'type', 'start')
+        elseif tonumber(endTime) == tonumber(sprite) then
+            Reg:setString(regHandle, 'type', 'end')
+        else
+            return
+        end
+       if date~=nil and date~='' and '开始时间'~=date and '结束时间'~=date then
+	       local stringDate = Split(date, '-')
+	       Reg:setString(regHandle, 'year', stringDate[1])
+	       Reg:setString(regHandle, 'month', stringDate[2])
+	       Reg:setString(regHandle, 'day', stringDate[3])
+       end
+       Scene:setReturn(Alias.kaoqinlist, Alias.dateDialog)
+       Scene:go(Alias.dateDialog,true)
+    end
+    -- @brief 返回按钮处理
+    function doBack()
+        Scene:go(Alias.home,true)
+    end
+    --- 添加按钮处理
+    function add()
+        Scene:setReturn(Alias.kaoqinlist, Alias.kaoqinaction)
+        Scene:go(Alias.kaoqinaction, true)
+    end
+    --加载更多
+    function addmore()
+        local p=Sprite:getData(curpage)+1
+        Sprite:setProperty(curpage, 'data',p)
+        newReq('0');
+    end
+    --刷新数据
+    function newReq(rtype)
+        UmsAgent:onLoadStart()
+        sdt=Sprite:getText(startContent);
+        edt=Sprite:getText(endContent);
+        url=server..'&page='..Sprite:getData(curpage)..'&userName='..Config:get('username')
+        if sdt~=nil and sdt~='开始时间' and sdt~='' then
+            url=url..'&startDate='..sdt
+        end
+        if edt~=nil and edt~='结束时间' and edt~='' then
+            url=url..'&endDate='..edt
+        end
+         -- 删除原有列表项
+        if '1'==rtype then
+            ListView:removeAllItems(Sprite:findChild(rootSprite, 'listView1'))
+        end
+        Http:request('kaoqin_data',url , 105, {useCache = false, method = 'post'})
+        Loading:show(rootSprite)
+    end
+]]>
+</root>

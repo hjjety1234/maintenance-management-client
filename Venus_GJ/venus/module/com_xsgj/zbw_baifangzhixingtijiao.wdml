@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <!--
+        ==
+        ============================================================================
+        == | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+        ============================================================================
+        == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+        ============================================================================
+        == | Author: xxxx <xxxx@xxxx.com> ==
+        ============================================================================
+        == | Desc: 页面描述 ==
+        ============================================================================
+    -->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置背景 -->
+            <image name="main-bg" rect="0,0,480,800" visible='true' src="file://pics/main_bg.png"
+                 style="autosize" extendstyle="0010">
+            </image>   
+            
+            <!-- 信息头部 -->
+            <node rect="0,0,480,80" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png"
+                    extendstyle="1111" style="autosize">
+                </image>
+
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="9,14,52,52" 
+                    normal="src:file://pics/icon_back_d.png" sel="src:file://pics/icon_back_s.png"
+                    OnSelect="doBack" style="autosize" extendstyle="1111">
+                </button>
+                <image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png"
+                       style="autosize" extendstyle="1111">
+                </image>
+                <!--提交按钮-->
+                <button name="addBtn" rect="419,14,52,52" 
+                    normal="src:file://pics/icon_submit_d.png" sel="src:file://pics/icon_submit_s.png"
+                    OnSelect="submitOnSelect" style="autosize" extendstyle="1111">
+                </button>
+                <image name="normal" rect="410,0,2,80" src="file://pics/sub_top_line.png"
+                        style="autosize" extendstyle="1111">
+                </image>
+            </node>
+            <!-- 标题 -->
+            <scrolltext name="title" rect="0,1,480,76" text="拜访执行"
+                extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                color="#ffffff" scroll="true" step="2"></scrolltext>
+            <!-- 内容部分-->    
+            <node name="typetime" rect="0,80,480,72" extendstyle="1111">
+                <label rect="0,0,130,72" text="拜访时间" font-family="微软雅黑" color="#000000"
+                    extendstyle="1111" style="autosize" h-align="right" v-align="center"
+                    font-size="24"></label>
+                <label name="edittime" rect="160,0,240,72" font-size="20" extendstyle="1111" text="前个页面传过来时间" h-align="left" v-align="center" color="#000000"></label>
+                
+            </node>
+             <node name="typekehu" rect="0,152,480,72" extendstyle="1111">
+                <label rect="0,0,130,72" text="拜访客户" font-family="微软雅黑" color="#000000"
+                    extendstyle="1111" style="autosize" h-align="right" v-align="center"
+                    font-size="24"></label>
+                <scrolltext name="editkehu" rect="160,0,280,72" text="前个页面传过来"
+                        border="false" h-align="left" v-align="center" font-family="微软雅黑" color="#000000"
+                        font-size="24" scroll="true" step="4" extendstyle="1111">
+                </scrolltext> 
+            </node>
+             <node name="typeren" rect="0,222,480,72" extendstyle="1111">
+                <label rect="0,0,130,72" text="拜访人" font-family="微软雅黑" color="#000000"
+                    extendstyle="1111" style="autosize" h-align="right" v-align="center"
+                    font-size="24"></label>
+                <label name="editren" rect="160,0,280,72" border="false" text="登录本人" font-family="微软雅黑"
+                      color="#0" font-size="24" extendstyle="1111" v-center="true" style="autosize" h-align="left" v-align="center">                 
+                </label>
+            </node>
+            <node name="typeleirong" rect="0,294,480,72" extendstyle="1111">
+                <label rect="0,0,130,72" text="拜访内容" font-family="微软雅黑" color="#000000"
+                    extendstyle="1111" style="autosize" h-align="right" v-align="center"
+                    font-size="24"></label>
+                <scrolltext name="editleirong" rect="160,0,280,72" text="内容从哪里来？"
+                        border="false" h-align="left" v-align="center" font-family="微软雅黑" color="#000000"
+                        font-size="24" scroll="true" step="4" extendstyle="1111">
+                </scrolltext> 
+            </node>            
+             <node name="typeweizhi" rect="0,366,480,72" extendstyle="1111">
+                <label rect="0,0,130,72" text="拜访位置" font-family="微软雅黑" color="#000000"
+                    extendstyle="1111" style="autosize" h-align="right" v-align="center"
+                    font-size="24"></label>
+                <label name="lblLocation" rect="160,0,280,72" border="false" text="正在定位..." font-family="微软雅黑" 
+                    color="#000000" extendstyle="1111" style="autosize" h-align="left" v-align="center"
+                    font-size="24"></label>
+            </node>
+             <node name="typezhuangtai" rect="0,438,480,72" extendstyle="1111">
+                <label rect="0,0,130,72" text="拜访状态" font-family="微软雅黑" color="#000000"
+                    extendstyle="1111" style="autosize" h-align="right" v-align="center"
+                    font-size="24"></label>                
+            </node>  
+	            <!--状态列表-->
+	            <node name="xunjianSelectNode" rect="0,0,480,800" visible="false" enable="false">
+	              <button name="button" rect="0,0,480,800" border="false" text=""
+	                    color="#ffffff" OnSelect="hideXunjianSelected">
+                      <shadow rect="0,0,480,800"  alpha="150" color="#0"  extendstyle="1111">
+                      </shadow>	                    
+	              </button>
+                  <node rect="66,140,368,68" extendstyle="1111"  border="false">
+                      <image rect="0,0,368,68" src="file://pics/Dialogs/top.png"  style="autosize" extendstyle="1111" />
+                      <image rect="20,30,31,32" src="file://pics/Dialogs/icon_arrow.png"  style="autosize" extendstyle="1111" />
+                      <label rect="40,10,120,68" border="false" color="#FFFFFF"
+                       text="选择状态" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                  </node>	             
+                  <node rect="66,208,368,216" extendstyle="1111" border="false">
+	                    <image rect="0,0,368,216" src="file://pics/Dialogs/center.png"  style="autosize" extendstyle="1111" />
+	                    <button name="yibaifang" rect="12,0,342,61" text="          已拜访" color="#ffffff" font-family="微软雅黑"
+	                        h-align="left" extendstyle="1111" OnSelect="xunjianGroupOnSelect"
+	                        normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+	                        sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+	                        font-size="24" data="01" >                    
+	                    </button>                    
+	                    <image rect="0,70,368,2" src="file://pics/Dialogs/line.png"  style="autosize" extendstyle="1111" />
+	                    <button name="quxiao" rect="12,73,342,61" text="          取消" color="#ffffff" font-family="微软雅黑"
+	                        h-align="left" extendstyle="1111" OnSelect="xunjianGroupOnSelect"
+	                        normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+	                        sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+	                        font-size="24" data="02" />
+	                    <image rect="0,143,368,2" src="file://pics/Dialogs/line.png"  style="autosize" extendstyle="1111" />
+	                    <button name="yanqi" rect="12,146,342,61" text="          延期" color="#ffffff" font-family="微软雅黑"
+	                        h-align="left" extendstyle="1111" OnSelect="xunjianGroupOnSelect"
+                            normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                            sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"	font-size="24" data="03" />                    
+                  </node>       
+                   <image rect="66,423,368,21" src="file://pics/Dialogs/bottom.png"  style="autosize" extendstyle="1111"/>
+		        </node> 
+		            <!--下拉按钮-->           
+		             <node name="xunjianNode" rect="0,60,480,60" extendstyle="1111">	                    
+	                    <button name="xunjianBtn" rect="142,379,326,72" border="false"
+	                        color="#ffffff" OnSelect="xunjianOnSelect" sudoku="15,15,120,10" style="sudoku-auto"
+                            normal="src:file://pics/input_select_btn_d.png" sel="src:file://pics/input_select_btn_s.png"	                        
+	                        extendstyle="1111" data="01">
+	                        <label name="lbzhuangtai" rect="19,11,221,52"  font-size="24" text=""
+	                            color="#000000" extendstyle="1111" style="autosize" font-family="微软雅黑" 
+	                            h-align="left" v-align="center" ></label>
+	                    </button>                    
+	                </node>                        
+             <node name="typerizhi" rect="0,510,480,203" extendstyle="1111">
+                <label rect="0,0,130,72" text="拜访日志" font-family="微软雅黑" color="#000000"
+                    extendstyle="1111" style="autosize" h-align="right" v-align="center"
+                    font-size="24"></label>
+                <image name="normal" rect="142,2,328,189" sudoku="15,15,15,15" style="sudoku-auto"
+                        src="file://pics/input_text_bg.png" extendstyle="1111">
+                </image>
+                <edit name="editrizhi" rect="160,14,293,165" border="false" font-family="微软雅黑" text="输入拜访日志..."
+                      color="#8f8e8e" extendstyle="1111" h-align="center" v-center="top" font-size="24" 
+                       OnLostFocus="editOnTextChanged" OnSetFocus="initText" OnTextChanged="editOnTextChanged">                                     
+                </edit>                                    
+            </node>  
+             <!--信息提交成功提示-->  
+             <image name="success" border="false" visible="false" rect="15,717,452,63" src="file://pics/sucess.png"
+                        style="autosize" extendstyle="1111">
+                  <label name="suc" rect="0,0,452,63" h-align="center"
+                    v-align="center" text="信息提交成功!" color="#FFFFFF" extendstyle="1111" style="autosize" font-size="24"></label>
+             </image>                        
+        </node>
+
+    </body>
+    <![CDATA[
+
+    require 'com_xsgj.common.framework'
+    require 'framework.Map'
+    local observer
+    local latitude
+    local longitude
+        
+    local rootSprite
+    local urlRequestServer
+    local jsonDecodedData = nil
+    local visitCodetijiao
+    local test_label6
+    local usercode=34522487 --定义全局变量usercode
+    local comlist={'已拜访','取消','延期'}
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        urlRequestServer=Alias.urlServer
+    
+        --1.加载定位
+        observer = Plugin:getObserver()
+        --5.连接网络
+        doLocation()        
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            local success = Sprite:findChild(rootSprite, 'success')--隐藏提示信息
+            Sprite:setVisible(success, 0)        --隐藏提示信息        
+	        --get value 
+	        local regHandle = Reg:create("HelloWorld")
+	        --Reg:setString(regHandle, "test_label", "hello wondertek22")
+	        --local test_label = Reg:getString(regHandle, "test_label") 
+	        local test_label1 = Reg:getString(regHandle, "test_label1")--拜访时间
+	        local test_label2 = Reg:getString(regHandle, "test_label2")--拜访客户
+	        local test_label3 = Reg:getString(regHandle, "test_label3") --拜访状态
+	        local test_label4 = Reg:getString(regHandle, "test_label4") --拜访人姓名
+	        local test_label5 = Reg:getString(regHandle, "test_label5")--拜访内容
+		test_label6 = Reg:getString(regHandle, "test_label6")--拜访人ID
+	        visitCodetijiao=Reg:getString(regHandle, "visitCodelibiao")--获取visitCode内容
+	        Log:write('test_label1: ', test_label1)   
+	        Log:write('test_label2: ', test_label2)
+	        Log:write('test_label3: ', test_label3)
+	        Log:write('test_label4: ', test_label4)
+	        Log:write('test_label5: ', test_label5)
+		Log:write('test_label5: ', test_label6)
+	        Log:write('visitCodetijiao: ', visitCodetijiao)
+	        local strzhuangtai=''
+	       -- if tonumber(test_label3)==1 then strzhuangtai='已拜访' end --1为已经拜访
+		   -- if tonumber(test_label3)==2 then strzhuangtai='延期' end --2为延期
+		    --if tonumber(test_label3)==3 then strzhuangtai='取消' end --3为取消
+		   -- if tonumber(test_label3)==0 then strzhuangtai='未拜访' end  --0为未拜访
+	        local date=Sprite:findChild(rootSprite, 'edittime')
+	        local kehu=Sprite:findChild(rootSprite, 'editkehu')
+	        local zhuangtai=Sprite:findChild(rootSprite, 'lbzhuangtai')
+	        local ren=Sprite:findChild(rootSprite, 'editren')
+	        local leirong=Sprite:findChild(rootSprite, 'editleirong')
+	        Sprite:setProperty(date, 'text', test_label1)        
+	        Sprite:setProperty(kehu, 'text', test_label2)       
+	        --传过来值test_label3如果为数值则需转换strzhuangtai,如果已做状态转换则直接使用test_label3 
+	        Sprite:setProperty(zhuangtai, 'text', test_label3)      
+	        Sprite:setProperty(ren, 'text', test_label4)        
+	        Sprite:setProperty(leirong, 'text', test_label5)
+	        Reg:release(regHandle)
+                     
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg,param)
+        if msg == 101 then
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+        --处理拜访执行提交结果
+        if msg == 102 then        
+            local success = Sprite:findChild(rootSprite, 'success')--显示提示信息
+            --Sprite:setVisible(success, 1)        --显示提示信息
+            --Timer:set(1,2000,'doBack')
+            local len=0
+            if Loading:isShow() then Loading:close() end
+            jsonDecodedData = Http:jsonDecode('baifangzhixingtijiao')
+            if jsonDecodedData then 
+	        len = tonumber(jsonDecodedData.Total)
+                Log:write("data of 102 = ", jsonDecodedData)
+                Sprite:setVisible(success, 1)
+                Timer:set(1,2000,'doBack')    
+            else
+                len=0 
+            end             
+            Log:write("len or Total of jishibaifangtijiao records: "..len)
+            --if len > 0 then 
+                --显示提交成功提示信息
+                --local success = Sprite:findChild(rootSprite, 'success')
+                --Sprite:setVisible(success, 1)
+                --Timer:set(1,2000,'doBack')              
+            --end
+            if not jsonDecodedData or type(jsonDecodedData) ~= 'table' then
+                Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+                return
+            end                   
+            if jsonDecodedData== nil then
+                Log:write('jsonDecodedData返回nil值！')
+            end
+        end
+        --处理定位成功消息
+		if msg == 1000 then--用来显示经纬度
+		            local postDataString = Param:getString(param, 0)
+		            local postData = Json:loadString2Table(postDataString)
+		            if postData.latitude ~= nil then
+		                latitude=postData.latitude
+		            end
+		            if postData.longitude ~= nil then
+		                longitude=postData.longitude
+		            end
+		            if postData.longitude ~= nil and postData.latitude ~= nil then
+		                Map:getLocation(observer, 1001, tonumber(postData.latitude), tonumber(postData.longitude))  
+		            end
+		        elseif msg == 1001 then--用来显示定位的位置
+		            local postDataString = Param:getString(param, 0)
+		            local postData = Json:loadString2Table(postDataString)
+		            local locInfo = Sprite:findChild(rootSprite, 'lblLocation')
+		            if postData.address ~= nil then
+		                Sprite:setProperty(locInfo, 'text', postData.address)
+		            end          
+        end        
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    function myfunc()
+    end
+    function submitOnSelect(sprites)
+        --提交前判断拜访状态已经选定
+        local zhuangtai=  Sprite:getText(Sprite:findChild(rootSprite, 'lbzhuangtai'))
+        if zhuangtai=='' then
+            Dialog:show('拜访状态为空','请选择拜访状态后再提交！')
+        else
+            Dialog:show('拜访处理提示：','是否确定提交？','ok_cancel','okCallback','cancelCallback')
+        end
+    end
+     --提交到数据库,组装url、数据提交
+     function okCallback()
+     --http://120.209.131.143:9000/mobileSale/visitExec/submit?
+     --visitDate&visitCode=22c6b5a5-b482-4ce6-9fdd-335eb1382507&visitStatus=1&visitLocation=长江中路1800号&remark=已拜访
+        local url=urlRequestServer..'visitExec/submit?'
+        --local url='http://61.191.25.238:7011/nbspweb/webservice/workorder!doWebservice.action'
+        local param
+        local strdate=  Sprite:getText(Sprite:findChild(rootSprite, 'edittime'))
+        local name=  Sprite:getText(Sprite:findChild(rootSprite, 'editren'))
+        local weizhi=  Sprite:getText(Sprite:findChild(rootSprite, 'lblLocation'))
+        local zhuangtai=  Sprite:getText(Sprite:findChild(rootSprite, 'lbzhuangtai'))
+        local izhuangtai=0 --0为未拜访
+        local lbbaifangkehu= Sprite:findChild(rootSprite, 'editkehu')--where is kehu on http para?
+        local leirong=Sprite:getText(Sprite:findChild(rootSprite, 'editleirong')) --editrizhi
+        local editRizhi=Sprite:getText(Sprite:findChild(rootSprite, 'editrizhi'))
+        --get visitCode from previouse页面：visitCodetijiao 在bodyOnSpriteEvent（）页面激活事件中获取
+        --zhuangtai 需转换成数值--begin: 0未拜访；1已拜访；2为延期；3为取消
+        if zhuangtai=='已拜访' then
+            izhuangtai=1 --1为已经拜访
+        end
+        if zhuangtai=='延期' then
+            izhuangtai=2 --2为延期
+        end
+        if zhuangtai=='取消' then
+            izhuangtai=3 --3为取消
+        end
+        --zhuangtai 需转换成数值--end
+        param='visitDate='..strdate..'&visitCode='..visitCodetijiao..'&visitLocation='..weizhi..'&visitStatus='..izhuangtai..'&remark='..editRizhi
+        Log:write("param = ", param)
+        Http:request('baifangzhixingtijiao', url, 102, {useCache = false, method = 'post', postData=param})       
+        Loading:show(rootSprite)
+     end
+     --提交结束    
+     function cancelCallback()
+           if Dialog:isShow() then
+           Dialog:close() 
+           end
+     end
+    function doBack()
+        Scene:back()
+    end
+    
+    function editOnTextChanged(sprite,ncount)
+        local hideLabel = Sprite:findChild(sprite, 'hideLabel')
+        if ncount > 0 then
+            setAllShoworHide(hideLabel, 0)
+            else
+            setAllShoworHide(hideLabel, 1)
+        end
+    end
+
+	---巡检组
+    function xunjianOnSelect(sprite)
+        --@Log:write('tempid===', tempid)
+        local xunjianData = Sprite:getData(sprite)
+        curXunjianBtn = sprite
+         --@Log:write('tempid===', tempid)
+        setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
+    end	
+    function hideXunjianSelected(sprite)
+        setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 0)
+    end
+    function xunjianGroupOnSelect(sprite)
+        local xunjianData = Sprite:getData(sprite)
+        local xunjianText = Sprite:findChild(curXunjianBtn, 'lbzhuangtai')
+        Sprite:setProperty(curXunjianBtn, 'data', xunjianData)
+        if xunjianData == '01' then    
+            Sprite:setProperty(xunjianText, 'text', '已拜访')
+            elseif xunjianData == '02' then            
+            Sprite:setProperty(xunjianText, 'text', '取消')
+            elseif xunjianData == '03' then            
+            Sprite:setProperty(xunjianText, 'text', '延期')             
+        end
+        --@doChangeListHeight(curXunjianBtn)
+        setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 0)
+     end    
+    ---开始定位
+    function doLocation()
+        local locInfo = Sprite:findChild(rootSprite, 'lblLocation')    --lblLocation
+        Sprite:setProperty(locInfo, 'text', '正在定位......')
+        Map:getCurPosition(observer,  1000)
+   end    
+   ---当进入编辑框时，修改文字为输入
+   function initText(sprite)
+       local txt= Sprite:getProperty(Sprite:findChild(rootSprite, 'editrizhi'), 'text')
+       if txt=='输入拜访日志...' then
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'editrizhi'), 'text', '')
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'editrizhi'), 'color', '#0')
+       end
+   end       
+   ---当未有任何输入时，初始化为提示
+    function editOnTextChanged(sprite)
+       local txt= Sprite:getProperty(Sprite:findChild(rootSprite, 'editrizhi'), 'text')
+       if txt=='' or txt ==nil then
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'editrizhi'), 'color', '#8f8e8e')
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'editrizhi'), 'text', '输入拜访日志...')
+       end
+    end   
+]]>
+</root>

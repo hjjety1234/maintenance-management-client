@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <!--
+        ==
+        ============================================================================
+        == | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+        ============================================================================
+        == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+        ============================================================================
+        == | Author: xxxx <xxxx@xxxx.com> ==
+        ============================================================================
+        == | Desc: 页面描述 ==
+        ============================================================================
+    -->
+<root> 
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置背景 -->
+            <shadow rect="0,0,480,800" color="#ffffff" alpha="255" extendstyle="1111" />
+            <!-- 信息头部 -->
+            <node rect="0,0,480,104" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,104" src="file://image/kaoqin/top.png"
+                    extendstyle="1111" style="autosize">
+                </image>
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="0,20,101,60" OnSelect="doBack"
+                    extendstyle="1111">
+                    <image name="normal" rect="0,0,101,60" src="file://image/kaoqin/home.png"
+                        style="autosize" extendstyle="1111">
+                    </image>
+                </button>
+                <!-- 二级菜单标题 -->
+                <scrolltext name="title" rect="105,20,280,66" text="位置标记" font-family="微软雅黑"
+                    extendstyle="1111" font-size="32" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2"/>
+                <!--新增 -->
+                <button name="addBtn" rect="377,20,101,60" OnSelect="add" extendstyle="1111">
+                    <image name="normal" rect="0,0,101,60" src="file://image/kaoqin/top_add.png"
+                        style="autosize" extendstyle="1111">
+                    </image>
+                </button>
+            </node>
+            <node rect="0,104,480,60" extendstyle="1111" >
+               <shadow rect="0,66,480,60" color="#efebef" alpha="255"/>
+               <node name="xunjianNode" rect="0,5,367,48" extendstyle="1111">
+                    <image rect="0,0,367,48" src="file://image/mendian/search_input.png"
+                           style="autosize" extendstyle="1111"/>
+                    <edit name="edit" rect="50,0,367,48" border="false" text="搜索门店名称" 
+                               OnLostFocus="editOnTextChanged" OnSetFocus="initText"
+                               extendstyle="1111" style="autosize" h-align="left" color="#8f8e8e" 
+                               v-align="center" font-family="微软雅黑" font-size="24">
+                     </edit>
+                </node>
+                <button name="appBtn" rect="380,5,92,48" style="autosize"
+                    normal="src:file://image/kaoqin/search_btn_hover.png" OnSelect="searchOnSelect"
+                    extendstyle="1111" />
+            </node>
+            <!-- 信息列表视图  -->
+             <node rect="0,164,480,60" extendstyle="1111" >
+                <shadow name="itembg" rect="0,0,480,91" alpha="255" color="#efebef" extendstyle="1111" h-align="center" v-align="center"/>
+                <label name="sname" rect="5,0,160,91" border="false" color="#0"
+                       h-align="left" v-align="top" font-family="微软雅黑" font-size="24"></label>
+                <label name="saddr" rect="5,30,80,160" border="false" color="#0"
+                       h-align="left" v-align="top" font-family="微软雅黑" font-size="22"></label>
+                 <label name="sstus" rect="5,60,80,91" border="false" color="#0"
+                       h-align="left" v-align="top" font-family="微软雅黑" font-size="22"></label>
+                <label name="susr" rect="85,30,160,91" border="false" color="#0"
+                       h-align="left" v-align="top" font-family="微软雅黑" font-size="22"></label>
+                <label name="slstus" rect="80,60,160,91" border="false" color="#0"
+                       h-align="left" v-align="top" font-family="微软雅黑" font-size="22"></label>
+            </node>
+            <!-- 信息列表项  -->
+            <image name="success" border="false" visible="false" rect="37,300,398,58" src="file://image/kaoqin/tishichengong.png"
+             style="autosize" extendstyle="1111">
+            <label name="hideLabel" rect="0,0,398,58" text="位置标记成功"
+                        color="#FFFFFF" extendstyle="1111" style="autosize" h-align="center"
+                        v-align="center" font-family="微软雅黑" font-size="24"></label>
+             </image>
+             <image name="error" border="false" visible="false" rect="37,300,398,58" src="file://image/kaoqin/tishichengong.png"
+             style="autosize" extendstyle="1111">
+                <label name="hideLabel" rect="0,0,398,58" text="位置标记失败"
+                        color="#FFFFFF" extendstyle="1111" style="autosize" h-align="center"
+                        v-align="center" font-family="微软雅黑" font-size="24"></label>
+             </image>
+        </node>
+    </body>
+    <![CDATA[
+    require 'com_xsgj.common.framework'
+    require 'framework.map'
+    local rootSprite
+    local jsonDecodedData = nil
+    local server=Alias.urlServer..'location?storeCode='
+    local curpage
+    local latitude
+    local longitude
+    -- 第一次创建页面事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        --1.链接网络
+        local regHandle = Reg:create('optionwin')
+        oid = Reg:getString(regHandle, "oid")
+        sname = Reg:getString(regHandle, "sname")
+        sstus = Reg:getString(regHandle, "sstus")
+        slstus = Reg:getString(regHandle, "slstus")
+        saddr = Reg:getString(regHandle, "saddr")
+        Reg:release('optionwin')
+        server=server..oid
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'sname'), 'text', sname)
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'sstus'), 'text', sstus)
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'slstus'), 'text', slstus)
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'saddr'), 'text', saddr)
+        Loading:show(rootSprite)
+        doLocation()
+        Timer:set(1, 2000, 'faileLocation')
+    end
+    -- 页面加载事件
+    function bodyOnSpriteEvent(msg, param)
+       if msg == MSG_ACTIVATE then -- 页面激活
+       elseif msg == MSG_DEACTIVATE then
+       end
+    end
+    -- 获取接口返回时的反馈处理
+    function bodyOnPluginEvent(msg)
+         if msg == 101 then -- 定位
+            if Loading:isShow() then Loading:close() end 
+            jsonDecodedData = Http:jsonDecode('json_data')
+            if (jsonDecodedData == nil or jsonDecodedData["Total"] == nil or
+                jsonDecodedData["Total"] == '') then
+                Dialog:show("", jsonDecodedData["Rows"], "ok")
+                return
+           else
+                setAllShoworHide(Sprite:findChild(rootSprite, 'success'), 1)
+                Timer:set(1,1000,'doBack')
+           end
+          elseif msg == 1000 then--用来显示经纬度
+            local postDataString = Param:getString(param, 0)
+            local postData = Json:loadString2Table(postDataString)
+            if postData.latitude ~= nil then
+                latitude=postData.latitude
+            end
+            if postData.longitude ~= nil then
+                longitude=postData.longitude
+            end
+            if postData.longitude ~= nil and postData.latitude ~= nil then
+                Map:getLocation(observer, 1001, tonumber(postData.latitude), tonumber(postData.longitude))  
+            end
+        elseif msg == 1001 then--用来显示定位的位置
+            local postDataString = Param:getString(param, 0)
+            local postData = Json:loadString2Table(postDataString)
+            local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+            if postData.address ~= nil then
+                 server=server..'&longitude='..longitude..'&latitude='..latitude..'&mystoreLocation='..postData.address
+		         Http:request('json_data', server, 101, {useCache = false, method = 'post'})
+            else
+                if Loading:isShow() then Loading:close() end 
+                setAllShoworHide(Sprite:findChild(rootSprite, 'error'), 1)
+                Timer:set(1,1000,'doBack')
+            end
+        end
+    end
+    -- 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc) 
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+        end
+    end
+    -- 返回按钮处理
+    function doBack()
+        Scene:go(Alias.mendianlist, true)
+    end
+     ---开始定位
+    function doLocation()
+        Map:getCurPosition(observer,  1000)
+   end
+   function faileLocation()
+    if Loading:isShow() then Loading:close() end 
+    local txt=Sprite:findChild(rootSprite, 'success')
+    Sprite:setProperty(Sprite:findChild(txt,"hideLabel"), "text", "位置标记失败")
+    setAllShoworHide(txt, 1)
+    Timer:set(1,500,'doBack')
+   end
+]]>
+</root>

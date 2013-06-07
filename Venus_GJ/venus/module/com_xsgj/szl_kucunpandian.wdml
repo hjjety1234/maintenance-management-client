@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置背景 -->
+            <shadow rect="0,0,480,800"  alpha="255" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,800" src="file://pics/main_bg.png"
+                      style="autosize" extendstyle="1111">
+                </image>
+            </shadow>
+            <!-- 信息头部 -->
+            <node rect="0,0,480,80" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png"
+                    extendstyle="1111" style="autosize">
+                </image>
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="9,14,52,52" OnSelect="doBack"
+                    extendstyle="1111" normal="normal" sel="sel">
+                    <image name="normal" rect="0,0,52,52" src="file://pics/icon_home_d.png" style="autosize"
+                          extendstyle="1111">
+                    </image>
+                    <image name="sel" rect="0,0,52,52" src="file://pics/icon_home_s.png" style="autosize"
+                          extendstyle="1111">
+                    </image>
+                </button>
+                <image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png"
+                      extendstyle="1111"/>
+                <!-- 二级菜单标题 -->
+                <scrolltext name="title" rect="100,0,280,70" text="库存盘点" font-family="微软雅黑" 
+                    extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2">
+                </scrolltext>
+                <!-- 提交 -->
+                <button name="addBtn" rect="419,14,52,52" OnSelect="add"
+                    extendstyle="1111" normal="normal" sel="sel">
+                    <image name="normal" rect="0,0,52,52" src="file://pics/icon_submit_d.png" style="autosize"
+                          extendstyle="1111">
+                    </image>
+                    <image name="sel" rect="0,0,52,52" src="file://pics/icon_submit_s.png" style="autosize"
+                          extendstyle="1111">
+                    </image>
+                </button>
+                <image name="normal" rect="410,0,2,80" src="file://pics/sub_top_line.png"
+                          extendstyle="1111"/>
+            </node>
+            <!-- 门店 -->
+            <node  rect="0,85,480,71"  extendstyle="1111" style="autosize">
+                <label name="label1" rect="15,0,100,71" h-align="right" v-align="center"
+                       font-weight="bold" text="门店" font-family="微软雅黑" font-size="24"  
+                       color="#303030" style="autosize" extendstyle="0010">
+                </label>          
+                <button name="btnname1" rect="135,0,330,71" normal="normal" sel="sel" OnSelect="storeComboboxOnSelect" extendstyle="1111">
+                      <image normal="normal" rect="0,0,330,71" src="file://pics/input_select_btn_d.png" style="sudoku-auto" sudoku="15,15,100,15" extendstyle="1111"/>  
+                      <image normal="sel" rect="0,0,330,71" src="file://pics/input_select_btn_s.png" style="sudoku-auto" sudoku="15,15,100,15" extendstyle="1111"/>                                    
+                      <scrolltext name="comboboxlabel1" rect="10,0,240,71" text="请点击选择"
+                            font-family='微软雅黑'  font-size="24" h-align="left" v-align="center"
+                            scroll="true" step="2" extendstyle="1111">
+                      </scrolltext>      
+                </button>  
+            </node>
+            <!-- 盘点日期 当前日期 -->
+            <node  rect="0,160,480,71"  extendstyle="1111" style="autosize"> file://pics/input_text_bg.png
+                <label name="xiaoshoulabel" rect="15,0,100,71" style="autosize" text="盘点日期" color="#303030"
+                            extendstyle="0010" h-align="right" v-align="center" font-weight="bold" font-family="微软雅黑"
+                            font-size="24">
+                </label>
+                <label name="pandianDate" rect="145,0,300,71" style="autosize" text="" color="#303030"
+                            extendstyle="0010" h-align="left" v-align="center" font-weight="bold" font-family="微软雅黑"
+                            font-size="24">
+                </label>
+            </node>
+            <!-- 选择商品 --> 
+            <node  rect="0,235,480,71"  extendstyle="1111" style="autosize">
+                 <button name="btnname4" rect="20,0,440,71" normal="src:file://pics/button_d.png;" sel="src:file://pics/button_s.png;" style="autosize" OnSelect="comboboxOnSelect4" extendstyle="1111">
+                    <label name="comboboxlabel4" rect="0,0,440,60" text="请选择商品" font-family="微软雅黑" color="#303030"  h-align="center"
+                                  v-align="center" font-size="24" style="autosize" extendstyle="1111">
+                    </label>        
+                 </button>
+            </node>
+            <!-- 动态商品列表 -->
+            <node name="xunjianSelectNode" rect="0,0,480,800" mushroom="true" visible="true" enable="true">
+                <!-- 头部 -->
+                <node rect="18,320,444,50" extendstyle="1111"  border="false">
+                    <image rect="0,0,444,50" src="file://pics/tab_t.png"  style="autosize" extendstyle="0010" />
+                    <label rect="42,7,120,50" border="false" color="#FFFFFF" style="autosize"
+                         text="" h-align="center" v-align="center" font-family="微软雅黑" font-size="24">
+                    </label>
+                    <label rect="0,0,130,50" text="商品" style="autosize" color="#ffffff"
+                          h-align="center" v-align="center" font-family="微软雅黑"
+                          font-size="24" extendstyle="0010">
+                    </label>
+                    <image rect="130,0,2,50" src="file://pics/dh_line.png" extendstyle="0010" />
+                    <label rect="130,0,80,50" text="单位" color="#ffffff"
+                          h-align="center" v-align="center" font-family="微软雅黑" 
+                          font-size="24" style="autosize" extendstyle="0010">
+                    </label> 
+                    <image  rect="210,0,2,50" src="file://pics/dh_line.png" extendstyle="1111"/>
+                    <label rect="220,0,100,50" text="默认库存" h-align="center"  
+                          v-align="center" font-family="微软雅黑" color="#ffffff"
+                          font-size="24" style="autosize" extendstyle="0010" >
+                    </label> 
+                    <image  rect="320,0,2,50" src="file://pics/dh_line.png" extendstyle="1111"/>
+                    <label rect="340,0,100,50" font-family="微软雅黑" text="实际库存"
+                           color="#ffffff" h-align="center" v-align="center" 
+                          font-size="24" style="autosize" extendstyle="0010">
+                    </label> 
+                </node>
+                <!-- 中间部分 -->
+                <image rect="18,370,444,380" src="file://pics/tab_bj.png"  style="autosize" extendstyle="1111" />
+                <listview name="sampleList" rect="18,370,444,380" auto-scroll="true" style="autosize"
+                      auto-adjust="true" extendstyle="1111" />
+                <!-- 底部 -->   
+                <image rect="18,750,444,21" src="file://pics/tab_bottom.png"  style="autosize" extendstyle="1111"/>
+            </node>  
+            <!-- 商品列表加载模版 -->          
+            <node name="listitem" visible="false" enable="false" active="false" style="autosize"
+                  rect="0,0,444,66" extendstyle="0010" > 
+                <!-- 商品ID -->
+                <label name="goodsId"  type="hidden"/> 
+                <!-- 商品 -->              
+                <scrolltext name="shangpin" rect="10,0,120,66" text=""
+                       font-family='微软雅黑'  font-size="22" h-align="left" v-align="center"
+                       scroll="true" step="2" color="#303030" extendstyle="1111">
+                </scrolltext>
+                <!-- 单位 -->
+                <scrolltext name="danwei" rect="140,0,60,66" text="" font-size="22" h-align="center" 
+                        v-align="center" scroll="true" step="2" font-family="微软雅黑" color="#303030"
+                        extendstyle="1111">
+                </scrolltext>
+                <!-- 默认库存 -->
+                <scrolltext name="defaltStock" scroll="true" step="4" rect="220,0,90,66" text=""
+                      h-align="right" v-align="center" color="#303030" font-size="22" style="autosize"
+                      extendstyle="0010">
+                </scrolltext>
+                <!-- 实际库存 -->
+                <node rect="320,0,120,66" extendstyle="1111">  
+                      <image rect="5,13,106,40" src="file://pics/dh_txt.png"  style="autosize" extendstyle="1111"/>
+                      <edit name="actualStock" rect="12,3,95,66" text=""font-family='微软雅黑' font-size="22"
+                            color="#1473b6" multiline="false"  h-align="right" v-align="center" style="autosize"   
+                            extendstyle="1111" />
+                </node>
+                <shadow rect="0,0,444,1" color="#aaabae" alpha="255"  extendstyle="1114" />       
+            </node>
+            <!--门店名称-->
+            <node name="mendianlistShowNode" rect="0,0,480,800" visible="false" enable="false">
+                <button name="bthide" rect="0,0,480,800" OnSelect="hidemendianSelected">
+                    <shadow rect="0,0,480,800"  alpha="150" color="#0"  extendstyle="1111">
+                    </shadow>
+                </button>
+                <node rect="66,200,368,68" extendstyle="1111"  border="false">
+                      <image rect="0,0,368,68" src="file://pics/Dialogs/top.png"  style="autosize" extendstyle="1111" />
+                      <image rect="20,30,31,32" src="file://pics/Dialogs/icon_arrow.png"  style="autosize" extendstyle="1111" />
+                      <label rect="40,10,120,68" border="false" color="#FFFFFF" style="autosize"
+                            text="选择门店" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                </node>
+                <image rect="66,268,368,288" src="file://pics/Dialogs/center.png"  style="autosize" 
+                       extendstyle="1111" />
+                <listview name="myStoreListView" rect="66,268,368,288" auto-scroll="true" style="autosize"
+                      auto-adjust="true" extendstyle="1111" />
+                <image rect="66,556,368,21" src="file://pics/Dialogs/bottom.png"  style="autosize" extendstyle="1111"/>
+            </node>
+            <!-- 门店加载列表模版 -->
+            <node name="myStoreListitem" rect="0,0,368,74" visible="false" enable="false" active="false">                   
+                <button name="storeName" rect="12,0,342,61" text="" color="#FFFFFF" h-align="left" 
+                        v-align="center" font-family="微软雅黑" font-size="24"
+                        normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                        sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff"
+                        OnSelect="storeItemOnSelect" style="autosize" extendstyle="1111" data="">
+                    <scrolltext name="storeNameDisplay" rect="20,0,250,61" text="" color="#303030" scroll="true" h-align="left" 
+                              v-align="center" font-family='微软雅黑' font-size="24" style="autosize" extendstyle="1111">
+                    </scrolltext>
+                    <label name="storeId"  type="hidden"/>             
+                    <image rect="12,70,342,2" src="file://pics/Dialogs/line.png"  style="autosize" extendstyle="1114" />
+                </button>
+            </node>   
+            <image name="success" border="false" visible="false" rect="68,730,344,58" src="file://pics/sucess.png"
+                style="autosize" extendstyle="1111">
+                 <label name="successxinxi" rect="72,5,200,48" text="信息提交成功"
+                        h-align="center" v-align="center" color="#ffffff" font-size="18"
+                        extendstyle="1111"/>     
+            </image>
+      </node> 
+  </body>
+  <![CDATA[
+
+require 'com_xsgj.common.framework'
+local rootSprite
+local user_name = Config:get('truename')
+local usercode = Config:get('username')
+local submitItem = 0
+local jsonDecodedData = nil
+local storeDecodedData = nil
+local stockDecodedData = nil
+local url
+local param2
+local StoreCode
+local changdu = 0
+local counts=0
+
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+   rootSprite = sprite  
+   local pandianDate = Sprite:findChild(rootSprite, 'pandianDate')
+   Sprite:setProperty(pandianDate, 'text', getCurDate()) 
+   Log:write("当前日期为：",getCurDate())
+   setAllShoworHide(Sprite:findChild(rootSprite, 'mendianlistShowNode'), 0)  
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活 
+            local storeRegHandler =Reg:create("kuncunstoreRegHandler")
+            local comboboxLbl = Sprite:findChild(rootSprite, 'comboboxlabel1')
+            if Reg:getString(storeRegHandler, 'StoreCode') ~= nil and Reg:getString(storeRegHandler, 'StoreCode') ~= '' then
+                StoreCode = Reg:getString(storeRegHandler, 'StoreCode')
+                Sprite:setProperty(comboboxLbl, 'text', Reg:getString(storeRegHandler, 'StoreName'))
+            end
+            local list = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(list)              
+             --从商品选择的数据仓库中取得
+            local regHandlerTest =Reg:create("goodsTest")
+            stockDecodedData = Reg:getTable(regHandlerTest,'commodityList')
+            Log:write("库存盘点商品信息： ",stockDecodedData)
+            if stockDecodedData ~= nil then
+                local len =  stockDecodedData.Total
+                Log:write("数据记录数： ",len)
+                ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), tonumber(len), 'loadListItem')
+                ListView:adjust(list)
+            end
+        end             
+    end
+
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+       if Loading:isShow() then Loading:close() end 
+       if msg == 102 then    
+            local len=0 
+            jsonDecodedData = Http:jsonDecode('stockSubmit')
+            Log:write("库存盘点提交列表jsonDecodedData = ",jsonDecodedData)
+            if jsonDecodedData.Total == '1' then
+                local successNode = Sprite:findChild(rootSprite, "success")
+                Sprite:setProperty(Sprite:findChild(successNode,'successxinxi'),'text','信息提交成功！')
+                Sprite:setVisible(successNode,1)
+                Timer:set(1,2000,'doBack')
+                stockDecodedData = nil
+            else 
+                Dialog:show(rootSprite, '提交失败，请与数据库管理员联系！', 'ok')
+                return
+            end          
+        end
+        if msg == 103 then 
+            if Loading:isShow() then Loading:close() end
+            storeDecodedData = Http:jsonDecode('myStoreTag') 
+            Log:write("storeDecodedData = ",storeDecodedData)        
+            if (storeDecodedData.Total == 0 ) then
+                Dialog:show("", "无我的门店", "ok")
+                return
+            end 
+            setAllShoworHide(Sprite:findChild(rootSprite, 'mendianlistShowNode'), 1)
+            local len = storeDecodedData.Total
+            local list = Sprite:findChild(rootSprite, 'myStoreListView')
+            ListView:loadItem(list, Sprite:findChild(rootSprite, 'myStoreListitem'), len, 'loadListItemMyStore')
+            ListView:adjust(list)                            
+        end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function myfunc()
+      local successNode = Sprite:findChild(rootSprite, "success")
+      Sprite:setVisible(successNode,0) 
+end
+
+function hidemendianSelected()
+       setAllShoworHide(Sprite:findChild(rootSprite, 'mendianlistShowNode'), 0)
+end
+
+function doBack()
+        Reg:clear(Reg:create("goodsTest"))
+        Reg:clear(Reg:create("kuncunstoreRegHandler"))
+        local successNode = Sprite:findChild(rootSprite, "success")
+        Sprite:setVisible(successNode,0)
+        Scene:back()   
+end
+
+function loadListItem(list, item, index)
+        Sprite:setRect(item, 0,0,480,66)
+        Sprite:setProperty(item, 'extendstyle', '0010') 
+        local goodsId = Sprite:findChild(item, 'goodsId')      
+        local shangpin = Sprite:findChild(item, 'shangpin')
+        local danwei = Sprite:findChild(item, 'danwei')
+        local defaltStock = Sprite:findChild(item, 'defaltStock')      
+        local value = stockDecodedData.Rows[index] 
+        Log:write("value = ",value)      
+        Sprite:setProperty(shangpin, 'text', value.tempName)
+        Sprite:setProperty(danwei,'text', value.itemUnit)              
+        Sprite:setProperty(defaltStock, 'text', value.Num)
+        Sprite:setProperty(goodsId, 'text',value.itemId)                         
+end
+--门店列表赋数据库值
+function loadListItemMyStore(list, item, index)       
+        Sprite:setRect(item, 0,0,368,74)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        local storeNameNode = Sprite:findChild(item, 'storeName')  
+        local storeNameDisplay = Sprite:findChild(storeNameNode, 'storeNameDisplay')
+
+        local storeIdNode =  Sprite:findChild(item, 'storeId')
+        if (storeDecodedData.Total ~= 0) then
+            local value = storeDecodedData['Rows'][index]
+            Log:write("门店列表赋数据库值 Value = ",value)
+            if value.storeName~=nil then
+                Sprite:setProperty(storeNameDisplay, 'text', value.storeName)
+                Sprite:setProperty(storeNameNode, 'data', index) 
+            end 
+            if value.storeId~=nil then
+                Sprite:setProperty(storeIdNode, 'text',value.storeId)
+            end
+             
+        end        
+    end
+
+function comboboxOnSelect4(sprite)
+        local storeNameText = Sprite:getText(Sprite:findChild(rootSprite,'comboboxlabel1')) 
+        -- Log:write("门店名称为 ："..storeNameText)
+        if storeNameText == "请点击选择" then 
+            -- Dialog:show("", "请先选择门店！", "ok")
+            local successNode = Sprite:findChild(rootSprite, "success")
+            Sprite:setProperty(Sprite:findChild(successNode,'successxinxi'),'text','请先选择门店！')
+            Sprite:setVisible(successNode,1)
+            Timer:set(1,2000,'myfunc')
+            return
+        end 
+        -- Log:write("storeId = ",StoreCode) 
+        Scene:setReturn(Alias.kucunpandian,Alias.xzsp .. '?storeId=' .. StoreCode .. '&storeName='..storeNameText)
+        Scene:go(Alias.xzsp .. '?storeId=' .. StoreCode .. '&storeName='..storeNameText,1)
+end
+
+function add()
+        local storeNameText = Sprite:getText(Sprite:findChild(rootSprite,'comboboxlabel1')) 
+        if storeNameText == "请点击选择" then 
+            Log:write("提交时门店名称为：",storeNameText)
+            -- Dialog:show("", "请选择门店！", "ok")
+            local successNode = Sprite:findChild(rootSprite, "success")
+            Sprite:setProperty(Sprite:findChild(successNode,'successxinxi'),'text','请选择门店！')
+            Sprite:setVisible(successNode,1)
+            Timer:set(1,2000,'myfunc')
+            return
+        end 
+        if stockDecodedData == nil then
+            -- Dialog:show("", "未选择商品", "ok")
+            local successNode = Sprite:findChild(rootSprite, "success")
+            Sprite:setProperty(Sprite:findChild(successNode,'successxinxi'),'text','请选择商品！')
+            Sprite:setVisible(successNode,1)
+            Timer:set(1,2000,'myfunc')
+            return
+        elseif stockDecodedData.Total == 0 then
+            -- Dialog:show("", "未选择商品", "ok")
+            local successNode = Sprite:findChild(rootSprite, "success")
+            Sprite:setProperty(Sprite:findChild(successNode,'successxinxi'),'text','请选择商品！')
+            Sprite:setVisible(successNode,1)
+            Timer:set(1,2000,'myfunc')
+            return
+        end    
+        local list=Sprite:findChild(rootSprite,'sampleList')
+        local count= ListView:getItemCount(list)
+        local stockList = ''
+        for i=1,count do
+            local itemNode = ListView:getItem(list, i-1)
+            local goodsIdNode=Sprite:findChild(itemNode,'goodsId')
+            local goodsIdText=Sprite:getText(goodsIdNode) 
+            local defaltStockNode=Sprite:findChild(itemNode,'defaltStock')
+            local defaltStockText=Sprite:getText(defaltStockNode) 
+            local actualStockNode=Sprite:findChild(itemNode,'actualStock')
+            local actualStockText=Sprite:getText(actualStockNode)
+            Log:write("商品Id号： ",goodsIdText)
+            Log:write("默认库存： ",defaltStockText)
+            Log:write("实际库存： ",actualStockText)
+            --判断是否输入库存数
+            if actualStockText==nil or actualStockText=='' then
+                Log:write("提交时实际库存为：",storeNameText)
+                -- Dialog:show('提醒','请输入实际库存数目!','ok')
+                local successNode = Sprite:findChild(rootSprite, "success")
+                Sprite:setProperty(Sprite:findChild(successNode,'successxinxi'),'text','请输入实际库存数目!')
+                Sprite:setVisible(successNode,1)
+                Timer:set(1,2000,'myfunc')
+                return
+            elseif tonumber(actualStockText) == nil then
+                -- Dialog:show('提醒','实际库存数必须为数字','ok')
+                local successNode = Sprite:findChild(rootSprite, "success")
+                Sprite:setProperty(Sprite:findChild(successNode,'successxinxi'),'text','实际库存数必须为数字!')
+                Sprite:setVisible(successNode,1)
+                Timer:set(1,2000,'myfunc')
+                return
+            elseif tonumber(actualStockText)<0 then
+                -- Dialog:show('提醒','实际库存数必须为数字','ok')
+                local successNode = Sprite:findChild(rootSprite, "success")
+                Sprite:setProperty(Sprite:findChild(successNode,'successxinxi'),'text','实际库存数不能为负数!')
+                Sprite:setVisible(successNode,1)
+                Timer:set(1,2000,'myfunc')
+                return
+            else
+                stockList= stockList..goodsIdText..';'..defaltStockText..';'..actualStockText..'|'
+            end
+        end  
+        Log:write("库存盘点提交列表",stockList)            
+        requestStockList('stockSubmit', 102,usercode,stockList)
+end
+
+--@brief 提交库存盘点列表请求
+function requestStockList(tag, num, usercode,stockList)
+        local requestURL = Alias.urlServer..'storeReport//addReport?userCode='..usercode..'&storeId='..StoreCode..'&paras='..stockList
+        Http:request(tag, requestURL, num)
+        Loading:show()
+end 
+
+-- 门店单击事件
+function storeComboboxOnSelect(sprite) 
+    local list = Sprite:findChild(rootSprite, 'myStoreListView')
+    ListView:removeAllItems(list)
+    local param = 'userCode=' .. Config:get('username')
+    local url = Alias.urlServer..'storeReport/stores?'..param
+    -- Log:write("我的门店requestUrl = "..url)
+    Http:request('myStoreTag', url, 103, {useCache = true, method = 'post'})
+    Loading:show(rootSprite)
+end
+--我的门店列表单击事件
+function storeItemOnSelect(sprite)  
+       Reg:clear(Reg:create("goodsTest"))
+       local list = Sprite:findChild(rootSprite, 'sampleList')
+       ListView:removeAllItems(list) 
+       local comboboxLbl = Sprite:findChild(rootSprite, 'comboboxlabel1')
+       local storeId = Sprite:findChild(sprite, 'storeId')
+       StoreCode = Sprite:getText(storeId)
+       -- Log:write("storeId = "..StoreCode)
+       local index = Sprite:getData(sprite)
+       submitItem = index
+       local storeRegHandler =Reg:create("kuncunstoreRegHandler")
+       Reg:setString(storeRegHandler, 'StoreCode', StoreCode)
+       Reg:setString(storeRegHandler, 'StoreName', storeDecodedData['Rows'][tonumber(index)].storeName)
+       -- Log:write("storeName = ",storeDecodedData['Rows'][tonumber(index)].storeName)
+       Sprite:setProperty(comboboxLbl, 'text', storeDecodedData['Rows'][tonumber(index)].storeName)
+       setAllShoworHide(Sprite:findChild(rootSprite, 'mendianlistShowNode'), 0)  
+end
+--获取当前日期
+function getCurDate()
+    local year = os.date("*t")["year"]
+    local month = os.date("*t")["month"]
+    local day = os.date("*t")["day"]
+    return string.format('%04s-%02s-%02s', year, month, day)
+end
+    ]]>
+</root>

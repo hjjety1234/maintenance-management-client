@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root> 
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <!-- 主界面 -->
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置页面背景 -->
+            <shadow rect="0,0,480,900"  alpha="255" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,800" src="file://pics/main_bg.png" extendstyle="1111" style="autosize"/>
+            </shadow>
+            <!-- 信息头部 -->
+            <node rect="0,0,480,80" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png" extendstyle="1111" style="autosize"/>
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="20,14,52,52" OnSelect="doBack" border="false"
+                    normal="src:file://pics/icon_home_d.png;"
+                    sel="src:file://pics/icon_home_s.png;"  style="autosize"
+                    extendstyle="1111"/>
+                <image name="normal" rect="92,0,2,80" src="file://pics/sub_top_line.png"  extendstyle="1111"/>
+                <!-- 二级菜单标题 -->
+                <scrolltext name="title" rect="0,0,480,80" text="我的门店" font-family="微软雅黑" 
+                    extendstyle="1111" font-size="32" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2"/>
+                <!--新增 -->
+                <button name="addBtn" rect="408,14,52,52" OnSelect="add" border="false"
+                    normal="src:file://pics/icon_add_d.png;" 
+                    sel="src:file://pics/icon_add_s.png;" style="autosize"
+                    extendstyle="1111"/>
+                <image name="normal" rect="388,0,2,80" src="file://pics/sub_top_line.png" extendstyle="1111"/>
+            </node>
+            <!-- 下面的搜索框 -->
+            <node rect="0,80,480,72" extendstyle="1111" border="false" >
+               <image rect="0,0,480,72" src="file://pics/search_bg.png" style="autosize" extendstyle="1111"/>
+               <image rect="8,10,405,52" src="file://pics/input_search.png" sudoku="50,10,50,0" style="sudoku-auto" extendstyle="1111"/>
+               <edit  rect="36,10,377,52" border="false" text="请输入关键字" name="seq" 
+                       OnLostFocus="editOnTextChanged" OnSetFocus="initText" v-align="center" 
+                       extendstyle="1111" style="autosize" h-align="left" color="#c5c6c5" 
+                       font-family="微软雅黑" font-size="24">
+               </edit>
+               <button name="searchBtn" rect="428,16,40,40" border="false"
+                   normal="src:file://pics/button_search_d.png;"
+                   sel="src:file://pics/button_search_s.png;" style="autosize"
+                   OnSelect="searchOnSelect" extendstyle="1111" />
+            </node>
+            <!-- 信息列表视图  -->
+            <node name="listViewNode" rect="0,152,480,648" extendstyle="1111" >
+                <listview name="listView1" rect="0,0,480,588" visible="true" border="false" extendstyle="1111" />
+                <button rect="0,570,480,75" border="false" text="点击查看更多" color="#666666" OnSelect="addmore" name="morebtn" visible="false"
+                    v-align="center" h-align="center" font-family="微软雅黑" font-size="24" extendstyle="1110" />
+            </node>
+            <!-- 信息列表项  -->
+            <node name="listItem1" rect="0,0,480,98" border="false" visible="false" enable="false" active="false" extendstyle="1111">
+               <button  name="srw"  rect="0,0,480,98" normal="src:file://pics/list_news_s.jpg;" sel="src:file://pics/list_news_d.jpg;" 
+                style="autosize" OnSelect="open" extendstyle="1111" sudoku="15,15,15,15">                                                                             
+                    <image rect="14,17,64,64" src="file://pics/mengdianlog_s.png" name="icon"  extendstyle="1111" style="autosize"/>
+                    <scrolltext name="sname" rect="100,20,380,28" border="false" color="#0" scroll="true" extendstyle="1111" style="autosize" 
+                           h-align="left" v-align="top" font-family="微软雅黑" font-size="22"/>
+                    <label name="saddr" postfix="..." rect="100,57,340,22" border="false" color="#0"  extendstyle="1111" style="autosize" 
+                           h-align="left" v-align="top" font-family="微软雅黑" font-size="18"/>
+                    <shadow rect="0,97,480,1" color="#aaabae" alpha="255"extendstyle="1114" />
+                </button>
+            </node>
+            <!-- 无数据的提示 -->
+            <node name="nomsg" rect="0,152,480,656" border="false" visible="false" enable="false" active="false" extendstyle="1111" sudoku="15,15,15,15">
+                <image rect="120,216,239,234"  src="file://pics/face.png" style="autosize" extendstyle="1111" sudoku="15,15,15,15"/>
+                <label rect="0,470,480,48" extendstyle="1111" h-align="center" v-align="center"  
+                    font-family="微软雅黑" font-size="24" text="没有搜索到您需要的数据"></label>
+            </node>
+            <button visible="false" data="1" name="curpage"></button>
+            <button visible="false" name="hisParm" data=""></button>
+        </node>
+    </body>
+    <![CDATA[
+    require 'com_xsgj.common.framework'
+    local server=Alias.urlServer..'mystore/getStoreList?pagesize=6'
+    local serverImg=Alias.imgServer
+    local rootSprite=nil
+    local jsonDecodedData = nil
+    local curpage=nil
+    local morebtn=nil
+    local nomsg=nil
+    local hisParm=nil
+    -- 第一次创建页面事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        curpage=Sprite:findChild(rootSprite, 'curpage')
+        morebtn=Sprite:findChild(rootSprite, 'morebtn')
+        nomsg=Sprite:findChild(rootSprite, 'nomsg')
+        hisParm=Sprite:findChild(rootSprite, 'hisParm')
+        --2.获取数据
+        Log:write(server..'&page=1'..'&userCode='..Config:get('username')..'&name=')
+        Http:request('json_data', server, 901, {useCache = false, method = 'post',postData='&page=1'..'&userCode='..Config:get('username')..'&keyword='})
+        Loading:show(rootSprite)
+    end
+    -- 页面加载事件
+    function bodyOnSpriteEvent(msg, param)
+       if msg == MSG_ACTIVATE then -- 页面激活
+       elseif msg == MSG_DEACTIVATE then
+       end
+    end
+    -- 获取接口返回时的反馈处理
+    function bodyOnPluginEvent(msg, param)
+        if msg == 901 then -- 页面激活
+            if Loading:isShow() then Loading:close() end 
+            setAllShoworHide(morebtn,0)
+            local p=Sprite:getData(curpage)
+             -- 删除原有列表项
+            local list = Sprite:findChild(rootSprite, 'listView1')
+            jsonDecodedData = Http:jsonDecode('json_data')
+            Log:write("jsonDecodedData = ", jsonDecodedData)
+            if (jsonDecodedData == nil or jsonDecodedData["Total"] == nil or
+                jsonDecodedData["Total"] == '' or jsonDecodedData['Rows']==nil) then
+                if '1'==p then
+	                Sprite:setActive(nomsg, 1)
+	                Sprite:setEnable(nomsg, 1)
+	                Sprite:setVisible(nomsg, 1)
+                end
+                return
+            end
+            --显示下一页
+            Sprite:setActive(nomsg, 0)
+            Sprite:setEnable(nomsg, 0)
+            Sprite:setVisible(nomsg, 0)
+            local len = jsonDecodedData["Total"]
+            if len>p*6 then
+                setAllShoworHide(morebtn, 1)
+            end
+            -- 加载新的列表项
+            ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem1'), getJsonArrayCount(jsonDecodedData['Rows']), 'loadListItem')
+            ListView:adjust(list)
+        end
+    end
+    -- 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc) 
+        if kc == Key.F2 then -- 按下返回键
+             Scene:go(Alias.home,true)
+            return 1
+        end
+    end
+    ---------------------------------------其他方法---------------------------
+    function loadListItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 98)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        -- 获取要创建的列表项Sprite
+        local sname = Sprite:findChild(item, 'sname')--门店名称
+        local saddr = Sprite:findChild(item, 'saddr')--门店地址
+        local srw = Sprite:findChild(item, 'srw')--行
+        local icon = Sprite:findChild(item, 'icon')--图标
+        -- 设置列表项的内容
+        if (jsonDecodedData ~= nil and jsonDecodedData['Rows'] ~= nil) then
+            local value = jsonDecodedData['Rows'][index]
+            if value ~= nil then
+                if value["mystorePhoto"] == nil or value["mystorePhoto"] == '' then
+                    if value["systemtype"]=='1' then--沃尔玛
+                        Sprite:setProperty(icon, 'src', 'file://pics/mengdianlog_woerma.png')
+                    elseif value["systemtype"]=='2' then--家乐福
+                        Sprite:setProperty(icon, 'src', 'file://pics/mengdianlog_jialefu.png')
+                    elseif value["systemtype"]=='3' then--合家福
+                        Sprite:setProperty(icon, 'src', 'file://pics/mengdianlog_hejiafu.png')
+                    elseif value["systemtype"]=='4' then--大润发 
+                        Sprite:setProperty(icon, 'src', 'file://pics/mengdianlog_darunfa.png')
+                    elseif value["systemtype"]=='5' then--苏果连锁店
+                        Sprite:setProperty(icon, 'src', 'file://pics/mengdianlog_suguo.png')
+                    elseif value["systemtype"]=='6' then--乐购
+                        Sprite:setProperty(icon, 'src', 'file://pics/mengdianlog_legou.png')
+                    elseif value["systemtype"]=='7' then--百姓缘
+                        Sprite:setProperty(icon, 'src', 'file://pics/mengdianlog_baixing.png')
+                    end
+                else
+                    local datestr = Split(value["mystorePhoto"], ',')
+                    Sprite:setProperty(icon, 'src', serverImg..datestr[1])
+                end
+                Sprite:setProperty(srw, 'data', value["mystoreCode"])
+                Sprite:setProperty(sname, 'text', value["mystoreName"])
+                Sprite:setProperty(saddr, 'text',value["addMan"]..'   '..value["mystoreAddr"])
+            end
+        end
+    end
+    -- @brief 返回按钮处理
+    function doBack()
+        Scene:go(Alias.home,true)
+    end
+    --- 添加按钮处理
+    function add()
+        Scene:setReturn(Alias.mendianlist, Alias.mendianadd)
+        Scene:go(Alias.mendianadd, true)
+    end
+    ---打开明细页面
+    function open(sprite)
+        local sltData = Sprite:getData(sprite)
+        local regHandle = Reg:create('detailwin')
+        Reg:setString(regHandle, 'oid', sltData)
+        Scene:setReturn(Alias.mendianlist, Alias.mendiandetail)
+        Scene:go(Alias.mendiandetail, true)
+    end
+    ---搜索按钮
+    function searchOnSelect()
+        Sprite:setProperty(curpage, 'data','1')
+        local txt= Sprite:getText(Sprite:findChild(rootSprite, 'seq'))
+        local param='&page=1&userCode='..Config:get('username')..'&keyword='
+        if txt~=nil and txt~='请输入关键字' and txt~='' then
+            Sprite:setProperty(hisParm, 'data', txt)
+            param=param..txt
+        else
+            Sprite:setProperty(hisParm, 'data', '')
+        end
+        Log:write("param = "..param)
+        ListView:removeAllItems(Sprite:findChild(rootSprite, 'listView1'))
+        Http:request('json_data', server, 901, {useCache = false, method = 'post',postData=param})
+        Loading:show(rootSprite)
+    end
+    ---当进入编辑框时，修改文字为输入
+   function initText(sprite)
+       local txt= Sprite:getProperty(sprite, 'text')
+       if txt=='请输入关键字' then
+        Sprite:setProperty(sprite, 'text', '')
+        Sprite:setProperty(sprite, 'color', '#0')
+       end
+   end
+   ---当未有任何输入时，初始化为提示
+    function editOnTextChanged(sprite)
+       local txt= Sprite:getProperty(sprite, 'text')
+       if txt=='' or txt ==nil then
+        Sprite:setProperty(sprite, 'color', '#8f8e8e')
+        Sprite:setProperty(sprite, 'text', '请输入关键字')
+       end
+    end
+   --加载更多
+    function addmore()
+        local p=Sprite:getData(curpage)+1
+        local v=Sprite:getData(hisParm)
+        Sprite:setProperty(curpage, 'data',p)
+        local param='&page='..p..'&userCode='..Config:get('username')..'&keyword='
+        if v~=nil and v ~='' then
+            param=param..v
+        end
+        Log:write("param = "..param)
+        Http:request('json_data', server, 901, {useCache = false, method = 'post',postData=param})
+        Loading:show(rootSprite)
+    end
+]]>
+</root>

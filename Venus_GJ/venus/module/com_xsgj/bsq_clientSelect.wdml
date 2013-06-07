@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+			<!-- 设置背景 -->
+            <image name="main-bg" rect="0,0,480,800" visible='true' src="file://pics/main_bg.png" style="autosize" extendstyle="0010"></image>  
+            <!-- 信息头部 -->
+            <node name="topnode" rect="0,0,480,80" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png" extendstyle="1111" style="autosize"></image>
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="9,14,52,52" normal="src:file://pics/icon_back_d.png" sel="src:file://pics/icon_back_s.png"
+                    OnSelect="doBack" style="autosize" extendstyle="1111"></button>
+                <image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png" style="autosize" extendstyle="1111"></image>                
+                <!-- 标题 -->
+                <scrolltext name="title" rect="100,0,280,70" text="选择客户" extendstyle="1111" font-size="32" h-align="center" v-align="center"
+                    font-family="微软雅黑" color="#ffffff" scroll="true" step="2"></scrolltext>
+                <image name="normal" rect="410,0,2,80" src="file://pics/sub_top_line.png" style="autosize" extendstyle="1111"></image>                    
+                <!--提交按钮-->
+                <button name="addBtn" rect="419,14,52,52" normal="src:file://pics/icon_submit_d.png" sel="src:file://pics/icon_submit_s.png"
+                    OnSelect="tjOnSelect" style="autosize" extendstyle="1111"></button>
+            </node>
+            <!-- 搜索框 -->
+            <node name="searchBar" rect="0,80,480,70" extendstyle="1111">
+                <image name="searchBarImage" rect="0,0,480,70" src="file://pics/search_bg.png"extendstyle="1111" style="autosize"></image>
+                <image name="Image1" rect="10,10,400,52" src="file://pics/input_search.png" sudoku="50,0,50,0" style="sudoku-auto" extendstyle="1111"></image>
+                <edit name="keywordEdit" rect="45,15,350,40" extendstyle='1111' v-align="center" h-align="left" color="#c5c6c5" font-size="24" text="搜索客户名称" OnLostFocus="editOnTextChanged" OnSetFocus="initText" font-family="微软雅黑"></edit>
+                <button name="searchButton" rect="420,15,40,40" style="autosize" normal="src:file://pics/button_search_d.png;" sel="src:file://pics/button_search_s.png;" OnSelect="OnSearchButtonClicked" extendstyle="1111" />                          
+            </node>
+			<node name="listViewNode" rect="0,150,480,655" extendstyle="1111">
+				<listview name="listView1" rect="0,0,480,570" extendstyle="1111" border="false" visible="true" />
+				<button name="morebtn" rect="0,570,480,75" border="false" text="点击查看更多" color="#666666" OnSelect="addmore" extendstyle="1111"
+                    visible="false" enable="false" active="false" v-align="center" h-align="center"  font-family="微软雅黑" font-size="24"></button>   
+			</node>
+			<node name="error" rect="0,170,480,624" visible="false" enable="false" active="false" extendstyle="1111" style="autosize" >  
+              <image rect="120,140,239,234" src="file://pics/face.png" style="autosize" extendstyle="1111" />
+              <label rect="0,380,480,50" text="没有搜索到您要的数据" font-family="微软雅黑" font-size="32" h-align="center" v-align="center" color="#686464" style="autosize" extendstyle="0010" />
+            </node>
+			<node name="listItem1" rect="0,200,480,100" border="false" visible="false" extendstyle="1111" enable="false" active="false">
+				<button name="btnname" rect="0,0,480,105" OnSelect="itemOnSelect" extendstyle="1111" border="false" style="autosize">
+					<!--内容详情 -->
+					<image rect="0,0,0,0" src="file://pics/dh_tab_bj.png" extendstyle="1177" style="autosize" />
+					<label name="clientId" rect="0,0,20,45" border="false" text="" h-align="right" v-align="center" color="#000000" font-size="15"
+						font-family="微软雅黑" extendstyle="1111" visible="false"></label>
+					<scrolltext name="clientTitle" rect="35,0,330,32" scroll="false" step="4" border="false" h-align="left" v-align="center" color="#000000" 
+						text=""  font-family="微软雅黑" font-size="24" font-style="bold" extendstyle="1111"></scrolltext>
+					<label name="clientStatus" rect="35,32,100,32" border="false" text="" h-align="left" v-align="center" color="#FF0000" 
+						font-family="微软雅黑" font-size="24"  extendstyle="1111"></label>
+					<label name="clientContact" rect="150,32,230,32" border="false" text="" h-align="left" v-align="center" color="#000000" 
+					    font-size="24" font-family="微软雅黑" extendstyle="1111"></label>
+					<label name="clientAddress" rect="35,64,330,32" border="false" text="" h-align="left" v-align="center" color="#000000" 
+					    font-size="24" font-family="微软雅黑" extendstyle="1111"></label>
+					<image name="nocheck" rect="410,37,26,26" border="false" src="file://pics/item_unselected.png" style="autosize"></image>
+					<node name="checkNode" rect="410,37,26,26" extendstyle="1111" visible="false">
+						<image name="check" rect="0,0,26,26" border="false" src="file://pics/item_selected.png" style="autosize"></image>
+					</node>
+                    <shadow rect="0,99,480,1" color="#aaabae" alpha="255" extendstyle="1114" />					
+				</button>
+			</node>
+		</node>
+	</body>
+    <![CDATA[
+
+require 'com_xsgj.common.framework'
+require('framework.common')
+local rootSprite
+local jsonDecodedNotice = nil
+local usercode
+local urlRequestServer
+local curpage=1
+local pagesizenumber=6    
+local morebtn=nil  
+ 
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    urlRequestServer = Alias.urlServer
+    --urlRequestServer = 'http://10.152.22.216:8181/mobileSale/'
+    local currentWhoHandler = Reg:create("currentWhoHandler")
+    usercode = Reg:getString(currentWhoHandler, 'whocode')
+    morebtn = Sprite:findChild(rootSprite, 'morebtn')           
+end
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        initList()    
+        requestClientList('VISITCLIENT_LIST', 101, curpage, pagesizenumber)
+        elseif msg == MSG_DEACTIVATE then
+    end
+end
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+        if Loading:isShow() then Loading:close() end
+        jsonDecodedNotice = Http:jsonDecode('VISITCLIENT_LIST')
+        Log:write('bsqbsq666666666666666:', jsonDecodedNotice)
+        local error = Sprite:findChild(rootSprite, 'error')
+        setAllShoworHide(error, 0)
+        -- 检查是否有返回结果
+        if jsonDecodedNotice == nil then
+            --Dialog:show("", "对不起，暂无数据", "ok")
+            setAllShoworHide(error, 1)
+        end
+        -- 迭代取得列表的长度
+        local totallen = tonumber(jsonDecodedNotice["Total"])
+        if totallen == 0 then
+            --Dialog:show("", "对不起，暂无数据", "ok")
+            setAllShoworHide(error, 1)
+            return
+        end
+        --如果记录大于n页，则显示翻页按钮
+        if totallen>curpage*pagesizenumber then
+            setAllShoworHide(morebtn, 1)
+        end
+        local curlen = getJsonArrayCount(jsonDecodedNotice['Rows']);
+        local list = Sprite:findChild(rootSprite, 'listView1')
+        -- 加载新的列表项
+        Log:write('bsqbsq66666666666666688888888888888888888:', curlen)
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem1'), curlen, 'loadListItem')
+        ListView:adjust(list)  
+        elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+        elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+        elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+---------------------------------------util functions---------------------------
+-- @brief 加载listitem的回调函数
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 100)
+    Sprite:setProperty(item, 'extendstyle', '1111')    
+    -- 获取要创建的列表项Sprite
+    local listItemBg = Sprite:findChild(item, 'listItemBg')
+    Sprite:setRect(listItemBg, 0, 0, 480, 100)
+    local clientIdSprite = Sprite:findChild(item, 'clientId')
+    local clientTitleSprite = Sprite:findChild(item, 'clientTitle')
+    local clientStatusSprite = Sprite:findChild(item, 'clientStatus')
+    local clientContactSprite = Sprite:findChild(item, 'clientContact')
+    local clientAddressSprite = Sprite:findChild(item, 'clientAddress')
+    local value = jsonDecodedNotice['Rows'][index]
+    if value["clientCode"]~=nil and value["clientCode"]~='' then
+        Sprite:setProperty(clientIdSprite, 'text', value["clientCode"])
+    end
+    if value["clientName"]~=nil and value["clientName"]~='' then
+        Sprite:setProperty(clientTitleSprite, 'text', value["clientName"])
+    end
+    if value["clientStatus"]~=nil and value["clientStatus"]~='' then
+        if value["clientStatus"]=='1' then
+            Sprite:setProperty(clientStatusSprite, 'text', '正在开发')
+            elseif value["clientStatus"]=='2' then
+            Sprite:setProperty(clientStatusSprite, 'text', '已合作')
+            elseif value["clientStatus"]=='3' then
+            Sprite:setProperty(clientStatusSprite, 'text', '合作中止')
+            elseif value["clientStatus"]=='4' then
+            Sprite:setProperty(clientStatusSprite, 'text', '开发失败')
+        end
+    end
+    if value["clientContacter"]~=nil and value["clientContacter"]~='' then
+        Sprite:setProperty(clientContactSprite, 'text', value["clientContacter"])
+    end
+    if value["clientContacter"]~=nil and value["clientContacter"]~='' and value["clientContacterMobile"]~='' and value["clientContacterMobile"]~='' then
+        Sprite:setProperty(clientContactSprite, 'text', value["clientContacter"].."："..value["clientContacterMobile"])
+    end
+    if value["clientAddr"]~=nil and value["clientAddr"]~='' then
+        Sprite:setProperty(clientAddressSprite, 'text', value["clientAddr"])
+    end
+end
+-- @brief 列表项选择处理
+function itemOnSelect(sprite)
+    -- 获取所选列表项数据
+    Log:write('222222222222222222222222222222')
+    local checksprite = Sprite:findChild(sprite, 'checkNode')
+    local nocheck = Sprite:findChild(sprite, 'nocheck')
+    Log:write('1111111222222222222222222221111111')
+    if Sprite:isVisible(checksprite) == 1 then -- 如果显示则隐藏，如果隐藏则显示
+        Sprite:setVisible(checksprite, 0)
+        Sprite:setVisible(nocheck, 1)
+        else
+        Sprite:setVisible(checksprite, 1)
+        Sprite:setVisible(nocheck, 0)
+    end
+end
+-- @brief 返回按钮处理
+function doBack()
+    Scene:back()
+end
+--@brief 请求服务器公告列表
+function requestClientList(tag, num, pagenum, pagesizenum)
+    local requestURL = string.format(urlRequestServer..'visitPlan/getAll?')
+    local param='userName='..usercode..'&page='..pagenum..'&pagesize='..pagesizenum
+    Log:write("++++++++++++++requestURL:", requestURL)
+    Log:write("++++++++++++++param:", param)
+    Http:request(tag, requestURL, num, {useCache = false, method = 'post',postData=param})
+    Loading:show()
+end 
+--@brief 请求服务器公告列表
+function requestClientSearchList(tag, num, title, pagenum, pagesizenum)
+    local requestURL = nil
+    local param = nil
+    if title =='' or title ==nil or title=='搜索客户名称' then
+        requestURL = string.format(urlRequestServer..'visitPlan/getAll?') 
+        param='userName='..usercode..'&page='..pagenum..'&pagesize='..pagesizenum 
+    else 
+        requestURL = string.format(urlRequestServer..'visitPlan/search?')
+        param='keyword='..title..'&userName='..usercode..'&page='..pagenum..'&pagesize='..pagesizenum
+    end    
+    Log:write("++++++++++++++requestURL:", requestURL)
+    Log:write("++++++++++++++param:", param)
+    Http:request(tag, requestURL, num, {useCache = false, method = 'post',postData=param})
+    Loading:show()
+end
+function tjOnSelect(sprite)
+    list = Sprite:findChild(rootSprite, 'listView1')
+    local num = ListView:getItemCount(list)
+    Log:write('111111111111111:', num)
+    local curitem = nil
+    local clientidstr = ""
+    local clientTitlestr = ""
+    local selnum = 0
+    local i=0
+    while i<num do
+        curitem = ListView:getItem(list, i)
+        local checksprite = Sprite:findChild(curitem, 'checkNode')
+        if Sprite:isVisible(checksprite) == 1 then
+            local clientIdSprite = Sprite:findChild(curitem, 'clientId')
+            local clientTitleSprite = Sprite:findChild(curitem, 'clientTitle')
+            clientidstr = clientidstr..Sprite:getProperty(clientIdSprite, 'text')..","
+            clientTitlestr = clientTitlestr..Sprite:getProperty(clientTitleSprite, 'text')..";"
+            selnum = selnum + 1
+        end
+        i=i+1
+    end
+    Log:write('bsqbsq:', clientidstr..clientTitlestr..selnum)
+    local clientSelectHandler = Reg:create("clientSelect")
+    Reg:setString(clientSelectHandler, 'clientId', clientidstr)
+    Reg:setString(clientSelectHandler, 'clientTitle', clientTitlestr)
+    Reg:setString(clientSelectHandler, 'clientNum', selnum)
+    Scene:back()
+    --Scene:go(Alias.baifang,true)
+end
+--@brief 点击搜索按钮消息处理函数
+function OnSearchButtonClicked(sprite)
+    -- 获取用户输入
+    local keywordEditSprite = Sprite:findChild(rootSprite, "keywordEdit")
+    local title = Sprite:getText(keywordEditSprite)
+    initList()       
+    -- 请求搜索
+    requestClientSearchList('VISITCLIENT_LIST', 101, title,curpage, pagesizenumber)
+end
+--加载更多
+function addmore()
+    setAllShoworHide(morebtn, 0)
+    curpage = curpage+1;
+    requestClientList('VISITCLIENT_LIST', 101, curpage, pagesizenumber)        
+end      
+--list界面初始化
+function initList()               
+    local list = Sprite:findChild(rootSprite, 'listView1')
+    ListView:removeAllItems(list) --初始化时去除已经显示的list
+    setAllShoworHide(morebtn, 0)--初始化时隐藏按钮
+    curpage = 1  --初始化时重置curpage值为1
+end        
+---当进入编辑框时，修改文字为输入
+function initText(sprite)
+    local txt= Sprite:getProperty(Sprite:findChild(rootSprite, 'keywordEdit'), 'text')
+    if txt=='搜索客户名称' then
+     Sprite:setProperty(Sprite:findChild(rootSprite, 'keywordEdit'), 'text', '')
+     Sprite:setProperty(Sprite:findChild(rootSprite, 'keywordEdit'), 'color', '#0')
+    end
+end       
+---当未有任何输入时，初始化为提示
+function editOnTextChanged(sprite)
+    local txt= Sprite:getProperty(Sprite:findChild(rootSprite, 'keywordEdit'), 'text')
+    if txt=='' or txt ==nil then
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'keywordEdit'), 'color', '#8f8e8e')
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'keywordEdit'), 'text', '搜索客户名称')
+    end
+end      
+]]>
+</root>

@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+			<!-- 设置背景 -->
+            <image name="main-bg" rect="0,0,480,800" visible='true' src="file://pics/main_bg.png" style="autosize" extendstyle="0010"></image>  
+            <!-- 信息头部 -->
+            <node rect="0,0,480,80" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png" extendstyle="1111" style="autosize"></image>
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="9,14,52,52" normal="src:file://pics/icon_home_d.png;" sel="src:file://pics/icon_home_s.png;"
+                    OnSelect="doBack" style="autosize" extendstyle="1111"></button>
+                <image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png" style="autosize" extendstyle="1111"></image>                
+                <!-- 标题 -->
+                <scrolltext name="title" rect="100,0,280,70" text="拜访计划" extendstyle="1111" font-size="32" h-align="center" v-align="center"
+                    font-family="微软雅黑" color="#ffffff" scroll="true" step="2"></scrolltext>
+                <image name="normal" rect="410,0,2,80" src="file://pics/sub_top_line.png" style="autosize" extendstyle="1111"></image>                    
+                <!--提交按钮-->
+                <button name="addBtn" rect="419,14,52,52" normal="src:file://pics/icon_submit_d.png" sel="src:file://pics/icon_submit_s.png"
+                    OnSelect="tjOnSelect" style="autosize" extendstyle="1111"></button>
+            </node>
+			<node name="Mesnode" rect="0,115,480,720" extendstyle="1111">
+				<node name="baseSprite" rect="0,0,480,71" extendstyle="1111">
+					<label name="label1" rect="0,0,110,71" border="false" text="创建人" h-align="right" v-align="center" extendstyle="1111"  
+						font-family="微软雅黑" font-size="24" color="#000000"></label>
+					<node name="cbaseSprite" rect="140,0,330,71" extendstyle="1111">
+						<image rect="0,0,330,71" src="file://pics/input_textarea_bg.png" sudoku="15,15,15,15" style="sudoku-auto" extendstyle="1111"></image>
+						<label name="addman" rect="20,0,290,71" text="" color="#0" extendstyle="1111" style="autosize" h-align="left" v-align="center" font-size="24"></label>
+					</node>
+				</node>
+				<node name="baseSprite" rect="0,240,480,71" extendstyle="1111">
+					<label name="label1" rect="0,0,110,71" border="false" text="拜访时间" h-align="right" v-align="center" color="#000000" font-size="24"
+						font-weight="bold" font-family="微软雅黑" extendstyle="1111"></label>
+					<button name="whenBtn" rect="140,0,330,71" sudoku="15,15,80,10" style="sudoku-auto" normal="src:file://pics/input_select_btn_d.png" 
+					    sel="src:file://pics/input_select_btn_s.png" OnSelect="whenOnSelect" extendstyle="1010"> 
+                        <label name="whenLabel" rect="20,0,298,71" text="2012-09-28" font-family="微软雅黑" color="#000000"
+                            extendstyle="1111" syle="autosize" h-align="left" v-align="center" font-size="24"></label>                             
+                    </button> 
+				</node>
+				<!-- 拜访人 -->
+				<node name="baseSprite" rect="0,80,480,71" extendstyle="1111">
+					<label name="label1" rect="0,0,110,71" border="false" text="拜访人" h-align="right" v-align="center"  extendstyle="1111"
+						font-family="微软雅黑" font-size="24" color="#000000"></label>
+					<button name="whoBtn" rect="140,0,330,71" sudoku="15,15,80,10" style="sudoku-auto" normal="src:file://pics/input_select_btn_d.png" 
+                            sel="src:file://pics/input_select_btn_s.png" OnSelect="whoBtnOnSelect" extendstyle="1010"> 
+                         <label name="whonamelabel" rect="0,0,298,71" text="张三三" font-family="微软雅黑" color="#000000"
+                            extendstyle="1111" syle="autosize" h-align="left" v-align="center" font-size="24"></label> 
+                         <label name="whocodelabel" rect="20,0,298,71" text="" font-family="微软雅黑" color="#000000"
+                            extendstyle="1111" syle="autosize" h-align="left" v-align="center" visible="false" enable="false" active="false" font-size="24"></label>   			 
+                    </button>  
+				</node>
+				<!-- 拜访客户 -->
+				<node name="baseSprite" rect="0,160,480,71" extendstyle="1111">
+					<label name="label1" rect="0,0,110,71" border="false" text="拜访客户" h-align="right" v-align="center"  extendstyle="1111" font-family="微软雅黑" font-size="24" color="#000000"></label>
+					<button name="clientBtn" rect="140,0,330,71" sudoku="15,15,80,10" style="sudoku-auto" normal="src:file://pics/input_select_btn_d.png" 
+                        sel="src:file://pics/input_select_btn_s.png" OnSelect="clientOnSelect" extendstyle="1010"> 
+                        <scrolltext name="clientTitleLabel" rect="20,0,248,71" font-family="微软雅黑" text="请点击选择" color="#0" extendstyle="1111" style="autosize"
+                            h-align="left" v-align="center" font-size="24" scroll="true" step="4"></scrolltext>                             
+                    </button>  
+				</node>
+				<!-- 拜访内容 -->
+				<node name="baseSprite" rect="0,306,480,243" extendstyle="1111">
+					<label name="label1" rect="0,0,110,71" border="false" text="拜访内容" h-align="right" v-align="center" extendstyle="1111"
+						font-family="微软雅黑" font-size="24" color="#000000"></label>
+					<image rect="140,20,330,220" src="file://pics/input_textarea_bg.png" sudoku="15,15,15,15" style="sudoku-auto" extendstyle="1111"></image>
+					<edit name="visitContent" rect="160,29,300,200" border="false" extendstyle="1111" style="autosize" multiline="true" font-size="24" max-size="140" 
+					    font-family="微软雅黑" color="#8f8e8e" OnLostFocus="editOnTextChanged" OnSetFocus="initText" OnTextChanged="editOnTextChanged" text="请输入拜访内容..."></edit>
+				</node>
+                
+				<node name="dateSelectNode" rect="0,81,480,390" extendstyle="1111" visible="false" enable="false" active="false">
+					<image name="downloadBgImg" rect="0,0,480,390" src="file://pics/cookbook/alert_bg.png" style="sudoku-auto" extendstyle="1111" sudoku="20,20,20,20"></image>
+						<image name="image2" rect="30,30,48,48" border="false" src="file://pics/cookbook/shijian.png" style="autosize" extendstyle="1111"></image>
+						<label name="label1" rect="0,30,480,58" border="false" text="选择时间" font-family="黑体" h-align="center" v-align="center" color="#b2b2b2" font-size="28" extendstyle="1111"></label>
+						<image name="image2" rect="22,85,424,2" border="false" src="file://pics/cookbook/line.png" style="sudoku-auto" extendstyle="1111" sudoku="10,10,10,10"></image>
+					<node name="nodeYear" rect="50,100,110,185" enable="true" active="true" layouttype="1" extendstyle="1111">
+						<image name="image1" rect="0,0,110,185" border="false" src="file://pics/cookbook/addsubtraction_bg.png" style="autosize" extendstyle="1111"></image>
+						<button name="addBtn" rect="1,0,108,56" layouttype="3" OnSelect="onAddSelect" normal="style:autosize;src:file://pics/cookbook/add_nor.png"
+							sel="style:autosize;src:file://pics/cookbook/add_act.png" extendstyle="1111">
+							<image name="addImg" rect="40,14,28,28" border="false" src="file://pics/cookbook/add.png" style="autosize" extendstyle="1111"></image>
+						</button>
+						<button name="subtractionBtn" rect="1,129,108,56" layouttype="3" OnSelect="onSubtractionSelect" normal="style:autosize;src:file://pics/cookbook/subtraction_nor.png"
+							sel="style:autosize;src:file://pics/cookbook/subtraction_act.png" extendstyle="1111">
+							<image name="subtractionImg" rect="40,32,27,6" border="false" src="file://pics/cookbook/subtraction.png" style="autosize" extendstyle="1111"></image>
+						</button>
+						<label name="content" rect="0,56,110,73" border="false" text="2012" h-align="center" v-align="center" color="#000000"
+							font-size="38" extendstyle="1111"></label>
+					</node>
+
+					<node name="nodeMonth" rect="185,100,110,185" enable="true" active="true" layouttype="1" extendstyle="1111">
+						<image name="image1" rect="0,0,110,185" border="false" src="file://pics/cookbook/addsubtraction_bg.png" style="autosize" extendstyle="1111"></image>
+						<button name="addBtn" rect="1,0,108,56" layouttype="3" OnSelect="onAddSelect" normal="style:autosize;src:file://pics/cookbook/add_nor.png"
+							sel="style:autosize;src:file://pics/cookbook/add_act.png" extendstyle="1111">
+							<image name="addImg" rect="40,14,28,28" border="false" src="file://pics/cookbook/add.png" style="autosize" extendstyle="1111"></image>
+						</button>
+						<button name="subtractionBtn" rect="1,129,108,56" layouttype="3" OnSelect="onSubtractionSelect" normal="style:autosize;src:file://pics/cookbook/subtraction_nor.png"
+							sel="style:autosize;src:file://pics/cookbook/subtraction_act.png" extendstyle="1111">
+							<image name="subtractionImg" rect="40,32,27,6" border="false" src="file://pics/cookbook/subtraction.png" style="autosize" extendstyle="1111"></image>
+						</button>
+						<label name="content" rect="0,56,110,73" border="false" text="2012" h-align="center" v-align="center" color="#000000"
+							font-size="38" extendstyle="1111"></label>
+					</node>
+
+					<node name="nodeDay" rect="320,100,110,185" enable="true" active="true" layouttype="1" extendstyle="1111">
+						<image name="image1" rect="0,0,110,185" border="false" src="file://pics/cookbook/addsubtraction_bg.png" style="autosize" extendstyle="1111"></image>
+						<button name="addBtn" rect="1,0,108,56" layouttype="3" OnSelect="onAddSelect" normal="style:autosize;src:file://pics/cookbook/add_nor.png"
+							sel="style:autosize;src:file://pics/cookbook/add_act.png" extendstyle="1111">
+							<image name="addImg" rect="40,14,28,28" border="false" src="file://pics/cookbook/add.png" style="autosize" extendstyle="1111"></image>
+						</button>
+						<button name="subtractionBtn" rect="1,129,108,56" layouttype="3" OnSelect="onSubtractionSelect" normal="style:autosize;src:file://pics/cookbook/subtraction_nor.png"
+							sel="style:autosize;src:file://pics/cookbook/subtraction_act.png" extendstyle="1111">
+							<image name="subtractionImg" rect="40,32,27,6" border="false" src="file://pics/cookbook/subtraction.png" style="autosize" extendstyle="1111"></image>
+						</button>
+						<label name="content" rect="0,56,110,73" border="false" text="2012" h-align="center" v-align="center" color="#000000"
+							font-size="38" extendstyle="1111"></label>
+					</node>
+					<button name="okBtn" rect="40,300,194,65" layouttype="3" OnSelect="onOKSelect" normal="src:file://pics/timeselect/d1.png;style:autosize"
+						sel="src:file://pics/timeselect/d2.png;style:autosize" extendstyle="1111" text="" color="#ffffff" font-size="24"></button>
+					<button name="cancelBtn" rect="250,300,194,65" layouttype="3" OnSelect="onCancelSelect" normal="src:file://pics/timeselect/q1.png;style:autosize" 
+					    sel="src:file://pics/timeselect/q2.png;style:autosize" extendstyle="1111" text="" color="#ffffff" font-size="24"></button>
+				</node>
+			</node>
+			<node name="nodeSuccess" rect="13,700,452,80" enable="false" visible="false" active="false" layouttype="1" extendstyle="1111">
+				<image name="image8" rect="0,0,452,63" border="false" src="file://pics/kaoqin/tishichengong.png" style="autosize"></image>
+				<label name="content" rect="0,0,452,63" border="false" text="提  交  成  功" h-align="center" 
+				    v-align="center" font-family="微软雅黑" font-size="24" font-style="bold" color="#FFFFFF" style="autosize" extendstyle="1111"></label>
+			</node>
+			<!--拜访人选择-->
+            <node name="wholistviewNode" rect="0,0,480,800" visible="false" enable="false" active="false">
+                <button name="bthide" rect="0,0,480,800" border="false" text="" color="#ffffff" OnSelect="hidewhoSelected"></button>
+                <node rect="66,160,368,68" extendstyle="1111"  border="false">
+                      <image rect="0,0,368,68" src="file://pics/Dialogs/top.png"  style="autosize" extendstyle="1111" />
+                      <image rect="20,30,31,32" src="file://pics/Dialogs/icon_arrow.png"  style="autosize" extendstyle="1111" />
+                      <label rect="40,10,120,68" border="false" color="#FFFFFF" text="选择人员" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                </node>
+                <image rect="66,228,368,216" src="file://pics/Dialogs/center.png"  style="autosize" extendstyle="1111" />
+                <listview name="whoListview" rect="66,230,368,216" auto-adjust="true" extendstyle="1111" />
+                <image rect="66,442,368,21" src="file://pics/Dialogs/bottom.png"  style="autosize" extendstyle="1111"/>
+            </node>
+            
+            <node name="whoItemNode" rect="0,0,368,72" visible="false" enable="false" active="false">                   
+                <button name="whoItemBtn" rect="12,0,342,61" text="who" h-align="left" color="#ffffff" extendstyle="1111" OnSelect="whoItemOnSelect" font-family="微软雅黑"
+                    normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,100,0;color:#000000"
+                    sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,100,0;color:#ffffff" font-size="24" data="0"  />
+                <image rect="0,70,368,2" src="file://pics/Dialogs/line.png"  style="autosize" extendstyle="1111" />
+            </node>        
+		</node>
+	</body>
+    <![CDATA[
+
+require 'com_xsgj.common.framework'
+local rootSprite
+local YEAR_NODE = '1'
+local MONTH_NODE = '2'
+local DAY_NODE = '3'
+local HOUR_NODE = '4'
+local MINUTE_NODE = '5'
+local MAX_DAY = 31
+local jsonDecodedNotice = nil
+local jsonDecodedWho = nil
+local urlRequestServer
+local usercode=Config:get('username')
+local truename=Config:get('truename')
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    urlRequestServer = Alias.urlServer
+    --urlRequestServer = 'http://10.152.22.216:8181/mobileSale/'
+    local addman = Sprite:findChild(rootSprite, 'addman')
+    Log:write("z周瑜=====",truename)
+    Sprite:setProperty(addman, 'text', truename)
+    local whonamelabel = Sprite:findChild(rootSprite, 'whonamelabel')
+    Sprite:setProperty(whonamelabel, 'text', '    '..truename)
+    local whocodelabel = Sprite:findChild(rootSprite, 'whocodelabel')
+    Sprite:setProperty(whocodelabel, 'text', usercode)
+    local currentWhoHandler = Reg:create("currentWhoHandler")
+    Reg:setString(currentWhoHandler, 'whocode', usercode)
+    local nodeYear = Sprite:findChild(rootSprite, 'nodeYear')
+    local nodeMonth = Sprite:findChild(rootSprite, 'nodeMonth')
+    local nodeDay = Sprite:findChild(rootSprite, 'nodeDay')
+    Sprite:setProperty(nodeYear, 'data', YEAR_NODE)
+    Sprite:setProperty(nodeMonth, 'data', MONTH_NODE)
+    Sprite:setProperty(nodeDay, 'data', DAY_NODE)
+    local contentYear = Sprite:findChild(nodeYear, 'content')
+    local contentMonth = Sprite:findChild(nodeMonth, 'content')
+    local contentDay = Sprite:findChild(nodeDay, 'content')
+    Sprite:setProperty(contentYear, 'text', os.date("*t")["year"])
+    Sprite:setProperty(contentMonth, 'text', os.date("*t")["month"])
+    Sprite:setProperty(contentDay, 'text', os.date("*t")["day"])
+    local whenLabel = Sprite:findChild(rootSprite, 'whenLabel')
+    Sprite:setProperty(whenLabel, 'text', os.date("*t")["year"] .. '-' .. os.date("*t")["month"] .. '-' .. os.date("*t")["day"])
+    local clientTitleLabel = Sprite:findChild(rootSprite, 'clientTitleLabel')
+    local clientSelectHandler = Reg:create("clientSelect")
+    local clientTitle = Reg:getString(clientSelectHandler, 'clientTitle')
+    if clientTitle~= nil and clientTitle~='' then
+        Sprite:setProperty(clientTitleLabel, 'text','已选择 '..Reg:getString(clientSelectHandler, 'clientNum')..' 个客户')
+    else
+        Sprite:setProperty(clientTitleLabel, 'text','请点击选择')
+    end
+end
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        local clientTitleLabel = Sprite:findChild(rootSprite, 'clientTitleLabel')
+        local clientSelectHandler = Reg:create("clientSelect")
+        local clientTitle = Reg:getString(clientSelectHandler, 'clientTitle')
+        Log:write('bsq111111111', clientTitle)
+        if clientTitle~= nil and clientTitle~='' then
+            Sprite:setProperty(clientTitleLabel, 'text','已选择 '..Reg:getString(clientSelectHandler, 'clientNum')..' 个客户')
+        else
+            Sprite:setProperty(clientTitleLabel, 'text','请点击选择')
+        end
+        elseif msg == MSG_DEACTIVATE then
+    end
+end
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+        if Loading:isShow() then Loading:close() end
+        jsonDecodedWho = Http:jsonDecode('WHOVISIT_LIST')
+        Log:write('bsqbsq666666666666666:', jsonDecodedWho)
+        -- 检查是否有返回结果
+        if jsonDecodedWho == nil then
+            Dialog:show("", "返回结果为空", "ok")
+            return
+        end
+        -- 迭代取得列表的长度
+        local len = 0
+        local len = tonumber(jsonDecodedWho["total"])
+        setAllShoworHide(Sprite:findChild(rootSprite, 'wholistviewNode'), 1)
+        -- 删除原有列表项
+        local whoListview = Sprite:findChild(rootSprite, 'whoListview')
+        local whoItemNode = Sprite:findChild(rootSprite, 'whoItemNode')
+        ListView:removeAllItems(whoListview)
+        -- 加载新的列表项
+        Log:write('bsqbsq66666666666666688888888888888888888:', len)
+        ListView:loadItem(whoListview, whoItemNode, len, 'onLoadwhoList')
+        ListView:adjust(whoListview)
+    elseif msg == 105 then
+        if Loading:isShow() then
+            Loading:close()
+        end
+        jsonDecodedNotice = Http:jsonDecode('addclientReturn')
+        local value = jsonDecodedNotice['result']
+        Log:write('bsqbsq77777777777777777777777777777:', value)
+        if value == 'success' then
+            local nodeSuccess = Sprite:findChild(rootSprite, 'nodeSuccess')
+            Sprite:setVisible(nodeSuccess, 1)
+            Timer:set(1, 3000, 'successInvisible')
+        else
+            Dialog:show("提醒", '操作失败，请重试！', "ok")
+        end
+        elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+        elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+        elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+---------------------------------------util functions---------------------------
+--@brief 请求服务器公告列表
+function requestwhovisitList(tag, num, page, pagesize)
+    local requestURL = string.format(urlRequestServer..'visitPlan/getVisitManByUserCode?'..'userName='..usercode)
+    Log:write("++++++++++++++requestURL:", requestURL)
+    Http:request(tag, requestURL, num, {useCache = false, method = 'post'})
+    Loading:show()
+end
+function clientOnSelect(sprite)
+    -- 进行页面跳转
+    local clientSelectHandler = Reg:create("clientSelect")
+    Reg:clear(clientSelectHandler)
+    Scene:setReturn(Alias.baifang, Alias.clientSelect)
+    Scene:go(Alias.clientSelect,true)
+end
+-- @brief 下拉框OnSelect事件
+function whoBtnOnSelect(sprite)     
+    requestwhovisitList('WHOVISIT_LIST', 101, '1', '6')
+    Loading:show(rootSprite)
+end
+        
+function hidewhoSelected(sprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'wholistviewNode'), 0)
+end
+
+function whoItemOnSelect(sprite)
+    local whonamelabel = Sprite:findChild(rootSprite, 'whonamelabel')
+    local whocodelabel = Sprite:findChild(rootSprite, 'whocodelabel')
+    Sprite:setProperty(whonamelabel, 'text', Sprite:getText(sprite))
+    Sprite:setProperty(whocodelabel, 'text', Sprite:getData(sprite))
+    setAllShoworHide(Sprite:findChild(rootSprite, 'wholistviewNode'), 0)
+    local currentWhoHandler = Reg:create("currentWhoHandler")
+    Reg:setString(currentWhoHandler, 'whocode', Sprite:getData(sprite))
+end
+
+-- @brief 加载comboboxItem的回调函数
+function onLoadwhoList(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 96)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local whoItemBtn = Sprite:findChild(item, 'whoItemBtn')
+    local value = jsonDecodedWho['rows'][index]
+    if value["empName"]~=nil and value["empName"]~='' then
+        Sprite:setProperty(whoItemBtn, 'text', '    '..value["empName"])
+    end
+    if value["userName"]~=nil and value["userName"]~='' then
+        Sprite:setProperty(whoItemBtn, 'data', value["userName"])
+    end
+end
+
+-- @brief 下拉框OnSelect事件
+function whenOnSelect(sprite)
+    local dateSelectNode = Sprite:findChild(rootSprite, 'dateSelectNode')
+    --local nullBtn = Sprite:findChild(rootSprite, 'nullBtn')
+    if Sprite:isVisible(dateSelectNode) == 1 then -- 如果显示则隐藏，如果隐藏则显示
+        setAllShoworHide(dateSelectNode, 0)
+        --Sprite:setEnable(nullBtn, 0)
+        else
+        setAllShoworHide(dateSelectNode, 1)
+        --Sprite:setEnable(nullBtn, 1)
+    end
+end
+function onAddSelect(sprite)
+    local node = Sprite:getParent(sprite)
+    local data = Sprite:getData(node)
+    local content = Sprite:findChild(node, 'content')
+    if data == YEAR_NODE then
+        yearChange(content, 1)
+        elseif data == MONTH_NODE then
+        monthChange(content, 1)
+        elseif data == DAY_NODE then
+        dayChange(content, 1)
+    end
+end
+function onSubtractionSelect(sprite)
+    local node = Sprite:getParent(sprite)
+    local data = Sprite:getData(node)
+    local content = Sprite:findChild(node, 'content')
+    if data == YEAR_NODE then
+        yearChange(content, 2)
+        elseif data == MONTH_NODE then
+        monthChange(content, 2)
+        elseif data == DAY_NODE then
+        dayChange(content, 2)
+    end
+end
+function yearChange(sprite, type)
+    local year = tonumber(Sprite:getText(sprite))
+    if type == 1 then --add
+        if year < 2020 then
+            Sprite:setProperty(sprite, 'text', year + 1)
+        end
+        else
+        if year > 2012 then
+            Sprite:setProperty(sprite, 'text', year - 1)
+        end
+    end
+    local nodeMonth = Sprite:findChild(rootSprite, 'nodeMonth')
+    local monthContent = Sprite:findChild(nodeMonth, 'content')
+    local month = Sprite:getText(monthContent)
+    if month == 2 then
+        changeDay()
+    end
+end
+function monthChange(sprite, type)
+    local month = tonumber(Sprite:getText(sprite))
+    if type == 1 then --add
+        if month < 12 then
+            Sprite:setProperty(sprite, 'text', month + 1)
+        end
+        else
+        if month > 1 then
+            Sprite:setProperty(sprite, 'text', month - 1)
+        end
+    end
+    changeDay()
+end
+function dayChange(sprite, type)
+    local day = tonumber(Sprite:getText(sprite))
+    if type == 1 then --add
+        if day < MAX_DAY then
+            Sprite:setProperty(sprite, 'text', day + 1)
+        end
+        else
+        if day > 1 then
+            Sprite:setProperty(sprite, 'text', day - 1)
+        end
+    end
+end
+function changeDay()
+    local nodeYear = Sprite:findChild(rootSprite, 'nodeYear')
+    local nodeMonth = Sprite:findChild(rootSprite, 'nodeMonth')
+    local nodeDay = Sprite:findChild(rootSprite, 'nodeDay')
+    local yearContent = Sprite:findChild(nodeYear, 'content')
+    local monthContent = Sprite:findChild(nodeMonth, 'content')
+    local dayContent = Sprite:findChild(nodeDay, 'content')
+    local year = tonumber(Sprite:getText(yearContent))
+    local month = tonumber(Sprite:getText(monthContent))
+    local day = tonumber(Sprite:getText(dayContent))
+    MAX_DAY = getMaxDay(year, month)
+    if day > MAX_DAY then
+        Sprite:setProperty(dayContent, 'text', MAX_DAY)
+    end
+end
+function getMaxDay(year, month) --获取指定年月的天数和第一天的星期
+    local bigmonth = "(1)(3)(5)(7)(8)(10)(12)"
+    local strmonth = "(" .. month .. ")"
+    if month == 2 then
+        if year % 4 == 0 or (year % 400 == 0 and year % 400 ~= 0) then
+            return 29
+            else
+            return 28
+        end
+        elseif string.find(bigmonth, strmonth) ~= nil then
+        return 31
+        else
+        return 30
+    end
+end
+function onOKSelect()
+    local nodeYear = Sprite:findChild(rootSprite, 'nodeYear')
+    local nodeMonth = Sprite:findChild(rootSprite, 'nodeMonth')
+    local nodeDay = Sprite:findChild(rootSprite, 'nodeDay')
+    local yearContent = Sprite:findChild(nodeYear, 'content')
+    local monthContent = Sprite:findChild(nodeMonth, 'content')
+    local dayContent = Sprite:findChild(nodeDay, 'content')
+    local year = Sprite:getText(yearContent)
+    local month = Sprite:getText(monthContent)
+    local day = Sprite:getText(dayContent)
+    local whenLabel = Sprite:findChild(rootSprite, 'whenLabel')
+    Sprite:setProperty(whenLabel, 'text', year .. '-' .. month .. '-' .. day)
+    local dateSelectNode = Sprite:findChild(rootSprite, 'dateSelectNode')
+    Sprite:setVisible(dateSelectNode, 0)
+    Sprite:setEnable(dateSelectNode, 0)
+end
+function onCancelSelect()
+    --local regHandle = Reg:create(Regs.regName)
+    --Reg:setString(regHandle, Regs.extraTime, '')
+    local dateSelectNode = Sprite:findChild(rootSprite, 'dateSelectNode')
+    Sprite:setVisible(dateSelectNode, 0)
+    Sprite:setEnable(dateSelectNode, 0)
+    --Scene:back()
+end
+function tjOnSelect(sprite)
+    addman = Sprite:getText(Sprite:findChild(rootSprite, 'addman'))
+    whenLabel = Sprite:getText(Sprite:findChild(rootSprite, 'whenLabel'))
+    wholabel = Sprite:getText(Sprite:findChild(rootSprite, 'whocodelabel'))
+    visitContent = Sprite:getText(Sprite:findChild(rootSprite, 'visitContent'))
+    local clientSelectHandler = Reg:create("clientSelect")
+    local clientId = Reg:getString(clientSelectHandler, 'clientId')
+    if addman == nil or addman == '' then
+        Dialog:show('提醒','创建人不能为空！','ok')
+        elseif whenLabel == nil or whenLabel == '' then
+        Dialog:show('提醒','拜访时间不能为空！','ok')
+        elseif wholabel == nil or wholabel == '' then
+        Dialog:show('提醒','拜访人不能为空！','ok')
+        elseif visitContent == nil or visitContent == '' then
+        Dialog:show('提醒','拜访内容不能为空！','ok')
+        elseif clientId == nil or clientId == '' then
+        Dialog:show('提醒','拜访客户不能为空！','ok')
+    else
+        local requestURL = string.format(urlRequestServer..'visitPlan/add?')
+        local param='userName='..Config:get('username')..'&visitDate='..whenLabel..'&visitMan='..wholabel..'&clientIds='..clientId..'&visitContent='..visitContent
+        Log:write("++++++++++++++requestURL:", requestURL)
+        Log:write("++++++++++++++param:", param)
+        Http:request('addclientReturn', requestURL, 105, {useCache = false, method = 'post',postData=param})
+        Loading:show()
+    end
+end
+-- @brief 返回按钮处理
+function doBack()
+    --Scene:go(Alias.home,true)
+    Scene:back()
+end
+function successInvisible()
+    local nodeSuccess = Sprite:findChild(rootSprite, 'nodeSuccess')
+    Sprite:setVisible(nodeSuccess, 0)
+end
+---当进入编辑框时，修改文字为输入
+function initText(sprite)
+    local txt= Sprite:getProperty(Sprite:findChild(rootSprite, 'visitContent'), 'text')
+    if txt=='请输入拜访内容...' then
+     Sprite:setProperty(Sprite:findChild(rootSprite, 'visitContent'), 'text', '')
+     Sprite:setProperty(Sprite:findChild(rootSprite, 'visitContent'), 'color', '#0')
+    end
+end       
+---当未有任何输入时，初始化为提示
+ function editOnTextChanged(sprite)
+    local txt= Sprite:getProperty(Sprite:findChild(rootSprite, 'visitContent'), 'text')
+    if txt=='' or txt ==nil then
+     Sprite:setProperty(Sprite:findChild(rootSprite, 'visitContent'), 'color', '#8f8e8e')
+     Sprite:setProperty(Sprite:findChild(rootSprite, 'visitContent'), 'text', '请输入拜访内容...')
+    end
+ end          
+]]>
+</root>

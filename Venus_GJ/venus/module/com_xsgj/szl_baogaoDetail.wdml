@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+         <!-- 设置背景 -->
+            <image name="title" rect="0,0,480,800" border="false"
+                src="file://pics/main_bg.png" style="autosize" extendstyle="1111"></image>
+
+
+            <!-- 信息头部 -->
+              <node rect="0,0,480,80" extendstyle="1111" border="0" >
+                <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png"
+                    extendstyle="1111" style="autosize">
+                </image>
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="9,14,52,52" OnSelect="doBack" border="false"
+                    normal="src:file://pics/icon_back_d.png;"
+                    sel="src:file://pics/icon_back_s.png;"  style="autosize"
+                    extendstyle="1111">
+                </button>
+                <image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png"
+                        extendstyle="1111">
+                </image>
+                <!-- 二级菜单标题 -->
+                <scrolltext name="title" rect="100,0,280,80" text="报告详情" font-family="微软雅黑" 
+                    extendstyle="1111" font-size="32" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2"></scrolltext>
+                <!--新增 -->
+                <image name="normal" rect="410,0,2,80" src="file://pics/sub_top_line.png"
+                         extendstyle="1111">
+                </image>
+                <button name="addBtn" rect="419,14,52,52" OnSelect="add" border="false"
+                    normal="src:file://pics/icon_add_d.png;" 
+                    sel="src:file://pics/icon_add_s.png;" style="autosize"
+                    extendstyle="1111">
+                </button>
+            </node>
+        </node>
+        <!-- 工作报告详情 -->
+        <node name="detailNode" rect="0,66,480,734" border="false" extendstyle="1111">
+            <node name="biaoti" rect="10,0,460,100" border="false" extendstyle="1111">
+                <button rect="0,20,460,80"
+                    normal="src:file://pics/input_text_bg.png;style:sudoku-auto;sudoku:20,20,40,20"
+                    extendstyle="1111"></button>
+                <label name="date" rect="19,40,150,30" border="false" text="label1" font-family="微软雅黑"
+                    h-align="center" v-align="center" color="#000000" font-size="20" extendstyle="1111"></label>
+                <label name="name" rect="177,40,149,30" border="false" text="label2" font-family="微软雅黑"
+                    h-align="center" v-align="center" color="#000000" font-size="20" extendstyle="1111"></label>
+                <label name="type" rect="330,40,115,30" border="false" text="label3" font-family="微软雅黑"
+                    h-align="center" v-align="center" color="#000000" font-size="20" extendstyle="1111"></label>
+            </node>
+                <button rect="10,120,460,557"
+                    normal="src:file://pics/input_text_bg.png;style:sudoku-auto;sudoku:20,20,40,20" extendstyle="1111">
+                </button>
+                <textarea name="detail" rect="26,137,426,510" border="false" font-family="微软雅黑"
+                    step="1" font-size="24" extendstyle="1111" h-align="left" scroll="true"
+                    line-height="25">
+                </textarea>
+        </node>
+    </body>
+    <![CDATA[
+require('com_xsgj.common.framework')
+local rootSprite
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+ function bodyBuildChildrenFinished(sprite)
+        -- 获取公告详情各字段的Sprite
+        rootSprite = sprite
+        local title = Sprite:findChild(rootSprite,"titleName")
+        local date = Sprite:findChild(rootSprite,"date")
+        local name = Sprite:findChild(rootSprite,"name")
+        local type = Sprite:findChild(rootSprite,"type")
+        local detail = Sprite:findChild(rootSprite,"detail")
+        -- 从数据仓库中读取各字段的值
+        local noticeDetailHandler = Reg:create("baogaoDetail")
+        local detail1=Reg:getString(noticeDetailHandler, "noticeTitle")
+        local detail2='      '..string.gsub(detail1,"\n","\n      ")
+        Sprite:setProperty(detail, "text",detail2)
+        
+        Sprite:setProperty(date, "text", Reg:getString(noticeDetailHandler, "noticeDate"))
+        Sprite:setProperty(name, "text", Reg:getString(noticeDetailHandler, "newsman"))
+        Sprite:setProperty(type, "text", Reg:getString(noticeDetailHandler, "type"))
+        
+    end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function myfunc()
+
+end
+function doBack()
+        Scene:back()
+    end
+    function add()
+      Scene:setReturn(Alias.baogao, Alias.addbaogao)
+      Scene:go(Alias.addbaogao, true)
+    end
+    ]]>
+</root>

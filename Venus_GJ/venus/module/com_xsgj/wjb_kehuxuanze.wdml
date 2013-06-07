@@ -1,0 +1,424 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置背景 -->
+            <shadow rect="0,0,480,800"  alpha="255" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,800" src="file://pics/main_bg.png" extendstyle="1111" style="autosize"/>                
+             </shadow>
+            <!-- 信息头部 -->
+            <node rect="0,0,480,80" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png" extendstyle="0010" style="autosize"/>
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="9,14,52,52" OnSelect="doBack" extendstyle="0010" normal="normal" sel="sel">
+                     <image name="normal" rect="0,0,52,52" src="file://pics/icon_back_d.png" style="autosize" extendstyle="0010"/>
+                     <image name="sel" rect="0,0,52,52" src="file://pics/icon_back_s.png" style="autosize" extendstyle="0010"/>                 
+                </button>
+                <image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png" extendstyle="0010"/>                
+                 <!-- 二级菜单标题 -->
+                <scrolltext name="title" rect="100,0,280,70" text="选择门店" font-family="微软雅黑" extendstyle="0010" font-size="30" h-align="center" v-align="center" color="#ffffff" scroll="true" step="2"/>
+                    
+                 <!--提交按钮-->
+                <button name="addBtn" rect="419,14,52,52" OnSelect="submitOnSelect" extendstyle="0010" normal="normal" sel="sel">
+                     <image name="normal" rect="0,0,52,52" src="file://pics/icon_submit_d.png" style="autosize" extendstyle="0010"/>
+                     <image name="sel" rect="0,0,52,52" src="file://pics/icon_submit_s.png" style="autosize" extendstyle="0010"/>
+                </button>                 
+                <image name="normal" rect="410,0,2,80" src="file://pics/sub_top_line.png" extendstyle="0010"/>
+            </node>
+            <node name="search" rect="0,80,480,65"  extendstyle="1111">	
+                <image rect="0,0,480,65" src="file://pics/search_bg.png" style="autosize" extendstyle="0010"/> 
+                <image name="Image2" rect="10,6,400,52" src="file://pics/input_search.png" style="sudoku-auto" sudoku="50,0,50,0" extendstyle="0010"/>                 
+                <edit name="etSearch" rect="45,8,350,48" font-family="微软雅黑" font-size="24" color='#8f8e8e' v-center="true" extendstyle="0010" text="搜索门店名称" OnLostFocus="editOnTextChanged" OnSetFocus="initText" max-size="50"></edit>              
+                <button name="appBtn" rect="410,7,65,50" style="autosize" normal="normal" sel="sel" OnSelect="searchOnSelect" extendstyle="0010" >
+                    <image name="normal" rect="12,5,40,40" src="file://pics/button_search_d.png" style="autosize" extendstyle="1111"/>
+                    <image name="sel" rect="12,5,40,40" src="file://pics/button_search_s.png" style="autosize" extendstyle="1111"/>
+                </button>                       
+           </node>         
+           <!-- 列表视图 -->
+            <node name="listNode"  visible="true" rect="0,145,480,655" extendstyle="1111">
+                <listview name="sampleList" rect="0,0,480,570" extendstyle="1111" border="false"  />
+                <button name="morebtn" rect="0,570,480,80" border="false" text="点击查看更多" color="#666666" OnSelect="addmore" visible="false" v-align="center" h-align="center" font-family="微软雅黑" font-size="24" extendstyle="1110" />    
+            </node>
+            <node name="listitem" rect="0,0,480,95" border="false" visible="false" enable="false" active="false" extendstyle="0010"> 
+                  <button rect="0,0,480,95" OnSelect="xuanzebtnOnSelect" style="autosize" extendstyle="0010" >                                                	                                      
+	                    <image rect="0,0,480,95" src="file://pics/list_bg_d.png" style="autosize" extendstyle="0010"/>
+	                    <label name="lbkehu" rect="25,0,360,65" text="" font-weight="bold" font-family="微软雅黑" border="false" h-align="left" v-align="center" color="#000000" font-size="24" postfix="..." extendstyle="0010" />                                            
+	                    <label name="lbdizhi" rect="25,30,230,65" text="" font-family="微软雅黑" border="false" h-align="left" v-align="center" color="#8f8e8e" font-size="18" postfix="..." extendstyle="0010" />
+                        <label rect="260,30,70,65" text="业务员：" font-family="微软雅黑" color="#8f8e8e" font-size="18" h-align="left" v-align="center" extendstyle="0010" border="false" />
+                        <label name="lbren" rect="335,30,80,65" text="" font-family="微软雅黑" color="#8f8e8e" font-size="18" h-align="left" v-align="center" postfix="..." extendstyle="0010" border="false" />
+                        <label name="kehucode" type="hidden" text=''/>
+                        <button name="xuanzebtn" rect="420,5,50,84" border="false" visible="true" OnSelect="xuanzeOnSelect" data="" color="#ffffff"   extendstyle="0010">
+                            <image name="ckitm" rect="12,22,26,26" src="file://pics/item_unselected.png" style="autosize" extendstyle="0010" data="111"/>
+                        </button> 
+                        <shadow rect="0,94,480,1" color="#aaabae" alpha="255" extendstyle="1114" />   
+                   </button>                                                                          
+             </node>   
+             <button visible="false" data="1" name="curpage"/>             
+             <image name="success" border="false" visible="false" rect="68,730,344,58" src="file://pics/sucess.png" style="autosize" extendstyle="1111">
+                <label name="successxinxi" rect="112,5,120,48" text="信息提交成功" h-align="center" v-align="center" color="#ffffff" font-size="18" extendstyle="1111"/>     
+             </image>
+             <node name="error" rect="0,145,480,655" visible="false" extendstyle="1111" style="autosize" >  
+                <image rect="120,140,239,234" src="file://pics/face.png" style="autosize" extendstyle="1111" />
+                <label rect="0,380,480,50" text="没有搜索到您要的数据" font-family="微软雅黑" font-size="32" h-align="center" v-align="center" color="#686464" style="autosize" extendstyle="0010" />
+            </node> 
+             <image name="tishikuang" border="false" visible="false" rect="68,730,344,58" src="file://pics/sucess.png" style="autosize" extendstyle="1111">
+                <label name="tishikuangxinxi" rect="112,5,120,48" text=""
+                        h-align="center" v-align="center" color="#ffffff" font-size="18"
+                        extendstyle="0010"/>     
+            </image>           
+             <button visible="false" data="1" name="curpage1"></button>    
+             <button visible="false" data="1" name="curpage2"></button>             
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_xsgj.common.framework'
+local rootSprite
+local curxundianBtn
+local jsonDecodedData = nil --获取列表数据
+local user_code=Config:get('username') --定义全局变量usercode
+local user_name=Config:get('truename')
+local changdu2 = 0
+local zifuchuan2 = ''
+local address_port = Alias.urlServer
+local url
+local param2
+local curpage=nil
+local pagesizenumber=6
+local morebtn=nil
+local tourMan=nil
+local tishikuang
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite 
+    curpage1=Sprite:findChild(rootSprite, 'curpage1')
+    curpage2=Sprite:findChild(rootSprite, 'curpage2')
+    morebtn=Sprite:findChild(rootSprite, 'morebtn')
+    error=Sprite:findChild(rootSprite, 'error')   
+    listNode = Sprite:findChild(rootSprite, 'listNode') 
+    tishikuang = Sprite:findChild(rootSprite, 'tishikuang')         
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活 
+            initList()
+            local regHandle = Reg:create('tourMan')
+            tourMan = Reg:getString(regHandle, 'tourMan') 
+            Log:write('巡店人ID = ', tourMan)
+            url = "mystore/getlist"          
+            Sprite:setProperty(curpage1, 'data','1')       
+            param2 = "keyword=&employeeid="..tourMan.."&page=1&pagesize="..pagesizenumber
+            Http:request("duru", address_port..url, 101,{useCache = false, method = 'post', postData=param2})       
+	        Loading:show(rootSprite)
+            local success = Sprite:findChild(rootSprite, 'success')--隐藏提示信息
+            Sprite:setVisible(success, 0) 
+            Sprite:setVisible(error,0)
+            Sprite:setVisible(tishikuang,0)
+            Sprite:setVisible(listNode,1)
+            local etSearch = Sprite:findChild(rootSprite, 'etSearch')
+            Sprite:setProperty(etSearch, 'text', '搜索门店名称')
+            Sprite:setProperty(etSearch, 'color', '#8f8e8e')         
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+     if Loading:isShow() then Loading:close() end 
+     if msg == 101 then                     
+        jsonDecodedData = Http:jsonDecode("duru")    
+        if (jsonDecodedData == nil) then
+                Sprite:setVisible(error,1)
+                Sprite:setVisible(listNode,0)
+                return
+            end  
+        local len = jsonDecodedData["Total"]
+        local p=Sprite:getData(curpage1)
+        local num = len
+        if p*pagesizenumber < len then
+             setAllShoworHide(morebtn, 1)
+             num = pagesizenumber
+             flag = 1
+        else
+            num = pagesizenumber - (p*pagesizenumber - len)
+        end 
+        if len>0 then
+            Sprite:setVisible(error,0)
+            Sprite:setVisible(listNode,1)
+            local list = Sprite:findChild(rootSprite, 'sampleList')         
+            ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), num, 'loadListItem')
+            ListView:adjust(list)                                    
+        else
+             Sprite:setVisible(error,1)
+             Sprite:setVisible(listNode,0)
+             return  
+        end  
+    end   
+    if msg == 104 then        
+        jsonDecodedData = Http:jsonDecode("search")    
+        if (jsonDecodedData == nil) then
+                Sprite:setVisible(error,1)
+                Sprite:setVisible(listNode,0)
+                return
+        end  
+        local len = jsonDecodedData["Total"]
+        local num = len
+        local p=Sprite:getData(curpage2)
+        if p*pagesizenumber < len then
+             setAllShoworHide(morebtn, 1)
+             num = pagesizenumber
+             flag = 2
+        else
+            num = pagesizenumber - (p*pagesizenumber - len)
+        end 
+        if len==pagesizenumber then
+             setAllShoworHide(morebtn, 1)
+        end            
+        if len>0 then
+            Sprite:setVisible(error,0)
+            Sprite:setVisible(listNode,1)
+            local list = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), num, 'loadListItem')
+            ListView:adjust(list) 
+        else
+              Sprite:setVisible(error,1)
+              Sprite:setVisible(listNode,0)
+              return        
+        end          
+    end   
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+	function myfunc()	  
+	end
+	
+	function yincang()
+       Sprite:setVisible(tishikuang,0)
+    end
+	
+	function doBack()
+	     local list = Sprite:findChild(rootSprite, 'sampleList')
+         ListView:removeAllItems(list)          
+	     Scene:back()
+	end
+    ---点选checkbox操作按钮
+    function xuanzebtnOnSelect(sprite)
+        local img=Sprite:findChild(Sprite:findChild(sprite,'xuanzebtn'),'ckitm')  
+        local dt= Sprite:getData(Sprite:findChild(sprite,'xuanzebtn'))
+        Log:write('run ckitm(), dt: ',dt)
+        if dt=='' or dt==nil then
+            Sprite:setProperty(Sprite:findChild(sprite,'xuanzebtn'), 'data',Sprite:getData(img))
+            Sprite:setProperty(img, 'src', 'file://pics/item_selected.png')
+        else 
+            Sprite:setProperty(Sprite:findChild(sprite,'xuanzebtn'), 'data','')
+            Sprite:setProperty(img, 'src', 'file://pics/item_unselected.png')
+        end
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        local count= ListView:getItemCount(list)
+        changdu2 = 0
+        zifuchuan2 = ''
+        for i=1,count do
+           local itemNode = ListView:getItem(list, i-1)
+           local xuanzebtn = Sprite:findChild(itemNode,'xuanzebtn')
+           local data = Sprite:getData(xuanzebtn)
+           local image = Sprite:findChild(xuanzebtn,'ckitm')
+           local kehucode = Sprite:findChild(itemNode,'kehucode')
+           local kehucodetext = Sprite:getText(kehucode)
+           if data==Sprite:getData(img) then
+                changdu2 = changdu2 + 1
+                zifuchuan2 = zifuchuan2..kehucodetext..','
+		        Log:write('传递字符串 ',zifuchuan2)
+           end
+        end         
+	end
+	
+	function xuanzeOnSelect(sprite)
+	    local img=Sprite:findChild(sprite,'ckitm')  
+        local dt= Sprite:getData(sprite)
+        Log:write('run ckitm(), dt: ',dt)
+        if dt=='' or dt==nil then
+            Sprite:setProperty(sprite, 'data',Sprite:getData(img))
+            Sprite:setProperty(img, 'src', 'file://pics/item_selected.png')
+        else 
+            Sprite:setProperty(sprite, 'data','')
+            Sprite:setProperty(img, 'src', 'file://pics/item_unselected.png')
+        end
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        local count= ListView:getItemCount(list)
+        changdu2 = 0
+        zifuchuan2 = ''
+        for i=1,count do
+           local itemNode = ListView:getItem(list, i-1)
+           local xuanzebtn = Sprite:findChild(itemNode,'xuanzebtn')
+           local data = Sprite:getData(xuanzebtn)
+           local image = Sprite:findChild(xuanzebtn,'ckitm')
+           local kehucode = Sprite:findChild(itemNode,'kehucode')
+           local kehucodetext = Sprite:getText(kehucode)
+           if data==Sprite:getData(img) then
+                changdu2 = changdu2 + 1
+                zifuchuan2 = zifuchuan2..kehucodetext..','
+                Log:write('传递字符串 ',zifuchuan2)
+           end
+        end         
+	end
+		 
+	---加载listitem列表  
+    function loadListItem(list, item, index)                 
+        Sprite:setRect(item, 0, 0, 480, 95)
+        local textKehu = Sprite:findChild(item, 'lbkehu')
+        local textRen = Sprite:findChild(item, 'lbren')
+        local textDizhi = Sprite:findChild(item, 'lbdizhi') 
+        local textKehucode = Sprite:findChild(item, 'kehucode')            
+              
+        -- 获取要创建的列表项Sprite  
+        if jsonDecodedData~=nil then
+           local value = jsonDecodedData['Rows'][index]
+            if value.mystoreName==nil or value.mystoreName=='' then
+		       Sprite:setProperty(textKehu, 'text', ' ')
+            else               
+		       Sprite:setProperty(textKehu, 'text', value.mystoreName)
+            end
+	        if value.mystoreAddr==nil or  value.mystoreAddr=='' then 
+		       Sprite:setProperty(textDizhi, 'text', " ") 
+	        else                
+		       Sprite:setProperty(textDizhi, 'text', value.mystoreAddr) 
+            end
+	        if value.mystoreCode==nil or  value.mystoreCode=='' then 
+		       Sprite:setProperty(textKehucode, 'text', " ") 
+	        else
+		       Sprite:setProperty(textKehucode, 'text', value.mystoreCode)
+            end 
+            if value.addMan==nil or value.addMan=='' then 
+               Sprite:setProperty(textRen, 'text', " ") 
+            else
+               Sprite:setProperty(textRen, 'text', value.addMan)           
+            end 
+            local xuanzebtn=Sprite:findChild(item,'xuanzebtn')
+            Sprite:setProperty(Sprite:findChild(xuanzebtn,'ckitm'), 'src', 'file://pics/item_unselected.png')
+            setAllShoworHide(xuanzebtn, 1)       
+        end                      
+    end
+    -- @brief 列表项选择处理
+    
+    function submitOnSelect()
+          if changdu2==0 then
+                local tishikuangxinxi = Sprite:findChild(tishikuang, 'tishikuangxinxi')                 
+                Sprite:setProperty(tishikuangxinxi,"text","未选择门店")
+                Sprite:setVisible(tishikuang,1)
+                Timer:set(1,2000,'yincang')
+                return
+          end
+          tijiao()
+    end
+    
+    function tijiao()
+        local regHandle = Reg:create('kehuxuanze')
+        typeCode = Reg:getString(regHandle, 'type')
+        local regHandle = Reg:create("kehu")   
+        Reg:setString(regHandle, "zifuchuan2", zifuchuan2)   
+        Reg:setString(regHandle, "type", typeCode)
+        local regHandle = Reg:create("kehu2")
+        Reg:setString(regHandle, "changdu2", changdu2)                
+        local success = Sprite:findChild(rootSprite, 'success')
+        Sprite:setVisible(success,1)
+        Timer:set(1,2000,'queren')       
+    end
+    
+    function queren()
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list)   
+        Scene:go('MODULE:\\com_xsgj\\wjb_xundianjihua.wdml')
+    end
+    
+    function initText(sprite)
+       local txt= Sprite:getProperty(sprite, 'text')
+       if txt=='搜索门店名称' then
+           Sprite:setProperty(sprite, 'text', '')
+           Sprite:setProperty(sprite, 'color', '#0')
+       end
+    end
+    
+    function editOnTextChanged(sprite)
+       local txt= Sprite:getProperty(sprite, 'text')
+       if txt=='' or txt ==nil then
+           Sprite:setProperty(sprite, 'color', '#8f8e8e')
+           Sprite:setProperty(sprite, 'text', '搜索门店名称')
+       end
+    end
+    
+    function searchOnSelect(sprite)
+        local list = Sprite:findChild(rootSprite, 'sampleList')	
+        local searchKey = Sprite:getText(Sprite:findChild(Sprite:getParent(sprite), 'etSearch'))
+        if searchKey == nil or searchKey == '' or searchKey =="搜索门店名称" then
+            local tishikuangxinxi = Sprite:findChild(tishikuang, 'tishikuangxinxi')                 
+            Sprite:setProperty(tishikuangxinxi,"text","无搜索关键字")
+            Sprite:setVisible(tishikuang,1)
+            Timer:set(1,2000,'yincang')
+            return
+        end
+        ListView:removeAllItems(list)
+        doSearch('search', 104, searchKey)
+    end
+    
+    function doSearch(tag, num, keyword)
+         local url_search = "mystore/getlist"
+         param2 = string.format("keyword=%s&employeeid=%s&page=1&pagesize=%s",keyword,tourMan,pagesizenumber)
+         local requestURL = address_port..url_search
+         setAllShoworHide(morebtn, 0)
+         Http:request(tag, requestURL, num,{useCache = false, method = 'post', postData=param2}) 
+         Loading:show(rootSprite)
+    end
+    
+    function addmore()
+        setAllShoworHide(morebtn, 0)
+        if flag == 1 then
+           local p1=Sprite:getData(curpage1)
+           p1 = p1+1
+           Sprite:setProperty(curpage1, 'data',p1)      
+           param2 = "pagesize="..pagesizenumber.."&page="..Sprite:getData(curpage1).."&employeeid="..tourMan
+           -- Http:request("duru", address_port..url..param2, 101)
+           Http:request("duru", address_port..url, 101,{useCache = false, method = 'post', postData=param2})
+           Loading:show(rootSprite)
+        elseif flag == 2 then
+           local p2=Sprite:getData(curpage2)
+           p2 = p2+1
+           Sprite:setProperty(curpage2, 'data',p2) 
+           local searchKey = Sprite:getText(Sprite:findChild(rootSprite, 'etSearch'))
+           local url_search = "mystore/getlist"
+           param2 = string.format("keyword=%s&employeeid=%s&page=%&pagesize=%s",searchKey,tourMan,Sprite:getData(curpage1),pagesizenumber)
+           local requestURL = address_port..url_search
+           Http:request(tag, requestURL, num,{useCache = false, method = 'post', postData=param2})
+        end        
+    end
+    
+     function initList()               
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list) --初始化时去除已经显示的list
+        setAllShoworHide(morebtn, 0)--初始化时隐藏按钮
+        Sprite:setProperty(curpage1, 'data',1)--初始化时重置curpage值为1
+        Sprite:setProperty(curpage2, 'data',1)
+    end 
+    ]]>
+</root>
