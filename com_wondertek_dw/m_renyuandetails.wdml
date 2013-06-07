@@ -36,21 +36,49 @@
                         color="#ffffff" scroll="true"  step="2" />
                 </node>
             </node>
+
+             <!-- 选择月份 -->
+            <node name="MonthNode" rect="0,80,480,31" extendstyle="1111">
+                <button name="prevMonthBtn" rect="12,0,40,31" OnSelect="prevMonthOnSelect" 
+                    style="autosize" extendstyle="1111" >
+                    <image name="normal" rect="0,0,40,31" src="file://image/t5.png" 
+                        style="autosize" extendstyle="0010"/>                  
+                </button>
+                <button name="nextMonthBtn" rect="428,0,40,31" OnSelect="nextMonthOnSelect" 
+                    style="autosize" extendstyle="1111">
+                    <image name="normal" rect="0,0,40,31" src="file://image/t6.png" 
+                        style="autosize" extendstyle="0010"/>                  
+                </button>
+                <image name='rightImg' rect="50,0,378,31" src="file://image/t7.png" 
+                    extendstyle="1111" style='autosize'/>
+                <label name="yearLabel" rect="170,0,55,31" text="2012" 
+                    font-family="微软雅黑" font-size="23" h-align="center" 
+                    v-align="center" color="#ffffff" style="autosize" extendstyle="0010"/> 
+                <label rect="230,0,20,31" text="年" font-family="微软雅黑" 
+                    font-size="23" h-align="center" v-align="center" 
+                    color="#ffffff" style="autosize" extendstyle="0010"/> 
+                <label name="monthLabel" rect="255,0,25,31" text="2" 
+                    font-family="微软雅黑" font-size="24" h-align="center" 
+                    v-align="center" color="#ffffff" style="autosize" extendstyle="0010"/> 
+                <label rect="287,0,20,31" text="月" font-family="微软雅黑" 
+                    font-size="24" h-align="center" v-align="center" 
+                    color="#ffffff" style="autosize" extendstyle="0010"/>
+            </node>
            
             <!-- 主体可滑动部分  -->
-            <panorama name="panorama" rect="0,80,480,745" foreground="" alpha="255">
-                <panoramaitem name="item1" rect="0,0,480,750" 
+            <panorama name="panorama" rect="0,125,480,655" foreground="" alpha="255">
+                <panoramaitem name="item1" rect="0,0,480,655" 
                     extendstyle="1111" data="01">
                     <image rect="10,0,460,12" src="file://image/content_top.png"
                             style="autosize" extendstyle="1111" />
-                    <image rect="10,12,460,690" src="file://image/content_center.png"
+                    <image rect="10,12,460,650" src="file://image/content_center.png"
                             style="autosize" extendstyle="1111" />
                     <image rect="10,700,460,12" src="file://image/content_bottom.png"
                             style="autosize" extendstyle="1111" />
                    
                     <!--列表信息-->
                     <node name="listNode1" rect="0,10,480,640" extendstyle="1111">
-                        <listview name="sampleList" rect="0,40,480,640" extendstyle="1111" auto-scroll='true' limit='true' />
+                        <listview name="sampleList" rect="0,45,480,640" extendstyle="1111" auto-scroll='true' limit='true' />
                         <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
                             extendstyle="1111" style='autosize' >
                             <label name='dimension' rect="20,5,90,25" text="公司" font-family='微软雅黑'
@@ -120,7 +148,9 @@ local selectData = 'wlbcityquality'  --选择页签data属性,默认为市公司
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-  
+    setDefaultMonth()
+    local dateData = getSelectedMonth()
+    Config:set("car_date", dateData)
 end
 
 -- @brief root节点消息方法
@@ -128,7 +158,7 @@ function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
       -- UmsAgent:OnActivate(string.match(Alias.m_qualityJike, 'MODULE:\\(.*)'), "质量指标-集客")
       -- UmsAgent:onLoadStart()
-      local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode='..Config:get('username').."&date="
+      local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode='..Config:get('username').."&date="..Config:get("car_date")
       local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
       Log:write('人员reqURL表格',reqURL)
       Http:request('renyuantjdata', reqURL, 101, {useCache = false})
@@ -171,11 +201,6 @@ end
 function doBack()
     Scene:back()
 end
-
-
-
-
-
 
 --加载市公司统计数据
 function loadListItem(list, item, index)
@@ -300,6 +325,86 @@ function peopleSeqOnSelect(sprite)
             ListView:adjust(listView)
         end
     end
+end
+
+-- 设置默认的月份
+function setDefaultMonth()
+    -- 获取当前月份
+    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
+    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
+    Sprite:setProperty(yearLabel, "text", 
+        os.date("*t", os.time()+86400 )["year"])      
+    Sprite:setProperty(monthLabel, "text", 
+        os.date("*t", os.time()+86400 )["month"])
+    -- 往前推一个月
+    local year = tonumber(Sprite:getText(yearLabel))
+    local month = tonumber(Sprite:getText(monthLabel))
+    if  month == 1 then 
+        year = year - 1 
+        month = 12
+    else
+        month = month - 1
+    end
+    Sprite:setProperty(yearLabel, "text", tostring(year))
+    Sprite:setProperty(monthLabel, "text", tostring(month))
+
+end
+-- 上个月份
+function prevMonthOnSelect(sprite)
+    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
+    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
+    local year = tonumber(Sprite:getText(yearLabel))
+    local month = tonumber(Sprite:getText(monthLabel))
+    if month == 1 then 
+        year = year - 1 
+        month = 12
+    else
+        month = month - 1
+    end
+    Sprite:setProperty(yearLabel, "text", tostring(year))
+    Sprite:setProperty(monthLabel, "text", tostring(month))
+    date = getSelectedMonth()
+    Config:set("car_date", date)
+    request()
+  
+end
+
+-- 下个月份
+function nextMonthOnSelect(sprite)
+    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
+    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
+    local year = tonumber(Sprite:getText(yearLabel))
+    local month = tonumber(Sprite:getText(monthLabel))
+    if month == 12 then 
+        year = year + 1 
+        month = 1
+    else
+        month = month + 1
+    end
+    Sprite:setProperty(yearLabel, "text", tostring(year))
+    Sprite:setProperty(monthLabel, "text", tostring(month))
+    date = getSelectedMonth()
+    Config:set("car_date", date)
+    request()
+  
+end
+
+-- 获取当前选择的月份
+function getSelectedMonth()
+    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
+    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
+    local year = Sprite:getText(yearLabel)
+    local month = Sprite:getText(monthLabel)
+    return year.."-"..month
+end
+
+-- 请求数据
+function request()
+    Loading:show(rootSprite)
+    local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode='..Config:get('username').."&date="..Config:get("car_date")
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Log:write("@jdlu 人员详情请求URL:",reqURL)
+    Http:request('renyuantjdata', reqURL, 101, {useCache = false})
 end
 
 ]]>
