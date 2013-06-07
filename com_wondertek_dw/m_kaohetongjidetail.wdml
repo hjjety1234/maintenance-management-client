@@ -35,9 +35,9 @@
                 <!-- 返回首页按钮  -->
                 <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
                     OnSelect="doBack" extendstyle="1111">
-                    <image name="normal" rect="15,8,75,75" src="file://image/title_back_new.png"
+                    <image name="normal" rect="15,8,75,75" src="file://image/skin/ico_back.png"
                         extendstyle="1111" />
-                    <image name="sel" rect="15,8,75,75" src="file://image/title_back_new.png"
+                    <image name="sel" rect="15,8,75,75" src="file://image/skin/ico_back.png"
                         extendstyle="1111" />
                 </button>
                 <!--
@@ -52,7 +52,7 @@
             </node>
             <!-- 页面listview -->
             <node name="listNode" rect="0,66,480,740" extendstyle="1111">
-                <listview name="detailListView" rect="0,10,480,730" extendstyle="1111">
+                <listview name="detailListView" rect="0,10,480,730" extendstyle="1111" OnTrail="readMoreData">
                 </listview>
             </node>
             <!-- 列表项模板  -->
@@ -84,7 +84,7 @@
                         font-size="23" extendstyle="1111" h-align="left" v-align="center" color="#0062ab"></label>
                     <label name="reasonLabel" rect="150,112,80,40" font-family="微软雅黑" text="无"
                         font-size="23" extendstyle="1111" h-align="left" v-align="center" color="#303030"></label>
-                    <listview name="kaoheListView" rect="0,155,480,85" extendstyle="1111"></listview>
+                    <listview name="kaoheListView" rect="0,155,480,85" extendstyle="1111" limit='true'></listview>
                 </button>
             </node>
             <!-- 列表项模板  -->
@@ -116,6 +116,9 @@ local g_orgid = ''   --代维单位
 local g_regionid = ''  --地市参数
 local detail_data1 = {}  --返回的详情数据
 local kaohe_data   --返回的扣分数据
+local totalsize = 0 --数据总条数
+local moreTag = false --是否需要增加
+local pagesize = 3  --数据请求条数
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -126,11 +129,13 @@ function bodyBuildChildrenFinished(sprite)
     g_orgid = Reg:getString(regHandle, 'g_orgid')   --
     g_regionid = Reg:getString(regHandle, 'g_regionid')  
     Reg:clear(regHandle)
+    pagesize = 3
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        pagesize = 3
         loadRequest()
     elseif msg == MSG_DEACTIVATE then
     end
@@ -152,11 +157,20 @@ function bodyOnPluginEvent(msg)
         if detail_data1 ~= nil then
             if detail_data1.code == '0' then
                 -- 对巡检计划按发布时间进行排序
-                local totalsize = detail_data1.total
-                ListView:loadItem(detailListView, detaillistitem, totalsize, 'loadDetailListItem')
-                ListView:adjust(detailList)
+                --totalsize = detail_data1.total
+                local cursize = 0
+                local totalpage = detail_data1.totalpage
+                if totalpage > 1 then
+                    moreTag = true
+                    cursize = pagesize
+                else
+                    moreTag = false
+                    cursize = detail_data1.total
+                end
+                ListView:loadItem(detailListView, detaillistitem, cursize, 'loadDetailListItem')
+                ListView:adjust(detailListView)
             else
-                Dialog:show(rootSprite, getErrorCode(detail_data1.code), 'ok')
+                Dialog:show('', '返回数据为空', 'ok')
             end
         else
             Dialog:show(rootSprite, '未知错误！', 'ok')
@@ -180,16 +194,17 @@ function mainNodeOnKeyUp(sprite, kc)
 end
 
 ---------------------------------------util functions---------------------------
+--接口请求函数
 function loadRequest()
-    local param = string.format('cmd=wlbassessmentdetail&usercode=%s&page=1&pagesize=100&date=%s&regionid=%s&orgid=%s&codevalue=%s', 
-        Config:get('username'), g_date, g_regionid, g_orgid, g_major)
+    local param = string.format('cmd=wlbassessmentdetail&usercode=%s&page=1&pagesize=%s&date=%s&regionid=%s&orgid=%s&codevalue=%s', 
+        Config:get('username'), pagesize, g_date, g_regionid, g_orgid, g_major)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write('求取地址=='..reqURL)
     Http:request('detail_data', reqURL, 101, {useCache = false})
     Loading:show(rootSprite)
 end
 
-
+--加载数据
 function loadDetailListItem(list, item, index)
      -- body
     Sprite:setRect(item, 0, 0, 480, 260)
@@ -233,7 +248,7 @@ function loadDetailListItem(list, item, index)
         Log:write('shuliang=='..#kaohe_data)
     end
 end 
-
+--加载考核数据
 function loadKaoheListItem(list, item, index)
     -- body ... 
     Sprite:setRect(item, 0, 0, 480, 45)
@@ -247,10 +262,18 @@ function loadKaoheListItem(list, item, index)
     Log:write('shuju=='..value.markingreason)     
 end
 
-
+--返回函数
 function doBack(sprite)
     Scene:freeByHandle(rootSprite)
     Scene:back()
+end
+
+--加载更多
+function readMoreData()
+    if moreTag == true then
+        pagesize = pagesize + 3
+        loadRequest()
+    end
 end
 
 

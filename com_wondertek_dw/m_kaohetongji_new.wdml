@@ -398,14 +398,16 @@ function loadListItem(list, item, index)
         else
             Sprite:setProperty(dimBtn,'enable', 'false')
         end
-    end
+    else
         -- 读取返回的数据
-    local value = g_response.value
-    local score = Sprite:findChild(item,'score')          -- 得分
-    local faceName = Sprite:findChild(item,'faceName')          -- 笑脸、哭脸
-    local dimName = Sprite:findChild(item,'dimName')   --获取名称sprite
-    Sprite:setProperty(dimName, 'text', value[index].dimension)
-    Sprite:setProperty(score, 'text', string.format('%.1f',value[index].score))
+        local value = g_response.value
+        local score = Sprite:findChild(item,'score')          -- 得分
+        local faceName = Sprite:findChild(item,'faceName')          -- 笑脸、哭脸
+        local dimName = Sprite:findChild(item,'dimName')   --获取名称sprite
+        Sprite:setProperty(dimName, 'text', value[1].dimension)
+        Sprite:setProperty(score, 'text', string.format('%.1f',value[1].score))
+    end
+
 
 end
 
@@ -516,7 +518,7 @@ function doScoreSort(sprite)
             local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
             ListView:removeAllItems(listView1, 1, 1)
             ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
-                len, 'loadListItem')
+                len-1, 'loadListItem')
             ListView:adjust(listView1)
         else
             Sprite:setProperty(FD,'src','file://image/triangle_down.png')
@@ -524,7 +526,7 @@ function doScoreSort(sprite)
             local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
             ListView:removeAllItems(listView1, 1, 1)
             ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
-                len, 'loadListItem')
+                len-1, 'loadListItem')
             ListView:adjust(listView1)
         end
     end
