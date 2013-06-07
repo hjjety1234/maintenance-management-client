@@ -327,7 +327,7 @@ function bodyOnSpriteEvent(msg, param)
         Log:write("@jldu 地市领导进入人车配置地图页面")
         UmsAgent:OnActivate(string.match(Alias.m_renyuantongji, 'MODULE:\\(.*)'), "人员统计")
         timelink()
-        local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode='..Config:get('username').."&date="..Config:get("car_date")
+        local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode=fanbingheng&date='..Config:get("car_date")
         local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
         Http:request('renyuandata', reqURL, 101, {useCache = false})
         Loading:show()
@@ -342,6 +342,7 @@ function bodyOnPluginEvent(msg, param)
     if msg == 101 then
         UmsAgent:onLoadFinish()
         renyuandata = Http:jsonDecode('renyuandata')
+        Log:write("@jldu renyuandata ：",renyuandata)
         OnSelectShowMap()
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
