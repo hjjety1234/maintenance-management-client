@@ -89,6 +89,8 @@ Alias = {
     m_zhandiansousuo = 'MODULE:\\com_wondertek_dw\\m_zhandiansousuo.wdml', -- 站点搜索
     m_daohangsousuo = 'MODULE:\\com_wondertek_dw\\m_daohangsousuo.wdml', -- 导航搜索
     m_renyuantongji = 'MODULE:\\com_wondertek_dw\\m_renyuantongji.wdml', -- 人员统计
+    m_renyuantongji_city = 'MODULE:\\com_wondertek_dw\\m_renyuantongji_city.wdml', -- 地市领导人员统计 
+      
     m_xunjiantongji = 'MODULE:\\com_wondertek_dw\\m_xunjiantongji.wdml', -- 巡检统计
     monthDialog = 'MODULE:\\com_wondertek_dw\\monthDialog.wdml', -- 人员统计
     m_basestation='MODULE:\\com_wondertek_dw\\m_basestation.wdml',
