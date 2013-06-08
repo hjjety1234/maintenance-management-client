@@ -349,6 +349,8 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public static final int CAMERA_RESULT = 100;
 	public static final int CALL_RESULT = 101;
 	public static final int REQUEST_PICKER_ALBUM = 102;
+	public static final int REQUEST_GPS = 103;
+	
 	
 	public static long tolRxTraffic = -1;
 	public static long tolTxTraffic = -1;
@@ -1191,7 +1193,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			AppManager.getInstance(this).dealWithAppManager(Util.WDM_SYSPAUSE);
 			PhoneObserver.getInstance().disablePhoneStateListener();
 			//add pj
-						mapPluginMgr.stop();
+			// mapPluginMgr.stop();
 		}
 	}
 
@@ -1222,7 +1224,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			AppManager.getInstance(this).dealWithAppManager(Util.WDM_SYSRESUME);
 			PhoneObserver.getInstance().enablePhoneStateListener(PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 			//add pj
-			            mapPluginMgr.start();
+			// mapPluginMgr.start();
             //add pj
 			sendredraw();
 			//MsgPush

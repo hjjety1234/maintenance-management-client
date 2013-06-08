@@ -196,10 +196,11 @@ public class BDMapManager implements IMapPlugin {
 		mLocClient.registerLocationListener(mBDLocationListener);
 		if (mLocClient.isStarted() == false)
 			mLocClient.start();
+		mStartTime = SystemClock.elapsedRealtime();
 		if (isGpsEnable() == false)
 			showGpsAlert();
-		mStartTime = SystemClock.elapsedRealtime();
-		mbIsGetCurrentPositionCalled = true;
+		else 
+			setMbIsGetCurrentPositionCalled(true);
 	}
 
 	@Override
@@ -415,6 +416,14 @@ public class BDMapManager implements IMapPlugin {
 		mLocClient.setLocOption(option);
 	}
 	
+	public void setMbIsGetCurrentPositionCalled(boolean isCalled) {
+		this.mbIsGetCurrentPositionCalled = isCalled;
+		if (this.mbIsGetCurrentPositionCalled == true)
+			mStartTime = SystemClock.elapsedRealtime();
+		else
+			mStartTime = 0;
+	}
+	
 	private boolean isGpsEnable() {
 		LocationManager mLocationManager = (LocationManager) 
 				VenusActivity.appActivity.getSystemService(Context.LOCATION_SERVICE);
@@ -428,7 +437,8 @@ public class BDMapManager implements IMapPlugin {
         gps_yes.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				VenusActivity.appActivity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+				VenusActivity.appActivity.startActivityForResult(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS), 
+						VenusActivity.REQUEST_GPS);
 				dialog.dismiss();
 			}
 		});
@@ -437,6 +447,7 @@ public class BDMapManager implements IMapPlugin {
         	@Override
 			public void onClick(View v) {
 				dialog.dismiss();
+				setMbIsGetCurrentPositionCalled(true);
 			}
         });
         final Handler threadHandler = new Handler(); ;  

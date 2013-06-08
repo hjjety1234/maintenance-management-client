@@ -17,6 +17,7 @@ import com.baidu.mapapi.MapActivity;
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;
+import com.wondertek.video.map.bdmap.BDMapManager;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -128,6 +129,11 @@ public class AppActivity extends MapActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d(SELF, "onActivityResult");
+		if (requestCode == VenusActivity.REQUEST_GPS) {
+			Util.Trace("Request GPS Setting callback");
+			BDMapManager.getInstance().setMbIsGetCurrentPositionCalled(true);
+			return;
+		}
 		if(resultCode == RESULT_OK)
 		{
 			if(requestCode == VenusActivity.CAMERA_RESULT)
