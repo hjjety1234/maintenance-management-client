@@ -28,7 +28,6 @@ public class PhoneObserver {
             Log.d(TAG, "onSignalStrengthsChanged");
             if (signalStrength.isGsm()) {
             	phoneSignalStrength = signalStrength.getGsmSignalStrength();
-            	 Log.d(TAG,"phoneSignalStrength "+phoneSignalStrength);
             } else {
             	phoneSignalStrength = signalStrength.getCdmaDbm();
             }

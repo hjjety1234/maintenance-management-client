@@ -74,7 +74,7 @@ public class GDPoiSearch {
 					if (singleItem != null && singleItem.size() > 0) {
 						mMapView.getController().setZoom(13);
 						Drawable marker = context.getResources().getDrawable(context.getResources().
-								getIdentifier("gdmap_iconmarka" +  i, "drawable", context.getPackageName()));
+								getIdentifier("gdmap_iconmark" +  i, "drawable", context.getPackageName()));
 						GDPoiOverlay poiOverlay = new GDPoiOverlay(marker, singleItem);
 						poiOverlay.addToMap(mMapView);
 						poiOverlays.push(poiOverlay);

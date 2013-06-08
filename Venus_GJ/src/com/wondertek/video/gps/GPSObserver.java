@@ -43,10 +43,7 @@ public class GPSObserver {
 	private final static double PI = 3.14159265358979323; //pai
 	private final static double R = 6371229; //earth
 
-	private int gpsStatus = 0;
-	private boolean bWaitingGpsOpen = false;
-	private static final int MSG_WAIT = -1;
-	private static final int MSG_COLD = -2;
+	private GpsStatus gpsStatus = null;
 
 	private boolean gpsBeginState;
 	private boolean gpsCurState;
@@ -168,20 +165,16 @@ public class GPSObserver {
 		@Override
 		public void onGpsStatusChanged(int event) {
 			mLocationManager.getGpsStatus(null);
-			gpsStatus = event;
 			switch (event) {
 				case GpsStatus.GPS_EVENT_STARTED:
-					bWaitingGpsOpen = false;
 					Log.d(TAG, "on GPS_EVENT_STARTED");
 					break;
 				case GpsStatus.GPS_EVENT_STOPPED:
 					Log.d(TAG, "on GPS_EVENT_STOPPED");
 					break;
 				case GpsStatus.GPS_EVENT_FIRST_FIX:
-					bWaitingGpsOpen = false;
 					break;
 				case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
-					bWaitingGpsOpen = false;
 					break;
 			}
 		}
@@ -220,8 +213,7 @@ public class GPSObserver {
 
 		@Override
 		public void onProviderEnabled(String provider) {
-			Log.d(TAG, "GSP is open：监听器监测到GPS被打开");
-			bWaitingGpsOpen = false;
+			Log.d(TAG, "GSP is open");
 		}
 
 		@Override
@@ -244,7 +236,6 @@ public class GPSObserver {
 		mLocationManager.removeUpdates(mLocationListener);
 		mLocationManager = null;	
 		bListener = false;
-		bWaitingGpsOpen = false;
 		return true;
 	}
 	
@@ -264,71 +255,17 @@ public class GPSObserver {
 		}
 	}
 
-	private void buildAlertMessageNoGps() {
-		final AlertDialog.Builder builder = new AlertDialog.Builder(venusHandle.appActivity);
-        builder.setMessage("GPS设备未开启, 确定启用吗?");
-        builder.setCancelable(false);
-	        
-        DialogInterface.OnClickListener yesClickListener = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(final DialogInterface dialog, final int id) {
-				venusHandle.appActivity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-			}
-        };
-	        
-        DialogInterface.OnClickListener noClickListener = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(final DialogInterface dialog, final int id) {
-				bWaitingGpsOpen = false;
-				dialog.cancel();
-			}
-        };
-	        
-        builder.setPositiveButton("是", yesClickListener);
-        builder.setNegativeButton("否", noClickListener);
-	        
-        // worker thread needs to have an instance of Handler in scope
-        final AlertDialog alert = builder.create();
-        final Handler threadHandler = new Handler(); ;  
-        new Thread() {
-        	@Override
-        	public void run() {
-        		 threadHandler.post( new Runnable(){
-					@Override
-					public void run() {
-						alert.show();
-					}
-        		 });
-        		
-        	}
-        }.start();
-	}
-
 	public void getGPSData()
 	{
 		if(mLocationManager==null)
 			return;
+		Location location =mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 		
-		if (bWaitingGpsOpen == true) {
-			Log.d(TAG, "Waiting Gps open: true");
-			nativegpsreturn("", MSG_WAIT, MSG_WAIT, MSG_WAIT, MSG_WAIT, MSG_WAIT, MSG_WAIT);
-			return;
-		}
-		
-		if(!mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
-			Log.d(TAG, "gps is not open.");
-			nativegpsreturn("", 0, 0, 0, 0, 0, 0);
-			return;
-		}
-		
-		Location location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 		if(location == null)
 		{
 			Log.d(TAG, "location == null");
-			nativegpsreturn("", MSG_COLD, MSG_COLD, MSG_COLD, MSG_COLD, MSG_COLD, MSG_COLD);
 			return;
 		}
-		
 		Log.d(TAG, "Time:" +location.getTime());
 		Log.d(TAG, "Longitude:" +location.getLongitude());
 		Log.d(TAG, "Latitude:" +location.getLatitude());

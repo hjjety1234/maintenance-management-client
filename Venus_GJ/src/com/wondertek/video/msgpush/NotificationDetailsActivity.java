@@ -68,7 +68,7 @@ public class NotificationDetailsActivity extends Activity {
         nIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         nIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         */
-        VenusApplication.startAppActivity(true);
+        VenusApplication.startAppActivity(1);
         NotificationDetailsActivity.this.finish();
     }
 }

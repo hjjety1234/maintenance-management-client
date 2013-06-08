@@ -223,7 +223,7 @@ public class VenusApplication  extends Application {
 			int slen;
 
 			while (file != null) {
-Util.Trace(file.getName());
+
 				int i = file.getName().lastIndexOf('/');
 				if (i != -1) {
 					File dirs = new File(appAbsPath + File.separator
@@ -232,13 +232,13 @@ Util.Trace(file.getName());
 					dirs = null;
 				}
 
-				if (file.isDirectory() || file.getName().equals("lib2")) {
+				if (file.isDirectory()) {
 					File dirs = new File(file.getName());
 					dirs.mkdir();
 					dirs = null;
 				} else {
-					//File f = new File(appAbsPath + File.separator + file.getName());
-				
+					File f = new File(appAbsPath + File.separator + file.getName());
+					f.delete();
 					FileOutputStream out = new FileOutputStream(appAbsPath
 							+ File.separator + file.getName());
 					while ((slen = in.read(c, 0, c.length)) != -1)
@@ -251,7 +251,6 @@ Util.Trace(file.getName());
 
 		} catch (Exception e) {
 			// Should never happen!
-			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 		createUpdateFlag(false);
@@ -364,8 +363,14 @@ Util.Trace(file.getName());
 		}
 		return s;
 	}
-	public static final int MSG_ID_BOOT_APPACTIVITY			= 0;
-	public static final int MSG_ID_RECEIVE_MESSAGE			= 1;
+	public static final int MSG_ID_BOOT_APPACTIVITY						= 0;
+	public static final int MSG_ID_RECEIVE_RECOMMEND_MESSAGE			= 1;
+	public static final int MSG_ID_RECEIVE_WIDGETSNOTIFY				= 2;
+	public static final int MSG_ID_RECEIVE_NOTIFICATION_NEWS_NOTIFY		= 3;
+	public static final int MSG_ID_RECEIVE_NOTIFICATION_CUSTOM_MESSAGE	= 4;
+	public static final int MSG_ID_RECEIVE_MESSAGE						= 5;
+	public static final int MSG_ID_RECEIVE_APPOINTMENT					= 6;
+	public static final int MSG_ID_RECEIVE_COMMUNITY					= 7;
 
 	public static Handler applicationHandler = new Handler(){
 		public void handleMessage(Message message) {
@@ -381,7 +386,7 @@ Util.Trace(file.getName());
 					int height = message.getData().getInt("Height");
 					int orientation = message.getData().getInt("orientation");
 					VenusActivity.SetFakeScreen(width,height,orientation);
-					startAppActivity(false);
+					startAppActivity(0);
 				}
 				break;
 			case MSG_ID_RECEIVE_MESSAGE :
@@ -389,7 +394,7 @@ Util.Trace(file.getName());
 				if(VenusApplication.bAppActivityIsRunning)
 				{
 					VenusActivity.nativesendsmsevent();
-					startAppActivity(false);
+					startAppActivity(0);
 				}
 				else
 				{
@@ -403,10 +408,10 @@ Util.Trace(file.getName());
 		}
 	};
 
-	public static void startAppActivity(boolean passiveStart)
+	public static void startAppActivity(int passiveStart)
 	{
 		Util.Trace("VenusApplication:: start " + activityPackage + ".AppActivity");
-		appPassiveStart = passiveStart== true ? 1 : 0;
+		appPassiveStart = passiveStart;
 		
 		if(VenusApplication.bAppActivityIsRunning)
 		{

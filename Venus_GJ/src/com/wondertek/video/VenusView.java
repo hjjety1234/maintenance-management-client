@@ -100,6 +100,7 @@ class VenusView extends SurfaceView implements SurfaceHolder.Callback
 		switch(action)
 		{
 		case MotionEvent.ACTION_DOWN:
+			this.venusActivity.update_fast = 0;
 		case 0x5:	// ACTION_POINTER_DOWN
 			type = Util.TOUCH_DOWN;
 			touch[1] = event.getPointerId(actionIndex);
@@ -109,6 +110,7 @@ class VenusView extends SurfaceView implements SurfaceHolder.Callback
 			touch[5] = (int) event.getY(actionIndex);
 			break;
 		case MotionEvent.ACTION_UP:
+			this.venusActivity.update_fast = this.venusActivity.update_fastest;
 		case 0x6:	// ACTION_POINTER_UP
 			type = Util.TOUCH_UP;
 			touch[1] = event.getPointerId(actionIndex);
