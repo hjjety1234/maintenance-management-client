@@ -131,14 +131,10 @@ function bodyBuildChildrenFinished(sprite)
     local curMonth = now['month']
     local monthFilterNode = Sprite:findChild(rootSprite, "monthFilterNode")
     local timeContent=Sprite:findChild(monthFilterNode,"timeContent")
-
     local monthEndNode = Sprite:findChild(rootSprite, "monthEndNode")
     local timeContentEnd=Sprite:findChild(monthEndNode,"timeContent")
-
     local currentMonthString = string.format('%s-%s-%s %s:%s', now['year'], now['month'], now["day"],now["hour"],now["min"])
-
     Sprite:setProperty(timeContent, "text",currentMonthString)
-
     Sprite:setProperty(timeContentEnd, "text",currentMonthString)
 end
 
@@ -148,7 +144,6 @@ function bodyOnSpriteEvent(msg, param)
         local regHandle = Reg:create("dateTime")
         retuenTime = Reg:getString(regHandle, "time")
         local type = Reg:getString(regHandle, "type")
-
         if retuenTime ~= '' and retuenTime ~= nil then
             if type=='start' then
                 local monthFilterNode = Sprite:findChild(rootSprite, "monthFilterNode")
@@ -160,7 +155,6 @@ function bodyOnSpriteEvent(msg, param)
                 Sprite:setProperty(timeContentEnd, "text", retuenTime)
             end
         end
-
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -171,7 +165,6 @@ function bodyOnPluginEvent(msg)
         local data = Http:jsonDecode('carapply_data')
         if data.code == '0' then 
             Dialog:show('','车辆申请成功！','ok','okFanhui')
-
         else 
             Dialog:show('','提交失败，服务端数据错误','ok')
         end
@@ -211,8 +204,7 @@ function timeOnSelect(sprite)
     local endTime = Sprite:findChild(rootSprite, 'endTime')
         Log:write('4', startTime, endTime, sprite)
     local regHandle = Reg:create("startEnd")
-
-     if tonumber(startTime) == tonumber(sprite) then
+    if tonumber(startTime) == tonumber(sprite) then
         Reg:setString(regHandle, 'type', 'start')
     elseif tonumber(endTime) == tonumber(sprite) then
         Reg:setString(regHandle, 'type', 'end')
