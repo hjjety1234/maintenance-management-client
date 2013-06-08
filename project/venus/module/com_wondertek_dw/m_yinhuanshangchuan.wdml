@@ -285,6 +285,7 @@ local mapViewPlugin
 local curXunjianBtn
 local imageArray = {}
 local recordArray = {}
+local recordArrBak = {}
 local time = 0
 local recordGot = 0
 local selectIndex = 1 --第几个下拉框
@@ -399,7 +400,7 @@ function bodyOnPluginEvent(msg, param)
         if updateData.code ~= '0' then
             if Loading:isShow() then Loading:close() end
            
-            Dialog:show('提示',getErrorCode(updateData.code) .. ' ，是否暂存？','ok_cancel','doSave','doBack')
+            Dialog:show('',getErrorCode(updateData.code) .. ' ，是否暂存？','ok_cancel','doSave','doBack')
         else
             orderId = updateData.data
             Log:write("orderId = ",orderId)
@@ -739,7 +740,7 @@ function getLoctude()
 end
 
 function isSave(sprites)
-    Dialog:show('提示','是否保存该内容？','ok_cancel','doSave','doBack')
+    Dialog:show('','是否保存该内容？','ok_cancel','doSave','doBack')
 end
 function submitOnSelect(sprites)
     local yinhuanNameText = Sprite:getProperty(Sprite:findChild(rootSprite, 'yinhuanName'), 'text')
@@ -749,18 +750,18 @@ function submitOnSelect(sprites)
      local zhandianBtnText = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'zhandianBtn'), 'name'), 'text')
     local yinhuanLocNameText=Sprite:getProperty(Sprite:findChild(rootSprite, 'yinhuanLocName'), 'text')
     if yinhuanNameText and yinhuanNameText == '' then
-        Dialog:show('提示', '对不起，隐患名称为空！', 'ok')
+        Dialog:show('', '对不起，隐患名称为空！', 'ok')
     elseif zhuanyeBtnText and zhuanyeBtnText == '' then
-        Dialog:show('提示', '对不起，隐患类别为空！', 'ok')
+        Dialog:show('', '对不起，隐患类别为空！', 'ok')
     elseif typeBtnText and typeBtnText == '' then
-        Dialog:show('提示', '对不起，所属专业为空！', 'ok')
+        Dialog:show('', '对不起，所属专业为空！', 'ok')
     elseif levelBtnText and levelBtnText == '' then
-        Dialog:show('提示', '对不起，隐患级别为空！', 'ok')
+        Dialog:show('', '对不起，隐患级别为空！', 'ok')
     elseif yinhuanLocNameText and yinhuanLocNameText=='' then
-        Dialog:show('提示', '对不起，隐患位置为空！', 'ok')
+        Dialog:show('', '对不起，隐患位置为空！', 'ok')
    
     else
-        Dialog:show('提示','是否确定提交此隐患？','ok_cancel','doUpload')
+        Dialog:show('','是否确定提交此隐患？','ok_cancel','doUpload')
     end
 end
 
@@ -826,24 +827,25 @@ function doRealUploadPic(url, param)
     Log:write("图片上传队列",imageArray[#imageArray])
     if imageArray[#imageArray] and imageArray[#imageArray] ~= '' then
         requestPicUrl(imageArray[#imageArray])
-    elseif #recordArray >= 1 then
+    elseif #recordArray >= 1 then 
         for i=1,#recordArray do
-            if recordArray[i] == '0' then
-                table.remove(recordArray, i)
-                Log:write("测试是否进入此删除函数")
+            if recordArray[i] ~= '0' then
+                table.insert(recordArrBak,recordArray[i])
             end 
         end 
-        --requestRecordUrl(recordArray[#recordArray])
-        Log:write("recordArray中除去了没有录音的数组 = ",recordArray)
-        Log:write("recordArray数组中存储的录音个数 = ",#recordArray)
+        recordArray = recordArrBak
+        Log:write("@jldu #recordArrBak = ",#recordArrBak)
+        Log:write("@jldu recordArrBak = ",recordArrBak)
+        Log:write("@jldu #recordArray = ",#recordArray)
+        Log:write("@jldu recordArray = ",recordArray)
         if #recordArray >= 1 then
             Log:write("测试否进入语音上传函数")
             requestRecordUrl(recordArray[#recordArray])
         end  
-        
         if Loading:isShow() then Loading:close() end
+        Log:write("@jldu 已经进入这里")
         doDelSave(pYinhuanID)
-        Dialog:show('', '已加入上传队列中！', 'ok', 'doBack')  
+        Dialog:show('', '已加入上传队列中！', 'ok', 'doBack')
     else
         if Loading:isShow() then Loading:close() end
         doDelSave(pYinhuanID)
@@ -958,7 +960,7 @@ function doTakePic()
     local fileName = 'ict' .. getCurDate()
     local result = System:openCamera('onCameraDialog', 'file://image/' .. fileName .. '.jpg', 'jpg')
     if result == 0 then
-        Dialog:show('提示', '相机打开失败!', 'ok')
+        Dialog:show('', '相机打开失败!', 'ok')
         return 1
     end
 end

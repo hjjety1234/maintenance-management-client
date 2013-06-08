@@ -104,7 +104,8 @@ local g_latitudeValue = nil  -- 当前位置维度
 local g_longitudeValue = nil -- 单位位置精度
 local g_stationdata = nil    -- 附近的Pois信息
 local g_isMapOpen = false    -- 标记地图是否已经打开
-
+local staffData              -- 人员信息
+local pois                   -- 地图数据
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -115,8 +116,10 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_search, 'MODULE:\\(.*)'), '资源查询首页')
-        showNearbyPois()
+        request()
     elseif msg == MSG_DEACTIVATE then
+        Map:close()
+        g_isMapOpen = false
         UmsAgent:OnDeactivate()
     end
 end
@@ -124,13 +127,52 @@ end
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg, param)
     if msg == 1000 then -- 获取当前的经纬度
-        -- postData为Json数据({"latitude":"31250614","longitude":"121600975"})
-        local postDataString = Param:getString(param, 0)
-        local postData = Json:loadString2Table(postDataString)
-        g_latitudeValue = tonumber(postData.latitude) / 1000000.0
-        g_longitudeValue = tonumber(postData.longitude) / 1000000.0
-        -- 获取附近资源并显示到地图
-        requestNearbyPois()
+    elseif msg ==101 then 
+        staffData = Http:jsonDecode('staffData')
+        Log:write('人员数据',staffData)
+         -- 获取查询结果数目
+        local respValue = staffData.value
+        local len = #respValue
+        if len == 0 and respValue[0] ~= nil and respValue[0] ~= '' then 
+            len = 1
+        elseif len > 0 then
+            len = len + 1 
+        end
+        Log:write('人员数量',len)
+        -- 格式化基站数据
+        local poisString = '{"showType":"3","pois":['
+        for i=1,len do 
+            -- 取感兴趣的站点数据
+            local staff = respValue[i-1]
+            local id  = staff.usercode
+            local lon = staff.lon
+            local lat = staff.lat
+            local company = staff.unit
+            local major = staff.major
+            local name = staff.username
+            local status = staff.userstatus
+            if status == nil or status == '' then
+                status ='我在巡检'
+            end
+
+            -- 部分站点没有经纬度，做一下保护
+            if lon ~= nil and lon ~= '' 
+                and lat ~= nil and lat ~= '' then 
+                -- 创建poi点
+                local poiString = string.format('{"id":"%s", "longitude":%d, "latitude":%d,"company":"%s","major":"%s","name":"%s","status":"%s","desc":"aaa"}',
+                       id, lon * 1000000, lat * 1000000, company,major,name,status)
+                Log:write('poiString', poiString)
+                if i < len then
+                    poisString = poisString..poiString..',' 
+                else
+                    poisString = poisString..poiString
+                end
+            end
+        end
+        poisString = poisString..']}'
+        Log:write('转换后的数据',poisString)
+        pois = poisString
+        showNearbyPois()
     elseif msg == 1001 then -- 获取附近的POI点，并显示的地图上
         UmsAgent:onLoadFinish()
         g_stationdata = Http:jsonDecode('stationdata')
@@ -138,20 +180,11 @@ function bodyOnPluginEvent(msg, param)
         showNearbyPois()
     elseif msg == 1002 then -- POI详情和导航消息处理
         -- postData为Json数据({"PoiId":"31250614","cmd":"RouteSearch"})
-        local postDataString = Param:getString(param, 0)
-        local postData = Json:loadString2Table(postDataString) 
-        Log:write('msg 1002 ', postData) 
-        -- 解析POI命令，目前支持POI详情和POI导航
-        if postData.cmd ~= nil and postData.cmd ~= '' then 
-            if postData.cmd == 'PoIDetail' then 
-                showPoiDetail(postData)
-            elseif postData.cmd == 'RouteSearch' then
-                showPoiRoute(postData) 
-            else
-                Log:write('msg 1002, postData error!', postData)
-                return
-            end
-        end
+        Log:write('我要描点')
+        Scene:setReturn(Alias.m_search, Alias.m_system_manager)
+        Scene:go(Alias.m_system_manager)
+        Map:close()
+        g_isMapOpen = false
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -195,133 +228,31 @@ function  closeMap()
     g_isMapOpen = false
 end
 
--- 获取当前经纬度
-function requestMyLoc()
-    local observer = Plugin:getObserver()
-    Map:getCurPosition(observer, 1000)
-end
-
--- 显示当前位置到地图
--- @paramlongitude string 如 "121600975"
--- @param latitude string 如 "31250614"
-function  showCurPosition(longitude, latitude)
-    if longitude == nil or longitude == '' or 
-        latitude == nil or latitude == '' then
-        Log:write('经纬度参数不合法:', longitude, latitude)
-        return false
-    end
-    Map:moveTo(tonumber(latitude), tonumber(longitude), '') 
-    return true
-end
-
--- 在地图上搜索导航路径
--- @param routeType: number, 路线方式: 1.自驾,2.公车,3.步行1,2,3
--- @param curLongitude:string, 当前经度: 如 "121600975"
--- @param curlatitude:string, 当前纬度: 如 "31250614"
--- @param desLonitude:string, 目标位置经度:如 "121600975"
--- @param desLatitude:string, 目标位置纬度:如 "31250614"
-function searchRoute(routeType, curLongitude, curlatitude, desLonitude, desLatitude)
-
-   -- 源位置经纬度合法性检查
-   if curLongitude == nil or curLongitude == '' or 
-        curlatitude == nil or curlatitude == '' then
-        Log:write('源经纬度参数不合法:', longitude, latitude)
-        return
-    end
-
-    -- 目标位置经纬度合法性检查
-    if desLonitude == nil or desLonitude == '' or 
-        desLatitude == nil or desLatitude == '' then
-        Log:write('目标经纬度参数不合法:', longitude, latitude)
-        return
-    end
-
-    -- 搜索路径
-    Map:searchRoute(routeType, "", "",
-        tonumber(curlatitude), tonumber(curLongitude), "", "",
-        tonumber(desLatitude), tonumber(desLonitude))
-end
-
--- 显示附件的poi点
+-- 显示人员的poi点
 function showNearbyPois()
+
     -- 打开底图
     if g_isMapOpen == false then 
         openMap(0, 70, 480, 644)
     end
-
-    -- 如果有poi数据，则直接在界面上显示;
-    -- 否则先定位，根据经纬度查找附件poi点
-    if g_stationdata ~= nil and g_latitudeValue ~= nil and 
-        g_longitudeValue ~= nil then 
-        -- 设置屏幕中心点
-        Map:moveTo(tostring(g_latitudeValue * 1000000.0), 
-            tostring(g_longitudeValue * 1000000.0), '') 
-        local pois   
-        -- 获取查询结果数目
-        local respValue = g_stationdata.value
-        local len = #respValue
-        if len == 0 and respValue[0] ~= nil and respValue[0] ~= '' then 
-            len = 1
-        elseif len > 0 then
-            len = len + 1 
-        end
-        Log:write('stations-->', respValue)
-        
-        -- 格式化基站数据
-        local poisString = '{pois:['
-        for i=1,len do 
-            -- 取感兴趣的站点数据
-            local station = respValue[i-1]
-            local name = station.itemname
-            local longitude = station.lon
-            local latitude = station.lat
-            local staionId = station.xtbh
-            -- 部分站点没有经纬度，做一下保护
-            if longitude ~= nil and longitude ~= '' 
-                and latitude ~= nil and latitude ~= '' then 
-                -- 创建poi点
-                local poiString = string.format('{"id":"%s", "longitude":%d, "latitude":%d, "desc":"%s"}',
-                       staionId, longitude * 1000000, latitude * 1000000, name)
-                Log:write('poiString', poiString)
-                if i < len then
-                    poisString = poisString..poiString..',' 
-                else
-                    poisString = poisString..poiString
-                end
-            end
-        end
-        poisString = poisString..']}'
-        pois = poisString
-        if pois ~= nil and pois ~= '{pois:[]}' then
-            Log:write('pois---->', pois)
-            local observer = Plugin:getObserver()
-            Map:showPOIs(observer, 1002, pois, 1)
-        end
-    else
-        -- 获取当前的位置信息
-        requestMyLoc()
-    end
+    Log:write('开始定位')
+    --local pois = '{"showType":"3","pois":[{"id":"111","longitude":121592782,"latitude":31244582,"company":"荣斐酒店","major":"线路巡检","name":"张三","status":"正在巡检","desc":"aaa"},{"id":"222","longitude":121590745,"latitude":31244910,"company":"浦东华美达","major":"线路巡检","name":"李四","status":"正在巡检","desc":"bbb"},{"id":"333","longitude":121595483,"latitude":31246584,"company":"碧云国际","major":"线路巡检","name":"王五","status":"正在巡检","desc":"ccc"}]}'
+    local observer = Plugin:getObserver()
+    Map:showPOIs(observer, 1002, pois, 1)
 end
 
 ------------------------------------服务器交互相关函数---------------------------
--- 获取附近的站点资源
-function requestNearbyPois()
-    setAllShoworHide(Sprite:findChild(rootSprite, 'searchstationnode'), 0)
-    searchflag = 0
-    -- 必须有经纬度信息
-    if g_longitudeValue == nil or g_latitudeValue == nil then 
-        requestMyLoc()
-    end
-    local param = 'cmd=wlbjingwei&page='..'1'..'&radius=1000&lon='..g_longitudeValue..'&lat='..g_latitudeValue
-    local reqURL = getWholeUrl('nbspweb/webservice/assessment!doWebservice.action', param)
-    Http:request('stationdata', reqURL, 1001, {useCache = false})
-    UmsAgent:onLoadStart()
+-- 获取人员数据
+function request()
+    local usercode = Config:get('username')
+    local param = string.format('usercode=%s&page=1&pagesize=10000&cmd=wlbstaffmap', 
+        usercode)
+    local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
+    Http:request('staffData', reqURL, 101, {useCache = false})
 end
 
 function SearchOnSelect(sprite)
     local btnData = Sprite:getData(sprite)
---   setAllShoworHide(Sprite:findChild(rootSprite, 'nearstationnode'), 0)
---   nearflag=0
    
     if searchflag==0 then
     searchflag=1
@@ -356,108 +287,13 @@ function itemOnSelect(sprite)
     end
 end
 
-------------------------------跳转到详情页面-------------------------------------
--- 根据资源的类型，跳转到合适的详情页面
-function showPoiDetail(poi) 
-    -- 入参检查
-    if g_stationdata == nil or g_stationdata.value == nil then 
-        Log:write('无资源列表数据')
-        return
-    end
-    
-    if poi == nil or poi.PoiId == nil then 
-        Log:write('Poi点格式异常！')
-        return
-    end
-    
-    -- 查找poiId对应的资源
-    local respValue = g_stationdata.value
-    local station = nil
-    for i = 0, getJsonArrayCount(respValue) - 1 do
-        if respValue[i].xtbh ==  poi.PoiId then 
-            station = respValue[i]
-			break
-        end
-    end
-    
-    -- 如果查找到资源根据其类型跳转到不同的详情页
-    if station == nil then 
-        Log:write('showPoiDetail: 未找到PoI点对应的站点', poi)
-        return
-    end
-    Log:write('showPoiDetail: 找到POI对应的站点', station)
-    
-    -- 专业类型编码: 基站C31,综合覆盖C32, 铁塔C33, 集客C34，家客C37
-    if station.stationtype == "C31" then 
-        _showStationDetail(station)
-    elseif station.stationtype == "C32" then
-    elseif station.stationtype == "C33" then 
-    elseif station.stationtype == "C34" then 
-    elseif station.stationtype == "C37" then
-    else
-       Log:write('专业类型不匹配，默认为基站详情!', station.stationtype)
-       _showStationDetail(station)
-    end
-end
 
--- 显示基站详情
-function _showStationDetail(station)
-     closeMap()
-     local regHandle = Reg:create('station_data')
-     Reg:clear(regHandle)
-     Reg:setString(regHandle, "stationname", station.itemname)
-     Reg:setString(regHandle, "owner", "")     --TODO: 无接口数据
-     Reg:setString(regHandle, "area", "")      --TODO: 无接口数据
-     Reg:setString(regHandle, "lon", station.lon)
-     Reg:setString(regHandle, "lat", station.lat)
-     Reg:setString(regHandle, "stationid", station.xtbh)
-     Reg:setString(regHandle, "company", "")   --TODO: 无接口数据
-     Reg:setString(regHandle, "addr", station.addr)
-     Scene:setReturn(Alias.m_search, Alias.m_stationdetail)
-     Scene:go(Alias.m_stationdetail)
-end
+
+
+
 
 ------------------------------跳转到导航页面-------------------------------------
-function showPoiRoute(poi)
-    -- 入参检查
-    if g_stationdata == nil or g_stationdata.value == nil then 
-        Log:write('无资源列表数据')
-        return
-    end
-    
-    if poi == nil or poi.PoiId == nil then 
-        Log:write('Poi点格式异常！')
-        return
-    end
-    
-    -- 查找poiId对应的资源
-    local respValue = g_stationdata.value
-    local station = nil
-    for i = 0, getJsonArrayCount(respValue) - 1 do
-        if respValue[i].xtbh ==  poi.PoiId then 
-            station = respValue[i]
-            break
-        end
-    end
-    
-    -- 如果查找到资源根据其类型跳转到不同的详情页
-    if station == nil then 
-        Log:write('showPoiDetail: 未找到PoI点对应的站点', poi)
-        return
-    end
-    Log:write('showPoiDetail: 找到PoI对应的站点', station)
-    
-    -- 跳转到导航页面
-    local regHandle = Reg:create(Alias.m_search)
-    Reg:clear(regHandle)
-    Reg:setString(regHandle, 'stationName', station.itemname)
-    Reg:setString(regHandle, 'destLongitude', station.lon)
-    Reg:setString(regHandle, 'destLatitude', station.lat)
-    
-    closeMap()
-    Scene:setReturn(Alias.m_search, Alias.m_daohangsousuo)
-    Scene:go(Alias.m_daohangsousuo)
-end
+
 
 ]]>
 </root>
