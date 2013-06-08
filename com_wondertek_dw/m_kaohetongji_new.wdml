@@ -232,9 +232,10 @@
                         font-family='微软雅黑' font-size="20"  h-align="left"
                         v-align="center" style="autosize" extendstyle="1111"  >
                     </textarea>
-                    <image name='meanName' rect="321,0,3,50" 
-                                    src="file://image/guoqi_line.png" extendstyle="1111" 
-                                    style='autosize'/> 
+                    <image name='meanName' rect="321,0,3,50"  style='autosize'
+                        src="file://image/guoqi_line.png" extendstyle="1111" /> 
+                    <image name='jiantouImg' rect="421,22,14,20"  style='autosize'
+                        src="file://image/site_right.png" extendstyle="1111" />               
                 </button>
             </node>
         </node>
@@ -369,6 +370,7 @@ end
 
 -- 加载统计数据
 function loadListItem(list, item, index)
+    Log:write('the index is '..index)
     if(index >0 ) then
         Log:write('the index is ',index)
         Sprite:setRect(item, 0, 0, 480, 40)
@@ -404,8 +406,8 @@ function loadListItem(list, item, index)
         local score = Sprite:findChild(item,'score')          -- 得分
         local faceName = Sprite:findChild(item,'faceName')          -- 笑脸、哭脸
         local dimName = Sprite:findChild(item,'dimName')   --获取名称sprite
-        Sprite:setProperty(dimName, 'text', value[1].dimension)
-        Sprite:setProperty(score, 'text', string.format('%.1f',value[1].score))
+        Sprite:setProperty(dimName, 'text', value[index].dimension)
+        Sprite:setProperty(score, 'text', string.format('%.1f',value[index].score))
     end
 
 
@@ -692,7 +694,7 @@ function companyOn(sprite)
     Sprite:setProperty(companyTxt,'color','#ffffff') 
     Log:write('g_dimension',g_dimension)
     local cityName = Sprite:findChild(rootSprite,'cityName')
-    Sprite:setProperty(cityName,'text','代维单位')
+    --Sprite:setProperty(cityName,'text','代维单位')
     Sprite:setProperty(cityName,'rect','10,5,90,25')
     request(g_major)
     Loading:show()
