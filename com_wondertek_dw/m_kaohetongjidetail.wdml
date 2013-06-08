@@ -66,8 +66,8 @@
                     <image name='contentBottom' rect="0,235,460,15" src="file://image/content_bottom.png"
                         style="autosize" extendstyle="1111" />
                     <!-- 计划标题 -->
-                    <image name='contentBottom' rect="380,10,61,89" src="file://image/kaohefen.png" style="autosize" extendstyle="1111" />
-                    <label name="scoreLabel" rect="382,10,60,55" font-family="微软雅黑" text="97"
+                    <image name='contentBottom' rect="390,10,61,89" src="file://image/kaohefen.png" style="autosize" extendstyle="1111" />
+                    <label name="scoreLabel" rect="392,10,60,55" font-family="微软雅黑" text="97"
                         font-size="30" extendstyle="1111" h-align="center" v-align="center" color="#ff0000"></label>
                     <label name="Label"  rect="20,40,90,30" font-family="微软雅黑" text="考核人："
                         font-size="23" extendstyle="1111" h-align="left" v-align="center" color="#303030"></label>
@@ -224,7 +224,10 @@ function loadDetailListItem(list, item, index)
     local curvalue = detail_data1.value[index]
     local datetime = Split(curvalue.checkdate, ' ')
     local date = datetime[1]
-    Sprite:setProperty(scoreLabel, 'text', curvalue.score)         -- 专业名称
+    if curvalue.score then
+      local i,j = string.find(curvalue.score, '.', 1)
+      Sprite:setProperty(scoreLabel, 'text', string.sub(curvalue.score,1,i+1)) 
+    end
     Sprite:setProperty(kaoherenLabel, 'text', curvalue.checkman)    --创建人名称                     
     Sprite:setProperty(dateLabel, "text", date)          --处理人 名称
     --Sprite:setProperty(deparmentLabel, "text", curvalue.orgid)           --处理状态
