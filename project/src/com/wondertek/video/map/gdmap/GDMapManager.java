@@ -304,7 +304,7 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 				removeAllOverlays();
 			}
 			
-			mMapView.getController().setZoom(13);
+			mMapView.getController().setZoom(7);
 			Drawable marker = mContext.getResources().getDrawable(mContext.getResources().
 					getIdentifier("gdmap_icon_mis", "drawable", mContext.getPackageName()));
 			Drawable markerEx = mContext.getResources().getDrawable(mContext.getResources().
