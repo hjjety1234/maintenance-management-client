@@ -834,12 +834,18 @@ function doRealUploadPic(url, param)
             end 
         end 
         recordArray = recordArrBak
-        Log:write("recordArray中除去了没有录音的数组 = ",recordArray)
-        Log:write("recordArray数组中存储的录音个数 = ",#recordArray)
+        Log:write("@jldu #recordArrBak = ",#recordArrBak)
+        Log:write("@jldu recordArrBak = ",recordArrBak)
+        Log:write("@jldu #recordArray = ",#recordArray)
+        Log:write("@jldu recordArray = ",recordArray)
         if #recordArray >= 1 then
             Log:write("测试否进入语音上传函数")
             requestRecordUrl(recordArray[#recordArray])
         end  
+        if Loading:isShow() then Loading:close() end
+        Log:write("@jldu 已经进入这里")
+        doDelSave(pYinhuanID)
+        Dialog:show('', '已加入上传队列中！', 'ok', 'doBack')
     else
         if Loading:isShow() then Loading:close() end
         doDelSave(pYinhuanID)
