@@ -73,10 +73,10 @@
              <node name="bottombar" rect="0,714,480,86" extendstyle="1511">
 	            <image rect="0,0,480,86" src="file://image/bottom_new.png"
                     style="autosize" extendstyle="1511" />
-                <button name="button1" rect="0,0,120,86" border="false" sel="sel"
-		           text="" color="#ffffff" OnSelect="NearOnSelect" extendstyle="1111"
+                <button name="button1" rect="0,0,120,86" border="false"
+		           text="" color="#ffffff" OnSelect="searchOnSelect" extendstyle="1111"
 		           data="01">                            
-		          <image name="sel" rect="0,0,120,86" src="file://image/dt_btn_s.png"
+		          <image name="renyuan" rect="0,0,120,86" src="file://image/dt_btn_s.png"
 		           style="autosize" extendstyle="1111" v-align="center"  
                   h-align="center"/>
 		          <image name="img" rect="42,16,36,36" src="file://image/map_ren.png"
@@ -85,31 +85,31 @@
                   <label  name="titleText" rect="42,40,40,40" text="人员" color="#ffffff" v-align="center"  
                   h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
                 </button>
-                <button name="button2" rect="120,0,120,86" border="false" sel="sel"
-	                text="" color="#ffffff" OnSelect="SearchOnSelect"  xtendstyle="1111"
+                <button name="button2" rect="120,0,120,86" border="false" 
+	                text="" color="#ffffff" OnSelect="searchOnSelect"  xtendstyle="1111"
 	                data="02">
-	                <image name="sel" rect="0,0,120,86" src="file://image/dt_btn_s.png"
-	                style="autosize" extendstyle="1111" />
+	                <image name="ziyuan" rect="0,0,120,86" src="file://image/dt_btn_s.png"
+	                style="autosize" extendstyle="1111" visible="false"/>
 	                <image name="img" rect="42,16,36,36" src="file://image/map_ziyuan.png"
 	                style="autosize" extendstyle="1111" />
                     <label  name="titleText" rect="40,40,40,40" text="资源" color="#ffffff" v-align="center"  
                   h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
                 </button>
-                 <button name="button3" rect="240,0,120,86" border="false" sel="sel"
-                    text="" color="#ffffff" OnSelect="SearchOnSelect" extendstyle="1111"
-                    data="02">
-                    <image name="sel" rect="0,0,120,86" src="file://image/dt_btn_s.png"
-                    style="autosize" extendstyle="1111" />
+                 <button name="button3" rect="240,0,120,86" border="false" 
+                    text="" color="#ffffff" OnSelect="searchOnSelect" extendstyle="1111"
+                    data="03">
+                    <image name="yinhuan" rect="0,0,120,86" src="file://image/dt_btn_s.png"
+                    style="autosize" extendstyle="1111" visible="false"/>
                     <image name="img" rect="42,16,36,36" src="file://image/map_yinhuan.png"
                     style="autosize" extendstyle="1111" />
                  <label  name="titleText" rect="42,40,40,40" text="隐患" color="#ffffff" v-align="center"  
                   h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
                 </button>
-                <button name="button4" rect="360,0,120,86" border="false" sel="sel"
-                    text="" color="#ffffff" OnSelect="SearchOnSelect" extendstyle="1111"
-                    data="02">
-                    <image name="sel" rect="0,0,120,86" src="file://image/dt_btn_s.png"
-                    style="autosize" extendstyle="1111" />
+                <button name="button4" rect="360,0,120,86" border="false" 
+                    text="" color="#ffffff" OnSelect="searchOnSelect" extendstyle="1111"
+                    data="04">
+                    <image name="guzhang" rect="0,0,120,86" src="file://image/dt_btn_s.png"
+                    style="autosize" extendstyle="1111" visible="false"/>
                     <image name="img" rect="42,16,36,36" src="file://image/map_guzhang.png"
                     style="autosize" extendstyle="1111" />
                     <label  name="titleText" rect="42,40,40,40" text="故障" color="#ffffff" v-align="center"  
@@ -277,18 +277,50 @@ function request()
     Http:request('staffData', reqURL, 101, {useCache = false})
 end
 
-function SearchOnSelect(sprite)
-    local btnData = Sprite:getData(sprite)
-   
-    if searchflag==0 then
-    searchflag=1
-    openMap(0, 70, 480, 572)
-    setAllShoworHide(Sprite:findChild(rootSprite, 'searchstationnode'), 1)
-    elseif searchflag==1 then
-    searchflag=0
-    openMap(0, 70, 480, 644)
-    setAllShoworHide(Sprite:findChild(rootSprite, 'searchstationnode'), 0)
-    end
+--function SearchOnSelect(sprite)
+ --   local btnData = Sprite:getData(sprite)
+  --  if searchflag==0 then
+   -- searchflag=1
+   -- openMap(0, 70, 480, 572)
+   -- setAllShoworHide(Sprite:findChild(rootSprite, 'searchstationnode'), 1)
+   -- elseif searchflag==1 then
+   -- searchflag=0
+   -- openMap(0, 70, 480, 644)
+   -- setAllShoworHide(Sprite:findChild(rootSprite, 'searchstationnode'), 0)
+   -- end
+--end
+function searchOnSelect(sprite)
+   local btnData = Sprite:getData(sprite)
+   local renyuan=Sprite:findChild(rootSprite,'renyuan')
+   local ziyuan=Sprite:findChild(rootSprite,'ziyuan')
+   local guzhang=Sprite:findChild(rootSprite,'guzhang')
+   local yinhuan =Sprite:findChild(rootSprite,'yinhuan')
+   if btnData=='01' then
+     Sprite:setVisible(renyuan,'1')
+     Sprite:setVisible(ziyuan,'0')
+     Sprite:setVisible(guzhang,'0')
+     Sprite:setVisible(guzhang,'0')
+     openMap(0, 70, 480, 572)
+     setAllShoworHide(Sprite:findChild(rootSprite, 'searchstationnode'), 1)
+   elseif btnData=='02' then
+     Sprite:setVisible(renyuan,'0')
+     Sprite:setVisible(ziyuan,'1')
+     Sprite:setVisible(guzhang,'0')
+     Sprite:setVisible(yinhuan,'0')
+     closeMap() 
+   elseif btnData=='03' then
+     Sprite:setVisible(renyuan,'0')
+     Sprite:setVisible(ziyuan,'0')
+     Sprite:setVisible(guzhang,'0')
+     Sprite:setVisible(yinhuan,'1')
+     closeMap()
+   elseif btnData=='04' then
+     Sprite:setVisible(renyuan,'0')
+     Sprite:setVisible(ziyuan,'0')
+     Sprite:setVisible(guzhang,'1')
+     Sprite:setVisible(yinhuan,'0')
+     closeMap()
+   end
 end
 
 function itemOnSelect(sprite)
