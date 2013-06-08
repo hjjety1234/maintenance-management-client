@@ -126,7 +126,7 @@
                         OnSelect="cityOn" extendstyle="1111" data='city'>
                         <image name='cityImg' rect="30,10,75,37" src="file://image/city_bg.png"
                              extendstyle="1111" style='autosize'/>
-                        <label name="cityTxt" rect="20,5,95,37" text="市公司" font-family='微软雅黑'
+                        <label name="cityTxt" rect="20,5,95,37" text="区域" font-family='微软雅黑'
                             extendstyle="1111" font-size="23" h-align="center" v-align="center"
                             color="#ffffff" />
                     </button> 
@@ -265,6 +265,7 @@ local currentMonth = 0 --当前月份
 local g_dimension ='city' --初始市公司维度
 local g_regionid = ''  --当前查询的区域编号，空为全省
 local regionid=''
+local g_response
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -289,7 +290,8 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_xunjiantongji_new, 'MODULE:\\(.*)'), "巡检统计")
-        request(g_major)
+        msgLoad()
+        --request(g_major)
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
@@ -698,7 +700,8 @@ function prevMonthOnSelect(sprite)
         month = month - 1
     end
     Log:write('比较年份',year,currentYear)
-    if year<=currentYear and month*3<=currentMonth then 
+    Log:write('比较季度',month*3,currentMonth)
+    if year<=currentYear and month*3<currentMonth then 
         spendTime=90
     elseif year<currentYear then
         spendTime=90
@@ -722,7 +725,7 @@ function nextMonthOnSelect(sprite)
     else
         month = month + 1
     end
-    if year<=currentYear and month*3<=currentMonth then 
+    if year<=currentYear and month*3<currentMonth then 
         spendTime=90
     elseif year<currentYear then
         spendTime=90

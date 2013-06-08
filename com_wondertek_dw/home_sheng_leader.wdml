@@ -167,11 +167,25 @@ require 'framework.appmanager'
 local rootSprite
 local observer
 local mapViewPlugin
-
+local g_regionid = ''  --当前查询的区域编号，空为全省
+local regionid=''
+local year = '' --年
+local quarter = ''--季
+local month  = ''--月
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+--获取角色编号
+    local role = Config:get('role')
+    regionid = Config:get('regionid')
+    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
+        g_regionid = regionid
+    else
+        g_regionid = ''
+        regionid = ''
+    end
+    Log:write('角色和区域',role,g_regionid)
     local xjwcqk = Sprite:findChild(rootSprite,'xjwcqk')
     local yhclqk = Sprite:findChild(rootSprite,'yhclqk')
     local zlzb = Sprite:findChild(rootSprite,'zlzb')
@@ -187,6 +201,43 @@ function bodyBuildChildrenFinished(sprite)
     end
 
 end
+-- 获取当前年月
+function setDefaultMonth()
+    year = (os.date("*t",os.time() + 86400)) ["year"]
+    month = (os.date("*t",os.time() + 86400))["month"]
+    --Log:write('month',month)
+    if  month==3 or month==2 or month==1 then        
+        quarter = 1
+    elseif month==4 or month==5 or month==6 then        
+        quarter = 2
+    elseif month==7 or month==8 or month==9 then        
+        quarter = 3
+    elseif month==10 or month==11 or month==12 then        
+        quarter = 4
+    end
+    if month==1 then 
+        month = 11 
+    elseif month==2  then 
+        month = 12
+    else
+        month = month -2
+    end
+end
+-- 请求统计数据
+function request()
+    setDefaultMonth()
+    local date = year..'-'..quarter--巡检季度
+    local date1 = year..'-'..month--考核月份
+    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=C31&page=1&pagesize=100&dimension=city&regionid=%s', 
+        Config:get('username'), date, g_regionid)
+    local param1 = string.format('cmd=wlbassessment&usercode=%s&date=%s&major=C31&page=1&pagesize=100&dimension=city&regionid=%s', 
+        Config:get('username'), date1, g_regionid)
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    local reqURL1 = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param1
+    Log:write("[request] reqURL1: ", reqURL1)
+    Http:request('patrol', reqURL, 101, {useCache = false})
+    Http:request('assessment', reqURL1, 103, {useCache = false})
+end
 
 function updateDaibanNum()
     local username=Config:get('username')
@@ -199,7 +250,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        updateDaibanNum()
+         request()--预加载巡检数据
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -208,6 +259,11 @@ end
 function bodyOnPluginEvent(msg, param)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
+       --预加载数据存到巡检页面
+       patrol = Http:jsonDecode('patrol')
+       local regHandle=Reg:create('xunjian_data')
+       Reg:clear(regHandle)
+       Reg:setTable(regHandle, "xunjian", patrol)
     elseif msg == 102 then
         local loginData = Http:jsonDecode('login_istrue')
         local result=loginData['code']
@@ -222,6 +278,13 @@ function bodyOnPluginEvent(msg, param)
                 Sprite:setProperty(daibanNum, 'text', loginData.taskNum)
             end
         end
+    elseif msg == 103 then
+        --预加载数据存到考核页面
+        kaohe = Http:jsonDecode('assessment')
+        local regHandle=Reg:create('kaohe_data')
+        --Log:write('考核数据',kaohe)
+        Reg:clear(regHandle)
+        Reg:setTable(regHandle, "kaohe", kaohe)
     elseif msg == 1000 then
         local postData = Param:getString(param, 0)
         if postData.latitude ~= nil then

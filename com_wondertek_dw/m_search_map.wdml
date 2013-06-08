@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: hewu <hewu2008@gmail.com>
+ == ============================================================================
+ == | Desc: 2012/12/22 调用高德的地图接口，实现基站导航
+ == |       2013/01/12 新增POI弹出提示框，可以查看资源的详情，进行导航
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <!-- 主节点  -->
+        <node name="mainNode" rect="0,0,480,800" enable="true" 
+            active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            
+            <!-- 设置背景 -->
+            <image rect="0,0,0,0" src="file://image/backgroundImg.png" style="autosize"
+             extendstyle="1177" />
+               
+            <!-- 设置头部 -->
+            <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
+                 <image name="title" rect="0,0,480,66" border="false" src="file://image/title_new.png" 
+                  style="autosize" extendstyle="1111">
+                 <label name="titleText" rect="0,0,480,66" text="附近站点" color="#ffffff" v-align="center"  
+                  h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />
+                 </image>
+                 
+                 <!-- 返回按钮  -->
+                 <button name="backBtn" rect="0,0,66,66"  style="autosize"  normal="" sel="" 
+                    OnSelect="doBack" extendstyle="1111">
+                    <image name="normal" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
+                     extendstyle="1111" />
+                </button>
+            </node>
+            
+            <node name="searchstationnode" rect="0,642,480,72" visible="false" 
+                enable="false" extendstyle="1111">
+                <image rect="0,0,480,86" src="file://image/dt_bar.png"
+                    style="autosize" extendstyle="1111" />
+                <button name="jizhanbtn" rect="0,0,120,72" border="false"
+                    text="" color="#ffffff" OnSelect="itemOnSelect" extendstyle="1111"
+                    data="01">
+                    <image name="img" rect="31,6,34,56" src="file://image/dt_jizhans.png"
+                    extendstyle="1111" style="autosize"/>
+                </button>
+                <button name="tietabtn" rect="120,0,120,72" border="false"
+                    text="" color="#ffffff" OnSelect="itemOnSelect" extendstyle="1111"
+                    data="02">
+                    <image name="img" rect="31,11,33,51" src="file://image/dt_tietas.png"
+                    extendstyle="1111" style="autosize"/>                        
+                </button>
+                <button name="zonghebtn" rect="240,0,120,72" border="false"
+                    text="" color="#ffffff" OnSelect="itemOnSelect" extendstyle="1111"
+                    data="03">
+                    <image name="img" rect="14,14,67,48" src="file://image/dt_fugais.png"
+                    extendstyle="1111" style="autosize"/>
+                </button>
+                <button name="jijiabtn" rect="360,0,120,72" border="false"
+                    text="" color="#ffffff" OnSelect="itemOnSelect" extendstyle="1111"
+                    data="04">
+                    <image name="img" rect="14,12,67,50" src="file://image/dt_jikes.png"
+                    extendstyle="1111" style="autosize"/>
+                </button> 
+             </node>
+             
+             <!-- 底部工具栏  -->
+             <node name="bottombar" rect="0,714,480,86" extendstyle="1511">
+	            <image rect="0,0,480,86" src="file://image/bottom_new.png"
+                    style="autosize" extendstyle="1511" />
+                <button name="button1" rect="60,0,160,86" border="false" sel="sel"
+		           text="" color="#ffffff" OnSelect="NearOnSelect" extendstyle="1111"
+		           data="01">                            
+		           <image name="sel" rect="0,0,160,86" src="file://image/dt_btn_s.png"
+		           style="autosize" extendstyle="1111" />
+		           <image name="img" rect="46,16,68,54" src="file://image/dt_near_station.png"
+		           style="autosize" extendstyle="1111" />
+                </button>
+                <button name="button2" rect="250,0,160,86" border="false" sel="sel"
+	                text="" color="#ffffff" OnSelect="SearchOnSelect" extendstyle="1111"
+	                data="02">
+	                <image name="sel" rect="0,0,160,86" src="file://image/dt_btn_s.png"
+	                style="autosize" extendstyle="1111" />
+	                <image name="img" rect="46,16,68,54" src="file://image/dt_search.png"
+	                style="autosize" extendstyle="1111" />
+                </button>
+              </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+require 'framework.umsagent'
+require 'framework.map'
+local rootSprite
+local searchflag = 0
+local nearflag = 0
+local g_latitudeValue = nil  -- 当前位置维度
+local g_longitudeValue = nil -- 单位位置精度
+local g_stationdata = nil    -- 附近的Pois信息
+local g_isMapOpen = false    -- 标记地图是否已经打开
+local staffData              -- 人员信息
+local pois                   -- 地图数据
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        UmsAgent:OnActivate(string.match(Alias.m_search, 'MODULE:\\(.*)'), '资源查询首页')
+        request()
+    elseif msg == MSG_DEACTIVATE then
+        Map:close()
+        g_isMapOpen = false
+        UmsAgent:OnDeactivate()
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 1000 then -- 获取当前的经纬度
+    elseif msg ==101 then 
+        staffData = Http:jsonDecode('staffData')
+        Log:write('人员数据',staffData)
+         -- 获取查询结果数目
+        local respValue = staffData.value
+        local len = #respValue
+        if len == 0 and respValue[0] ~= nil and respValue[0] ~= '' then 
+            len = 1
+        elseif len > 0 then
+            len = len + 1 
+        end
+        Log:write('人员数量',len)
+        -- 格式化基站数据
+        local poisString = '{"showType":"3","pois":['
+        for i=1,len do 
+            -- 取感兴趣的站点数据
+            local staff = respValue[i-1]
+            local id  = staff.usercode
+            local lon = staff.lon
+            local lat = staff.lat
+            local company = staff.unit
+            local major = staff.major
+            local name = staff.username
+            local status = staff.userstatus
+            if status == nil or status == '' then
+                status ='我在巡检'
+            end
+
+            -- 部分站点没有经纬度，做一下保护
+            if lon ~= nil and lon ~= '' 
+                and lat ~= nil and lat ~= '' then 
+                -- 创建poi点
+                local poiString = string.format('{"id":"%s", "longitude":%d, "latitude":%d,"company":"%s","major":"%s","name":"%s","status":"%s","desc":"aaa"}',
+                       id, lon * 1000000, lat * 1000000, company,major,name,status)
+                Log:write('poiString', poiString)
+                if i < len then
+                    poisString = poisString..poiString..',' 
+                else
+                    poisString = poisString..poiString
+                end
+            end
+        end
+        poisString = poisString..']}'
+        Log:write('转换后的数据',poisString)
+        pois = poisString
+        showNearbyPois()
+    elseif msg == 1001 then -- 获取附近的POI点，并显示的地图上
+        UmsAgent:onLoadFinish()
+        g_stationdata = Http:jsonDecode('stationdata')
+        Log:write("g_stationdata = ", g_stationdata) 
+        showNearbyPois()
+    elseif msg == 1002 then -- POI详情和导航消息处理
+        -- postData为Json数据({"PoiId":"31250614","cmd":"RouteSearch"})
+        Log:write('我要描点')
+        Scene:setReturn(Alias.m_search, Alias.m_system_manager)
+        Scene:go(Alias.m_system_manager)
+        Map:close()
+        g_isMapOpen = false
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        doBack()
+        return 1
+    end
+end
+
+-- 返回上一个页面
+function doBack()
+    closeMap()
+    Scene:back()
+end
+
+-- 搜索附近按钮消息处理函数
+function NearOnSelect(sprite)
+   showNearbyPois()
+end
+
+---------------------------------------地图相关函数---------------------------
+-- 打开地图
+function openMap(x, y, w, h)
+    local xscal = SCREEN_WIDTH / 480
+    local yscal = SCREEN_HEIGHT / 800
+    Map:open(x*xscal, y*yscal, w*xscal, h*yscal)
+    g_isMapOpen = true
+end
+
+-- 关闭地图 
+function  closeMap()
+    Map:close()
+    g_isMapOpen = false
+end
+
+-- 显示人员的poi点
+function showNearbyPois()
+
+    -- 打开底图
+    if g_isMapOpen == false then 
+        openMap(0, 70, 480, 644)
+    end
+    Log:write('开始定位')
+    --local pois = '{"showType":"3","pois":[{"id":"111","longitude":121592782,"latitude":31244582,"company":"荣斐酒店","major":"线路巡检","name":"张三","status":"正在巡检","desc":"aaa"},{"id":"222","longitude":121590745,"latitude":31244910,"company":"浦东华美达","major":"线路巡检","name":"李四","status":"正在巡检","desc":"bbb"},{"id":"333","longitude":121595483,"latitude":31246584,"company":"碧云国际","major":"线路巡检","name":"王五","status":"正在巡检","desc":"ccc"}]}'
+    local observer = Plugin:getObserver()
+    Map:showPOIs(observer, 1002, pois, 1)
+end
+
+------------------------------------服务器交互相关函数---------------------------
+-- 获取人员数据
+function request()
+    local usercode = Config:get('username')
+    local param = string.format('usercode=%s&page=1&pagesize=10000&cmd=wlbstaffmap', 
+        usercode)
+    local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
+    Http:request('staffData', reqURL, 101, {useCache = false})
+end
+
+function SearchOnSelect(sprite)
+    local btnData = Sprite:getData(sprite)
+   
+    if searchflag==0 then
+    searchflag=1
+    openMap(0, 70, 480, 572)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'searchstationnode'), 1)
+    elseif searchflag==1 then
+    searchflag=0
+    openMap(0, 70, 480, 644)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'searchstationnode'), 0)
+    end
+end
+
+function itemOnSelect(sprite)
+    local dataInfo = Sprite:getData(sprite)
+    Log:write('dataInfo===', dataInfo)
+    if dataInfo=='01' then 
+       closeMap()
+       Scene:setReturn(Alias.m_search, Alias.m_basestation)
+       Scene:go(Alias.m_basestation)
+    elseif dataInfo=='02'  then
+       closeMap()
+       Scene:setReturn(Alias.m_search, Alias.m_tieta)
+       Scene:go( Alias.m_tieta)    
+    elseif dataInfo=='03'  then
+       closeMap()
+       Scene:setReturn(Alias.m_search, Alias.m_zonghefugai)
+       Scene:go( Alias.m_zonghefugai)    
+    elseif dataInfo == '04' then --集客家客
+       closeMap()
+       Scene:setReturn(Alias.m_search, Alias.m_jikejiake_search)
+       Scene:go( Alias.m_jikejiake_search)
+    end
+end
+
+
+
+
+
+
+------------------------------跳转到导航页面-------------------------------------
+
+
+]]>
+</root>
