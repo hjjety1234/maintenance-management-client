@@ -1244,7 +1244,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			WifiObserver.getInstance(this).dealWithWLan(Util.WDM_SYSRESUME);
 			AppManager.getInstance(this).dealWithAppManager(Util.WDM_SYSRESUME);
 			PhoneObserver.getInstance().enablePhoneStateListener(PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-			            mapPluginMgr.start();
+			//mapPluginMgr.start();
             //add pj
 			sendredraw();
 			//MsgPush

@@ -2,20 +2,35 @@ package com.wondertek.video.map.bdmap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
-import android.location.Location;
-import android.os.Bundle;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
+import android.provider.Settings;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.BMapManager;
 import com.baidu.mapapi.GeoPoint;
 import com.baidu.mapapi.LocationListener;
@@ -26,8 +41,11 @@ import com.baidu.mapapi.MKSearch;
 import com.baidu.mapapi.MapActivity;
 import com.baidu.mapapi.MapView;
 import com.baidu.mapapi.MapView.LayoutParams;
+import com.wondertek.video.VenusActivity;
+import com.wondertek.video.VenusApplication;
 import com.wondertek.video.map.IMapPlugin;
 import com.wondertek.video.map.MapPluginMgr;
+import com.wondertek.xsgj.R;
 
 /**
  * 
@@ -38,10 +56,16 @@ import com.wondertek.video.map.MapPluginMgr;
 public class BDMapManager implements IMapPlugin {
 	private static final String TAG = "BDMapManager";
 	private static BDMapManager instance = null;
+	// add pj
+	private LocationClient mLocClient = null;
+	private boolean mbIsGetCurrentPositionCalled = false;
+	private long mStartTime = 0;
     private Context mContext;
     private BMapManager mBMapMgr;
     private MapView mMapView;
-    private LocationListener mLocationListener = null;
+	private LocationListener mLocationListener = null;
+	// add pj
+    private BDLocationListener mBDLocationListener = null;
     private MKSearch mSearch = null;
     private List<View> mPopViewList = new ArrayList<View>();
     private Handler handler = new Handler() {
@@ -50,7 +74,7 @@ public class BDMapManager implements IMapPlugin {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 				case BDMapConstants.BDMAP_LOCATION_FINISHED:
-					Log.d(TAG, "Current Position: " + (String)msg.obj);
+					Log.d(TAG, "BDMAP_LOCATION_FINISHED: " + (String)msg.obj);
 					MapPluginMgr.getInstance().nativeCurrentPositionCallback((String)msg.obj);
                     disableLocationManager();
 					break;
@@ -92,7 +116,9 @@ public class BDMapManager implements IMapPlugin {
 			mBMapMgr = new BMapManager(mContext);
 			mBMapMgr.init(BDMapConstants.BDMAP_API_KEYS, new BDMapGeneralListener());
 	        mMapView = new MapView(mContext);
-	        mBMapMgr.start();
+	        // mBMapMgr.start();
+	        // add pj
+	        mLocClient = new LocationClient(VenusApplication.getInstance());
 	        ((MapActivity)mContext).initMapActivity(mBMapMgr);
 	        mMapView.setLayoutParams(new AbsoluteLayout.LayoutParams(0, 0, 0, 0));
 	        mMapView.setVisibility(View.INVISIBLE);
@@ -128,10 +154,16 @@ public class BDMapManager implements IMapPlugin {
 
 	@Override
 	public void stop() {
+		Log.d(TAG, "[stop]");
         if (mLocationListener != null) {
         	mBMapMgr.getLocationManager().removeUpdates(mLocationListener);
         }
-		mBMapMgr.stop();
+		if (mBDLocationListener != null) {
+			mLocClient.unRegisterLocationListener(mBDLocationListener);
+			mBDLocationListener = null;
+		}
+		if (mLocClient.isStarted()) 
+			mLocClient.stop();
 	}
     
 	@Override
@@ -158,22 +190,16 @@ public class BDMapManager implements IMapPlugin {
 	@Override
 	public void getCurrentPosition() {
 		Log.d(TAG, "getCurrentPosition");
-        if (mLocationListener == null) {
-        	mLocationListener = new LocationListener() {
-				@Override
-				public void onLocationChanged(Location location) {
-					Log.d(TAG, "onLocationChanged");
-					int geoLat = (int)(location.getLatitude() * 1e6);
-					int geoLog = (int)(location.getLongitude() * 1e6);
-					String str ="{\"latitude\":\""+geoLat+"\",\"longitude\":\""+geoLog+"\"}";
-					Message msg = handler.obtainMessage();
-					msg.what = BDMapConstants.BDMAP_LOCATION_FINISHED;
-					msg.obj = str;
-					handler.sendMessage(msg);					
-				}
-			};
-        	mBMapMgr.getLocationManager().requestLocationUpdates(mLocationListener);
-        }
+		setLocationOption();
+		if (mBDLocationListener == null)
+			mBDLocationListener = new WBDLocationListenner();
+		mLocClient.registerLocationListener(mBDLocationListener);
+		if (mLocClient.isStarted() == false)
+			mLocClient.start();
+		if (isGpsEnable() == false)
+			showGpsAlert();
+		mStartTime = SystemClock.elapsedRealtime();
+		mbIsGetCurrentPositionCalled = true;
 	}
 
 	@Override
@@ -251,6 +277,7 @@ public class BDMapManager implements IMapPlugin {
 
 	@Override
 	public void geoCode(int latitude, int longitude) {
+		start();
 		Log.d(TAG, "GeoCode: [" + (double)latitude * 1e-6 + ", " + (double)longitude * 1e-6 + "]");
         if (mSearch == null) {
         	mSearch = BDMapSearch.getInstance(mContext, mBMapMgr).getMKSeMkSearch();
@@ -335,6 +362,12 @@ public class BDMapManager implements IMapPlugin {
 			mBMapMgr.getLocationManager().removeUpdates(mLocationListener);
 			mLocationListener = null;
 		}
+		if (mBDLocationListener != null) {
+			mLocClient.unRegisterLocationListener(mBDLocationListener);
+			mBDLocationListener = null;
+		}
+		if (mLocClient.isStarted()) 
+			mLocClient.stop();
 	}
     
 	private List<PoiItem> parsePoisJson(String json) {
@@ -367,6 +400,58 @@ public class BDMapManager implements IMapPlugin {
 			mMapView.removeView(popview);
 		}
 	}
+	
+	private void setLocationOption() {
+		LocationClientOption option = new LocationClientOption();
+		option.setCoorType("bd09ll");
+		option.setServiceName("com.baidu.location.service_v2.9");
+		option.setPoiExtraInfo(true);
+		option.setAddrType("all");
+		option.setScanSpan(5000);
+		option.setOpenGps(true);
+		option.setPriority(LocationClientOption.GpsFirst);
+		option.setPoiNumber(2);
+		option.disableCache(true);
+		mLocClient.setLocOption(option);
+	}
+	
+	private boolean isGpsEnable() {
+		LocationManager mLocationManager = (LocationManager) 
+				VenusActivity.appActivity.getSystemService(Context.LOCATION_SERVICE);
+		return mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER);
+	}
+	
+	private void showGpsAlert() {
+        final Dialog dialog = new Dialog(VenusActivity.appActivity, android.R.style.Theme_Translucent_NoTitleBar);
+        dialog.setContentView(R.layout.gps);
+        Button gps_yes = (Button)dialog.findViewById(R.id.button_yes);
+        gps_yes.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				VenusActivity.appActivity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+				dialog.dismiss();
+			}
+		});
+        Button gps_cancel = (Button)dialog.findViewById(R.id.button_cancel);
+        gps_cancel.setOnClickListener(new OnClickListener() {
+        	@Override
+			public void onClick(View v) {
+				dialog.dismiss();
+			}
+        });
+        final Handler threadHandler = new Handler(); ;  
+        new Thread() {
+        	@Override
+        	public void run() {
+        		 threadHandler.post( new Runnable(){
+					@Override
+					public void run() {
+						dialog.show();
+					}
+        		 });
+        	}
+        }.start();
+	}
     
 	class BDMapGeneralListener implements MKGeneralListener {
 
@@ -393,4 +478,67 @@ public class BDMapManager implements IMapPlugin {
 		public String desc;
 	}
 	
+	public class WBDLocationListenner implements BDLocationListener {
+		@Override
+		public synchronized void onReceiveLocation(BDLocation location) {
+			if (location == null || mStartTime == 0 || mbIsGetCurrentPositionCalled == false)
+				return ;
+			long elapsedTime = (SystemClock.elapsedRealtime() - mStartTime) / 1000;
+			if (elapsedTime <= 20 && location.getRadius() > 300) {
+				return;
+			}else if (elapsedTime <= 30 && location.getRadius() > 600) {
+				return;
+			}
+			String desc = "";
+			String type = "";
+			mStartTime = 0;
+			if (location.getLocType() == BDLocation.TypeGpsLocation){
+				type = "gps";
+				String msg = String.format("GPS定位成功：误差%.1f, 耗时%d秒.", location.getRadius(), elapsedTime);
+				Toast.makeText(mContext, msg, Toast.LENGTH_LONG).show();
+			} else if (location.getLocType() == BDLocation.TypeNetWorkLocation){
+				desc = location.getAddrStr();
+				type = "network";
+				String msg = String.format("网络定位成功：误差%.1f, 耗时%d秒.", location.getRadius(), elapsedTime);
+				Toast.makeText(mContext, msg, Toast.LENGTH_LONG).show();
+			}
+			int geoLat = (int)(location.getLatitude() * 1e6);
+			int geoLog = (int)(location.getLongitude() * 1e6);
+			String str ="{\"latitude\":\""+geoLat+"\",\"longitude\":\""+geoLog+
+					"\",\"radius\":\""+location.getRadius()+"\",\"desc\":\""+desc+ "\",\"type\":\""+type+"\"}";
+			Message msg = handler.obtainMessage();
+			msg.what = BDMapConstants.BDMAP_LOCATION_FINISHED;
+			msg.obj = str;
+			Log.d(TAG, "sendMessage");
+			handler.sendMessage(msg);	
+			mbIsGetCurrentPositionCalled = false;
+		}
+		
+		public void onReceivePoi(BDLocation poiLocation) {
+			if (poiLocation == null){
+				return ; 
+			}
+			StringBuffer sb = new StringBuffer(256);
+			sb.append("Poi time : ");
+			sb.append(poiLocation.getTime());
+			sb.append("\nerror code : "); 
+			sb.append(poiLocation.getLocType());
+			sb.append("\nlatitude : ");
+			sb.append(poiLocation.getLatitude());
+			sb.append("\nlontitude : ");
+			sb.append(poiLocation.getLongitude());
+			sb.append("\nradius : ");
+			sb.append(poiLocation.getRadius());
+			if (poiLocation.getLocType() == BDLocation.TypeNetWorkLocation){
+				sb.append("\naddr : ");
+				sb.append(poiLocation.getAddrStr());
+			} 
+			if(poiLocation.hasPoi()){
+				sb.append("\nPoi:");
+				sb.append(poiLocation.getPoi());
+			}else{				
+				sb.append("noPoi information");
+			}
+		}
+	}
 }

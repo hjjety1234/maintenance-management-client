@@ -163,6 +163,7 @@ local kqtime = nil
 local addPic = nil
 local g_retryCount = 20
 local localsuc = 0 --是否定位成功
+local g_start_time = 0 
 
 -- 第一次创建页面事件
 function bodyBuildChildrenFinished(sprite)
@@ -194,7 +195,7 @@ function bodyOnSpriteEvent(msg, param)
    if msg == MSG_ACTIVATE then -- 页面激活
       UmsAgent:OnActivate(string.match(Alias.kaoqinaction, 'MODULE:\\(.*)'), 
         "考勤签到")
-      doLocation()
+      getGPSDataByMap()
    elseif msg == MSG_DEACTIVATE then
        UmsAgent:OnDeactivate()
    end
@@ -204,19 +205,21 @@ end
 function bodyOnPluginEvent(msg, param)
    Log:write("msg ==== ", msg)
    if msg == 1002 then 
-       UmsAgent:onLoadFinish()
+      local end_time = os.clock()
+      local elapsedTime = (end_time - g_start_time) * 1000
+      Log:write("elapsedTime:"..elapsedTime)
        local postDataString = Param:getString(param, 0)
        local postData = Json:loadString2Table(postDataString)
        if postData.longitude ~= nil and postData.latitude ~= nil then
-          Log:write('定位成功', postData)
-          -- 定位成功
-          latitude=postData.latitude
-          longitude=postData.longitude
+          latitude = postData.latitude
+          longitude = postData.longitude
           local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
           if postData.desc ~= nil and postData.desc ~= '' then
             localsuc = 1
+            Log:write('网络定位成功', postData)
             Sprite:setProperty(locInfo, 'text', postData.desc)
           else
+            Log:write("GPS定位成功:", postData)
             observer = Plugin:getObserver()
             Map:getLocation(observer, 1003, latitude, longitude)
           end
@@ -226,7 +229,7 @@ function bodyOnPluginEvent(msg, param)
         local postData = Json:loadString2Table(postDataString)
         local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
         if postData.address ~= nil then
-            Log:write('解析地址成功', postData)
+            Log:write('GPS地址解析成功', postData)
             localsuc=1
             Sprite:setProperty(locInfo, 'text', postData.address)
         end
@@ -403,6 +406,7 @@ end
 
 -- 返回按钮处理
 function doBack()
+    Map:close()
     Scene:back(true)
 end
 
@@ -514,15 +518,14 @@ function doLocation()
     end
 end
 
--- 基站定位方式
+-- 组合定位方式
 function getGPSDataByMap()
-      Log:write("采用lbs定位方式...")
-      UmsAgent:onLoadStart()
-      System:setGPSStatus(0)
-      local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
-      Sprite:setProperty(locInfo, 'text', '正在进行基站定位...')
-      observer = Plugin:getObserver()
-      Map:getCurPosition(observer, 1002)
+    Log:write("===========getGPSDataByMap()==========")
+    g_start_time = os.clock() 
+    local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+    Sprite:setProperty(locInfo, 'text', '正在定位, 请稍候...')
+    local observer = Plugin:getObserver()
+    Map:getCurPosition(observer, 1002)
 end
  
 -- GPS定位方式
