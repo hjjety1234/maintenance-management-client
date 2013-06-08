@@ -167,16 +167,7 @@ local role
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    --获取角色编号
-    role = Config:get('role')
-    regionid = Config:get('regionid')
-    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
-        g_regionid = regionid
-    else
-        g_regionid = ''
-        regionid = ''
-    end
-    Log:write('角色和区域',role,g_regionid)
+
     local xjwcqk = Sprite:findChild(rootSprite,'xjwcqk')
     local yhclqk = Sprite:findChild(rootSprite,'yhclqk')
     local zlzb = Sprite:findChild(rootSprite,'zlzb')
@@ -232,7 +223,18 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        request()--预加载巡检数据
+    --获取角色编号
+    role = Config:get('role')
+    Log:write('当前用户角色编号',role)
+    regionid = Config:get('regionid')
+    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
+        g_regionid = regionid
+    else
+        g_regionid = ''
+        regionid = ''
+    end
+    Log:write('角色和区域',role,g_regionid)
+    request()--预加载巡检数据
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -246,7 +248,7 @@ function bodyOnPluginEvent(msg, param)
        local regHandle=Reg:create('xunjian_data')
        Reg:clear(regHandle)
        Reg:setTable(regHandle, "xunjian", patrol)
-       --Log:write('patrol',patrol)
+       Log:write('patrol',patrol)
     elseif msg == 102 then
         local loginData = Http:jsonDecode('login_istrue')
         local result=loginData['code']
@@ -266,7 +268,7 @@ function bodyOnPluginEvent(msg, param)
         local regHandle=Reg:create('kaohe_data')
         Reg:clear(regHandle)
         Reg:setTable(regHandle, "kaohe", kaohe)
-        --Log:write('kaohe',kaohe)
+        Log:write('kaohe',kaohe)
     elseif msg == 1000 then
         local postData = Param:getString(param, 0)
         if postData.latitude ~= nil then
