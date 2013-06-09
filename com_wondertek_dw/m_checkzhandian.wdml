@@ -131,8 +131,8 @@ local clickTime -- 长按巡检名称时的时间
 local longClickItemIndex -- 当前长按按钮列表索引
 local firtClick_y -- 第一次点击时的纵坐标
 
-local lon   --=117.2491107
-local lat   --=31.850543
+local lon   =117.2491107
+local lat   =31.850543
 local resp -- 站点列表值
 local statusBarText
 local g_curItemIndex = 0
@@ -142,7 +142,7 @@ local g_curItemIndex = 0
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     statusBarText =  Sprite:findChild(sprite, 'statusBarText')
-    --request()
+    request()
 end
 
 -- root节点消息方法
@@ -160,6 +160,7 @@ function bodyOnPluginEvent(msg, param)
   
   if msg == 1001 then
         resp = Http:jsonDecode('stationList')
+        Log:write('现场检查数据',resp)
         if resp.total=='0'then
         Dialog:show(rootSprite,'服务端无数据', 'ok')
         return
@@ -271,7 +272,24 @@ function loadListItem(list, item, index)
         Sprite:setProperty(listItemBg, 'visible', 0)
     end
     local stationName = Sprite:findChild(item,'stationName')
-    Sprite:setProperty(stationName,'text',resp.value[index].itemname)
+    --显示站点专业
+    local valueStation
+    if resp.value[index].businesstype =='' or resp.value[index].businesstype== nil then 
+        valueStation='未分配专业'
+    elseif resp.value[index].businesstype =='C30' then 
+        valueStation='传输'
+    elseif resp.value[index].businesstype =='C31' then 
+        valueStation='基站'
+    elseif resp.value[index].businesstype =='C32' then
+        valueStation='综合覆盖'
+    elseif resp.value[index].businesstype =='C33' then
+        valueStation='铁塔'
+    elseif resp.value[index].businesstype =='C34' then 
+        valueStation='集客'
+    elseif resp.value[index].businesstype =='C37' then    
+        valueStation='家客'
+    end
+    Sprite:setProperty(stationName,'text',valueStation..'-'..resp.value[index].itemname)
     Sprite:setProperty(distanceName,'text',math.ceil (resp.value[index].distance)..'米')
     Sprite:setProperty(item, 'data', index)
     ------查看历史图标

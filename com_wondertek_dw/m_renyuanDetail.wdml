@@ -45,7 +45,7 @@
                <image rect="33,33,113,113"  src="file://image/pepole_pic.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                <label name="people" rect="160,35,100,40" text="江峰" color="#303030" v-align="center"  
                        h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
-               <textarea name="daiweidw" rect="160,90,280,40" border="false" color="#303030" text="安徽中移通信技术工程有限公司信技术工程有限公司" extendstyle="1111" h-align='left' line-height="33" autoextend="true" font-family="微软雅黑" font-size="24" style='autosize'></textarea>
+               <textarea name="daiweidw" rect="160,90,280,40" border="false" color="#303030" text="" extendstyle="1111" h-align='left' line-height="33" autoextend="true" font-family="微软雅黑" font-size="24" style='autosize'></textarea>
             </node>
             <!-- 主体（下）-->
             <node name="baseSprite" rect="0,230,480,360" extendstyle="1111">
@@ -56,7 +56,7 @@
                <image  rect="55,65,21,21"  src="file://image/pepole_phone.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                <label  rect="85,58,100,30" text="电话" color="#303030" v-align="center"  
                        h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
-               <label name="phone" rect="190,58,200,30" text="13866511887" color="#303030" v-align="center"  
+               <label name="phone" rect="190,58,200,30" text="" color="#303030" v-align="center"  
                        h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
                <image rect="40,95,400,1"  src="file://image/line.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                <!-- 代维单位 --> 
@@ -70,7 +70,7 @@
                <image  rect="55,215,21,21"  src="file://image/pepole_time.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                <label  rect="85,210,100,30" text="入职时间" color="#303030" v-align="center"  
                        h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
-               <label name="pepole_time" rect="190,210,200,30" text="2013-07-21" color="#303030" v-align="center"  
+               <label name="pepole_time" rect="190,210,200,30" text="" color="#303030" v-align="center"  
                        h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
                <image rect="40,245,400,1"  src="file://image/line.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                <!-- 学历 --> 
@@ -104,6 +104,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+      Log:write('人员编号',id)
       request()
     elseif msg == MSG_DEACTIVATE then
     end
@@ -152,7 +153,7 @@ function doBack()
 end
 function request()
    --local param = 'cmd=wlbcitycost'..'&dimension='..g_dimension..'&starttime='..starttime..'&endtime='..endtime..'&page=1&pagesize=300&usercode='..Config:get('username')..'&regionid='..g_regionid
-   local reqURL ='http://61.191.25.238:7001/nbspweb/webservice/map!doWebservice.action?cmd=wlbstaffshowmap&usercode=000000502599'
+   local reqURL ='http://61.191.25.238:7001/nbspweb/webservice/map!doWebservice.action?cmd=wlbstaffshowmap&usercode='..id
    Log:write('reqURL',reqURL) 
    Http:request('renyuan_data', reqURL, 101, {useCache = false})
    local URL ='http://211.138.191.86:80/nbspweb/webservice/user!doWebservice.action?usercode=15955166587&password=123456&cmd=wlblogin&imei=860173012418210'

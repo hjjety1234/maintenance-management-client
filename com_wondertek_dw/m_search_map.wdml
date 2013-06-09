@@ -132,6 +132,7 @@ local g_stationdata = nil    -- 附近的Pois信息
 local g_isMapOpen = false    -- 标记地图是否已经打开
 local staffData              -- 人员信息
 local pois                   -- 地图数据
+local id                     -- 人员编号
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -170,7 +171,7 @@ function bodyOnPluginEvent(msg, param)
         for i=1,len do 
             -- 取感兴趣的站点数据
             local staff = respValue[i-1]
-            local id  = staff.usercode
+            id  = staff.usercode
             local lon = staff.lon
             local lat = staff.lat
             local company = staff.unit
@@ -207,8 +208,9 @@ function bodyOnPluginEvent(msg, param)
     elseif msg == 1002 then -- POI详情和导航消息处理
         -- postData为Json数据({"PoiId":"31250614","cmd":"RouteSearch"})
         Log:write('我要描点')
-        Scene:setReturn(Alias.m_search, Alias.m_system_manager)
-        Scene:go(Alias.m_system_manager)
+        Scene:setReturn(Alias.m_search_map, Alias.m_renyuanDetail)
+        Log:write('传过去的id',id)
+        Scene:go(Alias.m_renyuanDetail..'?id='..id)
         Map:close()
         g_isMapOpen = false
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
@@ -300,7 +302,7 @@ function searchOnSelect(sprite)
      Sprite:setVisible(ziyuan,'0')
      Sprite:setVisible(guzhang,'0')
      Sprite:setVisible(guzhang,'0')
-     openMap(0, 70, 480, 572)
+     openMap(0, 70, 480, 644)
    elseif btnData=='02' then
      Sprite:setVisible(renyuan,'0')
      Sprite:setVisible(ziyuan,'1')
