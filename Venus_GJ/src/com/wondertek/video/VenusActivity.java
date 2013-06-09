@@ -1193,7 +1193,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			AppManager.getInstance(this).dealWithAppManager(Util.WDM_SYSPAUSE);
 			PhoneObserver.getInstance().disablePhoneStateListener();
 			//add pj
-			// mapPluginMgr.stop();
+			mapPluginMgr.stop();
 		}
 	}
 
@@ -1224,7 +1224,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			AppManager.getInstance(this).dealWithAppManager(Util.WDM_SYSRESUME);
 			PhoneObserver.getInstance().enablePhoneStateListener(PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 			//add pj
-			// mapPluginMgr.start();
+			mapPluginMgr.start();
             //add pj
 			sendredraw();
 			//MsgPush
@@ -1256,7 +1256,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			AppManager.getInstance(this).UnRegisterReceiver();
 			SystemConnectionManager.getInstance().DeInit();
 			//add pj
-			            mapPluginMgr.destroyMap();
+			mapPluginMgr.destroyMap();
 			javaStopRecoder();
 			//Util.exitApp();
 			System.exit(0);
