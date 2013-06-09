@@ -144,9 +144,14 @@ public class BDMapManager implements IMapPlugin {
 	
 	@Override
 	public void start() {
+		Log.d(TAG, "start");
         if (mLocationListener != null) {
         	mBMapMgr.getLocationManager().requestLocationUpdates(mLocationListener);
         }
+        setLocationOption();
+        if (mBDLocationListener == null) 
+			mBDLocationListener = new WBDLocationListenner();
+		mLocClient.registerLocationListener(mBDLocationListener);
         if (mLocClient.isStarted() == false)
         	mLocClient.start();
 	}
@@ -157,7 +162,7 @@ public class BDMapManager implements IMapPlugin {
         if (mLocationListener != null) {
         	mBMapMgr.getLocationManager().removeUpdates(mLocationListener);
         }
-		if (mBDLocationListener != null) {
+        if (mBDLocationListener != null) {
 			mLocClient.unRegisterLocationListener(mBDLocationListener);
 			mBDLocationListener = null;
 		}
@@ -189,13 +194,13 @@ public class BDMapManager implements IMapPlugin {
 	@Override
 	public void getCurrentPosition() {
 		Log.d(TAG, "getCurrentPosition");
+		mStartTime = SystemClock.elapsedRealtime();
 		setLocationOption();
-		if (mBDLocationListener == null)
+		if (mBDLocationListener == null) 
 			mBDLocationListener = new WBDLocationListenner();
 		mLocClient.registerLocationListener(mBDLocationListener);
 		if (mLocClient.isStarted() == false)
 			mLocClient.start();
-		mStartTime = SystemClock.elapsedRealtime();
 		if (isGpsEnable() == false)
 			showGpsAlert();
 		else 
@@ -350,6 +355,7 @@ public class BDMapManager implements IMapPlugin {
 	@Override
 	public void destroyMap() {
 		disableLocationManager();
+		mLocClient.stop();
 		mBMapMgr.destroy();
 	}
     
@@ -366,8 +372,6 @@ public class BDMapManager implements IMapPlugin {
 			mLocClient.unRegisterLocationListener(mBDLocationListener);
 			mBDLocationListener = null;
 		}
-		if (mLocClient.isStarted()) 
-			mLocClient.stop();
 	}
     
 	private List<PoiItem> parsePoisJson(String json) {
@@ -417,8 +421,10 @@ public class BDMapManager implements IMapPlugin {
 	
 	public void setMbIsGetCurrentPositionCalled(boolean isCalled) {
 		this.mbIsGetCurrentPositionCalled = isCalled;
-		if (this.mbIsGetCurrentPositionCalled == true)
+		if (this.mbIsGetCurrentPositionCalled == true) {
 			mStartTime = SystemClock.elapsedRealtime();
+			mLocClient.requestLocation();
+		}
 		else
 			mStartTime = 0;
 	}

@@ -1192,8 +1192,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			WifiObserver.getInstance(this).dealWithWLan(Util.WDM_SYSPAUSE);
 			AppManager.getInstance(this).dealWithAppManager(Util.WDM_SYSPAUSE);
 			PhoneObserver.getInstance().disablePhoneStateListener();
-			//add pj
-			mapPluginMgr.stop();
 		}
 	}
 
@@ -1261,6 +1259,8 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			//Util.exitApp();
 			System.exit(0);
 		}
+		//add pj
+		mapPluginMgr.stop();
 	}
     //add pj
 	private boolean redrawall = true;
