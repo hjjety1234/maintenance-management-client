@@ -185,6 +185,10 @@ function bodyOnPluginEvent(msg, param)
         UmsAgent:onLoadFinish() 
         if Loading:isShow() then Loading:close() end 
         city_data = Http:jsonDecode('city_data')
+        if city_data == nil or getJsonArrayCount(city_data.value) == nil or city_data.code == '50' or getJsonArrayCount(city_data.value) == 0 then 
+            Dialog:show('', '暂无质量指标数据!', 'ok')
+            return
+        end
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
         local len = city_data.total
 

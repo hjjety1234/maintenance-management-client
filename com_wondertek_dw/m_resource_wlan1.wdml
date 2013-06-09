@@ -256,6 +256,10 @@ function bodyOnPluginEvent(msg, param)
         g_sum = city_data.value[len]
         city_data.value[len]=nil
         ListView:removeAllItems(listView)
+        if city_data == nil or getJsonArrayCount(city_data.value) == nil or city_data.code == '50' or getJsonArrayCount(city_data.value) == 0 then 
+            Dialog:show('', '暂无资源代维数据!', 'ok')
+            return
+        end
         -- 加载列表项
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')

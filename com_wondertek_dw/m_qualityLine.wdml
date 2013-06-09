@@ -240,12 +240,14 @@ function bodyOnPluginEvent(msg, param)
         local listView3 = Sprite:findChild(rootSprite, 'sampleList3')
         local listView4 = Sprite:findChild(rootSprite, 'sampleList4')
         local len = city_data.total
-   
-         
         ListView:removeAllItems(listView1)
         ListView:removeAllItems(listView2)
         ListView:removeAllItems(listView3)
         ListView:removeAllItems(listView4)
+        if city_data == nil or getJsonArrayCount(city_data.value) == nil or city_data.code == '50' or getJsonArrayCount(city_data.value) == 0 then 
+            Dialog:show('', '暂无质量指标数据!', 'ok')
+            return
+        end
         -- 加载列表项
         ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
         ListView:loadItem(listView2, Sprite:findChild(rootSprite, 'listItem2'), len, 'loadListItem')
