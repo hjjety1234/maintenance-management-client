@@ -74,7 +74,7 @@ public class BDMapManager implements IMapPlugin {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 				case BDMapConstants.BDMAP_LOCATION_FINISHED:
-					Log.d(TAG, "BDMAP_LOCATION_FINISHED: " + (String)msg.obj);
+					Log.d(TAG, "Current Location: " + (String)msg.obj);
 					MapPluginMgr.getInstance().nativeCurrentPositionCallback((String)msg.obj);
                     disableLocationManager();
 					break;
@@ -116,8 +116,6 @@ public class BDMapManager implements IMapPlugin {
 			mBMapMgr = new BMapManager(mContext);
 			mBMapMgr.init(BDMapConstants.BDMAP_API_KEYS, new BDMapGeneralListener());
 	        mMapView = new MapView(mContext);
-	        // mBMapMgr.start();
-	        // add pj
 	        mLocClient = new LocationClient(VenusApplication.getInstance());
 	        ((MapActivity)mContext).initMapActivity(mBMapMgr);
 	        mMapView.setLayoutParams(new AbsoluteLayout.LayoutParams(0, 0, 0, 0));
@@ -149,12 +147,13 @@ public class BDMapManager implements IMapPlugin {
         if (mLocationListener != null) {
         	mBMapMgr.getLocationManager().requestLocationUpdates(mLocationListener);
         }
-		mBMapMgr.start();
+        if (mLocClient.isStarted() == false)
+        	mLocClient.start();
 	}
 
 	@Override
 	public void stop() {
-		Log.d(TAG, "[stop]");
+		Log.d(TAG, "stop");
         if (mLocationListener != null) {
         	mBMapMgr.getLocationManager().removeUpdates(mLocationListener);
         }
