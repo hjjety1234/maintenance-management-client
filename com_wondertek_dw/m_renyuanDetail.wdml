@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: hewu <hewu2008@gmail.com>
+ == ============================================================================
+ == | Desc: 2012/12/22 调用高德的地图接口，实现站点导航
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <!-- 主节点  -->
+        <node name="mainNode" rect="0,0,480,800" enable="true" 
+            active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置标题 -->
+            <node name="baseSprite" rect="0,0,480,160" extendstyle="1111">
+                    <image rect="0,0,480,800" src="file://image/backgroundImg.png" style="autosize"
+                       extendstyle="1111" />
+                <node rect="0,0,480,66" name="NodeTitle" extendstyle="1111">
+                    <image name="titleBg" rect="0,0,480,66" src="file://image/title_bg_new.png"
+                        extendstyle="1111" style="autosize" />
+                    <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
+                        OnSelect="doBack" extendstyle="1111">
+                        <image name="normal" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                             extendstyle="1111" />
+                        <image name="sel" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                             extendstyle="1111" />
+                    </button>  
+                    <scrolltext name="title" rect="105,5,280,40" text="人员详情" font-family='微软雅黑'
+                        extendstyle="1111" font-size="36" h-align="center" v-align="center"
+                        color="#ffffff" scroll="true"  step="2" />
+                </node>
+            </node>
+
+            <!-- 主体（上） -->
+            <node name="baseSprite" rect="0,70,480,160" extendstyle="1111">
+               <image  rect="14,20,452,15"  src="file://image/content_top.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <image rect="14,35,452,110"  src="file://image/content_center.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <image rect="14,145,452,15"  src="file://image/content_bottom.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <image rect="33,33,113,113"  src="file://image/pepole_pic.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <label name="people" rect="160,35,100,40" text="江峰" color="#303030" v-align="center"  
+                       h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+               <textarea name="daiweidw" rect="160,90,280,40" border="false" color="#303030" text="安徽中移通信技术工程有限公司信技术工程有限公司" extendstyle="1111" h-align='left' line-height="33" autoextend="true" font-family="微软雅黑" font-size="24" style='autosize'></textarea>
+            </node>
+            <!-- 主体（下）-->
+            <node name="baseSprite" rect="0,230,480,360" extendstyle="1111">
+               <image rect="14,20,452,15"  src="file://image/content_top.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <image rect="14,35,452,400"  src="file://image/content_center.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <image rect="14,435,452,15"  src="file://image/content_bottom.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <!-- 电话 --> 
+               <image  rect="55,65,21,21"  src="file://image/pepole_phone.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <label  rect="85,58,100,30" text="电话" color="#303030" v-align="center"  
+                       h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+               <label name="phone" rect="190,58,200,30" text="13866511887" color="#303030" v-align="center"  
+                       h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+               <image rect="40,95,400,1"  src="file://image/line.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <!-- 代维单位 --> 
+               <image  rect="55,140,21,21"  src="file://image/pepole_dw.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <label  rect="85,135,100,30" text="Email" color="#303030" v-align="center"  
+                       h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+               <label name="email" rect="190,135,250,30" text="还没填写哦" color="#303030" v-align="center"  
+                       h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+               <image rect="40,170,400,1"  src="file://image/line.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <!-- 入职时间 --> 
+               <image  rect="55,215,21,21"  src="file://image/pepole_time.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <label  rect="85,210,100,30" text="入职时间" color="#303030" v-align="center"  
+                       h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+               <label name="pepole_time" rect="190,210,200,30" text="2013-07-21" color="#303030" v-align="center"  
+                       h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+               <image rect="40,245,400,1"  src="file://image/line.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <!-- 学历 --> 
+               <image  rect="55,290,21,21"  src="file://image/pepole_xl.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <label  rect="85,285,100,30" text="学历" color="#303030" v-align="center"  
+                       h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+               <label name="xueli" rect="190,285,200,30" text="还没填写哦" color="#303030" v-align="center"  
+                       h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+               <image rect="40,320,400,1"  src="file://image/line.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <!-- 角色 --> 
+               <image  rect="55,365,21,21"  src="file://image/pepole_role.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <label  rect="85,360,100,30" text="角色" color="#303030" v-align="center"  
+                       h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+               <label name="role" rect="190,360,200,30" text="还没填写哦" color="#303030" v-align="center"  
+                       h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+               <image rect="40,395,400,1"  src="file://image/line.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+local rootSprite
+local renyuan_data
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+      request()
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then  -- 将当前位置放置到屏幕中央
+       renyuan_data = Http:jsonDecode('renyuan_data')
+       Log:write("人员详情",renyuan_data)
+       if renyuan_data.code=='0' then
+           intData()
+       elseif renyuan_data.value ==nil or renyuan_data ==nil then
+          Dialog:show('', '暂无人员详情信息!', 'ok')
+       end
+      elseif msg==102 then
+       login_data = Http:jsonDecode('login_data')
+       Log:write("代维单位",login_data)
+       local result= login_data['code']
+       if result == '0' then
+         Log:write("代维单位",login_data.value[0].orgname)
+          local daiweidw = Sprite:findChild(rootSprite,'daiweidw')
+          Sprite:setProperty(daiweidw,'text',login_data.value[0].orgname)
+          local email =Sprite:findChild(rootSprite,'email')
+          Sprite:setProperty(email,'text',login_data.value[0].email)
+       end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+       Scene:back()
+    end
+end
+
+-- 返回上一个页面
+function doBack()
+    Scene:back()
+end
+function request()
+   --local param = 'cmd=wlbcitycost'..'&dimension='..g_dimension..'&starttime='..starttime..'&endtime='..endtime..'&page=1&pagesize=300&usercode='..Config:get('username')..'&regionid='..g_regionid
+   local reqURL ='http://61.191.25.238:7001/nbspweb/webservice/map!doWebservice.action?cmd=wlbstaffshowmap&usercode=000000502599'
+   Log:write('reqURL',reqURL) 
+   Http:request('renyuan_data', reqURL, 101, {useCache = false})
+   local URL ='http://211.138.191.86:80/nbspweb/webservice/user!doWebservice.action?usercode=15955166587&password=123456&cmd=wlblogin&imei=860173012418210'
+   Log:write('URL',URL) 
+   Http:request('login_data', URL, 102, {useCache = false})
+end
+function  intData()
+  local phone = Sprite:findChild(rootSprite,'phone')
+  local pepole_time =Sprite:findChild(rootSprite,'pepole_time')
+  local xueli =Sprite:findChild(rootSprite,'xueli')
+  local role =Sprite:findChild(rootSprite,'role')
+  Log:write("学历",renyuan_data.value["educational"])
+  if renyuan_data.value["phone"] then
+     Sprite:setProperty(phone,'text',renyuan_data.value["phone"])
+  else 
+    Sprite:setProperty(phone,'text','还没填写哦')
+  end
+  if renyuan_data.value["entrytime"] then
+    local i,j = string.find(renyuan_data.value["entrytime"], ' ', 1)
+    Sprite:setProperty(pepole_time,'text',string.sub(renyuan_data.value["entrytime"],1,j-1))
+  else
+     Sprite:setProperty(pepole_time,'text','还没填写哦')
+  end
+  if renyuan_data.value["educational"]~='' then
+    Sprite:setProperty(xueli,'text',renyuan_data.value["educational"])
+  else
+    Sprite:setProperty(xueli,'text','还没填写哦')
+  end
+  if renyuan_data.value["role"] then
+    Sprite:setProperty(role,'text',renyuan_data.value["role"])
+  else
+   Sprite:setProperty(role,'text','还没填写哦')
+  end
+end
+]]>
+</root>

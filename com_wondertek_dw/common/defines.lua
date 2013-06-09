@@ -162,6 +162,7 @@ Alias = {
 	m_yinhuanTongjiDetail = "MODULE:\\com_wondertek_dw\\m_yinhuanTongjiDetail.wdml",  -- 隐患统计详情 
 	m_kaohetongjidetail = "MODULE:\\com_wondertek_dw\\m_kaohetongjidetail.wdml",  -- 考核统计详情
     m_search_map = "MODULE:\\com_wondertek_dw\\m_search_map.wdml",  -- 人员地图 
+    m_renyuanDetail= "MODULE:\\com_wondertek_dw\\m_renyuanDetail.wdml",  -- 人员详情 
 
    
 }
