@@ -267,6 +267,7 @@ local g_dimension = 'city' ----初始市公司维度
 local g_regionid = '' ----当前查询的区域编号，空为全省
 local g_regionname = '区域'  --区域名称
 local regionid=''
+local judgeFlag = 0
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -370,9 +371,8 @@ end
 
 -- 加载统计数据
 function loadListItem(list, item, index)
-    Log:write('the index is '..index)
+    Log:write('@jldu the index is '..index)
     if(index >0 ) then
-        Log:write('the index is ',index)
         Sprite:setRect(item, 0, 0, 480, 40)
         local listItem_bg = Sprite:findChild(item, 'listItem_bg')
         if index % 2 == 0 then
@@ -401,13 +401,15 @@ function loadListItem(list, item, index)
             Sprite:setProperty(dimBtn,'enable', 'false')
         end
     else
+        Log:write("@jldu 当列表项的索引号为0 时，进入此函数！")
         -- 读取返回的数据
-        local value = g_response.value
-        local score = Sprite:findChild(item,'score')          -- 得分
-        local faceName = Sprite:findChild(item,'faceName')          -- 笑脸、哭脸
-        local dimName = Sprite:findChild(item,'dimName')   --获取名称sprite
-        Sprite:setProperty(dimName, 'text', value[index].dimension)
-        Sprite:setProperty(score, 'text', string.format('%.1f',value[index].score))
+        -- local value = g_response.value
+        -- Log:write("@jldu value = ",value)
+        -- local score = Sprite:findChild(item,'score')          -- 得分
+        -- local faceName = Sprite:findChild(item,'faceName')          -- 笑脸、哭脸
+        -- local dimName = Sprite:findChild(item,'dimName')   --获取名称sprite
+        -- Sprite:setProperty(dimName, 'text', value[index].dimension)
+        -- Sprite:setProperty(score, 'text', string.format('%.1f',value[index].score))
     end
 
 
@@ -433,9 +435,13 @@ function loadListItem2(list, item, index)
     else
         Sprite:setProperty(dimBtn2,'enable', 'false')
     end
+    -- 点击县级单位，隐藏平均值线
+    local meanName  =Sprite:findChild(item,'meanName')
+    if judgeFlag == 1 then
+        Sprite:setProperty(meanName,'visible','false')    
+    end  
     if len <=2 then 
-        local meanNode  =Sprite:findChild(rootSprite,'meanNode')
-        local meanName  =Sprite:findChild(item,'meanName')
+        local meanNode  =Sprite:findChild(rootSprite,'meanNode')    
         Sprite:setProperty(meanNode,'visible','false')
         Sprite:setProperty(meanName,'visible','false')
         Sprite:setRect(newShadow,120,10,shadownum-100,45)
@@ -660,6 +666,10 @@ function request(major)
 end
 --切换代维公司和市公司
 function cityOn(sprite)
+    judgeFlag = 0
+    Log:write("@jldu 点击区域时，judgeFlag = ",judgeFlag)
+    local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
+    Sprite:setRect(listView2, 0, 75, 480, 475)
     g_dimension = Sprite:getData(sprite)
     --设置两个button背景色和字体
     local cityImg = Sprite:findChild(rootSprite,'cityImg')
@@ -703,10 +713,14 @@ end
 function msgLoad()
     if Loading:isShow() then Loading:close() end
     g_response = Http:jsonDecode('assessment')
+    Log:write("@jldu g_response = ",g_response)
     local listView1 = Sprite:findChild(rootSprite,'sampleList1')
     local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
     ListView:removeAllItems(listView1,1,1)
     ListView:removeAllItems(listView2,1,1)
+    Log:write("@jldu judgeFlag = ",judgeFlag)
+    local meanLine = Sprite:findChild(rootSprite,'meanLine')
+    local meanNode = Sprite:findChild(rootSprite,'meanNode')
     if g_response == nil or getJsonArrayCount(g_response.value) == nil or g_response.code == '50' or getJsonArrayCount(g_response.value) == 0 then 
         local meanLine = Sprite:findChild(rootSprite,'meanLine')
         local meanNode = Sprite:findChild(rootSprite,'meanNode')
@@ -714,15 +728,17 @@ function msgLoad()
         Sprite:setProperty(meanNode,'visible','false')
         Dialog:show('', '暂无考核数据!', 'ok')
         return
-    else
-        local meanLine = Sprite:findChild(rootSprite,'meanLine')
-        local meanNode = Sprite:findChild(rootSprite,'meanNode')
+    elseif judgeFlag == 1 then
+        Log:write("@jldu 隐藏平均值")    
+        Sprite:setRect(listView2, 0, 0, 480, 510)
+        Sprite:setProperty(meanLine,'visible','false')
+        Sprite:setProperty(meanNode,'visible','false')
+    elseif judgeFlag == 0 then
         Sprite:setProperty(meanLine,'visible','true')
         Sprite:setProperty(meanNode,'visible','true')
     end
-    Log:write('2+',g_response)
+    Log:write("@jldu 测试")
     getMaxAndMin()
-    Log:write('3+',3)
     len = getJsonArrayCount(g_response.value)
 
     ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), len, 'loadListItem')
@@ -759,7 +775,8 @@ end
 
 -- 地市纬度进一步查询响应函数
 function cityItemBtnOnselect2(sprite)
-    Log:write("cityItemBtnOnselect")
+    Log:write("@jldu 22222222222222")
+    judgeFlag = 1
     local newCity = Sprite:findChild(sprite,'newCity')                    -- 地市名称
     local cityName = Sprite:findChild(rootSprite,'cityName')            -- 维度名称
     local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
