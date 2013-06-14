@@ -204,12 +204,18 @@ function checkSkinPath()
         if flag==1 then
             Sprite:setProperty(imgNode, 'src', 'file://pics/login_checkbox.png')
             flag=0
-            elseif flag==0 then
-            Sprite:setProperty(imgNode, 'src', 'file://pics/login_checkbox1.png')
-            --Sprite:setProperty(sprite,'data','1')
-            flag=1
+        elseif flag==0 then
+            Dialog:show("", "设置记住密码存在安全风险，请您谨慎。", "ok_cancel", "alertUser")
         end
     end
+    
+    -- @brief 保存密码时进行提示
+    function alertUser() 
+         local imgNode = Sprite:findChild(rootSprite,'image8')
+         Sprite:setProperty(imgNode, 'src', 'file://pics/login_checkbox1.png')
+         flag=1
+    end 
+    
     function writeuserInfo()
         local namenode=Sprite:findChild(rootSprite, 'namenode')
         local pwdnode=Sprite:findChild(rootSprite, 'pwdnode')
