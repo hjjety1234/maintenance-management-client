@@ -120,12 +120,13 @@ local g_downloadTime = 0            -- 记录下载所花的时间
 local g_progressWidth = 154         -- 进度条长度
 local updateData                    -- 升级标志
 local experience                    --体验版标志
-local g_localMd5 = ""               -- 本地Md5校验值 
 
-  local  skinFalg='' --皮肤更新的标志
-  local skinPath='' --皮肤更新的路径
+local g_localMd5 = ""               -- 本地Md5校验值 
+local skinFalg = ''                 --皮肤更新的标志
+local skinPath = ''                 --皮肤更新的路径
+
 ---------------------------------------回调函数列表--------------------------------
--- root子节点创建完事件
+-- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     connectNet()
@@ -135,83 +136,69 @@ function bodyBuildChildrenFinished(sprite)
     Log:write('用户ua信息:',System:getUserAgent())
     checkSkinPath()
     checkUserValidata()
-    --做个启动app的测试
-    --先判断应用是否安装
-    --[[local appIsInstalled = AppManager:getInfoById('com.adobe.reader')
-    Log:write('appIsInstalled',appIsInstalled)
-            if appIsInstalled ~= nil then
-                Log:write('start to open app')
-                local returnNum = AppManager:runApp('com.adobe.reader')
-                Log:write('returnNum is ',returnNum)
-            
-            end--]]
 end
 
--- root节点消息方法
+-- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        elseif msg == MSG_DEACTIVATE then
+    elseif msg == MSG_DEACTIVATE then
     end
 end
 
--- 插件消息方法
+-- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
     Log:write('the msg is ',msg)
-    --Loading:close()
     if msg == 101 then
         UmsAgent:onLoadFinish()
         --鉴权请求返回
         local jianquanData = Http:jsonDecode('jianquan')
         if(jianquanData == '' or jianquanData == nil) then
-            Dialog:show('提醒','返回数据错误')
+            Dialog:show('提醒', '返回数据错误')
         else
-            Log:write('the return code is',jianquanData.retcode)
-            Log:write('the retmsg',jianquanData.retmsg)
+            Log:write('the return code is', jianquanData.retcode)
+            Log:write('the retmsg', jianquanData.retmsg)
             if(jianquanData.retmsg == '该设备已被禁用') then
                 Dialog:show('错误','该设备已被禁用','ok','doExit')
                 return
             end
-            if(jianquanData.retcode == '0') then
+            if jianquanData.retcode == '0' then
                 --写菜单
                 buildMenu(jianquanData.retdata["menuData"])
                 --检查版本更新
                 experience = jianquanData["retdata"].version["experience"]
-                Log:write('the version is needupdate?',
-                jianquanData["retdata"].version["isNeedUpdate"])
-                Config:set('appKey',jianquanData['retdata'].appKey)
+                Log:write('the version is needupdate?', jianquanData["retdata"].version["isNeedUpdate"])
+                Config:set('appKey', jianquanData['retdata'].appKey)
                 if (jianquanData["retdata"].version["isNeedUpdate"] == 1 or jianquanData["retdata"].version["isNeedUpdate"] == 2 or
-                jianquanData["retdata"].version["isNeedUpdate"] == 3) then
+                    jianquanData["retdata"].version["isNeedUpdate"] == 3) then
                     --检测到有新版本，进行系统更新
                     g_packageUrl = jianquanData['retdata'].version['url']
                     g_patchUrl = jianquanData['retdata'].version.patchUrl
                     g_releaseLog = jianquanData['retdata'].version.releaseLog
                     g_packageSize = jianquanData['retdata'].version.apk_size or 0
                     g_patchSize = jianquanData['retdata'].version.patch_size or 0
-                    updateData=jianquanData["retdata"].version["isNeedUpdate"]
+                    updateData = jianquanData["retdata"].version["isNeedUpdate"]
                     doUpgrade(jianquanData['retdata'].version.md5sum,updateData)
-              else
+                else
                     --跳转到登录界面 
-                    if skinFalg=='1' then
-                    Scene:go(Alias.login)
-                     --Scene:go(Alias.register)
-                 else
+                    if skinFalg == '1' then
+                        Scene:go(Alias.login)
+                    else
                       Scene:go(Alias.upadteSkin)
-                 end
+                    end
                 end
             else
                 --暂时为了开发方便注释掉注册码代码
-               Scene:setReturn('MODULE:\\com_ysga\\index.wdml',Alias.register)
+               Scene:setReturn('MODULE:\\com_ysga\\index.wdml', Alias.register)
                Scene:go(Alias.register)
-               -- Scene:go(Alias.login)
             end
         end
         elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
         elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
-        Log:write('拨号失败')
-         Dialog:show('提示', '网络超时，请检查网络!', 'ok_cancel', 'doExit')
+            Log:write('拨号失败')
+            Dialog:show('提示', '网络超时，请检查网络!', 'ok_cancel', 'doExit')
         elseif msg > MSG_NETWORK_ERROR then -- 请求超时
-        Log:write('请求超时')
-        Dialog:show('提示','请求超时','ok_cancel')
+            Log:write('请求超时')
+            Dialog:show('提示','请求超时','ok_cancel')
     end
 end
 
@@ -308,26 +295,26 @@ function checkUserValidata()
      Log:write("开始鉴权登录0...")
      local ECCode='001'
      local mobile='001'
-    --从config.xml读取配置文件产品key以及版本号
-    local productKey = Config:get('productKey')
-    local subProductKey=Config:get('subProductKey')
+	 --从config.xml读取配置文件产品key以及版本号
+	 local productKey = Config:get('productKey')
+	 local subProductKey=Config:get('subProductKey')
+	 local version = Config:get('version')
+	 --从sdkcrad中读取企业编号和手机号码
+	 local tableValue=readDownloadTxtConfig()
+	 if tableValue~=nil or tableValue~='' then
+		if tableValue[1]~=nil or tableValue[1]~=''then
+		   Log:write("开始鉴权登录112...",tableValue[1])
+		   ECCode=tableValue[1]
+		   mobile=tableValue[2]
+		end
+	end
+	if ECCode==nil or mobile==nil then
+		ECCode='001'
+		mobile='001'
+	end
     local version = Config:get('version')
-    --从sdkcrad中读取企业编号和手机号码
-    local tableValue=readDownloadTxtConfig()
-    if tableValue~=nil or tableValue~='' then
-    if tableValue[1]~=nil or tableValue[1]~=''then
-       Log:write("开始鉴权登录112...",tableValue[1])
-       ECCode=tableValue[1]
-       mobile=tableValue[2]
-     end
-end
-if ECCode==nil or mobile==nil then
-ECCode='001'
-mobile='001'
-end
-    local version = Config:get('version')
-     if IO:fileExist(g_localpath) == true then 
-       Log:write("开始鉴权登录1...",mobile)
+    if IO:fileExist(g_localpath) == true then 
+        Log:write("开始鉴权登录1...",mobile)
         g_localMd5 = Util:md5(g_localpath, true)
     else
         Log:write("开始鉴权登录2...")
@@ -359,7 +346,7 @@ end
          --                      ,Config:get('ssourl'),mobile,productKey,ECCode,imsi,version)
     Log:write('the url is',url)
     --开始http请求
-     UmsAgent:onLoadStart()
+    UmsAgent:onLoadStart()
     Http:request('jianquan', url, 101, {useCache = false})
 end
 
@@ -665,9 +652,9 @@ function getDownloadPath()
         IO:dirCreate(g_tempPath)
     end
     -- 如果apk已经存在，删除之
-    g_localPatchPath = g_localpath.."/Venus_GJ.patch"
-    g_localPatchResult = g_localpath.."/Venus_GJ_New.apk"
-    g_localpath = g_localpath.."/Venus_GJ.apk"
+    g_localPatchPath = g_localpath.."/Venus_YSGA.patch"
+    g_localPatchResult = g_localpath.."/Venus_YSGA_New.apk"
+    g_localpath = g_localpath.."/Venus_YSGA.apk"
     Log:write("getDownloadPath: g_localPatchPath="..g_localPatchPath)
     Log:write("getDownloadPath: g_localpath="..g_localpath)
     -- 返回apk本地路径

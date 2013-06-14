@@ -24,11 +24,16 @@ Alias = {
     register = 'MODULE:\\com_ysga\\pqy_register.wdml',--用户注册界面
    -- urlServer='http://120.209.131.144:9091/mobileSale/',--外网
    -- imgServer='http://120.209.131.144:9091',
-      urlServer='http://120.209.131.143:9092/mobileSale/',--外网
-      imgServer='http://120.209.131.143:9092',
-    -- urlServer='http://localhost:8282/mobileSale/',--内网新DB
-    -- imgServer='http://localhost:8282',
-  -- urlServer="https://localhost:8282/mobileSale/",--外网新DB,https
+   
+   -- 生产环境地址
+   -- urlServer='http://120.209.131.143:9092/mobileSale/', --外网
+   -- imgServer='http://120.209.131.143:9092',
+   
+   -- 测试环境地址 
+   urlServer='http://120.209.131.152:8080/mobileSale/', 
+   imgServer='http://120.209.131.152:8080',
+    
+    -- urlServer="https://localhost:8282/mobileSale/",--外网新DB,https
     upadteSkin='MODULE:\\com_ysga\\m_updateSkin.wdml',
    --公共webview图片
    browserView = 'MODULE:\\com_ysga\\userApp.wdml', --webview通用页面
