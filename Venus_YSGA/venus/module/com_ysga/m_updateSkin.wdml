@@ -65,50 +65,46 @@ require 'framework.appmanager'
 require 'framework.download'
 
 local rootSprite
-local timeNum = 50 --获取验证码倒计时秒数
-local g_downloadTime = 0    
-local g_progressWidth = 154        -- 进度条长度
-local g_localPatchPath=nil
-local g_localpath = nil             -- 下载apk路径
-local tempTel=''
-local tempEccode="001"
-local tempSkinFalg=''
+local g_downloadTime = 0            -- 下载时间
+local g_progressWidth = 154         -- 进度条长度
+
+local g_localPatchPath = nil        -- 皮肤文件临时解压路径
+local g_localpath = nil             -- 皮肤文件本地路径
+
+local g_tel = ''                    -- 手机号码
+local g_ECCode = "001"              -- 企业EC编码        
+local g_skinFlag = ''               -- 标记皮肤是否需要更新
+
 ---------------------------------------回调函数列表--------------------------------
--- root子节点创建完事件
+-- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     connectNet()
-    --收集用户ua信息 
-    Log:write('用户ua信息:',System:getUserAgent())
 end
 
--- root节点消息方法
+-- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         checkEcSkinFlag()
-        elseif msg == MSG_DEACTIVATE then
+    elseif msg == MSG_DEACTIVATE then
     end
 end
 
-
-
--- 插件消息方法
+-- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
     Log:write('the msg is ',msg)
-    --Loading:close()
     if msg == 101 then
-        elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
-        elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
-         Dialog:show('提示', '网络超时，请检查网络!', 'ok_cancel', 'doExit')
-        elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Dialog:show('提示', '网络超时，请检查网络!', 'ok_cancel', 'doExit')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
         Log:write('请求超时')
         Dialog:show('提示','请求超时','ok_cancel')
     end
 end
 
-
--- 按键响应处理
+-- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
         if Loading:isShow() then
@@ -117,12 +113,12 @@ function mainNodeOnKeyUp(sprite, kc)
             Dialog:show('提示', '是否确定退出？', 'ok_cancel', 'doExit')
         end
         return 1
-        elseif kc == Key.F1 then
+    elseif kc == Key.F1 then
         return 1
     end
 end
 
--- 连接至网络
+-- @brief 连接至网络
 function connectNet()
     WLAN:setUrl('http://www.baidu.com/', '')
     if WLAN:isSwitchOn() then
@@ -130,176 +126,190 @@ function connectNet()
         if attach then
             curSSID = attach.ssid
             Http:connectWLAN(attach.ssid)
-            else
+        else
             connectToWAP()
         end
-        else
+    else
         connectToWAP()
     end
 end
 
--- 连接移动网络
+-- @brief 连接移动网络
 function connectToWAP()
     local APNtype = Http:getCurrentAPNType()
     if APNtype == 1 then -- Net网
         Http:setProxy('')
-        elseif APNtype == 2 then --移动wap
+    elseif APNtype == 2 then --移动wap
         Http:setProxy('http://10.0.0.172:80/')
-        elseif APNtype == 3 then --电信wap
+    elseif APNtype == 3 then --电信wap
         Http:setProxy('http://10.0.0.200:80/')
-        elseif APNtype == 4 then --联通wap
+    elseif APNtype == 4 then --联通wap
         Http:setProxy('http://10.0.0.172:80/')
-        else
+    else
         Http:setProxy('')
     end
     Http:connectCMWAP()
 end
 
--- 取消升级，系统跳转至主界面
-function goHome()
-    goLogin()
+-- @brief 跳转至登录页
+function goLogin()
+    Scene:go(Alias.login)
 end
-----------------------------检查是否有皮肤存在如果有则进行皮肤下载---------------------
+
+---------------------------换肤相关函数列表---------------------
+-- @brief 检查配置文件，确认是否需要下载皮肤
 function checkEcSkinFlag()
-local tableValue=readDownloadTxtConfig()
-    if tableValue~=nil or tableValue~='' then
-      if tableValue[3]~=nil or tableValue[3]~=''then
-       -- tempEccode="5515800611"
-        tempEccode=tableValue[1]
-       tempTel=tableValue[2]
-       tempSkinFalg=tableValue[3]
+    Log:write("===检查配置文件，确认是否需要下载皮肤===")
+    local tableValue = readDownloadTxtConfig()
+    Log:write("配置文件内容：", tableValue)
+    if tableValue ~= nil or tableValue ~= '' or tableValue ~= {} then
+        if tableValue[3] ~= nil or tableValue[3] ~= ''then
+            g_ECCode = tableValue[1]
+            g_tel = tableValue[2]
+            g_skinFlag = tableValue[3] or "0"
         end
     end
-    if skinFalg==nil then
-       skinFalg='0'
+    if  g_ECCode == nil or g_tel == nil then 
+        Log:write("读取配置文件失败，进入登录页...")
+        Scene:go(Alias.login)
+    elseif isSkinAvailable(tableValue) == true then
+        Log:write("皮肤文件已下载，进入登录页...")
+        Scene:go(Alias.login)
+    else
+        Log:write("尝试下载皮肤文件...")
+        local noticeLblSprite = Sprite:findChild(rootSprite, "noticeLbl")
+        Sprite:setProperty(noticeLblSprite, "text", "下载皮肤中...")
+        checkEcSkin()
     end
-    if(skinFalg=='1') then
-       Scene:go(Alias.login)
-     else
-    local noticeLblSprite = Sprite:findChild(rootSprite, "noticeLbl")
-    Sprite:setProperty(noticeLblSprite, "text", "下载皮肤中...")
-    checkEcSkin()
-     end
 end
 
+-- @brief 返回皮肤文件是否有效
+function isSkinAvailable(tbl)
+    if tbl[3] == nil or tbl[3] == "" or tbl[3] == "0" then 
+        Log:write("皮肤更新标识为空或为真")
+        return false
+    elseif tbl[4] == nil or tbl[4] == "" or IO:dirExist(tbl[4]) == false then 
+         Log:write("皮肤目录不存在或为空!")
+         return false
+    end 
+    return true
+end 
 
+-- @brief 需要下载皮肤文件，新建下载任务
 function checkEcSkin()
-            --保存企业编号和手机号
-g_localpath=getDownloadPath()
- Log:write("企业编号是"..tempEccode)
- ---
- g_patchUrl="http://120.209.131.144:9092/resources/upload/"..tempEccode..".zip"--路径命名规则按照企业ECcode
- Log:write("g_patchUrl.."..g_patchUrl)
- local count = Download:getCount(true)
-     for i = 1, count do
-           Download:delete(i,false,true)
-     end
+    Log:write("===正在建立下载任务===")
+    g_localpath = getDownloadPath()
+    Log:write("本地文件路径为:"..g_localpath)
+    g_patchUrl="http://120.209.131.144:9092/resources/upload/"..g_ECCode..".zip" -- 路径命名规则按照企业ECcode
+    Log:write("服务端文件路径为:"..g_patchUrl)
+    Timer:cancel(112)
+    local count = Download:getCount(true)
+    for i = 1, count do
+        Download:delete(i, false, true)
+    end
+    Log:write("下载历史记录已清除.")
     -- 显示下载进度
     local downloadingNode = Sprite:findChild(rootSprite, 'downloadingNode')
     Sprite:setVisible(downloadingNode, 1)
     Sprite:setEnable(downloadingNode, 1)
     local progress = Sprite:findChild(downloadingNode, 'progressImg')
     local startX,startY,_,startH = Sprite:getRect(progress)
-    Download:append(g_localpath, tempEccode, g_patchUrl, false)
-    Log:write("企业编号是2"..tempEccode)
+    Download:append(g_localpath, g_ECCode, g_patchUrl, true)
+    Log:write("添加下载队列中成功，任务名为:"..g_ECCode)
     onGetDownloadStatus()
 end
--- 显示下载状态
+
+-- @brief 显示下载状态
 function onGetDownloadStatus()
-    local count = Download:getCount(false)
+    local count = Download:getCount(true)
+    -- Log:write("当前任务数:"..count)
+    if count == 0 then 
+        Log:write("当前无下载任务，停止显示下载状态！")
+        return 
+    end
     g_downloadTime = g_downloadTime + 0.5
     local progressImg = Sprite:findChild(rootSprite, 'progressImg') -- 下载进度
     local speedLab = Sprite:findChild(rootSprite, 'speedLab')       -- 下载速度
     local proLab = Sprite:findChild(rootSprite, 'proLab')           -- 总体下载进度
     local noticeLbl = Sprite:findChild(rootSprite, "noticeLbl")     -- 通知信息
     -- 迭代下载队列
-   -- for i = 1, count do
-        local task = Download:getStatus(count, false)
-        Log:write("进行了下载task"..task.maxsize..task.title)
-        if task.title ==tempEccode then   
-            if task.status == 3 then Download:start(count, fasle) end
-            -- 计算当前的下载百分比
-            Log:write('the task size is ',task.size)
+    for i = 1, count do
+        local task = Download:getStatus(count, true)
+        if task.title == g_ECCode then   
+            -- Log:write("任务状态:", task)
+            -- 计算下载百分比
             local percent = 0
             if task.size and task.maxsize and task.maxsize ~= 0 then
-                Log:write("download 3 "..task.size)
                 percent = math.floor(task.size / task.maxsize * 100)
             end
-              Log:write('the task status is ',Download.status.Downloading)
-            if task.status == 2 then -- 下载中
-                Log:write("download is download"..task.status)
-                Log:write("download is task.size"..task.size)
+            if percent < 20 then percent = 20 end 
+            --Log:write("已下载"..percent.."%")
+            -- 计算下载速度
+            local speed = 0 
+            if g_downloadTime ~= 0 then 
+                speed = math.floor(task.size / 1024 / g_downloadTime)
+            end 
+            -- Log:write("下载速度"..speed.."KB")
+            if  task.status == 0 then 
+                Download:start(count, true)
+                Timer:set(112, 500, 'onGetDownloadStatus')
+            elseif task.status == 1 then -- 空间不足
+                Dialog:show('抱歉', '本地空间不足，请清理磁盘后重试!', 'ok', "goLogin")
+                return
+            elseif task.status == 2 then -- 下载中
                 local x, y, _, h = Sprite:getRect(progressImg)
                 Sprite:setRect(progressImg, x, y, g_progressWidth * percent / 100, h)
-                Sprite:setProperty(speedLab, 'text', math.floor(task.size / 1024 / g_downloadTime) .. 'KB/S')
-                Log:write("下载速度"..math.floor(task.size / 1024 / g_downloadTime) .. 'KB/S')
+                Sprite:setProperty(speedLab, 'text', speed..'KB/S')
                 Sprite:setProperty(proLab, 'text', math.floor(task.size/1024) .. 'KB/' .. math.floor(task.maxsize/1024) .. 'KB')
+                Timer:set(112, 500, 'onGetDownloadStatus')
+            elseif task.status == 3 then -- 下载暂停
+                Download:start(count, true)
+                Timer:set(112, 500, 'onGetDownloadStatus')
             elseif task.status == 4 then -- 下载完毕
-                Log:write("download is over"..task.status)
                 g_downloadTime = 0
                 Sprite:setProperty(noticeLbl, 'text', '完成')
-                Download:delete(count, false, false)
-                Sprite:setProperty(speedLab,'text', '0KB/S')
-                Sprite:setProperty(proLab, 'text', math.floor(task.maxsize/1024) .. 'KB/' .. math.floor(task.maxsize/1024) .. 'KB')
+                Download:delete(count, false, true)
                 local x, y, _, h = Sprite:getRect(progressImg)
-                Sprite:setRect(progressImg, x, y, g_progressWidth * percent / 100, h)
-                Http:stopNetwork()
-                Timer:cancel(112)
+                Sprite:setRect(progressImg, x, y, g_progressWidth, h)
+                Sprite:setProperty(speedLab,'text', speed..'KB/S')
+                Sprite:setProperty(proLab, 'text', math.floor(task.maxsize/1024) .. 'KB/' .. math.floor(task.maxsize/1024) .. 'KB')
                 local downloadingNode = Sprite:findChild(rootSprite, 'downloadingNode')
-                -- Sprite:setVisible(downloadingNode, 0)
-                -- Sprite:setEnable(downloadingNode, 0)
-                 -- 下载完成
-                local unzipPath = g_localpath
-                Log:write("正在换肤"..unzipPath)
-                Log:write("g_localpath..."..g_localpath)
-                Log:write("g_localPatchPath.."..g_localPatchPath)
-                local rtn = Util:unzip(g_localpath,g_localPatchPath)--下载完成进行解压缩操作
-                   if(rtn) then --表示解压成功
-                     Log:write("表示解压成功.."..g_localPatchPath)
-                        local sucess=Sprite:findChild(rootSprite,'sucess')
-                        local fail=Sprite:findChild(rootSprite,'fail')
-                        local dengluBtn=Sprite:findChild(rootSprite,'dengluBtn')
-                        local registerBtn=Sprite:findChild(rootSprite,'registerBtn')
-                        skinFalg='1'
-                        g_localPatchPath=g_localPatchPath.."/"..tempEccode
-                       configString=tempEccode..'\n'..tempTel..'\n'..skinFalg..'\n'..g_localPatchPath
-                       Log:write("configString value is"..configString)
-                       savebtn_onselected(configString)
-                       Scene:go(Alias.login)
-                    else
-                       Dialog:show('抱歉', '解压失败', 'ok')
-                end
+                unzipSkin() 
+                Timer:set(333, 1000, "goLogin")  
+            elseif task.status == 5 then -- 下载失败
+                Dialog:show('抱歉', '下载失败，请检查服务是否可用!', 'ok', "goLogin")
+                return
+            else
+                Dialog:show('抱歉', '下载失败，发生未知错误!', 'ok', "goLogin")
+                return
             end
-            Log:write("ec-----------1")
-         --   break
-       -- end
-         end
-    Timer:set(112, 500, 'onGetDownloadStatus')
+        end
+    end
 end
 
+-- @brief 解压缩皮肤文件
 function unzipSkin()
-                -- 下载完成
-                local unzipPath = g_localpath
-                Log:write("正在换肤"..unzipPath)
-                Log:write("g_localpath..."..g_localpath)
-                Log:write("g_localPatchPath.."..g_localPatchPath)
-                local rtn = Util:unzip(g_localpath,g_localPatchPath)--下载完成进行解压缩操作
-                   if(rtn) then --表示解压成功
-                     local sucess=Sprite:findChild(rootSprite,'sucess')
-                        local fail=Sprite:findChild(rootSprite,'fail')
-                        local dengluBtn=Sprite:findChild(rootSprite,'dengluBtn')
-                        local registerBtn=Sprite:findChild(rootSprite,'registerBtn')
-                       Sprite:setVisible(sucess,1)
-                        Sprite:setVisible(fail,0)
-                        setAllShoworHide(registerBtn,0)
-                        setAllShoworHide(dengluBtn,1)
-                        skinFalg='1'
-                       -- configString=ECCode..'\n'..phoneEdit..'\n'..skinFalg..'\n'..g_localPatchPath
-                       -- savebtn_onselected(configString)
-                        else
-                       Dialog:show('抱歉', '解压失败', 'ok')
-                end
+    Log:write("===正在替换皮肤文件===")
+	Log:write("皮肤文件路径为:"..g_localpath)
+	Log:write("解压目标路径为:"..g_localPatchPath)
+	local rtn = Util:unzip(g_localpath, g_localPatchPath) --下载完成进行解压缩操作
+    if rtn then --表示解压成功
+		local sucess = Sprite:findChild(rootSprite,'sucess')
+		local fail = Sprite:findChild(rootSprite,'fail')
+		local dengluBtn = Sprite:findChild(rootSprite,'dengluBtn')
+		local registerBtn = Sprite:findChild(rootSprite,'registerBtn')
+		Sprite:setVisible(sucess, 1)
+		Sprite:setVisible(fail, 0)
+		setAllShoworHide(registerBtn, 0)
+		setAllShoworHide(dengluBtn, 1)
+		skinFalg = '1'
+		configString = g_ECCode..'\n'..g_tel..'\n'..skinFalg..'\n'..g_localPatchPath.."\\"..g_ECCode
+		savebtn_onselected(configString)
+    else
+        Dialog:show('抱歉', '解压失败', 'ok')
     end
+end
+
 -- 登录和版本检查进度条
 function scrollOnTick(sprite)
     local scrollImg = Sprite:findChild(sprite, 'scrollImg')
@@ -309,20 +319,21 @@ function scrollOnTick(sprite)
     end
     Sprite:setRect(scrollImg, x + 7, y, w, h)
 end
+
+-- 获取本地皮肤文件的路径
 function getDownloadPath()
     g_localpath = ""
     local downloadPath = System:getFlashCardName(1) 
     if downloadPath == nil or downloadPath == "" then 
         Log:write("SD卡不存在,使用内部存储！")
         downloadPath = System:getFlashCardName(0)
-         --在SD卡不存在的话，如果是htc_t327t_android_A001，则使用缓存
-            if(System:getUserAgent() == 'htc_t327t_android_A001') then
-                downloadPath = "MODULE:\\com_ysga\\"
-            end
+        --在SD卡不存在的话，如果是htc_t327t_android_A001，则使用缓存
+        if(System:getUserAgent() == 'htc_t327t_android_A001') then
+            downloadPath = "MODULE:\\com_ysga\\"
+        end
     end
     g_localpath = downloadPath.."com_ysga"
     g_tempPath = downloadPath.."temp"
-    Log:write("getDownloadPath: localDir="..g_localpath)
     -- 如果路径不存在，创建下载目录
     if IO:dirExist(g_localpath) == false then 
         IO:dirCreate(g_localpath)
@@ -330,23 +341,10 @@ function getDownloadPath()
      if IO:dirExist(g_tempPath) == false then 
         IO:dirCreate(g_tempPath)
     end
-    -- -- 如果皮肤已经存在，删除之
+    -- 返回皮肤文件的路径
     g_localPatchPath = g_localpath
-    -- g_localPatchResult = g_localpath.."/Venus_GJ_New.apk"
-   g_localpath = g_localpath.."/"..tempEccode..".zip"
-    -- Log:write("getDownloadPath: g_localPatchPath="..g_localPatchPath)
-    Log:write("getDownloadPath: g_localpath="..g_localpath)
-    -- 返回apk本地路径
+    g_localpath = g_localpath.."/"..g_ECCode..".zip"
     return g_localpath
-end
-
-
-
-
-----------------------------------------end-------------------------------------------
-
-function goLogin()
-    Scene:go(Alias.login)
 end
 
 ]]>

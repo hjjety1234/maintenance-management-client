@@ -324,47 +324,58 @@ function t_S2T(_szText)
 end
 
 -----------------------------获取sdcard的路径----------------------
---获取SD卡上的Download目录
+-- 获取SD卡上的Download目录
 function getDownloadTxtPath()
-        local txtPath = ''
         local downloadPath = System:getFlashCardName(1) 
-        Log:write('内部存储卡地址为：'..downloadPath)
+        Log:write('SD卡路径为：'..downloadPath)
         if downloadPath == nil or downloadPath == "" then 
-        Log:write("SD卡不存在,使用内部存储！")
-        downloadPath = System:getFlashCardName(0)
-        Log:write('内部存储卡地址为：',downloadPath)
-        --在SD卡不存在的话，如果是htc_t327t_android_A001，则使用缓存
-        if(System:getUserAgent() == 'htc_t327t_android_A001') then
-            downloadPath = "MODULE:\\com_ysga\\"
+            Log:write("SD卡不存在,使用内部存储！")
+            downloadPath = System:getFlashCardName(0)
+            Log:write('内部存储卡路径为：',downloadPath)
+            if downloadPath == nil or downloadPath == "" or 
+	            System:getUserAgent() == 'htc_t327t_android_A001' then
+	            Log:write("获取内部存储卡失败，使用MODULE路径")
+	            downloadPath = "MODULE:\\com_ysga\\"
+            end
         end
-    end
-         txtPath = downloadPath.."download/com_ysga"
-        Log:write("getDownloadTxtPath: localDir="..txtPath)
         -- 如果路径不存在，创建下载目录
-        if  IO:dirExist(txtPath) == false then 
-            IO:dirCreate(txtPath)
+        downloadPath = downloadPath.."download"
+        if IO:dirExist(downloadPath) == false then
+            IO:dirCreate(downloadPath)
         end
-          return txtPath
+        downloadPath = downloadPath.."/com_ysga"
+        if IO:dirExist(downloadPath) == false then
+            IO:dirCreate(downloadPath)
+        end
+        Log:write("当前配置文件目录为:"..downloadPath)
+        return downloadPath
 end
-    --------------------------------保存注册信息--------------------
+
+--------------------------------保存注册信息--------------------
+-- 保存皮肤JSON配置文件
 function savebtn_onselected(configString)
+    Log:write("保存配置文件")
     --保存至xml中
     local path = getDownloadTxtPath() .. '/config.json'
+    Log:write("path:", path)
     if IO:fileExist(path) == false then
         IO:fileCreate(path)
     end
     IO:fileWrite(path,configString)
 end
+
+-- 读取皮肤JSON配置文件
 function readDownloadTxtConfig()
-    local configTable =''
+    local configTable = ''
     local path = getDownloadTxtPath() .. '/config.json'
-       Log:write("readDownloadTxtConfig: localDir=",path)
-     if IO:fileExist(path) then
-         Log:write("fileExist: fileExist="..path)
-         configTable = IO:fileReadToTable(path)
-     else
-          IO:fileCreate(path) --创建一个文件
-     end
+    -- Log:write("皮肤JSON配置文件路径为"..path)
+    if IO:fileExist(path) then
+        -- Log:write("皮肤JSON配置文件存在！")
+        configTable = IO:fileReadToTable(path)
+    else
+        -- Log:write("皮肤JSON配置文件不存在！")
+        IO:fileCreate(path) 
+    end
     return  configTable
 end
 
