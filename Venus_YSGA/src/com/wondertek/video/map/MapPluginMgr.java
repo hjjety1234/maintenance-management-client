@@ -1,11 +1,19 @@
 package com.wondertek.video.map;
 
+import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;
 import com.wondertek.video.map.bdmap.BDMapManager;
 import com.wondertek.video.map.gdmap.GDMapManager;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.location.LocationManager;
+import android.os.Handler;
+import android.provider.Settings;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 /**
  * 
@@ -186,7 +194,7 @@ public class MapPluginMgr {
 			map.destroyMap();
 		}
 	}
-    
+
 	public native void nativeSearchCallback(String strResult);
 	public native void nativeReverseCallback(String strResult);
 	public native void nativeCurrentPositionCallback(String strResult);

@@ -9,9 +9,9 @@ public class GDMapConstants {
     /** Api_Key */
     public static final String GDMAP_API_KEYS = "c2b0f58a6f09cafd1503c06ef08ac7aeb7ddb91ada929925831b67f673bf10ad69195de3c7db4836";
     /** Location Update Min Time */
-    public static final long GDMAP_LOCATION_UPDATE_MIN_TIME = 0;
+    public static final long GDMAP_LOCATION_UPDATE_MIN_TIME = 1000;
     /** Location Update Min Distance */
-    public static final float GDMAP_LOCATION_UPDATE_MIN_DISTANCE =0;
+    public static final float GDMAP_LOCATION_UPDATE_MIN_DISTANCE = 10;
     
     /** Handler Message ID */
     public static final int GDMAP_LOCATION_FINISHED = 0x1000;

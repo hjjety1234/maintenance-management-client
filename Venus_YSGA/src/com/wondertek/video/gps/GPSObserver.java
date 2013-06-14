@@ -2,6 +2,7 @@ package com.wondertek.video.gps;
 
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
@@ -26,10 +28,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
+import com.tencent.mm.sdk.Build;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;
 import com.wondertek.ysga.R;
-
 
 public class GPSObserver {
 	private static String TAG = "WDGPS";
@@ -46,6 +48,8 @@ public class GPSObserver {
 
 	private boolean gpsBeginState;
 	private boolean gpsCurState;
+	
+	private boolean mInjectGps = false;
 	
 	private GPSObserver(VenusActivity va) {
 		venusHandle = va;
@@ -87,6 +91,8 @@ public class GPSObserver {
 
 		if(mLocationManager==null)
 			return false;
+		
+		injectGps();
 
 		return mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER);
 	}
@@ -95,42 +101,22 @@ public class GPSObserver {
 	{
 		if(isGPSEnable())
 			if(!mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
-				toggleGPS();
 				// add pj
 				showGpsAlert();
-				injectGps();
+				toggleGPS();
 			}
 	}
 	
 	/**
-	 * inject XTRA data and time reference to the GPS in order to get a faster fix.
+	 * inject XTRA data in order to get a faster fix.
 	 * @author hewu <hewu2008@gmail.com>
 	 */
 	public void injectGps()
 	{
-		Log.d(TAG, "on injectGps");
-		boolean bDCConnected = false;
-		try {
-			ConnectivityManager connMan = (ConnectivityManager)VenusActivity.
-					appContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-			Class<?> cls = Class.forName("android.net.ConnectivityManager");
-	        Method method1 = cls.getDeclaredMethod("getMobileDataEnabled");
-	        bDCConnected = (Boolean) method1.invoke(connMan);
-		} catch (Exception e) {
-			Log.w(TAG, e.getMessage());
-		}
-		
-		SharedPreferences localSharedPreferences = VenusApplication.
-				getInstance().getSharedPreferences("agps", 0);
-		Long last_gps_age = localSharedPreferences.getLong("gps_age", 0);
-		Date date = new Date();
-		Long currentTime = date.getTime() / 1000;
-		if (bDCConnected == true && (currentTime - last_gps_age) > 600) {
-			Log.d(TAG, "[injectGps] true");
+		if (mInjectGps == false) {
+			Log.d(TAG, "on injectGps");
 			mLocationManager.sendExtraCommand("gps", "force_xtra_injection", null);
-		   	SharedPreferences.Editor localEditor = localSharedPreferences.edit();
-		    localEditor.putLong("gps_age", currentTime);
-		    localEditor.commit();
+			mInjectGps = true;
 		}
 	}
 	
@@ -202,7 +188,7 @@ public class GPSObserver {
 	private GpsStatus.Listener gpsListener = new GpsStatus.Listener() {
 		@Override
 		public void onGpsStatusChanged(int event) {
-			mLocationManager.getGpsStatus(null);
+			GpsStatus status = mLocationManager.getGpsStatus(null);
 			switch (event) {
 				case GpsStatus.GPS_EVENT_STARTED:
 					Log.d(TAG, "on GPS_EVENT_STARTED");

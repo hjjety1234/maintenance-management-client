@@ -54,29 +54,30 @@ import com.wbtech.dao.NetworkUitlity;
 public class UmsAgent {
 	public static String TAG = "UmsAgent";
 	public static boolean mUseLocationService = true;
-	public static String start_millis = null;// 寮�鐨勬椂闂寸偣 yyyy-MM-dd HH:mm:ss
-	public static long start = 0;// 寮�鐨勬椂闂寸偣 姣琛ㄧず
-	public static long load_start = 0; // 椤甸潰鍔犺浇鏃堕棿鐐�姣琛ㄧず
-	public static String end_millis = null;// 缁撴潫鐨勬椂闂寸偣 yyyy-MM-dd HH:mm:ss
-	public static long end = 0;// 缁撴潫鐨勬椂闂寸偣 姣琛ㄧず
-	private static Long load_end; // 椤甸潰鍔犺浇缁撴潫鏃堕棿鐐�姣琛ㄧず
-	public static String duration = null;// 杩愯鏃堕棿
-	public static String load_duration = null;// 鍔犺浇鏃堕棿
+	public static String start_millis = null;// 开始的时间点 yyyy-MM-dd HH:mm:ss
+	public static long start = 0;// 开始的时间点 毫秒表示
+	public static long load_start = 0; // 页面加载时间点 毫秒表示
+	public static String end_millis = null;// 结束的时间点 yyyy-MM-dd HH:mm:ss
+	public static long end = 0;// 结束的时间点 毫秒表示
+	private static Long load_end; // 页面加载结束时间点 毫秒表示
+	public static String duration = null;// 运行时间
+	public static String load_duration = null;// 加载时间
 	public static String session_id = null;
-	public static String activities = null;// 褰撳墠activity鍚嶇О
+	public static String activities = null;// 当前activity名称
 	public static String appkey = "";
-	public static String stacktrace = null;// 閿欒淇℃伅
-	public static String time = null; // 閿欒鍙戠敓鏃堕棿
-	public static String os_version = null;// android 鐗堟湰
-	public static String deviceID = null;// 璁惧鍨嬪彿
+	public static String stacktrace = null;// 错误信息
+	public static String time = null; // 错误发生时间
+	public static String os_version = null;// android 版本
+	public static String deviceID = null;// 设备型号
 	public static String page_tag = null;
 	
-	public static String curVersion = null;// 绋嬪簭鐗堟湰
-	public static String packagename = null;// 搴旂敤绋嬪簭鐨勫寘鍚�	public static String sdk_version = null;// Sdk 鐨勭増鏈彿
+	public static String curVersion = null;// 程序版本
+	public static String packagename = null;// 应用程序的包名
+	public static String sdk_version = null;// Sdk 的版本号
 	
 	private static UmsAgent umsAgentEntity = new UmsAgent();
 	public static boolean mUpdateOnlyWifi = true;
-	private static int defaultReportMode = 0;//0  涓轰笅娆″惎鍔ㄥ彂閫佹ā寮忥紝涓洪粯璁ゆā寮�  1 瀹炴椂鍙戦�妯″紡
+	private static int defaultReportMode = 0;//0  为下次启动发送模式，为默认模式   1 实时发送模式
 	private static  Handler handler;
 	private static boolean isPostFile=true;
 	private static boolean isFirst=true;
@@ -129,6 +130,7 @@ public class UmsAgent {
 					e.printStackTrace();
 				}
 				Log.d("xdz", errorInfo.toString());
+				// 根据不同的发送方式处理
 				if(1==CommonUtil.getReportPolicyMode(context)&&CommonUtil.isNetworkAvailable(context)){
 					if(!stacktrace.equals("")){
 						MyMessage message=	NetworkUitlity.post(UmsConstants.preUrl+UmsConstants.errorUrl, errorInfo.toString());
@@ -172,7 +174,8 @@ public class UmsAgent {
 		}
 		
 
-		// 鏍规嵁涓嶅悓鐨勫彂閫佹柟寮忓鐞�		
+		// 根据不同的发送方式处理
+		
 		if( 1==CommonUtil.getReportPolicyMode(context)&&CommonUtil.isNetworkAvailable(context)){
 			
 			MyMessage message=NetworkUitlity.post(UmsConstants.preUrl+UmsConstants.errorUrl, errorInfo.toString());	
@@ -188,7 +191,7 @@ public class UmsAgent {
 		}
 	}
 /**
- * 灏嗕俊鎭寜 绫诲瀷淇濆瓨鍒版枃浠朵腑
+ * 将信息按 类型保存到文件中
  * @param type  errorInfo/activityInfo/eventInfo/clinetDataInfo
  * @param info
  * @param context
@@ -216,7 +219,8 @@ public class UmsAgent {
 	}
 
 	/**
-	 * 鑷畾涔変簨浠�	 * 
+	 * 自定义事件
+	 * 
 	 * @param context
 	 * @param event_id
 	 */
@@ -262,7 +266,7 @@ public class UmsAgent {
 		          Log.e("UMSAgent", "Illegal value of acc in onEvent(4p)");
 		        return;
 		      }
-//鏂板惎鍔ㄤ竴涓嚎绋嬪鐞嗚嚜瀹氫箟浜嬩欢
+//新启动一个线程处理自定义事件
 		      new EventThread(context, appkey, event_id, label, acc).start();
 		} catch (Exception e) {
 			 if (UmsConstants.DebugMode)
@@ -273,7 +277,7 @@ public class UmsAgent {
 		}
 	}
 	/**
-	 * 淇濆瓨鎵�彂鐢熺殑event 鏃堕棿淇℃伅
+	 * 保存所发生的event 时间信息
 	 */
 	public static void saveEvent(UmsAgent umsAgent, Context context, String appkey,String event_id, String label, int acc)
 	{
@@ -331,12 +335,14 @@ public class UmsAgent {
 	 * @param context
 	 */
 	public static void onPause(Context context) {
+		// 将数据上传
 		TelephonyManager tm = (TelephonyManager) (context.getSystemService(Context.TELEPHONY_SERVICE)); 
 		String deviceid = tm.getDeviceId();
-		end_millis = CommonUtil.getTime();// 缁撴潫鐨勬椂闂寸偣
-		end = Long.valueOf(System.currentTimeMillis());// 缁撴潫鏃堕棿鐐规绉掕〃绀�		duration = end - start + "";
+		end_millis = CommonUtil.getTime();// 结束的时间点
+		end = Long.valueOf(System.currentTimeMillis());// 结束时间点毫秒表示
+		duration = end - start + "";
 		appkey = CommonUtil.getAppKey(context);
-		// 鏁版嵁涓婁紶 鎴�淇濆瓨
+		// 数据上传 或 保存
 		JSONObject info = new JSONObject();
 		try {
 			info.put("session_id", session_id);
@@ -362,6 +368,8 @@ public class UmsAgent {
 		
 		Log.d("onPause", info+"");
 
+		// 根据数据上传方式 处理info 保存在本地或上传服务器
+		// 根据不同的发送方式处理
 		if(1==CommonUtil.getReportPolicyMode(context)&&CommonUtil.isNetworkAvailable(context)){
 			if(UmsConstants.DebugMode){
 				Log.d("activityInfo", info.toString());
@@ -403,7 +411,8 @@ public class UmsAgent {
 			
 		}
 		
-		activities = (scene==null)? CommonUtil.getActivityName(context):scene; // 鑾峰彇褰撳墠activity鐨勫悕绉�//		SharedPreferences session = paramContext.getSharedPreferences(
+		activities = (scene==null)? CommonUtil.getActivityName(context):scene; // 获取当前activity的名称
+//		SharedPreferences session = paramContext.getSharedPreferences(
 //				CommonUtil.getPackageName(paramContext) + "session", 0);
 //		String last_get_session_time = session.getString("sessiontime", (System
 //				.currentTimeMillis())+"");
@@ -418,7 +427,7 @@ public class UmsAgent {
 		}
 //		long nowtime = Long.valueOf(System.currentTimeMillis());
 //		if (nowtime - Long.parseLong(last_get_session_time) > UmsConstants.kContinueSessionMillis) {
-//			//涓嶆槸鍚屼竴涓猻ession
+//			//不是同一个session
 //			try {
 //				session_id=generateSeesion(paramContext);
 //				
@@ -428,8 +437,8 @@ public class UmsAgent {
 //			}
 //
 //		}
-		start_millis = CommonUtil.getTime();// 寮�鐨勬椂闂寸偣
-		start = Long.valueOf(System.currentTimeMillis());
+		start_millis = CommonUtil.getTime();// 开始的时间点
+		start = Long.valueOf(System.currentTimeMillis());// 开始时间点毫秒表示
 		if (tag != null && !tag.trim().equals(""))
 			page_tag = tag;
 		else
@@ -438,7 +447,7 @@ public class UmsAgent {
 
 	
 	/**
-	 * 鑷姩鏇存柊
+	 * 自动更新
 	 * @param context
 	 */
 
@@ -494,11 +503,12 @@ public class UmsAgent {
 	}
 
 	/**
-	 * 鑾峰彇鏈嶅姟鍣ㄩ厤缃殑閿�瀵�骞朵繚瀛樺湪Ums_agent_online_Setting_PACKAGENAME.xml鏂囦欢涓�	 * 
+	 * 获取服务器配置的键值对 并保存在Ums_agent_online_Setting_PACKAGENAME.xml文件中
+	 * 
 	 * @param context
 	 */
 	public static void updateOnlineConfig(Context context) {
-		// 涓婁紶appkey鑾峰彇 鏈嶅姟鍣ㄧ殑閿�瀵�瑙ｆ瀽
+		// 上传appkey获取 服务器的键值对 解析
 		appkey = CommonUtil.getAppKey(context);
 		JSONObject map = new JSONObject();
 		try {
@@ -514,7 +524,7 @@ public class UmsAgent {
 		Editor editor = preferences.edit();
 		
 		if(CommonUtil.isNetworkAvailable(context)){
-			// 璇锋眰鍦板潃url
+			// 请求地址url
 			MyMessage message = NetworkUitlity
 					.post(UmsConstants.preUrl+UmsConstants.onlineConfigUrl, appkeyJSON);
 			try {Log.d("message", message.getMsg());
@@ -587,7 +597,7 @@ public class UmsAgent {
 
 
 	/**
-	 * 鏍规嵁鍦ㄧ嚎閰嶇疆鐨勯敭鍊煎涓殑key鍙栧緱value
+	 * 根据在线配置的键值对中的key取得value
 	 * @param context
 	 * @param onlineKey
 	 * @return
@@ -629,7 +639,8 @@ public class UmsAgent {
 		return "";
 	}
 /**
- * 鏄惁鍙湪wifi鐘舵�涓嬫洿鏂� * @param isUpdateonlyWifi
+ * 是否只在wifi状态下更新
+ * @param isUpdateonlyWifi
  */
 	public static void setUpdateOnlyWifi(boolean isUpdateonlyWifi) {
 		UmsAgent.mUpdateOnlyWifi = isUpdateonlyWifi;
@@ -640,7 +651,7 @@ public class UmsAgent {
 
 	
 	/**
-	 * 璁剧疆鏁版嵁鍙戦�妯″紡
+	 * 设置数据发送模式
 	 * @param context
 	 * @param reportModel
 	 */
@@ -662,7 +673,7 @@ public class UmsAgent {
 	
 	/**
 	 * 
-	 * 鐢熸垚sessionID 鏍煎紡 appkey+date 
+	 * 生成sessionID 格式 appkey+date 
 	 * @param context
 	 * @return sessionId
 	 * @throws ParseException
@@ -687,7 +698,7 @@ public class UmsAgent {
 		return null;
 	}
 	/**
-	 * 涓婁紶鎵�湁鏁版嵁
+	 * 上传所有数据
 	 * @param context
 	 */
 	public static void uploadLog(Context context){
@@ -728,7 +739,8 @@ public class UmsAgent {
 		}
 	}
 	/**
-	 * 涓婁紶瀹㈡埛绔澶囦俊鎭�	 * @param context
+	 * 上传客户端设备信息
+	 * @param context
 	 */
 	public  static void postClientData(Context context){
 		new PostClientData(context).start();
@@ -753,8 +765,8 @@ public class UmsAgent {
 			    clientData.put("ismobiledevice", true);
 			    clientData.put("phonetype", tm.getPhoneType());//
 			    clientData.put("imsi", tm.getSubscriberId());
-			    clientData.put("network", CommonUtil.getNetworkType(context));//鎵嬫満鐨勮仈缃戞柟寮� wifi/2G/3G
-			    clientData.put("version", CommonUtil.getVersion(context));//鑾峰彇versionName
+			    clientData.put("network", CommonUtil.getNetworkType(context));//手机的联网方式  wifi/2G/3G
+			    clientData.put("version", CommonUtil.getVersion(context));//获取versionName
 			    
 			    
 			    SCell sCell = CommonUtil.getCellInfo(context);
@@ -776,7 +788,7 @@ public class UmsAgent {
 			    Build bd = new Build();
 			    
 			    clientData.put("modulename", bd.MODEL);
-			    clientData.put("devicename", bd.MANUFACTURER+bd.PRODUCT);//灏�鍒堕�鍟� 鍜� 鍨嬪彿  鍒嗗紑涓婁紶*****************
+			    clientData.put("devicename", bd.MANUFACTURER+bd.PRODUCT);//将 制造商  和  型号  分开上传*****************
 			    clientData.put("wifimac", wifiManager.getConnectionInfo().getMacAddress());
 			    clientData.put("havebt", adapter==null ? false:true);
 			    clientData.put("havewifi", CommonUtil.isWiFiActive(context));
@@ -804,10 +816,10 @@ public class UmsAgent {
 		}
 	}
 	public static void onLoadFinish(Context context) {
-		load_end = Long.valueOf(System.currentTimeMillis());
+		load_end = Long.valueOf(System.currentTimeMillis());// 结束时间点毫秒表示
 		load_duration = load_end - load_start + "";
 	}
 	public static void onLoadStart(Context context) {
-		load_start = Long.valueOf(System.currentTimeMillis());
+		load_start = Long.valueOf(System.currentTimeMillis());// 开始时间点毫秒表示
 	}
 }

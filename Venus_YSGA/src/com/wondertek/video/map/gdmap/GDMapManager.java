@@ -19,6 +19,7 @@ import android.location.LocationListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -69,6 +70,9 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 	private GDPoiOverlay poiOverlay = null;
 	private List<View> mPopViewList = new ArrayList<View>();
     private boolean bAutoLocationEnable = false;
+    private boolean mbIsGetCurrentPositionCalled = false; 
+    private long mStartTime = 0;
+    private Location mBestLocation = null;
     
     private Handler handler = new Handler() {
 		@Override
@@ -146,22 +150,34 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 		}
 
 		@Override
-		public void onLocationChanged(Location location) {
-			Log.d(TAG, "onLocationChanged");
+		public synchronized void onLocationChanged(Location location) {
+			if (location == null || mStartTime == 0 || mbIsGetCurrentPositionCalled == false)
+				return ;
+			long elapsedTime = (SystemClock.elapsedRealtime() - mStartTime) / 1000;
+			Log.d(TAG, String.format( "[onLocationChanged] accuracy: %.2f, duration: %d sec", 
+					location.getAccuracy(), elapsedTime));
+			// record best location
+			if (mBestLocation == null) mBestLocation = location;
+			else if (mBestLocation.getAccuracy() > location.getAccuracy()) {
+				mBestLocation = location;
+				Log.i(TAG, "get new best location.");
+			}
+			// try 5 seconds 
+			if (elapsedTime <= 5) return; 
+			location = mBestLocation;
 			int geoLat = (int) (location.getLatitude() * 1e6);
 			int geoLog = (int) (location.getLongitude() * 1e6);
 			Bundle localBundle = location.getExtras();
 			String desc = "0";
-			if (localBundle != null) {
+			if(localBundle != null){
 				desc = localBundle.getString("desc");
-				Log.d(TAG, "cmzAddress" + desc);
 			}
 			String str = "{\"latitude\":\"" + geoLat + "\",\"longitude\":\""
 					+ geoLog + "\",\"desc\":\"" + desc + "\"}";
-			Log.d(TAG, "cmzAddress" + str);
 			Message msg = handler.obtainMessage();
 			msg.what = GDMapConstants.GDMAP_LOCATION_FINISHED;
 			msg.obj = str;
+			GetCurrentPositionFuncCalled(false);
 			handler.sendMessage(msg);
 		    locationManager.removeUpdates(listener);
 		}
@@ -262,8 +278,10 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 			if (provider == null || provider.equals("")) {
 				provider = LocationProviderProxy.MapABCNetwork;
 			}
+			// request location update
 			locationManager.requestLocationUpdates(provider, GDMapConstants.GDMAP_LOCATION_UPDATE_MIN_TIME,
 					GDMapConstants.GDMAP_LOCATION_UPDATE_MIN_DISTANCE, listener);
+			GetCurrentPositionFuncCalled(true);
 		} else {
 			Log.d(TAG, "Location Manager Proxy is Running!");
 		}
@@ -389,18 +407,13 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 
 	@Override
 	public void geoCode(int latitude, int longitude) {
-		double tempLatitude = (double) latitude / 1000000;
-		Log.d(TAG, "cmzcheng" + tempLatitude);
-		if (tempLatitude > 180) {
-			Log.d(TAG, "GeoCode7: [" + (double) latitude * 1e-7 + ", "
-					+ (double) longitude * 1e-7 + "]");
-			geoCoder((double) latitude / 10000000,
-					(double) longitude / 10000000);
-
-		} else {
-			Log.d(TAG, "GeoCode6: [" + (double) latitude * 1e-6 + ", "
-					+ (double) longitude * 1e-6 + "]");
-			geoCoder((double) latitude / 1000000, (double) longitude / 1000000);
+		double fLatitude = (double) latitude / 1000000;
+		if (fLatitude < 90.0) {
+			Log.d(TAG, "GeoCode: [" + (double)latitude * 1e-6 + ", " + (double)longitude * 1e-6 + "]");
+			geoCoder((double)latitude * 1e-6, (double)longitude * 1e-6);
+		}else {
+			Log.d(TAG, "GeoCode: [" + (double)latitude * 1e-7 + ", " + (double)longitude * 1e-7 + "]");
+			geoCoder((double)latitude * 1e-7, (double)longitude * 1e-7);
 		}
 	}
 
@@ -561,7 +574,7 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 							if (ads.get(2).getFeatureName() != null)
 								data.append(ads.get(2).getFeatureName() + " ");
 						}
-						data.append("����" + addres.getFeatureName() + "\"}");
+						data.append(" " + addres.getFeatureName() + "\"}");
 						Log.d(TAG, "" + data);
 						handler.sendMessage(Message.obtain(handler,
 								GDMapConstants.GDMAP_GEOCODER_RESULT,
@@ -641,6 +654,22 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 			View popview = mPopViewList.remove(mPopViewList.size() - 1);
 			popview.setVisibility(View.GONE);
 			mMapView.removeView(popview);
+		}
+	}
+	
+	/**
+	 * 设置GetCurrentPosition函数是否被调用
+	 * @param isCalled 是否被调用标志
+	 * @author hewu <hewu2008@gmail.com>
+	 */
+	public void GetCurrentPositionFuncCalled(boolean isCalled) {
+		this.mbIsGetCurrentPositionCalled = isCalled;
+		if (this.mbIsGetCurrentPositionCalled == true) {
+			mStartTime = SystemClock.elapsedRealtime();
+		}
+		else {
+			mStartTime = 0;
+			mBestLocation = null;
 		}
 	}
 	
