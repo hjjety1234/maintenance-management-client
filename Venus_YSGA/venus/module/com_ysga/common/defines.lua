@@ -26,12 +26,12 @@ Alias = {
    -- imgServer='http://120.209.131.144:9091',
    
    -- 生产环境地址
-   urlServer='http://120.209.131.143:9092/mobileSale/',
-   imgServer='http://120.209.131.143:9092',
+   -- urlServer='http://120.209.131.143:9092/mobileSale/',
+   -- imgServer='http://120.209.131.143:9092',
    
    -- 测试环境地址 
-   -- urlServer='http://120.209.131.152:8080/mobileSale/', 
-   -- imgServer='http://120.209.131.152:8080',
+   urlServer='http://120.209.131.152:8080/mobileSale/', 
+   imgServer='http://120.209.131.152:8080',
     
     -- urlServer="https://localhost:8282/mobileSale/",--外网新DB,https
     upadteSkin='MODULE:\\com_ysga\\m_updateSkin.wdml',
