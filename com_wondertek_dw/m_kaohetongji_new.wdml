@@ -269,7 +269,9 @@ local g_dimension = 'city' ----初始市公司维度
 local g_regionid = '' ----当前查询的区域编号，空为全省
 local g_regionname = '区域'  --区域名称
 local regionid=''
+
 local judgeFlag = 0
+local subRegion
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -298,6 +300,12 @@ function bodyOnSpriteEvent(msg, param)
         UmsAgent:OnActivate(string.match(Alias.m_kaohetongji_new, 'MODULE:\\(.*)'), "考核统计")
         UmsAgent:onLoadStart()
         --msgLoad()
+        subRegion = string.sub(Config:get('regionid'),3,4)
+        Log:write("@jldu 区号 ： "..Config:get('regionid').." 区号三、四位 ： "..subRegion)
+        if tonumber(subRegion) ~= 00 then
+            Log:write("@jldu 登录人非省公司")
+            judgeFlag = 1
+        end 
         request(g_major)
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
@@ -667,8 +675,11 @@ function request(major)
     Loading:show()
 end
 --切换代维公司和市公司
-function cityOn(sprite)
-    judgeFlag = 0
+function cityOn(sprite) 
+    if tonumber(subRegion) == 00 then
+        Log:write("@jldu 点击区域 登录人为省公司")
+        judgeFlag = 0
+    end 
     Log:write("@jldu 点击区域时，judgeFlag = ",judgeFlag)
     local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
     Sprite:setRect(listView2, 0, 75, 480, 475)
