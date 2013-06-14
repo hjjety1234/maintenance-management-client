@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+	<!-- 设置背景 -->
+	<shadow rect="0,0,480,800" alpha="255" color="#FFFFFF" extendstyle="1111"></shadow>
+	<!-- 信息头部 -->
+	<node rect="0,0,480,80" extendstyle="1111" border="0">
+		<image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png" extendstyle="1111" style="autosize"></image>
+		<!-- 返回按钮 -->
+		<button name="backBtn" rect="9,14,52,52" OnSelect="doBack"
+			border="false" normal="src:file://pics/icon_back_d.png;" sel="src:file://pics/icon_back_s.png;"
+			style="autosize" extendstyle="1111">
+		</button>
+		<image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png"extendstyle="1111"></image>
+		<!-- 二级菜单标题 -->
+		<scrolltext name="title" rect="100,0,280,80" text="查看通知公告" font-family="微软雅黑" extendstyle="1111" font-size="32" h-align="center" v-align="center" color="#ffffff" scroll="true" step="2"></scrolltext>
+		<!--刷新 -->
+		<image name="normal" rect="410,0,2,72" src="file://pics/sub_top_line.png"extendstyle="1111"></image>
+		<button name="favBtn" rect="420,14,52,52" OnSelect="OnFavBtnClicked"
+			border="false" style="autosize" extendstyle="1111">
+			<image name="favBtnImage" rect="0,0,52,52" src="file://pics/icon_favorite_d.png" style="autosize" extendstyle="1111"></image>
+		</button>
+	</node>
+    <!-- 公告详情 -->
+	<node name="detailNode" rect="16,88,448,110" border="false" extendstyle="1111">
+		<textarea name="titleName" rect="0,0,448,70"  h-align="center"  v-align="center" text="" font-size="28" font-weight="bold" extendstyle="1111"  line-height="30" font-family="微软雅黑"></textarea>
+        <label rect="0,70,50,40" border="false" text="时间："
+			font-size="18" font-family="微软雅黑" color="#5d5c5c" h-align="left"
+			v-align="center"></label>
+	    <label name="date" rect="50,70,100,40" border="false" text=""
+                  h-align="left" v-align="center" font-size="18" font-family="微软雅黑"
+                  color="#5d5c5c"></label>
+               <label rect="150,70,70,40" border="false" text="发布人："
+                  font-size="18" font-family="微软雅黑" color="#5d5c5c" h-align="left"
+                  v-align="center"></label>   
+		<label name="faburen" rect="220,70,200,40" border="false"
+			text="" font-size="18" font-family="微软雅黑" color="#5d5c5c" h-align="left"
+			v-align="center"></label>
+    </node>
+	<!-- <node name="details" rect="20,200,455,570" border="false">
+       <listview rect="0,0,445,570" extendstyle="1111">
+			<list-item rect="0,0,445,1112" extendstyle="1111">
+				<textarea name="detail" rect="0,0,445,800"  autoextend="true" order="false" h-align="left"
+					text="" font-size="22" extendstyle="1111"  line-height="33" font-family="微软雅黑">
+				</textarea>
+			</list-item>
+		</listview>
+         </node> -->
+	<image name="scsucess" rect="68,730,344,58" src="file://pics/tsk.png" style="autosize" extendstyle="1111" visible="false">
+		<label rect="62,5,220,48" name="ts" text="添 加 收 藏 成 功" h-align="center" v-align="center" color="#ffffff" font-size="18" extendstyle="1111"></label>
+	</image>
+    </node>
+  </body>
+ <![CDATA[
+
+    require 'com_ysga.common.framework'
+    require 'framework.webbrowser'
+    require 'framework.umsagent'
+    local rootSprite
+    local noticeId
+    local userCode=Config:get('username')
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+            UmsAgent:OnActivate(string.match(Alias.newsDetail, 'MODULE:\\(.*)'), '通知详情')
+            local title = Sprite:findChild(rootSprite,"titleName")
+            local date = Sprite:findChild(rootSprite,"date")
+            local detail1 = Sprite:findChild(rootSprite,"details")
+            local detail = Sprite:findChild(detail1,"detail")
+            local faburen=Sprite:findChild(rootSprite,"faburen")
+            -- 从数据仓库中读取各字段的值
+            local noticeDetailHandler = Reg:create("newsDetail")
+            local iscollect = Reg:getString(noticeDetailHandler, "isCollect")
+            Log:write("gonggongggggggg",iscollect)
+            noticeId = Reg:getString(noticeDetailHandler, "noticeId")
+            usercode = Reg:getString(noticeDetailHandler, "usercode")
+          
+            -- 确定是否显示收藏图表
+            if (iscollect == '1') then
+                local favBtnImageSprite = Sprite:findChild(rootSprite,"favBtnImage")
+                Sprite:setProperty(favBtnImageSprite, "src", 'file://pics/icon_start.png')
+            end
+            -- 设置公告标题和日期
+            Sprite:setProperty(title, "text", Reg:getString(noticeDetailHandler, "noticeTitle"))
+            local noticeContent = Reg:getString(noticeDetailHandler, "noticeContent")
+            Sprite:setProperty(detail, "text", noticeContent)
+            Sprite:setProperty(date, "text", Reg:getString(noticeDetailHandler, "noticeDate"))
+            Sprite:setProperty(faburen, "text", Reg:getString(noticeDetailHandler, "noticeMan"))
+            local url =Alias.urlServer..'news/mfeedBack/feedbackDetail?newsId='..noticeId
+            Log:write('======url======',url)
+            local xscal = SCREEN_WIDTH / 480
+            local yscal = SCREEN_HEIGHT / 800
+            WebBrowser:create(0*xscal, 200*yscal, 480*xscal, 550*yscal)
+            WebBrowser:showWebBrowser(1)
+            WebBrowser:openUrl(url)
+            elseif msg == MSG_DEACTIVATE then
+                UmsAgent:OnDeactivate()
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if msg == 101 then
+            elseif msg == 102 then
+            UmsAgent:onLoadFinish()
+            local jsonResp = Http:jsonDecode("fav")
+            Log:write("pqy:::",jsonResp)
+            local favBtnImageSprite = Sprite:findChild(rootSprite, "favBtnImage")
+            if jsonResp.Rows ~= nil and jsonResp.Rows == '添加成功' then
+                Sprite:setProperty(favBtnImageSprite, "src", 'file://pics/icon_start.png')
+                else
+                Dialog:show("", "添加收藏失败,错误码："+jsonResp.Rows, 'ok')
+                return
+            end
+            elseif msg == 103 then
+            local jsonResp = Http:jsonDecode("fav")
+            local favBtnImageSprite = Sprite:findChild(rootSprite, "favBtnImage")
+            if jsonResp.Rows ~= nil and jsonResp.Rows == '删除收藏成功' then
+                Sprite:setProperty(favBtnImageSprite, "src", 'file://pics/icon_favorite_d.png')
+                else
+                Dialog:show("", "取消收藏失败,错误码："+jsonResp.Rows, 'ok')
+                return
+            end
+            elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            closeWebView()
+            Scene:back()
+            return 1
+        end
+    end
+
+    
+     ---------------------------------------util functions---------------------------
+    function doBack()
+        closeWebView()
+        Scene:back(true)
+    end
+    function OnFavBtnClicked(sprite)
+        local favBtnImageSprite = Sprite:findChild(rootSprite, "favBtnImage")
+        local shoucang = Sprite:findChild(rootSprite, "scsucess")
+        local shoucangtankuang = Sprite:findChild(shoucang, "ts")
+        if (Sprite:getProperty(favBtnImageSprite, "src") == 'file://pics/icon_favorite_d.png') then
+            local reqURL = Alias.urlServer..'news/fav?'..'newsId='..noticeId..'&userCode='..userCode
+            Sprite:setProperty(shoucang, "visible", 'true')
+            Sprite:setProperty(shoucangtankuang, "text", '添加收藏成功')
+             UmsAgent:onLoadStart()
+            Http:request('fav', reqURL, 102,{useCache=false})
+        else
+            local reqURL = Alias.urlServer..'news/fav_del?'..'newsId='..noticeId..'&userCode='..userCode
+            --local reqURL = string.format('http://10.152.22.184:8080/hfank/news/fav_del?newsId=%s&userCode=%s', noticeId,userCode)
+            Http:request('fav', reqURL, 103,{useCache=false})
+            Sprite:setProperty(shoucang, "visible", 'true')
+            Sprite:setProperty(shoucangtankuang, "text", '取消收藏成功')
+        end
+        Timer:set(1, 3000, 'successInvisible')
+    end
+  
+    function successInvisible()
+        local shoucang = Sprite:findChild(rootSprite, "scsucess")
+        Sprite:setVisible(shoucang, 0)
+    end
+    --关闭webview
+function closeWebView()
+    WebBrowser:showWebBrowser(0)
+    WebBrowser:release()
+end
+]]>
+</root>

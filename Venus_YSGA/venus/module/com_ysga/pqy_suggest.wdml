@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+           <!-- 设置背景 -->
+            <shadow rect="0,0,480,800" alpha="255" extendstyle="1111">
+                <image name="imgMainBg" rect="0,0,480,800" src=" " extendstyle="1111" style="autosize"></image>
+            </shadow>
+            <!-- 信息头部 -->
+            <node rect="0,0,480,80" extendstyle="1111" border="0">
+                <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png" extendstyle="1111" style="autosize"></image>
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="9,14,52,52" OnSelect="doBack"
+                    border="false" normal="src:file://pics/icon_home_d.png;" sel="src:file://pics/icon_home_s.png;"
+                    style="autosize" extendstyle="1111">
+                </button>
+                <image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png"extendstyle="1111"></image>
+                <!-- 二级菜单标题 -->
+                <scrolltext name="title" rect="100,0,280,70" text="提建议"
+                    font-family="微软雅黑" extendstyle="1111" font-size="32" h-align="center"
+                    v-align="center" color="#ffffff" scroll="true" step="2"></scrolltext>
+                <!--提交按钮-->
+                <image name="normal" rect="410,0,2,72" src="file://pics/sub_top_line.png" style="autosize" extendstyle="1111"></image>
+                <button name="addBtn" rect="419,14,52,52" OnSelect="add"
+                    border="false" normal="src:file://pics/icon_submit_d.png;" sel="src:file://pics/icon_submit_s.png;"
+                    style="autosize" extendstyle="1111">
+                </button>
+                </node>
+                <label rect="50,120,120,60" text="您的建议："  font-size="24"  v-align="center" h-align="center" extendstyle="1111" color="#67696"  />
+                <image name="normal" rect="40,180,410,210" src="file://pics/password_input.png"  extendstyle="1111" style="sudoku-auto" sudoku="15,15,15,15"></image>
+                <edit name="keywordEdit" rect="50,190,390,190" extendstyle='1111' v-align="top" h-align="left" color="#c5c6c5" font-size="24"    font-family="微软雅黑" multiline="true" line-height="30" />
+                <image name="success" border="false" visible="false" rect="68,730,344,58" src="file://pics/sucess.png" style="autosize" extendstyle="1111">
+                  <label name="successxinxi" rect="62,5,220,48" text="信息提交成功" h-align="center" v-align="center" color="#ffffff" font-size="18" extendstyle="1111"/>     
+                </image>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_ysga.common.framework'
+local rootSprite
+local usercode=Config:get('username')
+local companyId=Config:get('companyId')
+local success
+local successxinxi
+
+local  skinFalg='' --皮肤更新的标志
+local skinPath='' --皮肤更新的路径
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    success = Sprite:findChild(rootSprite, 'success')
+    successxinxi=Sprite:findChild(success, 'successxinxi')
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+     checkSkinPath()
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+       suggestData = Http:jsonDecode('suggest')
+       Log:write("意见提交",suggestData['result'])
+       if suggestData['result']== "1" then
+          Sprite:setProperty(successxinxi, 'text', '提交成功')
+          Sprite:setVisible(success,1)
+          Timer:set(1,2000,'okFanhui')
+       else
+          Sprite:setProperty(successxinxi, 'text', '提交失败')
+          Sprite:setVisible(success,1)
+          Timer:set(1,2000,'yincang')
+          return
+       end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+      Scene:back()
+        return 1
+    end
+end
+------------------------换肤---------------
+    function checkSkinPath()
+    local  title=Sprite:findChild(rootSprite, 'imgMainBg')
+    local tableValue=readDownloadTxtConfig()
+      Log:write("开始鉴权皮肤是否更新1...")
+        if tableValue~=nil or tableValue~='' then
+            if tableValue[3]~=nil or tableValue[4]~=nil then
+               skinFalg=tableValue[3]
+               Log:write("开始鉴权皮肤是否更新skinFalg...",tableValue[3])
+               skinPath=tableValue[4]
+               Log:write("开始鉴权皮肤是否更新skinPath...",tableValue[4])
+              end
+        end
+        if (skinFalg~='' and skinFalg=='1' and skinPath~='' and skinPath~=nil) then --如果皮肤已经更新
+        Log:write("皮肤更新了"..skinPath..'/main_bg.png')
+         Sprite:setProperty(title,'src',skinPath..'/main_bg.png')
+         else
+        Log:write("皮肤没有更新")
+        Sprite:setProperty(title,'src','file://pics/main_bg.png')
+     end
+    end
+  
+---------------------------------------util functions---------------------------
+function doBack()
+        Scene:go(Alias.home,false)
+end
+function add()
+  local suggest=Sprite:findChild(rootSprite,'keywordEdit')
+  local url= Alias.urlServer..'advise/add?userName='..usercode..'&companyId='..companyId..'&content='..Sprite:getText(suggest)
+  Http:request('suggest', url, 101, {useCache = false})
+end
+function okFanhui()
+   Scene:go("MODULE:\\com_ysga\\pqy_setup.wdml",true)
+end
+function yincang()
+   Sprite:setVisible(success,0)
+end
+    ]]>
+</root>

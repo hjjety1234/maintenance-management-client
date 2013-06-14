@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置背景 -->
+            <shadow rect="0,0,480,800" alpha="255" extendstyle="1111">
+                <image name="imgMainBg" rect="0,0,480,800" src="" extendstyle="1111" style="autosize"></image>
+            </shadow>
+            <!-- 信息头部 -->
+            <node rect="0,0,480,80" extendstyle="1111" border="0">
+                <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png" extendstyle="1111" style="autosize"></image>
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="9,14,52,52" OnSelect="doBack"
+                    border="false" normal="src:file://pics/icon_home_d.png;" sel="src:file://pics/icon_home_s.png;"
+                    style="autosize" extendstyle="1111">
+                </button>
+                <image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png"extendstyle="1111"></image>
+                <!-- 二级菜单标题 -->
+                <scrolltext name="title" rect="100,0,280,70" text="修改密码"
+                    font-family="微软雅黑" extendstyle="1111" font-size="32" h-align="center"
+                    v-align="center" color="#ffffff" scroll="true" step="2"></scrolltext>
+                <!--提交按钮-->
+                <image name="normal" rect="410,0,2,72" src="file://pics/sub_top_line.png" style="autosize" extendstyle="1111"></image>
+                <button name="addBtn" rect="419,14,52,52" OnSelect="add"
+                    border="false" normal="src:file://pics/icon_submit_d.png;" sel="src:file://pics/icon_submit_s.png;"
+                    style="autosize" extendstyle="1111">
+                </button>
+               
+            </node >
+             <image name="normal" rect="50,140,385,64" src="file://pics/password_input.png" style="autosize" extendstyle="1111"></image>
+             <edit name="oldpass" rect="60,140,360,60" extendstyle='1111' v-align="center" h-align="center" color="#c5c6c5" font-size="24" OnSetFocus="initText" OnTextChanged="oldpassChanged"  font-family="微软雅黑" password="true">
+             <label name="wenben"  rect="0,0,360,60" text="旧密码"  font-size="24"  v-align="center" h-align="center" extendstyle="1111" color="#8f8e8e"  />
+             </edit>
+             <image name="normal" rect="50,250,385,64" src="file://pics/password_input.png" style="autosize" extendstyle="1111"></image>
+             <edit name="newpass" rect="60,250,360,60" extendstyle='1111' v-align="center" h-align="center" color="#c5c6c5" font-size="24"  OnSetFocus="initText1" OnTextChanged="newpassChanged"  font-family="微软雅黑" password="true">
+             <label name="wenben1"  rect="0,0,360,60" text="新密码"  font-size="24"  v-align="center" h-align="center" extendstyle="1111" color="#8f8e8e"  />
+             </edit>
+             <image name="normal" rect="50,360,385,64" src="file://pics/password_input.png" style="autosize" extendstyle="1111"></image>
+             <edit name="surepass" rect="60,360,360,60" extendstyle='1111' v-align="center" h-align="center" color="#c5c6c5" font-size="24"  OnSetFocus="initText2" OnTextChanged="surepassChanged"  font-family="微软雅黑" password="true">
+             <label name="wenben2"  rect="0,0,360,60" text="再一次输入新密码"  font-size="24"  v-align="center" h-align="center" extendstyle="1111" color="#8f8e8e"  />
+             </edit>
+             <node name="nodeSuccess" rect="13,700,452,80" enable="false" visible="false" active="false" layouttype="1" extendstyle="1111">
+                <image name="image8" rect="0,0,452,63" border="false" src="file://pics/kaoqin/tishichengong.png" style="autosize"></image>
+                <label name="content" rect="0,0,452,63" border="false" text="密 码 修 改 成 功" h-align="center" 
+                    v-align="center" font-family="微软雅黑" font-size="24" font-style="bold" color="#FFFFFF" style="autosize" extendstyle="1111"></label>
+            </node>
+            <node name="nodeFail" rect="13,700,452,80" enable="false" visible="false" active="false" layouttype="1" extendstyle="1111">
+                <image name="image8" rect="0,0,452,63" border="false" src="file://pics/kaoqin/tishichengong.png" style="autosize"></image>
+                <label name="content" rect="0,0,452,63" border="false" text="旧 密 码 输 入 不 正 确" h-align="center" 
+                    v-align="center" font-family="微软雅黑" font-size="24" font-style="bold" color="#FFFFFF" style="autosize" extendstyle="1111"></label>
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+
+require 'com_ysga.common.framework'
+local rootSprite
+local requestData
+local  skinFalg='' --皮肤更新的标志
+local skinPath='' --皮肤更新的路径
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        connectNet()
+        checkSkinPath()
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    Log.write('msg----------',msg)
+    if msg == 1001 then
+        -- if Loading:isShow() then Loading:close() end
+        -- requestData = Http:jsonDecode('passwordchange')
+        -- Log:write('eeeeeeeeeeeeee',requestData)
+        -- if requestData["success"]=='true' then
+        --     local nodeSuccess = Sprite:findChild(rootSprite, 'nodeSuccess')
+        --     Sprite:setVisible(nodeSuccess, 1)
+        --     Timer:set(111, 3000, 'gosetup')
+        -- else
+        --     local nodeFail = Sprite:findChild(rootSprite, 'nodeFail')
+        --     Sprite:setVisible(nodeFail, 1)
+        --     Timer:set(1, 3000, 'FailInvisible')
+        -- end
+    elseif msg == 1001 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Loading:close() 
+        Scene:back()
+        return 1
+    end
+end
+ function doBack()
+        Loading:close() 
+        Scene:go(Alias.home,false)
+    end
+
+    ------------------------换肤---------------
+    function checkSkinPath()
+    local  title=Sprite:findChild(rootSprite, 'imgMainBg')
+    local tableValue=readDownloadTxtConfig()
+      Log:write("开始鉴权皮肤是否更新1...")
+        if tableValue~=nil or tableValue~='' then
+            if tableValue[3]~=nil or tableValue[4]~=nil then
+               skinFalg=tableValue[3]
+               Log:write("开始鉴权皮肤是否更新skinFalg...",tableValue[3])
+               skinPath=tableValue[4]
+               Log:write("开始鉴权皮肤是否更新skinPath...",tableValue[4])
+              end
+        end
+        if (skinFalg~='' and skinFalg=='1' and skinPath~='' and skinPath~=nil) then --如果皮肤已经更新
+        Log:write("皮肤更新了"..skinPath..'/main_bg.png')
+         Sprite:setProperty(title,'src',skinPath..'/main_bg.png')
+         else
+        Log:write("皮肤没有更新")
+        Sprite:setProperty(title,'src','file://pics/main_bg.png')
+     end
+    end
+  
+---------------------------------------util functions---------------------------
+--@brief 当进入编辑框时，修改文字为输入
+function initText(sprite)
+    local wenben=Sprite:findChild(rootSprite,'wenben')
+    local txt= Sprite:getProperty(wenben, 'text')
+    if txt=='旧密码' then
+        Sprite:setProperty(wenben, 'text', '')
+        Sprite:setProperty(wenben, 'color', '#0')
+    end
+end
+
+--@brief新密码
+function initText1(sprite)
+    local wenben=Sprite:findChild(rootSprite,'wenben1')
+    local txt= Sprite:getProperty(wenben, 'text')
+    if txt=='新密码' then
+        Sprite:setProperty(wenben, 'text', '')
+        Sprite:setProperty(wenben, 'color', '#0')
+    end
+end
+
+   --@brief再一次输入新密码
+function initText2(sprite)
+    local wenben=Sprite:findChild(rootSprite,'wenben2')
+    local txt= Sprite:getProperty(wenben, 'text')
+    if txt=='再一次输入新密码' then
+        Sprite:setProperty(wenben, 'text', '')
+        Sprite:setProperty(wenben, 'color', '#0')
+    end
+end
+
+function oldpassChanged(sprite)
+    local txt= Sprite:getProperty(sprite, 'text')
+    Log:write('bsq111111111', txt)
+    if txt=='' or txt ==nil then
+        local wenben=Sprite:findChild(rootSprite,'wenben')
+        Sprite:setProperty(wenben, 'color', '#8f8e8e')
+        Sprite:setProperty(wenben, 'text', '旧密码')
+    else
+        Sprite:setProperty(wenben, 'text', '')
+        Sprite:setProperty(wenben, 'color', '#0')
+    end
+end
+
+function newpassChanged(sprite)
+    local txt= Sprite:getProperty(sprite, 'text')
+    if txt=='' or txt ==nil then
+        local wenben=Sprite:findChild(rootSprite,'wenben1')
+        Sprite:setProperty(wenben, 'color', '#8f8e8e')
+        Sprite:setProperty(wenben, 'text', '新密码')
+    else
+        Sprite:setProperty(wenben, 'text', '')
+        Sprite:setProperty(wenben, 'color', '#0')
+    end
+end
+
+function surepassChanged(sprite)
+    local txt= Sprite:getProperty(sprite, 'text')
+    if txt=='' or txt ==nil then
+        local wenben=Sprite:findChild(rootSprite,'wenben2')
+        Sprite:setProperty(wenben, 'color', '#8f8e8e')
+        Sprite:setProperty(wenben, 'text', '再一次输入新密码')
+    else
+        Sprite:setProperty(wenben, 'text', '')
+        Sprite:setProperty(wenben, 'color', '#0')
+    end
+end
+
+function add()
+    local oldpass=Sprite:getProperty(Sprite:findChild(rootSprite,'oldpass'), 'text')
+    local newpass=Sprite:getProperty(Sprite:findChild(rootSprite,'newpass'), 'text')
+    local surepass=Sprite:getProperty(Sprite:findChild(rootSprite,'surepass'), 'text')
+    if oldpass=='' or oldpass ==nil then
+        Dialog:show('提醒','请输入旧密码','ok')
+    elseif newpass=='' or newpass ==nil then
+        Dialog:show('提醒','请输入新密码','ok')
+    elseif surepass=='' or surepass ==nil then
+        Dialog:show('提醒','请再次输入新密码','ok')
+    elseif newpass ~= surepass then
+        Dialog:show('提醒','两次输入的新密码不一致，请重新输入','ok')
+    else
+        local requestURL = string.format(Alias.urlServer..'userMgr/changePassWord')
+        local param = string.format('userCode=%s&oldPassword=%s&newPassword=%s&companyId=%s', 
+            Config:get("username"), oldpass, newpass, Config:get("companyId"))
+        Log:write(requestURL, param)
+        Loading:show(rootSprite)
+        Http:request('passwordchange', requestURL..'?'..param, 1001, {method='post', useCache=false})
+        Timer:set(1212,2000,'closeLoading')
+        end
+end
+function closeLoading(  )
+     Loading:close()
+       local nodeSuccess = Sprite:findChild(rootSprite, 'nodeSuccess')
+       Sprite:setVisible(nodeSuccess, 1)
+       Timer:set(111, 1000, 'gosetup')
+end
+
+function gosetup()
+    Timer:cancel(111)
+    Timer:cancel(1212)
+    local nodeSuccess = Sprite:findChild(rootSprite, 'nodeSuccess')
+    Sprite:setVisible(nodeSuccess,0)
+    Scene:go('MODULE:\\com_ysga\\pqy_setup.wdml',true)
+end
+
+function FailInvisible()
+    local nodeFail = Sprite:findChild(rootSprite, 'nodeFail')
+    Sprite:setVisible(nodeFail, 0)
+end
+
+--连接至网络
+function connectNet()
+    WLAN:setUrl('http://www.baidu.com/', '')
+    if WLAN:isSwitchOn() then
+        local attach = WLAN:isAttach()
+        if attach then
+            curSSID = attach.ssid
+            Http:connectWLAN(attach.ssid)
+            else
+            connectToWAP()
+        end
+        else
+        connectToWAP()
+    end
+end
+-- @brief 连接移动网络
+function connectToWAP()
+    local APNtype = Http:getCurrentAPNType()
+    if APNtype == 1 then -- Net网
+        Http:setProxy('')
+        elseif APNtype == 2 then --移动wap
+        Http:setProxy('http://10.0.0.172:80/')
+        elseif APNtype == 3 then --电信wap
+        Http:setProxy('http://10.0.0.200:80/')
+        elseif APNtype == 4 then --联通wap
+        Http:setProxy('http://10.0.0.172:80/')
+        else
+        Http:setProxy('')
+    end
+    Http:connectCMWAP()
+end
+
+    ]]>
+</root>

@@ -1,0 +1,1 @@
+entrance = 'com_ysga' 

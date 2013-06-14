@@ -1,0 +1,559 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+  <!--
+    ==
+    ============================================================================
+    == | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+    ============================================================================
+    == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+    ============================================================================
+    == | Author:chengchuan
+    ============================================================================
+    == | Desc: @20130510 修改定位展现采用LBS定位的时候直接获取经纬度无需再进行逆地理编码
+    ============================================================================
+  -->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <shadow rect="0,0,480,800"  alpha="255" extendstyle="1111">
+                <image name="imgMainBg" rect="0,0,480,800" src="" extendstyle="1111" style="autosize"/>
+            </shadow>
+            <node rect="0,0,480,80" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png" extendstyle="1111" style="autosize"/>
+                <!-- 返回按钮 -->
+                <button rect="20,14,52,52" OnSelect="doBack" border="false"
+                    extendstyle="1111" normal="src:file://pics/icon_back_d.png;"
+                    sel="src:file://pics/icon_back_s.png;"  style="autosize"/>
+                <image name="normal" rect="92,0,2,80" src="file://pics/sub_top_line.png"  extendstyle="1111"/>
+                <!-- 二级菜单标题 -->
+                <scrolltext name="title" rect="0,0,480,80" text="考勤签到" font-family="微软雅黑" 
+                    extendstyle="1111" font-size="32" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2"/>
+                <!--新增 -->
+                <button name="addBtn" rect="408,14,52,52" OnSelect="submitOnSelect" border="false"
+                    normal="src:file://pics/icon_submit_d.png;" 
+                    sel="src:file://pics/icon_submit_s.png;" style="autosize"
+                    extendstyle="1111"/>
+                <image name="normal" rect="388,0,2,80" src="file://pics/sub_top_line.png" extendstyle="1111"/>
+            </node>
+          <node rect="0,84,460,68" extendstyle="1111">
+              <label rect="0,0,130,68"  text="签到人"  extendstyle="1111" style="autosize" h-align="right" v-align="center" 
+              font-family="微软雅黑" font-size="24"/>
+                <label name="kaoqinren" rect="160,0,300,68"   
+                   extendstyle="1111" style="autosize" h-align="left" v-align="center"
+                   font-family="微软雅黑" font-size="24"/>
+          </node>
+          <node rect="0,142,460,68" extendstyle="1111">
+                <label rect="0,0,130,68"  text="签到时间"  extendstyle="1111" style="autosize" h-align="right" v-align="center" 
+                font-family="微软雅黑" font-size="24"/>
+                <label name="kqtime" rect="160,0,300,68" extendstyle="1111" style="autosize" h-align="left" v-align="center"
+                   font-family="微软雅黑" font-size="24"/>
+            </node>
+          
+          <node rect="0,210,460,68" extendstyle="1111" >
+                <label rect="0,0,130,68"  text="签到位置" extendstyle="1111" style="autosize" h-align="right" v-align="center"
+                font-family="微软雅黑" font-size="24"/>
+                <scrolltext name="kaoqinlocation" rect="160,0,300,68" extendstyle="1111" style="autosize" h-align="left" v-align="center"
+                font-family="微软雅黑" font-size="24" step="4" scroll="true"/>
+          </node>
+          <node rect="0,310,470,68" extendstyle="1111">
+               <label name="kaoqinContent" rect="0,0,0,0" border="false" />
+               <button name="btn1" rect="165,0,64,64" border="false" OnSelect="kaoqinGroupOnSelect"
+                    src="file://pics/shangbang_d.png"  style="autosize"
+                    extendstyle="1111" data="1"/>
+               <label rect="165,64,64,64" text="上班" font-family="微软雅黑" font-size="24" h-align="center"></label>
+               <button name="btn2" rect="252,0,64,64" border="false" 
+                    src="file://pics/xiabang_d.png" OnSelect="kaoqinGroupOnSelect" style="autosize"
+                    extendstyle="1111" data="2"/>
+               <label rect="252,64,64,64" text="下班" font-family="微软雅黑" font-size="24" h-align="center"></label>
+          </node>
+            <node name="imageListItem" rect="0,430,480,98" extendstyle="1111" type="fallow">
+                <shadow rect="0,0,480,98"  alpha="150" color="#BEE3FF"  extendstyle="1111"/>
+                <button name="pic1" rect="20,0,98,98" border="false" enable="false" visible="false"
+                    color="#ffffff" OnSelect="topic" extendstyle="1111" style="autosize">
+                    <button rect="71,0,27,26" OnSelect="delPic" normal="src:file://pics/pic_delete_d.png;"  
+                    sel="src:file://pics/pic_delete_s.png;" data="pic1"/>
+                </button>
+                <button name="pic2" rect="125,0,98,98"  border="false" enable="false" visible="false" 
+                    color="#ffffff" OnSelect="topic" extendstyle="1111" style="autosize">
+                    <button rect="71,0,27,26" OnSelect="delPic" normal="src:file://pics/pic_delete_d.png;"  
+                    sel="src:file://pics/pic_delete_s.png;" data="pic2"/>
+                </button>
+                <button name="pic3" rect="230,0,98,98"  border="false" enable="false" visible="false"
+                    color="#ffffff" OnSelect="topic" extendstyle="1111" style="autosize">
+                    <button rect="71,0,27,26" OnSelect="delPic" normal="src:file://pics/pic_delete_d.png;"  
+                    sel="src:file://pics/pic_delete_s.png;" data="pic3"/>
+                </button>
+                <button name="pic4" rect="335,0,98,98"  border="false" enable="false" visible="false"
+                    color="#ffffff" OnSelect="topic" extendstyle="1111" style="autosize">
+                    <button rect="71,0,27,26" OnSelect="delPic" normal="src:file://pics/pic_delete_d.png;"  
+                    sel="src:file://pics/pic_delete_s.png;" data="pic4"/>
+                </button>
+                <button name="addPic" rect="20,0,98,98" OnSelect="btnCamera_Click" border="false" 
+                    normal="src:file://pics/addpic_d.png;"  sel="src:file://pics/addpic_s.png;" style="autosize"
+                    extendstyle="1111"/>
+            </node>
+            <node name="noteSelectNode" rect="0,0,480,800" visible="false"  mushroom="false" enable="false">
+          <button rect="0,0,480,800" OnSelect="hidekaoqinSelected">
+                <shadow rect="0,0,480,800"  alpha="150" color="#0"  extendstyle="1111"/>
+              </button>
+            <node rect="86,200,368,68" extendstyle="1111"  border="false">
+                <image rect="0,0,368,68" src="file://pics/Dialogs/top.png"  style="autosize" extendstyle="1111" />
+                  <image rect="20,30,31,32" src="file://pics/Dialogs/icon_arrow.png"  style="autosize" extendstyle="1111" />
+                  <label rect="40,10,120,68" border="false" color="#FFFFFF" text="打卡类别" h-align="center" v-align="center" 
+                  font-family="微软雅黑" font-size="24"/>
+            </node>
+              <image rect="86,410,368,21" src="file://pics/Dialogs/bottom.png"  style="autosize" extendstyle="1111"/>
+            </node>
+          <button name="success" border="false" visible="false" enable="false" OnSelect="hideWin" 
+            rect="0,80,480,720" style="autosize" extendstyle="1111">
+                <image  rect="37,620,398,58" src="file://pics/tishichengong.png" style="autosize" extendstyle="1111">
+                    <label name="msg" rect="0,0,398,58" 
+                       color="#FFFFFF" extendstyle="1111" style="autosize" h-align="center"
+                       v-align="center" font-family="微软雅黑" font-size="24"/>
+                 </image>
+             </button>
+        </node>
+    </body>
+    <![CDATA[
+     require 'com_ysga.common.framework'
+     require 'com_ysga.common.map'
+     require 'com_ysga.common.upload'
+     require 'com_ysga.common.umsagent'
+    local rootSprite
+    local jsonDecodedData = nil
+    local observer
+    local latitude
+    local longitude
+    local imgdata={}
+    local allimg=''
+    local server=Alias.urlServer..'attendence/add'
+    local up_url =Alias.urlServer..'upload/UGC_GetUploadUrl'
+    local kqtime=nil
+    local addPic=nil
+    local g_retryCount=20
+    local net_retryCount=20 
+    --是否定位成功
+    local localsuc=0
+
+    local  skinFalg='' --皮肤更新的标志
+    local skinPath='' --皮肤更新的路径
+    -- 第一次创建页面事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        nilNode= Sprite:findChild(rootSprite, 'picdialog')
+        addPic= Sprite:findChild(rootSprite, 'addPic')
+        imgdata = {pic1='',
+            pic2='',
+            pic3='',
+            pic4=''
+        }
+        imageListNode = Sprite:findChild(rootSprite, 'imageListNode')
+        imageList = Sprite:findChild(imageListNode, 'imageList')
+        kqtime= Sprite:findChild(rootSprite, 'kqtime')
+        --1.加载定位
+        local lusr=Sprite:findChild(rootSprite, 'kaoqinren')
+        Sprite:setProperty(lusr, 'text', Config:get('truename'))
+        updateTime()
+    end
+    --每秒更新显示时间
+    function updateTime()
+        Sprite:setProperty(kqtime, 'text', getCurDateAndTime1())
+        Timer:set(1,1000,'updateTime')
+    end
+    -- 页面加载事件
+    function bodyOnSpriteEvent(msg, param)
+       if msg == MSG_ACTIVATE then -- 页面激活
+        --.开始定位
+           doLocation()
+           checkSkinPath()
+           UmsAgent:OnActivate(string.match(Alias.kaoqinaction, 'MODULE:\\(.*)'), "考勤签到")
+       elseif msg == MSG_DEACTIVATE then
+           UmsAgent:OnDeactivate()
+       end
+    end
+    -- 获取接口返回时的反馈处理
+    function bodyOnPluginEvent(msg, param)
+       if msg == 1002 then
+           Log:write('定位成功-----', postData)
+           Log.write('定位成功----------s',localsuc)
+           UmsAgent:onLoadFinish()
+           local postDataString = Param:getString(param, 0)
+           local postData = Json:loadString2Table(postDataString)
+           if postData.longitude ~= nil and postData.latitude ~= nil then
+             Log:write('定位成功', postData)
+             Timer:cancel(333)
+             net_retryCount=20
+             latitude=postData.latitude
+             longitude=postData.longitude
+             local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+             if postData.desc ~= '0' then
+                Log:write('解析地址成功', postData)
+                localsuc=1
+                Log.write('定位成功----------2',localsuc)
+                Sprite:setProperty(locInfo, 'text', postData.desc)
+            end
+            --修改了网达底层定位代码现在直接展现位置@chengchuan
+            if postData.longitude ~= nil and postData.latitude ~= nil and postData.desc == '0' then
+                 observer = Plugin:getObserver()
+                 Map:getLocation(observer,1003,postData.latitude,postData.longitude)  
+            end
+          end
+       elseif msg == 1003 then--用来显示定位的位置  
+            local postDataString = Param:getString(param, 0)                                                                                                             taString = Param:getString(param, 0)
+            local postData = Json:loadString2Table(postDataString)
+            local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+            if postData.address ~= nil then
+                Log:write('解析地址成功', postData)
+                localsuc=1
+                Sprite:setProperty(locInfo, 'text', postData.address)
+            end
+        elseif msg>=504 and msg<=600 then--返回上传路径，并启动上传
+            local ii=(msg-504);
+            local uploadData = Http:xmlDecode('upload_url'..ii, 'RESULT')
+            Log:write('upload_url result '..ii, uploadData)
+            local url = uploadData.URL
+            local param = uploadData.PARAM
+            if param then
+                param = param .. '&'
+            else
+                param = ''
+            end
+            local tmpSplitImage = Split(param,'&')
+            Log:write('tmpSplitImage----->', tmpSplitImage)
+          if string.len(allimg)>0 then
+              allimg=allimg..','..string.sub(tmpSplitImage[1],15,-1) 
+          else
+              allimg=string.sub(tmpSplitImage[1],15,-1)   
+          end
+          Log:write('allimg', allimg)
+            local iname=imgdata['pic'..ii]
+            local fname=string.sub(iname,lastIndexof(iname,'/')+1,string.len(iname)-4)
+            --local result = Upload:append(url, param,'MODULE:\\com_xsgj\\pics\\list_news_d.jpg', fname , '', 'jpg')
+            Log:write('update task param is',param)
+            local result = Upload:append(url, param,imgdata['pic'..ii], fname , '', 'jpg')
+            --所有结束则结束load，提示成功
+            imgdata['pic'..ii]=''
+            Log:write('this pic upload task finish...')
+            isok()
+      elseif msg == 503 then--提交表单成功
+            jsonDecodedData = Http:jsonDecode('kaoqin_data')
+            Log:write('后台接口返回数据为',jsonDecodedData)
+            if (jsonDecodedData == nil or jsonDecodedData["Total"] == '0') then
+                showMsg(jsonDecodedData["Rows"])
+                return
+           else--提交成功
+               --所有结束则结束load，提示成功
+               showMsg('信息保存成功')
+           Timer:set(1,1000,'doBack')
+           end
+        elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+            elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+            Log:write('拨号失败')
+            elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+            Log:write('请求超时')
+        end
+    end
+    -- 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc) 
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+        end
+    end
+
+    ------------------------换肤---------------
+    function checkSkinPath()
+    local  title=Sprite:findChild(rootSprite, 'imgMainBg')
+    local tableValue=readDownloadTxtConfig()
+      Log:write("开始鉴权皮肤是否更新1...")
+        if tableValue~=nil or tableValue~='' then
+            if tableValue[3]~=nil or tableValue[4]~=nil then
+               skinFalg=tableValue[3]
+               Log:write("开始鉴权皮肤是否更新skinFalg...",tableValue[3])
+               skinPath=tableValue[4]
+               Log:write("开始鉴权皮肤是否更新skinPath...",tableValue[4])
+              end
+        end
+        if (skinFalg~='' and skinFalg=='1' and skinPath~='' and skinPath~=nil) then --如果皮肤已经更新
+        Log:write("皮肤更新了"..skinPath..'/main_bg.png')
+         Sprite:setProperty(title,'src',skinPath..'/main_bg.png')
+         else
+        Log:write("皮肤没有更新")
+        Sprite:setProperty(title,'src','file://pics/main_bg.png')
+     end
+    end
+    ---------------------------------------util functions---------------------------
+    ---选中下拉框后
+    function kaoqinGroupOnSelect(sprite)
+       local kaoqinContent = Sprite:findChild(rootSprite, 'kaoqinContent')
+       local kdt=Sprite:getData(sprite);
+       Sprite:setProperty(kaoqinContent, 'data', kdt)
+       --更改显示的图片的背景
+       local btn1=Sprite:findChild(rootSprite, 'btn1')
+       local btn2=Sprite:findChild(rootSprite, 'btn2')
+       if kdt=='1' then
+          Sprite:setProperty(btn1, 'src', 'file://pics/shangbang_liebiao.png')
+          Sprite:setProperty(btn2, 'src', 'file://pics/xiabang_d.png')
+       else
+          Sprite:setProperty(btn1, 'src', 'file://pics/shangbang_d.png')
+          Sprite:setProperty(btn2, 'src', 'file://pics/xiabang_liebiao.png')
+       end
+    end
+    ---开启拍照
+    function btnCamera_Click(sprite)
+        local fileName = os.time()
+        --onCameraDialog('file://pics/list_news_d.jpg', 'jpg')
+        local result = System:openCamera('onCameraDialog',  'file://image/' ..fileName.. '.jpg' , 'jpg')
+        if result == 0 then
+          showMsg('相机打开失败!');
+          return 1
+        end
+    end
+    ---获取照片
+    function onCameraDialog(photoPath, photoType)
+      -- 添加图片压缩支持
+      local tmpSplitArray = Split(photoPath,'%.')
+        local dest = tmpSplitArray[1] .. 'temp' .. System:getTickTime() .. '.jpg'
+        Log:write('目标文件路径为:'..dest)
+      local ret = ScaleImageAsJpg(photoPath, dest, 480, 800, 0)
+      local r=nil;
+      if ret == 1 then
+          r= dest
+          Log:write('图片压缩成功，压缩后的图片位置为:'..dest)
+      else
+          r=photoPath
+          Log:write('警告：图片压缩失败，使用未压缩的图片:'..photoPath)
+      end
+      Log:write('图片地址:', r)
+      for key, value in pairs(imgdata) do
+           if value==nil or value=='' then
+              imgdata[key]=r
+              break
+           end
+       end
+       reloadImages();
+    end
+    --重新显示图片列表
+    function reloadImages()
+        local j=20;
+        for key, value in pairs(imgdata) do
+            if value~=nil and value~='' then
+                local p=Sprite:findChild(rootSprite, key)
+                Sprite:setRect(p, j, 0, 98, 98);
+                Sprite:setProperty(p, "normal", 'src:'..value)
+                Sprite:setProperty(p, "data", value)
+            Sprite:setVisible(p,1)
+            Sprite:setEnable(p,1)
+                j=j+105;
+            end
+        end
+        if j>350 then
+            Sprite:setVisible(addPic,0)
+        else
+            Sprite:setVisible(addPic,1)
+        end
+        Sprite:setRect(addPic, j, 0, 98, 98);
+    end
+    --删除图片
+    function delPic(sprite)
+        local key=Sprite:getData(sprite);
+        imgdata[key]='';
+        local p=Sprite:findChild(rootSprite, key);
+        Sprite:setVisible(p,0)
+        Sprite:setEnable(p,0)
+        reloadImages()
+    end
+    --上传数据
+    function submitOnSelect(sprite)
+        local data=Sprite:getData(Sprite:findChild(rootSprite, 'kaoqinContent'))
+        if data==nil or data =='' then
+           showMsg('请选择考勤打卡类型');
+           return
+        end
+        if localsuc~=1 then
+           showMsg('定位失败,请重试!');
+         return
+        end
+        --1.首先上传
+        local hasPic=0;
+        Loading:show(rootSprite)
+        for key, value in pairs(imgdata) do
+            if value~=nil and value~='' then
+                hasPic=1;
+                local n=tonumber(string.sub(key,4,4))
+                local fname=string.sub(value,lastIndexof( value,'/')+1,string.len(value)-4)
+                local param = 'FILE_NAME='..fname..'&C_TYPE=jpg&C_LEN=' .. IO:fileSize(value)
+                --local param = 'FILE_NAME=list_news_d&C_TYPE=jpg&C_LEN='..IO:fileSize('MODULE:\\com_xsgj\\pics\\list_news_d.jpg')
+                Log:write('upload_url'..n, param)
+                Http:request('upload_url'..n, up_url, 504+n, {useCache = false, method = 'post', postData= param})  
+            end
+        end
+        Log:write('hasPic', hasPic)
+        if hasPic==0 then
+            subform()
+        end
+    end
+    -- 返回按钮处理
+    function doBack()
+        Scene:back(true)
+    end
+    --上传表单
+    function subform()
+        local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+        local loc=Sprite:getText(locInfo)
+         --上传结束就跳转
+        local param = '&userName='..Config:get('username')
+        ..'&longitude='..longitude
+        ..'&latitude='..latitude
+        ..'&locatDetail='..loc
+        ..'&attencdCarType='..Sprite:getData(Sprite:findChild(rootSprite, 'kaoqinContent'))
+        if allimg~=nil and allimg ~='' then
+            param=param..'&&imageExplain=&imageAddr='..allimg
+        end
+        Log:write('result param', param)
+        Http:request('kaoqin_data', server, 503, {useCache = false, method = 'post',postData=param})
+    end
+    --成功上传
+    function isok()
+        --图片都已添加到队列
+        
+        Log:write('is all task is finish..')
+        local r=0;
+        for key, value in pairs(imgdata) do
+           if value~=nil and value~='' then
+              r=1
+              return
+           end
+        end
+        Log:write('update task judge'..r)
+        if r==0 then
+            subform()
+        end
+    end
+    --查找最后一个字符串
+    function lastIndexof(s,tag)
+        local index=-1
+        Log:write(tag)
+      while true do
+       local i = string.find(s,tag,index+1)
+       if i == nil then
+           return index
+       end
+       index = i
+      end
+    end
+    --显示原图
+    function topic(sprite)
+        --创建数据仓库
+        local igsrc=Sprite:getData(sprite)
+        local reg=Reg:create("PicReg")
+        Reg:setString(reg, "pic", igsrc)
+        Scene:setReturn(Alias.kaoqinaction, Alias.orignImg)
+        Scene:go(Alias.orignImg,true)
+    end
+    -- 综合定位方式，优先使用gps，在gps定位失败时采用网络定位
+  function doLocation()
+      local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+      Sprite:setProperty(locInfo, 'text', '正在定位......')
+      -- 当前无经纬度信息，检查当前gps状态
+      local result = System:getGPSStatus()
+      if result == -1 then
+          Sprite:setProperty(locInfo, 'text', '当前GPS不可用, 尝试使用网络定位...')
+          Log:write('0GPS开启失败, 尝试使用网络定位...')
+          getGPSDataByMap()
+      elseif result == 0 then
+              Sprite:setProperty(locInfo, 'text', '使用网络定位请稍等...')
+              getGPSDataByMap()
+      elseif result == 1 then
+          Sprite:setProperty(locInfo, 'text', 'GPS已经开启，正在定位...')
+          Timer:set(222, 1000, 'getLoctude')
+      end
+  end
+
+  -- 传统方式获取经纬度
+  function getGPSDataByMap()
+      UmsAgent:onLoadStart()
+      observer = Plugin:getObserver()
+      Timer:set(333, 1000, 'getNetWork')
+      Map:getCurPosition(observer, 1002)
+  end
+function getNetWork()
+  Log.write('net_retryCount',net_retryCount)
+  if(net_retryCount>0) then
+    local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+    Sprite:setProperty(locInfo, "text", "网络正在定位中，剩余"..net_retryCount.."秒")
+    net_retryCount = net_retryCount - 1
+  else
+     local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+    Sprite:setProperty(locInfo, "text", "网络定位失败")
+  end
+  Timer:set(333, 1000, 'getNetWork')
+end
+  
+  function getLoctude()
+      -- 需要对gps的数据请求多次
+      Log:write('采用GPS定位开始..')
+      local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+      Sprite:setProperty(locInfo, "text", "GPS正在定位中，剩余"..g_retryCount.."秒")
+       longitude,latitude=System:getGPSData()
+       Log:write(string.format("getLoctude1: latitude=%s, lonitude=%s", latitude, longitude))
+      if longitude ~= nil and longitude ~= 0 and latitude ~= nil and latitude ~= 0 
+          and g_retryCount > 0 then
+          Log:write(string.format("getLoctude: latitude=%s, lonitude=%s", latitude, longitude))
+          if g_latitude == nil and g_longitude == nil then 
+                g_latitude = latitude
+                g_longitude = longitude
+                g_retryCount = g_retryCount - 1
+                Timer:set(222, 1000, 'getLoctude')
+                return
+            end
+            -- 有效的gps数据，与上次的定位结果不同
+            if g_latitude ~= latitude and g_longitude ~= longitude then 
+                g_retryCount = 20
+                Timer:cancel(222)
+                System:setGPSStatus(0)
+                --@todo 显示到界面
+                observer = Plugin:getObserver()
+                Map:getLocation(observer, 1003, latitude, longitude)
+            else -- 无效的gps数据， 与上次的定位结果不同
+                g_retryCount = g_retryCount - 1
+                Timer:set(222, 1000, 'getLoctude')
+            end
+              --@todo 显示到界面
+            elseif g_retryCount > 0 then
+          g_retryCount = g_retryCount - 1
+          Timer:set(222, 1000, 'getLoctude')
+      else
+          Timer:cancel(222)
+          System:setGPSStatus(0)
+          System:setGPSStatus(0)
+          local result = System.getGPSStatus()
+          Log.write('result',result)
+          g_retryCount = 20
+           Log:write('2GPS开启失败, 尝试使用网络定位...')
+          Sprite:setProperty(locInfo, 'text', 'GPS定位失败，采用网络定位...')
+          getGPSDataByMap()
+      end
+  end
+-- 显示提示信息
+    function showMsg(text)
+        local btn=Sprite:findChild(rootSprite, 'success');
+        local msgtxt=Sprite:findChild(rootSprite, 'msg'); 
+        Sprite:setProperty(msgtxt, "text", text);
+        if Sprite:isVisible(btn)~=true then
+            setAllShoworHide(btn, 1)
+            Sprite:setEnable(btn, 1);
+        end
+    end
+    function hideWin()
+        local btn=Sprite:findChild(rootSprite, 'success');
+        if Sprite:isVisible(btn)then
+            setAllShoworHide(btn, 0)
+            Sprite:setEnable(btn, 0);
+        end
+    end
+]]>
+</root>

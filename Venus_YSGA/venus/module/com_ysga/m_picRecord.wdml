@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image rect="0,80,480,720" src="file://image/jttxl/bj.png" style="autosize" extendstyle="1111" />      
+            <!-- 设置背景，默认背景是黑色 -->
+
+            <!-- 图片显示区域 -->
+            <button name="clipImgBtn" rect="0,0,480,712"   OnSelect="startClipImg" OnDbClick="endClipImg" normal=""
+                sel="" style="autosize" extendstyle="1111">
+                  <!--<image-editor name="editClipImg" rect="0,0,480,712" clip-size="400,300" clip-keep="true"  filter="normal" rotate="0" visible="true" active="true" enable="true" src="" />   -->
+                      <image-editor name="editClipImg" rect="0,0,480,712" filter="normal" rotate="0" clip-size="300,300"   touch-arrow = "file://pics/icon_btn_right.png" clip-keep="true" extendstyle="1111"   src=""  />
+            </button>
+            <!-- 操作控制 -->
+            <node rect="0,712,480,88" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,88" src="file://pics/caijian/color_filter_toolbar_bg.jpg" extendstyle="1111" style="autosize"/>
+                <!-- 取消裁剪按钮，等同返回按钮 -->
+                <button rect="20,17,98,54" OnSelect="doBack"  border="false"
+                    extendstyle="1111" normal="src:file://pics/caijian/color_filter_btn_cancel_normal.jpg;"
+                    sel="src:file://pics/caijian/color_filter_btn_cancel_press.jpg;"  style="autosize"/>
+                <!-- 旋转按钮，默认右旋 -->
+               <button rect="191,17,98,54" OnSelect="doRotate" border="false"
+                  extendstyle="1111" normal="src:file://pics/caijian/color_filter_btn_rotate_normal.jpg;"
+                   sel="src:file://pics/caijian/color_filter_btn_rotate_press.jpg;"  style="autosize"/>
+                <!--裁剪确认按钮，返回裁剪图 -->
+                <button rect="362,17,98,54" OnSelect="doCommit" border="false"
+                    extendstyle="1111" normal="src:file://pics/caijian/color_filter_btn_ok_normal.jpg;" 
+                    sel="src:file://pics/caijian/color_filter_btn_ok_press.jpg;" style="autosize"/>
+            </node>               
+        </node>
+    </body>
+    <![CDATA[
+
+require('com_xsgj.common.framework')
+require 'framework.upload'
+local rootSprite
+---输入图片数据
+local imageName   --原始图片名称
+local imageSrc    --原始图片全路径
+---输出图片数据
+local allimg=''   --图像全路径
+local clipImgPath = ''    ---裁剪后图像名称
+local clipImgName = ''     ---裁剪后图像全路径
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite 
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        --获取原始图片数据
+        local regHandle1=Reg:create('to_m_picRecord')
+        imageName = Reg:getString(regHandle1, "imageName")
+        imageSrc = Reg:getString(regHandle1,'imageSrc')
+        --Reg:remove(regHandle1, "imageName")
+       -- Reg:remove(regHandle1, "imageSrc")
+        Reg:clear(regHandle1)
+        --Log:write('imageSrc = '..imageSrc)
+        clipImgPath = imageSrc   --默认裁剪后路径与原路径一致
+        clipImgName = imageName  --默认裁剪后名称与原名称一致
+        --local imageSrc = "file://pics/2013-05-10_11-41-16_320.jpg"  --测试图片
+        Sprite:setProperty(Sprite:findChild(rootSprite, "editClipImg"), 'src', imageSrc) --设置原图显示
+        local clipImgBtn = Sprite:findChild(rootSprite, 'clipImgBtn')
+        startClipImg(clipImgBtn)   --开始裁剪函数
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+    elseif msg == 102 then   
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        --返回响应函数
+        doBack()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+
+-- 撤销裁剪以及返回响函数
+function doBack()
+    --撤销图片裁剪，直接返回原图
+    Log:write("---doBack---")
+    local regHandle1 = Reg:create('m_picRecord') ---将裁剪结果数值返回
+    Reg:setString(regHandle1, "clipImgPath", clipImgPath)
+    Reg:setString(regHandle1, "clipImgName", clipImgName)
+    Scene:back()
+end
+
+--图片提交
+function doCommit()
+    Log:write("---doCommit---")
+    if IO:fileExist(imageSrc) == true then 
+        IO:fileRemove(imageSrc)
+    end
+    local clipImgBtn = Sprite:findChild(rootSprite, 'clipImgBtn')
+    endClipImg(clipImgBtn)  --图片裁剪
+    if clipImgPath == '' or clipImgName == '' then   --如果图片裁剪失败
+        clipImgPath = imageSrc
+        clipImgName = imageName..'.jpg'
+    end
+    local regHandle1 = Reg:create('m_picRecord')
+    Reg:setString(regHandle1, "clipImgPath", clipImgPath)
+    Reg:setString(regHandle1, "clipImgName", clipImgName)
+    Scene:back()
+end
+
+--原图照片初始位置调整，默认不做设置
+function doAdjust()
+    local width, height = System:getScreenSize()
+    local image = Sprite:findChild(rootSprite, 'editClipImg')
+    local w,h = Sprite:getProperty(image, 'src_size')
+end
+
+
+-- 开始剪切图片
+function startClipImg(sprite)
+    local editClipImg = Sprite:findChild(sprite,'editClipImg')
+    ImageEditor:startClip(editClipImg)   --开始裁剪采集
+end
+
+-- 结束剪切并保存图片
+function endClipImg(sprite)
+    Log:write("---endClipImg---")
+    local editClipImg = Sprite:findChild(sprite,'editClipImg')
+    ImageEditor:endClip(editClipImg)   --结束裁剪
+    clipImgPath = getDownloadPath() .. 'image/'..imageName..'ClipImg.jpg'    ---裁剪路径名
+    clipImgName = imageName..'ClipImg.jpg'                ---裁剪文件名
+    Log:write("裁剪图片的文件名：",clipImgPath) 
+    local flag = ImageEditor:saveAsJpeg(editClipImg, clipImgPath)    ---将裁剪后的图保存
+    Log:write("保存图片是否成功标识 成功:true 失败:false，  flag = ",flag)
+    Sprite:setProperty(editClipImg, 'src', clipImgPath)     ---设置重新显示裁剪后图片
+end
+
+--图片旋转函数
+function doRotate()
+    local editClipImg = Sprite:findChild(rootSprite,'editClipImg')
+    ImageEditor:rotate(editClipImg, 90) 
+end
+
+-- 判断手机是否有存储卡
+function getDownloadPath()
+    local downloadPath = ''
+    local flashCard = System:getFlashCardName(1) -- 判断外置存储卡存在性
+    if flashCard and flashCard ~= '' then --存在外置存储卡
+        Log:write('Util:getDownloadPath  flashCard=================', flashCard)
+        downloadPath = flashCard
+    end
+    Log:write('Util:getDownloadPath=======================', downloadPath)
+    return downloadPath
+end
+
+    ]]>
+</root>

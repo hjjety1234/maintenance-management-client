@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <shadow rect="0,0,480,800" color="#0" alpha="255" extendstyle="1111" />
+        <image name="image1" rect="0,0,480,800" border="false"
+            src="file://pics/login_backgruond.png" style="autosize" extendstyle="1111" />
+        <image name="image2" rect="30,180,333,64" border="false"
+            src="file://pics/login_title.png" style="autosize" extendstyle="1111" />
+          <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <node name="bg" rect="15,250,436,279">
+                <image name="image3" rect="0,0,436,300" border="false" src="file://pics/login_window_bg.png" style="autosize" extendstyle="1111" />
+            </node>
+            <node name="namenode" rect="2,276,480,47">
+                <image name="image4" rect="29,0,402,51" border="false" src="file://pics/input.png" style="autosize"></image>
+                <image name="image5" rect="40,7,36,36" border="false" src="file://pics/icons_login_user.png" style="autosize"></image>
+                <edit name="edname" rect="101,0,300,47" border="false" extendstyle="1111" v-center="true" font-size="23" autoup="true"></edit>
+            </node>
+            <node name="pwdnode" rect="0,353,480,47">
+                <image name="image6" rect="29,0,402,51" border="false" src="file://pics/input.png" style="autosize"></image>
+                <image name="image7" rect="40,7,36,36" border="false" src="file://pics/icons_login_lock.png" style="autosize"></image>
+                <edit name="edpwd" rect="101,0,300,47" border="false" password="true" extendstyle="1111" v-center="true" font-size="23" autoup="true"></edit>
+            </node>
+            <node name="node1" rect="0,410,480,100">
+                <button name="btnwrite" rect="40,0,35,35" text="" color="#ffffff" OnSelect="writePwd" extendstyle="1111" data="1">
+                 <image name="image8" rect="5,5,30,30" border="false"
+                        src="file://pics/login_checkbox1.png" style="sudoku-auto" sudoku="15,15,15,15"
+                        extendstyle="1111"></image>
+                </button>
+                <label name="label1" rect="45,0,152,35" text="记住密码" h-align="right"
+                    v-align="center" color="#ffffff" font-size="26" font-family="微软雅黑"></label>
+                <button name="btnLogin" rect="30,40,402,58" color="#ffffff"
+                    extendstyle="1111" OnSelect="loginOnSelect" text="登     录" font-family="微软雅黑" font-size="28"
+                    normal="src:file://pics/login_button_da.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+                    sel="src:file://pics/login_button_sa.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000" />
+            </node>
+            
+        </node>
+    </body>
+    <![CDATA[
+
+    require 'com_xsgj.common.framework'
+    local rootSprite
+    local loginData
+    local flag= 1
+    local curSSID
+    local g_packageUrl                  -- 客户端升级包url地址
+    local g_downloadTime = 0            -- 记录下载所花的时间
+    local g_progressWidth = 154         -- 进度条长度
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        Http:startNetwork()
+        buildMenu()
+        initdatabase()
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+         Log:write('页面激活')
+        if msg == MSG_ACTIVATE then -- 页面激活
+            -- @brief 取账号密码
+            connectNet()
+            readPwd()
+            elseif msg == MSG_DEACTIVATE then
+             elseif msg == MSG_NETWORK then
+
+                 local paramFlag = param.flag
+                 local paramStatus = param.networkstatus
+                  Log.write('paramStatus',paramStatus)
+                 if paramStatus == NETWORK_ERROR then
+                    if paramFlag == 5  then
+                        Dialog:show('提示', '网络连接失败。', 'ok_cancel')
+                    end
+                 end               
+        elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+        Dialog:show('提示','请求超时！','ok_cancel')
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        Loading:close()
+        if msg == 101 then
+            loginData = Http:jsonDecode('login_istrue')
+            Log:write('111111111:', loginData)
+            local result=loginData["Total"]
+            if result=='1' then
+                writeuserInfo()
+       
+               if Config:get("upgrade_tips") == "0" then
+                 Scene:go("MODULE:\\com_xsgj\\pqy_genxin.wdml")
+               else
+                 Scene:go(Alias.home)
+               end
+            else
+                Dialog:show('登陆提醒','账户密码错误','ok')
+            end
+        elseif msg == 102 then --  版本检测
+           
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            if Loading:isShow() then
+                Loading:close()
+                else
+                Dialog:show('', '是否确定退出？', 'ok_cancel', 'doExit')
+            end
+            return 1
+            elseif kc == Key.F1 then
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    function loginOnSelect(sprite)
+        local namenode=Sprite:findChild(rootSprite, 'namenode')
+        local pwdnode=Sprite:findChild(rootSprite, 'pwdnode')
+        local username=Sprite:getText(Sprite:findChild(namenode, 'edname'))
+        local password=Sprite:getText(Sprite:findChild(pwdnode, 'edpwd'))
+        local requestURL=string.format(Alias.urlServer..'userMgr/loginPhone')
+        local param = string.format('userCode=%s&userPass=%s', username, password)
+        Loading:show(rootSprite)
+        Http:request('login_istrue', requestURL, 101, {method='post', postData=param, useCache=false})
+        Log:write('dataString=============================', requestURL, param)
+    end
+    function readPwd()
+        local namenode=Sprite:findChild(rootSprite, 'namenode')
+        local pwdnode=Sprite:findChild(rootSprite, 'pwdnode')
+        local flagnode=Sprite:findChild(rootSprite,'node1')
+        local usernamenode=Sprite:findChild(namenode, 'edname')
+        local passwordnode=Sprite:findChild(pwdnode, 'edpwd')
+        local flagn = Sprite:findChild(flagnode,'btnwrite')
+        local imgNode = Sprite:findChild(flagn,'image8')
+        local username = Config:get('username')
+        local password = Config:get('password')
+        if username~=nil and password~=nil then
+            Log:write("写数据用户信息")
+    --local sql = "insert into tb_c_xsgjuser(employee_id,user_ame,trueuser_name,product_key,ec_code,company_id,department_name,department_id) values ('1','0','安徽公司','1','1','1');"
+    --bRet, errMsg = Sqlite:update(databaseName, sql)
+            Sprite:setProperty(imgNode, 'src', 'file://pics/login_checkbox1.png')
+            Sprite:setProperty(usernamenode,'text',username)
+            Sprite:setProperty(passwordnode,'text',password)
+            Sprite:setProperty(flagn,'data','0')
+        end
+    end
+    function writePwd(sprite)
+      
+        local imgNode = Sprite:findChild(sprite,'image8')
+        if flag==1 then
+            Sprite:setProperty(imgNode, 'src', 'file://pics/login_checkbox.png')
+            flag=0
+            elseif flag==0 then
+            Sprite:setProperty(imgNode, 'src', 'file://pics/login_checkbox1.png')
+            --Sprite:setProperty(sprite,'data','1')
+            flag=1
+        end
+    end
+    function writeuserInfo()
+        local namenode=Sprite:findChild(rootSprite, 'namenode')
+        local pwdnode=Sprite:findChild(rootSprite, 'pwdnode')
+        local flagnode=Sprite:findChild(rootSprite,'node1')
+        local username=Sprite:getText(Sprite:findChild(namenode, 'edname'))
+        local password=Sprite:getText(Sprite:findChild(pwdnode, 'edpwd'))
+        local value = loginData['Rows']
+          --存储companyId
+        local companyId =loginData['companyId']
+        Config:set("companyId", companyId)
+        
+        --存储usercode
+        Config:set("username", value["userCode"])
+        local rows=loginData.Rows
+        --存储username
+        Config:set('truename',value["userName"])
+        --存储departmentName
+        Config:set('departmentName',value["departmentName"])
+        Config:set('departmentId',value["departmentId"])
+        Config:set('employeeId',value["employeeId"])
+        if flag==1 then
+            Config:set('username', username)
+            Config:set('password', password)
+        elseif flag==0 then
+            Config:delete('username')
+            Config:delete('password')
+        end
+
+    end
+    function connectNet()
+
+        WLAN:setUrl('http://www.baidu.com/', '')
+        if WLAN:isSwitchOn() then
+            local attach = WLAN:isAttach()
+            if attach then
+                curSSID = attach.ssid
+                Http:connectWLAN(attach.ssid)
+                else
+                connectToWAP()
+            end
+            else
+                connectToWAP()
+                 Log:write('connectToWAP() ')
+        end
+    end
+    -- @brief 连接移动网络
+    function connectToWAP()
+        local APNtype = Http:getCurrentAPNType()
+        if APNtype == 1 then -- Net网
+            Http:setProxy('')
+            elseif APNtype == 2 then --移动wap
+            Http:setProxy('http://10.0.0.172:80/')
+            elseif APNtype == 3 then --电信wap
+            Http:setProxy('http://10.0.0.200:80/')
+            elseif APNtype == 4 then --联通wap
+            Http:setProxy('http://10.0.0.172:80/')
+            else
+            Http:setProxy('')
+        end
+        Http:connectCMWAP()
+    end
+    
+ --------------------读取用户菜单相关函数-----------
+ --@zhouyu 写菜单
+function buildMenu()
+    local menuData = t_S2T(Config:get('menu'))
+    Log:write('the menu is ',menuData)
+    --下载远程图片到本地
+    local iconPath = getDownloadIconPath()
+    require('framework.download')
+    for i = 0,getJsonArrayCount(menuData)-1 do
+        local picPath = iconPath .. string.match(menuData[i].iconUrl,".+/(.+)")
+        Log:write('the pic name is ',picPath)
+        if IO:fileExist(picPath) ~= true then 
+            Download:append(picPath, 'picDownload', menuData[i].iconUrl, true)
+        end
+    end
+    getPicDoloadStatus()
+end
+
+-- 下载菜单进度提示
+function getPicDoloadStatus()
+    Log:write('the download is ',Download:getStatus())
+    local count = Download:getCount(true)
+    if count == 0 then 
+        Timer:cancel(222)
+        return
+    end
+    Log:write('the download count is ',count)
+    for i=1,count do
+        local task = Download:getStatus(i, true)
+        Log:write('the task is ',task)
+        if task.title == 'picDownload' then
+            --Log:write('the task status is ',task.status)
+            if task.status == 3 then
+                Download:start(i, true)
+            end
+            if task.status == Download.status.Finished  then
+                -- Log:write('delete ',i)
+                Download:delete(i,false,true) --从队列里删除，会提示错误，暂时屏掉
+                break
+            end
+        end
+    end
+    Timer:set(222,500,'getPicDoloadStatus')
+end
+
+-- 获取SD卡上的Download目录
+function getDownloadIconPath()
+    local iconPath = ''
+    local downloadPath = System:getFlashCardName(1) 
+    if downloadPath == nil or downloadPath == "" then 
+        Log:write("SD卡不存在,使用内部存储！")
+    downloadPath = System:getFlashCardName(0)
+        Log:write('内部存储卡地址为：',downloadPath)
+        --在SD卡不存在的话，如果是htc_t327t_android_A001，则使用缓存
+        if(System:getUserAgent() == 'htc_t327t_android_A001') then
+            downloadPath = "MODULE:\\com_xsgj\\"
+        end
+    end
+    iconPath = downloadPath.."download"
+    Log:write("getDownloadPath: localDir="..iconPath)
+    -- 如果路径不存在，创建下载目录
+    if IO:dirExist(iconPath) == false then 
+        IO:dirCreate(iconPath)
+    end
+    -- 如果apk已经存在，删除之
+    iconPath = iconPath.."/"
+    Log:write("getDownloadPath: iconPath="..iconPath)
+    --[[if IO:fileExist(iconPath) == true then 
+        IO:fileRemove(iconPath)
+    end--]]
+    return iconPath
+end
+---------------------------------------util functions---------------------------
+function initdatabase()
+    databaseName = getLocalDiskPath()..'/xsgjDatabase'
+    if IO:fileExist(databaseName) == true then 
+        IO:fileRemove(databaseName)
+    end
+    Config:set('databaseName', databaseName)
+    bRet, errMsg = Sqlite:open(databaseName) 
+    Log:write("创建数据库成功:bRet = "..bRet.." errMsg ="..errMsg)
+    local sql = "create table tb_c_xsgjuser(employee_id primary key not null,user_name,trueuser_name,"..
+        "product_key,ec_code,company_id,department_name,department_id,version,register_code,mark1, mark2, mark3, mark4));"
+    bRet, errMsg = Sqlite:update(databaseName,sql)
+    Log:write("创建数据库表tb_c_xsgjuser结果:bRet = "..bRet.." errMsg ="..errMsg)
+    --test group
+    --local sql = "insert into tb_c_xsgjuser(employee_id,user_ame,trueuser_name,product_key,ec_code,company_id,department_name,department_id) values ('1','0','安徽公司','1','1','1');"
+    --bRet, errMsg = Sqlite:update(databaseName, sql)
+  end
+]]>
+</root>

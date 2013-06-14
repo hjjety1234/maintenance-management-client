@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		==
+		============================================================================
+		== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+		============================================================================
+		== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+		============================================================================
+		== | Author: xxxx <xxxx@xxxx.com> ==
+		============================================================================
+		== | Desc: 页面描述 ==
+		============================================================================
+	-->
+<root>
+	<header />
+
+	<body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+		OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+		<node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+			OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+			<!-- 设置背景 -->
+			<image name="main-bg" rect="0,0,480,800" visible='true'
+				src="file://pics/main_bg.png" style="autosize" extendstyle="0010">
+			</image>
+			<!-- 信息头部 -->
+			<node rect="0,0,480,80" extendstyle="1111">
+				<image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png"
+					extendstyle="1111" style="autosize">
+				</image>
+				<!-- 返回按钮 -->
+				<button name="backBtn" rect="9,14,52,52" normal="src:file://pics/icon_home_d.png"
+					sel="src:file://pics/icon_home_s.png" OnSelect="doBack" style="autosize"
+					extendstyle="1111">
+				</button>
+				<image name="normal" rect="70,0,2,80" src="file://pics/sub_top_line.png"
+					style="autosize" extendstyle="1111">
+				</image>
+				<!-- 二级菜单标题 -->
+				<scrolltext name="title" rect="105,0,280,104" text="人员信息"
+					extendstyle="1111" font-size="30" h-align="center" v-align="center"
+					color="#ffffff" scroll="true" step="2"></scrolltext>
+				<!--增加-->
+				<button name="addBtn" rect="419,14,52,52" OnSelect="add"
+					border="false" normal="src:file://pics/icon_add_d.png;" sel="src:file://pics/icon_add_s.png;"
+					style="autosize" extendstyle="1111">
+				</button>
+			</node>
+
+			<!-- 搜索 -->
+			<node name="search" rect="0,80,480,60" extendstyle="1111">
+				<image name="Image1" rect="0,0,480,62" src="file://pics/search_bg.png"
+					extendstyle="1111" style="autosize">
+				</image>
+				<image name="Image1" rect="14,6,338,48"
+					src="file://image/zbwbaifang/search_input.png" extendstyle="1111"
+					style="autosize">
+				</image>
+				<edit name="seq" rect="60,9,271,46" border="false" text="搜索姓名"
+					OnLostFocus="editOnTextChanged" OnSetFocus="initText" extendstyle="1111"
+					style="autosize" h-align="left" color="#8f8e8e" v-align="center"
+					font-family="微软雅黑" font-size="24">
+				</edit>
+				<button name="appBtn" rect="367,6,94,47" style="autosize"
+					normal="src:file://pics/button_search_d.png;" sel="src:file://pics/button_search_s.png;"
+					OnSelect="searchOnSelect" extendstyle="1111" />
+			</node>
+
+			<!-- 人员列表信息 -->
+			<node name="listNode" rect="0,140,480,581" extendstyle="1111">
+				<listview name="sampleList" rect="0,0,480,541" extendstyle="1111"
+					border="false" visible="true" />
+				<button rect="9,542,460,37" border="false" text="点击查看更多"
+                    color="#666666" OnSelect="addmore" name="morebtn" visible="false"
+                    v-align="center" h-align="center" font-family="微软雅黑" font-size="24" />
+			</node>
+			<node name="listitem" visible="false" rect="0,141,480,90"
+				border="false" enable="false" active="false" extendstyle="1111">
+				<button name="btnname" rect="0,0,480,90" OnSelect="itemOnSelect"
+					border="false" normal="src:file://pics/list_bg_d.png;" sel="src:file://pics/list_bg_s.png;"
+					style="autosize" extendstyle="1111">
+					<label name="lbren" rect="6,5,126,26" text="姓名" font-family="微软雅黑"
+						color="#0" font-size="22" h-align="left" v-align="center"
+						extendstyle="1111" border="false" />
+					<scrolltext name="lbkehu" rect="148,5,224,26" text="所属部门"
+						font-family="微软雅黑" border="false" h-align="left" v-align="center"
+						color="#000000" font-size="22" scroll="true" step="4" extendstyle="1111"></scrolltext>
+					<label name="lbkehucode" rect="148,15,224,26" text=""
+						font-family="微软雅黑" color="#0" visible='false' font-size="22"
+						h-align="left" v-align="center" extendstyle="1111" border="false" />
+					<label name="lbtime" visible="true" rect="6,33,126,45" text="入职时间"
+						font-family="微软雅黑" color="#0" font-size="22" h-align="left"
+						v-align="center" extendstyle="1111" border="false" />
+					<label name="lbzhuangtai" rect="148,34,159,45" text="人员状态"
+						font-family="微软雅黑" color="#0" font-size="22" h-align="left"
+						v-align="center" extendstyle="1111" border="false" />
+					<button name="xuanzebtn" rect="425,11,32,35" border="false"
+						visible="true" color="#ffffff" OnSelect="ckitm" data='0' >
+						<image name="ckitm" rect="0,0,40,40"
+							src="file://pics/item_unselected.png" style="sudoku-auto"
+							extendstyle="1111" sudoku="15,15,15,15" data="" />
+					</button>
+					 <shadow rect="0,88,480,1" color="#aaabae" alpha="255"
+                        extendstyle="1114" />
+				</button>
+			</node>
+			
+			<note name="bottom" rect="0,720,100,80" extendstyle="1111"> 
+				<image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png"
+					extendstyle="1111" style="autosize">
+				</image>
+				<!-- 位置查询 -->
+				<button OnSelect="selectOption" data="01" rect="110,0,50,50"    
+				   normal="src:file://pics/icon_location_chaxun.png;" sel="src:file://pics/icon_location_chaxun_s.png;"
+				   style="autosize" extendstyle="1111">
+					<scrolltext name="title" rect="-5,35,95,40" text="位置查询"
+						extendstyle="1011" font-size="14" h-align="left" v-align="center"
+						color="#ffffff" scroll="true" step="2"></scrolltext>
+				</button>
+				<!-- 离职-->
+				<button OnSelect="selectOption" data="02" rect="220,0,50,50"
+				    normal="src:file://pics/icon_lizhi_d.png;" sel="src:file://pics/icon_lizhi_s.png;" 
+					style="autosize" extendstyle="1111">
+					<scrolltext name="title" rect="10,35,95,40" text="离职"
+						extendstyle="1111" font-size="14" h-align="left" v-align="center"
+						color="#ffffff" scroll="true" step="2">
+					</scrolltext>
+				</button>
+				<!--修改 -->
+				<button OnSelect="selectOption" data="03" rect="315,0,50,50"
+					normal="src:file://pics/icon_xiugai_d.png;" sel="src:file://pics/icon_xiugai_s.png;" 
+					style="autosize" extendstyle="1111">
+					<scrolltext name="title" rect="10,35,95,40" text="修改"
+						extendstyle="1111" font-size="14" h-align="left" v-align="center"
+						color="#ffffff" scroll="true" step="2"></scrolltext>
+				</button>
+			</note>
+			<button visible="false" data="1" name="curpage"></button>
+		</node>
+	</body>
+    <![CDATA[
+    require 'com_xsgj.common.framework'
+    local rootSprite
+    local urlRequestServer
+    local curxundianBtn
+    local jsonDecodedData = nil --获取列表数据
+--    local lenRows=0
+    local strDate
+    local strKehu
+    local strZhuangtai
+    local strRen
+    local strLeirong
+    local strTable={'','','','',''}
+    local visitcode
+    local searchRen='' --定义过滤人参数
+    local searchZhuangtai --定义过滤状态参数
+    local truename=Config:get('truename') --显示的用户名
+    local usercode=Config:get('username') --登录人员addMan值
+    local a={}
+    local curpage=1
+    local pagesizenumber=6
+    ---------------------------------------callbacks--------------------------------
+    -- @brief root子节点创建完事件
+    function bodyBuildChildrenFinished(sprite)
+        rootSprite = sprite
+        urlRequestServer=Alias.urlServer
+    end
+    -- @brief root节点消息方法
+    function bodyOnSpriteEvent(msg, param)
+        if msg == MSG_ACTIVATE then -- 页面激活
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+         ListView:removeAllItems(list,true) 
+         curpage=Sprite:findChild(rootSprite, 'curpage')
+          morebtn=Sprite:findChild(rootSprite, 'morebtn')
+          pages=Sprite:getData(curpage)
+            loadRequest(pages,'6') --1.页面激活后，调用获取数据
+            elseif msg == MSG_DEACTIVATE then
+        end
+    end
+    -- @brief 插件消息方法
+    function bodyOnPluginEvent(msg)
+        if Loading:isShow() then Loading:close() end
+        if msg == 101 then
+            elseif msg == 102 then
+            jsonDecodedData = Http:jsonDecode('renyuanlist_data')
+            Log:write("jsonDecodedData of 102 = ",jsonDecodedData)
+               if jsonDecodedData== nil then
+                Dialog:show(rootSprite, '数据为空！', 'ok')
+                return 
+            end
+            local len = tonumber(jsonDecodedData["total"])
+            local rows=jsonDecodedData.Raws
+            local clients=jsonDecodedData.clients
+            Log:write("len or Total of jsonDecodedData: "..len)
+            if not jsonDecodedData or type(jsonDecodedData) ~= 'table' then
+                Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+                return
+            end
+            if jsonDecodedData ~= nil then
+                if jsonDecodedData.total == 0 then
+                    Log:write('数据为空！')
+                    Dialog:show(rootSprite, '数据为空！', 'ok')
+                end
+            end
+            local num = len
+            local p=Sprite:getData(curpage)
+            Log:write('p========',p)
+            if len > p*pagesizenumber then
+                local listViewNode = Sprite:findChild(rootSprite, 'sampleList')
+                Sprite:setProperty(listViewNode, 'rect', '0,0,480,541')
+                setAllShoworHide(morebtn, 1)
+                num = pagesizenumber
+            else 
+                setAllShoworHide(morebtn, 0)
+                num = pagesizenumber - (p*pagesizenumber - len)
+                local listViewNode = Sprite:findChild(rootSprite, 'sampleList')
+                Sprite:setProperty(listViewNode, 'rect', '0,0,480,578')
+                
+            end
+                local s=getJsonArrayCount(jsonDecodedData['rows']);
+                local list = Sprite:findChild(rootSprite, 'sampleList')
+                ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), s, 'loadListItem')
+                ListView:adjust(list)
+        end
+    end
+    -- @brief 按键响应处理
+    function mainNodeOnKeyUp(sprite, kc)
+        if kc == Key.F2 then -- 按下返回键
+            Scene:back()
+            return 1
+        end
+    end
+    ---------------------------------------util functions---------------------------
+    -----cmzcheng20121102----
+    function selectOption(sprite)
+        sltData = Sprite:getData(sprite)
+        Log:write("sltData",sltData)
+        local listPepHandler =Reg:create("listPep")
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        local count= ListView:getItemCount(list)
+        local changdu = 0
+        local zifuchuan = ''
+        local textCodeValue =''
+        local textNameVaue = ''
+        local storeNameValue = ''
+        for i=1,count do
+            local itemNode = ListView:getItem(list, i-1)
+            local lbName =Sprite:findChild(itemNode,'lbren')
+            local lbNameText= Sprite:getText(lbName)
+            local lbMdep =Sprite:findChild(itemNode,'lbkehu')
+            local lbMdepText=Sprite:getText(lbMdep)
+            local xuanze = Sprite:findChild(itemNode,'xuanzebtn')
+            local textKehuCode = Sprite:findChild(itemNode, 'lbkehucode')
+            local textKehuCodeValue=Sprite:getText(textKehuCode)
+            local textName = Sprite:getText(lbName)
+            local textStoreName = Sprite:getText(lbMdep)
+            local flag = Sprite:getData(xuanze)
+            Log:write('flag========', flag)
+            if flag =="1" then
+                -- a[changdu]={lbName=lbNameText,lbMdep=lbMdepText,textKehuCode=textKehuCodeValue}
+                changdu = changdu + 1
+                textCodeValue=textKehuCodeValue
+                textNameVaue=textName
+                storeNameValue=textStoreName
+                Log:write('选中复选框的数目为======',changdu)
+                Reg:setString(listPepHandler, 'textName'..changdu, textNameVaue)
+                Reg:setString(listPepHandler, 'textStoreName'..changdu, storeNameValue)
+            end
+        end
+        Reg:setString(listPepHandler, 'count', changdu)
+        Reg:setString(listPepHandler,'listEmpCode', textCodeValue)
+        
+        -- 进行页面跳转
+        if sltData=='01' then
+            Sprite:setProperty(curpage, 'data','1')
+            Scene:setReturn(Alias.cc_pepInfo, Alias.weizhichaxun)
+            Scene:go(Alias.weizhichaxun,true)
+            elseif sltData=='02' then
+            Sprite:setProperty(curpage, 'data','1')
+            if changdu>1 then
+            
+                Dialog:show("", "只能选择一个", "ok")
+                return
+                elseif changdu == 0  then
+                Dialog:show("", "请选择一条记录", "ok")
+                return
+                else
+                Scene:setReturn(Alias.cc_pepInfo, Alias.renyuandelete)
+                Scene:go(Alias.renyuandelete,true)
+            end
+            elseif sltData=='03' then
+            Sprite:setProperty(curpage, 'data','1')
+            if changdu>1 then
+                Dialog:show("", "只能选择一个", "ok")
+                return
+                elseif changdu == 0 then
+                Dialog:show("", "请选择一条记录", "ok")
+                return
+                else
+                Scene:setReturn(Alias.cc_pepInfo, Alias.cc_renyuanUpdata)
+                Scene:go(Alias.cc_renyuanUpdata,true)
+            end
+        end
+    end
+    --新增页面---
+    function add()
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list,true) 
+        Sprite:setProperty(curpage, 'data','1')
+        Scene:setReturn(Alias.cc_pepInfo, Alias.renyuanNew)
+        Scene:go(Alias.renyuanNew, true)
+    end
+    ----------------------
+    
+         --加载更多
+    function addmore()
+        local p=Sprite:getData(curpage)
+--        setAllShoworHide(morebtn, 0)
+        p=p+1;
+        Sprite:setProperty(curpage, 'data',p)
+         local url = urlRequestServer..'memployeeController/getAll?'
+        local param='userCode='..usercode..'&page='..p..'&rows='..pagesizenumber
+        Http:request('renyuanlist_data', url, 102, {useCache = false, method = 'post',postData=param})
+         Loading:show(rootSprite)
+    end
+    --1.发起http请求，获取数据
+    function loadRequest(pages, pagesize) --1.http 请求
+        local httpconnet=Http:getCurConnect()
+        local url = urlRequestServer..'memployeeController/getAll?'
+        local param='userCode='..usercode..'&page='..pages..'&rows='..pagesizenumber
+        Log:write("param=",param)
+        Http:request('renyuanlist_data', url, 102, {useCache = false, method = 'post',postData=param})
+        Loading:show(rootSprite)
+    end
+    ---根据查询条件发起查询
+    function searchOnSelect()
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list)
+        Sprite:setProperty(curpage, 'data','1')
+        local url = urlRequestServer..'memployeeController/searchUser?'
+        local txt= Sprite:getText(Sprite:findChild(rootSprite, 'seq'))
+        local param='&page='..Sprite:getData(curpage)..'&rows='..pagesizenumber..'&keyword='
+        if txt~=nil and txt~='搜索姓名' and txt~='' then
+            param=param..txt
+        end
+        Log:write(param)
+        Http:request('renyuanlist_data', url, 102, {useCache = false, method = 'post',postData=param})
+        Loading:show(rootSprite)
+    end
+    ---当进入编辑框时，修改文字为输入
+    function initText(sprite)
+        local txt= Sprite:getProperty(sprite, 'text')
+        if txt=='搜索姓名' then
+            Sprite:setProperty(sprite, 'text', '')
+            Sprite:setProperty(sprite, 'color', '#0')
+        end
+    end
+    ---当未有任何输入时，初始化为提示
+    function editOnTextChanged(sprite)
+        local txt= Sprite:getProperty(sprite, 'text')
+        if txt=='' or txt ==nil then
+            Sprite:setProperty(sprite, 'color', '#8f8e8e')
+            Sprite:setProperty(sprite, 'text', '搜索姓名')
+        end
+    end
+    function doBack()
+        Sprite:setProperty(curpage, 'data','1')
+        Scene:back()
+    end
+    ---点选checkbox操作按钮
+    function ckitm(sprite)
+        local img=Sprite:findChild(sprite,'ckitm');
+        local sltData1= Sprite:getData(sprite)
+        Log:write('checkbox111',sltData1)
+        if sltData1==nil or sltData1=='1' then
+            Sprite:setProperty(sprite, 'data', '0')
+            Sprite:setProperty(img, 'src', 'file://pics/item_unselected.png')
+            else
+            Sprite:setProperty(sprite, 'data','1')
+            Sprite:setProperty(img, 'src', 'file://pics/item_selected.png')
+        end
+    end
+    ---加载listitem列表
+    function loadListItem(list, item, index)
+        Sprite:setRect(item, 0, 0, 480, 90)
+        Sprite:setProperty(item, 'extendstyle', '1111')
+        local listItemBg = Sprite:findChild(item, 'listItemBg')
+        local itemBtn = Sprite:findChild(item, 'btnname')--找到listitem里面的button: btnname
+        local imgItem = Sprite:findChild(item, 'ckitm')--找到listitem里面的ckitm,data填充visitcode
+        local textTime = Sprite:findChild(item, 'lbtime')
+        local textKehu = Sprite:findChild(item, 'lbkehu')
+        local textKehuCode = Sprite:findChild(item, 'lbkehucode')
+        local textZhuangtai = Sprite:findChild(item, 'lbzhuangtai')
+        local textRen = Sprite:findChild(item, 'lbren')
+        -- 获取要创建的列表项Sprite
+        Log:write("jsonDecodedData.total-----",jsonDecodedData.total)
+        if jsonDecodedData.total==nil then
+            Sprite:setProperty(textTime, 'text', strDate[index+1])
+            Sprite:setProperty(textKehu, 'text', strKehu[index+1])
+            Sprite:setProperty(textZhuangtai, 'text', strZhuangtai[index+1])
+            Sprite:setProperty(textRen, 'text', strRen[index+1])
+            Sprite:setProperty(textLeirong, 'text', strLeirong[index+1])
+            Sprite:setProperty(itemBtn,'data',index)--为itemBtn设置数值
+            else
+            local jsonTime=jsonDecodedData.rows[index].workDate --工作日期：visitDate
+            local jsonRen=jsonDecodedData.rows[index].empName --人员姓名：visitMan
+            local jsonDeptName=jsonDecodedData.rows[index].mystoreName --部门名称：clientName
+            local jsonPePStatus=jsonDecodedData.rows[index].delFlag --员工状态：visitStatus
+            local jsonPepEmpCode=jsonDecodedData.rows[index].empCode --员工的编号
+            if jsonTime=='' or jsonTime==nil then jsonTime='2010-10-01' end
+            if jsonRen=='' or jsonRen==nil then jsonRen='旺财' end
+            if jjsonDeptName=='' or jsonDeptName==nil then jsonDeptName='添加人员部门' end
+            if jsonPePStatus=='' or jsonPePStatus==nil then jsonPePStatus=0 end
+            if tonumber(jsonPePStatus)==0 then jsonPePStatus='在职' end
+            if tonumber(jsonPePStatus)==1 then jsonPePStatus='离职' end
+            Sprite:setProperty(textTime, 'text', jsonTime)
+            Log:write('---loadListItem()-> set jsonTime with jsondata--- ',jsonTime)
+            Sprite:setProperty(textRen, 'text', jsonRen)
+            Log:write('---loadListItem()-> set jsonRen with jsondata--- ',jsonRen)
+            Sprite:setProperty(textKehu, 'text', jsonDeptName)
+            Sprite:setProperty(textZhuangtai, 'text', jsonPePStatus)
+            Sprite:setProperty(textKehuCode, 'text', jsonPepEmpCode)
+            Log:write('---loadListItem()-> set jsonPepEmpCode with jsondata--- ',jsonPepEmpCode)
+            Sprite:setProperty(itemBtn,'data',index)--为itemBtn设置数值
+        end
+    end
+    -- @brief 列表项选择处理
+    function itemOnSelect(sprite)
+        Log:write('run function: ', 'itemOnSelect()')
+        local curitem=Sprite:getData(sprite)
+        local visitcode=jsonDecodedData.rows
+        visitCodelibiao=visitcode[tonumber(curitem)].empCode --获取员工编号传递到下个页面
+        local regHandle = Reg:create('detailwin')
+        Reg:clear(regHandle)
+        Reg:setString(regHandle,'empCodeValue',visitCodelibiao)--填入数据仓库
+        Scene:setReturn('MODULE:\\com_xsgj\\cc_pepInfo.wdml', 'MODULE:\\com_xsgj\\cc_pepInfoDetail.wdml')
+        Scene:go('MODULE:\\com_xsgj\\cc_pepInfoDetail.wdml', true)
+    end
+]]>
+</root>
