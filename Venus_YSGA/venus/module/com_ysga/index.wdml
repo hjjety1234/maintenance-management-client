@@ -180,11 +180,7 @@ function bodyOnPluginEvent(msg)
                     doUpgrade(jianquanData['retdata'].version.md5sum,updateData)
                 else
                     --跳转到登录界面 
-                    if skinFalg == '1' and skinPath ~= "" and IO:fileExist(skinPath) == true then
-                        Scene:go(Alias.login)
-                    else
-                      Scene:go(Alias.upadteSkin)
-                    end
+                    goLogin()
                 end
             else
                 --暂时为了开发方便注释掉注册码代码
@@ -664,8 +660,14 @@ function startMsgPushService()
     MsgPush:setServiceStatus(1)
 end
 
+-- @brief 如果皮肤已经更新，跳转到登陆页，否则更新皮肤
 function goLogin()
-    Scene:go(Alias.login)
+     --跳转到登录界面 
+     if skinFalg == '1' and skinPath ~= "" and IO:fileExist(skinPath) == true then
+        Scene:go(Alias.login)
+     else
+        Scene:go(Alias.upadteSkin)
+     end
 end
 
 ]]>
