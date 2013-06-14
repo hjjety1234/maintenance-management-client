@@ -454,24 +454,25 @@
         Scene:setReturn(Alias.kaoqinaction, Alias.orignImg)
         Scene:go(Alias.orignImg,true)
     end
+  
     -- 综合定位方式，优先使用gps，在gps定位失败时采用网络定位
-  function doLocation()
+    function doLocation()
       local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
       Sprite:setProperty(locInfo, 'text', '正在定位......')
       -- 当前无经纬度信息，检查当前gps状态
       local result = System:getGPSStatus()
       if result == -1 then
-          Sprite:setProperty(locInfo, 'text', '当前GPS不可用, 尝试使用网络定位...')
-          Log:write('0GPS开启失败, 尝试使用网络定位...')
-          getGPSDataByMap()
+        Sprite:setProperty(locInfo, 'text', '当前GPS不可用, 尝试使用网络定位...')
+        Log:write('0GPS开启失败, 尝试使用网络定位...')
+        getGPSDataByMap()
       elseif result == 0 then
-              Sprite:setProperty(locInfo, 'text', '使用网络定位请稍等...')
-              getGPSDataByMap()
+        Sprite:setProperty(locInfo, 'text', '使用网络定位请稍等...')
+        getGPSDataByMap()
       elseif result == 1 then
-          Sprite:setProperty(locInfo, 'text', 'GPS已经开启，正在定位...')
-          Timer:set(222, 1000, 'getLoctude')
+        Sprite:setProperty(locInfo, 'text', 'GPS已经开启，正在定位...')
+        Timer:set(222, 1000, 'getLoctude')
       end
-  end
+    end
 
   -- 传统方式获取经纬度
   function getGPSDataByMap()
@@ -480,64 +481,63 @@
       Timer:set(333, 1000, 'getNetWork')
       Map:getCurPosition(observer, 1002)
   end
-function getNetWork()
-  Log.write('net_retryCount',net_retryCount)
-  if(net_retryCount>0) then
-    local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
-    Sprite:setProperty(locInfo, "text", "网络正在定位中，剩余"..net_retryCount.."秒")
-    net_retryCount = net_retryCount - 1
-  else
-     local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
-    Sprite:setProperty(locInfo, "text", "网络定位失败")
-  end
-  Timer:set(333, 1000, 'getNetWork')
-end
   
-  function getLoctude()
-      -- 需要对gps的数据请求多次
-      Log:write('采用GPS定位开始..')
+  -- 网络定位时进行倒计时
+  function getNetWork()
+    if (net_retryCount > 0) then
       local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
-      Sprite:setProperty(locInfo, "text", "GPS正在定位中，剩余"..g_retryCount.."秒")
-       longitude,latitude=System:getGPSData()
-       Log:write(string.format("getLoctude1: latitude=%s, lonitude=%s", latitude, longitude))
-      if longitude ~= nil and longitude ~= 0 and latitude ~= nil and latitude ~= 0 
-          and g_retryCount > 0 then
-          Log:write(string.format("getLoctude: latitude=%s, lonitude=%s", latitude, longitude))
-          if g_latitude == nil and g_longitude == nil then 
-                g_latitude = latitude
-                g_longitude = longitude
-                g_retryCount = g_retryCount - 1
-                Timer:set(222, 1000, 'getLoctude')
-                return
-            end
+      Sprite:setProperty(locInfo, "text", "网络正在定位中，剩余"..net_retryCount.."秒")
+      net_retryCount = net_retryCount - 1
+    else
+      local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+      Sprite:setProperty(locInfo, "text", "网络定位失败")
+    end
+    Timer:set(333, 1000, 'getNetWork')
+  end
+  
+   -- 利用GPS获取经纬度，需要多次进行请求
+  function getLoctude()
+    -- 获取当前的经纬度数据
+    local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+    Sprite:setProperty(locInfo, "text", "GPS正在定位中，剩余"..g_retryCount.."秒")
+    local longitude,latitude = System:getGPSData()
+    Log:write(string.format("当前经纬度: %s, %s", latitude, longitude))
+    -- 对获得的数据进行处理
+    if longitude ~= nil and longitude ~= 0 and latitude ~= nil and latitude ~= 0 
+        and g_retryCount > 0 then
+        if g_latitude == nil and g_longitude == nil then 
+            -- 首次获得GPS数据，作为比较的基准
+            g_latitude = latitude
+            g_longitude = longitude
+            g_retryCount = g_retryCount - 1
+            Timer:set(222, 1000, 'getLoctude')
+            return
+        end
+        if g_latitude ~= latitude and g_longitude ~= longitude then 
             -- 有效的gps数据，与上次的定位结果不同
-            if g_latitude ~= latitude and g_longitude ~= longitude then 
-                g_retryCount = 20
-                Timer:cancel(222)
-                System:setGPSStatus(0)
-                --@todo 显示到界面
-                observer = Plugin:getObserver()
-                Map:getLocation(observer, 1003, latitude, longitude)
-            else -- 无效的gps数据， 与上次的定位结果不同
-                g_retryCount = g_retryCount - 1
-                Timer:set(222, 1000, 'getLoctude')
-            end
-              --@todo 显示到界面
-            elseif g_retryCount > 0 then
-          g_retryCount = g_retryCount - 1
-          Timer:set(222, 1000, 'getLoctude')
-      else
-          Timer:cancel(222)
-          System:setGPSStatus(0)
-          System:setGPSStatus(0)
-          local result = System.getGPSStatus()
-          Log.write('result',result)
-          g_retryCount = 20
-           Log:write('2GPS开启失败, 尝试使用网络定位...')
-          Sprite:setProperty(locInfo, 'text', 'GPS定位失败，采用网络定位...')
-          getGPSDataByMap()
+            g_retryCount = 20
+            System:setGPSStatus(0)
+            observer = Plugin:getObserver()
+            Map:getLocation(observer, 1003, latitude, longitude)
+        else 
+            -- 无效的gps数据， 与上次的定位结果不同
+            g_retryCount = g_retryCount - 1
+            Timer:set(222, 1000, 'getLoctude')
+        end
+    elseif g_retryCount > 0 then
+        -- 未超时需要继续请求
+        g_retryCount = g_retryCount - 1
+        Timer:set(222, 1000, 'getLoctude')
+    else
+        -- 已经超时，进行网络定位
+        System:setGPSStatus(0)
+        g_retryCount = 20
+        Log:write('GPS定位失败, 采用网络定位...')
+        Sprite:setProperty(locInfo, 'text', 'GPS定位失败，采用网络定位...')
+        getGPSDataByMap()
       end
   end
+
 -- 显示提示信息
     function showMsg(text)
         local btn=Sprite:findChild(rootSprite, 'success');
