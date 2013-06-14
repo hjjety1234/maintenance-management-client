@@ -132,12 +132,12 @@
                                     color="#e33a10" />
                         </image>
                         <button name="glseqBtn" rect="140,14,160,25" normal="normal" sel="sel"
-                             OnSelect="glSeqOnselect" extendstyle="1111"  data="0" >
+                             OnSelect="zaSeqOnselect" extendstyle="1111"  data="0" >
                               <image name="triangleGL" rect="140,7,20,12" src="file://image/triangle_down.png"
                              style='autosize' extendstyle="1111" />
-                        </button>
+                        </button>  
                         <button name="zaseqBtn" rect="310,14,160,25" normal="normal" sel="sel"
-                             OnSelect="zaSeqOnselect" extendstyle="1111"  data="0" >
+                             OnSelect="glSeqOnselect" extendstyle="1111"  data="0" >
                               <image name="triangleZA" rect="125,7,20,12" src="file://image/triangle_down.png"
                              style='autosize' extendstyle="1111" />
                         </button>
@@ -235,6 +235,7 @@ function bodyOnPluginEvent(msg, param)
         UmsAgent:onLoadFinish() 
      if Loading:isShow() then Loading:close() end  
         city_data = Http:jsonDecode('city_data')
+        Log:write("@jldu city_data = ",city_data)
         local listView1 = Sprite:findChild(rootSprite, 'sampleList1')
         local listView2 = Sprite:findChild(rootSprite, 'sampleList2')
         local listView3 = Sprite:findChild(rootSprite, 'sampleList3')
@@ -418,7 +419,8 @@ end
 
 --光缆障碍次数排序
 function glSeqOnselect(sprite)
-   local data = Sprite:getData(sprite)
+    Log:write("@jldu 光缆障碍次数排序")
+    local data = Sprite:getData(sprite)
     local len = city_data.total
     if data == "0" then
         Sprite:setProperty(sprite,'data',"1")
@@ -452,7 +454,8 @@ end
 
 --障碍时长排序
 function zaSeqOnselect(sprite)
-   local data = Sprite:getData(sprite)
+    Log:write("@jldu 障碍超时时长排序")
+    local data = Sprite:getData(sprite)
     local len = city_data.total
     if data == "0" then
         Sprite:setProperty(sprite,'data',"1")
@@ -558,8 +561,8 @@ function zacsSeqOnselect(sprite)
     local data = Sprite:getData(sprite)
     local len = city_data.total
     if data == "0" then
-        Sprite:setProperty(sprite,'data',"1")
-        city_data.value = sortTable(city_data.value, 'zaclcscs', true)
+        Sprite:setProperty(sprite,'data',"1")      
+        city_data.value = sortTable(city_data.value, 'glzacs', true)
         local listView3 = Sprite:findChild(rootSprite, 'sampleList3')
         ListView:removeAllItems(listView3,1,1)
         -- 加载列表项
@@ -569,7 +572,7 @@ function zacsSeqOnselect(sprite)
         local zacs = Sprite:findChild(rootSprite,'trianglezacs')
         if  Sprite:getProperty(zacs,'src') == "file://image/triangle_down.png" then
             Sprite:setProperty(zacs,'src','file://image/triangle_up.png')
-            city_data.value = sortTable(city_data.value, 'zaclcscs', false)
+            city_data.value = sortTable(city_data.value, 'glzacs', false)
             local listView3 = Sprite:findChild(rootSprite, 'sampleList3')
             ListView:removeAllItems(listView3,1,1)
             -- 加载列表项
@@ -577,7 +580,7 @@ function zacsSeqOnselect(sprite)
             ListView:adjust(listView3)
         else
             Sprite:setProperty(zacs,'src','file://image/triangle_down.png')
-            city_data.value = sortTable(city_data.value, 'zaclcscs', true)
+            city_data.value = sortTable(city_data.value, 'glzacs', true)
             local listView3 = Sprite:findChild(rootSprite, 'sampleList3')
             ListView:removeAllItems(listView3,1,1)
             -- 加载列表项
