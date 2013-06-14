@@ -325,9 +325,22 @@ function listItemOnSelect(sprite)
         if role=='MM000' or role=='MM001' or role=='MM002' then
             Scene:setReturn(Alias.home_sheng, Alias.m_renyuantongji)
             Scene:go(Alias.m_renyuantongji)
-        elseif role=='MM005' or role=='MM006' or role=='MM009' or role=='MM010'then 
+        elseif role=='MM005' or role=='MM006' or role=='MM009' or role=='MM010'then
             Scene:setReturn(Alias.home_sheng, Alias.m_renyuantongji_city)
             Scene:go(Alias.m_renyuantongji_city)
+            -- @jldu 县公司查看其自己县的人车配置详情
+            --[[
+            Log:write("@jldu 截取区号的最后两位："..string.sub(regionid,5))
+            if string.sub(regionid,5) == '00' then
+                Log:write("@jldu 地市公司")
+                Scene:setReturn(Alias.home_sheng, Alias.m_renyuantongji_city)
+                Scene:go(Alias.m_renyuantongji_city)
+            else
+                Log:write("@jldu 县公司")
+                Scene:setReturn(Alias.home_sheng, Alias.m_renyuandetails)
+                Scene:go(Alias.m_renyuandetails)
+            end 
+            ]]
         end      
     elseif dataInfo == '02' then -- 巡检完成情况
         Log:write('资源统计_clicked')
