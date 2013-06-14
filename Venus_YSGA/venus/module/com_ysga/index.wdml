@@ -417,20 +417,17 @@ function doUpgrade(md5sum,updateData)
     Log:write("存在升级信息，开始升级...")
     local bDiffUpdate = true
     getDownloadPath()
-    -- g_patchUrl = "http://120.209.131.146/patch_dir/Venus_DW.patch"
     -- 检查差分包的URL地址
     if g_patchUrl == nil or g_patchUrl == "" then 
         Log:write("差分包的URL地址为空！")
         bDiffUpdate = false
-  else
-    -- 检查本地旧本地文件是否存在 
-    if IO:fileExist(g_localpath) == false then
-        Log:write("本地文件不存在！")
-        bDiffUpdate =  false
-
     else
+        -- 检查本地旧本地文件是否存在 
+	    if IO:fileExist(g_localpath) == false then
+	        Log:write("本地文件不存在！")
+	        bDiffUpdate =  false
+	    else
             -- 本地文件存在，进行校验
-            showNoticeMessage("正在校验本地安装包...")
             Log:write("本地文件MD5:"..g_localMd5..", 服务端返回校验值为:", g_packageMd5)
             if g_packageMd5 ~= g_localMd5 or g_localMd5 == "" 
                 or g_packageMd5 == 0 then 
@@ -441,42 +438,34 @@ function doUpgrade(md5sum,updateData)
             end
         end 
     end
-    -- TODO: 进行MD5校验
-
     -- 开始升级
     if bDiffUpdate == true then
         Log:write("显示增量升级对话框")
         local packagesize = getReadableSize(g_packageSize) 
         local patchsize = getReadableSize(g_patchSize) 
-        
         -- 显示差分升级对话框
         local appVersion = Sprite:findChild(rootSprite, 'appVersion')
         Sprite:setProperty(appVersion, 'text', 'v'..Config:get("version"))
-        
         local releaseLog = Sprite:findChild(rootSprite, 'releaseLog')
         Sprite:setProperty(releaseLog, 'text', g_releaseLog)
-        
         local pkgSize = Sprite:findChild(rootSprite, 'pkgSize')
         Sprite:setProperty(pkgSize, 'text', packagesize)
-        
         local patchSizeLabel = Sprite:findChild(rootSprite, 'patchSize')
         Sprite:setProperty(patchSizeLabel, 'text', "仅需"..patchsize)
-        
         local diffUpdateNode = Sprite:findChild(rootSprite, 'diffUpdateNode')
         Sprite:setProperty(diffUpdateNode, 'visible', 'true')
         Sprite:setProperty(diffUpdateNode, 'enable', 'true')
-    elseif updateData==1 and experience==nil then
+    elseif updateData == 1 and experience == nil then
         Log:write("显示全新升级对话框")
         Dialog:show('提醒','系统检测到有新版本发布，是否更新？',
             'ok_cancel','downloadPackage','goHome')
     elseif updateData==2 or updateData==3 then
-         Dialog:show('提醒','系统检测到有新版本发布，必须升级系统才能正常使用，如果点击取消将推出系统',
+        Dialog:show('提醒','系统检测到有新版本发布，必须升级系统才能正常使用，如果点击取消将推出系统',
             'ok_cancel','downloadPackage','doExit')
     elseif updateData==1 and experience==1 then
         Dialog:show('提醒','检查到新的体验版本，荣邀请您参与体验新版本的功能!',
-       'ok_cancel','downloadPackage','goHome')
+            'ok_cancel','downloadPackage','goHome')
     end
-    
 end
 
 -- 下载升级包
@@ -624,10 +613,10 @@ function getDownloadPath()
     if downloadPath == nil or downloadPath == "" then 
         Log:write("SD卡不存在,使用内部存储！")
         downloadPath = System:getFlashCardName(0)
-         --在SD卡不存在的话，如果是htc_t327t_android_A001，则使用缓存
-            if(System:getUserAgent() == 'htc_t327t_android_A001') then
-                downloadPath = "MODULE:\\com_ysga\\"
-            end
+        --在SD卡不存在的话，如果是htc_t327t_android_A001，则使用缓存
+        if(System:getUserAgent() == 'htc_t327t_android_A001') then
+            downloadPath = "MODULE:\\com_ysga\\"
+        end
     end
     g_localpath = downloadPath.."download"
     g_tempPath = downloadPath.."temp"
