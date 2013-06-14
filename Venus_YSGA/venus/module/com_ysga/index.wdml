@@ -180,7 +180,7 @@ function bodyOnPluginEvent(msg)
                     doUpgrade(jianquanData['retdata'].version.md5sum,updateData)
                 else
                     --跳转到登录界面 
-                    if skinFalg == '1' then
+                    if skinFalg == '1' and skinPath ~= "" and IO:fileExist(skinPath) == true then
                         Scene:go(Alias.login)
                     else
                       Scene:go(Alias.upadteSkin)
@@ -202,14 +202,13 @@ function bodyOnPluginEvent(msg)
     end
 end
 
---@zhouyu 写菜单
+-- @brief 写菜单
 function buildMenu(menuData)
     Log:write('the menu is ',menuData)
     Config:set("menu",sz_T2S(menuData))
-    
 end
 
--- 按键响应处理
+-- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
         if Loading:isShow() then
@@ -218,12 +217,12 @@ function mainNodeOnKeyUp(sprite, kc)
             Dialog:show('提示', '是否确定退出？', 'ok_cancel', 'doExit')
         end
         return 1
-        elseif kc == Key.F1 then
+    elseif kc == Key.F1 then
         return 1
     end
 end
 
--- 连接至网络
+-- @brief 连接至网络
 function connectNet()
     WLAN:setUrl('http://www.baidu.com/', '')
     if WLAN:isSwitchOn() then
@@ -231,10 +230,10 @@ function connectNet()
         if attach then
             curSSID = attach.ssid
             Http:connectWLAN(attach.ssid)
-            else
+        else
             connectToWAP()
         end
-        else
+    else
         connectToWAP()
     end
 end
@@ -260,32 +259,27 @@ end
 function goHome()
     goLogin()
 end
---------------------------换肤操作-------------------
-
+--------------------------------------换肤操作------------------------------------
+-- @brief 读取配置文件的内容，确定皮肤是否已经更新
 function checkSkinPath()
-    local  image1=Sprite:findChild(rootSprite, 'image1')
-    local image2=Sprite:findChild(rootSprite, 'image2')
-    local tableValue=readDownloadTxtConfig()
-      Log:write("开始鉴权皮肤是否更新1...")
-        if tableValue~=nil or tableValue~='' then
-            if tableValue[3]~=nil or tableValue[4]~=nil then
-               skinFalg=tableValue[3]
-               Log:write("开始鉴权皮肤是否更新skinFalg...",tableValue[3])
-               skinPath=tableValue[4]
-               Log:write("开始鉴权皮肤是否更新skinPath...",tableValue[4])
-              end
-        end
-        if (skinFalg~='' and skinFalg=='1' and skinPath~='' and skinPath~=nil) then --如果皮肤已经更新
-        Log:write("皮肤更新了"..skinPath..'/login_backgruond.png')
-        Sprite:setProperty(image1,'src',skinPath..'/index_bg.png')
-       else
-        Log:write("皮肤没有更新")
-        Sprite:setProperty(image1,'src','file://pics/index_bg.png')
-        end
-
-
+    local image1 = Sprite:findChild(rootSprite, 'image1')
+    local image2 = Sprite:findChild(rootSprite, 'image2')
+    local tableValue = readDownloadTxtConfig()
+    Log:write("配置文件内容为：", tableValue)
+    if tableValue ~= nil or tableValue ~='' then
+	      skinFalg = tableValue[3] or ""
+	      skinPath = tableValue[4] or ""
     end
-------------------------end
+    if skinFalg ~= '' and skinFalg == '1' and skinPath ~= '' and skinPath ~= nil 
+       and IO:fileExist(skinPath) == true then 
+       -- 皮肤已经更新
+	   Log:write("皮肤更新了"..skinPath..'/login_backgruond.png')
+	   Sprite:setProperty(image1,'src',skinPath..'/index_bg.png')
+    else
+	   Log:write("皮肤没有更新")
+	   Sprite:setProperty(image1,'src','file://pics/index_bg.png')
+    end
+end
 
 ---------------------------------------鉴权相关函数---------------------------
 -- 用户鉴权登录
@@ -342,8 +336,6 @@ function checkUserValidata()
             Config:get('ssourl'),mobile,productKey,ECCode,imsi,version, g_localMd5,subProductKey)
     end 
     Log:write(string.format('the info is %s/%s/%s/%s/%s/%s/%s',ECCode,mobile,productKey,imsi,imei,version,subProductKey))
-  --  local url = string.format('http://%s/webcloud/sso/sso_auth.action?mobile=%s&productKey=%s&ecCode=%s&imsi=%s&version=%s'
-         --                      ,Config:get('ssourl'),mobile,productKey,ECCode,imsi,version)
     Log:write('the url is',url)
     --开始http请求
     UmsAgent:onLoadStart()
