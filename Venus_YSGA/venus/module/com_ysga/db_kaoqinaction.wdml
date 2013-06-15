@@ -422,7 +422,18 @@
         ..'&latitude='..latitude
         ..'&locatDetail='..loc
         ..'&attencdCarType='..Sprite:getData(Sprite:findChild(rootSprite, 'kaoqinContent'))
-        if allimg~=nil and allimg ~='' then
+        for key, value in pairs(imgdata) do
+            if value ~= "" then 
+                 local filename = string.sub(value, lastIndexof( value,'/') + 1, string.len(value) - 4 )
+                 local strFilename = "yt_"..filename..'.jpg'    
+                 if allimg == nil or allimg == "" then 
+                    allimg = strFilename
+                 else
+                    allimg = allimg..","..strFilename
+                 end
+            end
+        end
+        if allimg ~= nil and allimg ~= '' then
             param=param..'&&imageExplain=&imageAddr='..allimg
         end
         Log:write('result param', param)
