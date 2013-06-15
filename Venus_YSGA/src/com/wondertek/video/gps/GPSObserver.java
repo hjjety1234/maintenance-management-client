@@ -288,7 +288,7 @@ public class GPSObserver {
 			Log.d(TAG, "location == null");
 			nativegpsreturn("", 0, 0, 0, 0, 0, 0);
 			return;
-		}else if (new Date().getTime() - location.getTime() > 5000) {
+		}else if (new Date().getTime() - location.getTime() > 30000) {
 			Log.d(TAG, "location expired");
 			nativegpsreturn("", 0, 0, 0, 0, 0, 0);
 			return;
