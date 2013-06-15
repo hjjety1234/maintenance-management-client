@@ -118,10 +118,11 @@
         </node>
     </body>
     <![CDATA[
-     require 'com_ysga.common.framework'
-     require 'com_ysga.common.map'
-     require 'com_ysga.common.upload'
-     require 'com_ysga.common.umsagent'
+	require 'com_ysga.common.framework'
+	require 'com_ysga.common.map'
+	require 'com_ysga.common.upload'
+	require 'com_ysga.common.umsagent'
+	require 'framework.upload'
     local rootSprite
     local jsonDecodedData = nil
     local observer
@@ -130,7 +131,8 @@
     local imgdata={}
     local allimg=''
     local server=Alias.urlServer..'attendence/add'
-    local up_url =Alias.urlServer..'upload/UGC_GetUploadUrl'
+    local up_url = Alias.urlServer..'upload/UGC_GetUploadUrl'
+    local newUploadUrl = Alias.urlServer..'new/upload/UGC_GetUploadUrl' -- 新的上传接口
     local kqtime=nil
     local addPic=nil
     local g_retryCount=20
@@ -377,25 +379,35 @@
            showMsg('定位失败,请重试!');
          return
         end
-        --1.首先上传
-        local hasPic=0;
-        Loading:show(rootSprite)
+        uploadphoto()
+        subform()
+    end
+    
+    -- @brief 将图片附加到上传队列
+    -- @author hewu <hewu2008@gmail.com>
+    function uploadphoto()
         for key, value in pairs(imgdata) do
-            if value~=nil and value~='' then
-                hasPic=1;
-                local n=tonumber(string.sub(key,4,4))
-                local fname=string.sub(value,lastIndexof( value,'/')+1,string.len(value)-4)
-                local param = 'FILE_NAME='..fname..'&C_TYPE=jpg&C_LEN=' .. IO:fileSize(value)
-                --local param = 'FILE_NAME=list_news_d&C_TYPE=jpg&C_LEN='..IO:fileSize('MODULE:\\com_xsgj\\pics\\list_news_d.jpg')
-                Log:write('upload_url'..n, param)
-                Http:request('upload_url'..n, up_url, 504+n, {useCache = false, method = 'post', postData= param})  
+            if value ~= "" then 
+                -- 截取文件名
+	            local filename = string.sub(value, lastIndexof( value,'/') + 1, string.len(value) - 4 )
+	            -- 文件上传URL地址
+	            local url = newUploadUrl                      
+	            local strUploadFile = value                
+	            local strLocal = ""  
+	            -- 上传Session                               
+	            local strUsersession = Config:get('username')  
+	            local strParentId = 'attenceType'   
+	            -- 服务端目录                
+	            local strFilePath = "" 
+	            local strFilename = filename..'.jpg'          
+	            -- 定义上传行为         
+	            local action = "[{\"type\":\"1\",\"tick\":\"开始上传" .. strFilename .. "文件\",\"content1\":\"".. strFilename .."\",\"content2\":\"\",\"action\":\"upload\"},{\"type\":\"2\",\"tick\":\"".. strFilename .."文件上传完成\",\"content1\":\"".. strFilename .."文件上传\",\"content2\":\"上传完成\",\"action\":\"upload\"}]"
+	            local ret = Upload:appendEx(url, strUploadFile, strLocal, strUsersession, strParentId, strFilePath, strFilename, action)
+	            Log:write("附加文件"..value.."至上传队列:", ret)
             end
         end
-        Log:write('hasPic', hasPic)
-        if hasPic==0 then
-            subform()
-        end
     end
+    
     -- 返回按钮处理
     function doBack()
         Scene:back(true)
