@@ -134,8 +134,9 @@
     local curpage=1
     local pagesize=6
     local error
-    local  skinFalg='' --皮肤更新的标志
-    local skinPath='' --皮肤更新的路径
+    local skinFalg=''    --皮肤更新的标志
+    local skinPath=''    --皮肤更新的路径
+    local g_more = false -- 是否点击了更多
     ---------------------------------------callbacks--------------------------------
     -- @brief root子节点创建完事件
     function bodyBuildChildrenFinished(sprite)
@@ -164,7 +165,19 @@
         if msg == 101 then
             UmsAgent:onLoadFinish()
             if Loading:isShow() then Loading:close() end
-            jsonDecodedNotice = Http:jsonDecode('notice')
+            if g_more == true then 
+                local notice = Http:jsonDecode('notice')
+                if notice.Row ~= nil and getJsonArrayCount(notice.Row) > 0 then 
+                    for i = 0, getJsonArrayCount(notice.Row) - 1  do
+                        table.insert(jsonDecodedNotice.Row, notice.Row[i])
+                    end
+                else
+                    jsonDecodedNotice = Http:jsonDecode('notice')
+                end
+                g_more = false
+            else
+                jsonDecodedNotice = Http:jsonDecode('notice')
+            end
             Log:write('pqy:', jsonDecodedNotice)
             -- 检查是否有返回结果
             if (jsonDecodedNotice == nil or jsonDecodedNotice["Total"] == 0 or
@@ -180,13 +193,13 @@
             end
             local s=getJsonArrayCount(jsonDecodedNotice['Row']);
             local list = Sprite:findChild(rootSprite, 'listView1')
-            -- ListView:removeAllItems(list)
+            ListView:removeAllItems(list)
             -- 加载新的列表项
             ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem1'),s, 'loadListItem')
             ListView:adjust(list)
             refresh(rootSprite)
             --已读新闻返回数据
-            elseif msg==102 then
+        elseif msg==102 then
             if Loading:isShow() then Loading:close() end
             jsonDecodedNotice = Http:jsonDecode('notice')
             Log:write('pqy:', jsonDecodedNotice)
@@ -431,6 +444,7 @@
         Sprite:setProperty(curpage, 'data',p)
         local keywordEditSprite = Sprite:findChild(rootSprite, "keywordEdit")
         local title = Sprite:getText(keywordEditSprite)
+        g_more = true
         if title == nil or title =='' or title=='搜索公告标题'then
             Http:request('notice', Alias.urlServer..'news/selAll?'..'page='..Sprite:getData(curpage)..'&pagesize='..pagesize..'&userCode='..Config:get('username'), 101, {useCache = false, method = 'post'})
         else
