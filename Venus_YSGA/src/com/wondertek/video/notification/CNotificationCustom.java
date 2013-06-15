@@ -4,10 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import com.wondertek.activity.R;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;
 import com.wondertek.video.VenusConstEventString;
+import com.wondertek.ysga.R;
 
 import android.app.Notification;
 import android.app.NotificationManager;
