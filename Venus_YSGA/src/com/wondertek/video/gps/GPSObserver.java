@@ -281,20 +281,23 @@ public class GPSObserver {
 
 	public void getGPSData()
 	{
-		if(mLocationManager==null)
+		if(mLocationManager == null)
 			return;
 		Location location =mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		
-		if(location == null)
-		{
+		if(location == null) {
 			Log.d(TAG, "location == null");
+			nativegpsreturn("", 0, 0, 0, 0, 0, 0);
+			return;
+		}else if (new Date().getTime() - location.getTime() > 60000) {
+			Log.d(TAG, "location expired");
+			nativegpsreturn("", 0, 0, 0, 0, 0, 0);
 			return;
 		}
-		Log.d(TAG, "Time:" +location.getTime());
-		Log.d(TAG, "Longitude:" +location.getLongitude());
-		Log.d(TAG, "Latitude:" +location.getLatitude());
-		
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+		Log.d(TAG, "Time:" + formatter.format(location.getTime()));
+		Log.d(TAG, "Longitude:" + location.getLongitude());
+		Log.d(TAG, "Latitude:" + location.getLatitude());
+		Log.d(TAG, "Accuracy:" + location.getAccuracy());
 		nativegpsreturn(formatter.format(location.getTime()), (int)(location.getAccuracy()), (int)(location.getLongitude()*10e6),(int)(location.getLatitude()*10e6),
 				(int)location.getSpeed(),(int)location.getBearing(),(int)location.getAltitude());
 	}
