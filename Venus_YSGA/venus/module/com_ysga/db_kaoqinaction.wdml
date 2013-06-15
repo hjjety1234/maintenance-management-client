@@ -528,27 +528,14 @@
     -- 对获得的数据进行处理
     if longitude ~= nil and longitude ~= 0 and latitude ~= nil and latitude ~= 0 
         and g_retryCount > 0 then
-        if g_latitude == nil and g_longitude == nil then 
-            -- 首次获得GPS数据，作为比较的基准
-            g_latitude = latitude
-            g_longitude = longitude
-            g_retryCount = g_retryCount - 1
-            Timer:set(222, 1000, 'getLoctude')
-            return
-        end
-        if g_latitude ~= latitude and g_longitude ~= longitude then 
-            -- 有效的gps数据，与上次的定位结果不同
+            Log:write("GPS数据有效!")
             g_retryCount = 20
             System:setGPSStatus(0)
             observer = Plugin:getObserver()
             Map:getLocation(observer, 1003, latitude, longitude)
-        else 
-            -- 无效的gps数据， 与上次的定位结果不同
-            g_retryCount = g_retryCount - 1
-            Timer:set(222, 1000, 'getLoctude')
-        end
-    elseif g_retryCount > 0 then
+    elseif longitude == 0 and latitude == 0 and g_retryCount > 0 then
         -- 未超时需要继续请求
+         Log:write("GPS数据无效!")
         g_retryCount = g_retryCount - 1
         Timer:set(222, 1000, 'getLoctude')
     else
