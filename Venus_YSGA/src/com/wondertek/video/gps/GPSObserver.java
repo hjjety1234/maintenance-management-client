@@ -283,7 +283,7 @@ public class GPSObserver {
 	{
 		if(mLocationManager==null)
 			return;
-		Location location =mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+		Location location =mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 		
 		if(location == null)
 		{
