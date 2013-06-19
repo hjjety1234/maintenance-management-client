@@ -176,6 +176,8 @@ local time
 local posValue
 local g_beat = 0
 
+local personStatus = ''    -- 登录人所在模块
+
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -269,11 +271,11 @@ function bodyOnPluginEvent(msg, param)
         local longitudeValue = tonumber(postData.longitude) / 1000000.0
         local time = getCurDateAndTimeAddOneDay()
         local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
-        local param = string.format('usercode=%s&lon=%f&lat=%f&gpstime=%s&cmd=%s&simid=%s', 
-                usercode, longitudeValue, latitudeValue, time, 'wlbheartbeat', Config:get('simid'))
-        Log:write("[msg 1100] param", param)
+        local param = string.format('usercode=%s&lon=%f&lat=%f&gpstime=%s&cmd=%s&simid=%s&status=%s', 
+                usercode, longitudeValue, latitudeValue, time, 'wlbheartbeat', Config:get('simid'), personStatus)
+        -- Log:write("[msg 1100] param", param)
         local reqURL = getUrl()..'nbspweb/webservice/common!doWebservice.action'
-        Log:write("reqURL="..reqURL)
+        Log:write("@jldu reqURL: "..reqURL..'?'..param)
         Http:request('heartBeatTag', reqURL, 103, {useCache = false, method='post',postData = param})
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -331,16 +333,21 @@ end
 function ButtonOnSelect(sprite)
     local dataInfo = Sprite:getData(sprite)
     if dataInfo == '01' then
-    Log:write('111',11111)
+        personStatus = 'C09'  -- @jldu 工单处理
+        heartBeatFuc()
         Scene:setReturn(Alias.home_new, Alias.m_daibangongdan)
         Scene:go(Alias.m_daibangongdan)
     elseif dataInfo == '02' then
         Scene:setReturn(Alias.home_new, Alias.m_notice)
         Scene:go(Alias.m_notice)
     elseif dataInfo == '03' then
+        personStatus = 'C01'  -- @jldu 巡检
+        heartBeatFuc()
         Scene:setReturn(Alias.home_new, Alias.m_xunjianjihua)
         Scene:go(Alias.m_xunjianjihua)
     elseif dataInfo == '04' then
+        personStatus = 'C10'  -- @jldu 隐患上传
+        heartBeatFuc()
         Scene:setReturn(Alias.home_new, Alias.m_yinhuanList)
         Scene:go(Alias.m_yinhuanList)
     elseif dataInfo == '05' then
@@ -348,16 +355,16 @@ function ButtonOnSelect(sprite)
         Scene:go(Alias.m_cheliangguanli)
     elseif dataInfo == '06' then
         Scene:setReturn(Alias.home_new, Alias.m_search)
-        Scene:go(Alias.m_search)
-        
+        Scene:go(Alias.m_search)      
     elseif dataInfo == '07' then
-             Log:write('111',11111)
         Scene:setReturn(Alias.home_new, Alias.m_tongxunlu)
         Scene:go(Alias.m_tongxunlu)
     elseif dataInfo == '08' then
         Scene:setReturn(Alias.home_new, Alias.m_system)
         Scene:go(Alias.m_system)
     elseif dataInfo == '09' then
+        personStatus = 'C08'  -- @jldu 资源核查
+        heartBeatFuc()
         Scene:setReturn(Alias.home_new, Alias.m_thirdPartySoft)
         Scene:go(Alias.m_thirdPartySoft)
         --修改为启动综资app
@@ -487,6 +494,5 @@ function heartBeatFuc()
     local observer = Plugin:getObserver()
     Map:getCurPosition(observer, 1100)
 end 
-
     ]]>
 </root>
