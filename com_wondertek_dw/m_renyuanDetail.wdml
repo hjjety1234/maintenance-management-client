@@ -40,7 +40,7 @@
             <!-- 主体（上） -->
             <node name="baseSprite" rect="0,70,480,160" extendstyle="1111">
                <image  rect="14,20,452,15"  src="file://image/content_top.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
-               <image rect="14,35,452,110"  src="file://image/content_center.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <image rect="14,35,452,120"  src="file://image/content_center.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                <image rect="14,145,452,15"  src="file://image/content_bottom.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                <image rect="33,33,113,113"  src="file://image/pepole_pic.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                <label name="people" rect="160,35,100,40" text="" color="#303030" v-align="center"  
@@ -50,7 +50,7 @@
             <!-- 主体（中）-->
             <node name="baseSprite" rect="0,230,480,360" extendstyle="1111">
                <image rect="14,20,452,15"  src="file://image/content_top.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
-               <image rect="14,35,452,130"  src="file://image/content_center.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <image rect="14,35,452,140"  src="file://image/content_center.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                <image rect="14,165,452,15"  src="file://image/content_bottom.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                <!-- 电话 --> 
                <button  rect="20,30,440,70" extendstyle="1111" v-align="center" h-align="left" OnSelect="phoneOn" >
@@ -69,7 +69,7 @@
                        h-align="left" font-family="微软雅黑" extendstyle="1111"  line-height="22" step="2" scroll="true"></scrolltext>   
 
                <image rect="14,200,452,15"  src="file://image/content_top.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
-               <image rect="14,215,452,180"  src="file://image/content_center.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
+               <image rect="14,215,452,190"  src="file://image/content_center.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                <image rect="14,395,452,15"  src="file://image/content_bottom.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
                <!-- 入职时间 --> 
                <image  rect="55,225,21,21"  src="file://image/pepole_time.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />
@@ -110,6 +110,7 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
       Log:write('人员编号',id)
+      Loading:show()
       request()
     elseif msg == MSG_DEACTIVATE then
     end
@@ -120,12 +121,12 @@ function bodyOnPluginEvent(msg, param)
     if msg == 101 then  -- 将当前位置放置到屏幕中央
        renyuan_data = Http:jsonDecode('renyuan_data')
        Log:write("人员详情",renyuan_data)
+       Loading:close()
        if renyuan_data.code=='0' then
            intData()
        elseif renyuan_data.value ==nil or renyuan_data ==nil then
           Dialog:show('', '暂无人员详情信息!', 'ok')
        end
-     
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -147,7 +148,7 @@ function doBack()
     Scene:back()
 end
 function request()
-   local reqURL ='http://61.191.25.238:7001/nbspweb/webservice/map!doWebservice.action?cmd=wlbstaffshowmap&usercode='..id
+   local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?cmd=wlbstaffshowmap&usercode='..id
    Log:write('reqURL',reqURL) 
    Http:request('renyuan_data', reqURL, 101, {useCache = false})
 end
@@ -158,36 +159,42 @@ function  intData()
   local role =Sprite:findChild(rootSprite,'role')
   local people=Sprite:findChild(rootSprite,'people')
   local daiweidw =Sprite:findChild(rootSprite,'daiweidw')
+  local email = Sprite:findChild(rootSprite,'email')
   if renyuan_data.value["username"] then
      Sprite:setProperty(people,'text',renyuan_data.value["username"])
-  else 
+  elseif renyuan_data.value["username"]=='' then 
     Sprite:setProperty(people,'text','还没填写哦')
   end 
   if renyuan_data.value["unit"] then
      Sprite:setProperty(daiweidw,'text',renyuan_data.value["unit"])
-  else 
+  elseif renyuan_data.value["unit"]=='' then 
     Sprite:setProperty(daiweidw,'text','还没填写哦')
   end
-  if renyuan_data.value["phone"] then
+  if renyuan_data.value["phone"]~='' then
      Sprite:setProperty(phone,'text',renyuan_data.value["phone"])
-  else 
+  elseif  renyuan_data.value["phone"]=='' then
     Sprite:setProperty(phone,'text','还没填写哦')
   end
   if renyuan_data.value["entrytime"] then
-    local i,j = string.find(renyuan_data.value["entrytime"], ' ', 1)
+    local j = string.find(renyuan_data.value["entrytime"], ' ', 1)
     Sprite:setProperty(pepole_time,'text',string.sub(renyuan_data.value["entrytime"],1,j-1))
-  else
+  elseif renyuan_data.value["entrytime"]=='' then 
      Sprite:setProperty(pepole_time,'text','还没填写哦')
   end
   if renyuan_data.value["educational"]~='' then
     Sprite:setProperty(xueli,'text',renyuan_data.value["educational"])
-  else
+  elseif renyuan_data.value["educational"]=='' then 
     Sprite:setProperty(xueli,'text','还没填写哦')
   end
   if renyuan_data.value["role"] then
     Sprite:setProperty(role,'text',renyuan_data.value["role"])
-  else
+  elseif renyuan_data.value["role"]=='' then
     Sprite:setProperty(role,'text','还没填写哦')
+  end
+  if renyuan_data.value["email"]~='' then
+    Sprite:setProperty(email,'text',renyuan_data.value["email"])
+  elseif renyuan_data.value["email"]=='' then
+    Sprite:setProperty(email,'text','还没填写哦')
   end
 end
 function phoneOn()

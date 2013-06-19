@@ -137,13 +137,17 @@ local id                     -- 人员编号
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    request()
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_search, 'MODULE:\\(.*)'), '资源查询首页')
-        request()
+            -- 打开底图
+        if g_isMapOpen == false then 
+            openMap(0, 70, 480, 644)
+        end
     elseif msg == MSG_DEACTIVATE then
         Map:close()
         g_isMapOpen = false
@@ -201,12 +205,13 @@ function bodyOnPluginEvent(msg, param)
         pois = poisString
         showNearbyPois()
     elseif msg == 1001 then -- 获取附近的POI点，并显示的地图上
-    elseif msg == 1002 then -- POI详情和导航消息处理
-        -- postData为Json数据({"PoiId":"31250614","cmd":"RouteSearch"})
-        Log:write('我要描点')
+    elseif msg == 1002 then -- POI详情和导航消息处理ss
+        local postDataString = Param:getString(param, 0)
+        local postData = Json:loadString2Table(postDataString) 
+        Log:write('msg 1002 ', postData) 
+        Log:write('传过去的id',postData.PoiId)
         Scene:setReturn(Alias.m_search_map, Alias.m_renyuanDetail)
-        Log:write('传过去的id',id)
-        Scene:go(Alias.m_renyuanDetail..'?id='..id)
+        Scene:go(Alias.m_renyuanDetail..'?id='..postData.PoiId)
         Map:close()
         g_isMapOpen = false
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
@@ -255,10 +260,7 @@ end
 -- 显示人员的poi点
 function showNearbyPois()
 
-    -- 打开底图
-    if g_isMapOpen == false then 
-        openMap(0, 70, 480, 644)
-    end
+
     Log:write('开始定位')
     --local pois = '{"showType":"3","pois":[{"id":"111","longitude":121592782,"latitude":31244582,"company":"荣斐酒店","major":"线路巡检","name":"张三","status":"正在巡检","desc":"aaa"},{"id":"222","longitude":121590745,"latitude":31244910,"company":"浦东华美达","major":"线路巡检","name":"李四","status":"正在巡检","desc":"bbb"},{"id":"333","longitude":121595483,"latitude":31246584,"company":"碧云国际","major":"线路巡检","name":"王五","status":"正在巡检","desc":"ccc"}]}'
     local observer = Plugin:getObserver()
