@@ -365,10 +365,22 @@ function listItemOnSelect(sprite)
         Scene:go(Alias.m_system_manager)
 
     elseif dataInfo == '10' then --代维地图
-        -- Scene:setReturn(Alias.home_sheng, Alias.m_search_map)
-        -- Scene:go(Alias.m_search_map)
-        Scene:setReturn(Alias.home_sheng, Alias.m_dwMap)
-        Scene:go(Alias.m_dwMap)
+        if role=='MM000' or role=='MM001' or role=='MM002' then
+            Scene:setReturn(Alias.home_sheng, Alias.m_dwMap)
+            Scene:go(Alias.m_dwMap)
+        elseif role=='MM005' or role=='MM006' or role=='MM009' or role=='MM010'then
+            -- @jldu 县公司查看其自己县的人车配置详情
+            Log:write("@jldu 截取区号的最后两位："..string.sub(regionid,5))
+            if string.sub(regionid,5) == '00' then
+                Log:write("@jldu 地市公司")
+                Scene:setReturn(Alias.home_sheng, Alias.m_dwMap_city)
+                Scene:go(Alias.m_dwMap_city)
+            else
+                Log:write("@jldu 县公司")
+                Scene:setReturn(Alias.home_sheng, Alias.m_search_map)
+                Scene:go(Alias.m_search_map)
+            end 
+        end      
     end
 end
 
