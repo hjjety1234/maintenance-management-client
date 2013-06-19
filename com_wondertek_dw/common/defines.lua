@@ -165,7 +165,6 @@ Alias = {
     m_renyuanDetail= "MODULE:\\com_wondertek_dw\\m_renyuanDetail.wdml",  -- 人员详情 
 
     m_thirdPartySoft = "MODULE:\\com_wondertek_dw\\m_thirdPartySoft.wdml",  -- 第三方软件 
-
-   
+    m_dwMap = "MODULE:\\com_wondertek_dw\\m_dwMap.wdml" -- 代维地图
 }
 
