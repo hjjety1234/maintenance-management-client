@@ -43,7 +43,7 @@
             </button>
             
             <!-- 地图部分  -->
-            <node rect="0,90,480,534" extendstyle="1111">
+            <node name="daiweiMap" rect="0,90,480,534" extendstyle="1111">
                  <image rect="20,0,440,534" border="false" src="file://image/map.png" 
                    style="autosize" extendstyle="1111"/>
                  <button name="btnHefei" rect="213,255,64,103" data="合肥" extendstyle="1111" 
@@ -243,7 +243,7 @@
                     src="file://image/tongji_bg.png" extendstyle="1111">
                     <textarea name="renyuantongji" rect="5,5,467,67" loop='false' step="1" border="false" 
                         color="#303135" style="autosize" h-align="left" v-align="center" 
-                        text="" font-family="微软雅黑" font-size="17" line-height="23" 
+                        text="" font-family="微软雅黑" font-size="20" line-height="23" 
                         extendstyle="1111"/>
                 </image>
             </node>
@@ -296,11 +296,15 @@ local renyuandata = nil
 local stasticData = nil
 local regionid
 local tongjiNode
+local daiweiMap
+local cityNode
 ---------------------------------------回调函数--------------------------------
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     tongjiNode = Sprite:findChild(rootSprite,'tongjiNode')
+    daiweiMap = Sprite:findChild(rootSprite,'daiweiMap')
+    cityNode = Sprite:findChild(rootSprite, 'cityNode')
 end
 
 -- root节点消息方法
@@ -309,11 +313,8 @@ function bodyOnSpriteEvent(msg, param)
         UmsAgent:OnActivate(string.match(Alias.m_dwMap, 'MODULE:\\(.*)'), "代维地图")
         -- @jldu 统计数据请求
         requestStastic()
-        local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode=fanbingheng&date='
-        local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
-        Log:write("@jldu reqURL: "..reqURL)
-        Http:request('renyuandata', reqURL, 101, {useCache = false})
-        Loading:show()
+        -- @jlud 代维地图数据请求
+        requestMap()
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
@@ -374,20 +375,17 @@ end
 
 -- 隐藏地市
 function hideCityNode(sprite)
-    local cityNode = Sprite:findChild(rootSprite, 'cityNode')
     Sprite:setProperty(cityNode, 'visible', 'false')
     Sprite:setProperty(cityNode, 'enable', 'false')
 end
 
 function OnSelectShowMap(sprite)
-    local cityNode = Sprite:findChild(rootSprite, 'cityNode')
     Sprite:setProperty(cityNode, 'visible', 'false') 
 end
 
 -- @jldu 突出显示某个地市
 function showDetail(strName)
     Log:write("突出显示："..strName)
-    local cityNode = Sprite:findChild(rootSprite, 'cityNode')
     Sprite:setProperty(cityNode, 'visible', "true")
     for i=0,#renyuandata.value[0].data do
         local cityImage = Sprite:findChild(rootSprite, renyuandata.value[0].data[i].dimension)
@@ -395,8 +393,6 @@ function showDetail(strName)
     end
     local cityImage = Sprite:findChild(rootSprite, strName)
     Sprite:setProperty(cityImage, 'visible', 'true')
-    -- @jldu 1秒后跳转到地图打点页面
-    -- Timer:set(100, '1000', 'jumpTOMapPoit') 
     jumpTOMapPoit()
 end
 
@@ -414,6 +410,7 @@ function searchOnSelect(sprite)
     local cheliang=Sprite:findChild(rootSprite,'cheliang')
     local yinhuan =Sprite:findChild(rootSprite,'yinhuan')
     if btnData=='01' then
+        Sprite:setProperty(daiweiMap,'enable','true') 
         Sprite:setProperty(tongjiNode,'visible','true')
         Sprite:setVisible(renyuan,'1')
         Sprite:setVisible(cheliang,'0')
@@ -421,17 +418,23 @@ function searchOnSelect(sprite)
         Log:write("@jldu 点击人员")
         requestStastic()
     elseif btnData=='02' then
+        Sprite:setProperty(daiweiMap,'enable','false')
         Sprite:setVisible(renyuan,'0')
         Sprite:setVisible(cheliang,'1')
         Sprite:setVisible(yinhuan,'0')
         Log:write("@jldu 点击车辆")
         Sprite:setProperty(tongjiNode,'visible','false')
+        Dialog:show('', '正在开发，敬请期待!', 'ok')
+        return
     elseif btnData=='03' then
+        Sprite:setProperty(daiweiMap,'enable','false')
         Sprite:setVisible(renyuan,'0')
         Sprite:setVisible(cheliang,'0')
         Sprite:setVisible(yinhuan,'1')
         Log:write("@jldu 点击隐患")
         Sprite:setProperty(tongjiNode,'visible','false')
+        Dialog:show('', '正在开发，敬请期待!', 'ok')
+        return
     end
 end
 
@@ -441,6 +444,15 @@ function requestStastic()
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
     Log:write("@jldu 请求统计数据地址: "..reqURL)
     Http:request('stasticData', reqURL, 102, {useCache = false})
+end
+
+-- @jldu 请求地图数据
+function requestMap()
+    local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode=fanbingheng&date='
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Log:write("@jldu reqURL: "..reqURL)
+    Http:request('renyuandata', reqURL, 101, {useCache = false})
+    -- Loading:show()   
 end
     ]]>
 </root>
