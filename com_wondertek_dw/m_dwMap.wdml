@@ -311,10 +311,9 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_dwMap, 'MODULE:\\(.*)'), "代维地图")
-        -- @jldu 统计数据请求
-        requestStastic()
         -- @jlud 代维地图数据请求
         requestMap()
+
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
@@ -322,13 +321,15 @@ end
 
 -- 插件消息方法
 function bodyOnPluginEvent(msg, param)
-    if Loading:isShow() then Loading:close() end 
     if msg == 101 then
         UmsAgent:onLoadFinish()
         renyuandata = Http:jsonDecode('renyuandata')
         -- Log:write("@jldu renyuandata: ",renyuandata)
         OnSelectShowMap()
+        -- @jldu 统计数据请求
+        requestStastic()
     elseif msg == 102 then
+        if Loading:isShow() then Loading:close() end 
         stasticData = Http:jsonDecode('stasticData')
         Log:write("@jldu 请求统计数据:  ",stasticData)
         local value = stasticData.value[0]
@@ -452,7 +453,7 @@ function requestMap()
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write("@jldu reqURL: "..reqURL)
     Http:request('renyuandata', reqURL, 101, {useCache = false})
-    -- Loading:show()   
+    Loading:show()   
 end
     ]]>
 </root>
