@@ -288,14 +288,22 @@ require 'framework.webbrowser'
 require 'framework.umsagent'
 local rootSprite
 local renyuandata = nil
+local stasticData = nil
 
 local regionid
-local city 
+local citydata 
 local tongjiNode
 local staff
 local staffonline
 local daiweiMap
 local cityNode
+
+local testTable={{city='合肥',regionid='340100'},{city='芜湖',regionid='340200'},{city='蚌埠',regionid='340300'},
+        {city='淮南',regionid='340400'},{city='马鞍山',regionid='340500'},{city='淮北',regionid='340600'},
+        {city='铜陵',regionid='340700'},{city='安庆',regionid='340800'},{city='黄山',regionid='341000'},
+        {city='滁州',regionid='341100'},{city='阜阳',regionid='341200'},{city='宿州',regionid='341300'},
+        {city='六安',regionid='341500'},{city='亳州',regionid='341600'},{city='池州',regionid='341700'},
+        {city='宣城',regionid='341800'}}
 ---------------------------------------回调函数--------------------------------
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -309,7 +317,8 @@ end
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        UmsAgent:OnActivate(string.match(Alias.m_dwMap, 'MODULE:\\(.*)'), "代维地图")
+        UmsAgent:OnActivate(string.match(Alias.m_dwMap_city, 'MODULE:\\(.*)'), "实时监控")
+        -- Log:write("@jldu 测试testTable ： ",testTable)
         -- @jldu 请求地图数据
         requestMap() 
         
@@ -320,17 +329,10 @@ end
 
 -- 插件消息方法
 function bodyOnPluginEvent(msg, param) 
+    if Loading:isShow() then Loading:close() end
     if msg == 101 then
-        UmsAgent:onLoadFinish()
-        renyuandata = Http:jsonDecode('renyuandata')
-        -- Log:write("@jldu 请求人员数据:  ",renyuandata)
-        OnSelectShowMap()
-        -- @jldu 统计数据请求
-        requestStastic()
-    elseif msg == 102 then
-        if Loading:isShow() then Loading:close() end
         stasticData = Http:jsonDecode('stasticData')
-        Log:write("@jldu 请求统计数据:  ",stasticData)
+        -- Log:write("@jldu 请求统计数据:  ",stasticData)
         local value = stasticData.value[0]
         -- @jldu 定位登录人所在地市数据
         handletongji()
@@ -364,8 +366,8 @@ function doRegionClick(sprite)
     -- 获取当前被选地市的数据
     local selCity = Sprite:getData(sprite)
     Log:write('@jldu 被选中地市：',selCity)
-    Log:write('@jldu 登录人所在地市：',city.dimension)
-    if selCity == city.dimension then
+    Log:write('@jldu 登录人所在地市：',citydata.city)
+    if selCity == citydata.city then
         Log:write("@jldu 点击登录人所在地市")
         jumpTOMapPoit()
     else
@@ -385,23 +387,23 @@ function OnSelectShowMap(sprite)
     local subRegion = string.sub(regionid,3,4)
     Log:write("@jldu 区号三、四位 ： "..subRegion) 
     
-    for i=0,#renyuandata.value[0].data do
-        local serviceRegion = renyuandata.value[0].data[i].regionid
+    for i=1,#testTable do
+        local serviceRegion = testTable[i].regionid
         local subServiceRegion = string.sub(serviceRegion,3,4)
         if subRegion == subServiceRegion then
-            city = renyuandata.value[0].data[i]
+            citydata = testTable[i]
         end
     end
     Sprite:setProperty(cityNode, 'visible', 'false')
-    showDetail(city.dimension) 
+    showDetail(citydata.city) 
 end
 
 -- @jldu 突出显示某个地市
 function showDetail(strName)
     Log:write("突出显示："..strName)
     Sprite:setProperty(cityNode, 'visible', "true")
-    for i=0,#renyuandata.value[0].data do
-        local cityImage = Sprite:findChild(rootSprite, renyuandata.value[0].data[i].dimension)
+    for i=1,#testTable do
+        local cityImage = Sprite:findChild(rootSprite, testTable[i].city)
         Sprite:setProperty(cityImage, 'visible', 'false')
     end
     local cityImage = Sprite:findChild(rootSprite, strName)
@@ -454,23 +456,23 @@ function requestStastic()
     local param = 'cmd=wlbstaffregion&page=1&pagesize=50&usercode=fanbingheng&regionid=340000'
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
     Log:write("@jldu 请求统计数据地址: "..reqURL)
-    Http:request('stasticData', reqURL, 102, {useCache = false})
+    Http:request('stasticData', reqURL, 101, {useCache = false})
+    Loading:show()
 end
 
 -- @jldu 请求地图数据
 function requestMap()
-    local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode=fanbingheng&date='
-    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
-    Log:write("@jldu reqURL: "..reqURL)
-    Http:request('renyuandata', reqURL, 101, {useCache = false})
-    Loading:show()    
+    OnSelectShowMap()
+    -- @jldu 统计数据请求
+    requestStastic()     
 end
 
 -- @jldu 定位登录人所在地市数据
 function handletongji()
     for i=0,#stasticData.value[0].data do
         local stasCity = stasticData.value[0].data[i]
-        if regionid == city.regionid then
+        if regionid == stasCity.regionid then
+            Log:write("@jldu 登陆人所在地市："..stasCity.dimension)
             staff = stasCity.staff
             staffonline = stasCity.staffonline
             -- Log:write("@jldu 登录人所在地市 今日登录用户总数："..staff)
