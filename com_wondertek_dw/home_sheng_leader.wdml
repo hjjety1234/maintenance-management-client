@@ -142,19 +142,29 @@
                 <shadow rect="5,0,225,60" color="#374e96" style="autosize" alpha="200" extendstyle="1111"/>
                 <image rect="10,1,60,58" src="file://image/home_zyhc.png" style="center" 
                     extendstyle="1111" />
-                <label rect="0,5,200,50" text="资源核查" color="#ffffff" font-family="微软雅黑"
+                <label rect="0,5,200,50" text="第三方软件" color="#ffffff" font-family="微软雅黑"
                     font-size="22" v-align="center" h-align="right" extendstyle="1111" />
             </node>
         </button>
         <!-- 系统设置  -->
-        <button name="buttonBGnote" rect="11,695,457,62" border="false" 
+        <button name="buttonBGnote" rect="11,695,225,62" border="false" 
             normal="normal" extendstyle="1111" OnSelect="listItemOnSelect" data="09">
              <node name="normal" rect="0,0,457,62" extendstyle="1111">
-                <shadow rect="0,0,459,62" color="#0f35ad" alpha="200" extendstyle="1111"/>
+                <shadow rect="0,0,226,60" color="#0f35ad" alpha="200" extendstyle="1111"/>
                 <image name='bggl' rect="8,3,56,56" src="file://image/home_tools.png" style="center"
                     extendstyle="1111" />
-                <label rect="346,20,100,35" text="系统设置" color="#ffffff" font-family="微软雅黑"
-                    font-size="22" v-align="top" h-align="center" extendstyle="1111" />
+                <label rect="0,20,200,35" text="系统设置" color="#ffffff" font-family="微软雅黑"
+                    font-size="22" v-align="top" h-align="right" extendstyle="1111" />
+             </node>
+        </button>
+        <!-- 人员地图  -->
+        <button name="buttonBGnote" rect="240,695,225,60"  normal="normal" 
+            extendstyle="1111" OnSelect="listItemOnSelect"  data="11">
+             <node name="normal" rect="0,0,227,60" extendstyle="1111">
+                <shadow rect="5,0,225,60" color="#b26d2f" alpha="200" extendstyle="1111"/>
+                <image name='bggl' rect="12,2,56,56" src="file://image/home_map.png" style="center" extendstyle="1111" />
+                <label rect="0,20,200,35" text="代维地图" color="#ffffff" font-family="微软雅黑"
+                    font-size="22" v-align="top" h-align="right" extendstyle="1111" />
              </node>
         </button>
         </node>
@@ -172,12 +182,14 @@ local regionid=''
 local year = '' --年
 local quarter = ''--季
 local month  = ''--月
+
+local role
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
 --获取角色编号
-    local role = Config:get('role')
+    role = Config:get('role')
     regionid = Config:get('regionid')
     if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
         g_regionid = regionid
@@ -335,6 +347,9 @@ end
 
 function listItemOnSelect(sprite)
     local dataInfo = Sprite:getData(sprite)
+    Log:write("@jldu dataInfo: ",dataInfo)
+    regionid = Config:get('regionid')
+    Log:write("@jldu 登录人区号："..regionid)
     if dataInfo == '01' then    -- 站点搜索
         Scene:setReturn(Alias.home_sheng_leader, Alias.m_checkzhandian)
         Scene:go(Alias.m_checkzhandian)
@@ -389,6 +404,22 @@ function listItemOnSelect(sprite)
             else
             end
         end
+    elseif dataInfo == '11' then
+        Log:write("@jldu 点击代维地图登录人角色："..role)
+        if role=='MM003' or role=='MM004' then
+            Log:write("@jldu 省公司")
+            Scene:setReturn(Alias.home_sheng_leader, Alias.m_dwMap)
+            Scene:go(Alias.m_dwMap)
+        elseif role=='MM007' or role=='MM008' then           
+            Log:write("@jldu 地市公司")
+            Scene:setReturn(Alias.home_sheng_leader, Alias.m_dwMap_city)
+            Scene:go(Alias.m_dwMap_city)
+        elseif role=='MM011' then
+            -- @jldu 县公司定位到自己区域打点地图
+            Log:write("@jldu 县公司")
+            Scene:setReturn(Alias.home_sheng_leader, Alias.m_search_map)
+            Scene:go(Alias.m_search_map..'?regionid='..regionid)
+        end    
     end
 end
 
