@@ -137,6 +137,7 @@ local id                     -- 人员编号
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    --请求接口数据
     request()
 end
 
@@ -144,7 +145,7 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_search, 'MODULE:\\(.*)'), '资源查询首页')
-            -- 打开底图
+        -- 打开底图
         if g_isMapOpen == false then 
             openMap(0, 70, 480, 644)
         end
@@ -161,6 +162,12 @@ function bodyOnPluginEvent(msg, param)
     elseif msg ==101 then 
         staffData = Http:jsonDecode('staffData')
         Log:write('人员数据',staffData)
+        --异常保护
+        if staffData.total=='0' or staffData.value==nil then
+            closeMap()
+            Dialog:show('','当前没有在线代维人员','ok')
+            return
+        end
          -- 获取查询结果数目
         local respValue = staffData.value
         local len = #respValue
@@ -237,10 +244,6 @@ function doBack()
     Scene:back()
 end
 
--- 搜索附近按钮消息处理函数
-function NearOnSelect(sprite)
-   showNearbyPois()
-end
 
 ---------------------------------------地图相关函数---------------------------
 -- 打开地图
@@ -259,8 +262,9 @@ end
 
 -- 显示人员的poi点
 function showNearbyPois()
-
-
+    Log:write('准备移动')
+    Map:moveTo(29.72*1000000,118.33*1000000,'') 
+    Log:write('移动完毕')
     Log:write('开始定位')
     --local pois = '{"showType":"3","pois":[{"id":"111","longitude":121592782,"latitude":31244582,"company":"荣斐酒店","major":"线路巡检","name":"张三","status":"正在巡检","desc":"aaa"},{"id":"222","longitude":121590745,"latitude":31244910,"company":"浦东华美达","major":"线路巡检","name":"李四","status":"正在巡检","desc":"bbb"},{"id":"333","longitude":121595483,"latitude":31246584,"company":"碧云国际","major":"线路巡检","name":"王五","status":"正在巡检","desc":"ccc"}]}'
     local observer = Plugin:getObserver()
@@ -288,7 +292,16 @@ function searchOnSelect(sprite)
      Sprite:setVisible(ziyuan,'0')
      Sprite:setVisible(guzhang,'0')
      Sprite:setVisible(guzhang,'0')
-     showNearbyPois()
+        --异常保护
+        if staffData.total=='0' or staffData.value==nil then
+            closeMap()
+            Dialog:show('','当前没有在线代维人员','ok')
+            return
+        end
+        -- 打开底图
+        if g_isMapOpen == false then 
+            openMap(0, 70, 480, 644)
+        end
    elseif btnData=='02' then
      Sprite:setVisible(renyuan,'0')
      Sprite:setVisible(ziyuan,'1')
@@ -335,12 +348,6 @@ function itemOnSelect(sprite)
     end
 end
 
-
-
-
-
-
-------------------------------跳转到导航页面-------------------------------------
 
 
 ]]>
