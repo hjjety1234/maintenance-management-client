@@ -101,7 +101,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        UmsAgent:OnActivate(string.match(Alias.m_search, 'MODULE:\\(.*)'), '资源查询首页')
+        UmsAgent:OnActivate(string.match(Alias.m_search_map, 'MODULE:\\(.*)'), '实时监控')
         --设置人员背景为蓝色
         local renyuan=Sprite:findChild(rootSprite,'renyuan')
         local ziyuan=Sprite:findChild(rootSprite,'ziyuan')
@@ -288,12 +288,6 @@ function searchOnSelect(sprite)
      Sprite:setVisible(renyuan,'1')
      Sprite:setVisible(ziyuan,'0')
      Sprite:setVisible(yinhuan,'0')
-        --异常保护
-        if staffData.total=='0' or staffData.value==nil then
-            closeMap()
-            Dialog:show('','当前没有在线代维人员','ok')
-            return
-        end
         -- 打开底图
         if g_isMapOpen == false then 
             openMap(0, 70, 480, 644)

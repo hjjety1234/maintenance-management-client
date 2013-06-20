@@ -163,7 +163,7 @@
              <node name="normal" rect="0,0,227,60" extendstyle="1111">
                 <shadow rect="5,0,225,60" color="#b26d2f" alpha="200" extendstyle="1111"/>
                 <image name='bggl' rect="12,2,56,56" src="file://image/home_map.png" style="center" extendstyle="1111" />
-                <label rect="0,20,200,35" text="代维地图" color="#ffffff" font-family="微软雅黑"
+                <label rect="0,20,200,35" text="实时监控" color="#ffffff" font-family="微软雅黑"
                     font-size="22" v-align="top" h-align="right" extendstyle="1111" />
              </node>
         </button>
@@ -379,31 +379,8 @@ function listItemOnSelect(sprite)
         Scene:setReturn(Alias.home_sheng_leader, Alias.m_system_manager)
         Scene:go(Alias.m_system_manager)
     elseif dataInfo == '10' then
-        --修改为启动综资app
-        local appId = 'cn.com.gxlu'
-        local app = AppManager:getInfoById(appId)
-        if(app == '' or app == nil) then
-            --启动浏览器下载
-            Util:openURL('http://211.138.184.250:9001/soft/AndreoGis.apk') 
-        else
-            --启动综合资管App
-            --Config:set('region',loginData.value[0].regionname)
-            --Config:set('orgname',loginData.value[0].orgname)
-            local region = Config:get('region')
-            local regionid = Config:get('regionid')
-            Log:write('regionid',regionid)
-            local orgname = Config:get('orgname')
-            local username = Config:get('username')
-            local realname = Config:get('realname')
-            local appInfo = appId ..'?activity=cn.com.gxlu.dwcheck.DwQueryMainActivity'
-            appInfo = appInfo..'&companyname='..orgname..'&useraccount='..username..'&username='..realname..'&areaname='..region
-            Log:write('the app info is ',appInfo)
-            local ret = AppManager:runApp(appInfo);
-            if(ret == 0) then
-                Dialog:show('提示','启动网络资源管理系统失败','ok')
-            else
-            end
-        end
+        Scene:setReturn(Alias.home_sheng_leader, Alias.m_thirdPartySoft)
+        Scene:go(Alias.m_thirdPartySoft)
     elseif dataInfo == '11' then
         Log:write("@jldu 点击代维地图登录人角色："..role)
         if role=='MM003' or role=='MM004' then
