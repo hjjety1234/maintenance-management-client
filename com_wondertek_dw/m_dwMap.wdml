@@ -293,6 +293,7 @@ require 'framework.webbrowser'
 require 'framework.umsagent'
 local rootSprite
 local renyuandata = nil
+local regionid
 ---------------------------------------回调函数--------------------------------
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -346,9 +347,17 @@ end
 ----------------------------------服务端交互函数列表---------------------------------
 -- @brief 区域点击按钮消息处理
 function doRegionClick(sprite)
-    -- 获取当前被选地市的数据
+    -- @jldu 获取当前被选地市
     local selCity = Sprite:getData(sprite)
     Log:write('@jldu 被选中地市：',selCity)
+    -- @jldu 查询点击地市区号
+    for i=0,#renyuandata.value[0].data do
+        city = renyuandata.value[0].data[i]
+        if selCity == city.dimension then
+            regionid = city.regionid
+            Log:write("@jldu 点击地市区号 ："..regionid)
+        end
+    end
     showDetail(selCity)
 end
 
@@ -376,14 +385,15 @@ function showDetail(strName)
     local cityImage = Sprite:findChild(rootSprite, strName)
     Sprite:setProperty(cityImage, 'visible', 'true')
     -- @jldu 1秒后跳转到地图打点页面
-    Timer:set(100, '1000', 'jumpTOMapPoit') 
+    -- Timer:set(100, '1000', 'jumpTOMapPoit') 
+    jumpTOMapPoit()
 end
 
 -- @jldu 跳转到地图打点页面
 function jumpTOMapPoit()
-    Timer:cancel(100) 
+    -- Timer:cancel(100) 
     Scene:setReturn(Alias.m_dwMap, Alias.m_search_map)
-    Scene:go(Alias.m_search_map)   
+    Scene:go(Alias.m_search_map..'?regionid='..regionid)   
 end
     ]]>
 </root>
