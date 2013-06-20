@@ -237,50 +237,50 @@
                     </label>
                 </image>   
             </node>
+            <!-- 人员统计 -->
+            <node name='tongjiNode' rect="0,630,480,77" extendstyle="1111">
+                <image rect="1,0,477,77" visible="true" border="false" style="autosize"
+                    src="file://image/tongji_bg.png" extendstyle="1111">
+                    <textarea name="renyuantongji" rect="5,5,467,67" loop='false' step="1" border="false" 
+                        color="#303135" style="autosize" h-align="left" v-align="center" 
+                        text="" font-family="微软雅黑" font-size="17" line-height="23" 
+                        extendstyle="1111"/>
+                </image>
+            </node>
             <!-- 底部工具栏  -->
             <node name="bottombar" rect="0,714,480,86" extendstyle="1511">
                 <image rect="0,0,480,86" src="file://image/bottom_new.png"
                     style="autosize" extendstyle="1511" />
-                <button name="button1" rect="0,0,120,86" border="false"
+                <button name="button1" rect="0,0,160,86" border="false"
                    text="" color="#ffffff" OnSelect="searchOnSelect" extendstyle="1111"
                    data="01">                            
-                  <image name="renyuan" rect="0,0,120,86" src="file://image/dt_btn_s.png"
+                  <image name="renyuan" rect="0,0,160,86" src="file://image/dt_btn_s.png"
                    style="autosize" extendstyle="1111" v-align="center"  
                   h-align="center"/>
-                  <image name="img" rect="42,16,36,36" src="file://image/map_ren.png"
+                  <image name="img" rect="62,16,36,36" src="file://image/map_ren.png"
                    style="autosize" extendstyle="1111" v-align="center"  
                   h-align="center"/>
-                  <label  name="titleText" rect="42,40,40,40" text="人员" color="#ffffff" v-align="center"  
+                  <label  name="titleText" rect="62,40,40,40" text="人员" color="#ffffff" v-align="center"  
                   h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
                 </button>
-                <button name="button2" rect="120,0,120,86" border="false" 
+                <button name="button2" rect="160,0,160,86" border="false" 
                     text="" color="#ffffff" OnSelect="searchOnSelect"  xtendstyle="1111"
                     data="02">
-                    <image name="ziyuan" rect="0,0,120,86" src="file://image/dt_btn_s.png"
+                    <image name="cheliang" rect="0,0,160,86" src="file://image/dt_btn_s.png"
                     style="autosize" extendstyle="1111" visible="false"/>
-                    <image name="img" rect="42,16,36,36" src="file://image/map_ziyuan.png"
+                    <image name="img" rect="62,16,36,36" src="file://image/map_car.png"
                     style="autosize" extendstyle="1111" />
-                    <label  name="titleText" rect="40,40,40,40" text="资源" color="#ffffff" v-align="center"  
+                    <label  name="titleText" rect="62,40,40,40" text="车辆" color="#ffffff" v-align="center"  
                   h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
                 </button>
-                 <button name="button3" rect="240,0,120,86" border="false" 
+                 <button name="button3" rect="320,0,160,86" border="false" 
                     text="" color="#ffffff" OnSelect="searchOnSelect" extendstyle="1111"
                     data="03">
-                    <image name="yinhuan" rect="0,0,120,86" src="file://image/dt_btn_s.png"
+                    <image name="yinhuan" rect="0,0,160,86" src="file://image/dt_btn_s.png"
                     style="autosize" extendstyle="1111" visible="false"/>
-                    <image name="img" rect="42,16,36,36" src="file://image/map_yinhuan.png"
+                    <image name="img" rect="62,16,36,36" src="file://image/map_yinhuan.png"
                     style="autosize" extendstyle="1111" />
-                 <label  name="titleText" rect="42,40,40,40" text="隐患" color="#ffffff" v-align="center"  
-                  h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
-                </button>
-                <button name="button4" rect="360,0,120,86" border="false" 
-                    text="" color="#ffffff" OnSelect="searchOnSelect" extendstyle="1111"
-                    data="04">
-                    <image name="guzhang" rect="0,0,120,86" src="file://image/dt_btn_s.png"
-                    style="autosize" extendstyle="1111" visible="false"/>
-                    <image name="img" rect="42,16,36,36" src="file://image/map_guzhang.png"
-                    style="autosize" extendstyle="1111" />
-                    <label  name="titleText" rect="42,40,40,40" text="故障" color="#ffffff" v-align="center"  
+                 <label  name="titleText" rect="62,40,40,40" text="隐患" color="#ffffff" v-align="center"  
                   h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
                 </button>
             </node>
@@ -296,16 +296,22 @@ local renyuandata = nil
 
 local regionid
 local city 
+local tongjiNode
+local staff
+local staffonline
 ---------------------------------------回调函数--------------------------------
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    tongjiNode = Sprite:findChild(rootSprite,'tongjiNode')
 end
 
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_dwMap, 'MODULE:\\(.*)'), "代维地图")
+        -- @jldu 统计数据请求
+        requestStastic()
         local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode=fanbingheng&date='
         local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
         Log:write("@jldu reqURL: "..reqURL)
@@ -322,8 +328,15 @@ function bodyOnPluginEvent(msg, param)
     if msg == 101 then
         UmsAgent:onLoadFinish()
         renyuandata = Http:jsonDecode('renyuandata')
-        -- Log:write("@jldu renyuandata: ",renyuandata)
         OnSelectShowMap()
+    elseif msg == 102 then
+        stasticData = Http:jsonDecode('stasticData')
+        -- Log:write("@jldu 请求统计数据:  ",stasticData)
+        local value = stasticData.value[0]
+        -- @jldu 定位登录人所在地市数据
+        handletongji()
+        local renyuantongji = Sprite:findChild(rootSprite,'renyuantongji')
+        Sprite:setProperty(renyuantongji,'text','今日登录用户'..staff..'人，今日在线人数'..staffonline..'人。')
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -409,6 +422,55 @@ function jumpTOMapPoit()
     -- Timer:cancel(100) 
     Scene:setReturn(Alias.m_dwMap_city, Alias.m_search_map)
     Scene:go(Alias.m_search_map..'?regionid='..regionid)   
+end
+
+-- @jldu 底部菜单
+function searchOnSelect(sprite)
+    local btnData = Sprite:getData(sprite)
+    local renyuan=Sprite:findChild(rootSprite,'renyuan')
+    local cheliang=Sprite:findChild(rootSprite,'cheliang')
+    local yinhuan =Sprite:findChild(rootSprite,'yinhuan')
+    if btnData=='01' then
+        Sprite:setProperty(tongjiNode,'visible','true')
+        Sprite:setVisible(renyuan,'1')
+        Sprite:setVisible(cheliang,'0')
+        Sprite:setVisible(yinhuan,'0')
+        Log:write("@jldu 点击人员")
+        requestStastic()
+    elseif btnData=='02' then
+        Sprite:setVisible(renyuan,'0')
+        Sprite:setVisible(cheliang,'1')
+        Sprite:setVisible(yinhuan,'0')
+        Log:write("@jldu 点击车辆")
+        Sprite:setProperty(tongjiNode,'visible','false')
+    elseif btnData=='03' then
+        Sprite:setVisible(renyuan,'0')
+        Sprite:setVisible(cheliang,'0')
+        Sprite:setVisible(yinhuan,'1')
+        Log:write("@jldu 点击隐患")
+        Sprite:setProperty(tongjiNode,'visible','false')
+    end
+end
+
+-- @jldu 请求统计数据接口
+function requestStastic()
+    local param = 'cmd=wlbstaffregion&page=1&pagesize=50&usercode=fanbingheng&regionid=340000'
+    local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
+    Log:write("@jldu 请求统计数据地址: "..reqURL)
+    Http:request('stasticData', reqURL, 102, {useCache = false})
+end
+
+-- @jldu 定位登录人所在地市数据
+function handletongji()
+    for i=0,#stasticData.value[0].data do
+        city = stasticData.value[0].data[i]
+        if regionid == city.regionid then
+            staff = city.staff
+            staffonline = city.staffonline
+            Log:write("@jldu 登录人所在地市 今日登录用户总数："..staff)
+            Log:write("@jldu 登录人所在地市 今日在线人数："..staffonline)
+        end
+    end
 end
     ]]>
 </root>
