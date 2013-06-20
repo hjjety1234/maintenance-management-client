@@ -292,14 +292,18 @@ require 'com_wondertek_dw.common.framework'
 require 'framework.webbrowser'
 require 'framework.umsagent'
 local rootSprite
-local renyuandata = nil
 local stasticData = nil
 local regionid
 local tongjiNode
 local daiweiMap
 local cityNode
 
-local testTable={{city='合肥',regionid='340100'},{city='芜湖',regionid='340200'}}
+local testTable={{city='合肥',regionid='340100'},{city='芜湖',regionid='340200'},{city='蚌埠',regionid='340300'},
+        {city='淮南',regionid='340400'},{city='马鞍山',regionid='340500'},{city='淮北',regionid='340600'},
+        {city='铜陵',regionid='340700'},{city='安庆',regionid='340800'},{city='黄山',regionid='341000'},
+        {city='滁州',regionid='341100'},{city='阜阳',regionid='341200'},{city='宿州',regionid='341300'},
+        {city='六安',regionid='341500'},{city='亳州',regionid='341600'},{city='池州',regionid='341700'},
+        {city='宣城',regionid='341800'}}
 ---------------------------------------回调函数--------------------------------
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -324,20 +328,13 @@ end
 
 -- 插件消息方法
 function bodyOnPluginEvent(msg, param)
+    if Loading:isShow() then Loading:close() end 
     if msg == 101 then
-        UmsAgent:onLoadFinish()
-        renyuandata = Http:jsonDecode('renyuandata')
-        -- Log:write("@jldu renyuandata: ",renyuandata)
-        OnSelectShowMap()
-        -- @jldu 统计数据请求
-        requestStastic()
-    elseif msg == 102 then
-        if Loading:isShow() then Loading:close() end 
         stasticData = Http:jsonDecode('stasticData')
         Log:write("@jldu 请求统计数据:  ",stasticData)
         local value = stasticData.value[0]
         local renyuantongji = Sprite:findChild(rootSprite,'renyuantongji')
-        Sprite:setProperty(renyuantongji,'text','今日登录用户'..value.allstaff..'人，当前在线'..value.allonlinestaff..'人，其中正在巡检'..value.xunjian..'人，上报隐患'..value.yinhuan..'人，处理工单'..value.gongdan..'人，资源核查'..value.hecha..'人。')
+        Sprite:setProperty(renyuantongji,'text','今日登录用户'..value.allstaff..'人，当前在线'..value.allonlinestaff..'人，其中正在巡检'..value.xunjian..'人，上报隐患'..value.yinhuan..'人，处理工单'..value.gongdan..'人，资源核查'..value.hecha..'人。') 
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -367,10 +364,9 @@ function doRegionClick(sprite)
     local selCity = Sprite:getData(sprite)
     Log:write('@jldu 被选中地市：',selCity)
     -- @jldu 查询点击地市区号
-    for i=0,#renyuandata.value[0].data do
-        city = renyuandata.value[0].data[i]
-        if selCity == city.dimension then
-            regionid = city.regionid
+    for i=1,#testTable do
+        if selCity == testTable[i].city then
+            regionid = testTable[i].regionid
             Log:write("@jldu 点击地市区号 ："..regionid)
         end
     end
@@ -391,8 +387,8 @@ end
 function showDetail(strName)
     Log:write("突出显示："..strName)
     Sprite:setProperty(cityNode, 'visible', "true")
-    for i=0,#renyuandata.value[0].data do
-        local cityImage = Sprite:findChild(rootSprite, renyuandata.value[0].data[i].dimension)
+    for i=1,#testTable do
+        local cityImage = Sprite:findChild(rootSprite, testTable[i].city)
         Sprite:setProperty(cityImage, 'visible', 'false')
     end
     local cityImage = Sprite:findChild(rootSprite, strName)
@@ -447,16 +443,15 @@ function requestStastic()
     local param = 'cmd=wlbstaffregion&page=1&pagesize=50&usercode=fanbingheng&regionid=340000'
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
     Log:write("@jldu 请求统计数据地址: "..reqURL)
-    Http:request('stasticData', reqURL, 102, {useCache = false})
+    Http:request('stasticData', reqURL, 101, {useCache = false})
+    Loading:show()
 end
 
 -- @jldu 请求地图数据
 function requestMap()
-    local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode=fanbingheng&date='
-    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
-    Log:write("@jldu reqURL: "..reqURL)
-    Http:request('renyuandata', reqURL, 101, {useCache = false})
-    Loading:show()   
+    OnSelectShowMap()
+    -- @jldu 统计数据请求
+    requestStastic()  
 end
     ]]>
 </root>
