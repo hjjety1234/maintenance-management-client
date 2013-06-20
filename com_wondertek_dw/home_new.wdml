@@ -168,7 +168,7 @@ local rootSprite
 local observer
 local mapViewPlugin
 local g_exitFlag =  false
-local usercode = Config:get('username')
+local usercode 
 local timerNum = 10
 local longitude = 0
 local latitude = 0
@@ -198,6 +198,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        usercode = Config:get('username')
         -- 客户端心跳功能
         --doLocation()
         -- 客户端心跳功能END
@@ -273,7 +274,7 @@ function bodyOnPluginEvent(msg, param)
         local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
         local param = string.format('usercode=%s&lon=%f&lat=%f&gpstime=%s&cmd=%s&simid=%s&status=%s', 
                 usercode, longitudeValue, latitudeValue, time, 'wlbheartbeat', Config:get('simid'), personStatus)
-        -- Log:write("[msg 1100] param", param)
+        Log:write("[msg 1100] param", param)
         local reqURL = getUrl()..'nbspweb/webservice/common!doWebservice.action'
         Log:write("@jldu reqURL: "..reqURL..'?'..param)
         Http:request('heartBeatTag', reqURL, 103, {useCache = false, method='post',postData = param})
