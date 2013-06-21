@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+         <image rect="0,0,480,800" border="false" src="file://png/main_background.png" style="autosize" extendstyle="1111" />
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image rect="0,0,480,100" border="false" src="file://png/main_top_bg.png" style="sudoku-auto" sudoku="0,20,0,20" extendstyle="1111" />            
+            <button rect="10,28,78,44" OnSelect="doBack" normal="normal" sel="sel" extendstyle="1111">
+                <node name="normal" extendstyle="1111">
+                     <image rect="0,0,78,44" src="file://png/icons_01.png" style="autosize" extendstyle="1111" />
+                </node>
+                <node name="sel" extendstyle="1111">
+                     <image rect="0,0,78,44" src="file://png/icons_01_f.png" style="autosize" extendstyle="1111" />
+                </node>
+            </button>
+            <scrolltext name="title" rect="100,0,280,100" text="报表" font-family="微软雅黑" extendstyle="1111" font-size="30" h-align="center" v-align="center" color="#ffffff" scroll="true" step="2"/>
+            <node name="errorbodyNode" rect="0,100,480,700" visible="false" extendstyle="1111" style="autosize" >  
+                <image rect="120,140,239,234" src="file://png/face.png" style="autosize" extendstyle="1111" />
+                <label rect="0,380,480,50" text="没有搜索到您要的数据" font-family="微软雅黑" font-size="32" h-align="center" v-align="center" color="#686464" style="autosize" extendstyle="1111" />
+            </node> 
+            <node name="listNode" visible="true" rect="0,100,480,700" extendstyle="1111">
+                <listview name="sampleList" rect="0,0,480,700" extendstyle="1111" border="false" visible="true" />                
+            </node>
+            <node name="samplelistitem" visible="false" rect="0,0,480,140" border="false" enable="false" active="false" style="autosize" extendstyle="1111">
+                <button name="itembutton" rect="16,15,452,124" OnSelect="itemOnSelect" normal="src:file://png/bb_bg_h.png;" sel="src:file://png/bb_bg_b.png;" style="autosize" border="false" extendstyle="1111">
+                   <label name="xiangmumingcheng" rect="10,0,410,85" text="" postfix="..." font-family="微软雅黑" color="#0" font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false" />
+                   <label name="xiangmufuzeren" rect="10,50,410,60" text="" postfix="..." font-family="微软雅黑" color="#0" font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false" />
+                   <label name="xiangmubianhao" text="" type="hidden" />
+                </button>
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'framework.common'
+require 'com_szjl.common.framework'
+require 'framework.umsagent'
+local rootSprite
+local userName = Config:get('realName')
+local userCode = Config:get('userLogin')
+local jsonDecodeData
+local errorbodyNode
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    errorbodyNode = Sprite:findChild(sprite,"errorbodyNode")
+    listNode = Sprite:findChild(sprite,"listNode")
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+       UmsAgent:OnActivate(string.match(Alias.wjb_bb, 'MODULE:\\(.*)'), "报表")
+       Sprite:setVisible(errorbodyNode, 0) 
+       Sprite:setEnable(errorbodyNode, 0)   
+       dosousuo()
+    elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then
+       UmsAgent:onLoadFinish()
+       jsonDecodeData = Http:jsonDecode('duqu')
+        if (jsonDecodeData == nil or jsonDecodeData["Total"] == nil or jsonDecodeData["Total"] == '' or jsonDecodeData["Total"] == '0' or jsonDecodeData["Total"] == 0) then
+            Sprite:setVisible(errorbodyNode, 1) 
+            Sprite:setEnable(errorbodyNode, 1)             
+            return
+        else           
+            len = jsonDecodeData["Total"]   
+            Sprite:setVisible(errorbodyNode, 0) 
+            Sprite:setEnable(errorbodyNode, 0)              
+            local list = Sprite:findChild(rootSprite, 'sampleList')            
+            ListView:removeAllItems(list, true) 
+            ListView:loadItem(list, Sprite:findChild(rootSprite, 'samplelistitem'), len, 'sampleloadListItem')
+            ListView:adjust(list)
+        end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back(true)
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function myfunc()
+
+end
+
+function doBack()
+    Scene:go('MODULE:\\com_szjl\\home.wdml',true)
+end
+
+function sampleloadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 140)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local itembutton = Sprite:findChild(item, 'itembutton')
+	local xiangmumingcheng = Sprite:findChild(itembutton, 'xiangmumingcheng')
+	local xiangmufuzeren = Sprite:findChild(itembutton, 'xiangmufuzeren')
+	local xiangmubianhao = Sprite:findChild(itembutton, 'xiangmubianhao')
+	if (jsonDecodeData ~= nil) then
+             local value =  jsonDecodeData['Value'][index]
+             if value.project_name~=nil then
+                 Sprite:setProperty(xiangmumingcheng, 'text',"        "..value.project_name) 
+             end
+             if value.project_controller~=nil then
+                 Sprite:setProperty(xiangmufuzeren, 'text', "        项目负责人:"..value.project_controller) 
+             end  
+             if value.project_id~=nil then
+                 Sprite:setProperty(xiangmubianhao, 'text', value.project_id) 
+             end 			 
+    end
+end
+
+function itemOnSelect(sprite)
+    local xiangmubianhao = Sprite:findChild(sprite, 'xiangmubianhao')
+	local regHandle = Reg:create('xiangmu')     
+    Reg:setString(regHandle, 'xiangmubianhao', Sprite:getText(xiangmubianhao)) 
+    Scene:setReturn(Alias.wjb_bb, Alias.wjb_bbxs)
+    Scene:go(Alias.wjb_bbxs,true)	
+end
+
+function dosousuo()
+          UmsAgent:onLoadStart()
+          local url = Alias.urlServer..'select/reporta?'     
+          --local param2 = "userId=2"
+          local param2 = "userId="..userCode
+          Http:request("duqu", url, 101,{useCache = false, method = 'post', postData=param2})                 
+end
+    ]]>
+</root>

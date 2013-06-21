@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+             <!-- 设置背景 -->
+             <image rect="0,0,480,800" border="false" src="file://png/main_background.png" 
+                style="autosize" extendstyle="1111"></image>
+             <!-- 公告头部 -->
+             <node rect="0,0,480,100" name="titleNode" style="autosize" extendstyle="1111">
+                <image rect="0,0,480,100" border="false" src="file://png/main_top_bg.png" 
+                    style="sudoku-auto" sudoku="0,20,0,20" extendstyle="1111" />
+                <button rect="10,28,78,44" OnSelect="doBack" normal="normal" sel="sel" 
+                    style="autosize" extendstyle="1111">
+                    <node rect="0,0,78,44" name="normal" extendstyle="1111">
+                       <image rect="0,0,78,44" src="file://png/icons_02.png" style="autosize" extendstyle="1111" />
+                    </node>
+                    <node name="sel" extendstyle="1111">
+                       <image rect="0,0,78,44" src="file://png/icons_02_f.png" style="autosize" extendstyle="1111" />
+                    </node>
+                </button>
+                <button rect="100,18,280,54"  normal="normal" sel="sel" 
+                    style="autosize" extendstyle="1111">
+                    <node rect="0,0,280,54" name="normal" extendstyle="1111">
+                        <scrolltext name="title" rect="40,10,200,44" text="我的监理" font-family="微软雅黑" 
+                            extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                            color="#ffffff" scroll="true" step="2"></scrolltext>
+                    </node>
+                </button>
+                <!-- 显示刷新按钮 -->
+                <button name="btnShowSearchBar" rect="392,28,78,44"
+                    font-size="24" extendstyle="1111" text="" color="#ffffff"
+                    normal="src:file://png/icons_07.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+                    sel="src:file://png/icons_07_f.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+                    OnSelect="OnUpdateButtonClicked"></button>
+            </node>
+            
+            
+            <button rect="0,100,240,60"  style="autosize" extendstyle="1111" OnSelect="wdrwOnSelect">               
+                <image name="leftbarImg" rect="0,0,240,60" src="file://png/jccl_bt_bg01.png" style="autosize" extendstyle="1111" />                
+                <label name="leftbarLabel" rect="0,0,240,60" text="我的任务" font-family="微软雅黑" font-size="24" h-align="center" v-align="center" color="#000000" style="autosize" extendstyle="1111" /> 
+            </button>  
+            <button rect="240,100,240,60"  style="autosize" extendstyle="1111" OnSelect="shwtgOnSelect">                                                                   
+                <image name="rightbarImg" rect="0,0,240,60" src="file://png/jccl_bt_bg02.png" style="autosize" extendstyle="1111" />               
+                <label name="rightbarLabel" rect="0,0,240,60" text="审核未通过" font-family="微软雅黑" font-size="24" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="1111" /> 
+            </button>
+            
+            <!-- 隐藏的搜索栏 -->
+            <node name="searchBar" rect="0,160,480,69" extendstyle="1111" visible="false" enable="false" >
+                <image name="search_bg" rect="0,0,480,69" src="file://png/tz_Search_bg.png"
+                    style="autosize" extendstyle="1111" />
+                <image rect="40,8,300,52" src="file://png/wdjl_input_left.png"  h-align="left" v-align="center" sudoku="15,15,15,15"
+                    style="sudoku-auto" extendstyle="1111" />
+                <edit name="keywordEdit" rect="70,15,270,46" extendstyle='1111' OnLostFocus="OnsousuoInit" OnSetFocus="Onsousuofocus"
+                    v-align="center" font-size="22" text="项目名称/任务名称关键字" >
+                </edit>
+                <button rect="340,8,100,52"  OnSelect="searchbtnOnselect" style="autosize" 
+                    extendstyle="1111" >
+                    <image rect="0,0,92,52" src="file://png/wdjl_input_right.png" sudoku="50,0,100,0" 
+                        style="sudoku-auto" extendstyle="1111" />
+                </button>
+            </node>
+            
+            <!-- 列表视图  -->
+            <node name="tasklistViewNode" rect="0,240,480,560" extendstyle="1111" visible="false" enable="false">
+                <listview name="taskListView" rect="0,0,480,560" extendstyle="1111" limit="true"
+                    border="false" visible="true" />
+            </node>
+            
+            <node name="tasklistitemNode" rect="0,160,480,250" border="false" visible="false"
+                enable="false" active="false" extendstyle="1111">
+                <button name="newsitemBtn" rect="20,3,440,240" OnSelect="taskitemOnSelect"
+                    style="autosize" extendstyle="1111" sudoku="15,15,15,15">
+                    <image rect="0,0,440,240" border="false" src="file://png/kq_bg.png" style="sudoku-auto" sudoku="20,20,20,20" extendstyle="1111" />
+                    <label name="Label" rect="20,0,80,60" border="false" h-align="left" font-size="20" v-align="center" font-family="黑体" step="1" extendstyle="1111" text="任务："></label>
+                    <scrolltext name="taskTxt" rect="100,0,250,60"  font-size="20" scroll="true" step="4"
+                        border="false" h-align="left" v-align="center" color="#000000" data=''
+                        text=""  extendstyle="1111" font-family="黑体"></scrolltext>
+                    <image rect="0,59,440,2" src="file://png/wdjl_bg_h.png" style="autosize"  extendstyle="1111" />
+                    <label name="Label" rect="20,60,80,60" border="false" h-align="left" font-size="20" v-align="center"  extendstyle="1111" step="1" text="项目："></label>
+                    <scrolltext name="projectTxt" rect="100,60,250,60"   data='' extendstyle="1111"
+                        border="false" h-align="left" v-align="center" color="#000000"
+                        text="" font-size="20" scroll="true" step="4" ></scrolltext>
+                    <image rect="0,119,440,2" src="file://png/wdjl_bg_h.png" style="autosize" 
+                        extendstyle="1111" />
+                    <label name="Label" rect="20,120,80,60" border="false" h-align="left" font-size="20" v-align="center"  extendstyle="1111" step="1" text="专业："></label>
+                    <scrolltext name="fieldLabel" rect="100,120,250,60" data=''
+                        border="false" h-align="left" v-align="center" color="#000000"
+                        text="" font-size="20" scroll="true" step="4" extendstyle="1111" ></scrolltext> 
+                    <image rect="0,179,440,2" src="file://png/wdjl_bg_h.png" style="autosize" 
+                        extendstyle="1111" />
+                    <label name="Label" rect="20,180,80,60" border="false" h-align="left" font-size="20" v-align="center" step="1" extendstyle="1111" text="状态："></label>
+                </button>
+                    <button name="ztselectNode" rect="115,190,200,60" extendstyle="1111" OnSelect="taskztOnSelect">
+                        <image rect="0,2,129,52" src="file://png/wdjl_input_left.png"  style="autosize" extendstyle="1111" />  
+                        <image rect="129,2,43,52" src="file://png/jccl_input_right.png" style="autosize" extendstyle="1111" />
+                        <label name="ztLabel" rect="15,2,100,60" border="false" h-align="left" font-size="20" v-align="center" step="1" extendstyle="1111" text=""></label>   
+                    </button>
+            </node>
+                       
+            <!-- 状态选择 -->
+            <node name="taskztShowNode" rect="0,0,480,800" visible="false" enable="false" active="false">
+                <button name="button" rect="0,0,480,800" border="false" text="" color="#ffffff" OnSelect="hideSelected2">
+                      <shadow rect="0,0,480,800"  alpha="150" color="#0"  extendstyle="1111">
+                      </shadow>
+                </button>
+                <node rect="25,160,430,47" extendstyle="1111"  border="false">
+                    <image rect="0,0,430,47" src="file://png/wdjl_alert_bg_bt.png"  style="autosize" extendstyle="1111" />
+                    <label rect="6,6,120,47" border="false" color="#FFFFFF" extendstyle="1111"
+                     text="任务状态" h-align="center" v-align="center" font-size="20"></label>
+                </node>
+                <image rect="25,208,430,426" src="file://png/wdjl_alert_bg_bottom.png"  style="autosize" extendstyle="1111" />
+                <listview name="taskztListview" rect="25,208,430,420" limit="true"
+                    auto-adjust="true" extendstyle="1111" />
+            </node>
+            <node name="taskztitemNode" rect="25,170,430,70" border="false" visible="false"
+                enable="false" active="false" extendstyle="1111">
+                <button name="taskztBtn" rect="0,0,430,70"  OnSelect="taskztitemSelected"                     
+                    normal="src:file://png/tan_cen.png;style:sudoku-auto;sudoku:0,0,0,0;color:#000000"
+                    sel="src:file://png/tan_cenbg.png;style:sudoku-auto;sudoku:0,0,0,0;color:#ffffff"
+                    style="autosize" extendstyle="1111" sudoku="15,15,15,15">
+
+                    <image rect="3,0,424,2" src="file://png/tz_list.png" style="autosize" 
+                        extendstyle="1111" />
+
+                    <label name="ztLabel" rect="20,10,200,50" border="false" h-align="left" font-size="20" 
+                        v-align="center" step="1" text=""></label>
+
+                 </button>
+             </node>
+             
+            <!-- 审核未通过列表视图  -->
+            <node name="shwtglistViewNode" rect="0,170,480,620" extendstyle="1111" visible="false" enable="false">
+                <image name="kemulistbgImg" rect="15,0,450,620" border="false" src="file://png/kq_bg.png" style="sudoku-auto" 
+                    sudoku="20,20,20,20" extendstyle="1111" />
+                <listview name="shwtgListView" rect="0,0,480,620" extendstyle="1111"
+                    border="false" visible="true" limit="true" />
+            </node>
+            
+            <node name="shwtglistitemNode" rect="0,170,480,80" border="false" visible="false"
+                enable="false" active="false" extendstyle="1111">
+                <button name="kemuitemBtn" rect="15,0,450,80" OnSelect="kemuitemOnSelect"
+                    style="autosize" extendstyle="1111" sudoku="15,15,15,15">
+                    <label name="kemuLabel" rect="20,10,100,60" border="false" h-align="left" font-size="20" v-align="center" step="1" text=""></label>
+                    <label name="taskLabel" rect="20,10,100,60" border="false" h-align="left" font-size="20" visible="false" v-align="center" step="1" text=""></label>
+                    <label name="projectLabel" rect="20,10,100,60" border="false" h-align="left" font-size="20" visible="false" v-align="center" step="1" text=""></label>
+                    <label name="timeLabel" rect="160,10,240,60" border="false" h-align="left" font-size="20" v-align="center" step="1" text=""></label>
+                    <image rect="400,32,12,18" src="file://png/tz_arrow_h.png" 
+                         extendstyle="1177"  />
+                    <image rect="0,78,450,2" src="file://png/wdjl_bg_h.png" style="autosize"  extendstyle="1111" />                       
+                    <listview name="shyjListView" rect="0,100,480,0" extendstyle="1111"
+                        border="false" visible="true" />
+                 </button>
+             </node>
+             
+        </node>
+    </body>
+    <![CDATA[
+
+require('com_szjl.common.framework')
+local rootSprite
+local userId = Config:get('userLogin')
+local tasklistdata1
+local kemulistdata1
+server_jianlitaskList = Alias.urlServer..'supervisor/list?page=1&pagesize=30&userId='..userId
+server_shwtgList = Alias.urlServer..'supervisor/unexamSub?userId='..userId
+server_taskztList = Alias.urlServer..'supervisor/status?'
+server_taskztSet = Alias.urlServer..'supervisor/set?'   
+server_number = Alias.urlServer..'supervisor/statistics?userId='..userId   
+local leftright
+local curtaskztBtn
+local taskztResult1
+local taskztset1
+
+local taskkemuRoomHandler
+local shwtgDataRoomHandler
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    Http:startNetwork()
+    taskkemuRoomHandler = Reg:create("taskkemuRoom")
+    shwtgDataRoomHandler = Reg:create("shwtgDataRoom")
+    leftright = true
+    initPage1()
+ 
+    --initPage2()
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then 
+        if Loading:isShow() then Loading:close() end
+        tasklistdata1 = Http:jsonDecode('tasklistdata0')
+        Log:write('22222222222222222222222222',tasklistdata1)
+        if (tasklistdata1 == nil or tasklistdata1["Total"] == nil or
+            tasklistdata1["Total"] == 0) then
+            Dialog:show("提示", "列表为空", "ok")
+        end
+        local total = tasklistdata1["Total"]
+        if total > 30 then
+            total = 30
+        end
+        local list = Sprite:findChild(rootSprite, 'taskListView')
+        ListView:removeAllItems(list)
+        -- 加载新的列表项
+        Log:write('90909090======='..total)
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'tasklistitemNode'), total, 'loadtaskListItem')
+        ListView:adjust(list)       
+        local server_number1 = server_number
+        Log:write('111111111111111:', server_number1)
+        Http:request('numdata0', server_number1, 105, {useCache=false})
+        Loading:show(rootSprite)
+    elseif msg == 102 then -- 101请求的数据有更新
+        if Loading:isShow() then Loading:close() end
+        kemulistdata1 = Http:jsonDecode('kemulistdata0')
+        Log:write('22222222222222222222222222',kemulistdata1)
+        if (kemulistdata1 == nil or kemulistdata1["Total"] == nil or
+            kemulistdata1["Total"] == 0) then
+            Dialog:show("提示", "列表为空", "ok")
+        end       
+        local total = kemulistdata1["Total"]
+        Log:write('25674777772===='..total)
+        local list = Sprite:findChild(rootSprite, 'shwtgListView')
+        ListView:removeAllItems(list)
+        local kemulistbgImg = Sprite:findChild(rootSprite, 'kemulistbgImg')
+        local hign = 640
+        if total < 8 then
+            hign = 80*total
+        end
+        Sprite:setRect(kemulistbgImg, 20, 0, 440, hign+1)  
+        -- 加载新的列表项
+        Log:write('90909090======='..total)
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'shwtglistitemNode'), total, 'loadkemuListItem')
+        ListView:adjust(list)
+    elseif msg == 103 then -- 拨号失败
+        if Loading:isShow() then Loading:close() end
+        taskztResult1 = Http:jsonDecode('taskztResult0')
+        Log:write('22222222222222222222222222',taskztResult1)
+        if (taskztResult1 == nil or taskztResult1["Total"] == nil or
+            taskztResult1["Total"] == 0) then
+            Dialog:show("提示", "列表为空", "ok")
+        end
+        local total = taskztResult1["Total"]
+        setAllShoworHide(Sprite:findChild(rootSprite, 'taskztShowNode'), 1)
+        --local shownode = Sprite:findChild(rootSprite, 'taskztShowNode')
+        local list = Sprite:findChild(rootSprite, 'taskztListview')
+        local item = Sprite:findChild(rootSprite, 'taskztitemNode')
+        ListView:removeAllItems(list)
+        -- 加载新的列表项
+        ListView:loadItem(list, item, total, 'loadztListItem')
+    elseif msg == 104 then -- 拨号失败
+        if Loading:isShow() then Loading:close() end
+        taskztset1 = Http:jsonDecode('taskztset0')
+        Log:write('22222222222222222222222222',taskztset1)
+        if (taskztset1 == nil or taskztset1["Value"] == nil or 
+            taskztset1["Value"] == '') then
+            Dialog:show("提示", "任务状态修改失败", "ok")
+        else
+            Dialog:show("提示", "任务状态修改成功", "ok")
+            initPage1()
+        end      
+    elseif msg == 105 then -- 设置数量
+        if Loading:isShow() then Loading:close() end
+        numdata1 = Http:jsonDecode('numdata0')
+        Log:write('22222222222222222222222222',numdata1)
+        if (numdata1 == nil or numdata1["TaskNo"] == nil or 
+            numdata1["SubjectNo"] == nil) then
+            Dialog:show("提示", "获取数量失败", "ok")
+        else
+            local leftbarLabel = Sprite:findChild(rootSprite, 'leftbarLabel')
+            local rightbarLabel = Sprite:findChild(rootSprite, 'rightbarLabel')
+            Sprite:setProperty(leftbarLabel, 'text', '我的任务('..numdata1["TaskNo"]..')')
+            Sprite:setProperty(rightbarLabel, 'text', '审核未通过('..numdata1["SubjectNo"]..')')  
+        end         
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end 
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:go(Alias.home,true)
+        return 1
+    end
+end
+
+function doBack()
+    Scene:go(Alias.home,true)
+end
+
+
+---当进入编辑框时，修改文字为输入
+   function Onsousuofocus(sprite)
+       local txt= Sprite:getProperty(sprite, 'text')
+       if txt=='项目名称/任务名称关键字' then
+        Sprite:setProperty(sprite, 'text', '')
+        Sprite:setProperty(sprite, 'color', '#0')
+       end
+   end
+   ---当未有任何输入时，初始化为提示
+    function OnsousuoInit(sprite)
+       local txt= Sprite:getProperty(sprite, 'text')
+       if txt=='' or txt ==nil then
+            Sprite:setProperty(sprite, 'color', '#8f8e8e')
+            Sprite:setProperty(sprite, 'text', '项目名称/任务名称关键字')
+       end
+    end
+---------------------------------------util functions---------------------------
+function myfunc()
+
+end
+
+function initPage1()
+    local leftbarImg = Sprite:findChild(rootSprite, 'leftbarImg')
+    local rightbarImg = Sprite:findChild(rootSprite, 'rightbarImg')
+    Sprite:setProperty(leftbarImg, 'src', 'file://png/jccl_bt_bg01.png')
+    Sprite:setProperty(rightbarImg, 'src', 'file://png/jccl_bt_bg02.png')  
+    local leftbarLabel = Sprite:findChild(rootSprite, 'leftbarLabel')
+    local rightbarLabel = Sprite:findChild(rootSprite, 'rightbarLabel')
+    Sprite:setProperty(leftbarLabel, 'color', '#000000')
+    Sprite:setProperty(rightbarLabel, 'color', '#ffffff')  
+    
+    local list1 = Sprite:findChild(rootSprite, 'tasklistViewNode')
+    Sprite:setProperty(list1, 'enable', 'true')
+    Sprite:setProperty(list1, 'visible', 'true')
+    local list2 = Sprite:findChild(rootSprite, 'shwtglistViewNode')
+    Sprite:setProperty(list2, 'enable', 'false')
+    Sprite:setProperty(list2, 'visible', 'false')  
+    local searchBar2 = Sprite:findChild(rootSprite, 'searchBar')
+    Sprite:setProperty(searchBar2, 'enable', 'true')
+    Sprite:setProperty(searchBar2, 'visible', 'true')  
+    local server_jianlitaskList1 = server_jianlitaskList..'&keyword='
+    Log:write('111111111111111:', server_jianlitaskList1)
+    Http:request('tasklistdata0', server_jianlitaskList1, 101, {useCache=false})
+    Loading:show(rootSprite)
+end
+
+function initPage2()
+    local leftbarImg = Sprite:findChild(rootSprite, 'leftbarImg')
+    local rightbarImg = Sprite:findChild(rootSprite, 'rightbarImg')
+    Sprite:setProperty(leftbarImg, 'src', 'file://png/jccl_bt_bg02.png')
+    Sprite:setProperty(rightbarImg, 'src', 'file://png/jccl_bt_bg01.png')  
+    local leftbarLabel = Sprite:findChild(rootSprite, 'leftbarLabel')
+    local rightbarLabel = Sprite:findChild(rootSprite, 'rightbarLabel')
+    Sprite:setProperty(leftbarLabel, 'color', '#ffffff')
+    Sprite:setProperty(rightbarLabel, 'color', '#000000')  
+    
+    local list1 = Sprite:findChild(rootSprite, 'tasklistViewNode')
+    Sprite:setProperty(list1, 'enable', 'false')
+    Sprite:setProperty(list1, 'visible', 'false')
+    local list2 = Sprite:findChild(rootSprite, 'shwtglistViewNode')
+    Sprite:setProperty(list2, 'enable', 'true')
+    Sprite:setProperty(list2, 'visible', 'true')
+    local searchBar2 = Sprite:findChild(rootSprite, 'searchBar')
+    Sprite:setProperty(searchBar2, 'enable', 'false')
+    Sprite:setProperty(searchBar2, 'visible', 'false') 
+    local server_shwtgList1 = server_shwtgList
+    Log:write('111111111111111:', server_shwtgList1)
+    Http:request('kemulistdata0', server_shwtgList1, 102, {useCache=false})
+    Loading:show(rootSprite)
+end
+
+function loadtaskListItem(list, item, index)
+    Log:write('--------------listitem')
+    Sprite:setRect(item, 0, 0, 480, 250)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local projectTxt = Sprite:findChild(item, 'projectTxt')
+    local taskTxt = Sprite:findChild(item, 'taskTxt')
+    local fieldLabel = Sprite:findChild(item, "fieldLabel")
+    --local taskTxt = Sprite:findChild(item, 'taskTxt')
+    --local addreTxt = Sprite:findChild(item, "addreTxt")
+    local ztLabel = Sprite:findChild(item, "ztLabel")
+    local Valuedata = tasklistdata1["Value"][index]
+    Sprite:setProperty(projectTxt, 'text', Valuedata['project_name'])
+    Sprite:setProperty(taskTxt, 'text', Valuedata['task_name'])
+    Sprite:setProperty(fieldLabel, 'text', Valuedata['professional_name'])
+    Sprite:setProperty(projectTxt, 'data', Valuedata['project_id'])
+    Sprite:setProperty(taskTxt, 'data', Valuedata['task_id'])
+    Sprite:setProperty(fieldLabel, 'data', Valuedata['professional_id'])
+    Sprite:setProperty(ztLabel, 'data', Valuedata['data_id'])
+    Sprite:setProperty(ztLabel, 'text', Valuedata['data_content'])
+    --Sprite:setProperty(addreTxt, 'text', Valuedata['siteName'])
+    --Sprite:setProperty(ztLabel, 'text', Valuedata['taskstatusCode'])
+end
+
+function loadkemuListItem(list, item, index)
+    Log:write('--------------listitem')
+    Sprite:setRect(item, 0, 0, 480, 80)
+    Sprite:setProperty(item, 'extendstyle', '1111')   
+    local kemuLabel = Sprite:findChild(item, 'kemuLabel')
+    local taskLabel = Sprite:findChild(item, 'taskLabel')
+    local projectLabel = Sprite:findChild(item, 'projectLabel')
+    local timeLabel = Sprite:findChild(item, 'timeLabel')
+    local Valuedata = kemulistdata1["Value"][index]
+    Sprite:setProperty(kemuLabel, 'text', Valuedata['subject_name'])
+    Sprite:setProperty(kemuLabel, 'data', Valuedata['supervision_result_id'])
+    Sprite:setProperty(taskLabel, 'text', Valuedata['task_name'])
+    Sprite:setProperty(projectLabel, 'text', Valuedata['project_name'])
+    local date = Split(Valuedata['supervision_time'],' ')
+    Log:write('=='..date[1]..'===')
+    Sprite:setProperty(timeLabel, 'text', '提交日期：'..date[1])
+end
+
+function loadztListItem(list, item, index)
+    Log:write('--------------listitem')
+    Sprite:setRect(item, 0, 0, 480, 70)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local ztLabel = Sprite:findChild(item, 'ztLabel')
+    local Valuedata = taskztResult1["Value"][index]
+    Log:write('--------------listitem======'..Valuedata['data_content'])
+    Sprite:setProperty(ztLabel, 'text', Valuedata['data_content'])
+    Sprite:setProperty(ztLabel, 'data', Valuedata['data_id'])
+end
+
+function wdrwOnSelect()
+	leftright = true
+	initPage1()
+end
+
+function shwtgOnSelect()
+	leftright = false
+	initPage2()
+end
+
+function taskitemOnSelect(sprite)
+    local projectTxt = Sprite:findChild(sprite, 'projectTxt')
+    local taskTxt = Sprite:findChild(sprite, 'taskTxt')
+    local fieldLabel = Sprite:findChild(sprite, "fieldLabel")
+    --local taskkemuRoomHandler = Reg:create("taskkemuRoom")
+    Reg:setString(taskkemuRoomHandler, 'taskNo', Sprite:getData(taskTxt))
+    Reg:setString(taskkemuRoomHandler, 'projectCode', Sprite:getData(projectTxt))
+    Reg:setString(taskkemuRoomHandler, 'fieldCode', Sprite:getData(fieldLabel))
+    Reg:setString(taskkemuRoomHandler, 'fieldName', Sprite:getText(fieldLabel))
+    Scene:setReturn(Alias.wodejianli, Alias.xgq_kemulist)
+    Scene:go(Alias.xgq_kemulist,true)
+end
+
+function kemuitemOnSelect(sprite)
+    Log:write('11111111taskztOnSelect1111111:')
+    local kemuLabel = Sprite:findChild(sprite, 'kemuLabel')
+    local taskLabel = Sprite:findChild(sprite, 'taskLabel')
+    local projectLabel = Sprite:findChild(sprite, 'projectLabel')
+    
+    Reg:setString(shwtgDataRoomHandler, 'supervision_result_id', Sprite:getData(kemuLabel))
+    Reg:setString(shwtgDataRoomHandler, 'subject_name', Sprite:getText(kemuLabel))
+    Reg:setString(shwtgDataRoomHandler, 'task_name', Sprite:getText(taskLabel))
+    Reg:setString(shwtgDataRoomHandler, 'project_name', Sprite:getText(projectLabel))
+    Scene:setReturn(Alias.wodejianli, Alias.xgq_shenheyijian)
+    Scene:go(Alias.xgq_shenheyijian,true)
+end
+
+function OnUpdateButtonClicked()
+	if leftright == true then
+	   initPage1()
+	else
+	   initPage2()
+	end
+end
+
+function searchbtnOnselect()
+    Log:write("项目名称/任务名称关键字")
+    local keywordEdit = Sprite:findChild(rootSprite, 'keywordEdit')
+    local txt = Sprite:getText(keywordEdit)
+    if txt=='项目名称/任务名称关键字' then
+        keyword = ''
+    else
+        keyword = Sprite:getText(keywordEdit)
+    end
+    local server_jianlitaskList1 = server_jianlitaskList..'&keyword='..keyword
+    Log:write('111111111111111:', server_jianlitaskList1)
+    Http:request('tasklistdata0', server_jianlitaskList1, 101, {useCache=false})
+    Loading:show(rootSprite)
+end
+
+function taskztOnSelect(sprite)
+    --local btnData = Sprite:getData(sprite)
+    Log:write('11111111taskztOnSelect1111111:')
+    curtaskztBtn = sprite
+    Http:request('taskztResult0', server_taskztList, 103, {useCache = false})
+    Loading:show(rootSprite)
+end
+
+function hideSelected2()
+    setAllShoworHide(Sprite:findChild(rootSprite, 'taskztShowNode'), 0)
+end
+
+function taskztitemSelected(sprite)
+       setAllShoworHide(Sprite:findChild(rootSprite, 'taskztShowNode'), 0)
+       Log:write('11111111taskztOnSelect1111111:')
+       local ztLabel1=Sprite:findChild(sprite, 'ztLabel')
+       local ztLabel2=Sprite:findChild(curtaskztBtn, 'ztLabel')
+       Sprite:setProperty(ztLabel2, 'text', Sprite:getText(ztLabel1))
+       Sprite:setProperty(ztLabel2, 'data', Sprite:getData(ztLabel1))
+       local pararent = Sprite:getParent(curtaskztBtn) 
+       local taskTxt = Sprite:findChild(pararent, 'taskTxt')
+       
+       local data_content = Sprite:getData(ztLabel1)
+       Log:write("data_content=",data_content)
+       local datain = tonumber(data_content)
+       Log:write("datain=",datain)
+       local param = 'taskId='..Sprite:getData(taskTxt)..'&dataId='..datain
+       Log:write("param=",param)
+       Http:request('taskztset0', server_taskztSet..param, 104, {useCache = false})
+       Loading:show(rootSprite)
+end
+
+    ]]>
+</root>

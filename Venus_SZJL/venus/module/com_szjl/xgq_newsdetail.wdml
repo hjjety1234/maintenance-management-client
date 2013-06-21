@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+             <!-- 设置背景 -->
+             <image rect="0,0,480,800" border="false" src="file://png/main_background.png" 
+                style="autosize" extendstyle="1111"></image>
+             
+             <!-- 公告头部 -->
+             <node rect="0,0,480,100" name="titleNode" style="autosize" extendstyle="1111">
+                <image rect="0,0,480,100" border="false" src="file://png/main_top_bg.png" 
+                    style="sudoku-auto" sudoku="0,20,0,20" extendstyle="1111" />
+                <button rect="10,28,78,44" OnSelect="doBack" normal="normal" sel="sel" 
+                    style="autosize" extendstyle="1111">
+                    <node rect="0,0,78,44" name="normal" extendstyle="1111">
+                       <image rect="0,0,78,44" src="file://png/icons_01.png" style="autosize" extendstyle="1111" />
+                    </node>
+                    <node name="sel" extendstyle="1111">icons_01
+                       <image rect="0,0,78,44" src="file://png/icons_01_f.png" style="autosize" extendstyle="1111" />
+                    </node>
+                </button>
+                <button rect="100,10,280,62"  normal="normal" sel="sel" 
+                    style="autosize" extendstyle="1111">
+                    <node rect="0,0,280,54" name="normal" extendstyle="1111">
+                        <scrolltext name="title" rect="40,10,200,44" text="公告详情" font-family="微软雅黑" 
+                            extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                            color="#ffffff" scroll="true" step="2"></scrolltext>
+                    </node>
+                </button>
+                <button rect="392,28,78,44" OnSelect="onSearchbtnSelected"  style="autosize" extendstyle="1111">
+                    <image name="collecttagImg" rect="0,0,78,44" src="file://png/icons_05.png" style="autosize" extendstyle="1111" />
+                </button>
+            </node>
+            
+            <!-- 公告详情 -->
+            <node name="headinfoNode" rect="0,100,460,110" border="false"
+                extendstyle="1111">
+                <image name="normal" rect="10,0,460,110" src="file://png/tz_tc_bg_w.png"
+                    style="sudoku-auto" extendstyle="1111" sudoku="15,15,15,15"></image>
+                <scrolltext name="noticetitleTxt" rect="40,10,400,60" border="false" extendstyle="1111"
+                    text="" h-align="center" v-align="center" font-size="28"
+                    line-height="25" font-family="微软雅黑" step="2" scroll="true"></scrolltext>
+                <label name="noticemanLable" rect="60,70,100,30" border="false" text="" extendstyle="1111"
+                    h-align="center" v-align="center" font-size="24" font-family="微软雅黑"
+                    color="#8f8e8e"></label>
+                <label name="noticedateLable" rect="240,70,200,30" border="false" text="" extendstyle="1111"
+                    h-align="center" v-align="center" font-size="24" font-family="微软雅黑"
+                    color="#8f8e8e"></label>
+                <image name="normal2" rect="0,108,480,2" src="file://png/kq_line_c.png"
+                    style="sudoku-auto" extendstyle="1111" sudoku="15,15,15,15"></image>
+            </node>
+            
+            <node name="details" rect="10,220,460,540" border="false">
+                <image name="normal" rect="0,0,460,540" src="file://png/tz_tc_bg_w.png"
+                    style="sudoku-auto" extendstyle="1111" sudoku="15,15,15,15"></image>
+                <listview rect="0,20,460,510" extendstyle="1111" limit="true" border="false">
+                    <list-item rect="0,10,460,500" auto-adjust='true' style="autosize" extendstyle="1111" >
+                        <textarea name="noticedetailTxt" rect="0,0,450,500"  autoextend="true" order="false" h-align="left"
+                            text="" font-size="23" extendstyle="1111" style = 'autosize'  line-height="33" font-family="微软雅黑">
+                        </textarea>
+                    </list-item>
+                </listview>
+           </node>
+           
+           <image name="scsucessImg" rect="70,650,340,64" src="" style="sudoku-auto" extendstyle="1111" sudoku="15,15,15,15"
+               visible="true">
+           </image>
+
+        </node>
+    </body>
+    <![CDATA[
+
+require('com_szjl.common.framework')
+local rootSprite
+local userCode = Config:get('userLogin')
+server_newsdetail = Alias.urlServer..'notice/seldet?cmd=notice'
+server_newsread = Alias.urlServer..'notice/read?cmd=notice&userCode='..userCode
+server_newsfav = Alias.urlServer..'notice/fav?cmd=notice&userCode='..userCode
+server_newsfavdel = Alias.urlServer..'notice/fav_del?cmd=notice&userCode='..userCode
+ 
+local newsdetaildata1
+local newfavdata1
+
+local collecttagImg 
+local noticetitleTxt 
+local noticedateLable 
+local noticedetailTxt
+local scsucessImg 
+local noticemanLable
+
+local favboll
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    Http:startNetwork()
+    collecttagImg = Sprite:findChild(rootSprite,"collecttagImg")
+    noticetitleTxt = Sprite:findChild(rootSprite,"noticetitleTxt")
+    noticedateLable = Sprite:findChild(rootSprite,"noticedateLable")  
+    noticemanLable = Sprite:findChild(rootSprite,"noticemanLable")  
+    noticedetailTxt = Sprite:findChild(rootSprite,"noticedetailTxt")
+    scsucessImg = Sprite:findChild(rootSprite,"scsucessImg")
+    
+    local noticeDetailHandler = Reg:create("newsDataRoom")
+    newsCode = Reg:getString(noticeDetailHandler, "newsCode")
+    local server_newsdetail2 = server_newsdetail..'&noticeCode='..newsCode..'&userCode='..userCode
+    Log:write('111111111111111:', server_newsdetail2)
+    Http:request('newsdetaildata0', server_newsdetail2, 101, {useCache=false})
+    Loading:show(rootSprite)
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        Sprite:setVisible(scsucessImg,0)
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+        Log:write('22222222222222222222222222')
+        if Loading:isShow() then Loading:close() end
+        newsdetaildata1 = Http:jsonDecode('newsdetaildata0')
+        if (newsdetaildata1 == nil or newsdetaildata1["Total"] == 0 or
+            newsdetaildata1["Total"] == '') then
+            Dialog:show("", "获取信息失败", "ok")
+        end
+        local total = newsdetaildata1["Total"]
+        local Valuedata = newsdetaildata1["Value"][0]
+        Log:write('----------'..Valuedata['noticeTitile'])
+        Sprite:setProperty(noticetitleTxt, "text", Valuedata['noticeTitile'])
+        Log:write('----------'..Valuedata['noticeTime'])
+        Sprite:setProperty(noticemanLable, "text", Valuedata['noticeMan'])
+        Sprite:setProperty(noticedateLable, "text", Valuedata['noticeTime'])
+        local noticeContent = newsdetaildata1['notcieText']
+        --Log:write('----------'..noticeContent)
+            noticeContent = string.gsub(noticeContent, '&%w+;', '')
+            noticeContent = string.gsub(noticeContent, '&nbsp;', '')
+            noticeContent = string.gsub(noticeContent, '<br>','\r\\n' .. '     ')
+            noticeContent = string.gsub(noticeContent, '<br/>','\r\n' .. '     ')
+            noticeContent = string.gsub(noticeContent, '<br />','\r\n' .. '     ')
+            noticeContent = string.gsub(noticeContent, '<p>','\r\n' .. '     ')
+            noticeContent = string.gsub(noticeContent, '</p>','\\n' .. '')
+            --noticeContent = string.gsub(noticeContent, '\r\n', '')
+            noticeContent = string.gsub(noticeContent, '<.->','')
+			noticeContent = string.gsub(noticeContent, '\r\n\r\n\t', '\r\n')
+            noticeContent = string.gsub(noticeContent, '$\r\n\t', ' ')
+        Sprite:setProperty(noticedetailTxt, "text", noticeContent)
+        local newscontX, newscontY, newscontW, newscontH = Sprite:getRect(noticedetailTxt)
+        Sprite:setRect(noticedetailTxt, newscontX, 0, newscontW, newscontH)
+        resetListViewItemHeight()     
+        
+        Log:write('----------'..Valuedata['collectStatus'])
+        if Valuedata['collectStatus']== "1" then
+            Log:write('----------```````'..Valuedata['collectStatus'])
+            favboll = 1
+            Sprite:setProperty(collecttagImg, 'src', "file://png/icons_05_y.png")
+            Log:write('----------```````xxxxxxxxx'..Valuedata['collectStatus'])
+            else
+            Log:write('----------@@@@@@'..Valuedata['collectStatus'])
+            favboll = 0
+            Sprite:setProperty(collecttagImg, 'src', "file://png/icons_05.png")
+        end
+        Http:request('newsreaddata01', server_newsread..'&noticeId='..newsCode, 199, {useCache=false})
+
+    elseif msg == 102 then -- 101请求的数据有更新
+        Log:write('333333333333333')
+        if Loading:isShow() then Loading:close() end
+        newfavdata1 = Http:jsonDecode('newsfavdata0')
+        if (newfavdata1 == nil or newfavdata1["Total"] == 0 or
+            newfavdata1["Total"] == '') then
+            Dialog:show("", "获取信息失败", "ok")
+        end
+        Log:write('333333333333333'..newfavdata1["value"])
+        if newfavdata1["value"] == "取消成功" then
+            Log:write('33333333333333311111111111111')
+            Sprite:setProperty(collecttagImg, 'src', "file://png/icons_05.png")
+            Sprite:setProperty(collecttagImg, 'visible', "true")
+			Sprite:setVisible(scsucessImg,1)
+            Sprite:setProperty(scsucessImg, 'src', "file://png/tz_bottom_scqx.png")
+            Timer:set(1,1000,'SetScsucessImgHidden')
+            favboll = 0
+        else
+            Log:write('333333333333333222222222222')
+            Sprite:setProperty(collecttagImg, 'src', "file://png/icons_05_y.png")
+            Sprite:setProperty(collecttagImg, 'visible', "true")
+			Sprite:setVisible(scsucessImg,1)
+            Sprite:setProperty(scsucessImg, 'src', "file://png/tz_bottom_sc.png")
+            Timer:set(1,1000,'SetScsucessImgHidden')
+            favboll = 1
+        end
+        
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back(true)
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function myfunc()
+
+end
+
+function onSearchbtnSelected()
+    --Sprite:setProperty(collecttagImg, 'src', "file://png/icons_05_y.png")
+    if favboll == 1 then
+	    local server_newsfavdel1 = server_newsfavdel..'&noticeId='..newsCode
+	    Log:write('111111111111111:', server_newsfavdel1)
+	    Http:request('newsfavdata0', server_newsfavdel1, 102, {useCache=false})
+	    Loading:show(rootSprite)
+	else
+        local server_newsfav1 = server_newsfav..'&noticeId='..newsCode
+        Log:write('111111111111111:', server_newsfav1)
+        Http:request('newsfavdata0', server_newsfav1, 102, {useCache=false})
+        Loading:show(rootSprite)
+    end
+end
+
+function doBack()
+    Scene:back(true)
+end
+
+function SetScsucessImgHidden()
+    Sprite:setVisible(scsucessImg,0)
+end
+
+ -- 调整公告详情页的内容，使其能够上下滑动
+function resetListViewItemHeight()
+        local item = Sprite:getParent(noticedetailTxt)
+        local x,y,w = Sprite:getRect(item)
+        local _,_,_,th = Sprite:getRect(noticedetailTxt)
+        local height = th
+        Sprite:setRect(item, x,y,w,height)
+        ListView:setItemToTop(Sprite:getParent(item), 0)
+        ListView:adjust(Sprite:getParent(item))
+end
+
+    ]]>
+</root>

@@ -1,0 +1,236 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+             <!-- 设置背景 -->
+             <image rect="0,0,480,800" border="false" src="file://png/main_background.png" 
+                style="autosize" extendstyle="1111"></image>
+             <!-- 公告头部 -->
+             <node rect="0,0,480,100" name="titleNode" style="autosize" extendstyle="1111">
+                <image rect="0,0,480,100" border="false" src="file://png/main_top_bg.png" 
+                    style="sudoku-auto" sudoku="0,20,0,20" extendstyle="1111" />
+                <button rect="10,28,78,44" OnSelect="doBack" normal="normal" sel="sel" 
+                    style="autosize" extendstyle="1111">
+                    <node rect="0,0,78,44" name="normal" extendstyle="1111">
+                       <image rect="0,0,78,44" src="file://png/icons_01.png" style="autosize" extendstyle="1111" />
+                    </node>
+                    <node name="sel" extendstyle="1111">
+                       <image rect="0,0,78,44" src="file://png/icons_01_f.png" style="autosize" extendstyle="1111" />
+                    </node>
+                </button>
+                <button rect="100,18,280,54"  normal="normal" sel="sel" 
+                    style="autosize" extendstyle="1111">
+                    <node rect="0,0,280,54" name="normal" extendstyle="1111">
+                        <scrolltext name="title" rect="40,10,200,44" text="科目" font-family="微软雅黑" 
+                            extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                            color="#ffffff" scroll="true" step="2"></scrolltext>
+                    </node>
+                </button>
+            </node>
+            
+            <!-- 科目列表视图  -->
+            <node name="kemulistViewNode" rect="0,120,480,640" extendstyle="1111" visible="true" enable="true">
+                <image name="kemulistbgImg" rect="20,0,440,640" border="false" src="file://png/kq_bg.png" style="sudoku-auto" sudoku="20,20,20,20" extendstyle="1111" />
+                <listview name="kemuListView" rect="0,0,480,640" extendstyle="1111"
+                    border="false" visible="true" />
+            </node>
+            
+            <node name="kemulistitemNode" rect="0,120,480,80" border="false" visible="false"
+                enable="false" active="false" extendstyle="1111">
+                <button name="kemuitemBtn" rect="20,0,440,80" OnSelect="kemuitemOnSelect"
+                    style="autosize" normal="normal" sel="sel" extendstyle="1111">
+                    <node name="normal" extendstyle="1111">
+                        <image rect="2,10,436,60"  src="file://png/tan_cen.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />                        
+                    </node>
+                    <node name="sel" extendstyle="1111">
+                        <image rect="2,10,436,60"  src="file://png/tan_cenbg.png" style="sudoku-auto" sudoku="15,15,15,15" extendstyle="1111" />                        
+                    </node>
+                    <label name="kemuLabel" rect="20,10,180,60" border="false" h-align="left"  data='' 
+                        font-size="20" v-align="center" step="1" text="立杆"/>
+                    <image rect="0,78,440,2" src="file://png/wdjl_bg_h.png" style="autosize" 
+                        extendstyle="1111" />
+                 </button>
+             </node>           
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_szjl.common.framework'
+local rootSprite
+local kemulistdata1
+server_kemuList = Alias.urlServer..'supervisor/major?'
+local taskNo
+local projectCode
+local fieldCode
+local fieldName
+local taskkemuRoomHandler
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    Http:startNetwork()
+    taskkemuRoomHandler = Reg:create("taskkemuRoom")
+    projectCode = Reg:getString(taskkemuRoomHandler, 'projectCode')
+    taskNo = Reg:getString(taskkemuRoomHandler, 'taskNo')
+    fieldCode = Reg:getString(taskkemuRoomHandler, 'fieldCode')
+    fieldName = Reg:getString(taskkemuRoomHandler, 'fieldName')
+    --local fieldCode = Reg:setString(noticeDetailHandler, 'fieldCode')
+    local server_kemuList1 = server_kemuList..'professionalId='..fieldCode   
+    Log:write('111111111111111:', server_kemuList1)
+    Http:request('tasklistdata0', server_kemuList1, 101, {useCache=false})
+    Loading:show(rootSprite)
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+        if Loading:isShow() then Loading:close() end
+        kemulistdata1 = Http:jsonDecode('tasklistdata0')
+        Log:write('22222222222222222222222222',kemulistdata1)
+        if (kemulistdata1 == nil or kemulistdata1["Total"] == 0 or
+            kemulistdata1["Total"] == '') then
+            Dialog:show("提示", "列表为空", "ok")
+        end
+        local total = kemulistdata1["Total"]
+        local list = Sprite:findChild(rootSprite, 'kemuListView')
+        ListView:removeAllItems(list)
+        local kemulistbgImg = Sprite:findChild(rootSprite, 'kemulistbgImg')
+        local hign = 640
+        if total < 8 then
+            hign = 80*total
+        end
+        Sprite:setRect(kemulistbgImg, 20, 0, 440, hign+1)  
+        -- 加载新的列表项
+        Log:write('90909090======='..total)
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'kemulistitemNode'), total, 'loadkemuListItem')
+        ListView:adjust(list)
+        
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:go(Alias.wodejianli,true)
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function myfunc()
+
+end
+
+function doBack()
+    Scene:go(Alias.wodejianli,true)
+end
+
+function loadkemuListItem(list, item, index)
+    Log:write('--------------listitem')
+    Sprite:setRect(item, 0, 0, 480, 80)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local kemuLabel = Sprite:findChild(item, 'kemuLabel')
+    local Valuedata = kemulistdata1["Value"][index]
+    Log:write('--------------listitem。。'..Valuedata['subject_name'])
+    Sprite:setProperty(kemuLabel, 'text', Valuedata['subject_name'])
+    Sprite:setProperty(kemuLabel, 'data', Valuedata['subject_id'])
+end
+
+function kemuitemOnSelect(sprite)
+    local kemuLabel = Sprite:findChild(sprite, 'kemuLabel')
+    local kemuDataRoomHandler = Reg:create("kemuDataRoom")
+    local kemuName = Sprite:getText(kemuLabel)
+    Reg:setString(kemuDataRoomHandler, 'kemuCode', Sprite:getData(kemuLabel))
+    Reg:setString(kemuDataRoomHandler, 'kemuName', Sprite:getText(kemuLabel))
+    Reg:setString(kemuDataRoomHandler, 'taskNo', taskNo)
+    Reg:setString(kemuDataRoomHandler, 'projectCode', projectCode)
+    Reg:setString(kemuDataRoomHandler, 'fieldCode', fieldCode)
+    Reg:setString(kemuDataRoomHandler, 'fieldName', fieldName)
+    Log:write('参数：---'..projectCode..'---'..taskNo..'---'..fieldCode..'---'..fieldName..'---'..Sprite:getData(kemuLabel)..'---'..Sprite:getText(kemuLabel))
+    if fieldName == "线路工程" then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.wjb_xianlu)
+        Scene:go(Alias.wjb_xianlu, true)
+    elseif fieldName == "基站设备安装"  then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.wjb_jizhanshebei)
+        Scene:go(Alias.wjb_jizhanshebei, true)
+    elseif fieldName == "基站土建"  then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.wjb_jztj)
+        Scene:go(Alias.wjb_jztj, true)
+    elseif fieldName == "基站铁塔"  then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.wjb_jztt)
+        Scene:go(Alias.wjb_jztt, true)
+    elseif fieldName == "小区宽带"  then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.wjb_xqkd)
+        Scene:go(Alias.wjb_xqkd, true)
+    elseif fieldName == "管道工程" and kemuName == "进场材料" then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.gdgc_jccl)
+        Scene:go(Alias.gdgc_jccl, true)
+    elseif fieldName == "管道工程" and kemuName == "开挖沟槽" then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.gdgc_kwgc)
+        Scene:go(Alias.gdgc_kwgc, true)
+    elseif fieldName == "管道工程" and kemuName == "管道铺设" then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.gdgc_gdps)
+        Scene:go(Alias.gdgc_gdps,true)
+    elseif fieldName == "管道工程" and kemuName == "管道验收" then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.gdgc_gdys)
+        Scene:go(Alias.gdgc_gdys,true)
+    elseif fieldName == "管道工程" and kemuName == "人手孔" then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.gdgc_rsk)
+        Scene:go(Alias.gdgc_rsk,true)
+    elseif fieldName == "管道工程" and kemuName == "路由复测" then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.gdgc_lyfc)
+        Scene:go(Alias.gdgc_lyfc,true)
+    elseif fieldName == "无线网络" and kemuName == "交流引入" then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.wjb_jiaoliuyinru)
+        Scene:go(Alias.wjb_jiaoliuyinru,true)
+    elseif fieldName == "无线网络" and kemuName == "机房围墙部分" then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.wjb_jifangweiqiangbufen)
+        Scene:go(Alias.wjb_jifangweiqiangbufen,true)
+    elseif fieldName == "无线网络" and kemuName == "配套部分" then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.wjb_peitaobufen)
+        Scene:go(Alias.wjb_peitaobufen,true)
+    elseif fieldName == "无线网络" and kemuName == "前期准备" then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.wjb_qianqizhunbei)
+        Scene:go(Alias.wjb_qianqizhunbei,true) 
+    elseif fieldName == "无线网络" and kemuName == "设备部分" then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.wjb_shebeibufen)
+        Scene:go(Alias.wjb_shebeibufen,true)
+    elseif fieldName == "无线网络" and kemuName == "塔基部分" then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.wjb_tajibufen)
+        Scene:go(Alias.wjb_tajibufen,true)
+    elseif fieldName == "无线网络" and kemuName == "铁塔安装" then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.wjb_tietaanzhuang)
+        Scene:go(Alias.wjb_tietaanzhuang,true)
+    elseif fieldName == "无线网络" and kemuName == "运维交接验收" then
+        Scene:setReturn(Alias.xgq_kemulist, Alias.wjb_yunweijiaojieyanshou)
+        Scene:go(Alias.wjb_yunweijiaojieyanshou,true)             
+    end
+end
+
+    ]]>
+</root>

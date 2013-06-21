@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <image name="image1" rect="0,0,480,800" border="false" src="file://png/home/login_background.png" style="autosize" extendstyle="1111" />
+        <image name="image2" rect="30,180,332,66" border="false" src="file://png/home/login_title.png" style="autosize" extendstyle="1111" /> 
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <node name="bg" rect="23,260,434,280">
+                <image name="image3" rect="0,0,434,280" border="false" src="file://png/home/login_window_bg.png" style="autosize" extendstyle="1111" />
+            </node>
+            <node name="namenode" rect="0,276,480,56">
+                <image name="image4" rect="36,0,408,56" border="false" src="file://png/home/login_input.png" style="autosize" extendstyle="1111" />
+                <image name="image5" rect="50,10,36,36" border="false" src="file://png/home/icons_login_user.png" style="autosize" extendstyle="1111" />
+                <edit name="edname" rect="100,0,335,56" border="false" extendstyle="1111" v-center="true" font-size="23" autoup="true" />
+            </node>
+            <node name="pwdnode" rect="0,350,480,56">
+                <image name="image6" rect="36,0,408,56" border="false" src="file://png/home/login_input.png" style="autosize" extendstyle="1111" />
+                <image name="image7" rect="50,10,36,36" border="false" src="file://png/home/icons_login_lock.png" style="autosize" extendstyle="1111" />
+                <edit name="edpwd" rect="100,0,335,56" border="false" password="true" extendstyle="1111" v-center="true" font-size="23" autoup="true" />
+            </node>
+            <node name="node1" rect="0,410,480,120">
+                <button name="btnwrite" rect="40,0,190,50" OnSelect="writePwd" extendstyle="1111" data="1">
+                    <image name="image8" rect="5,5,45,45" border="false" src="file://png/login_check.png" style="autosize" extendstyle="1111" />                     
+                    <image rect="50,15,130,22" src="file://png/home/login_zddl.png" style="autosize" extendstyle="1111" />
+                </button>                
+                <!--  <button rect="235,0,100,50" OnSelect="forgetpass" >
+                    <image rect="0,15,92,22" src="file://png/home/login_wjmm.png" style="autosize" extendstyle="1111" />
+                </button> -->
+                <button name="btnLogin" rect="38,60,404,60" color="#ffffff" extendstyle="1111" OnSelect="loginOnSelect" 
+                    normal="src:file://png/home/login_botton_d.png;style:autosize;color:#ffffff"
+                    sel="src:file://png/home/login_botton_s.png;style:autosize;color:#000000" />
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'framework.common'
+require 'com_szjl.common.framework'
+
+local rootSprite
+local flag = 1
+local curSSID
+local url
+local loginData = nil
+local param2
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    Http:startNetwork()
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活      
+        flag = 1
+        connectNet()       
+        readPwd()     
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)   
+    if msg == 103 then
+          Loading:close()
+          loginData = Http:jsonDecode('LOGIN')
+          local result=loginData["Total"]
+          if result=='1' then
+              writeuserInfo()
+              Scene:go(Alias.home,true)             
+          else
+              Dialog:show('提示','账户或密码错误!', 'ok')
+          end
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        if Loading:isShow() then
+            Loading:close()
+        else
+            Dialog:show('提示', '是否确定退出？', 'ok_cancel', 'doExit',nil)
+        end
+        return 1
+    elseif kc == Key.F1 then
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function myfunc()
+
+end
+
+function connectNet()
+        WLAN:setUrl('http://www.baidu.com/', '')
+        if WLAN:isSwitchOn() then
+            local attach = WLAN:isAttach()
+            if attach then
+                curSSID = attach.ssid
+                Http:connectWLAN(attach.ssid)
+            else
+                connectToWAP()
+            end
+        else
+            connectToWAP()
+        end
+end
+    -- @brief 连接移动网络
+function connectToWAP()
+        local APNtype = Http:getCurrentAPNType()
+        if APNtype == 1 then -- Net网
+            Http:setProxy('')
+            elseif APNtype == 2 then --移动wap
+            Http:setProxy('http://10.0.0.172:80/')
+            elseif APNtype == 3 then --电信wap
+            Http:setProxy('http://10.0.0.200:80/')
+            elseif APNtype == 4 then --联通wap
+            Http:setProxy('http://10.0.0.172:80/')
+            else
+            Http:setProxy('')
+        end
+        Http:connectCMWAP()
+end
+
+function loginOnSelect()
+         local namenode=Sprite:findChild(rootSprite, 'namenode')
+         local pwdnode=Sprite:findChild(rootSprite, 'pwdnode')
+         local usercode=Sprite:getText(Sprite:findChild(namenode, 'edname'))
+         local password=Sprite:getText(Sprite:findChild(pwdnode, 'edpwd'))
+         url = Alias.urlServer.."userMgr/loginPhone?"
+         param2 = "userName="..usercode.."&userPass="..password
+         Http:request("LOGIN", url..param2, 103)  
+         --Http:request("LOGIN", url, 103,{useCache = false, method = 'post', postData=param2}) 
+         Loading:show(rootSprite)
+end
+
+function writePwd(sprite)  
+      local imgNode = Sprite:findChild(sprite,'image8') 
+        if flag==1 then          
+            Sprite:setProperty(imgNode, 'src', 'file://png/login_checkbox.png')
+            --Sprite:setProperty(sprite,'data','0')
+            flag=0
+        elseif flag==0 then      
+            Sprite:setProperty(imgNode, 'src', 'file://png/login_check.png')
+            --Sprite:setProperty(sprite,'data','1')
+            flag=1
+        end
+end
+
+function readPwd()
+      local namenode=Sprite:findChild(rootSprite, 'namenode')
+      local pwdnode=Sprite:findChild(rootSprite, 'pwdnode')
+      local node1=Sprite:findChild(rootSprite, 'node1')
+      local edname=Sprite:findChild(namenode, 'edname')
+      local edpwd=Sprite:findChild(pwdnode, 'edpwd')
+      local btnwrite = Sprite:findChild(node1,'btnwrite')
+      local imgNode = Sprite:findChild(btnwrite,'image8')
+      local username = Config:get('username')
+      local password = Config:get('password')
+      if username~=nil and password~=nil then
+         Sprite:setProperty(imgNode, 'src', 'file://png/login_check.png')
+         Sprite:setProperty(edname,'text',username)
+         Sprite:setProperty(edpwd,'text',password)
+         Sprite:setProperty(btnwrite,'data','1')
+         flag = 1
+      end
+      local shifoudenglu = Config:get('shifoudenglu')
+      if shifoudenglu=='1' then
+         loginOnSelect()
+      else     
+         Sprite:setProperty(imgNode, 'src', 'file://png/login_checkbox.png')
+         Sprite:setProperty(btnwrite,'data','0')
+         flag = 0
+      end
+end
+
+function writeuserInfo()
+       local namenode=Sprite:findChild(rootSprite, 'namenode')
+       local pwdnode=Sprite:findChild(rootSprite, 'pwdnode')
+       local node1=Sprite:findChild(rootSprite,'node1')
+       local usercode=Sprite:getText(Sprite:findChild(namenode, 'edname'))
+       local password=Sprite:getText(Sprite:findChild(pwdnode, 'edpwd'))     
+       if flag==1 then
+          Config:set("username", usercode)
+          Config:set('password', password)
+          Config:set('shifoudenglu', '1')
+       elseif flag==0 then
+          Config:delete('username')
+          Config:delete('password')
+          Config:delete('shifoudenglu')       
+       end
+       Config:set("userLogin",loginData["Value"][0]["user_id"])
+       Config:set("realName",loginData["Value"][0]["real_name"])               
+end
+    ]]>
+</root>

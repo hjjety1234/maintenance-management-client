@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <image name="image1" rect="0,0,480,800" border="false" src="file://png/home/login_background.png" style="autosize" extendstyle="1111" />
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <node name="scrollBarNode" rect="110,450,300,22"  OnTick="scrollOnTick" frame="true" extendstyle="1111" h-align="center">
+                <image name="scrollBgImg" rect="0,0,269,22"  src="file://png/index_line.png" extendstyle="1111"/>
+                <image name="scrollImg" rect="0,0,34,22" src="file://png/light.png" extendstyle="1111"/>
+            </node>
+            <!-- 下载进度指示 -->
+            <node name="downloadingNode" rect="163,500,0,0" visible="false"
+                enable="false" extendstyle="1111">
+                <image name="progressBg" rect="0,0,154,10" style="autosize" 
+                    src="file://png/login_progress_bg.png" extendstyle="1111" />
+                <image name="progressImg" rect="0,0,0,10" style="autosize"
+                    src="file://png/login_progress.png" extendstyle="1111" />
+                <label name="proLab" rect="164,-8,160,26" text="0KB/0KB" 
+                    font-size="16" color="#ffffff" v-align="center" h-align="left" 
+                    extendstyle="1111" />
+                <label name="speedLab" rect="-170,-8,160,26" text="0KB/S" 
+                    font-size="16" color="#ffffff" v-align="center"
+                    h-align="right" extendstyle="1111" />
+            </node>
+            <!-- 文本通知信息  -->
+            <label name="noticeLbl" rect="0,525,480,30" font-size="20" 
+                text="" v-align="center" h-align="center" color="#ffffff" 
+                extendstyle="1111" />
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_szjl.common.framework'
+require 'com_szjl.common.download'
+require 'com_szjl.common.umsagent'
+require 'com_szjl.common.msgpush'
+local rootSprite
+local g_packageUrl                  -- 客户端升级包url地址
+local g_downloadTime = 0            -- 记录下载所花的时间
+local g_progressWidth = 154         -- 进度条长度
+local g_localpath = nil             -- 下载apk路径
+
+local g_localPatchPath = nil        -- 下载patch路径
+local g_localPatchResult = nil      -- 补丁更新后的文件路径
+local g_patchUrl = nil              -- 补丁包下载url地址
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    --检测是否有版本更新
+    UmsAgent:postClientData()
+    checkClientVersion()
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+           connectNet()
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg,param)
+    if msg == 101 then
+    elseif msg == 102 then --  版本检测
+        Loading:close()
+        local checkversionData = Http:jsonDecode('index_checkversion')
+        Log:write("version_data:", checkversionData)
+        if checkversionData and checkversionData['version'] then
+            g_packageUrl = checkversionData['version']['url']
+            g_patchUrl = checkversionData['version']['patchUrl']
+            if tonumber(checkversionData['version']['isNeedUpdate']) == 0 then  -- 不需要升级
+                exitUpdateSelected()
+            elseif tonumber(checkversionData['version']['isNeedUpdate']) == 1 then -- 提示升级
+                Dialog:show('提示', '检测到新的客户端版本，是否升级？', 'ok_cancel', 'updateSelected', 'exitUpdateSelected')
+                return
+            elseif tonumber(checkversionData['version']['isNeedUpdate']) == 2 then -- 强制升级
+                Dialog:show('提示', '检测到新的客户端版本，是否升级？', 'ok_cancel', 'updateSelected', 'doExit')
+                return
+            else
+                exitUpdateSelected()
+            end
+        else
+            Dialog:show('提示', '版本检测异常，请检查网络！', 'ok', 'updateSelected')
+        end
+        -- 隐藏登录和版本检查进度
+        local scrollBarNode = Sprite:findChild(rootSprite, 'scrollBarNode')
+        Sprite:setVisible(scrollBarNode, 0)
+        Sprite:setEnable(scrollBarNode, 0)
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+            if Loading:isShow() then
+                Loading:close()
+            else
+                Dialog:show('提示', '是否确定退出？', 'ok_cancel', 'doExit')
+            end
+            return 1
+    elseif kc == Key.F1 then
+            return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+    function myfunc()
+
+    end
+
+    -- 检测客户端版本
+    function checkClientVersion()
+       local noticeLblSprite = Sprite:findChild(rootSprite, "noticeLbl")
+       Sprite:setProperty(noticeLblSprite, "text", "版本检测中...")
+       local webcloud = Config:get('webcloud')
+       local appKey = UmsAgent:getAppKey()
+       local appVer = Config:get('app_version')
+       local requestURL = string.format('http://%s/webcloud/sso/sso_upgrade.html?appkey=%s&version=%s', 
+           webcloud, appKey, appVer)
+       Log:write('info: checkClientVersion() requestURL=', requestURL)
+       Http:request('index_checkversion', requestURL, 102, {useCache = false})
+    end
+
+--连接至网络
+    function connectNet()
+        WLAN:setUrl('http://www.baidu.com/', '')
+        if WLAN:isSwitchOn() then
+            local attach = WLAN:isAttach()
+            if attach then
+                curSSID = attach.ssid
+                Http:connectWLAN(attach.ssid)
+                else
+                connectToWAP()
+            end
+            else
+            connectToWAP()
+        end
+    end
+    -- @brief 连接移动网络
+    function connectToWAP()
+        local APNtype = Http:getCurrentAPNType()
+        if APNtype == 1 then -- Net网
+            Http:setProxy('')
+            elseif APNtype == 2 then --移动wap
+            Http:setProxy('http://10.0.0.172:80/')
+            elseif APNtype == 3 then --电信wap
+            Http:setProxy('http://10.0.0.200:80/')
+            elseif APNtype == 4 then --联通wap
+            Http:setProxy('http://10.0.0.172:80/')
+            else
+            Http:setProxy('')
+        end
+        Http:connectCMWAP()
+    end
+    
+     --取消升级，系统跳转至主界面
+     function exitUpdateSelected()
+        Scene:go(Alias.login,true)
+     end
+    
+     --自动升级
+     function updateSelected()
+        local upgradeNode = Sprite:findChild(rootSprite, "scrollBarNode")
+        Sprite:setProperty(upgradeNode, "enable", "false")
+        Sprite:setProperty(upgradeNode, "visible", "false")
+        if not g_packageUrl or g_packageUrl == '' or g_packageUrl == nil then
+            Dialog:show('提示', '版本升级失败！', 
+                'ok_cancel', 'exitUpdateSelected', 'doExit')
+            return
+        end
+        local noticeLblSprite = Sprite:findChild(rootSprite, "noticeLbl")
+        Sprite:setProperty(noticeLblSprite, "text", "升级中...")
+        -- 删除缓存
+        IO:dirRemove('CACHE:\\com_szjl', 1)
+        -- 隐藏登录和版本检查进度条
+        local scrollBarNode = Sprite:findChild(rootSprite, 'scrollBarNode')
+        Sprite:setVisible(scrollBarNode, 0)
+        Sprite:setEnable(scrollBarNode, 0)
+         -- 显示下载进度
+        local downloadingNode = Sprite:findChild(rootSprite, 'downloadingNode')
+        Sprite:setVisible(downloadingNode, 1)
+        Sprite:setEnable(downloadingNode, 1)
+        local progress = Sprite:findChild(downloadingNode, 'progressImg')
+        local startX,startY,_,startH = Sprite:getRect(progress)
+        -- 开始下载       
+        getDownloadPath()
+        Download:append(g_localpath, 'intallPackageName', g_packageUrl, true)
+        onGetDownloadStatus()
+    end
+    
+      --  显示下载状态
+    function onGetDownloadStatus()
+        local count = Download:getCount(true)
+        Log:write('the download count is ',count)
+        g_downloadTime = g_downloadTime + 0.5
+        local progressImg = Sprite:findChild(rootSprite, 'progressImg') -- 下载进度
+        local speedLab = Sprite:findChild(rootSprite, 'speedLab')       -- 下载速度
+        local proLab = Sprite:findChild(rootSprite, 'proLab')           -- 总体下载进度
+        local noticeLbl = Sprite:findChild(rootSprite, "noticeLbl")     -- 通知信息       
+        -- 迭代下载队列
+        for i = 1, count do
+            local task = Download:getStatus(i, true)
+            if task.title == 'intallPackageName' then   
+                if task.status == 3 then Download:start(i, true) end
+                -- 计算当前的下载百分比
+                Log:write('the task size is ',task.size)
+                local percent = 0
+                if task.size and task.maxsize and task.maxsize ~= 0 then
+                    percent = math.floor(task.size / task.maxsize * 100)
+                end
+                Log:write('the task status is ',Download.status.Downloading)
+                if task.status == Download.status.Downloading then -- 下载中
+                    local x, y, _, h = Sprite:getRect(progressImg)
+                    Sprite:setRect(progressImg, x, y, g_progressWidth * percent / 100, h)
+                    Sprite:setProperty(speedLab, 'text', math.floor(task.size / 1024 / g_downloadTime) .. 'KB/S')
+                    Sprite:setProperty(proLab, 'text', math.floor(task.size/1024) .. 'KB/' .. math.floor(task.maxsize/1024) .. 'KB')
+                elseif task.status == Download.status.Finished then -- 下载完毕
+                    g_downloadTime = 0
+                    Sprite:setProperty(noticeLbl, 'text', '完成')
+                    Download:delete(i, false, true)
+                    Sprite:setProperty(speedLab,'text', '0KB/S')
+                    Sprite:setProperty(proLab, 'text', math.floor(task.maxsize/1024) .. 'KB/' .. math.floor(task.maxsize/1024) .. 'KB')
+                    local x, y, _, h = Sprite:getRect(progressImg)
+                    Sprite:setRect(progressImg, x, y, g_progressWidth * percent / 100, h)
+                    Http:stopNetwork()
+                    -- 安装退出                    
+                    Util:installApp(g_localpath)
+                    -- 安装成功，重启时引擎将干掉module
+                    -- 清除cache
+                    IO:dirRemove('CACHE:\\com_szjl', 1)
+                    IO:dirCreate('CACHE:\\com_szjl')
+                    IO:dirCreate('CACHE:\\com_szjl\\image')
+                end
+                break
+            end
+        end
+        Timer:set(111, 500, 'onGetDownloadStatus')
+    end
+    
+    -- 登录和版本检查进度条
+    function scrollOnTick(sprite)
+        local scrollImg = Sprite:findChild(sprite, 'scrollImg')
+        local x, y, w, h = Sprite:getRect(scrollImg)
+        if x > 250  then
+           -- if Config:get("register_tips")=="0" then
+           -- Scene:go("MODULE:\\com_szjl\\pqy_register.wdml")
+           -- else           
+           --Scene:go("MODULE:\\com_szjl\\login.wdml")
+           -- end
+           x = 0
+        end
+        Sprite:setRect(scrollImg, x + 7, y, w, h)
+    end
+    
+     --下载菜单进度提示
+    function getPicDoloadStatus()
+        local count = Download:getCount(true)
+        Log:write('the download count is ',count)
+        for i=1,count do
+            local task = Download:getStatus(i, true)
+            if task.title == 'picDownload' then
+                Log:write('the task status is ',task.status)
+                if task.status == 3 then
+                    Download:start(i, true)
+                end
+                if task.status == Download.status.Finished  then
+                    Log:write('delete ',i)
+                    Download:delete(i)
+                end
+            end
+        end
+        Timer:set(222,500,'getPicDoloadStatus')
+    end
+
+ -- 获取apk下载路径
+    function getDownloadPath()
+        g_localpath = ""
+        local downloadPath = System:getFlashCardName(1) 
+        if downloadPath == nil or downloadPath == "" then 
+            Log:write("SD卡不存在,使用内部存储！")
+            downloadPath = System:getFlashCardName(0)
+        end
+        g_localpath = downloadPath.."download"
+        Log:write("getDownloadPath: localDir="..g_localpath)
+        -- 如果路径不存在，创建下载目录
+        if IO:dirExist(g_localpath) == false then 
+            IO:dirCreate(g_localpath)
+        end
+        -- 如果apk已经存在，删除之
+        g_localpath = g_localpath.."/"
+        Log:write("getDownloadPath: g_localpath="..g_localpath)
+        --if IO:fileExist(g_localpath) == true then 
+        --    IO:fileRemove(g_localpath)
+        --end
+        -- 返回apk本地路径
+        return g_localpath
+    end
+
+--获取SD卡上的Download目录
+    function getDownloadIconPath()
+        local iconPath = ''
+        local downloadPath = System:getFlashCardName(1) 
+        if downloadPath == nil or downloadPath == "" then 
+            Log:write("SD卡不存在,使用内部存储！")
+            downloadPath = System:getFlashCardName(0)
+        end
+        iconPath = downloadPath.."download"
+        Log:write("getDownloadPath: localDir="..iconPath)
+        -- 如果路径不存在，创建下载目录
+        if IO:dirExist(iconPath) == false then 
+            IO:dirCreate(iconPath)
+        end
+        -- 如果apk已经存在，删除之
+        iconPath = iconPath.."/"
+        Log:write("getDownloadPath: iconPath="..iconPath)
+        --[[if IO:fileExist(iconPath) == true then 
+            IO:fileRemove(iconPath)
+        end--]]
+        return iconPath
+    end
+
+    ]]>
+</root>

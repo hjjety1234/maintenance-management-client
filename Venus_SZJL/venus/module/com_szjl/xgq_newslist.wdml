@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+             <!-- 设置背景 -->
+             <image rect="0,0,480,800" border="false" src="file://png/main_background.png" 
+                style="autosize" extendstyle="1111"></image>
+             
+             <!-- 公告头部 -->
+             <node rect="0,0,480,100" name="titleNode" style="autosize" extendstyle="1111">
+                <image rect="0,0,480,100" border="false" src="file://png/main_top_bg.png" 
+                    style="sudoku-auto" sudoku="0,20,0,20" extendstyle="1111" />
+                <button rect="10,28,78,44" OnSelect="doBack" normal="normal" sel="sel" 
+                    style="autosize" extendstyle="1111">
+                    <node rect="0,0,78,44" name="normal" extendstyle="1111">
+                       <image rect="0,0,78,44" src="file://png/icons_02.png" style="autosize" extendstyle="1111" />
+                    </node>
+                    <node name="sel" extendstyle="1111">
+                       <image rect="0,0,78,44" src="file://png/icons_02_f.png" style="autosize" extendstyle="1111" />
+                    </node>
+                </button>
+                <button rect="100,10,280,62" OnSelect="doFenlei" normal="normal" sel="sel" 
+                    style="autosize" extendstyle="1111">
+                    <node rect="0,0,280,54" name="normal" extendstyle="1111">
+                        <scrolltext name="title" rect="40,10,180,44" text="通知公告" font-family="微软雅黑" 
+		                    extendstyle="1111" font-size="30" h-align="center" v-align="center"
+		                    color="#ffffff" scroll="true" step="2"></scrolltext>
+                        <image name="fenleiImg" rect="200,34,16,8" src="file://png/tz_icons_arrow_under.png" 
+                            style="autosize" extendstyle="1111" />
+                    </node>
+                </button>
+                <!-- 显示或隐藏搜索条 -->
+                <button name="btnShowSearchBar" rect="392,28,78,44"
+                    font-size="24" extendstyle="1111" text="" color="#ffffff"
+                    normal="src:file://png/icons_04.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+                    sel="src:file://png/icons_04_f.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+                    OnSelect="OnShowSearchBarButtonClicked"></button>
+            </node>
+            <!-- 隐藏的搜索栏 -->
+            <node name="searchBar" rect="0,100,480,69" extendstyle="1111" visible="false">
+                <image name="search_bg" rect="0,0,480,69" src="file://png/tz_Search_bg.png"
+                    style="autosize" extendstyle="1111" />
+                <image rect="40,8,300,52" src="file://png/wdjl_input_left.png"  h-align="left" v-align="center" sudoku="15,15,15,15"
+                    style="sudoku-auto" extendstyle="1111" />
+                <edit name="keywordEdit" rect="70,15,270,46" extendstyle='1111' OnLostFocus="OnsousuoInit" OnSetFocus="Onsousuofocus"
+                    v-align="center" font-size="22" text="搜索标题" >
+                </edit>
+                <button rect="340,8,100,52"  OnSelect="searchbtnOnselect" style="autosize" 
+                    extendstyle="1111" >
+                    <image rect="0,0,92,52" src="file://png/wdjl_input_right.png" sudoku="50,0,100,0" 
+                        style="sudoku-auto" extendstyle="1111" />
+                </button>
+            </node>
+            
+            <!-- 通知公告列表视图  -->
+            <node name="listViewNode" rect="0,100,480,700" extendstyle="1111">
+                <listview name="newsListView" rect="0,0,480,700" extendstyle="1111"
+                    border="false" visible="true" limit="true"  />
+            </node>
+            
+            <node name="listitemNode" rect="0,0,480,74" border="false" visible="false"
+                enable="false" active="false" extendstyle="1111">
+                <button name="newsitemBtn" rect="0,0,480,74" OnSelect="itemOnSelect"
+                    normal="node:normal" sel="node:select" style="autosize" extendstyle="1111" >
+                    <node name="normal" extendstyle="1177" rect="0,0,0,0">
+                        <image rect="0,0,480,72" extendstyle="1177" src="file://png/list_bg_w.png" sudoku="15,15,15,15" style="autosize" />
+                        <image rect="424,20,12,18" extendstyle="1177" src="file://png/tz_arrow_h.png"   />
+	                    <scrolltext name="newstitleTxt" rect="40,6,300,30" border="false" h-align="left" 
+	                        v-align="center" color="#000000" text="" font-size="22" scroll="true" 
+	                        step="4" extendstyle="1111" font-family="黑体"></scrolltext>
+	                    <label name="timeLabel" rect="40,42,200,30" border="false" text=""
+	                        h-align="left" v-align="center" color="#8d8d8d" font-size="16"
+	                        extendstyle="1111" font-family="黑体"></label>
+	                    <label name="newscodeLable" rect="40,42,200,30" border="false" text="" visible="false"
+	                        h-align="left" v-align="center" color="#8d8d8d" font-size="18"
+	                        extendstyle="1111" font-family="黑体"></label> <!--存储newscode-->
+                    </node>
+                    <node name="select" extendstyle="1177" rect="0,0,0,0">
+                        <image rect="0,0,480,72" extendstyle="1177" src="file://png/list_bg_b.png" sudoku="15,15,15,15" style="autosize" />
+                        <image rect="424,20,12,18" extendstyle="1177" src="file://png/tz_arrow_b.png" />
+                        <scrolltext name="newstitleTxt_s" rect="40,6,300,30" border="false" h-align="left" 
+                            v-align="center" color="#ffffff" text="" font-size="22" scroll="true" 
+                            step="4" extendstyle="1111" font-family="黑体"></scrolltext>
+                        <label name="timeLabel_s" rect="40,42,200,30" border="false" text=""
+                            h-align="left" v-align="center" color="#ffffff" font-size="16"
+                            extendstyle="1111" font-family="黑体"></label>
+                        <label name="newscodeLable_s" rect="40,42,200,30" border="false" text="" visible="false"
+                            h-align="left" v-align="center" color="#ffffff" font-size="18"
+                            extendstyle="1111" font-family="黑体"></label>  <!--存储newscode-->
+                    </node>
+                    <!-- 新公告提示按钮 -->
+                    <node name="newtagNode" rect="140,49,30,20" extendstyle="1111" visible="false">
+                        <image name="newtagImage" rect="0,0,22,10" src="file://png/tz_new.png"
+                            style="autosize" extendstyle="1111" v-align="center"> </image>
+                    </node>
+                    <image rect="0,72,480,2" src="file://png/tz_list.png" style="autosize" 
+                        extendstyle="1111" />
+                </button>
+            </node>
+            
+            <!-- 弹出框 -->
+            <node name="fenleiNode" rect="100,68,300,227" visible="false" enable="false" active="false">
+
+                <image rect="200,0,16,8" src="file://png/kq_icons_arrow.png"
+                    style="autosize" extendstyle="1111" />
+                <node rect="0,8,300,40" extendstyle="1111" border="false">
+                    <image rect="0,0,300,40" src="file://png/tan_top.png" style="autosize"
+                        extendstyle="0010" />
+                    <label rect="10,2,160,36" border="false" color="#FFFFFF"
+                        style="autosize" text="请选择" h-align="left" v-align="center"
+                        font-family="微软雅黑" font-size="24" />
+                </node>
+                
+                <button rect="0,48,300,70" text="    全部" color="#ffffff" font-family="微软雅黑" h-align="left"
+                    extendstyle="1111" OnSelect="fenleiOnselect1"
+                    normal="src:file://png/tan_cen.png;style:sudoku-auto;sudoku:0,0,0,0;color:#000000"
+                    sel="src:file://png/tan_cenbg.png;style:sudoku-auto;sudoku:0,0,0,0;color:#ffffff"
+                    font-size="24" data="0" >
+                    <label name="quanbuLable" rect="220,0,60,70" text="(0)" color="#ff0000"
+                        extendstyle="1111" style="autosize" h-align="left" v-align="center"
+                        font-size="24" />
+                </button>
+                <image rect="0,118,300,3" src="file://png/tz_list.png" style="autosize" 
+                    extendstyle="1111" />
+                <button rect="0,120,300,71" text="    未读" color="#ffffff" font-family="微软雅黑" h-align="left"
+                    extendstyle="1111" OnSelect="fenleiOnselect2"
+                    normal="src:file://png/tan_cen.png;style:sudoku-auto;sudoku:0,0,0,0;color:#000000"
+                    sel="src:file://png/tan_cenbg.png;style:sudoku-auto;sudoku:0,0,0,0;color:#ffffff"
+                    font-size="24" data="0" >
+                    <label name="unreadLable" rect="220,0,60,70" text="(0)" color="#ff0000"
+                        extendstyle="1111" style="autosize" h-align="left" v-align="center"
+                        font-size="24" />
+                </button>
+                <image rect="0,189,300,3" src="file://png/tz_list.png" style="autosize" 
+                    extendstyle="1111" />
+                <button rect="0,191,300,70" text="    收藏" color="#ffffff" font-family="微软雅黑" h-align="left"
+                    extendstyle="1111" OnSelect="fenleiOnselect3"
+                    normal="src:file://png/tan_cen.png;style:sudoku-auto;sudoku:0,0,0,0;color:#000000"
+                    sel="src:file://png/tan_cenbg.png;style:sudoku-auto;sudoku:0,0,0,0;color:#ffffff"
+                    font-size="24" data="0" >
+                    <label name="favLable" rect="220,0,60,70" text="(0)" color="#ff0000"
+                        extendstyle="1111" style="autosize" h-align="left" v-align="center"
+                        font-size="24" />
+                </button>
+                <image rect="0,260,300,2" src="file://png/tz_list.png" style="autosize" 
+                    extendstyle="1111" />
+                <image rect="0,261,300,11" src="file://png/tan_bottom.png" style="autosize" 
+                    extendstyle="1111" />
+            </node>
+            
+        </node>
+    </body>
+    <![CDATA[
+
+require('com_szjl.common.framework')
+local rootSprite
+local fenleiNode
+local newslistdata1
+local isSearchBarVisible = false 
+local userCode = Config:get('userLogin')
+server_newslist = Alias.urlServer..'notice/selAll?cmd=notic&page=1&pagesize=20'
+server_newsunread = Alias.urlServer..'list/selList?cmd=notic'
+server_newsfav = Alias.urlServer..'list/selFav?cmd=notic'
+server_newsNum = Alias.urlServer..'list/Nnum?cmd=notice'
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    Http:startNetwork()
+    initPage()
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+        Log:write('22222222222222222222222222')
+        if Loading:isShow() then Loading:close() end
+        newslistdata1 = Http:jsonDecode('newslistdata0')
+        if (newslistdata1 == nil or newslistdata1["Total"] == 0 or
+            newslistdata1["Total"] == '') then
+            Dialog:show("", "列表为空", "ok")
+        end
+        local total = newslistdata1["Total"]
+        local list = Sprite:findChild(rootSprite, 'newsListView')
+        ListView:removeAllItems(list)
+        -- 加载新的列表项
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitemNode'), total, 'loadListItem')
+        ListView:adjust(list)
+        --refresh(rootSprite)
+    elseif msg == 102 then -- 101请求的数据有更新
+        Log:write('22222222222222222222222222')
+        if Loading:isShow() then Loading:close() end
+        newsNumdata1 = Http:jsonDecode('newsNumdata0')
+        if (newsNumdata1 == nil or newsNumdata1["Code"] == 0 or
+            newsNumdata1["Code"] == '') then
+            Dialog:show("", "数据出错", "ok")
+        end
+        local total = newsNumdata1["Total"]
+        Log:write('--------------'..newsNumdata1["allnoticeCount"])
+        local quanbuLable = Sprite:findChild(rootSprite, "quanbuLable")
+        local unreadLable = Sprite:findChild(rootSprite, "unreadLable")
+        local favLable = Sprite:findChild(rootSprite, "favLable")
+        Sprite:setProperty(quanbuLable, 'text', '('..newsNumdata1["allnoticeCount"]..')')
+        Sprite:setProperty(unreadLable, 'text', '('..newsNumdata1["newnoticeCount"]..')')
+        Sprite:setProperty(favLable, 'text', '('..newsNumdata1["collectedCode"]..')')
+        setAllShoworHide(Sprite:findChild(rootSprite, 'fenleiNode'), 1)
+        local tagImg = Sprite:findChild(rootSprite, 'fenleiImg')
+        Sprite:setProperty(tagImg, 'src', "file://png/tz_icons_arrow_on.png")
+
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:go(Alias.home,true)
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function myfunc()
+
+end 
+
+-- @brief 返回按钮处理
+function doBack()
+    --Scene:back(true)
+    Scene:go(Alias.home,true)
+end
+
+function initPage()
+    local server_newslist1 = server_newslist..'&userCode='..userCode
+    Log:write('111111111111111:', server_newslist1)
+    Http:request('newslistdata0', server_newslist1, 101, {useCache=false})
+    isSearchBarVisible = false
+    fenleiNode = Sprite:findChild(rootSprite, "fenleiNode")
+    Loading:show(rootSprite)
+end
+
+function loadListItem(list, item, index)
+    Log:write('--------------listitem')
+    Sprite:setRect(item, 0, 0, 480, 74)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local newstitleTxt = Sprite:findChild(item, 'newstitleTxt')
+    local timeLabel = Sprite:findChild(item, 'timeLabel')
+    local newscodeLable = Sprite:findChild(item, "newscodeLable")
+    local newstitleTxt_s = Sprite:findChild(item, 'newstitleTxt_s')
+    local timeLabel_s = Sprite:findChild(item, 'timeLabel_s')
+    local newscodeLable_s = Sprite:findChild(item, "newscodeLable_s")
+    local newtagNode = Sprite:findChild(item, "newtagNode")
+    local Valuedata = newslistdata1["Value"][index]
+    Sprite:setProperty(newstitleTxt, 'text', Valuedata['noticeTitile'])
+    Sprite:setProperty(timeLabel, 'text', Valuedata['noticeTime'])
+    Sprite:setProperty(newscodeLable, 'text', Valuedata['noticeCode'])
+    Sprite:setProperty(newstitleTxt_s, 'text', Valuedata['noticeTitile'])
+    Sprite:setProperty(timeLabel_s, 'text', Valuedata['noticeTime'])
+    Sprite:setProperty(newscodeLable_s, 'text', Valuedata['noticeCode'])
+    if Valuedata['readStatus'] == '0' then
+        Sprite:setProperty(newtagNode, 'visible', 'true')
+    end 
+    
+    Log:write('--------------'..Valuedata['noticeCode'])
+end
+
+function doFenlei()
+    local server_newsNum1 = server_newsNum..'&userCode='..userCode
+    Log:write('111111111111111:', server_newsNum1)
+    Http:request('newsNumdata0', server_newsNum1, 102, {useCache=false})
+    Loading:show(rootSprite)
+end
+
+function fenleiOnselect1()
+    local server_newslist1 = server_newslist..'&userCode='..userCode
+    Log:write('111111111111111:', server_newslist1)
+    Http:request('newslistdata0', server_newslist1, 101, {useCache=false})
+    Sprite:setVisible(fenleiNode, 0)
+    Sprite:setProperty(fenleiNode, 'enable', 'false')
+    local tagImg = Sprite:findChild(rootSprite, 'fenleiImg')
+    Sprite:setProperty(tagImg, 'src', "file://png/tz_icons_arrow_under.png")
+    Loading:show(rootSprite)
+end
+
+function fenleiOnselect2()
+    local server_newsunread1 = server_newsunread..'&userCode='..userCode
+    Log:write('111111111111111:', server_newsunread1)
+    Http:request('newslistdata0', server_newsunread1, 101, {useCache=false})
+    Sprite:setVisible(fenleiNode, 0)
+    Sprite:setProperty(fenleiNode, 'enable', 'false')
+    local tagImg = Sprite:findChild(rootSprite, 'fenleiImg')
+    Sprite:setProperty(tagImg, 'src', "file://png/tz_icons_arrow_under.png")
+    Loading:show(rootSprite)
+end
+
+function fenleiOnselect3()
+    local server_newsfav1 = server_newsfav..'&userCode='..userCode
+    Log:write('111111111111111:', server_newsfav1)
+    Http:request('newslistdata0', server_newsfav1, 101, {useCache=false})
+    Sprite:setVisible(fenleiNode, 0)
+    Sprite:setProperty(fenleiNode, 'enable', 'false')
+    local tagImg = Sprite:findChild(rootSprite, 'fenleiImg')
+    Sprite:setProperty(tagImg, 'src', "file://png/tz_icons_arrow_under.png")
+    Loading:show(rootSprite)
+end
+
+function itemOnSelect(sprite)
+    local newscodeLable = Sprite:findChild(sprite, "newscodeLable")
+    Log:write('22tttttttttttttttttt22222pppppppppp'..Sprite:getText(newscodeLable))
+    local noticeDetailHandler = Reg:create("newsDataRoom")
+    Reg:setString(noticeDetailHandler, 'newsCode', Sprite:getText(newscodeLable))
+	Scene:setReturn(Alias.newslist, Alias.newsdetail)
+	Scene:go(Alias.newsdetail, true)
+end
+
+-- @brief 显示或者隐藏搜索条
+function OnShowSearchBarButtonClicked(sprite)
+    --local headerNodeSprite = Sprite:getParent(sprite)
+    --local mainNodeSprite = Sprite:getParent(headerNodeSprite)
+    local listViewSprite = Sprite:findChild(rootSprite, "newsListView")
+    local searchBarSprite = Sprite:findChild(rootSprite, "searchBar")
+    local x, y, width, height = Sprite:getRect(listViewSprite)
+    if (isSearchBarVisible == false) then
+        Sprite:setRect(listViewSprite, x, y + 69, width, height)
+        Sprite:setVisible(searchBarSprite, 1)
+        isSearchBarVisible = true
+    else
+        Sprite:setRect(listViewSprite, x, y - 69, width, height)
+        Sprite:setVisible(searchBarSprite, 0)
+        isSearchBarVisible = false
+    end
+end
+
+function searchbtnOnselect()
+    Log:write("搜索标题")
+    local keywordEdit = Sprite:findChild(rootSprite, 'keywordEdit')
+    local txt = Sprite:getText(keywordEdit)
+    if txt=='搜索标题' then
+        keyword = ''
+    else
+        keyword = Sprite:getText(keywordEdit)
+    end
+    local server_newslist2 = server_newslist..'&userCode='..userCode..'&keyword='..keyword
+    Log:write('111111111111111:', server_newslist2)
+    Http:request('newslistdata0', server_newslist2, 101, {useCache=false})
+    Loading:show(rootSprite)
+end
+
+---当进入编辑框时，修改文字为输入
+   function Onsousuofocus(sprite)
+       local txt= Sprite:getProperty(sprite, 'text')
+       if txt=='搜索标题' then
+        Sprite:setProperty(sprite, 'text', '')
+        Sprite:setProperty(sprite, 'color', '#0')
+       end
+   end
+   ---当未有任何输入时，初始化为提示
+    function OnsousuoInit(sprite)
+       local txt= Sprite:getProperty(sprite, 'text')
+       if txt=='' or txt ==nil then
+            Sprite:setProperty(sprite, 'color', '#8f8e8e')
+            Sprite:setProperty(sprite, 'text', '搜索标题')
+       end
+    end
+
+
+    ]]>
+</root>

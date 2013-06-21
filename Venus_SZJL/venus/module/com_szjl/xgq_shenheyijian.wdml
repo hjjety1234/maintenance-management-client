@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+             <!-- 设置背景 -->
+             <image rect="0,0,480,800" border="false" src="file://png/main_background.png" 
+                style="autosize" extendstyle="1111"></image>
+             <!-- 公告头部 -->
+             <node rect="0,0,480,100" name="titleNode" style="autosize" extendstyle="1111">
+                <image rect="0,0,480,100" border="false" src="file://png/main_top_bg.png" 
+                    style="sudoku-auto" sudoku="0,20,0,20" extendstyle="1111" />
+                <button rect="10,28,78,44" OnSelect="doBack" normal="normal" sel="sel" 
+                    style="autosize" extendstyle="1111">
+                    <node rect="0,0,78,44" name="normal" extendstyle="1111">
+                       <image rect="0,0,78,44" src="file://png/icons_01.png" style="autosize" extendstyle="1111" />
+                    </node>
+                    <node name="sel" extendstyle="1111">
+                       <image rect="0,0,78,44" src="file://png/icons_01_f.png" style="autosize" extendstyle="1111" />
+                    </node>
+                </button>
+                <button rect="100,18,280,54"  normal="normal" sel="sel" 
+                    style="autosize" extendstyle="1111">
+                    <node rect="0,0,280,54" name="normal" extendstyle="1111">
+                        <scrolltext name="title" rect="40,10,200,44" text="审核意见" font-family="微软雅黑" 
+                            extendstyle="1111" font-size="30" h-align="center" v-align="center"
+                            color="#ffffff" scroll="true" step="2"></scrolltext>
+                    </node>
+                </button>
+                <button name="btnShowSearchBar" rect="392,28,78,44" visible="false" enable="false"
+                    font-size="24" extendstyle="1111" text="" color="#ffffff"
+                    normal="src:file://png/icons_08.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+                    sel="src:file://png/icons_08_f.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+                    OnSelect="OnUpdateButtonClicked"></button>
+            </node>
+            
+            <node name="tasklistitemNode" rect="0,120,480,180" border="false" visible="true"
+                enable="true" active="false" extendstyle="1111">
+                <button name="newsitemBtn" rect="20,0,440,160" 
+                    style="autosize" extendstyle="1111" sudoku="15,15,15,15">
+                    <image rect="0,0,440,160" border="false" src="file://png/kq_bg.png" style="sudoku-auto" sudoku="20,20,20,20" extendstyle="1111" />
+                    <scrolltext name="projectTxt" rect="30,5,350,50"  font-size="20" scroll="true" step="4"
+                        border="false" h-align="left" v-align="center" color="#000000" data=''
+                        text=""  extendstyle="1111"
+                        font-family="黑体"></scrolltext>
+                    <scrolltext name="taskTxt" rect="30,55,350,50"   data=''
+                        border="false" h-align="left" v-align="center" color="#000000"
+                        text="" font-size="20" scroll="true" step="4" extendstyle="1111"></scrolltext>
+                    <scrolltext name="kemuTxt" rect="30,105,350,50" data=''
+                        border="false" h-align="left" v-align="center" color="#000000"
+                        text="" font-size="20" scroll="true" step="4" extendstyle="1111" ></scrolltext>
+                </button>
+            </node>
+            
+            <!-- 审核意见列表视图  -->
+            <node name="kemulistViewNode" rect="0,310,480,460" extendstyle="1111" visible="true" enable="true">
+                <image name="kemulistbgImg" rect="20,0,440,450" border="false" src="file://png/kq_bg.png" style="sudoku-auto" sudoku="20,20,20,20" extendstyle="1111" />
+                <listview name="kemuListView" rect="0,0,480,640" extendstyle="1111" limit="true"
+                    border="false" visible="true" />
+            </node>
+            
+            <node name="kemulistitemNode" rect="0,120,480,150" border="false" visible="false"
+                enable="false" active="false" extendstyle="1111">
+                <button name="kemuitemBtn" rect="20,0,440,150" 
+                    style="autosize" extendstyle="1111" sudoku="15,15,15,15">
+                    <image rect="0,0,440,150"  style="autosize" color="#00ff00"
+                        extendstyle="1111" />
+                    <textarea name="yijiandetailTxt" rect="10,10,440,90"  autoextend="true" order="false" h-align="left"
+                        text="" font-size="20" extendstyle="1111"  line-height="30" >
+                    </textarea>
+                    <label name="shenherenLabel" rect="180,100,260,40" border="false" h-align="left"  data=''  extendstyle="1111"
+                        font-size="20" v-align="center" step="1" text=""></label>
+                    <image rect="0,148,440,2" src="file://png/wdjl_bg_h.png" style="autosize" 
+                        extendstyle="1111" />
+                 </button>
+             </node>            
+        </node>
+    </body>
+    <![CDATA[
+
+require('com_szjl.common.framework')
+local rootSprite
+server_yijianList = Alias.urlServer..'supervisor/examOption?'
+local yijianlistdata1
+local taskCode 
+local kemuCode
+local shwtgDataRoomHandler
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    Http:startNetwork()
+    shwtgDataRoomHandler = Reg:create("shwtgDataRoom")
+    supervision_result_id = Reg:getString(shwtgDataRoomHandler, 'supervision_result_id')
+    subject_name = Reg:getString(shwtgDataRoomHandler, 'subject_name')
+    project_name = Reg:getString(shwtgDataRoomHandler, 'project_name')
+    task_name = Reg:getString(shwtgDataRoomHandler, 'task_name')
+    --kemuName = Reg:getString(noticeDetailHandler, 'kemuName')
+    local projectTxt = Sprite:findChild(rootSprite, 'projectTxt')
+    local taskTxt = Sprite:findChild(rootSprite, 'taskTxt')
+    local kemuTxt = Sprite:findChild(rootSprite, 'kemuTxt')
+    Sprite:setProperty(projectTxt, 'text', project_name)
+    Sprite:setProperty(taskTxt, 'text', task_name)
+    Sprite:setProperty(kemuTxt, 'text', subject_name)
+
+    local param = 'supervisionresultid='..supervision_result_id
+    Http:request('yijianlistdata0', server_yijianList..param, 101, {useCache=false})
+    Loading:show(rootSprite)
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+        if Loading:isShow() then Loading:close() end
+        yijianlistdata1 = Http:jsonDecode('yijianlistdata0')
+        Log:write('22222222222222222222222222',yijianlistdata1)
+        if (yijianlistdata1 == nil or yijianlistdata1["Total"] == 0 or
+            yijianlistdata1["Total"] == '') then
+            Dialog:show("提示", "列表为空", "ok")
+        end
+        local total = yijianlistdata1["Total"]
+        local list = Sprite:findChild(rootSprite, 'kemuListView')
+        ListView:removeAllItems(list)
+        local kemulistbgImg = Sprite:findChild(rootSprite, 'kemulistbgImg')
+        local hign = 480
+        if total < 6 then
+            hign = 150*total
+        end
+        Sprite:setRect(kemulistbgImg, 20, 0, 440, hign+1)  
+        -- 加载新的列表项
+        Log:write('90909090======='..total)
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'kemulistitemNode'), total, 'loadkemuListItem')
+        ListView:adjust(list)
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back(true)
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+function myfunc()
+
+end
+
+function doBack()
+    Scene:back(true)
+end
+
+function loadkemuListItem(list, item, index)
+    Log:write('--------------listitem')
+    Sprite:setRect(item, 0, 0, 480, 150)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local yijiandetailTxt = Sprite:findChild(item, 'yijiandetailTxt')
+    local shenherenLabel = Sprite:findChild(item, 'shenherenLabel')
+    local Valuedata = yijianlistdata1["Value"][index]
+    Log:write('--------------listitem。。'..Valuedata['approve_option'])
+	local noticeContent =  Valuedata['approve_option]
+	noticeContent = string.gsub(noticeContent, '&%w+;', '')
+    noticeContent = string.gsub(noticeContent, '&nbsp;', '')
+    noticeContent = string.gsub(noticeContent, '<br>','\r\\n' .. '     ')
+    noticeContent = string.gsub(noticeContent, '<br/>','\r\n' .. '     ')
+    noticeContent = string.gsub(noticeContent, '<br />','\r\n' .. '     ')
+    noticeContent = string.gsub(noticeContent, '<p>','\r\n' .. '     ')
+    noticeContent = string.gsub(noticeContent, '</p>','\\n' .. '')
+    --noticeContent = string.gsub(noticeContent, '\r\n', '')
+    noticeContent = string.gsub(noticeContent, '<.->','')
+	noticeContent = string.gsub(noticeContent, '\r\n\r\n\t', '\r\n')
+    noticeContent = string.gsub(noticeContent, '$\r\n\t', ' ')
+    Sprite:setProperty(yijiandetailTxt, 'text', noticeContent)
+	local newscontX, newscontY, newscontW, newscontH = Sprite:getRect(yijiandetailTxt)
+    Sprite:setRect(yijiandetailTxt, newscontX, 10, newscontW, newscontH)
+    resetListViewItemHeight(yijiandetailTxt)   
+    local date = Split(Valuedata['approve_time'],' ')
+    Sprite:setProperty(shenherenLabel, 'text', '审核人：'..Valuedata['approve_man']..'   '..date[1])
+end
+
+function OnUpdateButtonClicked()
+
+end
+
+function resetListViewItemHeight(yijiandetailTxt)
+        local item = Sprite:getParent(yijiandetailTxt)
+        local x,y,w = Sprite:getRect(item)
+        local _,_,_,th = Sprite:getRect(yijiandetailTxt)
+        local height = th+60
+        Sprite:setRect(item, x,y,w,height)
+        ListView:setItemToTop(Sprite:getParent(item), 10)
+        ListView:adjust(Sprite:getParent(item))
+end
+
+    ]]>
+</root>
