@@ -63,6 +63,8 @@ public class AppManager {
 
 	private String mPackageName = "";
 	public int mState = STATE_IDLE;
+	
+	public native int applyPatchToOldApk(String oldapk, String newapk, String patch);
 
 	private AppManager(VenusActivity va) {
 		mReceiver = new MyReceiver();

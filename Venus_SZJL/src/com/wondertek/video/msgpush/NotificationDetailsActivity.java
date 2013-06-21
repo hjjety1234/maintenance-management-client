@@ -31,43 +31,43 @@ import android.os.Bundle;
  */
 public class NotificationDetailsActivity extends Activity {
 
-    public NotificationDetailsActivity() {
-    }
+	public NotificationDetailsActivity() {
+	}
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-        SharedPreferences sharedPrefs = this.getSharedPreferences(
-                MsgPushManager.MSG_PUSH_PREFS, Context.MODE_PRIVATE);
-        /*
-        String callbackActivityPackageName = sharedPrefs.getString(
-                Constants.CALLBACK_ACTIVITY_PACKAGE_NAME, "");
-        String callbackActivityClassName = sharedPrefs.getString(
-                Constants.CALLBACK_ACTIVITY_CLASS_NAME, "");
-         */
-        Editor editor = sharedPrefs.edit();
+		SharedPreferences sharedPrefs = this.getSharedPreferences(
+				MsgPushManager.MSG_PUSH_PREFS, Context.MODE_PRIVATE);
+		/*
+		 * String callbackActivityPackageName = sharedPrefs.getString(
+		 * Constants.CALLBACK_ACTIVITY_PACKAGE_NAME, ""); String
+		 * callbackActivityClassName = sharedPrefs.getString(
+		 * Constants.CALLBACK_ACTIVITY_CLASS_NAME, "");
+		 */
+		Editor editor = sharedPrefs.edit();
 
-        Intent intent = getIntent();
-        String notificationId = intent.getStringExtra("NOTIFICATION_ID");
-        editor.putString("NOTIFICATION_ID", notificationId);
-        String notificationTitle = intent.getStringExtra("NOTIFICATION_TITLE");
-        editor.putString("NOTIFICATION_TITLE", notificationTitle);
-        String notificationMessage = intent.getStringExtra("NOTIFICATION_MESSAGE");
-        editor.putString("NOTIFICATION_MESSAGE", notificationMessage);
-        String notificationUri = intent.getStringExtra("NOTIFICATION_URI");
-        editor.putString("NOTIFICATION_URI", notificationUri);
-        editor.commit();
-        MsgPushManager.setNotificationMessageUpdated();
-        
-        /*
-        Intent nIntent = new Intent().setClassName(
-                callbackActivityPackageName,
-                callbackActivityClassName);
-        nIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        nIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        nIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        */
+		Intent intent = getIntent();
+		String notificationId = intent.getStringExtra("NOTIFICATION_ID");
+		editor.putString("NOTIFICATION_ID", notificationId);
+		String notificationTitle = intent.getStringExtra("NOTIFICATION_TITLE");
+		editor.putString("NOTIFICATION_TITLE", notificationTitle);
+		String notificationMessage = intent
+				.getStringExtra("NOTIFICATION_MESSAGE");
+		editor.putString("NOTIFICATION_MESSAGE", notificationMessage);
+		String notificationUri = intent.getStringExtra("NOTIFICATION_URI");
+		editor.putString("NOTIFICATION_URI", notificationUri);
+		editor.commit();
+		MsgPushManager.setNotificationMessageUpdated();
+
+		/*
+		 * Intent nIntent = new Intent().setClassName(
+		 * callbackActivityPackageName, callbackActivityClassName);
+		 * nIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		 * nIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		 * nIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		 */
         VenusApplication.startAppActivity(1);
         NotificationDetailsActivity.this.finish();
     }

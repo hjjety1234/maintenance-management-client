@@ -44,7 +44,7 @@
 require 'com_szjl.common.framework'
 require 'com_szjl.common.download'
 require 'com_szjl.common.umsagent'
-require 'com_szjl.common.msgpush'
+require 'framework.msgpush'
 local rootSprite
 local g_packageUrl                  -- 客户端升级包url地址
 local g_downloadTime = 0            -- 记录下载所花的时间
@@ -62,12 +62,14 @@ function bodyBuildChildrenFinished(sprite)
     --检测是否有版本更新
     UmsAgent:postClientData()
     checkClientVersion()
+    -- 开启消息推送服务
+    startMsgPushService()
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-           connectNet()
+        connectNet()
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -315,28 +317,38 @@ end
         return g_localpath
     end
 
---获取SD卡上的Download目录
-    function getDownloadIconPath()
-        local iconPath = ''
-        local downloadPath = System:getFlashCardName(1) 
-        if downloadPath == nil or downloadPath == "" then 
-            Log:write("SD卡不存在,使用内部存储！")
-            downloadPath = System:getFlashCardName(0)
-        end
-        iconPath = downloadPath.."download"
-        Log:write("getDownloadPath: localDir="..iconPath)
-        -- 如果路径不存在，创建下载目录
-        if IO:dirExist(iconPath) == false then 
-            IO:dirCreate(iconPath)
-        end
-        -- 如果apk已经存在，删除之
-        iconPath = iconPath.."/"
-        Log:write("getDownloadPath: iconPath="..iconPath)
-        --[[if IO:fileExist(iconPath) == true then 
-            IO:fileRemove(iconPath)
-        end--]]
-        return iconPath
+-- @brief 获取SD卡上的Download目录
+function getDownloadIconPath()
+    local iconPath = ''
+    local downloadPath = System:getFlashCardName(1) 
+    if downloadPath == nil or downloadPath == "" then 
+        Log:write("SD卡不存在,使用内部存储！")
+        downloadPath = System:getFlashCardName(0)
     end
+    iconPath = downloadPath.."download"
+    Log:write("getDownloadPath: localDir="..iconPath)
+    -- 如果路径不存在，创建下载目录
+    if IO:dirExist(iconPath) == false then 
+        IO:dirCreate(iconPath)
+    end
+    -- 如果apk已经存在，删除之
+    iconPath = iconPath.."/"
+    Log:write("getDownloadPath: iconPath="..iconPath)
+    --[[if IO:fileExist(iconPath) == true then 
+        IO:fileRemove(iconPath)
+    end--]]
+    return iconPath
+end
 
-    ]]>
+-- @brief 启动消息推送服务
+function startMsgPushService()
+    -- 设置消息推送
+    Log:write("启动消息推送服务...")
+    MsgPush:bindHostIp('120.209.131.150') 
+    MsgPush:setListener(Sprite:getCurScene(), 1001) 
+    local appKey = UmsAgent:getAppKey()
+    MsgPush:setApiKey(appKey)
+    MsgPush:setServiceStatus(1)
+end
+]]>
 </root>

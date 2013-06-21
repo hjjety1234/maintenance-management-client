@@ -6,6 +6,7 @@ import android.content.SharedPreferences.Editor;
 import android.provider.Settings.Secure;
 import android.util.Log;
 
+import com.wbtech.common.CommonUtil;
 import com.wondertek.video.msgpush.IMsgPush;
 import com.wondertek.video.msgpush.implbyself.Constants;
 
@@ -21,11 +22,11 @@ public class MqttMsgPush implements IMsgPush {
 	private Context mContext;
 	private SharedPreferences mSharePrefs;
 	private boolean bServiceEnable;
-	private String msisdn;
+	private String imei;
 
 	private final String mDefaultHost = "120.209.131.150";
 	private final int mDefaultPort = 1883;
-	private final String mDefaultAppkey = "5af2f40e1bf4e13cdbafbea1057affd0";
+	private final String mDefaultAppkey = "8e2d4f2af54a545f1af65f0d2862264a";
 
 	public MqttMsgPush(Context cxt) {
 		mContext = cxt;
@@ -33,15 +34,14 @@ public class MqttMsgPush implements IMsgPush {
 				Context.MODE_PRIVATE);
 
 		// get device id
-		msisdn = Secure.getString(mContext.getContentResolver(),
-				Secure.ANDROID_ID);
-		if (msisdn == null || "".equals(msisdn) || "null".equals(msisdn)) {
-			msisdn = "unknowDeviceid";
+		imei = CommonUtil.getDeviceID(mContext);
+		if (imei == null || "".equals(imei) || "null".equals(imei)) {
+			imei = "unknowDeviceid";
 		}
 
 		// set default SharedPreferences
 		Editor editor = mSharePrefs.edit();
-		editor.putString(MqttPushService.PREF_DEVICE_ID, msisdn);
+		editor.putString(MqttPushService.PREF_DEVICE_ID, imei);
 		editor.putString(MqttPushService.APPKEY, mDefaultAppkey);
 		editor.putInt(MqttPushService.QUALITIES_OF_SERVICE, 0);
 		editor.putString(MqttPushService.MQTT_HOST, mDefaultHost);
