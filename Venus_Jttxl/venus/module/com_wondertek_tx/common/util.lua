@@ -491,3 +491,20 @@ function updateDeviceInfoToDb(phone)
     Log:write('sql execute error value is ',errMsg)
     return registerCode
 end
+
+local g_start_time = 0
+function start_clock(method_name)
+    g_start_time = os.clock()
+end
+
+function end_clock(method_name)
+    if g_start_time == 0 then 
+        Log:write(method_name.." should call start_clock() first.")
+        return
+    else
+        local end_time = os.clock()
+        Log:write(string.format("函数%s执行时间为: %.5f秒.", method_name, 
+            (end_time - g_start_time)*1000))  
+        g_start_time = 0
+    end 
+end

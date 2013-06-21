@@ -1,0 +1,954 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image name='citybgImg' rect="0,80,480,720" src="file://image/jttxl/bj.png" style="autosize" extendstyle="1111" />
+            <node name="baseSprite" rect="0,0,480,80" extendstyle="1111" >
+                <image  rect="0,0,480,80" border="false" src="file://image/jttxl/top.png" style="autosize" extendstyle="1111" />
+                <button name="title" rect="0,0,480,80" text="" color="#ffffff" v-align="center" h-align="center" OnSelect="fenleiBtnOnselect" font-family="微软雅黑" font-size="32" extendstyle="1111"  style='autosize' />
+            </node>
+            <node rect="0,85,480,62" name="menuNode" extendstyle="1111">
+                <button rect="30,10,130,62" name="left"  extendstyle="1111"  style='autosize' src='file://image/jttxl/local_menu_a2.png' OnSelect="groupOnSelect">
+                    <label rect="0,0,130,50" name="leftLabel" font-family="微软雅黑" font-size="20" color="#ffffff" v-align="center" h-align="center" extendstyle="1111" />
+                </button>
+                <button rect="160,10,130,62" name="center"  extendstyle="1111"  style='autosize' src='file://image/jttxl/local_menu_b2.png' OnSelect="groupOnSelect">
+                    <label rect="0,0,130,50" name="centerLabel" font-family="微软雅黑" font-size="20" color="#ffffff" v-align="center" h-align="center" extendstyle="1111" />
+                </button>
+                 <button rect="291,10,130,62" name="right"  extendstyle="1111"  style='autosize' src='file://image/jttxl/local_menu_c2.png' OnSelect="groupOnSelect">
+                    <label rect="0,0,130,50" name="rightLabel" font-family="微软雅黑" font-size="20" color="#ffffff" v-align="center" h-align="center" extendstyle="1111" />
+                </button>
+                <button rect="425,12,50,50" name="showMoreBtn" extendstyle="1111" style='autosize' src="file://image/jttxl/local_top_more.png" OnSelect="showMoreGroup" visible="false" enable="false"/>
+            </node>
+            <!-- 下拉框节点 -->
+            <node name="comboboxItem" rect="0,0,135,50" visible="false" enable="false" active="false"  extendstyle="1111">
+                <button name="selectItemBtn" rect="0,0,135,50" normal="normal" sel="focus" OnSelect="comboboxItemOnSelect">
+                    <node name="normal">
+                        <label name="selectItemNormalLabel"  postfix="..." color="#ffffff" v-align="center" rect="10,0,135,50" extendstyle="1111"  font-size="21" />
+                    </node>
+                    <node name="focus">
+                        <image rect="0,0,135,50" style="autosize" src="file://image/jttxl/local_fenlei_s.png"  extendstyle="1111"/>
+                        <label name="selectItemFocusLabel"  postfix="..." color="#ffffff" v-align="center" rect="10,0,135,50" extendstyle="1111"  font-size="21" />
+                    </node>
+                </button>
+            </node>
+            <!-- 设置搜索框 -->
+            <node name="searchNode" rect="28,150,406,90" extendstyle="1111">   
+                <image name="searchInput" rect="0,10,406,67" src="file://image/jttxl/search_bj.png"
+                    style='autosize' extendstyle="1111" />
+                <image rect="15,24,40,39" src="file://image/jttxl/search.png"
+                    style="autosize" extendstyle="1111"/>
+                
+                <!-- 编辑文本框 -->
+                <edit name="keywordEdit" rect="60,10,290,70" h-align="left" v-align="center" 
+                    font-family="微软雅黑" color="#605e5e" font-size="24" text="搜索姓名、号码" 
+                    OnSetFocus="editOnSetFocus" OnLostFocus="editOnLostFocus" OnTextChanged="editOnTextChanged" extendstyle='1111'>
+                </edit>
+                <!-- 搜索输入框置空按钮 -->  
+                <button name="resetBtn" rect="360,30,32,31" OnSelect="doCancel" visible="false" enable="false"
+                    normal="src:file://image/jttxl/close_d.png;"
+                    sel="src:file://image/jttxl/close_s.png;" style="autosize" extendstyle="1111">
+                </button>             
+            </node>
+            <node name="listNode" rect="0,235,430,485" extendstyle="1111">
+                <listview name="sampleList" rect="0,0,430,485" extendstyle="1111" />
+            </node>
+            <!-- 可以让select弹出框消失 -->
+            <button name="blank" rect="0,0,480,800" OnSelect="blankOnSelect" extendstyle="1111" visible="false" enable="false" active="false"/>
+            <!-- select 弹出框 -->
+            <node name="comboboxsNode" rect="339,145,135,150" extendstyle="1111" visible="false" enable="false"  active="false">
+               <image name="categoryImg" rect="0,0,135,150" src="file://image/jttxl/local_fenlei_d.png" style='autosize' extendstyle="1111"/>  
+               <listview name="comboboxListview"  rect="0,0,135,150"  extendstyle="1111" auto-scroll="true" limit="true"/>
+            </node>
+            <!-- 底部菜单  -->
+            <node name="listNode" rect="0,720,480,80" extendstyle="1111">
+                <image  rect="0,0,480,80" border="false" extendstyle="1111" 
+                src="file://image/book/list_bg.png"  style="autosize"/>
+                <!-- 搜索  -->
+                <button name='searchBtn' rect="15,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/lianxiren_d.png' OnSelect="doSearch"></button>
+                <!-- 联系人  -->
+                <button name='contactBtn' rect="125,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/zuijinglianxiren_s.png' OnSelect="doContact"></button>
+                <!-- 个人中心  -->
+                <button name='personBtn' rect="250,0,82,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/person_d.png' OnSelect="doPersonalCenter"></button>
+                <!-- 设置  -->
+                <button name='siteBtn' rect="385,0,48,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/site_d.png' OnSelect="doSetting"></button>
+                <!-- New -->
+                <node name="newNode" rect="410,0,48,80" extendstyle="1111">
+                    <image  rect="10,5,43,28" border="false" src="file://image/jttxl/new1.png" 
+                        style="autosize" extendstyle="1111" />
+                </node>
+            </node> 
+            <node name="indexListNode" rect="430,140,50,570" extendstyle="1111">
+                <list name="indexList" rect="0,8,50,562" extendstyle="1111" line="26" col="1" auto-adjust="true" offset="0,0">
+                    <list-item rect="0,0,50,21" >
+                        <button name="indexBtn" rect="0,0,50,21" font-family="微软雅黑" h-align="center" v-align="center" extendstyle="1111" OnSelect="indexitemOnSelect" text="$(text)" font-size="20" color='#7a7a7d'></button>
+                    </list-item>
+                    <dataset>
+                        <set text="A" />
+                        <set text="B" />
+                        <set text="C" />
+                        <set text="D" />
+                        <set text="E" />
+                        <set text="F" />
+                        <set text="G" />
+                        <set text="H" />
+                        <set text="I" />
+                        <set text="J" />
+                        <set text="K" />
+                        <set text="L" />
+                        <set text="M" />
+                        <set text="N" />
+                        <set text="O" />
+                        <set text="P" />
+                        <set text="Q" />
+                        <set text="R" />
+                        <set text="S" />
+                        <set text="T" />
+                        <set text="U" />
+                        <set text="V" />
+                        <set text="W" />
+                        <set text="X" />
+                        <set text="Y" />
+                        <set text="Z" />                        
+                    </dataset>
+                </list>
+            </node>
+            
+            <node name="phoneListNode" rect="0,0,480,800" extendstyle="1111" visible="false" enable="false" active="false">
+               <button name="button" rect="0,0,480,800" border="false" text="" color="#ffffff" ></button>
+               <shadow rect="0,0,480,800" color="#000000" extendstyle="1111" alpha="192"/>
+               <image rect="55,160,370,65" src="file://image/jttxl/local_phone_top.png" style='autosize' extendstyle="1111"/> 
+               <label rect="55,160,370,46" text="选择号码" font-family="微软雅黑" font-size="26" color="#e0e0e0" v-align="center" h-align="center" extendstyle="1111" />
+               <image name="phonelistImg" rect="55,212,365,116" src="file://image/jttxl/local_phone_basic2.png" style='autosize' extendstyle="1111"/>  
+               <listview name="phoneList" limit="true" rect="55,212,365,58" extendstyle="1111" />
+               <button name="phonecancelbtn" rect="55,270,365,58" normal="normal" sel="sel" extendstyle="1111" OnSelect="phonecancelOnSelect">
+                    <node name="normal" rect="0,0,0,0" extendstyle="1177">
+                        <image name="norimg" rect="0,0,365,58" src="file://image/jttxl/local_phone_basic.png" border="false" extendstyle="1111" style="autosize" />
+                        <label rect="0,0,365,50" text="取消" font-family="微软雅黑" h-align="center" v-align="center" color="#ffffff" font-size="26" extendstyle="1111" />
+                    </node>
+                    <node name="sel" rect="0,0,0,0" extendstyle="1177"> 
+                        <image name="selimg" rect="0,0,365,58" src="file://image/jttxl/local_phones_s.png" border="false" extendstyle="1111" style="autosize" />
+                        <label rect="0,0,365,50" text="取消" font-family="微软雅黑" h-align="center" v-align="center" color="b5b0b0" font-size="26" extendstyle="1111" />
+                    </node>
+                </button> 
+            </node>
+        </node>
+        <node name="listItem" rect="0,200,430,85"  visible="false" enable="false">
+            <image name="jiange_line" rect="50,73,10,12" src="file://image/jttxl/jiange_line.png" style='autosize' extendstyle="1111"/> 
+            <button name="lianxirenbtn" rect="0,0,430,85" extendstyle="1111" OnSelect="listitemOnSelect">
+                <!--<node name="normal" rect="0,0,0,0" extendstyle="1177">
+                    <image name="norimg" rect="397,25,33,34" src="file://image/jttxl/more_d.png" border="false" extendstyle="1111" style="autosize" />
+                </node>
+                <node name="sel" rect="0,0,0,0" extendstyle="1177"> 
+                    <image name="selimg" rect="397,25,33,34" src="file://image/jttxl/more_s.png" border="false" extendstyle="1111" style="autosize" />
+                </node>-->
+                <button name="phonebtn" data="1" rect="18,0,74,73" OnSelect="telOnSelect" normal="src:file://image/jttxl/tel_d.png" sel="src:file://image/jttxl/tel_s.png" style="autosize" extendstyle="1111" />
+                <scrolltext name="name" rect="112,0,260,35" text="" v-align="center" font-family="微软雅黑" color="#ffffff" font-size="28" extendstyle="0010" step="2" scroll="true"/>
+                <label name="phone" rect="112,41,270,30" text="" font-family="微软雅黑" v-align="top" color="#aeb1b1" font-size="22" extendstyle="0010" />
+                <label name="manyphone" visible="false" rect="320,41,100,30" text="多号码" font-family="微软雅黑" h-align="left" v-align="top" font-size="22" color="#aeb1b1" extendstyle="0010" />
+                <label name="phoneindex" visible="false" rect="288,43,100,30" text="" font-family="微软雅黑" h-align="left" v-align="top" font-size="22" color="#aeb1b1" extendstyle="0010" />
+                <button name="smsbtn" rect="380,5,43,36" data="1" OnSelect="smsOnSelect" normal="src:file://image/jttxl/sms_d.png" sel="src:file://image/jttxl/sms_s.png" style="autosize" extendstyle="1111" />
+            </button>
+        </node>
+        <node name="fenleiItem" rect="0,400,230,60"  visible="false" enable="false">
+            <button rect="0,0,230,60" normal="normal" sel="sel" extendstyle="1111" OnSelect="fenleiitemOnSelect">
+                <node name="normal" rect="0,0,0,0" extendstyle="1177">
+                    <image name="norimg" rect="0,0,0,0" src="file://image/jttxl/local_fenlei_d.png" border="false" extendstyle="1177" style="autosize" />
+                </node>
+                <node name="sel" rect="0,0,0,0" extendstyle="1177"> 
+                    <image name="selimg" rect="0,0,0,0" src="file://image/jttxl/local_fenlei_s.png" border="false" extendstyle="1177" style="autosize" />
+                </node>
+                <label name="name" rect="0,0,0,0" text="" h-align="center" v-align="center" color="#ffffff" font-size="26" extendstyle="1177" />
+            </button>
+        </node>
+        <node name="phoneItem" rect="0,300,365,58"  visible="false" enable="false">
+            <button rect="0,0,365,58" normal="normal" sel="sel" extendstyle="1111" OnSelect="phoneitemOnSelect">
+                <node name="normal" rect="0,0,0,0" extendstyle="1177">
+                    <image name="norimg" rect="0,0,0,0" src="file://image/jttxl/local_phone_basic.png" border="false" extendstyle="1177" style="autosize" />
+                </node>
+                <node name="sel" rect="0,0,0,0" extendstyle="1177"> 
+                    <image name="selimg" rect="0,0,0,0" src="file://image/jttxl/local_phones_s.png" border="false" extendstyle="1177" style="autosize" />
+                </node>
+                <label name="phonetype" visible="false" rect="24,9,115,38" text="手机号码" font-family="微软雅黑" h-align="left" v-align="center" color="#aeb1b1" font-size="22" extendstyle="1111" />
+                <label name="phonenumber" rect="25,9,340,38" text="" font-family="微软雅黑" h-align="left" v-align="center" color="#ffffff" font-size="26" extendstyle="1111" />
+            </button>
+        </node>
+    </body>
+    <![CDATA[
+
+require('com_wondertek_tx.common.framework')
+require('framework.sqlite')
+require 'framework.umsagent'
+local rootSprite
+local list
+local phoneList
+local callorsms
+local curphones
+local contactsTable = {}   
+local displayTable = {}
+local phoneItemH = 58
+local lastsprite = nil
+local resetBtn
+
+--群组代码
+local groupDatas
+local showData
+local moreGroup
+local reg
+--特殊群组
+local companyGroup
+local localGroup
+local company_name
+local more_name
+local company_id
+local lastClick
+--下拉框
+local comboboxListview
+local comboboxsNode
+local comboboxItem
+local blank
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite    
+    list = Sprite:findChild(rootSprite, 'sampleList')
+    phoneList = Sprite:findChild(rootSprite, 'phoneList')
+    resetBtn = Sprite:findChild(rootSprite, 'resetBtn')
+    --更多下拉框
+    comboboxListview = Sprite:findChild(rootSprite, 'comboboxListview')
+    comboboxItem = Sprite:findChild(rootSprite, 'comboboxItem')
+    blank = Sprite:findChild(rootSprite, 'blank')
+    comboboxsNode = Sprite:findChild(rootSprite, 'comboboxsNode')
+    reg = Reg:create('group_data')
+    company_name = Reg:getString(reg, 'company_name')
+    company_id = Reg:getString(reg, 'company_id')
+    more_name = Reg:getString(reg, 'more_name')
+    Log:write('###company_name', company_name)
+    showContactList(true)
+end
+function initGroupEmployeeData(data)
+    if databaseName == nil then
+        databaseName = Config:get('databaseName')
+        local bRet, errMsg = Sqlite:open(databaseName)
+        Log:write("创建数据库jttxlDatabase结果:bRet = "..bRet.." errMsg ="..errMsg)
+    end
+    --"select employee_id,mobile,tel,home_telephone,mobile_short,tel_short from tb_c_employee where='"
+    --"select employee_id,employee_name,employee_firstword,employee_fullword from tb_c_employee where='"
+    local print = true
+    for i=0,#data do
+        local home_telephone = ((data[i].home_telephone==nil and '') or data[i].home_telephone)
+        local sql = "insert into tb_c_employee(employee_id,company_id,employee_name,"..
+            "department_id,department_name,headship_name,mobile,mobile_short,"..
+            "tel,tel_short,home_telephone,weibo,qq,weixin,school,user_major,user_grade,user_class,student_id,birthday,native_place,"..
+            "address,home_address,email,employee_firstword,employee_fullword,"..
+            "manage_flag,user_company_id,mark1) "
+            .."values('"..data[i].employee_id.."','"..data[i].company_id.."','"..data[i].employee_name.."','"..data[i].department_id.."','"..data[i].department_name.."','"
+            ..data[i].headship_name.."','"..data[i].mobile.."','"..data[i].mobile_short.."','"..data[i].tel.."','"..data[i].tel_short.."','" .. home_telephone .."','"
+            ..data[i].weibo.."','"..data[i].qq.."','"..data[i].weixin.."','"..data[i].school.."','"..data[i].user_major.."','"
+            ..data[i].user_grade.."','"..data[i].user_class.."','"..data[i].student_id.."','"..data[i].birthday.."','"..data[i].native_place.."','"
+            ..data[i].address.."','"..data[i].home_address.."','"..data[i].email.."','"..data[i].employee_firstword.."','"..data[i].employee_fullword.."','"
+            ..data[i].manage_flag.."','"
+            ..data[i].user_company_id.."','1');"
+        bRet, errMsg = Sqlite:update(databaseName, sql)
+        if print then
+            Log:write("initGroupEmployeeData=>"..bRet.."=>"..errMsg, sql)
+            print=false
+        end
+    end
+
+    employee_version = data[0].group_version_num 
+    local sql = "update tb_c_company set company_version = '"..employee_version.."' where company_id = '"..data[0].company_id.."';"
+    bRet, errMsg = Sqlite:update(databaseName, sql)
+
+     
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活 
+        local newNode = Sprite:findChild(rootSprite, 'newNode')
+        if (Config:get("isNeedUpdate") == "true") then 
+            setAllShoworHide(newNode, 1)
+        else 
+            setAllShoworHide(newNode, 0)
+        end 
+        Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_s.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+
+        --更改标题
+        queryGroupData()
+        showTitleData(company_name)
+    elseif msg == MSG_DEACTIVATE then
+    elseif msg == MSG_CONTACTS then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+    Loading:close()
+    local data = Http:jsonDecode('getgroupusers')
+    if data == nil or data.total == nil or tonumber(data.total) <= 0 then
+        return
+    end
+    Log:write("data##", data)
+    if data.value == nil then
+        return
+    end
+    initGroupEmployeeData(data.value)
+    showContactList(false)
+    elseif msg == 1000 then 
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+--根据群组id查询人员
+function queryEmployee(company_id)
+     if databaseName == nil then
+        databaseName = Config:get('databaseName')
+        local bRet, errMsg = Sqlite:open(databaseName)
+        Log:write("创建数据库jttxlDatabase结果:bRet = "..bRet.." errMsg ="..errMsg)
+    end
+    local queryEmployee = "select employee_id,employee_name,employee_firstword,employee_fullword,company_id from tb_c_employee where company_id='"..company_id.."'"
+    local  bRet2, contactsData, errMsg2 = Sqlite:query(databaseName, queryEmployee)
+    local queryPhone = "select employee_id,mobile,tel,home_telephone,mobile_short,tel_short from tb_c_employee where company_id='"..company_id.."'"
+    local  bRet2, phoneData, errMsg2 = Sqlite:query(databaseName, queryPhone)
+    Log:write('contactsData', contactsData)
+    Log:write('phoneData', phoneData)
+    for i=1,#contactsData do
+        for j=1,#phoneData do
+            if contactsData[i][1] == phoneData[j][1] then
+                table.insert(contactsData[i],5,phoneData[j])
+            end
+        end
+    end
+    --去除电话数据里的employee_id
+    local phones
+    for i=1,#contactsData do
+        phones = contactsData[i][5]
+        if phones ~= nil then
+            table.remove(contactsData[i][5],1)
+        end
+        for j=#phones,1,-1 do
+            if phones[j]=="" then
+                table.remove(contactsData[i][5],j)
+            end
+        end
+    end
+    contactsTable = contactsData
+    Log:write('contactsTable', contactsTable)
+end
+
+function loadItemData(list, item, index)
+    --employee_id,employee_name,employee_firstword,employee_fullword,mobile
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    Sprite:setRect(item, 0,0,430,85) 
+    local contactBtn = Sprite:findChild(item, 'lianxirenbtn')
+    local name = Sprite:findChild(item, 'name')
+    Sprite:setProperty(name, 'text', displayTable[index+1][2])
+    local phone = Sprite:findChild(item, 'phone')
+    Sprite:setProperty(phone, 'text', displayTable[index+1][5][1])
+    local phoneindex = Sprite:findChild(item, 'phoneindex')
+    Sprite:setProperty(phoneindex, 'text', index+1)
+    Sprite:setProperty(contactBtn, 'data', index+1)
+    local phoneall = displayTable[index+1][5]
+    if #phoneall > 1 then
+        local manyphone = Sprite:findChild(item, 'manyphone')
+        Sprite:setVisible(manyphone, 1)
+    end
+end
+
+function listitemOnSelect(sprite)
+    local index = tonumber(Sprite:getData(sprite))
+    Log:write('index', index)
+    local employeeId = displayTable[index][1]
+    local companyId = displayTable[index][6]
+    Log:write('employeeId', employeeId)
+    Log:write("companyId", companyId)
+    Scene:setReturn(Alias.m_group, Alias.m_stdContacterInfo .. '?employeeId=' .. employeeId..'&companyId='..companyId..'&flag=2')
+    Scene:go(Alias.m_stdContacterInfo .. '?employeeId=' .. employeeId..'&companyId='..companyId..'&flag=2&orgFlag=0',true)
+end
+
+function loadphoneData(list, item, index)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    Sprite:setRect(item, 0,0,365,58) 
+    local phonenumber = Sprite:findChild(item, 'phonenumber')
+    Sprite:setProperty(phonenumber, 'text', curphones[index+1])
+end
+
+
+function queryGroupData()
+    if databaseName == nil then
+        databaseName = Config:get('databaseName')
+        local bRet, errMsg = Sqlite:open(databaseName)
+    Log:write("创建数据库jttxlDatabase结果:bRet = "..bRet.." errMsg ="..errMsg)
+    end
+    
+    local queryGroup = "select company_id,company_name,status,org_flag from tb_c_company order by org_flag desc"
+    local  bRet2, data, errMsg2 = Sqlite:query(databaseName, queryGroup)
+    groupDatas = data
+    showData = {}
+    Log:write('groupDatas', groupDatas)
+    initTitleData()
+    Log:write('showData', showData)
+end
+function initTitleData()
+    --字段顺序company_id,company_name,status,org_flag
+    --本地通讯录
+    local localContacts
+    if Config:get('localContactStatus') == '1' then
+        localContacts = {[2]="本机通讯录",[4]="-1"}
+    end
+    local group
+    local special
+    for i=1,#groupDatas do
+        group = groupDatas[i]
+        if group[3] == '1' then
+            table.insert(showData,group)
+            if group[4] == '1' then
+                special = group
+            end
+        end
+    end
+     if localContacts ~= nil then
+        if special == nil then
+            table.insert(showData,1,localContacts)
+        else
+            table.insert(showData,2,localContacts)
+        end
+     end
+    
+     companyGroup = special
+     localGroup = localContacts
+end
+function revertTopIcon()
+    local leftBtn = Sprite:findChild(rootSprite, 'left')
+    local centerBtn = Sprite:findChild(rootSprite, 'center')
+    local rightBtn = Sprite:findChild(rootSprite, 'right')
+    Sprite:setProperty(leftBtn, 'src', 'file://image/jttxl/local_menu_a2.png')
+    Sprite:setProperty(centerBtn, 'src', 'file://image/jttxl/local_menu_b2.png')
+    Sprite:setProperty(rightBtn, 'src', 'file://image/jttxl/local_menu_c2.png')
+end
+function showTitleData(company_name)
+    --27,0,213,62|240,0,214,62
+    if company_name == nil and companyGroup ~= nil then
+        company_name = companyGroup[2]
+    end
+    local title = Sprite:findChild(rootSprite, 'title')
+    local leftBtn = Sprite:findChild(rootSprite, 'left')
+    local centerBtn = Sprite:findChild(rootSprite, 'center')
+    local rightBtn = Sprite:findChild(rootSprite, 'right')
+    local leftLabel = Sprite:findChild(rootSprite, 'leftLabel')
+    local centerLabel = Sprite:findChild(rootSprite, 'centerLabel')
+    local rightLabel = Sprite:findChild(rootSprite, 'rightLabel')
+    local showMore = Sprite:findChild(rootSprite, 'showMoreBtn')
+    Sprite:setVisible(showMore, 0)
+    Sprite:setEnable(showMore, 0)
+    if more_name ~= '' then
+        Sprite:setProperty(title, 'text', more_name)
+        Reg:setString(reg, 'more_name', '')
+    else
+        Sprite:setProperty(title, 'text', company_name)
+    end
+    
+    local count = #showData
+    if count == 1 then
+        Sprite:setVisible(leftBtn, 0)
+        Sprite:setEnable(leftBtn, 0)
+        Sprite:setVisible(centerBtn, 0)
+        Sprite:setEnable(centerBtn, 0)
+        Sprite:setVisible(rightBtn, 0)
+        Sprite:setEnable(rightBtn, 0)
+        --Sprite:setProperty(title, 'text', showData[1][2])
+        local searchNode = Sprite:findChild(rootSprite, 'searchNode')
+        local sx,sy,sw,sh = Sprite:getRect(searchNode)
+        Sprite:setRect(searchNode, sx, sy-62, sw, sh)
+        local listNode = Sprite:findChild(rootSprite, 'listNode')
+        local lx,ly,lw,lh = Sprite:getRect(listNode)
+        Sprite:setRect(listNode, lx, ly-62, lw, lh+60)
+        local sampleList = Sprite:findChild(rootSprite, 'sampleList')
+        Sprite:setRect(sampleList, 0, 0, lw, lh+60)
+    elseif count == 2 then
+        Sprite:setVisible(centerBtn, 0)
+        Sprite:setRect(centerBtn, 0, 0, 0, 0)
+        Sprite:setRect(leftBtn, 27,0,213,62)
+        Sprite:setRect(rightBtn, 239,0,213,62)
+        Sprite:setProperty(leftLabel, 'text', showData[1][2])
+        Sprite:setProperty(rightLabel, 'text', showData[2][2])
+        Sprite:setRect(leftLabel, 0,0,213,50)
+        Sprite:setRect(rightLabel, 0,0,213,50)
+        Sprite:setProperty(leftBtn, 'src', 'file://image/jttxl/local_top_a2.png')
+        Sprite:setProperty(rightBtn, 'src', 'file://image/jttxl/local_top_b1.png')
+        if showData[1][2] == company_name then
+            Sprite:setProperty(leftBtn, 'src', 'file://image/jttxl/local_top_a1.png')
+        elseif showData[2][2] == company_name then
+            Sprite:setProperty(rightBtn, 'src', 'file://image/jttxl/local_top_b2.png')
+        end
+        Sprite:setProperty(leftBtn, 'data', 1)
+        Sprite:setProperty(rightBtn, 'data', 2)
+    elseif count == 3 then
+        Sprite:setProperty(leftLabel, 'text', showData[1][2])
+        Sprite:setProperty(centerLabel, 'text', showData[2][2])
+        Sprite:setProperty(rightLabel, 'text', showData[3][2])
+        Sprite:setRect(leftBtn, 50,10,130,62)
+        Sprite:setRect(centerBtn, 181,10,130,62)
+        Sprite:setRect(rightBtn, 312,10,130,62)
+        
+        if showData[1][2] == company_name then
+            Sprite:setProperty(leftBtn, 'src', 'file://image/jttxl/local_menu_a1.png')
+            lastClick = leftBtn
+        elseif showData[2][2] == company_name then
+            Sprite:setProperty(centerBtn, 'src', 'file://image/jttxl/local_menu_b1.png')
+            lastClick = centerBtn
+        elseif showData[3][2] == company_name then
+            Sprite:setProperty(rightBtn, 'src', 'file://image/jttxl/local_menu_c1.png')
+            lastClick = rightBtn
+        end
+        Sprite:setProperty(leftBtn, 'data', 1)
+        Sprite:setProperty(centerBtn, 'data', 2)
+        Sprite:setProperty(rightBtn, 'data', 3)
+    elseif count > 3 then
+        Sprite:setProperty(leftLabel, 'text', showData[1][2])
+        Sprite:setProperty(centerLabel, 'text', showData[2][2])
+        Sprite:setProperty(rightLabel, 'text', showData[3][2])
+        Sprite:setRect(leftBtn, 30,10,130,62)
+        Sprite:setRect(centerBtn, 161,10,130,62)
+        Sprite:setRect(rightBtn, 292,10,130,62)
+        
+        if showData[1][2] == company_name then
+            Sprite:setProperty(leftBtn, 'src', 'file://image/jttxl/local_menu_a1.png')
+            lastClick = leftBtn
+        elseif showData[2][2] == company_name then
+            Sprite:setProperty(centerBtn, 'src', 'file://image/jttxl/local_menu_b1.png')
+            lastClick = centerBtn
+        elseif showData[3][2] == company_name then
+            Sprite:setProperty(rightBtn, 'src', 'file://image/jttxl/local_menu_c1.png')
+            lastClick = rightBtn
+        end
+        Sprite:setProperty(leftBtn, 'data', 1)
+        Sprite:setProperty(centerBtn, 'data', 2)
+        Sprite:setProperty(rightBtn, 'data', 3)
+        Sprite:setVisible(showMore, 1)
+        Sprite:setEnable(showMore, 1)
+    end
+end
+function groupOnSelect(sprite)
+    local index = Sprite:getData(sprite)
+    local data = showData[tonumber(index)]
+    Log:write('groupOnSelect', data)
+    Reg:setString(reg, 'company_id', (data[1] == nil and "") or data[1])
+    Reg:setString(reg, 'company_name', data[2])
+    Reg:setString(reg, 'org_flag', data[4])
+    if lastClick ~= nil then
+    local lastIndex = tonumber(Sprite:getData(lastClick))
+    if lastClick ~= sprite then
+        Log:write('lastClick', lastIndex)
+        local leftBtn = Sprite:findChild(rootSprite, 'left')
+        local centerBtn = Sprite:findChild(rootSprite, 'center')
+        local rightBtn = Sprite:findChild(rootSprite, 'right')
+        if lastIndex == 1 then
+            Sprite:setProperty(leftBtn, 'src', 'file://image/jttxl/local_menu_a2.png')
+        elseif lastIndex == 2 then
+            Sprite:setProperty(centerBtn, 'src', 'file://image/jttxl/local_menu_b2.png')
+        elseif lastIndex == 3 then
+            Sprite:setProperty(rightBtn, 'src', 'file://image/jttxl/local_menu_c2.png')
+        end
+    end
+    end
+    lastClick = sprite
+    if data[2] ~= Sprite:getText(Sprite:findChild(rootSprite, 'title')) then
+        if data[4] == '1' then
+             Scene:go(Alias.m_renyuantongji,true)
+        elseif data[4] == '-1' then
+             Scene:go(Alias.m_local,true)
+        elseif data[4] == '0' then
+             --自己跳自己就刷新
+             company_name = Reg:getString(reg, 'company_name')
+             more_name = Reg:getString(reg, 'more_name')
+             company_id = Reg:getString(reg, 'company_id')
+             Log:write('###company_name', company_name)
+             contactsTable={}
+             doCancel()
+             showContactList(true)
+              --更改标题
+             queryGroupData()
+             showTitleData(company_name)
+        end
+    end
+end
+--更多
+function showMoreGroup(sprite)
+    moreGroup={}
+    for i=4,#showData do
+        table.insert(moreGroup,showData[i])
+    end
+    Log:write('moreGroup', moreGroup)
+    ListView:removeAllItems(comboboxListview, 1, 1)
+    if Sprite:isVisible(comboboxsNode) == 1 then -- 如果显示则隐藏，如果隐藏则显示
+        Sprite:setVisible(comboboxsNode, 0)
+        Sprite:setEnable(comboboxsNode, 0)
+        Sprite:setActive(comboboxsNode, 0)
+        Sprite:setVisible(blank, 0)
+        Sprite:setEnable(blank, 0)
+        Sprite:setActive(blank, 0)
+    else
+        Sprite:setVisible(comboboxsNode, 1)
+        Sprite:setEnable(comboboxsNode, 1)
+        Sprite:setActive(comboboxsNode, 1)
+        Sprite:setVisible(blank, 1)
+        Sprite:setEnable(blank, 1)
+        Sprite:setActive(blank, 1)
+    end
+    ListView:loadItem(comboboxListview, comboboxItem, #moreGroup, 'onLoadcomboboxList')
+    --重设高度
+    resetComboboxHeight()
+    ListView:adjust(comboboxListview)
+end
+function resetComboboxHeight()
+    local categoryImg = Sprite:findChild(comboboxsNode, 'categoryImg')
+    local nx,ny,nw,nh = Sprite:getRect(comboboxsNode)
+    local ix,iy,iw,ih = Sprite:getRect(categoryImg)
+    local vx,vy,vw,vh = Sprite:getRect(comboboxListview)
+    local height = 50*(#moreGroup)
+    height = ((height>280 and 280) or height)
+    Sprite:setRect(comboboxsNode, nx, ny, nw, height)
+    Sprite:setRect(categoryImg, ix, iy, iw, height)
+    Sprite:setRect(comboboxListview, vx, vy, vw, height)
+end
+-- @brief 加载comboboxItem的回调函数
+function onLoadcomboboxList(list, item, index)
+     Log:write('onLoadcomboboxList', index)
+      Sprite:setRect(item, 0, 0, 135, 50)
+      local selectItemNormalLabel = Sprite:findChild(item, 'selectItemNormalLabel')
+      local selectItemFocusLabel = Sprite:findChild(item, 'selectItemFocusLabel')
+      local selectItemBtn = Sprite:findChild(item, 'selectItemBtn')
+      Sprite:setProperty(selectItemNormalLabel, 'text', moreGroup[index+1][2])
+      Sprite:setProperty(selectItemFocusLabel, 'text', moreGroup[index+1][2])
+      Sprite:setProperty(selectItemBtn, 'data', index+1)
+end
+function comboboxItemOnSelect(sprite)
+    Sprite:setVisible(comboboxsNode, 0)
+    Sprite:setEnable(comboboxsNode, 0)
+    Sprite:setActive(comboboxsNode, 0)
+    Sprite:setVisible(blank, 0)
+    Sprite:setEnable(blank, 0)
+    Sprite:setActive(blank, 0)
+    
+    local index = Sprite:getData(sprite)
+    local data = moreGroup[tonumber(index)]
+    Log:write('comboboxItemOnSelect', data)
+    Reg:setString(reg, 'company_id', (data[1] == nil and "") or data[1])
+    Reg:setString(reg, "company_name","")
+    Reg:setString(reg, "more_name",data[2])
+    Reg:setString(reg, 'org_flag', data[4])
+    if data[2] ~= Sprite:getText(Sprite:findChild(rootSprite, 'title')) then
+        if data[4] == '1' then
+             Scene:go(Alias.m_renyuantongji,true)
+        elseif data[4] == '-1' then
+             Scene:go(Alias.m_local,true)
+        elseif data[4] == '0' then
+              --自己跳自己就刷新
+             company_name = Reg:getString(reg, 'company_name')
+             more_name = Reg:getString(reg, 'more_name')
+             company_id = Reg:getString(reg, 'company_id')
+             Log:write('###company_name', company_name)
+             contactsTable={}
+             doCancel()
+             showContactList(true)
+             --还原标题图标
+             revertTopIcon()
+              --更改标题
+             queryGroupData()
+             showTitleData(company_name)
+        end
+    end 
+end
+-- 点击其他区域让弹出框消失
+function blankOnSelect()
+    local comboboxsNode = Sprite:findChild(rootSprite, 'comboboxsNode')
+    Sprite:setVisible(comboboxsNode, 0)
+    Sprite:setEnable(comboboxsNode, 0)
+    Sprite:setVisible(blank, 0)
+    Sprite:setEnable(blank, 0)
+    Sprite:setActive(blank, 0)
+end
+-- 搜索函数
+function doSearch(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/lianxiren_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+    Scene:setReturn(Alias.m_local, Alias.m_recentContacter)
+    Scene:go(Alias.m_recentContacter, true)
+end
+
+-- 联系人列表
+function doContact(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/zuijinglianxiren_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+    Scene:setReturn(Alias.m_local, Alias.m_renyuantongji)
+    Scene:go(Alias.m_renyuantongji, true)
+    --Log:write("已在联系人列表界面，点击不做任何操作！")
+end
+
+-- 个人信息详情
+function doPersonalCenter(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/person_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')   
+    Scene:setReturn(Alias.m_local, Alias.m_stdMyInfo)
+    Scene:go(Alias.m_stdMyInfo, true)
+end
+
+-- 设置
+function doSetting(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/site_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png') 
+    Scene:setReturn(Alias.m_local, Alias.m_system)
+    Scene:go(Alias.m_system, true)
+end
+
+--点击拨号按钮
+function telOnSelect(sprite)
+   local cursprite = Sprite:getParent(sprite)
+   local phoneindex = Sprite:getText(Sprite:findChild(cursprite, "phoneindex"))
+   curphones = displayTable[tonumber(phoneindex)][5]
+   Log:write('phonenum22222222222',curphones)
+   local phonenum = #curphones
+   Log:write('phonenum111111111',phonenum)
+   
+   if phonenum > 1 then
+      ListView:removeAllItems(phoneList, true) 
+      ListView:loadItem(phoneList, Sprite:findChild(rootSprite, 'phoneItem'), tonumber(phonenum), 'loadphoneData')
+      if phonenum < 6 then
+        Sprite:setRect(phoneList, 55,212,365,phoneItemH*phonenum)
+        Sprite:setRect(Sprite:findChild(rootSprite, 'phonelistImg'),55,212,365,phoneItemH*(phonenum+1))
+        Sprite:setRect(Sprite:findChild(rootSprite, 'phonecancelbtn'),55,212+phoneItemH*phonenum,365,phoneItemH)
+      else
+        Sprite:setRect(phoneList, 55,212,365,phoneItemH*6)
+        Sprite:setRect(Sprite:findChild(rootSprite, 'phonelistImg'),55,212,365,phoneItemH*7)
+        Sprite:setRect(Sprite:findChild(rootSprite, 'phonecancelbtn'),55,210+phoneItemH*6,365,phoneItemH)
+      end
+      setAllShoworHide(Sprite:findChild(rootSprite, 'phoneListNode'), 1)
+      callorsms = 1
+   else
+	   local cursprite = Sprite:getParent(sprite)
+	   local phone = Sprite:getText(Sprite:findChild(cursprite, "phone"))
+	   Log:write('phone number is:',phone)
+	   if phone ~= nil and phone ~= '' then
+	       if Util:openCallDialog('callFinished',formatPhoneNum(phone), 0) then
+	           Log:write('telSuccess')
+	           else
+	           Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
+	       end
+	   else
+	       Dialog:show('提示', '电话号码为空！', 'ok')
+	   end
+   end
+end
+
+function phoneitemOnSelect(sprite)
+   setAllShoworHide(Sprite:findChild(rootSprite, 'phoneListNode'), 0)
+   local phone = Sprite:getText(Sprite:findChild(sprite, "phonenumber"))
+   Log:write('phone number is:',phone)
+   if phone ~= nil and phone ~= '' then
+       if callorsms == 1 then
+	       if Util:openCallDialog('callFinished',formatPhoneNum(phone), 0) then
+	           Log:write('telSuccess')
+	           else
+	           Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
+	       end
+	   else
+	       if Util:sendSMS(formatPhoneNum(phone),'',false) then
+               Log:write('smsSuccess')
+               else
+               Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
+           end
+       end
+   else
+       Dialog:show('提示', '电话号码为空！', 'ok')
+   end
+end
+
+--点击发送短信
+function smsOnSelect(sprite)
+   local cursprite = Sprite:getParent(sprite)
+   local phoneindex = Sprite:getText(Sprite:findChild(cursprite, "phoneindex"))
+   curphones = displayTable[tonumber(phoneindex)][5]
+   Log:write('phonenum22222222222',curphones)
+   local phonenum = #curphones
+   Log:write('phonenum111111111',phonenum)
+   
+   if phonenum > 1 then
+      ListView:removeAllItems(phoneList, true) 
+      ListView:loadItem(phoneList, Sprite:findChild(rootSprite, 'phoneItem'), tonumber(phonenum), 'loadphoneData')
+      if phonenum < 6 then
+        Sprite:setRect(phoneList, 55,212,365,phoneItemH*phonenum)
+        Sprite:setRect(Sprite:findChild(rootSprite, 'phonelistImg'),55,212,365,phoneItemH*(phonenum+1))
+        Sprite:setRect(Sprite:findChild(rootSprite, 'phonecancelbtn'),55,212+phoneItemH*phonenum,365,phoneItemH)
+      else
+        Sprite:setRect(phoneList, 55,212,365,phoneItemH*6)
+        Sprite:setRect(Sprite:findChild(rootSprite, 'phonelistImg'),55,212,365,phoneItemH*7)
+        Sprite:setRect(Sprite:findChild(rootSprite, 'phonecancelbtn'),55,210+phoneItemH*6,365,phoneItemH)
+      end
+      setAllShoworHide(Sprite:findChild(rootSprite, 'phoneListNode'), 1)
+      callorsms = 0
+   else
+	   local cursprite = Sprite:getParent(sprite)
+	   local phone = Sprite:getText(Sprite:findChild(cursprite, "phone"))
+	   if phone ~= nil and phone ~= '' then
+	       if Util:sendSMS(formatPhoneNum(phone),'',false) then
+	           Log:write('smsSuccess')
+	           else
+	           Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
+	       end
+	   else
+	       Dialog:show('提示', '电话号码为空！', 'ok')
+	   end
+   end
+end
+
+function indexitemOnSelect(sprite)
+    if lastsprite ~= nil then
+        Sprite:setProperty(lastsprite, 'color', '#7a7a7d')
+    end
+    lastsprite = sprite
+    Sprite:setProperty(sprite, 'color', '#1cf700')
+    local indextxt = string.lower(Sprite:getText(sprite))
+    local indexNum = 0
+    for i=1,#displayTable do
+        if string.lower(string.sub(displayTable[i][4],1,1)) < indextxt then
+            indexNum = indexNum + 1
+        end
+    end
+    ListView:setItemToTop(list, tonumber(indexNum), 0) 
+end
+
+function phonecancelOnSelect(sprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'phoneListNode'), 0)
+end
+
+function buildContactList()
+     Log:write("===buildContactList===")
+    displayTable = contactsTable
+    ListView:removeAllItems(list, 1, 1)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), #displayTable, 'loadItemData')
+    ListView:adjust(list)
+end
+
+-- @brief 显示联系人列表
+function showContactList(tryDown)
+    queryEmployee(company_id)
+    if tryDown then
+        if contactsTable == nil or #contactsTable == 0 then
+            local username = Config:get('username')
+            local url = Alias.url_server..'mobile/group/getgroupusers?usercode='..username..'&group_id='..company_id..'&group_version=0'
+                Log:write('getgroupusers url', url)
+                Http:request('getgroupusers', url, 101, {useCache = false})
+                Loading:show()
+            else
+                buildContactList()
+            end 
+     else
+        buildContactList()
+     end
+end
+
+--当未有任何输入时，初始化为提示
+function editOnTextChanged(sprite) 
+    --employee_id,employee_name,employee_firstword,employee_fullword,mobile
+    setAllShoworHide(resetBtn,1)
+    Log:write("文本发生改变时触发") 
+    local editKeyword = Sprite:getProperty(sprite, 'text')
+    Log:write("editKeyword ====== ",editKeyword)
+    ListView:removeAllItems(list, true) 
+    if editKeyword ~= '' then    
+        local tempTab = {}
+        for i=1 , #contactsTable do
+            if(string.find(contactsTable[i][2],editKeyword)~=nil or string.find(contactsTable[i][2],string.lower(editKeyword))~=nil or string.find(contactsTable[i][4],string.lower(editKeyword))~=nil 
+                or string.find(contactsTable[i][3],string.lower(editKeyword))~=nil or string.find(contactsTable[i][5][1],string.lower(editKeyword))~=nil) then
+                table.insert(tempTab,contactsTable[i])
+            end
+        end
+        displayTable = tempTab 
+    else
+        displayTable = contactsTable
+    end
+    Log:write('displayTable editOnTextChanged==========',displayTable)
+    if #displayTable > 0 then
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), #displayTable, 'loadItemData')
+        ListView:adjust(list)
+    end
+end 
+
+--获得焦点时
+function editOnSetFocus(sprite)
+    Log:write("获得焦点时触发")
+    local txt= Sprite:getProperty(sprite, 'text')
+    if txt=='搜索姓名、号码' then
+        Sprite:setProperty(sprite, 'text', '')
+        Sprite:setProperty(sprite, 'color', '#605e5e')
+    end
+end 
+
+--释放焦点时
+function editOnLostFocus(sprite)
+    Log:write("释放焦点时触发") 
+    local txt= Sprite:getProperty(sprite, 'text')
+    if txt=='' then
+        setAllShoworHide(resetBtn,0)
+        Sprite:setProperty(sprite, 'text', '搜索姓名、号码')
+        Sprite:setProperty(sprite, 'color', '#605e5e')
+    end
+end
+
+-- 搜索输入框置空
+function doCancel()
+    setAllShoworHide(resetBtn,0)
+    local keywordEditNode = Sprite:findChild(rootSprite,'keywordEdit')
+    Sprite:setProperty(keywordEditNode, 'color', '#605e5e')
+    Sprite:setProperty(keywordEditNode, 'text', '搜索姓名、号码')
+    ListView:removeAllItems(list,true)
+    displayTable = contactsTable
+
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), #displayTable, 'loadItemData')
+    ListView:adjust(list)
+end
+
+]]>
+</root>

@@ -29,7 +29,7 @@
         <node name="mainNode" rect="0,0,480,800" enable="true" visible='true'
              active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
             <!-- 输入框  -->
-            <node rect="0,150,480,200" extendstyle="1111">
+            <node name="main1Node" rect="0,150,480,200" extendstyle="1111">
                 <!-- 用户名  -->                
                 <node rect="0,0,480,67" extendstyle="1111">
                     <image rect="40,0,390,67" border="false" src="file://image/book/input.png"
@@ -43,7 +43,7 @@
                         
                 <!-- 注册按钮  -->
                 <node name="regiterNode" rect="0,120,480,73" extendstyle="1111" visible="true" active="true" enable="true">
-                    <button name="zhuceBtn" rect="45,0,385,65" text="" color="#ffffff"
+                    <button name="zhuceBtn" rect="40,0,389,70" text="获取密码" color="#ffffff"
                         extendstyle="1111" OnSelect="zhuceBtnOnSelect"  visible="true"
                         normal="src:file://image/jttxl/zhuce_d.png;style:autosize"
                         sel="src:file://image/jttxl/zhuce_s.png;style:autosize"
@@ -109,6 +109,10 @@ local url_downdeptlist = Alias.url_server..'mobile/orger/downall?cmd=downall'
 local url_updatedept = Alias.url_server..'mobile/orger/update?cmd=updatedept'
 local url_userversion = Alias.url_server..'mobile/UserInfo/getUserInfo?'
 local url_register = Alias.url_server..'mobile/login/register?'
+local url_downcompanylist = Alias.url_server..'mobile/group/mygroups?cmd=mygroups'
+local url_downloadSingleCompany = Alias.url_server..'mobile/group/getgroupusers?cmd=getgroupusers'
+
+
 local departmentdata1   --组织结构数据
 local databaseName
 local returnValue
@@ -122,6 +126,9 @@ local loginData
 local department_version=0
 local employee_version=0
 local right_config=''
+local timeNum = 50 --获取验证码倒计时秒数
+local groupData,downLoadgroupID,org_f=false
+
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -137,7 +144,7 @@ function bodyBuildChildrenFinished(sprite)
     Sprite:setRect(findmimaNode, 240,340,240,50)  
     Sprite:setRect(loginNode, 0,540,480,73)
     Sprite:setRect(noticeLabel, 0,660,480,60)
-    initdatabase()
+    initdatabase()  --初始化数据库
 end
 
 -- @brief root节点消息方法
@@ -148,6 +155,15 @@ function bodyOnSpriteEvent(msg, param)
         Sprite:setProperty(noticeLabel, 'text', '')
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
+    elseif msg == MSG_STRINGEVENT then   ----获取密码自动添加
+        local param1 = Param:getInteger(param, 0)
+        local param2 = Param:getString(param, 1)
+
+        Log:write('MSG_STRINGEVENT===param1 ================ ', param1)
+        Log:write('MSG_STRINGEVENT===param2 ================ ', param2) 
+        local password = string.match(param2, ".+|(.+)")
+
+        Sprite:setProperty(Sprite:findChild(rootSprite, 'passwordEdit'), 'text', password)
     elseif msg == MSG_NETWORK then 
         if g_exitFlag ==  true then
             doExit()
@@ -157,21 +173,21 @@ end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
-    if msg == 101 then
+    if msg == 101 then --登录方法 
         UmsAgent:onLoadFinish()
         --if Loading:isShow() then Loading:close() end
         loginData = Http:jsonDecode('login_istrue')
         Log:write('+++++++++==loginData=====', loginData)
         if loginData['code'] == '0' then
             Sprite:setProperty(noticeLabel, 'text', '登录成功')
-
             local phone = loginData['mobile']
-            updateDeviceInfoToDb(phone)
+            updateDeviceInfoToDb(phone) --在本机进行三码绑定
             --记住用户名和密码
             writeuserInfo()
-            local paras = '&userCode='..Config:get('userId')..'&deptCode=0'..'&deptList='..'&token='
-            Http:request('departmentdata0', url_downdeptlist..paras, 102, {useCache = false})
-            Sprite:setProperty(noticeLabel, 'text', '下载组织结构中。。。')
+            --开始下载群组信息
+            local paras = '&usercode='..Config:get('username')..'&token='
+            Http:request('companydata0', url_downcompanylist..paras, 119, {useCache = false})
+            Sprite:setProperty(noticeLabel, 'text', '下载群组中。。。')
         else
             if Loading:isShow() then Loading:close() end
             Sprite:setProperty(noticeLabel, 'text', '')
@@ -192,9 +208,10 @@ function bodyOnPluginEvent(msg)
 	            local department_name = Valuedata.department_name
 	            local parent_department_id = Valuedata.parent_department_id
 	            local department_level = Valuedata.department_level
-	            local department_firstword = Valuedata.department_firstword 
-	            local sql = "insert into tb_c_department values ('"..department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."' ,'' ,'' ,'' ,'' );"
-	            Log:write('下载联系人插入语句==第i=='..i..'次==sql=='..sql)
+	            local department_firstword = Valuedata.department_firstword
+                local company_id = Valuedata.company_id	             
+	            local sql = "insert into tb_c_department(department_id,department_name,parent_department_id,department_level,department_firstword,mark1,mark2,mark3,mark4,company_id) values ('"..department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."' ,'' ,'' ,'' ,'','"..company_id.."' );"
+	          --  Log:write('下载部门信息插入语句==第i=='..i..'次==sql=='..sql)
 	            bRet, errMsg = Sqlite:update(databaseName, sql)
 	        end
             bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
@@ -204,28 +221,114 @@ function bodyOnPluginEvent(msg)
         department_version = departmentdata1.deptversion
         Config:set('deptversion', departmentdata1.deptversion)
         Log:write('deptversion====='..Config:get('deptversion'))
+        --set dept version to db
+        local sql = "update tb_c_system set department_version = '"..departmentdata1.deptversion.."';"
+        bRet, errMsg = Sqlite:update(databaseName, sql)
+        
         Sprite:setProperty(noticeLabel, 'text', '联系人信息下载中。。。')
-        local paras = 'departmentIdStr='..Config:get('department_id')..'&userId='..Config:get('userId')..'&mobileRights='
-                    ..Config:get('mobileRights')..'&versionNum=0'
+
+
+        local paras = 'departmentIdStr='..Config:get('department_id')..'&userId='..Config:get('userId')..'&versionNum=0'
         Log:write('首次登录时联系人URL = '..url_userversion..paras)
         Http:request('userversiondata0', url_userversion..paras, 104, {useCache = false})
-    elseif msg == 104 then 
-        local userversiondata1 = Http:jsonDecode('userversiondata0')
+    elseif msg == 120 then --下载第一个通讯分组下的用户
+        local userversiondata1 = Http:jsonDecode('userversiondata3')
         Log:write("数据记录是否发成改变判断标识 updateFlag ：",userversiondata1.updateFlag)
         Sprite:setProperty(noticeLabel, 'text', '联系人信息下载中。。。')
             
         returnValue = userversiondata1.value 
-		Log:write("用户数据返回最大版本号 versionNum：",returnValue[0].versonNum)			
-        totalNum = tonumber(userversiondata1.total)-1   
-        rights = userversiondata1.rights
+        Log:write("用户数据返回最大版本号 versionNum：",returnValue[0].group_version_num)           
+        totalNum = tonumber(userversiondata1.total)-1  
+        rights = 0 
         initUserDatabase()
-        employee_version = returnValue[0].versonNum
-        right_config = userversiondata1.rights
-        Config:set('userVersion',employee_version)
-        Config:set('mobileRights',right_config)
+        
+        if totalNum >= 0 then
+            employee_version = returnValue[0].group_version_num 
+            right_config = 0   
+            local sql = "update tb_c_system set employee_version = '"..employee_version.."';"
+            bRet, errMsg = Sqlite:update(databaseName, sql)
+
+            local sql = "update tb_c_company set company_version = '"..employee_version.."' where company_id = '"..downLoadgroupID.."';"
+            bRet, errMsg = Sqlite:update(databaseName, sql)
+        end
+
         if Loading:isShow() then Loading:close() end
         Sprite:setProperty(noticeLabel, 'text', '正在进行页面跳转。。。')
-        Timer:set(1,500,'jumpPage')   
+        Timer:set(1,500,'jumpPage')
+
+    elseif msg == 104 then  --下载企业下的用户信息
+        local userversiondata1 = Http:jsonDecode('userversiondata0')
+--        Log:write('userdata is ',userversiondata1)
+        Log:write("数据记录是否发成改变判断标识 updateFlag ：",userversiondata1.updateFlag)
+        Sprite:setProperty(noticeLabel, 'text', '联系人信息下载中。。。')
+            
+        returnValue = userversiondata1.value 
+		Log:write("用户数据返回最大版本号 versionNum：",returnValue[0].group_version_num)			
+        totalNum = tonumber(userversiondata1.total)-1   
+        rights = 0
+        initUserDatabase()        
+        employee_version = returnValue[0].group_version_num
+        right_config = 0
+        Config:set('userVersion',employee_version)       
+        Config:set('mobileRights',right_config)
+        
+        local sql = "update tb_c_system set employee_version = '"..employee_version.."';"
+        bRet, errMsg = Sqlite:update(databaseName, sql)
+        
+        if Loading:isShow() then Loading:close() end
+        Sprite:setProperty(noticeLabel, 'text', '正在进行页面跳转。。。')
+        Timer:set(1,500,'jumpPage')
+
+    elseif msg == 119 then --下载群组信息
+        local companydata1 = Http:jsonDecode('companydata0')
+        local total = companydata1.total   
+        Log:write('===total====='..total)  
+        if total > 0 then
+            -- 更新最大分组版本号
+            Log:write("群组:",companydata1["value"])
+            local sql = "update tb_c_system set  company_version= '"..companydata1["value"][0].company_version.."';"
+            bRet, errMsg = Sqlite:update(databaseName, sql)
+            downLoadgroupID = companydata1["value"][0].group_id
+            Log:write("群组版本号:bRet = "..bRet.." errMsg ="..errMsg)
+            bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
+            Log:write("群组添加事务开始:bRet = "..bRet.." errMsg ="..errMsg)
+            for i=0,total-1 do
+                local Valuedata = companydata1["value"][i]
+                local company_id = Valuedata.group_id
+                local company_name = Valuedata.group_name
+                local org_flag = Valuedata.org_flag
+                local index_logo = Valuedata.index_log
+                if org_flag == '1' then 
+                    org_f = true
+                    downLoadgroupID = company_id
+                end
+                local sql
+                if index_logo ~= nil then         
+                    sql = "insert into tb_c_company(company_id,company_name,org_flag,index_logo,status) values ('"..company_id.."','"..company_name.."','"..org_flag .. "','"..index_logo.."','1' );"
+                else
+                    sql = "insert into tb_c_company(company_id,company_name,org_flag,status) values ('"..company_id.."','"..company_name.."','"..org_flag .."','1');"
+                end
+                Log:write('下载群组插入语句==第i=='..i..'次==sql=='..sql)
+                bRet, errMsg = Sqlite:update(databaseName, sql)
+                Log:write("载群组插入语句:bRet = "..bRet.." errMsg ="..errMsg)
+                
+            end
+            bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
+            Log:write("群组添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
+        end
+
+        --如果有企业住处，则下载企业部门表，否则则下载第一个分组中的用户。
+        if org_f == true then
+        Sprite:setProperty(noticeLabel, 'text', '下载组织结构中。。。')
+            local paras = '&userCode='..Config:get('userId')..'&deptCode=0'..'&deptList='..'&token='
+            Http:request('departmentdata0', url_downdeptlist..paras, 102, {useCache = false})
+            Log:write('首次登录时组织结构URL = '..url_userversion..paras)
+        else
+            local paras = '&group_id='..downLoadgroupID..'&userId='..Config:get('userId')..'&token='..'&group_version='
+            Log:write('首次登录时联系人URL = '..url_downloadSingleCompany..paras)
+            Http:request('userversiondata3', url_downloadSingleCompany..paras, 120, {useCache = false})
+        end
+        
     elseif msg == 111 then
         if Loading:isShow() then Loading:close() end
         local registerData = Http:jsonDecode('registerdata0')
@@ -233,6 +336,11 @@ function bodyOnPluginEvent(msg)
         if registerData['success'] == 'true' then
             --Scene:go(Alias.m_login)
             Dialog:show('提示', '密码已经通过短信下发', 'ok')
+            --"获取密码"按钮disable状态，显示倒计时
+            local zhuceBtn = Sprite:findChild(rootSprite,'zhuceBtn')
+            Sprite:setActive(zhuceBtn,0)
+            Sprite:setEnable(zhuceBtn,0)
+            Timer:set(222, 1000, 'getSmsCheckCodeTimer')     	
             else 
             Dialog:show('提示', '号码输入有误或非本集团用户', 'ok')
         end
@@ -265,19 +373,26 @@ function initdatabase()
     bRet, errMsg = Sqlite:open(databaseName) 
     Log:write("创建数据库成功:bRet = "..bRet.." errMsg ="..errMsg)
     local sq1 = "create table tb_c_department(department_id primary key not null, department_name,"..
-        "parent_department_id , department_level, department_firstword, mark1, mark2, mark3, mark4 );"
+        "parent_department_id , department_level, department_firstword, mark1, mark2, mark3, mark4, company_id);"
     bRet, errMsg = Sqlite:update(databaseName, sq1)
     Log:write("创建数据库表tb_c_department结果:bRet = "..bRet.." errMsg ="..errMsg)
-    local sql = "create table tb_c_employee(employee_id primary key not null,employee_name,"..
-        "department_id,department_name,headship_level INTEGER,headship_name,mobile,mobile_short,"..
-        "tel,tel_short,email,versionNum,picture,employee_firstword,employee_fullword,"..
-        "parent_department_name,display_order INTEGER, department_fax, mark1, mark2, mark3, mark4);"
+
+    local sql = "create table tb_c_employee(employee_id ,company_id,employee_name,"..
+        "department_id,department_name,parent_department_name,department_path,headship_level INTEGER,headship_name,mobile,mobile_short,"..
+        "tel,tel_short,home_telephone,weibo,qq,weixin,school,user_major,user_grade,user_class,student_id,birthday,native_place,"..
+        "address,home_address,remark,email,versionNum,picture,employee_firstword,employee_fullword,"..
+        "display_order INTEGER, department_fax, manage_flag, mood , mark1, mark2, mark3, mark4,user_company_id primary key not null,company_address,user_company);"
+
     bRet, errMsg = Sqlite:update(databaseName,sql)
     Log:write("创建数据库表tb_c_employee结果:bRet = "..bRet.." errMsg ="..errMsg)
     local sq1 = "create table tb_c_system(system_id primary key not null, register_flag, department_version, "..
-        "employee_version, user_id, right_config, employee_id, employee_name, department_id, department_name, department_level, mark1, mark2, mark3, mark4 );"
+        "employee_version, user_id, right_config, employee_id, employee_name, department_id, department_name, department_level, mark1, mark2, mark3, mark4 ,company_version);"
     bRet, errMsg = Sqlite:update(databaseName, sq1)
     Log:write("创建数据库表tb_c_system结果:bRet = "..bRet.." errMsg ="..errMsg)
+    local sq1 = "create table tb_c_company(company_id primary key not null,company_code,parent_company_id,company_name,province,city,"..
+    "town,index_logo,index_pictrue,status,display_order INTEGER,org_flag,mark1,mark2,mark3,mark4,company_version);"
+    bRet, errMsg = Sqlite:update(databaseName, sq1)
+    Log:write("创建数据库表tb_c_company结果:bRet = "..bRet.." errMsg ="..errMsg)
 end
 
 function getDownloadPath()
@@ -377,16 +492,18 @@ function writeuserInfo()
     Config:set('username', username)
     Config:set('password', password)
     Log:write('===writeuserInfo==userId=='..Config:get('userId'))
+    local sql = "insert into tb_c_system(system_id, register_flag, department_version, "..
+        "employee_version, user_id, right_config, employee_id, employee_name, department_id, department_name, department_level, mark1, mark2, mark3, mark4 ,company_version) values ('001','"..Config:get('DatabaseVersion').."','"..department_version.."','"..employee_version..
+        "','"..loginData.user_id.."','"..username.."','"..loginData.employee_id.."','"..loginData.employee_name..
+        "','"..loginData.department_id.."','"..loginData.department_name.."','"..loginData.department_level.."' ,'1' ,'' ,'' ,'','');"
+    Log:write('系统表插入语句==sql=='..sql)
+    bRet, errMsg = Sqlite:update(databaseName, sql)
+    Log:write("系统表插入结果:bRet = "..bRet.." errMsg ="..errMsg)
 end
 
 --跳转页面
 function jumpPage()
-    local sql = "insert into tb_c_system values ('001','"..Config:get('DatabaseVersion').."','"..department_version.."','"..employee_version..
-        "','"..loginData.user_id.."','"..right_config.."','"..loginData.employee_id.."','"..loginData.employee_name..
-        "','"..loginData.department_id.."','"..loginData.department_name.."','"..loginData.department_level.."' ,'1' ,'' ,'' ,'' );"
-    Log:write('系统表插入语句==sql=='..sql)
-    bRet, errMsg = Sqlite:update(databaseName, sql)
-    Log:write("系统表插入结果:bRet = "..bRet.." errMsg ="..errMsg)
+    
     Config:set('forceUpdateDatabase', '0')
 	Log:write("forceUpdateDatabase2= "..Config:get('forceUpdateDatabase'))
     UmsAgent:writeCallLog()
@@ -424,25 +541,84 @@ function initUserDatabase()
     bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
     Log:write("首次安装应用--人员添加事务开始:bRet = "..bRet.." errMsg ="..errMsg)
     for i=0,totalNum do 
-        if returnValue[i].delFlag == '0' then 
             -- 新增用户SQL
-            local sqlInsert = "insert into tb_c_employee values('"..returnValue[i].employee_id.."','"..
+            local sqlInsert = "insert into tb_c_employee(employee_id ,company_id,employee_name,"..
+        "department_id,department_name,headship_level,headship_name,mobile,mobile_short,"..
+        "tel,tel_short,home_telephone,weibo,weixin,qq,school,user_major,user_grade,user_class,student_id,birthday,native_place,"..
+        "address,home_address,remark,email,versionNum,picture,employee_firstword,employee_fullword,"..
+        "parent_department_name,display_order, department_fax, manage_flag, mood , mark1, mark2, mark3, mark4,user_company_id,company_address,user_company)" ..
+            " values('"..returnValue[i].employee_id.."','"..returnValue[i].company_id.."','"..
             returnValue[i].employee_name.."','"..returnValue[i].department_id.."','"..
-            returnValue[i].department_name.."','"..returnValue[i].headship_level.."','"..
-            returnValue[i].headshipName.."','"..returnValue[i].mobile.."','"..
+            returnValue[i].department_name.."','','"..
+            returnValue[i].headship_name.."','"..returnValue[i].mobile.."','"..
             returnValue[i].mobile_short.."','"..returnValue[i].tel.."','"..
-            returnValue[i].tel_short.."','"..returnValue[i].email.."','"..
-            returnValue[i].versonNum.."','"..returnValue[i].picture.."','"..
-            returnValue[i].employee_firstword.."','"..returnValue[i].employee_fullword.."','"..
-            returnValue[i].parent_department_name.."','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."' ,'"..returnValue[i].rightFlag.."' ,'' ,'' ,'' );"                  
+            returnValue[i].tel_short.."','"..returnValue[i].home_telephone.."','"..
+            returnValue[i].weibo.."','"..returnValue[i].weixin.."','"..
+            returnValue[i].qq.."','"..returnValue[i].school.."','"..
+            returnValue[i].user_major.."','"..returnValue[i].user_grade.."','"..
+            returnValue[i].user_class.."','"..returnValue[i].student_id.."','"..
+            returnValue[i].birthday .."','"..returnValue[i].native_place.."','"..
+            returnValue[i].address.."','"..returnValue[i].home_address.."','"..
+            returnValue[i].remark.."','"..returnValue[i].email.."','"..
+            returnValue[i].group_version_num.."','"..returnValue[i].picture.."','"..
+            returnValue[i].employee_firstword.."','"..returnValue[i].employee_fullword.."','"..returnValue[i].parent_department_name..
+            "','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."','"..
+            returnValue[i].manage_flag.."','"..returnValue[i].mood.."' ,'' ,'' ,'' ,'','"..returnValue[i].user_company_id.."','"..returnValue[i].company_address.."','"..returnValue[i].user_company.."');"                  
             bRet, errMsg = Sqlite:update(databaseName, sqlInsert)
-            -- Log:write("sqlInsert 语句：",sqlInsert) 
-        end    
+            --Log:write("sqlInsert 语句：",sqlInsert)   
     end
     bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
     Log:write("首次安装应用--人员添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
 end
 
+--获取短信后disable"获取密码按钮" 并倒计时50秒
+function getSmsCheckCodeTimer()
+    local zhuceBtn = Sprite:findChild(rootSprite,'zhuceBtn')
+    if(timeNum>0) then
+        timeNum = timeNum - 1
+        Sprite:setProperty(zhuceBtn,'text','获取密码('..timeNum..')')
+        Timer:set(222, 1000, 'getSmsCheckCodeTimer')
+    else
+        timeNum = 50
+        Sprite:setActive(zhuceBtn,1)
+        Sprite:setEnable(zhuceBtn,1)
+        Sprite:setProperty(zhuceBtn,'text','获取密码')
+        Timer:cancel(222)
+    end
+end
+
+
+function getGroupData()
+    local sql = "SELECT * FROM tb_c_company"
+    bRet,groupData,errMsg = Sqlite:query(databaseName, sql)
+    Log:write("搜索分组SQL: ",errMsg)
+    Log:write("搜索分组结果: ",groupData)
+    len = tonumber(getJsonArrayCount(groupData))-1
+    Log:write("分组列表记录数目：",len)
+    downLoadgroupID = -1
+    for j = 1, len do
+        Log:write("分组记录：",j)
+        if groupData[j][17] == '' then
+	        if downLoadgroupID == -1 then
+	           downLoadgroupID = groupData[j][1]
+	        end
+	        
+	        if groupData[j][12] == '1' then
+                downLoadgroupID = groupData[j][1]
+                Log:write("下载的分组id: ",downLoadgroupID)
+                return
+            end
+        end
+    end
+    Log:write("下载的分组id: ",downLoadgroupID)
+end
+
+function setVersionNum(version)
+    local sql = "update tb_c_company set  company_version= '"..version.."'where company_id = '"..downLoadgroupID.."';"
+    Log:write('更新系统表语句==sql=='..sql)
+    bRet, errMsg = Sqlite:update(databaseName, sql)
+    Log:write("系统表更新数据:bRet = "..bRet.." errMsg ="..errMsg)   
+end
 
 ]]>
 </root>

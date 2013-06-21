@@ -63,15 +63,26 @@ Alias = {
     
     m_local = 'MODULE:\\com_wondertek_tx\\m_local.wdml', -- 本机通讯录
     
+    m_group = 'MODULE:\\com_wondertek_tx\\m_group.wdml', -- 本机通讯录
+    
     m_localsetup = 'MODULE:\\com_wondertek_tx\\m_localsetup.wdml', -- 本机通讯录设置
 
     cardDesign = 'MODULE:\\com_wondertek_tx\\cardDesign.wdml', --名片设置
-    
-    -- url_server = 'http://120.209.138.173:8080/',     --测试服务器地址
+
+    m_stdContacterInfo = 'MODULE:\\com_wondertek_tx\\m_stdContacterInfo.wdml', -- 联系人信息
+
+    m_stdMyInfo = 'MODULE:\\com_wondertek_tx\\m_stdMyInfo.wdml', -- 个人信息
+
+    m_stdConGo1 = 'MODULE:\\com_wondertek_tx\\m_stdConGo1.wdml', -- 群组跳转页面1
+
+    m_stdConGo2 = 'MODULE:\\com_wondertek_tx\\m_stdConGo2.wdml', -- 群组跳转页面2
+
+    m_stdEditInfo = 'MODULE:\\com_wondertek_tx\\m_stdEditInfo.wdml', -- 个人信息编辑
+
     m_update = 'MODULE:\\com_wondertek_tx\\m_update.wdml', -- 入口页
+    
+    url_server = 'http://120.209.138.173:8080/'     --测试服务器地址
 
-    url_server = 'http://120.209.131.147:8088/',  --生产服务器地址
-
-    m_main = 'MODULE:\\com_wondertek_tx\\m_main.wdml', -- 系统主页面
+    -- url_server = 'http://120.209.131.147:8088/'  --生产服务器地址
 }
 

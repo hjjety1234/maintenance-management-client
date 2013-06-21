@@ -112,7 +112,7 @@
                 src='file://image/book/site_d.png' OnSelect="bottomOnselect" data="4"></button>
                 <!-- New -->
                 <node name="newNode" rect="410,0,48,80" extendstyle="1111">
-                    <image  rect="10,5,24,24" border="false" src="file://image/jttxl/new.png" 
+                    <image  rect="10,5,43,28" border="false" src="file://image/jttxl/new1.png" 
                         style="autosize" extendstyle="1111" />
                 </node>
             </node>
@@ -256,16 +256,16 @@ function initDeptPage()
     local titleLabel = Sprite:findChild(rootSprite, 'titleLabel')
     Sprite:setProperty(titleLabel, 'text', par_department_name)
     
-    local mapdataHandler = Reg:create("mapdataRoom")
-    cityName = Reg:getString(mapdataHandler, 'cityname')
-    Log:write("===cityname=="..cityName)  
+    -- local mapdataHandler = Reg:create("mapdataRoom")
+    -- cityName = Reg:getString(mapdataHandler, 'cityname')
+    -- Log:write("===cityname=="..cityName)  
     local fistdeptBtn = Sprite:findChild(rootSprite, 'fistdeptBtn')
-    local citybgImg = Sprite:findChild(rootSprite, 'citybgImg')
-    Sprite:setProperty(citybgImg, 'src', "file://image/map/"..cityName.."_bj.jpg" )
-    local fistBeptImage_d = Sprite:findChild(fistdeptBtn, 'fistBeptImage_d')
-    local fistBeptImage_s = Sprite:findChild(fistdeptBtn, 'fistBeptImage_s')
-    Sprite:setProperty(fistBeptImage_d, 'src', "file://image/map/"..cityName..".png")
-    Sprite:setProperty(fistBeptImage_s, 'src', "file://image/map/"..cityName..".png")
+    -- local citybgImg = Sprite:findChild(rootSprite, 'citybgImg')
+    -- Sprite:setProperty(citybgImg, 'src', "file://image/map/"..cityName.."_bj.jpg" )
+    -- local fistBeptImage_d = Sprite:findChild(fistdeptBtn, 'fistBeptImage_d')
+    -- local fistBeptImage_s = Sprite:findChild(fistdeptBtn, 'fistBeptImage_s')
+    -- Sprite:setProperty(fistBeptImage_d, 'src', "file://image/map/"..cityName..".png")
+    -- Sprite:setProperty(fistBeptImage_s, 'src', "file://image/map/"..cityName..".png")
     local listButtonLabel = Sprite:findChild(fistdeptBtn, 'listButtonLabel')
     Sprite:setProperty(listButtonLabel, 'text', par_department_name)
     Sprite:setProperty(fistdeptBtn, 'data', par_department_id)
@@ -327,7 +327,7 @@ end
 function fistdeptBtnSelect(sprite)
     Log:write('====fistdeptBtnSelect=='..par_department_id)
     Scene:setReturn(Alias.m_zuzhijiegou, Alias.m_lianxirenlist)
-    Scene:go(Alias.m_lianxirenlist.."?department_id="..par_department_id.."&departmentname="..par_department_name, true)
+    Scene:go(Alias.m_lianxirenlist.."?department_id="..par_department_id.."&parent_departmentname="..par_department_name, true)
 end
 
 function itemOnSelect(sprite)
@@ -341,7 +341,7 @@ function itemOnSelect(sprite)
     Log:write('====itemOnSelect..deptid=='..deptid..'==childcout=='..childcout)
     if tonumber(childcout) == 0 then
         Scene:setReturn(Alias.m_zuzhijiegou, Alias.m_lianxirenlist)
-        Scene:go(Alias.m_lianxirenlist.."?department_id="..deptid.."&departmentname="..deptname, true)
+        Scene:go(Alias.m_lianxirenlist.."?department_id="..deptid.."&parent_departmentname="..deptname, true)
     else
         Scene:setReturn(Alias.m_zuzhijiegou, Alias.m_zuzhijiegou)
         Scene:go(Alias.m_zuzhijiegou.."?departmentid="..deptid.."&departmentname="..deptname, true)
@@ -363,16 +363,16 @@ function bottomOnselect(sprite)
     Sprite:setProperty(sprite, 'data', 0)
     Log:write('bottomdata=='..bottomdata)
     if '1' == bottomdata then
-        Scene:setReturn(Alias.m_lianxirenlist, Alias.m_recentContacter)
+        Scene:setReturn(Alias.m_zuzhijiegou, Alias.m_recentContacter)
         Scene:go(Alias.m_recentContacter, true)
     elseif '2' == bottomdata then 
-        Scene:setReturn(Alias.m_lianxirenlist, Alias.m_renyuantongji)
+        Scene:setReturn(Alias.m_zuzhijiegou, Alias.m_renyuantongji)
         Scene:go(Alias.m_renyuantongji, true)
     elseif '3' == bottomdata then
-        Scene:setReturn(Alias.m_lianxirenlist, Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"))
-        Scene:go(Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"), true)
+        Scene:setReturn(Alias.m_zuzhijiegou, Alias.m_stdMyInfo)
+        Scene:go(Alias.m_stdMyInfo, true)
     elseif '4' == bottomdata then 
-	    Scene:setReturn(Alias.m_lianxirenlist, Alias.m_system)
+	    Scene:setReturn(Alias.m_zuzhijiegou, Alias.m_system)
 	    Scene:go(Alias.m_system, true)
     end
 end

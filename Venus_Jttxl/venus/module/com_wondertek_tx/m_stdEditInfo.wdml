@@ -1,0 +1,932 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置背景 -->
+            <image rect="0,80,480,720" src="file://image/jttxl/bj.png" style="autosize"
+               extendstyle="1111" />
+            <!-- 设置头部 -->
+            <node name="baseSprite" rect="0,0,480,80" extendstyle="1111">
+                 <image name="title" rect="0,0,480,80" border="false" src="file://image/jttxl/top.png" 
+                    style="autosize" extendstyle="1111">
+                    <label name="titleLabel" rect="0,0,480,80" text="个人信息编辑" color="#ffffff" v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />
+                 </image>
+                 <!-- 返回 -->
+                 <button name="backBtn" rect="20,18,48,45" OnSelect="doBack" normal="normal" visible="true"
+                    sel="sel" style="autosize" extendstyle="1111">
+                    <node name="normal" extendstyle="1111">
+                        <image rect="0,0,48,45" src="file://image/jttxl/back_d.png" style="autosize"
+                            extendstyle="1111" />
+                    </node>
+                    <node name="sel" extendstyle="1111">
+                        <image rect="0,0,48,45" src="file://image/jttxl/back_s.png" style="autosize" 
+                            extendstyle="1111" />
+                    </node>
+                </button>
+                 <!-- 提交 -->
+                 <button name="editBtn" rect="410,24,41,33" OnSelect="EditMyInfo" normal="normal" visible="true"
+                    sel="sel" style="autosize" extendstyle="1111">
+                    <node name="normal" extendstyle="1111">
+                        <image rect="0,0,41,33" src="file://image/jttxl/editsubmit_d.png" style="autosize" extendstyle="1111" />
+                    </node>
+                    <node name="sel" extendstyle="1111">
+                        <image rect="0,0,41,33" src="file://image/jttxl/editsubmit_s.png" style="autosize" extendstyle="1111" />
+                    </node>
+                </button>            
+            </node>
+
+            <!-- 主界面布局 -->
+            <listview name="listview" rect="0,80,480,640" col="1" limit="true" border="false" extendstyle="1111">
+
+                <!-- 联系人信息简介 -->
+                <list-item name="contactInfoIntr" rect="0,0,480,215" extendstyle="1111">
+                    <image border="false" src="file://image/jttxl/bg.png" 
+                        style="autosize" extendstyle="1177">
+                    </image>
+                    <!-- 拍照图片 -->
+                    <image name="picNode" rect="15,20,87,88" border="false" src="file://image/jttxl/photo.png" 
+                        style="autosize" extendstyle="1111">
+                    </image>
+                    <!-- 姓名、部门 -->
+                    <node rect="120,3,345,35" extendstyle="1111">
+                        <node rect="0, 0, 100, 32" extendstyle="1111">
+                            <shadow rect="0,5,100,32" color="#ffffff" alpha="255" border='true' extendstyle="1111" />
+                            <edit name="contactName" rect="5, 5, 90, 30" text="" font-family='微软雅黑' color="#000000" 
+                                font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                OnTextChanged="editOnTextChanged" data="1">
+                                <label name="hideLabel" rect="0,0,90,30" text="请输入姓名" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="20" visible="false"/>
+                            </edit> 
+                        </node> 
+                        <scrolltext name="groupName" rect="160, 5, 185, 26"  text="" font-family='微软雅黑' 
+                            scroll="true" color="#00000" font-size="20" h-align="left" v-align="center"
+                            border="false" style="autosize" extendstyle="1111">
+                        </scrolltext>
+                                       
+                    </node>
+                    <!-- 管理员、职位 -->
+                    <node rect="120,40,345,26" extendstyle="1111">
+                        <node name="adminNode" rect="0,0,135,26" extendstyle="1111">
+                            <image rect="0,2,24,26" border="false" src="file://image/jttxl/p.png" 
+                                style="autosize" extendstyle="1111">
+                            </image>
+                            <label name="adminName" rect="30, 0, 100, 26"  text="管理员" font-family='微软雅黑' 
+                                color="#ffffff" font-size="20" h-align="left" v-align="center" border="false" 
+                                extendstyle="1111"/>
+                        </node> 
+                        <scrolltext name="headshipName" rect="160, 0, 185, 26"  text="" font-family='微软雅黑' 
+                            scroll="true" color="#00000" font-size="20" h-align="left" v-align="center"
+                            border="false" style="autosize" extendstyle="1111">
+                        </scrolltext>
+                    </node>
+                    <!-- 全路径部门 -->
+                    <node rect="120,70,345,50" extendstyle="1111">
+                        <textarea name="detail" rect="0,0,340,70" border="false" h-align='left'
+                            font-family='微软雅黑' font-size="20" color="#5a5959" line-height="23"
+                            text="" autoextend="true" 
+                            style='autosize' extendstyle="1111" >
+                        </textarea>
+                    </node>
+                    <!-- 个性签名编辑 -->  
+                    <node rect="15,120,450,60" extendstyle="1111">
+                        <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                        <edit name="personalSignature" rect="5,5,440,70" font-size="22" font-family='微软雅黑' color="#686868" 
+                            text="" 
+                            line-height='25' multiline="true" style="autosize" h-align="left"
+                            OnTextChanged="editOnTextChanged" data="2"
+                            v-align="top" extendstyle="1111">
+                            <label name="hideLabel" rect="0,0,430,30" text="请输入签名" color="#8d8b8b"
+                                extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                font-size="22" visible="false"/>
+                        </edit>
+                    </node>                                                          
+                </list-item> 
+
+                <!-- 联系电话列表项 -->
+                <list-item name="itemNode1" rect="11,0,458,357" extendstyle="1111" border="false">
+
+                    <label rect="10, 0, 100, 35"  text="电话号码" font-family='微软雅黑' 
+                        color="#9a9a9a" font-size="22" h-align="left" v-align="center" 
+                        border="false" extendstyle="1111"/>               
+                    <!-- 设置列表项背景 -->
+                    <image name="itemImg1" rect="0,35,458,317" src="file://image/jttxl/wuhang.png" style="autosize"
+                        extendstyle="1111" /> 
+
+                    <listview name="listview1" rect="0,35,458,317" col="1" limit="true"  auto-adjust="true" border="false" extendstyle="1111">
+                        <!-- 手机长号 -->
+                        <list-item name="mobileNode1" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <image rect="15,12,44,45" src="file://image/jttxl/tel_my_d.png" 
+                                    style="autosize" extendstyle="1111"/>                         
+                            <!-- 长号编辑 -->
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="mobile" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged" data="3">
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入手机长号" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/> 
+                                </edit>
+                            </node>                        
+                        </list-item>
+                        <!-- 手机短号 -->
+                        <list-item name="mobileNode2" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <image rect="15,12,44,45" src="file://image/jttxl/tel_my_d.png" 
+                                        style="autosize" extendstyle="1111"/>
+                            <!-- 短号编辑 -->                       
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="mobileShort" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged" data="4">
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入手机短号" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit> 
+                            </node>                                
+                        </list-item>
+                        <!-- 座机电话 -->
+                        <list-item name="mobileNode3" rect="0,0,458,63.4" extendstyle="1111" border="false">
+                            <image rect="15,12,44,45" src="file://image/jttxl/tel1_my_d.png" 
+                                        style="autosize" extendstyle="1111"/>                  
+                            <!-- 座机编辑 -->
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="telephone" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" OnTextChanged="editOnTextChanged" 
+                                    extendstyle="1111" border="false" data="5"> 
+                                    <label name="hideLabel" rect="0, 0, 300, 40" text="请输入座机电话" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit>
+                            </node>                                       
+                        </list-item>
+                        <!-- 座机短号 -->
+                        <list-item name="mobileNode4" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <image rect="15,12,44,45" src="file://image/jttxl/tel1_my_d.png" 
+                                        style="autosize" extendstyle="1111"/>
+                            <!-- 座机短号编辑 -->
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="telShort" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged" data="6">
+                                    <label name="hideLabel" rect="0, 0, 300, 40" text="请输入座机短号" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit> 
+                            </node>                                                          
+                        </list-item>
+                        <!-- 家庭电话 -->
+                        <list-item name="mobileNode5" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <image rect="15,12,44,45" src="file://image/jttxl/tel1_my_d.png" 
+                                        style="autosize" extendstyle="1111"/>                       
+                            <!-- 家庭编辑 -->
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="telFamily" rect="5, 0, 310, 34" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged" data="7">
+                                    <label name="hideLabel" rect="0, 0, 300, 40" text="请输入家庭电话" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/> 
+                                </edit> 
+                            </node>                             
+                        </list-item>
+                    </listview>
+                </list-item>
+
+                <!-- 网络联系人列表项 -->
+                <list-item name="itemNode2" rect="10,0,458,295" extendstyle="1111" border="false">
+
+                    <label rect="10, 0, 100, 35"  text="网络联系" font-family='微软雅黑' 
+                        color="#9a9a9a" font-size="22" h-align="left" v-align="center" 
+                        border="false" extendstyle="1111"/>               
+                    <!-- 设置列表项背景 -->
+                    <image name="itemImg2" rect="0,35,458,254" src="file://image/jttxl/sihang.png" style="autosize"
+                        extendstyle="1111" /> 
+
+                    <listview name="listview2" rect="0,35,458,254" col="1" limit="true"  auto-adjust="true" border="false" extendstyle="1111">
+                        <!-- 邮箱 -->
+                        <list-item name="emailNode1" rect="0,0,458,63.4" extendstyle="1111" border="false">  
+                            <label rect="15, 0, 50, 63.4"  text="邮箱" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <!-- 邮箱编辑 -->
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="email" rect="5, 0, 310, 40" text="" font-family='微软雅黑' 
+                                    font-size="24" h-align="left" v-align="center" color="#686868" 
+                                    OnTextChanged="editOnTextChanged" border="false" extendstyle="1111" 
+                                    data="8"> 
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入邮箱" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit>
+                            </node>                      
+                        </list-item>
+                        <!-- QQ -->
+                        <list-item name="emailNode2" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 50, 63.4"  text="QQ" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                         
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="QQ" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged" data="9">
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入QQ" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit> 
+                            </node>                                  
+                        </list-item>
+                        <!-- 微博 -->
+                        <list-item name="emailNode3" rect="0,0,458,63.4" extendstyle="1111" border="false">
+                            <label rect="15, 0, 50, 63.4"  text="微博" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                        
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="microblog" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged" data="10">
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入微博" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit> 
+                            </node>                                     
+                        </list-item>
+                        <!-- 微信 -->
+                        <list-item name="emailNode4" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 50, 63.4"  text="微信" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="microMessage" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged" data="11">
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入微信" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit> 
+                            </node>                                   
+                        </list-item>
+                        
+                    </listview>
+                </list-item>
+
+                <!-- 单位信息列表项 -->
+                <list-item name="itemNode3" rect="10,0,458,295" extendstyle="1111" border="false">
+
+                    <label rect="10, 0, 100, 35"  text="单位信息" font-family='微软雅黑' 
+                        color="#9a9a9a" font-size="22" h-align="left" v-align="center" 
+                        border="false" extendstyle="1111"/>               
+                    <!-- 设置列表项背景 -->
+                    <image name="itemImg3" rect="0,35,458,254" src="file://image/jttxl/sihang.png" style="autosize"
+                        extendstyle="1111" /> 
+
+                    <listview name="listview3" rect="0,35,458,254" col="1" limit="true"  auto-adjust="true" border="false" extendstyle="1111">
+                        <!-- 公司 -->
+                        <list-item name="companyNode1" rect="0,0,458,63.4" extendstyle="1111" border="false">  
+                            <label rect="15, 0, 50, 63.4"  text="公司" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                        
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow name="companyShadow1" rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="company" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged" data="12">
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入公司" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit> 
+                            </node>                          
+                        </list-item>
+                        <!-- 部门 -->
+                        <list-item name="companyNode2" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 50, 63.4"  text="部门" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow name="companyShadow2" rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="deptDisplay" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged" data="13">
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入部门" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit> 
+                            </node>                                 
+                        </list-item>
+                        <!-- 职位 -->
+                        <list-item name="companyNode3" rect="0,0,458,63.4" extendstyle="1111" border="false">
+                            <label rect="15, 0, 50, 63.4"  text="职位" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow name="companyShadow3" rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="heashipDisplay" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged" data="14">
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入职位" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit>
+                            </node>                                     
+                        </list-item>
+                        <!-- 单位地址 -->
+                        <list-item name="companyNode4" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 100, 63.4"  text="地址" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow name="companyShadow4" rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="companyAddr" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged" data="15">
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入地址" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit> 
+                            </node>                                      
+                        </list-item>
+                    </listview>
+                </list-item>
+
+                <!-- 学校信息列表项 -->
+                <list-item name="itemNode4" rect="10,0,458,357" extendstyle="1111" border="false">
+
+                    <label rect="10, 0, 100, 35"  text="学校信息" font-family='微软雅黑' 
+                        color="#9a9a9a" font-size="22" h-align="left" v-align="center" 
+                        border="false" extendstyle="1111"/>               
+                    <!-- 设置列表项背景 -->
+                    <image name="itemImg4" rect="0,35,458,317" src="file://image/jttxl/wuhang.png" style="autosize"
+                        extendstyle="1111" /> 
+
+                    <listview name="listview4" rect="0,35,458,317" col="1" limit="true"  auto-adjust="true" border="false" extendstyle="1111">
+                        <!-- 学校 -->
+                        <list-item name="schoolNode1" rect="0,0,480,63.4" extendstyle="1111" border="false">  
+                            <label rect="15, 0, 50, 63.4"  text="学校" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="school" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged" data="16">
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入学校" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit> 
+                            </node>                            
+                        </list-item>
+                        <!-- 专业 -->
+                        <list-item name="schoolNode2" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 50, 63.4"  text="专业" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="major" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged" data="17">
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入专业" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit> 
+                            </node> 
+                        </list-item>
+                        <!-- 年级 -->
+                        <list-item name="schoolNode3" rect="0,0,458,63.4" extendstyle="1111" border="false">
+                            <label rect="15, 0, 50, 63.4"  text="年级" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="grade" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged" data="18">
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入年级" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit> 
+                            </node>                                        
+                        </list-item>
+                        <!-- 班级 -->
+                        <list-item name="schoolNode4" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 80, 63.4"  text="班级" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="class" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged"  data="19">
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入班级" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit> 
+                            </node>                                     
+                        </list-item>
+                        <!-- 学号 -->
+                        <list-item name="schoolNode5" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 80, 63.4"  text="学号" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                        
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="studentId" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged"  data="20">
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入学号" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit> 
+                            </node>                                  
+                        </list-item>
+                    </listview>
+                </list-item>
+
+                <!-- 个人信息列表项 -->
+                <list-item name="itemNode5" rect="10,0,458,240" extendstyle="1111" border="false">
+
+                    <label rect="10, 0, 100, 35"  text="个人信息" font-family='微软雅黑' 
+                        color="#9a9a9a" font-size="22" h-align="left" v-align="center" 
+                        border="false" extendstyle="1111"/>               
+                    <!-- 设置列表项背景 -->
+                    <image name="itemImg5" rect="0,35,458,190" src="file://image/jttxl/sanhang.png" style="autosize"
+                        extendstyle="1111" /> 
+
+                    <listview name="listview5" rect="0,35,458,190" col="1" limit="true"  auto-adjust="true" border="false" extendstyle="1111">
+                        <!-- 籍贯 -->
+                        <list-item name="birthNode2" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 50, 63.4"  text="籍贯" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="nativePlace" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged"  data="21">
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入籍贯" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit> 
+                            </node>                                  
+                        </list-item>
+                        <!-- 家庭住址 -->
+                        <list-item name="schoolNode4" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 100, 63.4"  text="住址" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="homeAddr" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged"  data="22">
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入家庭住址" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit> 
+                            </node>                                      
+                        </list-item>
+                        <!-- 备注 -->
+                        <list-item name="schoolNode5" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 80, 63.4"  text="备注" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <node rect="70,12,320,40" extendstyle="1111">
+                                <shadow rect="0,0,0,0" color="#ffffff" alpha="255" border='true' extendstyle="1177" />
+                                <edit name="mark" rect="5, 0, 310, 40" text="" font-family='微软雅黑' color="#686868" 
+                                    font-size="24" h-align="left" v-align="center" extendstyle="1111" border="false"
+                                    OnTextChanged="editOnTextChanged"  data="23">
+                                    <label name="hideLabel" rect="0,0,300,40" text="请输入备注信息" color="#8d8b8b"
+                                        extendstyle="1111" style="autosize" h-align="left" v-align="center" 
+                                        font-size="22" visible="false"/>
+                                </edit> 
+                            </node>                                     
+                        </list-item>
+                    </listview>
+                </list-item>
+            </listview>
+
+            <node name="nodeSuccess" rect="131,650,218,48" enable="false" visible="false" active="false" layouttype="1" extendstyle="1111">
+                <image name="backgroud" rect="0,0,218,48" border="false" src="file://image/jttxl/gengxin_bj.png" style="autosize"></image>
+                <label name="content" rect="0,0,218,48" border="false" text="" h-align="center" 
+                    v-align="center" font-family="微软雅黑" font-size="24" color="#FFFFFF" style="autosize" extendstyle="1111"></label>
+            </node>
+
+            <!-- 底部菜单  -->
+            <node name="listNode" rect="0,720,480,80" extendstyle="1111">
+                <image  rect="0,0,480,80" border="false" extendstyle="1111" 
+                src="file://image/book/list_bg.png"  style="autosize"/>
+                <!-- 搜索  -->
+                <button name='searchBtn' rect="15,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/lianxiren_d.png' OnSelect="doSearch"></button>
+                <!-- 联系人  -->
+                <button name='contactBtn' rect="125,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/zuijinglianxiren_d.png' OnSelect="doContact"></button>
+                <!-- 个人中心  -->
+                <button name='personBtn' rect="250,0,82,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/person_d.png' OnSelect="doPersonalCenter"></button>
+                <!-- 设置  -->
+                <button name='siteBtn' rect="385,0,48,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/site_d.png' OnSelect="doSetting"></button>
+                <!-- New -->
+                <node name="newNode" rect="410,0,48,80" extendstyle="1111">
+                    <image  rect="10,5,43,28" border="false" src="file://image/jttxl/new1.png" 
+                        style="autosize" extendstyle="1111" />
+                </node>
+            </node> 
+
+        </node>
+    </body>
+    <![CDATA[
+
+require('com_wondertek_tx.common.framework')
+require 'framework.sqlite'
+local rootSprite
+local listitem
+local len
+local groupCompanyId
+local newNode
+local nodeSuccess
+local content 
+local backgroud
+local itemNode3
+local editinfosubmit
+
+local databaseName
+local bRet, errMsg, retCompanyTable, retUserTable
+
+local emptyTipTable = {'请输入姓名','请输入签名','请输入手机长号','请输入手机短号','请输入座机电话',
+    '请输入座机短号','请输入家庭电话','请输入邮箱','请输入QQ','请输入微博','请输入微信','请输入公司',
+    '请输入部门','请输入职位','请输入地址','请输入学校','请输入专业','请输入年级','请输入班级',
+    '请输入学号','请输入籍贯','请输入住址','请输入备注'}
+local fieldTipTable = {'contactName','personalSignature','mobile','mobileShort','telephone',
+    'telShort','telFamily','email','QQ','microblog','microMessage','company','deptDisplay',
+    'heashipDisplay','companyAddr','school','major','grade','class','studentId','nativePlace',
+    'homeAddr','mark'}
+
+local fieldTipTable1 = {'contactName','groupName','headshipName','detail', 'personalSignature',
+    'mobile','mobileShort','telephone','telShort','telFamily','email','QQ','microblog',
+    'microMessage','company','deptDisplay','heashipDisplay','companyAddr','school',
+    'major','grade','class','studentId','nativePlace','homeAddr','mark'}
+
+local contactName,personalSignature,mobile,mobileShort,telephone,telShort,telFamily,email,QQ,
+    microblog,microMessage,company,deptDisplay,heashipDisplay,companyAddr,school,major,grade,
+    class,studentId,nativePlace,homeAddr,mark
+
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    newNode = Sprite:findChild(rootSprite, 'newNode') 
+    itemNode3 = Sprite:findChild(rootSprite,'itemNode3')
+    listitem = Sprite:findChild(rootSprite,'listitem')  
+    nodeSuccess = Sprite:findChild(rootSprite, 'nodeSuccess')
+    content = Sprite:findChild(nodeSuccess,'content')
+    backgroud = Sprite:findChild(nodeSuccess,'backgroud')
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        -- @jldu 验证是否升级
+        if (Config:get("isNeedUpdate") == "true") then 
+            setAllShoworHide(newNode, 1)
+        else 
+            setAllShoworHide(newNode, 0)
+        end 
+        -- @jldu 初始化底部菜单
+        Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_s.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+        -- 单位信息是否可编辑标识
+        if tonumber(orgFlag) == 1 then
+            Sprite:setProperty(itemNode3,'enable','false')
+            for i=1,4 do
+                local companyShadowStr = 'companyShadow'..i
+                local companyShadowNode = Sprite:findChild(rootSprite, companyShadowStr)
+                Sprite:setProperty(companyShadowNode,'visible','false')
+            end 
+        end 
+        -- 创建数据库
+        createDatabase()
+        -- 加载用户数据
+        queryUserInfo()
+        handleEmptyTip()
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+    elseif msg == 102 then				
+		Sprite:setRect(nodeSuccess, 131, 650, 250, 48)
+		Sprite:setRect(backgroud, 0, 0, 218, 48)
+		Sprite:setRect(content, 0, 0, 218, 48)
+		
+        if Loading:isShow() then Loading:close() end
+        editinfosubmit = Http:jsonDecode('editinfosubmit')
+        Log:write("@jldu editinfosubmit = ",editinfosubmit)
+        Sprite:setVisible(nodeSuccess, 1)
+        if editinfosubmit['success']== "true" then
+			Sprite:setRect(nodeSuccess, 66, 650, 372, 48)
+		   	Sprite:setRect(backgroud, 0, 0, 340, 48)
+		   	Sprite:setRect(content, 0, 0, 340, 48)
+            Sprite:setProperty(content, 'text', '已提交修改，审核通过后生效!')       
+            -- updateUserData()
+        else          
+            Sprite:setProperty(Sprite:findChild(nodeSuccess, 'content'), 'text', '更新失败，请重试！')
+        end 
+        Timer:set(1, 1000, 'hideSuccessNode')
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        doBack()
+    end
+end
+
+---------------------------------------util functions---------------------------
+
+-- @jldu 返回
+function doBack()
+    Scene:go(Alias.m_stdMyInfo, true)   
+end
+
+-- @jldu 创建数据库
+function createDatabase()
+    databaseName = getLocalDiskPath()..'/jttxlDatabase'
+    bRet, errMsg = Sqlite:open(databaseName) 
+    Log:write("创建数据库jttxlDatabase成功:bRet = "..bRet.." errMsg ="..errMsg)
+end
+
+-- @jldu 查询用户信息
+function queryUserInfo()
+    local sql = "SELECT emp.user_company_id,"..
+                "emp.manage_flag,"..
+                "emp.employee_name,"..        
+                "com.company_name,"..              
+                "emp.headship_name,"..  
+                "emp.department_name,"..
+                "emp.mood,"..
+                "emp.mobile,"..
+                "emp.mobile_short,"..
+                "emp.tel,"..
+                "emp.tel_short,".. 
+                "emp.home_telephone,"..          
+                "emp.email,"..
+                "emp.qq,"..
+                "emp.weibo,"..
+                "emp.weixin,"
+        if tonumber(orgFlag) == 1 then
+            sql = sql .. "com.company_name,".. 
+                "dept.department_name,"
+        else
+            sql = sql .. "emp.user_company,"..
+                "emp.department_name,"
+        end
+        sql = sql .. "emp.headship_name,".. 
+                "emp.company_address,"..
+                "emp.school,"..
+                "emp.user_major,"..
+                "emp.user_grade,"..
+                "emp.user_class,"..
+                "emp.student_id,"..
+                "emp.native_place,"..
+                "emp.home_address,"..
+                "emp.remark"
+        if tonumber(orgFlag) == 1 then
+            sql = sql .. " FROM tb_c_employee emp,tb_c_department dept,tb_c_company com"..
+                " WHERE emp.department_id = dept.department_id"..
+                " AND emp.company_id = com.company_id"..
+                " AND emp.employee_id = '"..Config:get("employeeId").."'"..
+                " AND emp.company_id = '"..companyId.."';"
+        else
+            sql = sql .. " FROM tb_c_employee emp,tb_c_company com"..
+                " WHERE emp.company_id = com.company_id"..  
+                " AND emp.employee_id = '"..Config:get("employeeId").."'"..
+                " AND emp.company_id = '"..companyId.."';"
+        end
+    
+    Log:write("查询用户信息SQL = ",sql)
+    bRet, retUserTable, errMsg = Sqlite:query(databaseName, sql)
+    Log:write("@jldu 用户表数据 = ",retUserTable)
+    loadUserData()
+end
+
+-- @jldu 加载用户数据
+function loadUserData()
+    local adminNode = Sprite:findChild(rootSprite,'adminNode')
+    if tonumber(retUserTable[1][2]) == 0 then
+        setAllShoworHide(adminNode,0)
+    end 
+    for i=1,#fieldTipTable1 do
+        local fieldNode = Sprite:findChild(rootSprite,fieldTipTable1[i])
+        Sprite:setProperty(fieldNode,'text',retUserTable[1][i+2])
+    end
+end
+
+-- @jldu 编辑提交
+function EditMyInfo()
+    Log:write("编辑提交函数")
+    contactName = Sprite:getText(Sprite:findChild(rootSprite,'contactName'))             --用户名
+    personalSignature = Sprite:getText(Sprite:findChild(rootSprite,'personalSignature')) --签名 
+
+    -- 电话信息
+    mobile = Sprite:getText(Sprite:findChild(rootSprite,'mobile'))                       --手机长号
+    mobileShort = Sprite:getText(Sprite:findChild(rootSprite,'mobileShort'))             --手机短号
+    telephone = Sprite:getText(Sprite:findChild(rootSprite,'telephone'))                 --座机长号
+    telShort = Sprite:getText(Sprite:findChild(rootSprite,'telShort'))                   --座机短号
+    telFamily = Sprite:getText(Sprite:findChild(rootSprite,'telFamily'))                 --家庭电话
+
+    -- 网络信息
+    email = Sprite:getText(Sprite:findChild(rootSprite,'email'))                         --邮箱
+    QQ = Sprite:getText(Sprite:findChild(rootSprite,'QQ'))                               --QQ
+    microblog = Sprite:getText(Sprite:findChild(rootSprite,'microblog'))                 --微博
+    microMessage = Sprite:getText(Sprite:findChild(rootSprite,'microMessage'))           --微信
+
+    -- 单位信息
+    company = Sprite:getText(Sprite:findChild(rootSprite,'company'))                     --公司
+    deptDisplay = Sprite:getText(Sprite:findChild(rootSprite,'deptDisplay'))             --部门
+    heashipDisplay = Sprite:getText(Sprite:findChild(rootSprite,'heashipDisplay'))       --职位
+    companyAddr = Sprite:getText(Sprite:findChild(rootSprite,'companyAddr'))             --地址
+
+    -- 学校信息
+    school = Sprite:getText(Sprite:findChild(rootSprite,'school'))                       --学校
+    major = Sprite:getText(Sprite:findChild(rootSprite,'major'))                         --专业
+    grade = Sprite:getText(Sprite:findChild(rootSprite,'grade'))                         --年级
+    class = Sprite:getText(Sprite:findChild(rootSprite,'class'))                         --班级
+    studentId = Sprite:getText(Sprite:findChild(rootSprite,'studentId'))                 --学号
+
+    -- 个人信息
+    nativePlace = Sprite:getText(Sprite:findChild(rootSprite,'nativePlace'))             --籍贯
+    homeAddr = Sprite:getText(Sprite:findChild(rootSprite,'homeAddr'))                   --家庭地址
+    mark = Sprite:getText(Sprite:findChild(rootSprite,'mark'))                           --备注
+
+    -- 电话号码、QQ、学号 格式校验
+    Sprite:setRect(nodeSuccess, 66, 650, 372, 48)
+    Sprite:setRect(backgroud, 0, 0, 340, 48)
+    Sprite:setRect(content, 0, 0, 340, 48)Sprite:setProperty(content, 'text', '已提交修改，审核通过后生效!') 
+    nms = {mobile, mobileShort, telephone, telShort, telFamily, QQ, studentId}
+    msg={"手机长号必须为数字！","手机短号必须为数字！","座机长号必须为数字！","座机短号必须为数字！",
+        "家庭电话必须为数字！","QQ号码必须为数字！", "学号必须为数字！"}
+    for i=1,#nms do
+        Log:write("@jldu :"..nms[i])
+        if nms[i] ~= '' then
+            if tonumber(nms[i])==nil then
+                Sprite:setVisible(nodeSuccess, 1)
+                Sprite:setProperty(content, 'text', msg[i])
+                Timer:set(1, 2000, 'hideSuccess')
+                return
+            end
+        end
+    end
+    
+    local requestURL = Alias.url_server..'mobile/UserInfo/update'
+    local para = 'userCompanyId='..retUserTable[1][1]..'&employeeName='..contactName
+        ..'&mood='..personalSignature..'&mobile='..mobile..'&mobileShort='..mobileShort
+        ..'&telephone2='..telephone..'&telShort='..telShort..'&telephone='..telFamily
+        ..'&email='..email..'&qq='..QQ..'&weibo='..microblog..'&weixin='..microMessage
+        ..'&userCompany='..company..'&departmentName='..deptDisplay..'&headshipName='
+        ..heashipDisplay..'&school='..school..'&userMajor='..major..'&userGrade='..grade
+        ..'&userClass='..class..'&studentId='..studentId..'&nativePlace='..nativePlace
+        ..'&homeAddress='..homeAddr..'&remark='..mark..'&address='
+    Log:write("编辑联系人信息URL:"..requestURL.."?"..para) 
+    Loading:show(rootSprite)
+    Http:request('editinfosubmit', requestURL, 102,{useCache=false,method = 'post',postData=para}) 
+end
+
+-- 处理空值提示
+function handleEmptyTip()
+    for i=1,#fieldTipTable do
+        local field = Sprite:findChild(rootSprite,fieldTipTable[i])
+        local hideLabel = Sprite:findChild(field,'hideLabel')
+        Log:write("@jldu 空值提示："..Sprite:getText(field))
+        if Sprite:getText(field) == '' then
+            setAllShoworHide(hideLabel,1)
+        end 
+    end 
+end
+
+function editOnTextChanged(sprite,ncount)
+    local hideLabel = Sprite:findChild(sprite, 'hideLabel')
+    if ncount > 0 then
+        setAllShoworHide(hideLabel, 0)
+    else
+        setAllShoworHide(hideLabel, 1)
+    end
+end
+
+-- 搜索函数
+function doSearch(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/lianxiren_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+    Scene:setReturn(Alias.m_stdEditInfo, Alias.m_recentContacter)
+    Scene:go(Alias.m_recentContacter, true)
+end
+
+-- 联系人列表
+function doContact(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/zuijinglianxiren_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+    Scene:setReturn(Alias.m_stdEditInfo, Alias.m_renyuantongji)
+    Scene:go(Alias.m_renyuantongji, true)
+end
+
+-- 个人信息详情
+function doPersonalCenter(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/person_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+    Scene:setReturn(Alias.m_stdEditInfo, Alias.m_stdMyInfo)
+    Scene:go(Alias.m_stdMyInfo, true)
+end
+
+-- 设置
+function doSetting(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/site_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png') 
+    Scene:setReturn(Alias.m_stdEditInfo, Alias.m_system)
+    Scene:go(Alias.m_system, true)
+end
+
+-- @jldu 隐藏成功失败标识 带返回
+function hideSuccessNode()
+    Sprite:setVisible(nodeSuccess, 0)
+    doBack()
+end
+
+-- @jldu 隐藏成功失败标识 不带返回
+function hideSuccess()
+    Sprite:setVisible(nodeSuccess, 0)
+end
+
+-- @jldu 更新本地数据库数据
+function updateUserData()
+    Log:write("@ jldu 进入修改本地数据库函数！")
+    -- 修改用户SQL    
+    local sqlUpdate = "UPDATE tb_c_employee SET employee_name = '"..contactName..
+            "',mood = '"..personalSignature.."',mobile = '"..mobile..
+            "',mobile_short = '"..mobileShort.."',tel = '"..telephone..
+            "',tel_short = '"..telShort.."',home_telephone = '"..telFamily..
+            "',email = '"..email.."',qq = '"..QQ..  
+            "',weibo = '"..microblog.."',weixin = '"..microMessage        
+    -- 非企业用户需要更新部门名称
+    if tonumber(orgFlag) == 0 then
+        sqlUpdate = sqlUpdate .. "',user_company = '"..company..
+            "',company_address = '"..companyAddr.."',department_name = '"..deptDisplay..
+            "',headship_name = '"..heashipDisplay
+           
+    end 
+    sqlUpdate = sqlUpdate .. "',school = '"..school.. "',user_major = '"..major..
+            "',user_grade = '"..grade.."',user_class = '"..class..
+            "',student_id = '"..studentId.."',native_place = '"..nativePlace..
+            "',home_address = '"..homeAddr.."',remark = '"..mark..
+            "' WHERE user_company_id = '"..retUserTable[1][1].."';"
+    Log:write("sqlUpdate = ",sqlUpdate)
+    
+    bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
+    Log:write("本机用户信息更新添加事务:bRet = "..bRet.." errMsg ="..errMsg)
+    bRet, errMsg = Sqlite:update(databaseName, sqlUpdate)
+    Log:write("本机用户:bRet = "..bRet.." errMsg ="..errMsg)
+    bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
+    Log:write("本机用户信息更新添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
+end
+    ]]>
+</root>

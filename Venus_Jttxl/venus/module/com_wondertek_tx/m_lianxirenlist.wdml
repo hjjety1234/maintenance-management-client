@@ -21,7 +21,7 @@
             <node name="baseSprite" rect="0,0,480,80" extendstyle="1111">
                  <image name="title" rect="0,0,480,80" border="false" src="file://image/jttxl/top.png" 
                     style="autosize" extendstyle="1111">
-                    <label name="titleLabel" rect="0,0,480,80" text="市场部" color="#ffffff" v-align="center"  
+                    <label name="titleLabel" rect="0,0,480,80" text="" color="#ffffff" v-align="center"  
                        h-align="center" font-family="微软雅黑" font-size="32px" extendstyle="1111" />
                  </image>
                 <button rect="20,18,48,45" OnSelect="doBack" normal="normal"
@@ -49,6 +49,8 @@
                     sel="sel" style="autosize" extendstyle="1111"> 
                     <!-- 人员ID -->
                     <label name="employeeId" text=""  visible="false" extendstyle="1111"/>
+                    <!-- 公司ID -->
+                    <label name="companyId" text=""  visible="false" extendstyle="1111"/>
                     <!-- 正常时组织机构图片 -->
                     <node name="normal" extendstyle="1111">
                         <image name="listButtonImage_d" rect="327,25,33,34" src="file://image/jttxl/more_d.png"
@@ -125,7 +127,7 @@
                 src='file://image/book/site_d.png' OnSelect="doSetting"></button>
                 <!-- New -->
                 <node name="newNode" rect="410,0,48,80" extendstyle="1111">
-                    <image  rect="10,5,24,24" border="false" src="file://image/jttxl/new.png" 
+                    <image  rect="10,5,43,28" border="false" src="file://image/jttxl/new1.png" 
                         style="autosize" extendstyle="1111" />
                 </node>
             </node>  
@@ -261,6 +263,7 @@ function loadListItem(list, item, index)
     Sprite:setRect(item, 0, 0, 480, 85)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local employeeId = Sprite:findChild(item, 'employeeId')                 --人员ID
+    local companyId = Sprite:findChild(item, 'companyId')                   --公司ID
     local employeeName = Sprite:findChild(item, 'employeeName')             --人员名称 
     local headshipName = Sprite:findChild(item, 'headshipName')             --岗位 
     local mobile = Sprite:findChild(item, 'mobile')                         --移动长号
@@ -273,12 +276,13 @@ function loadListItem(list, item, index)
     local listButtonImage_d = Sprite:findChild(item, 'listButtonImage_d')   --更多
     local listButtonImage_s = Sprite:findChild(item, 'listButtonImage_s')
     Sprite:setProperty(employeeId, 'text', retUserTable[index+1][1]) 
-    Sprite:setProperty(employeeName, 'text', retUserTable[index+1][2])
-    Sprite:setProperty(mobile, 'text', retUserTable[index+1][3]) 
-    Sprite:setProperty(departmentName, 'text', retUserTable[index+1][4])  
+    Sprite:setProperty(companyId, 'text', retUserTable[index+1][2]) 
+    Sprite:setProperty(employeeName, 'text', retUserTable[index+1][3])
+    Sprite:setProperty(mobile, 'text', retUserTable[index+1][4]) 
+    Sprite:setProperty(departmentName, 'text', retUserTable[index+1][5])  
     
-    local headShipName = retUserTable[index+1][5]
-    local headshipLevel = retUserTable[index+1][6]
+    local headShipName = retUserTable[index+1][6]
+    local headshipLevel = retUserTable[index+1][7]
     Log:write("岗位级别："..headshipLevel)    
     if tonumber(headshipLevel)  <= 7 then
         Sprite:setRect(item, 0, 0, 480, 105)
@@ -313,8 +317,10 @@ end
 -- 列表单击
 function itemOnSelect(sprite)
     local employeeId = Sprite:getText(Sprite:findChild(sprite,'employeeId'))
-    Scene:setReturn(Alias.m_lianxirenlist, Alias.m_personalInfo .. '?employeeId=' .. employeeId..'&departmentId1='..department_id..'&flag=1')
-    Scene:go(Alias.m_personalInfo .. '?employeeId=' .. employeeId ..'&departmentId1='..department_id..'&flag=1')
+    local companyId = Sprite:getText(Sprite:findChild(sprite,'companyId'))
+    
+    Scene:setReturn(Alias.m_lianxirenlist, Alias.m_stdContacterInfo .. '?employeeId=' .. employeeId..'&departmentId1='..department_id..'&flag=1&orgFlag=1&companyId='..companyId)
+    Scene:go(Alias.m_stdContacterInfo .. '?employeeId=' .. employeeId ..'&departmentId1='..department_id..'&flag=1&orgFlag=1&companyId='..companyId)
 end
 
 -- 搜索函数
@@ -343,8 +349,8 @@ function doPersonalCenter(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/zuijinglianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')   
-    Scene:setReturn(Alias.m_lianxirenlist, Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"))
-    Scene:go(Alias.m_myInfo .. '?employeeId=' .. Config:get("employeeId"), true)
+    Scene:setReturn(Alias.m_lianxirenlist, Alias.m_stdMyInfo)
+    Scene:go(Alias.m_stdMyInfo, true)
 end
 
 -- 设置
@@ -408,14 +414,23 @@ function lookUserData()
     bRet, retCountTable, errMsg = Sqlite:query(databaseName, sqlCount)
     Log:write("判断用户是否存在 ，retCountTable = ", retCountTable)
     local count = retCountTable[1][1]
+    Log:write('parent_departmentname is ',parent_departmentname)
+    --从联系人详情界面返回的时候，没有返回parent_departmentname
+    if parent_departmentname == nil or parent_departmentname == '' then
+        local sql4 = "SELECT department_name FROM tb_c_department WHERE department_id='" .. department_id .. "'" 
+        local bRet4,retTable4,errMsg4 = Sqlite:query(databaseName,sql4)
+        if #retTable4>0 then
+            parent_departmentname = retTable4[1][1]
+        end
+    end
     if count == '0' then
         local titleLabel = Sprite:findChild(rootSprite,'titleLabel')
-        Sprite:setProperty(titleLabel,'text', departmentname)
-        departmentname1 = departmentname
+        Sprite:setProperty(titleLabel,'text', parent_departmentname)
+        departmentname1 = parent_departmentname
         -- Dialog:show('提示', '该部门联系人为空！','ok','doBack')
         return 
     else
-        local sql = "SELECT emp.employee_id,emp.employee_name,emp.mobile,dept.department_name,"
+        local sql = "SELECT emp.employee_id,emp.company_id,emp.employee_name,emp.mobile,dept.department_name,"
                  .."emp.headship_name,emp.headship_level"
                  .." FROM tb_c_employee emp,tb_c_department dept"
                  .." WHERE emp.department_id = dept.department_id"
@@ -426,8 +441,8 @@ function lookUserData()
         bRet, retUserTable, errMsg = Sqlite:query(databaseName, sql) 
         Log:write("部门的联系人列表retUserTable = ", retUserTable) 
         local titleLabel = Sprite:findChild(rootSprite,'titleLabel')
-        Sprite:setProperty(titleLabel,'text',retUserTable[1][4]) 
-        departmentname1 = retUserTable[1][4] 
+        Sprite:setProperty(titleLabel,'text',parent_departmentname) 
+        departmentname1 = parent_departmentname
         loadUserData()
     end 
 end

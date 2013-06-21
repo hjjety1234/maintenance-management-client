@@ -1,0 +1,930 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置背景 -->
+            <image rect="0,80,480,720" src="file://image/jttxl/bj.png" style="autosize"
+               extendstyle="1111" />
+            <!-- 设置头部 -->
+            <node name="baseSprite" rect="0,0,480,80" extendstyle="1111">
+                 <image name="title" rect="0,0,480,80" border="false" src="file://image/jttxl/top.png" 
+                    style="autosize" extendstyle="1111">
+                    <label name="titleLabel" rect="0,0,480,80" text="联系人信息" color="#ffffff" v-align="center"  
+                       h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />
+                 </image>
+                 <button name="backBtn" rect="20,18,48,45" OnSelect="doBack" normal="normal" visible="true"
+                    sel="sel" style="autosize" extendstyle="1111">
+                    <node name="normal" extendstyle="1111">
+                        <image rect="0,0,48,45" src="file://image/jttxl/back_d.png" style="autosize"
+                            extendstyle="1111" />
+                    </node>
+                    <node name="sel" extendstyle="1111">
+                        <image rect="0,0,48,45" src="file://image/jttxl/back_s.png" style="autosize" 
+                            extendstyle="1111" />
+                    </node>
+                </button>
+            </node>
+           
+            <!-- 主界面布局 -->
+            <listview name="listview" rect="0,80,480,640" col="1" limit="true" border="false" extendstyle="1111"> 
+
+                <!-- 联系人信息简介 -->
+                <list-item name="contactInfoIntr" rect="0,0,480,215" extendstyle="1111" border="false">
+                    <image border="false" src="file://image/jttxl/bg.png" 
+                        style="autosize" extendstyle="1177">
+                    </image>
+                    <!-- 拍照图片 -->
+                    <image name="picNode" rect="15,20,87,88" border="false" src="file://image/jttxl/photo.png" 
+                        style="autosize" extendstyle="1111">
+                    </image>
+                    <!-- 姓名、群组 -->
+                    <node rect="120,8,345,35" extendstyle="1111">
+                        <label name="contactName" rect="0, 0, 100, 35"  text="" font-family='微软雅黑' 
+                            color="#000000" font-size="24" h-align="left" v-align="center" border="false" 
+                            extendstyle="1111"/>
+                        <scrolltext name="groupName" rect="160, 5, 185, 26"  text="" font-family='微软雅黑' 
+                            scroll="true" color="#00000" font-size="20" h-align="left" v-align="center"
+                            border="false" style="autosize" extendstyle="1111">
+                        </scrolltext>
+                                       
+                    </node>
+                    <!-- 管理员、职位 -->
+                    <node rect="120,40,345,26" extendstyle="1111">
+                        <node name="adminNode" rect="0,0,135,26" extendstyle="1111">
+                            <image rect="0,2,24,26" border="false" src="file://image/jttxl/p.png" 
+                                style="autosize" extendstyle="1111">
+                            </image>
+                            <label name="adminName" rect="30, 0, 100, 26"  text="管理员" font-family='微软雅黑' 
+                                color="#ffffff" font-size="20" h-align="left" v-align="center" border="false" 
+                                extendstyle="1111"/>
+                        </node> 
+                        <scrolltext name="headshipName" rect="160, 0, 185, 26"  text="" font-family='微软雅黑' 
+                            scroll="true" color="#00000" font-size="20" h-align="left" v-align="center"
+                            border="false" style="autosize" extendstyle="1111">
+                        </scrolltext>
+                    </node>
+                    <!-- 全路径部门 -->
+                    <node rect="120,70,34,50" extendstyle="1111">
+                        <textarea name="detail" rect="0,0,340,70" border="false" h-align='left'
+                            font-family='微软雅黑' font-size="20" color="#5a5959" line-height="23"
+                            text="" autoextend="true" 
+                            style='autosize' extendstyle="1111" >
+                        </textarea>
+                    </node>
+                    <!-- 个人签名 -->
+                    <node rect="15,120,450,50" extendstyle="1111">
+                        <textarea name="personalSignature" rect="0,0,450,70" border="false" h-align='left'
+                            font-family='微软雅黑' font-size="22" color="#000000" line-height="25"
+                            text="" autoextend="true" 
+                            style='autosize' extendstyle="1111" >
+                        </textarea>
+                    </node>                                                          
+                </list-item>
+                <!-- 联系电话列表项 -->
+                <list-item name="itemNode1" rect="11,0,458,357" extendstyle="1111" border="false">
+
+                    <label rect="10, 0, 100, 35"  text="电话号码" font-family='微软雅黑' 
+                        color="#9a9a9a" font-size="22" h-align="left" v-align="center" 
+                        border="false" extendstyle="1111"/>               
+                    <!-- 设置列表项背景 -->
+                    <image name="itemImg1" rect="0,35,458,317" src="file://image/jttxl/wuhang.png" style="autosize"
+                        extendstyle="1111" /> 
+
+                    <listview name="listview1" rect="0,35,458,317" col="1" limit="true"  auto-adjust="true" border="false" extendstyle="1111">
+                        <!-- 手机长号 -->
+                        <list-item name="mobileNode1" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <button name = "mobileBtn" rect="15,12,44,63.4" OnSelect="telOnSelect" normal="normal" sel="sel"
+                                style="autosize" extendstyle="1111" data="1">
+                                <node name="normal" extendstyle="1111">
+                                    <image rect="0,0,44,45" name="call_d" src="file://image/jttxl/tel_my_d.png" 
+                                        style="autosize" extendstyle="1111"/>
+                                </node>
+                                <node name="sel" extendstyle="1111">
+                                    <image rect="0,0,44,45" name="call_s" src="file://image/jttxl/tel_my_s.png" 
+                                        style="autosize" extendstyle="1111"/>
+                                </node>
+                            </button>                        
+                            <label name="mobile" rect="70, 10, 380, 28"  text="" font-family='微软雅黑' 
+                                color="#686868" font-size="24" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>
+                            <label rect="70, 35, 380, 21"  text="手机长号" font-family='微软雅黑' 
+                                color="#686868" font-size="18" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>  
+                            <button name="sms" rect="400,18,43,63.4" data="1" OnSelect="smsOnSelect" normal="normal" sel="sel"
+                                style="autosize" extendstyle="1111">
+                                <node name="normal" extendstyle="1111">
+                                    <image rect="0,0,43,36" name="sms_d" src="file://image/jttxl/sms_d.png" style="autosize" extendstyle="1111"/>
+                                </node>
+                                <node name="sel" extendstyle="1111">
+                                    <image rect="0,0,43,36" name="sms_s" src="file://image/jttxl/sms_s.png" style="autosize" extendstyle="1111"/>
+                                </node>
+                            </button>                         
+                        </list-item>
+                        <!-- 手机短号 -->
+                        <list-item name="mobileNode2" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <button name = "mobileShortBtn" rect="15,12,44,63.4" OnSelect="telOnSelect" normal="normal" sel="sel"
+                                style="autosize" extendstyle="1111" data="2">
+                                <node name="normal" extendstyle="1111">
+                                    <image rect="0,0,44,45" name="call_d" src="file://image/jttxl/tel_my_d.png" 
+                                        style="autosize" extendstyle="1111"/>
+                                </node>
+                                <node name="sel" extendstyle="1111">
+                                    <image rect="0,0,44,45" name="call_s" src="file://image/jttxl/tel_my_s.png" 
+                                        style="autosize" extendstyle="1111"/>
+                                </node>
+                            </button>                       
+                            <label name="mobileShort" rect="70, 10, 380, 28"  text="" font-family='微软雅黑' 
+                                color="#686868" font-size="24" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>
+                            <label rect="70, 35, 380, 21"  text="手机短号" font-family='微软雅黑' 
+                                color="#686868" font-size="18" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/> 
+                            <button name="sms" rect="400,18,43,63.4" data="2" OnSelect="smsOnSelect" normal="normal" sel="sel"
+                                style="autosize" extendstyle="1111">
+                                <node name="normal" extendstyle="1111">
+                                    <image rect="0,0,43,36" name="sms_d" src="file://image/jttxl/sms_d.png" style="autosize" extendstyle="1111"/>
+                                </node>
+                                <node name="sel" extendstyle="1111">
+                                    <image rect="0,0,43,36" name="sms_s" src="file://image/jttxl/sms_s.png" style="autosize" extendstyle="1111"/>
+                                </node>
+                            </button>                                   
+                        </list-item>
+                        <!-- 座机电话 -->
+                        <list-item name="mobileNode3" rect="0,0,458,63.4" extendstyle="1111" border="false">
+                            <button name = "telBtn" rect="15,12,44,63.4" OnSelect="telOnSelect" normal="normal" sel="sel"
+                                style="autosize" extendstyle="1111" data="3">
+                                <node name="normal" extendstyle="1111">
+                                    <image rect="0,0,44,45" name="call_d" src="file://image/jttxl/tel1_my_d.png" 
+                                        style="autosize" extendstyle="1111"/>
+                                </node>
+                                <node name="sel" extendstyle="1111">
+                                    <image rect="0,0,44,45" name="call_s" src="file://image/jttxl/tel1_my_s.png" 
+                                        style="autosize" extendstyle="1111"/>
+                                </node>
+                            </button>                    
+                            <label name="telephone" rect="70, 10, 380, 28"  text="" font-family='微软雅黑' 
+                                color="#686868" font-size="24" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>
+                            <label rect="70, 35, 380, 21"  text="座机电话" font-family='微软雅黑' 
+                                color="#686868" font-size="18" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                                        
+                        </list-item>
+                        <!-- 座机短号 -->
+                        <list-item name="mobileNode4" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <button name = "telBtn" rect="15,12,44,63.4" OnSelect="telOnSelect" normal="normal" sel="sel"
+                                style="autosize" extendstyle="1111" data="4">
+                                <node name="normal" extendstyle="1111">
+                                    <image rect="0,0,44,45" name="call_d" src="file://image/jttxl/tel1_my_d.png" 
+                                        style="autosize" extendstyle="1111"/>
+                                </node>
+                                <node name="sel" extendstyle="1111">
+                                    <image rect="0,0,44,45" name="call_s" src="file://image/jttxl/tel1_my_s.png" 
+                                        style="autosize" extendstyle="1111"/>
+                                </node>
+                            </button>                        
+                            <label name="telShort" rect="70, 10, 380, 28"  text="" font-family='微软雅黑' 
+                                color="#686868" font-size="24" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>
+                            <label rect="70, 35, 380, 21"  text="座机短号" font-family='微软雅黑' 
+                                color="#686868" font-size="18" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                                     
+                        </list-item>
+                        <!-- 家庭电话 -->
+                        <list-item name="mobileNode5" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                             <button name = "telBtn" rect="15,12,44,63.4" OnSelect="telOnSelect" normal="normal" sel="sel"
+                                style="autosize" extendstyle="1111" data="5">
+                                <node name="normal" extendstyle="1111">
+                                    <image rect="0,0,44,45" name="call_d" src="file://image/jttxl/tel1_my_d.png" 
+                                        style="autosize" extendstyle="1111"/>
+                                </node>
+                                <node name="sel" extendstyle="1111">
+                                    <image rect="0,0,44,45" name="call_s" src="file://image/jttxl/tel1_my_s.png" 
+                                        style="autosize" extendstyle="1111"/>
+                                </node>
+                            </button>                        
+                            <label name="telFamily" rect="70, 10, 380, 28"  text="" font-family='微软雅黑' 
+                                color="#686868" font-size="24" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>
+                            <label rect="70, 35, 380, 21"  text="家庭电话" font-family='微软雅黑' 
+                                color="#686868" font-size="18" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                              
+                        </list-item>
+                    </listview>
+                </list-item>
+
+                <!-- 网络联系人列表项 -->
+                <list-item name="itemNode2" rect="10,0,458,295" extendstyle="1111" border="false">
+
+                    <label rect="10, 0, 100, 35"  text="网络联系" font-family='微软雅黑' 
+                        color="#9a9a9a" font-size="22" h-align="left" v-align="center" 
+                        border="false" extendstyle="1111"/>               
+                    <!-- 设置列表项背景 -->
+                    <image name="itemImg2" rect="0,35,458,254" src="file://image/jttxl/sihang.png" style="autosize"
+                        extendstyle="1111" /> 
+
+                    <listview name="listview2" rect="0,35,458,254" col="1" limit="true"  auto-adjust="true" border="false" extendstyle="1111">
+                        <!-- 邮箱 -->
+                        <list-item name="emailNode1" rect="0,0,458,63.4" extendstyle="1111" border="false">  
+                            <label rect="15, 0, 50, 63.4"  text="邮箱" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <scrolltext name="email" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
+                                scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
+                                border="false" style="autosize" extendstyle="1111">
+                            </scrolltext>                        
+                        </list-item>
+                        <!-- QQ -->
+                        <list-item name="emailNode2" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 50, 63.4"  text="QQ" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <scrolltext name="QQ" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
+                                scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
+                                border="false" style="autosize" extendstyle="1111">
+                            </scrolltext>                                   
+                        </list-item>
+                        <!-- 微博 -->
+                        <list-item name="emailNode3" rect="0,0,458,63.4" extendstyle="1111" border="false">
+                            <label rect="15, 0, 50, 63.4"  text="微博" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <scrolltext name="microblog" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
+                                scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
+                                border="false" style="autosize" extendstyle="1111">
+                            </scrolltext>                                      
+                        </list-item>
+                        <!-- 微信 -->
+                        <list-item name="emailNode4" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 50, 63.4"  text="微信" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <scrolltext name="microMessage" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
+                                scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
+                                border="false" style="autosize" extendstyle="1111">
+                            </scrolltext>                                      
+                        </list-item>
+                        
+                    </listview>
+                </list-item>
+
+                <!-- 单位信息列表项 -->
+                <list-item name="itemNode3" rect="10,0,458,295" extendstyle="1111" border="false">
+
+                    <label rect="10, 0, 100, 35"  text="单位信息" font-family='微软雅黑' 
+                        color="#9a9a9a" font-size="22" h-align="left" v-align="center" 
+                        border="false" extendstyle="1111"/>               
+                    <!-- 设置列表项背景 -->
+                    <image name="itemImg3" rect="0,35,458,254" src="file://image/jttxl/sihang.png" style="autosize"
+                        extendstyle="1111" /> 
+
+                    <listview name="listview3" rect="0,35,458,254" col="1" limit="true"  auto-adjust="true" border="false" extendstyle="1111">
+                        <!-- 公司 -->
+                        <list-item name="companyNode1" rect="0,0,458,63.4" extendstyle="1111" border="false">  
+                            <label rect="15, 0, 50, 63.4"  text="公司" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <scrolltext name="company" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
+                                scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
+                                border="false" style="autosize" extendstyle="1111">
+                            </scrolltext>                            
+                        </list-item>
+                        <!-- 部门 -->
+                        <list-item name="companyNode2" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 50, 63.4"  text="部门" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <scrolltext name="deptDisplay" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
+                                scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
+                                border="false" style="autosize" extendstyle="1111">
+                            </scrolltext>                                  
+                        </list-item>
+                        <!-- 职位 -->
+                        <list-item name="companyNode3" rect="0,0,458,63.4" extendstyle="1111" border="false">
+                            <label rect="15, 0, 50, 63.4"  text="职位" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <scrolltext name="heashipDisplay" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
+                                scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
+                                border="false" style="autosize" extendstyle="1111">
+                            </scrolltext>                                     
+                        </list-item>
+                        <!-- 单位地址 -->
+                        <list-item name="companyNode4" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 100, 63.4"  text="地址" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <scrolltext name="companyAddr" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
+                                scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
+                                border="false" style="autosize" extendstyle="1111">
+                            </scrolltext>                                      
+                        </list-item>
+                    </listview>
+                </list-item>
+
+                <!-- 学校信息列表项 -->
+                <list-item name="itemNode4" rect="10,0,458,357" extendstyle="1111" border="false">
+
+                    <label rect="10, 0, 100, 35"  text="学校信息" font-family='微软雅黑' 
+                        color="#9a9a9a" font-size="22" h-align="left" v-align="center" 
+                        border="false" extendstyle="1111"/>               
+                    <!-- 设置列表项背景 -->
+                    <image name="itemImg4" rect="0,35,458,317" src="file://image/jttxl/wuhang.png" style="autosize"
+                        extendstyle="1111" /> 
+
+                    <listview name="listview4" rect="0,35,458,317" col="1" limit="true"  auto-adjust="true" border="false" extendstyle="1111">
+                        <!-- 学校 -->
+                        <list-item name="schoolNode1" rect="0,0,480,63.4" extendstyle="1111" border="false">  
+                            <label rect="15, 0, 50, 63.4"  text="学校" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <scrolltext name="school" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
+                                scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
+                                border="false" style="autosize" extendstyle="1111">
+                            </scrolltext>                            
+                        </list-item>
+                        <!-- 专业 -->
+                        <list-item name="schoolNode2" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 50, 63.4"  text="专业" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <scrolltext name="major" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
+                                scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
+                                border="false" style="autosize" extendstyle="1111">
+                            </scrolltext>
+                        </list-item>
+                        <!-- 年级 -->
+                        <list-item name="schoolNode3" rect="0,0,458,63.4" extendstyle="1111" border="false">
+                            <label rect="15, 0, 50, 63.4"  text="年级" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <scrolltext name="grade" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
+                                scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
+                                border="false" style="autosize" extendstyle="1111">
+                            </scrolltext>                                        
+                        </list-item>
+                        <!-- 班级 -->
+                        <list-item name="schoolNode4" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 80, 63.4"  text="班级" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <scrolltext name="class" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
+                                scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
+                                border="false" style="autosize" extendstyle="1111">
+                            </scrolltext>                                      
+                        </list-item>
+                        <!-- 学号 -->
+                        <list-item name="schoolNode5" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 80, 63.4"  text="学号" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <scrolltext name="studentId" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
+                                scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
+                                border="false" style="autosize" extendstyle="1111">
+                            </scrolltext>                                    
+                        </list-item>
+                    </listview>
+                </list-item>
+
+                <!-- 个人信息列表项 -->
+                <list-item name="itemNode5" rect="10,0,458,225" extendstyle="1111" border="false">
+
+                    <label rect="10, 0, 100, 35"  text="个人信息" font-family='微软雅黑' 
+                        color="#9a9a9a" font-size="22" h-align="left" v-align="center" 
+                        border="false" extendstyle="1111"/>               
+                    <!-- 设置列表项背景 -->
+                    <image name="itemImg5" rect="0,35,458,190" src="file://image/jttxl/sanhang.png" style="autosize"
+                        extendstyle="1111" /> 
+
+                    <listview name="listview5" rect="0,35,458,190" col="1" limit="true"  auto-adjust="true" border="false" extendstyle="1111">
+                        <!-- 籍贯 -->
+                        <list-item name="birthNode2" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 50, 63.4"  text="籍贯" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <scrolltext name="nativePlace" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
+                                scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
+                                border="false" style="autosize" extendstyle="1111">
+                            </scrolltext>                                   
+                        </list-item>
+                        <!-- 家庭住址 -->
+                        <list-item name="schoolNode4" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 50, 63.4"  text="住址" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <scrolltext name="homeAddr" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
+                                scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
+                                border="false" style="autosize" extendstyle="1111">
+                            </scrolltext>                                      
+                        </list-item>
+                        <!-- 备注 -->
+                        <list-item name="schoolNode5" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
+                            <label rect="15, 0, 50, 63.4"  text="备注" font-family='微软雅黑' 
+                                color="#686868" font-size="22" h-align="left" v-align="center" 
+                                border="false" extendstyle="1111"/>                       
+                            <scrolltext name="mark" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
+                                scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
+                                border="false" style="autosize" extendstyle="1111">
+                            </scrolltext>                                    
+                        </list-item>
+                    </listview>
+                </list-item>
+            </listview>
+
+            <!-- 底部菜单  -->
+            <node name="listNode" rect="0,720,480,80" extendstyle="1111">
+                <image  rect="0,0,480,80" border="false" extendstyle="1111" 
+                src="file://image/book/list_bg.png"  style="autosize"/>
+                <!-- 联系人  -->
+                <button name='searchBtn' rect="15,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/lianxiren_s.png' OnSelect="doSearch"></button>
+                <!-- 组织导航  -->
+                <button name='contactBtn' rect="125,0,110,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/zuijinglianxiren_d.png' OnSelect="doContact"></button>
+                <!-- 个人中心  -->
+                <button name='personBtn' rect="250,0,82,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/person_d.png' OnSelect="doPersonalCenter"></button>
+                <!-- 设置  -->
+                <button name='siteBtn' rect="385,0,48,80"  extendstyle="1111"  style='autosize'
+                src='file://image/book/site_d.png' OnSelect="doSetting"></button>
+                <!-- New -->
+                <node name="newNode" rect="410,0,48,80" extendstyle="1111">
+                    <image  rect="10,5,43,28" border="false" src="file://image/jttxl/new1.png" 
+                        style="autosize" extendstyle="1111" />
+                </node>
+            </node> 
+
+        </node>
+    </body>
+    <![CDATA[
+
+require('com_wondertek_tx.common.framework')
+require 'framework.sqlite'
+local rootSprite
+local listview
+local listview1,listview2,listview3,listview4,listview5
+local itemNode1,itemNode2,itemNode3,itemNode4,itemNode5
+local itemImg1,itemImg2,itemImg3,itemImg4,itemImg5
+
+local listviewNode
+local itemImgNode
+local itemNode
+local itemCount
+local newNode
+
+local databaseName
+local bRet, errMsg, retUserTable, retCompanyTable
+
+local fieldTipTable = {'contactName','groupName','headshipName','detail', 'personalSignature',
+    'mobile','mobileShort','telephone','telShort','telFamily','email','QQ','microblog',
+    'microMessage','company','deptDisplay','heashipDisplay','companyAddr','school',
+    'major','grade','class','studentId','nativePlace','homeAddr','mark'}
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    newNode = Sprite:findChild(rootSprite, 'newNode') 
+    listview = Sprite:findChild(rootSprite,'listview')
+    listview1 = Sprite:findChild(rootSprite,'listview1')
+    listview2 = Sprite:findChild(rootSprite,'listview2')
+    listview3 = Sprite:findChild(rootSprite,'listview3')
+    listview4 = Sprite:findChild(rootSprite,'listview4')
+    listview5 = Sprite:findChild(rootSprite,'listview5')
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        -- @jldu 验证是否升级
+        if (Config:get("isNeedUpdate") == "true") then 
+            setAllShoworHide(newNode, 1)
+        else 
+            setAllShoworHide(newNode, 0)
+        end 
+        -- 底部菜单初始化
+        Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_s.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+        -- 创建数据库
+        createDatabase()
+        -- 加载用户数据
+        queryUserInfo()
+        loadUserData()
+        -- 处理节点是否隐藏、调整界面布局
+        handleHideNode()
+
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        doBack()
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+
+-- @jldu 创建数据库
+function createDatabase()
+    databaseName = getLocalDiskPath()..'/jttxlDatabase'
+    bRet, errMsg = Sqlite:open(databaseName) 
+    Log:write("创建数据库jttxlDatabase成功:bRet = "..bRet.." errMsg ="..errMsg)
+end
+
+-- 返回
+function doBack()
+    bRet = Sqlite:close('jttxlDatabase')
+    Log:write("数据库关闭："..bRet)
+    if flag == '1' then
+        Log:write("departmentId1 = "..departmentId1)
+        Scene:go(Alias.m_lianxirenlist.."?department_id="..departmentId1, true)
+    elseif flag == '2' then
+        Config:set('judge_flag', '1')
+        Scene:back()
+    elseif flag == '3' then
+        Config:set('judge_flag', '0')
+        Scene:go(Alias.m_recentContacter, true)
+    end     
+end
+
+-- @jldu 查询群组
+function queryDeptList()
+    Log:write("@jldu 从最近联系人进入employeeId = "..employeeId)
+    Log:write("@jldu 从最近联系人点击进入employeeName = ".. employeeName)
+    local querySql = "select com.company_id,com.company_name,com.org_flag"..
+        " from tb_c_employee emp left join tb_c_company com on emp.company_id=com.company_id"..
+        " where emp.employee_id='"..employeeId..
+        "' and emp.employee_name='"..employeeName..
+        "' order by com.org_flag desc"..
+        " limit 0,1;"
+    Log:write("查询用户信息SQL = ",querySql)
+    bRet, retCompanyTable, errMsg = Sqlite:query(databaseName, querySql)  
+    Log:write("@jldu retCompanyTable = ",retCompanyTable)
+    orgFlag =  retCompanyTable[1][3]
+    Log:write("@jldu 通话记录中companyId = ",retCompanyTable[1][1])
+    queryUserInfoSQL()
+end
+
+-- @jldu 查询用户信息
+function queryUserInfo()
+    if(employeeId == '0') then
+        retUserTable = {}
+        local persionalInfoHandler = Reg:create("personalInfo")
+        Log:write('table is ',persionalInfoHandler)
+        local employeeNameH = Reg:getString(persionalInfoHandler, 'employeeName')
+        local employeePhone = Reg:getString(persionalInfoHandler,'employeePhone')
+        local contact = {}
+        contact[1] = ''
+        contact[2] = 0
+        contact[3] = employeeNameH
+        contact[4] = '本机通讯录'
+        contact[5] = ''
+        contact[6] = ''
+        contact[7] = ''
+        contact[8] = employeePhone
+        for i=9,28 do 
+            contact[i] = ''
+        end 
+        Log:write("@jldu 本机通讯录表格信息contact = ",contact)
+        table.insert(retUserTable, contact)
+    elseif flag == '3' then
+        queryDeptList()
+    else  
+        queryUserInfoSQL()
+    end
+    Log:write("用户详细信息JSON数据 retUserTable = ", retUserTable)  
+end
+
+-- @jldu 加载用户数据
+function loadUserData()
+    local adminNode = Sprite:findChild(rootSprite,'adminNode')
+    if tonumber(retUserTable[1][2]) == 0 then
+        setAllShoworHide(adminNode,0)
+    end 
+    for i=1,#fieldTipTable do
+        local fieldNode = Sprite:findChild(rootSprite,fieldTipTable[i])
+        Sprite:setProperty(fieldNode,'text',retUserTable[1][i+2])
+    end
+end
+
+-- @jldu 查询用户信息SQL
+function queryUserInfoSQL()
+    Log:write("@jldu orgFlag = "..orgFlag)
+    local sql = "SELECT emp.user_company_id,"..
+                "emp.manage_flag,"..
+                "emp.employee_name,"..
+                "com.company_name,"..                             
+                "emp.headship_name,"..  
+                "emp.department_name,"..
+                "emp.mood,"..
+                "emp.mobile,"..
+                "emp.mobile_short,"..
+                "emp.tel,"..
+                "emp.tel_short,".. 
+                "emp.home_telephone,"..          
+                "emp.email,"..
+                "emp.qq,"..
+                "emp.weibo,"..
+                "emp.weixin,"
+        if tonumber(orgFlag) == 1 then
+            sql = sql .. "com.company_name,".. 
+                "dept.department_name,"
+        else
+            sql = sql .. "emp.user_company,"..
+                "emp.department_name,"
+        end
+        sql = sql .. "emp.headship_name,".. 
+                "emp.company_address,"..
+                "emp.school,"..
+                "emp.user_major,"..
+                "emp.user_grade,"..
+                "emp.user_class,"..
+                "emp.student_id,"..
+                "emp.native_place,"..
+                "emp.home_address,"..
+                "emp.remark"
+        if tonumber(orgFlag) == 1 then
+            sql = sql .. " FROM tb_c_employee emp,tb_c_department dept,tb_c_company com"..
+                " WHERE emp.company_id = com.company_id"..  
+                " AND emp.employee_id = '"..employeeId.."'"..
+                " AND emp.department_id = dept.department_id"
+        else
+            sql = sql .. " FROM tb_c_employee emp,tb_c_company com"..
+                " WHERE emp.company_id = com.company_id"..  
+                " AND emp.employee_id = '"..employeeId.."'"
+        end
+                
+        if flag == '3' then
+            sql = sql .. " AND emp.company_id = '"..retCompanyTable[1][1].."';"
+        else
+            sql = sql .. " AND emp.company_id = '"..companyId.."';"
+        end           
+        Log:write("查询用户信息SQL = ",sql)
+        bRet, retUserTable, errMsg = Sqlite:query(databaseName, sql)
+end
+
+-- @jldu 拨打电话
+function telOnSelect(sprite)
+    local data = Sprite:getData(sprite)
+    Log:write("@jldu the data of the node is "..data)
+    local mobile
+    local listitem = Sprite:getParent(sprite)
+    if data == "1" then      
+        mobile = Sprite:getText(Sprite:findChild(listitem, "mobile"))
+        
+    elseif data == "2" then
+        mobile = Sprite:getText(Sprite:findChild(listitem, "mobileShort"))
+    elseif data == "3" then
+        mobile = Sprite:getText(Sprite:findChild(listitem, "telephone"))
+    elseif data == "4" then
+        mobile = Sprite:getText(Sprite:findChild(listitem, "telShort"))
+    elseif data == "5" then 
+        mobile = Sprite:getText(Sprite:findChild(listitem, "telFamily"))
+    end
+    Log:write("@jldu mobile is "..mobile)
+    if mobile ~= nil and mobile ~= '' then
+        if Util:openCallDialog('callFinished',mobile, 0) then
+            Log:write("当data为 "..data.." 时，tel succes!")
+        else
+            Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
+        end
+    else
+        Dialog:show('提示', '电话号码为空！', 'ok')
+    end     
+end
+
+-- @jldu 发送短信
+function smsOnSelect(sprite)
+    local data = Sprite:getData(sprite)
+    Log:write("@jldu the data of the node is "..data)
+    local mobile
+    local listitem = Sprite:getParent(sprite)
+    if data == "1" then     
+        mobile = Sprite:getText(Sprite:findChild(listitem, "mobile"))     
+    elseif data == "2" then
+        mobile = Sprite:getText(Sprite:findChild(listitem, "mobileShort"))   
+    end
+    Log:write("@jldu mobile is "..mobile)
+    if mobile ~= nil and mobile ~= '' then
+        if Util:sendSMS(mobile,'',false) then
+            Log:write("当data为 "..data.." 时，sms success!")
+        else
+            Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
+        end
+    else
+        Dialog:show('提示', '电话号码为空！', 'ok')
+    end
+end
+
+-- @jldu 处理节点是否隐藏
+function handleHideNode()
+    -- 电话信息
+    local mobile = Sprite:findChild(rootSprite,'mobile')
+    local mobileShort = Sprite:findChild(rootSprite,'mobileShort')
+    local telephone = Sprite:findChild(rootSprite,'telephone')
+    local telShort = Sprite:findChild(rootSprite,'telShort')
+    local telFamily = Sprite:findChild(rootSprite,'telFamily')
+    if Sprite:getText(mobile) == '' then
+        ListView:removeItem(listview1, Sprite:getParent(mobile), 1)
+    end 
+    if Sprite:getText(mobileShort) == '' then
+        ListView:removeItem(listview1, Sprite:getParent(mobileShort), 1)
+    end 
+    if Sprite:getText(telephone) == '' then
+        ListView:removeItem(listview1, Sprite:getParent(telephone), 1)
+    end 
+    if Sprite:getText(telShort) == '' then
+        ListView:removeItem(listview1, Sprite:getParent(telShort), 1)
+    end 
+    if Sprite:getText(telFamily) == '' then
+        ListView:removeItem(listview1, Sprite:getParent(telFamily), 1)
+    end 
+
+    -- 网络信息
+    local email = Sprite:findChild(rootSprite,'email')
+    local QQ = Sprite:findChild(rootSprite,'QQ')
+    local microblog = Sprite:findChild(rootSprite,'microblog')
+    local microMessage = Sprite:findChild(rootSprite,'microMessage')
+    if Sprite:getText(email) == '' then
+        ListView:removeItem(listview2, Sprite:getParent(email), 1)
+    end 
+    if Sprite:getText(QQ) == '' then
+        ListView:removeItem(listview2, Sprite:getParent(QQ), 1)
+    end 
+    if Sprite:getText(microblog) == '' then
+        ListView:removeItem(listview2, Sprite:getParent(microblog), 1)
+    end
+    if Sprite:getText(microMessage) == '' then
+        ListView:removeItem(listview2, Sprite:getParent(microMessage), 1)
+    end 
+
+    -- 单位信息
+    local company = Sprite:findChild(rootSprite,'company')
+    local deptDisplay = Sprite:findChild(rootSprite,'deptDisplay') 
+    local heashipDisplay = Sprite:findChild(rootSprite,'heashipDisplay')
+    local companyAddr = Sprite:findChild(rootSprite,'companyAddr')
+    if Sprite:getText(company) == '' then
+        ListView:removeItem(listview3, Sprite:getParent(company), 1)
+    end 
+    if Sprite:getText(deptDisplay) == '' then
+        ListView:removeItem(listview3, Sprite:getParent(deptDisplay), 1)
+    end
+    if Sprite:getText(heashipDisplay) == '' then
+        ListView:removeItem(listview3, Sprite:getParent(heashipDisplay), 1)
+    end
+    Log:write("@jldu companyAddr = ",companyAddr)
+    if Sprite:getText(companyAddr) == '' then
+        ListView:removeItem(listview3, Sprite:getParent(companyAddr), 1)
+    end 
+
+    -- 学校信息
+    local school = Sprite:findChild(rootSprite,'school')
+    local major = Sprite:findChild(rootSprite,'major')
+    local grade = Sprite:findChild(rootSprite,'grade')
+    local class = Sprite:findChild(rootSprite,'class')
+    local studentId = Sprite:findChild(rootSprite,'studentId')
+    if Sprite:getText(school) == '' then
+        ListView:removeItem(listview4, Sprite:getParent(school), 1)
+    end 
+    if Sprite:getText(major) == '' then
+        ListView:removeItem(listview4, Sprite:getParent(major), 1)
+    end 
+    if Sprite:getText(grade) == '' then
+        ListView:removeItem(listview4, Sprite:getParent(grade), 1)
+    end 
+    if Sprite:getText(class) == '' then
+        ListView:removeItem(listview4, Sprite:getParent(class), 1)
+    end 
+    if Sprite:getText(studentId) == '' then
+        ListView:removeItem(listview4, Sprite:getParent(studentId), 1)
+    end 
+
+    -- 个人信息 
+    local nativePlace = Sprite:findChild(rootSprite,'nativePlace')
+    local homeAddr = Sprite:findChild(rootSprite,'homeAddr')
+    local mark = Sprite:findChild(rootSprite,'mark')
+    if Sprite:getText(nativePlace) == '' then
+        ListView:removeItem(listview5, Sprite:getParent(nativePlace), 1)
+    end 
+    if Sprite:getText(homeAddr) == '' then
+        ListView:removeItem(listview5, Sprite:getParent(homeAddr), 1)
+    end 
+    if Sprite:getText(mark) == '' then
+        ListView:removeItem(listview5, Sprite:getParent(mark), 1)
+    end 
+
+    -- 调整界面布局
+    adjustListView()
+end
+
+-- listView布局重新调整
+function adjustListView()
+    for i=1,5 do 
+            local listviewStr = 'listview'..i
+            local itemImgStr = 'itemImg'..i
+            local itemNodeStr = 'itemNode'..i
+            listviewNode = Sprite:findChild(rootSprite, listviewStr)
+            itemImgNode = Sprite:findChild(rootSprite, itemImgStr)
+            itemNode = Sprite:findChild(rootSprite, itemNodeStr)
+        
+            Log:write("listviewStr = "..listviewStr.."; itemImgStr = "..itemImgStr.."; itemNodeStr = "..itemNodeStr)
+            
+            itemCount = tonumber(ListView:getItemCount(listviewNode))
+            Log:write("第"..i.."个listItem中列表项个数",itemCount)
+
+            if itemCount == 1 then
+                Sprite:setProperty(itemImgNode,'src','file://image/jttxl/yihang.png')
+            elseif itemCount == 2 then
+                Sprite:setProperty(itemImgNode,'src','file://image/jttxl/lianghang.png')
+            elseif itemCount == 3 then
+                Sprite:setProperty(itemImgNode,'src','file://image/jttxl/sanhang.png')
+            elseif itemCount == 4 then
+                Sprite:setProperty(itemImgNode,'src','file://image/jttxl/sihang.png')
+            elseif itemCount == 5 then
+                Sprite:setProperty(itemImgNode,'src','file://image/jttxl/wuhang.png')
+            end 
+
+            local height1 = itemCount*63.4 + 50        
+            Log:write("@jldu height1 = ",height1)
+            if itemCount == 0 then
+                ListView:removeItem(listview,itemNode,1)
+            else 
+                Sprite:setProperty(itemImgNode,'rect',"0,35,458,"..itemCount*63.4)
+                Sprite:setProperty(itemNode,'rect',"10,0,458,"..height1)
+                Sprite:setProperty(listviewNode,'rect',"0,35,458,"..itemCount*63.4)
+            end
+        end 
+        ListView:adjust(listview) 
+end
+
+
+-- 最近联系人函数
+function doSearch(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/lianxiren_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+    Scene:setReturn(Alias.m_stdContacterInfo, Alias.m_recentContacter)
+    Scene:go(Alias.m_recentContacter, true)
+end
+
+-- 地图页面
+function doContact(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/zuijinglianxiren_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
+    Scene:setReturn(Alias.m_stdContacterInfo, Alias.m_renyuantongji)
+    Scene:go(Alias.m_renyuantongji, true)
+end
+
+-- 个人信息详情
+function doPersonalCenter(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/person_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')    
+    Scene:setReturn(Alias.m_stdContacterInfo, Alias.m_stdMyInfo)
+    Scene:go(Alias.m_stdMyInfo, true)
+end
+
+-- 设置
+function doSetting(sprite)
+    Sprite:setProperty(sprite,'src','file://image/book/site_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png') 
+    Scene:setReturn(Alias.m_stdContacterInfo, Alias.m_system)
+    Scene:go(Alias.m_system, true)
+end
+
+    ]]>
+</root>
