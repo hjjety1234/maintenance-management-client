@@ -165,6 +165,13 @@ local g_curItem = nil       -- 当前扫描的二维码项
 --  root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    -- 检查站点的位置
+    checkSiteLoc()
+end
+
+--  root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
     -- 页面传值
     local regHandle = Reg:create('xunjianzhixiang')
     g_planId = Reg:getString(regHandle, 'planId')
@@ -173,16 +180,9 @@ function bodyBuildChildrenFinished(sprite)
     g_stationName = Reg:getString(regHandle, 'stationName')
     g_stationLat = Reg:getString(regHandle, 'stationLat')
     g_stationLon = Reg:getString(regHandle, 'stationLon')
+    Log:write('传递参数',g_stationName)
     -- 设置页面标题
     Sprite:setProperty(Sprite:findChild(rootSprite, 'titleNode'), 'text', g_stationName)
-    
-    -- 检查站点的位置
-    checkSiteLoc()
-end
-
---  root节点消息方法
-function bodyOnSpriteEvent(msg, param)
-    if msg == MSG_ACTIVATE then -- 页面激活
         -- 刷新二维码列表
         requestBarcodeResource()
     elseif msg == MSG_DEACTIVATE then
@@ -310,8 +310,8 @@ end
 --  按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-        if g_outFlag == '0' then 
-            Dialog:show('提示','您即将离开巡检页面,是否继续？','ok_cancel','doBack')
+        if g_inFlag == '1' and g_outFlag == '0' then 
+            Dialog:show('','警告！请执行出站操作否则该站点无法完成巡检,是否继续退出？','ok_cancel','doBack')
         else
             doBack()
         end
@@ -328,8 +328,8 @@ end
 
 -- 确认是否返回
 function doBackDialog()
-    if g_outFlag == '0' then 
-        Dialog:show('提示','您即将离开巡检页面,是否继续？','ok_cancel','doBack')
+    if g_inFlag == '1' and g_outFlag == '0' then 
+        Dialog:show('','警告！请执行出站操作否则该站点无法完成巡检,是否继续退出？','ok_cancel','doBack')
     else
         doBack()
     end
