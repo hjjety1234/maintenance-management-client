@@ -50,7 +50,7 @@ public class UmsAgentInterface {
 	}
 
 	public static void javaOnResume(final String scene, final String tag) {
-		Log.d(TAG, "javaOnPause: " + scene + tag);
+		Log.d(TAG, "javaOnResume: " + scene + tag);
 		new Thread(){
 			int i = 0;
 			@Override

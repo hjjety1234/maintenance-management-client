@@ -134,17 +134,21 @@ end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
-    local title=Sprite:findChild(rootSprite, "title")
-    Sprite:setProperty(title, "text", user_name..",欢迎您!")  
-    local newsimage = Sprite:findChild(rootSprite,"newsimage")
-    Sprite:setProperty(newsimage,"visible","false")
-    Sprite:setProperty(newsimage,"enable","false")
-    local newsXnum = Sprite:findChild(newsimage,"newsXnum")
-    Sprite:setProperty(newsXnum, "text", "")
-    url = Alias.urlServer.."list/unread?"
-    param2 = "userCode="..user_code
-    Http:request("unread", url..param2, 101)
-    --Http:request("unread", url, 101,{useCache = false, method = 'post', postData=param2})  
+    if msg == MSG_ACTIVATE then -- 页面激活
+        UmsAgent:OnActivate(string.match(Alias.home, 'MODULE:\\(.*)'), "首页")
+        local title = Sprite:findChild(rootSprite, "title")
+        Sprite:setProperty(title, "text", user_name..",欢迎您!")  
+        local newsimage = Sprite:findChild(rootSprite,"newsimage")
+        Sprite:setProperty(newsimage,"visible","false")
+        Sprite:setProperty(newsimage,"enable","false")
+        local newsXnum = Sprite:findChild(newsimage,"newsXnum")
+        Sprite:setProperty(newsXnum, "text", "")
+        url = Alias.urlServer.."list/unread?"
+        param2 = "userCode="..user_code
+        Http:request("unread", url..param2, 101)
+    elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
+    end
 end
 
 -- @brief 插件消息方法
