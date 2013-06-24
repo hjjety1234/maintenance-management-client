@@ -117,8 +117,8 @@ local latitude
 local longitude 
 local address
 local observer
-local g_retryCount=20
-local net_retryCount=10
+local g_retryCount = 20
+local net_retryCount = 10
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -129,7 +129,7 @@ function bodyBuildChildrenFinished(sprite)
     Config:set("latitude", latitude)
     Config:set('longitude', longitude)
     Config:set('address', address)
-    doLocation()  	
+    doLocation()    
 end
 
 -- @brief root节点消息方法
@@ -149,8 +149,8 @@ end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg, param)
-     if msg == 1000 then--用来显示经纬度
-	       UmsAgent:onLoadFinish()
+     if msg == 1000 then --用来显示经纬度
+           UmsAgent:onLoadFinish()
            local postDataString = Param:getString(param, 0)
            local postData = Json:loadString2Table(postDataString)
            if postData.longitude ~= nil and postData.latitude ~= nil then
@@ -164,7 +164,7 @@ function bodyOnPluginEvent(msg, param)
                 Sprite:setProperty(locInfo, 'text', postData.desc)
                 address = postData.desc
                 Config:delete('address')
-				Log:write("address=,",address)
+                Log:write("address=,",address)
                 Config:set('address', address)
             end
             if postData.longitude ~= nil and postData.latitude ~= nil then
@@ -172,8 +172,8 @@ function bodyOnPluginEvent(msg, param)
                 Config:delete('longitude')
                 Config:set("latitude", tonumber(postData.latitude))
                 Config:set('longitude', tonumber(postData.longitude))
-				Log:write("latitude=,",tonumber(postData.latitude))
-				Log:write("longitude=,",tonumber(postData.longitude))
+                Log:write("latitude=,",tonumber(postData.latitude))
+                Log:write("longitude=,",tonumber(postData.longitude))
             end
                 
             --修改了网达底层定位代码现在直接展现位置@chengchuan
@@ -183,7 +183,7 @@ function bodyOnPluginEvent(msg, param)
             end
           end
      end
-     if msg == 1001 then--用来显示定位的位置
+     if msg == 1001 then --用来显示定位的位置
             local postDataString = Param:getString(param, 0)                                                                                                             taString = Param:getString(param, 0)
             local postData = Json:loadString2Table(postDataString)
             local locInfo = Sprite:findChild(rootSprite, 'dizhi')
@@ -214,9 +214,9 @@ end
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
         if Loading:isShow() then
-                Loading:close()
+            Loading:close()
         else
-                Dialog:show('提示', '是否确定退出？', 'ok_cancel', 'doExit',nil)
+            Dialog:show('提示', '是否确定退出？', 'ok_cancel', 'doExit',nil)
         end
         return 1
     end
@@ -244,73 +244,62 @@ function doBack(sprite)
         Scene:go('MODULE:\\com_szjl\\login.wdml',true)
 end
 
+-- @brief 进行组合定位
 function doLocation()
-      UmsAgent:onLoadStart()
-	  observer = Plugin:getObserver()
-      Timer:set(333, 1000, 'getNetWork')
-      Map:getCurPosition(observer, 1000)
-end
-
-function getNetWork()
-  Log.write('net_retryCount',net_retryCount)
-  if(net_retryCount>0) then
+    Log:write("进入组合定位函数")
     local locInfo = Sprite:findChild(rootSprite, 'dizhi')
-    --Sprite:setProperty(locInfo, "text", "网络正在定位中，剩余"..net_retryCount.."秒")
-	Sprite:setProperty(locInfo, "text", "正在定位")
-    net_retryCount = net_retryCount - 1
-  else
-     local locInfo = Sprite:findChild(rootSprite, 'dizhi')
-    --Sprite:setProperty(locInfo, "text", "网络定位失败")
-	Sprite:setProperty(locInfo, "text", "定位失败")
-  end
-  Timer:set(333, 1000, 'getNetWork')
+    local result = System:getGPSStatus()
+    if result == -1 then
+        Sprite:setProperty(locInfo, 'text', '当前GPS不可用, 尝试使用网络定位...')
+        Log:write('当前GPS不可用, 尝试使用网络定位...')
+        getLocationByNetwork()
+    elseif result == 0 then
+        Sprite:setProperty(locInfo, 'text', 'GPS已经关闭，使用网络定位请稍等...')
+        getLocationByNetwork()
+        System:setGPSStatus(1)
+    elseif result == 1 then
+        Sprite:setProperty(locInfo, 'text', 'GPS已经开启，正在定位...')
+        getLocationByGPS()
+    end
 end
 
-function doLocation2()
-        local locInfo = Sprite:findChild(rootSprite, 'dizhi')
-      Sprite:setProperty(locInfo, 'text', '正在定位......')
-      -- 当前无经纬度信息，检查当前gps状态
-      local result = System:getGPSStatus()
-      if result == -1 then
-          Sprite:setProperty(locInfo, 'text', '当前GPS不可用, 尝试使用网络定位...')
-          Log:write('0GPS开启失败, 尝试使用网络定位...')
-          doLocation()
-      elseif result == 0 then
-              Sprite:setProperty(locInfo, 'text', '使用网络定位请稍等...')
-              doLocation()
-      elseif result == 1 then
-          Sprite:setProperty(locInfo, 'text', 'GPS已经开启，正在定位...')
-          Timer:set(222, 1000, 'getLoctude')
-      end
+-- @brief 进行网络定位
+function getLocationByNetwork()
+    Log:write("开始进行网络定位...")
+    observer = Plugin:getObserver() 
+    Map:getCurPosition(observer, 1000)
+    UmsAgent:onLoadStart()
 end
 
-function getLoctude()
-        -- 需要对gps的数据请求多次
-        local locInfo = Sprite:findChild(rootSprite, 'dizhi')
-        Sprite:setProperty(locInfo, "text", "GPS正在定位中，剩余"..g_retryCount.."秒")       
-        longitude,latitude = System:getGPSData()
-        if longitude ~= nil and longitude ~= 0 and latitude ~= nil and latitude ~= 0 
-            and g_retryCount > 0 then
-            Log:write("GPS数据有效!")
-            g_retryCount = 20
-            System:setGPSStatus(0)
-            observer = Plugin:getObserver()
-            Map:getLocation(observer, 1001, latitude, longitude)
-            -- 有效的gps数据，与上次的定位结果不同
-          elseif longitude == 0 and latitude == 0 and g_retryCount > 0 then
+-- @brief 进行GPS定位
+function getLocationByGPS()
+    -- 获取当前的经纬度数据
+    local locInfo = Sprite:findChild(rootSprite, 'dizhi')
+    Sprite:setProperty(locInfo, "text", "GPS正在定位中，剩余"..g_retryCount.."秒")
+    local longitude, latitude = System:getGPSData()
+    Log:write(string.format("当前经纬度: %s, %s", latitude, longitude))
+    -- 对获得的数据进行处理
+    if longitude ~= nil and longitude ~= 0 and latitude ~= nil and latitude ~= 0 
+        and g_retryCount > 0 then
+        Log:write("获得有效的GPS数据!")
+        System:setGPSStatus(0)
+        g_retryCount = 20
+        observer = Plugin:getObserver()
+        Map:getLocation(observer, 1003, latitude, longitude)
+    elseif longitude == 0 and latitude == 0 and g_retryCount > 0 then
         -- 未超时需要继续请求
-         Log:write("GPS数据无效!")
+        Log:write("当前GPS数据无效!")
         g_retryCount = g_retryCount - 1
-        Timer:set(222, 1000, 'getLoctude')
+        Timer:set(222, 1000, 'getLocationByGPS')
     else
         -- 已经超时，进行网络定位
         System:setGPSStatus(0)
         g_retryCount = 20
         Log:write('GPS定位失败, 采用网络定位...')
         Sprite:setProperty(locInfo, 'text', 'GPS定位失败，采用网络定位...')
-        doLocation()
-      end
-  end       
+        getLocationByNetwork()
+    end
+end
 
 function listItemOnSelect(sprite)
         local dataInfo = Sprite:getData(sprite)
@@ -320,7 +309,7 @@ function listItemOnSelect(sprite)
                  return
             end     
             --通知公告
-			local newsimage = Sprite:findChild(rootSprite,"newsimage")
+            local newsimage = Sprite:findChild(rootSprite,"newsimage")
             Sprite:setProperty(newsimage,"visible","false")
             Sprite:setProperty(newsimage,"enable","false")
             Scene:setReturn(Alias.home, Alias.newslist)
@@ -351,10 +340,5 @@ function listItemOnSelect(sprite)
             Scene:go(Alias.wjb_bb,true)
         end
 end
-
-
-
-
-
-    ]]>
+]]>
 </root>
