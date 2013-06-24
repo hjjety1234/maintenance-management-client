@@ -26,18 +26,18 @@ public class UmsAgentInterface {
 	}
 	
 	public static void javaOnError(String msg) {
-		Log.d(TAG, "javaOnError: " + msg);
+		Log.i(TAG, "javaOnError: " + msg);
 		UmsAgent.onError(VenusActivity.appActivity, msg);
 	}
 	
 	public static void javaSetDefaultReportPolicy(int reportModel) {
-		Log.d(TAG, "javaSetDefaultReportPolicy: " + reportModel);
+		Log.i(TAG, "javaSetDefaultReportPolicy: " + reportModel);
 		UmsAgent.setDefaultReportPolicy(VenusActivity.appActivity, reportModel);
 	}
 	
 	public static void javaOnPause() {
 		if (canPause == true) {
-			Log.d(TAG, "javaOnPause");
+			Log.i(TAG, "javaOnPause");
 			new Thread(){
 				@Override
 				public void run() {
@@ -51,7 +51,7 @@ public class UmsAgentInterface {
 	}
 
 	public static void javaOnResume(final String scene, final String tag) {
-		Log.d(TAG, "javaOnResume: " + scene + tag);
+		Log.i(TAG, "javaOnResume: " + scene + tag);
 		new Thread(){
 			@Override
 			public void run() {

@@ -165,6 +165,7 @@
     <![CDATA[
 
 require('com_szjl.common.framework')
+require 'framework.umsagent'
 local rootSprite
 local fenleiNode
 local newslistdata1
@@ -179,14 +180,15 @@ server_newsNum = Alias.urlServer..'list/Nnum?cmd=notice'
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     Http:startNetwork()
-    initPage()
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-
+        UmsAgent:OnActivate(string.match(Alias.newslist, 'MODULE:\\(.*)'), "通知公告")
+        initPage()
     elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
     end
 end
 
@@ -194,6 +196,7 @@ end
 function bodyOnPluginEvent(msg)
     if msg == 101 then
         Log:write('22222222222222222222222222')
+        UmsAgent:onLoadFinish()
         if Loading:isShow() then Loading:close() end
         newslistdata1 = Http:jsonDecode('newslistdata0')
         if (newslistdata1 == nil or newslistdata1["Total"] == 0 or
@@ -260,6 +263,7 @@ function initPage()
     isSearchBarVisible = false
     fenleiNode = Sprite:findChild(rootSprite, "fenleiNode")
     Loading:show(rootSprite)
+    UmsAgent:onLoadStart()
 end
 
 function loadListItem(list, item, index)
@@ -303,6 +307,7 @@ function fenleiOnselect1()
     local tagImg = Sprite:findChild(rootSprite, 'fenleiImg')
     Sprite:setProperty(tagImg, 'src', "file://png/tz_icons_arrow_under.png")
     Loading:show(rootSprite)
+    UmsAgent:onLoadStart()
 end
 
 function fenleiOnselect2()
@@ -314,6 +319,7 @@ function fenleiOnselect2()
     local tagImg = Sprite:findChild(rootSprite, 'fenleiImg')
     Sprite:setProperty(tagImg, 'src', "file://png/tz_icons_arrow_under.png")
     Loading:show(rootSprite)
+    UmsAgent:onLoadStart()
 end
 
 function fenleiOnselect3()
@@ -325,6 +331,7 @@ function fenleiOnselect3()
     local tagImg = Sprite:findChild(rootSprite, 'fenleiImg')
     Sprite:setProperty(tagImg, 'src', "file://png/tz_icons_arrow_under.png")
     Loading:show(rootSprite)
+    UmsAgent:onLoadStart()
 end
 
 function itemOnSelect(sprite)
@@ -367,6 +374,7 @@ function searchbtnOnselect()
     Log:write('111111111111111:', server_newslist2)
     Http:request('newslistdata0', server_newslist2, 101, {useCache=false})
     Loading:show(rootSprite)
+    UmsAgent:onLoadStart()
 end
 
 ---当进入编辑框时，修改文字为输入

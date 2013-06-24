@@ -169,6 +169,7 @@
     <![CDATA[
 
 require('com_szjl.common.framework')
+require 'framework.umsagent'
 local rootSprite
 local userId = Config:get('userLogin')
 local tasklistdata1
@@ -193,7 +194,6 @@ function bodyBuildChildrenFinished(sprite)
     taskkemuRoomHandler = Reg:create("taskkemuRoom")
     shwtgDataRoomHandler = Reg:create("shwtgDataRoom")
     leftright = true
-    initPage1()
  
     --initPage2()
 end
@@ -201,13 +201,17 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        UmsAgent:OnActivate(string.match(Alias.wodejianli, 'MODULE:\\(.*)'), "我的监理")
+        initPage1()
     elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
     end
 end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
     if msg == 101 then 
+        UmsAgent:onLoadFinish()
         if Loading:isShow() then Loading:close() end
         tasklistdata1 = Http:jsonDecode('tasklistdata0')
         Log:write('22222222222222222222222222',tasklistdata1)
@@ -353,6 +357,7 @@ function initPage1()
     Log:write('111111111111111:', server_jianlitaskList1)
     Http:request('tasklistdata0', server_jianlitaskList1, 101, {useCache=false})
     Loading:show(rootSprite)
+    UmsAgent:onLoadStart()
 end
 
 function initPage2()
@@ -490,6 +495,7 @@ function searchbtnOnselect()
     Log:write('111111111111111:', server_jianlitaskList1)
     Http:request('tasklistdata0', server_jianlitaskList1, 101, {useCache=false})
     Loading:show(rootSprite)
+    UmsAgent:onLoadStart()
 end
 
 function taskztOnSelect(sprite)

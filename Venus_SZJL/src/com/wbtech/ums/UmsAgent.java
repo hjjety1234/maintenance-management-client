@@ -816,10 +816,12 @@ public class UmsAgent {
 		}
 	}
 	public static void onLoadFinish(Context context) {
+		Log.i(TAG, "onLoadFinish");
 		load_end = Long.valueOf(System.currentTimeMillis());// 结束时间点毫秒表示
 		load_duration = load_end - load_start + "";
 	}
 	public static void onLoadStart(Context context) {
+		Log.i(TAG, "onLoadStart");
 		load_start = Long.valueOf(System.currentTimeMillis());// 开始时间点毫秒表示
 	}
 }
