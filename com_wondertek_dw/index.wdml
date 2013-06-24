@@ -177,15 +177,15 @@ function bodyBuildChildrenFinished(sprite)
     connectToWAP()
     UmsAgent:postClientData()
     getDownloadPath()
-    -- 设置消息推送
-    MsgPush:bindHostIp('120.209.131.150') 
+    --消息推送功能不稳定，暂时注销掉
+    --[[MsgPush:bindHostIp('120.209.131.150') 
     Log:write("bindHostIp()")
     MsgPush:setListener(Sprite:getCurScene(), 1001) 
     Log:write("setListener()")
     local appKey = UmsAgent:getAppKey()
     MsgPush:setApiKey(appKey)
     MsgPush:setServiceStatus(1)
-    Log:write("setServiceStatus()")
+    Log:write("setServiceStatus()")--]]
 end
 
 --  root节点消息方法
@@ -201,7 +201,8 @@ function bodyOnSpriteEvent(msg, param)
 	        'MODULE:\\com_wondertek_dw/image/skin/')
             Log:write('456',SCREEN_WIDTH)
 	    end
-	    checkClientVersion()
+        goLogin()  --测试专用
+	    --checkClientVersion()--正式
     elseif msg == MSG_DEACTIVATE then
         Scene:freeByHandle(rootSprite)
     elseif msg == MSG_NETWORK then
