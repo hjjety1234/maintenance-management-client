@@ -266,7 +266,7 @@ public class UmsAgent {
 		          Log.e("UMSAgent", "Illegal value of acc in onEvent(4p)");
 		        return;
 		      }
-//新启动一个线程处理自定义事件
+		      //新启动一个线程处理自定义事件
 		      new EventThread(context, appkey, event_id, label, acc).start();
 		} catch (Exception e) {
 			 if (UmsConstants.DebugMode)
@@ -817,11 +817,9 @@ public class UmsAgent {
 	}
 	public static void onLoadFinish(Context context) {
 		load_end = Long.valueOf(System.currentTimeMillis());// 结束时间点毫秒表示
-		Log.d(TAG, "[onLoadFinish] load_end: " + load_end);
 		load_duration = load_end - load_start + "";
 	}
 	public static void onLoadStart(Context context) {
 		load_start = Long.valueOf(System.currentTimeMillis());// 开始时间点毫秒表示
-		Log.d(TAG, "[onLoadStart] load_start: " + load_start);
 	}
 }
