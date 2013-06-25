@@ -3,6 +3,7 @@ package com.wondertek.video.map.gdmap;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -56,21 +57,34 @@ public class GDRouteSearch implements RouteMessageHandler {
 		}
 		final FromAndTo ft = new FromAndTo(start, end);
 		setRouteSearchMode(type);
+        final ProgressDialog dialog = new ProgressDialog(context);
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.setIndeterminate(false);
+        dialog.setCancelable(true);
+        dialog.setMessage(context.getResources().getString(context.getResources().getIdentifier(
+        		"gdmap_searching", "string", context.getPackageName())));
 		Thread t = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					result = Route.calculateRoute((Activity) context, ft, mode);
 					if (result != null && result.size() > 0) {
+                        if (dialog.isShowing()) {
+                        	dialog.dismiss();
+                        }
 						Handler handler = GDMapManager.getInstance(context).getHandler();
 						handler.sendMessage(Message.obtain(handler, GDMapConstants.GDMAP_ROUTESEARCH_RESULT));
 					}
 				} catch (Exception e) {
+                    dialog.dismiss();
 					e.printStackTrace();
+                    Toast.makeText(context, context.getResources().getString(context.getResources().getIdentifier(
+                    		"gdmap_route_error", "string", context.getPackageName())), Toast.LENGTH_LONG).show();
 				}
 			}
 		});
 		t.start();
+        dialog.show();
 		return true;
 	}
 

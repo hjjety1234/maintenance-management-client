@@ -1,11 +1,20 @@
 package com.wondertek.video.map;
 
+import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;
 import com.wondertek.video.map.bdmap.BDMapManager;
 import com.wondertek.video.map.gdmap.GDMapManager;
+import com.wondertek.xsgj.R;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.location.LocationManager;
+import android.os.Handler;
+import android.provider.Settings;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 /**
  * 
@@ -16,7 +25,7 @@ public class MapPluginMgr {
     private static final String TAG = "MapPluginMgr";
     private static final int MAP_PLUGIN_GDMAP = 1;
     private static final int MAP_PLUGIN_BDMAP =2;
-    private static final int MAP_PLUGIN_TYPE = MAP_PLUGIN_BDMAP;
+    private static final int MAP_PLUGIN_TYPE = MAP_PLUGIN_GDMAP;
     private static MapPluginMgr instance = null;
     private Context mContext;
     private IMapPlugin map;
@@ -185,6 +194,46 @@ public class MapPluginMgr {
 		if (map != null) {
 			map.destroyMap();
 		}
+	}
+	
+	public boolean isGpsEnable() {
+		LocationManager mLocationManager = (LocationManager) 
+				VenusActivity.appActivity.getSystemService(Context.LOCATION_SERVICE);
+		return mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER);
+	}
+	
+	public void showGpsAlert() {
+        final Dialog dialog = new Dialog(VenusActivity.appActivity, android.R.style.Theme_Translucent_NoTitleBar);
+        dialog.setContentView(R.layout.gps);
+        Button gps_yes = (Button)dialog.findViewById(R.id.button_yes);
+        gps_yes.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				VenusActivity.appActivity.startActivityForResult(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS), 
+						VenusActivity.REQUEST_GPS);
+				dialog.dismiss();
+			}
+		});
+        Button gps_cancel = (Button)dialog.findViewById(R.id.button_cancel);
+        gps_cancel.setOnClickListener(new OnClickListener() {
+        	@Override
+			public void onClick(View v) {
+				dialog.dismiss();
+				map.GetCurrentPositionFuncCalled(true);
+			}
+        });
+        final Handler threadHandler = new Handler(); ;  
+        new Thread() {
+        	@Override
+        	public void run() {
+        		 threadHandler.post( new Runnable(){
+					@Override
+					public void run() {
+						dialog.show();
+					}
+        		 });
+        	}
+        }.start();
 	}
     
 	public native void nativeSearchCallback(String strResult);

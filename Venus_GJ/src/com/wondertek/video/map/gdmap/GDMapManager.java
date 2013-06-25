@@ -1,6 +1,8 @@
 package com.wondertek.video.map.gdmap;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -10,15 +12,20 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
+import android.location.LocationManager;
+import android.location.LocationProvider;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -31,6 +38,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.baidu.location.BDLocation;
 import com.mapabc.mapapi.core.GeoPoint;
 import com.mapabc.mapapi.core.PoiItem;
 import com.mapabc.mapapi.core.ServerUrlSetting;
@@ -46,6 +54,8 @@ import com.mapabc.mapapi.map.RouteMessageHandler;
 import com.mapabc.mapapi.map.RouteOverlay;
 import com.mapabc.mapapi.poisearch.PoiTypeDef;
 import com.wondertek.video.Util;
+import com.wondertek.video.VenusActivity;
+import com.wondertek.video.VenusApplication;
 import com.wondertek.video.map.IMapPlugin;
 import com.wondertek.video.map.MapPluginMgr;
 import com.wondertek.video.map.gdmap.GDPoiSearch.GDPoiOverlay;
@@ -69,6 +79,10 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 	private GDPoiOverlay poiOverlay = null;
 	private List<View> mPopViewList = new ArrayList<View>();
     private boolean bAutoLocationEnable = false;
+    private ProgressDialog pdialog = null;
+    private boolean mbIsGetCurrentPositionCalled = false; 
+    private long mStartTime = 0;
+    private Location mBestLocation = null;
     
     private Handler handler = new Handler() {
 		@Override
@@ -144,16 +158,44 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 		public void onProviderDisabled(String provider) {
 			// TODO Auto-generated method stub
 		}
-
+		
 		@Override
-		public void onLocationChanged(Location location) {
-			Log.d(TAG, "onLocationChanged");
+		public synchronized void onLocationChanged(Location location) {
+			if (location == null || mStartTime == 0 || mbIsGetCurrentPositionCalled == false)
+				return ;
+			long elapsedTime = (SystemClock.elapsedRealtime() - mStartTime) / 1000;
+			boolean isGpsEnabled = MapPluginMgr.getInstance().isGpsEnable();
+			Log.d(TAG, String.format( "[onLocationChanged] accuracy: %.2f, duration: %d sec, gps: %s", 
+					location.getAccuracy(), elapsedTime, String.valueOf(isGpsEnabled)));
+			// record best location
+			if (mBestLocation == null) mBestLocation = location;
+			else if (mBestLocation.getAccuracy() > location.getAccuracy()) {
+				mBestLocation = location;
+				Log.i(TAG, "get new best location.");
+			}
+			// filter non-qualified location 
+			if (elapsedTime <= 20 && location.getAccuracy() > 400) {
+				return;
+			}else if (elapsedTime <= 30 && location.getAccuracy() > 1000) {
+				return;
+			}
+			// return current best location
+			pdialog.dismiss();
+			location = mBestLocation;
+			String message = String.format("定位成功：误差%.1f, 耗时%d秒.", location.getAccuracy(), elapsedTime);
+			Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
 			int geoLat = (int)(location.getLatitude() * 1e6);
 			int geoLog = (int)(location.getLongitude() * 1e6);
-			String str ="{\"latitude\":\""+geoLat+"\",\"longitude\":\""+geoLog+"\"}";
+			Bundle localBundle = location.getExtras();
+			String desc = "";
+			if(localBundle != null){
+				desc = localBundle.getString("desc");
+			}
+			String str ="{\"latitude\":\""+geoLat+"\",\"longitude\":\""+geoLog+"\",\"desc\":\""+desc+"\"}";
 			Message msg = handler.obtainMessage();
 			msg.what = GDMapConstants.GDMAP_LOCATION_FINISHED;
 			msg.obj = str;
+			GetCurrentPositionFuncCalled(false);
 			handler.sendMessage(msg);
 		}
 	};
@@ -238,21 +280,42 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 			}
 		}
 	}
-
+	
+	/**
+	 * inject XTRA data and time reference to the GPS in order to get a faster fix.
+	 */
+	public void injectGps()
+	{
+		Log.d(TAG, "on injectGps");
+		LocationManager mLocationManager = (LocationManager) VenusActivity.appActivity.
+				getSystemService(Context.LOCATION_SERVICE);
+//		mLocationManager.sendExtraCommand("gps", "delete_aiding_data", null);
+//		mLocationManager.sendExtraCommand("gps", "force_time_injection", null);
+//		mLocationManager.sendExtraCommand("gps", "force_xtra_injection", null);
+	}
+	
 	@Override
 	public void getCurrentPosition() {
 		Log.d(TAG, "getCurrentPosition");
 		if (locationManager == null) {
 			locationManager = LocationManagerProxy.getInstance(mContext, GDMapConstants.GDMAP_API_KEYS);
+			// use GDMAP GPS provider
 			Criteria cri = new Criteria();
-			cri.setAccuracy(Criteria.ACCURACY_COARSE);
+			cri.setAccuracy(Criteria.ACCURACY_FINE);
 			cri.setAltitudeRequired(false);
 			cri.setBearingRequired(false);
 			cri.setCostAllowed(false);
 			String provider = locationManager.getBestProvider(cri, true);
 			if (provider == null || provider.equals("")) {
-				provider = LocationProviderProxy.MapABCNetwork;
+				provider = LocationManager.GPS_PROVIDER;
 			}
+			Log.d(TAG, "[getCurrentPosition] provider: " + provider);
+			// show enable GPS dialog if GPS is disabled.
+			if (MapPluginMgr.getInstance().isGpsEnable() == false)
+				MapPluginMgr.getInstance().showGpsAlert();
+			else 
+			GetCurrentPositionFuncCalled(true);
+			// request location update
 			locationManager.requestLocationUpdates(provider, GDMapConstants.GDMAP_LOCATION_UPDATE_MIN_TIME,
 					GDMapConstants.GDMAP_LOCATION_UPDATE_MIN_DISTANCE, listener);
 		} else {
@@ -380,8 +443,14 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 
 	@Override
 	public void geoCode(int latitude, int longitude) {
-		Log.d(TAG, "GeoCode: [" + (double)latitude * 1e-6 + ", " + (double)longitude * 1e-6 + "]");
-		geoCoder((double)latitude * 1e-6, (double)longitude * 1e-6);
+		double fLatitude = (double) latitude / 1000000;
+		if (fLatitude < 90.0) {
+			Log.d(TAG, "GeoCode: [" + (double)latitude * 1e-6 + ", " + (double)longitude * 1e-6 + "]");
+			geoCoder((double)latitude * 1e-6, (double)longitude * 1e-6);
+		}else {
+			Log.d(TAG, "GeoCode: [" + (double)latitude * 1e-7 + ", " + (double)longitude * 1e-7 + "]");
+			geoCoder((double)latitude * 1e-7, (double)longitude * 1e-7);
+		}
 	}
 
 	@Override
@@ -517,8 +586,8 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 			@Override
 			public void run() {
 				try {
-					Geocoder geocoder = new Geocoder((Activity)mContext);
-					List<Address> ads = geocoder.getFromLocation(mLat, mLog, GDMapConstants.GDMAP_GEOCODER_COUNT);
+					Geocoder geocoder = new Geocoder((Activity)mContext,GDMapConstants.GDMAP_API_KEYS);
+					List<Address> ads = geocoder.getFromRawGpsLocation(mLat, mLog, GDMapConstants.GDMAP_GEOCODER_COUNT);
 					if (ads != null && ads.size() > 0) {
 						if(progDialog.isShowing()){
 							progDialog.dismiss();    
@@ -592,10 +661,6 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
         GDMapPointOverlay.getInstance(mContext, mMapView).removePointOverlay();
         GDPoiSearch.getInstance(mContext, mMapView).removeAllPOIs();
 		GDRouteSearch.getInstance(mContext, mMapView).removeRouteOnMap();
-//		if (poiOverlay != null) {
-//			poiOverlay.removeFromMap();
-//			poiOverlay = null;
-//		}
 	}
 
 	private void removeAllPopViews() {
@@ -603,6 +668,25 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 			View popview = mPopViewList.remove(mPopViewList.size() - 1);
 			popview.setVisibility(View.GONE);
 			mMapView.removeView(popview);
+		}
+	}
+	
+	@Override
+	public void GetCurrentPositionFuncCalled(boolean isCalled) {
+		this.mbIsGetCurrentPositionCalled = isCalled;
+		if (this.mbIsGetCurrentPositionCalled == true) {
+			pdialog = new ProgressDialog(mContext);
+			pdialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			pdialog.setIndeterminate(false);
+			pdialog.setCancelable(false);
+			pdialog.setMessage(mContext.getResources().getString(mContext.getResources().
+					getIdentifier("gdmap_lbs_locate", "string", mContext.getPackageName())));
+			pdialog.show();
+			mStartTime = SystemClock.elapsedRealtime();
+		}
+		else {
+			mStartTime = 0;
+			mBestLocation = null;
 		}
 	}
 	

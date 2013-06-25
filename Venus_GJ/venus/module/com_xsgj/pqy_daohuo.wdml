@@ -155,6 +155,7 @@
     <![CDATA[
 
     require 'com_xsgj.common.framework'
+   require 'com_xsgj.common.umsagent'
     local rootSprite
     local curErrorBtn
     local errorListTotalHeight = 0
@@ -176,6 +177,7 @@
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
+            UmsAgent:OnActivate(string.match(Alias.daohuo, 'MODULE:\\(.*)'), '到货管理')
             curpage=Sprite:findChild(rootSprite, 'curpage')
             morebtn=Sprite:findChild(rootSprite, 'morebtn')
             pages=Sprite:getData(curpage)
@@ -183,14 +185,17 @@
             setAllShoworHide(errorTypeSelectNode, 0)  
             local qianshouTypeSelectNode = Sprite:findChild(rootSprite, 'qianshouTypeSelectNode')  
             setAllShoworHide(qianshouTypeSelectNode, 0)
+             UmsAgent:onLoadStart()
             requestDaohuoList('notice', 101, usercode, '', pages, pagesize)
             elseif msg == MSG_DEACTIVATE then
+            UmsAgent:OnDeactivate()
         end
     end
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg)
         if msg == 101 then
             if Loading:isShow() then Loading:close() end
+            UmsAgent:onLoadFinish()
             jsonDecodedDaohuo = Http:jsonDecode('notice')
             Log:write('pqy:', jsonDecodedDaohuo)
             local totalPage = tonumber(jsonDecodedDaohuo["Total"])
@@ -331,8 +336,8 @@
     end
     -- @brief 返回按钮处理
     function doBack()
-        Log:write("返回返回返回")
-         Scene:go(Alias.home,true)
+         Log:write("返回返回返回")
+         Scene:back()
     end
  
     -- @brief 详情展示

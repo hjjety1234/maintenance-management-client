@@ -8,9 +8,9 @@ import android.widget.AbsoluteLayout;
 //import com.umeng.analytics.MobclickAgent;
 //import com.umeng.analytics.ReportPolicy;
 //GDMAP
-//import com.mapabc.mapapi.map.MapActivity;
+import com.mapabc.mapapi.map.MapActivity;
 
-import com.baidu.mapapi.MapActivity;
+//import com.baidu.mapapi.MapActivity;
 //import com.mapabc.mapapi.map.MapActivity;
 //for plugin lotuseed
 //import com.lotuseed.android.Lotuseed;
@@ -18,6 +18,7 @@ import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;
 import com.wondertek.video.map.bdmap.BDMapManager;
+import com.wondertek.video.map.gdmap.GDMapManager;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -131,7 +132,7 @@ public class AppActivity extends MapActivity {
 		Log.d(SELF, "onActivityResult");
 		if (requestCode == VenusActivity.REQUEST_GPS) {
 			Util.Trace("Request GPS Setting callback");
-			BDMapManager.getInstance().setMbIsGetCurrentPositionCalled(true);
+			GDMapManager.getInstance().GetCurrentPositionFuncCalled(true);
 			return;
 		}
 		if(resultCode == RESULT_OK)

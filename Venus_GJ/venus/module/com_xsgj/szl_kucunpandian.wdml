@@ -196,6 +196,7 @@
   <![CDATA[
 
 require 'com_xsgj.common.framework'
+ require 'com_xsgj.common.umsagent'
 local rootSprite
 local user_name = Config:get('truename')
 local usercode = Config:get('username')
@@ -223,6 +224,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活 
+        UmsAgent:OnActivate(string.match(Alias.kucunpandian, 'MODULE:\\(.*)'), '库存盘点')
             local storeRegHandler =Reg:create("kuncunstoreRegHandler")
             local comboboxLbl = Sprite:findChild(rootSprite, 'comboboxlabel1')
             if Reg:getString(storeRegHandler, 'StoreCode') ~= nil and Reg:getString(storeRegHandler, 'StoreCode') ~= '' then
@@ -241,6 +243,8 @@ function bodyOnSpriteEvent(msg, param)
                 ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), tonumber(len), 'loadListItem')
                 ListView:adjust(list)
             end
+             elseif msg == MSG_DEACTIVATE then
+             UmsAgent:OnDeactivate()
         end             
     end
 

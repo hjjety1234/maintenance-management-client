@@ -139,6 +139,7 @@
     <![CDATA[
 
 require 'com_xsgj.common.framework'
+ require 'com_xsgj.common.umsagent'
 local rootSprite
 local user_name = Config:get('truename')
 local user_code = Config:get('username')
@@ -163,7 +164,6 @@ function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite 
    setAllShoworHide(Sprite:findChild(rootSprite, 'mendianlistShowNode'), 0)   
    tishikuang = Sprite:findChild(rootSprite, 'tishikuang') 
-   Log:write("11111111111111111111111111111111")
    -- 取当前日期
    Log:write("当前日期 = ",getCurDate())
    local currDateNode = Sprite:findChild(rootSprite,'btnname3')
@@ -172,7 +172,8 @@ end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
-    if msg == MSG_ACTIVATE then -- 页面激活               
+    if msg == MSG_ACTIVATE then -- 页面激活 
+      UmsAgent:OnActivate(string.match(Alias.wjb_rixiaoliang, 'MODULE:\\(.*)'), '日销量')              
                retuenTime=''
                retuenType=''
                retunType=''
@@ -248,7 +249,9 @@ function bodyOnSpriteEvent(msg, param)
                    local list = Sprite:findChild(rootSprite, 'sampleList')   
                    ListView:removeAllItems(list, true) 
                    setAllShoworHide(Sprite:findChild(rootSprite, 'mendianlistShowNode'), 0)                     
-             end         
+             end  
+              elseif msg == MSG_DEACTIVATE then   
+              UmsAgent:OnDeactivate()    
         end             
     end
 
@@ -353,7 +356,7 @@ function doBack()
   Reg:clear(Reg:create('shangpin1'))
   Reg:clear(Reg:create('shangpin2'))
   Reg:clear(Reg:create("storeRegHandler"))
-  Scene:go('MODULE:\\com_xsgj\\home.wdml',true)
+  Scene:go(Alias.home)
 end
 
 function loadListItem(list, item, index)

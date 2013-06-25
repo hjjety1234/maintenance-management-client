@@ -86,20 +86,21 @@ end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
-    if msg == 101 then
-        if Loading:isShow() then Loading:close() end
-        requestData = Http:jsonDecode('passwordchange')
-        Log:write('eeeeeeeeeeeeee',requestData)
-        if requestData["success"]=='true' then
-            local nodeSuccess = Sprite:findChild(rootSprite, 'nodeSuccess')
-            Sprite:setVisible(nodeSuccess, 1)
-            Timer:set(111, 3000, 'gosetup')
-        else
-            local nodeFail = Sprite:findChild(rootSprite, 'nodeFail')
-            Sprite:setVisible(nodeFail, 1)
-            Timer:set(1, 3000, 'FailInvisible')
-        end
-    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    Log.write('msg----------',msg)
+    if msg == 1001 then
+        -- if Loading:isShow() then Loading:close() end
+        -- requestData = Http:jsonDecode('passwordchange')
+        -- Log:write('eeeeeeeeeeeeee',requestData)
+        -- if requestData["success"]=='true' then
+        --     local nodeSuccess = Sprite:findChild(rootSprite, 'nodeSuccess')
+        --     Sprite:setVisible(nodeSuccess, 1)
+        --     Timer:set(111, 3000, 'gosetup')
+        -- else
+        --     local nodeFail = Sprite:findChild(rootSprite, 'nodeFail')
+        --     Sprite:setVisible(nodeFail, 1)
+        --     Timer:set(1, 3000, 'FailInvisible')
+        -- end
+    elseif msg == 1001 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
     elseif msg > MSG_NETWORK_ERROR then -- 请求超时
@@ -110,12 +111,14 @@ end
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
+        Loading:close() 
         Scene:back()
         return 1
     end
 end
  function doBack()
-        Scene:go(Alias.home,true)
+        Loading:close() 
+        Scene:go(Alias.home,false)
     end
 ---------------------------------------util functions---------------------------
 --@brief 当进入编辑框时，修改文字为输入
@@ -203,13 +206,23 @@ function add()
             Config:get("username"), oldpass, newpass, Config:get("companyId"))
         Log:write(requestURL, param)
         Loading:show(rootSprite)
-        Http:request('passwordchange', requestURL..'?'..param, 101, {method='get', useCache=false})
-    end
+        Http:request('passwordchange', requestURL..'?'..param, 1001, {method='post', useCache=false})
+        Timer:set(1212,2000,'closeLoading')
+        end
+end
+function closeLoading(  )
+     Loading:close()
+       local nodeSuccess = Sprite:findChild(rootSprite, 'nodeSuccess')
+       Sprite:setVisible(nodeSuccess, 1)
+       Timer:set(111, 1000, 'gosetup')
 end
 
 function gosetup()
     Timer:cancel(111)
-    Scene:go('MODULE:\\com_xsgj\\pqy_setup.wdml')
+    Timer:cancel(1212)
+    local nodeSuccess = Sprite:findChild(rootSprite, 'nodeSuccess')
+    Sprite:setVisible(nodeSuccess,0)
+    Scene:go('MODULE:\\com_xsgj\\pqy_setup.wdml',true)
 end
 
 function FailInvisible()

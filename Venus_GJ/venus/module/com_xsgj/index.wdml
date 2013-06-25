@@ -20,7 +20,6 @@
         <!-- 背景图片  -->
         <image name="image1" rect="0,0,480,800" border="false" 
             src="file://pics/index_bg.png" style="autosize" extendstyle="1111" />
-
         <!-- 主界面  -->
         <node name="mainNode" rect="0,0,480,800" enable="true" active="true" 
             OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
@@ -121,6 +120,7 @@ local g_downloadTime = 0            -- 记录下载所花的时间
 local g_progressWidth = 154         -- 进度条长度
 local updateData                    -- 升级标志
 local experience                    --体验版标志
+local g_localMd5 = ""               -- 本地Md5校验值 
 ---------------------------------------回调函数列表--------------------------------
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -130,7 +130,6 @@ function bodyBuildChildrenFinished(sprite)
     startMsgPushService()
     --收集用户ua信息 
     Log:write('用户ua信息:',System:getUserAgent())
-    -- 鉴权
     checkUserValidata()
     --做个启动app的测试
     --先判断应用是否安装
@@ -156,6 +155,7 @@ function bodyOnPluginEvent(msg)
     Log:write('the msg is ',msg)
     --Loading:close()
     if msg == 101 then
+        UmsAgent:onLoadFinish()
         --鉴权请求返回
         local jianquanData = Http:jsonDecode('jianquan')
         if(jianquanData == '' or jianquanData == nil) then
@@ -171,11 +171,9 @@ function bodyOnPluginEvent(msg)
                 --写菜单
                 buildMenu(jianquanData.retdata["menuData"])
                 --检查版本更新
-              
                 experience = jianquanData["retdata"].version["experience"]
                 Log:write('the version is needupdate?',
                 jianquanData["retdata"].version["isNeedUpdate"])
-                --将appKey写入Config
                 Config:set('appKey',jianquanData['retdata'].appKey)
                 if (jianquanData["retdata"].version["isNeedUpdate"] == 1 or jianquanData["retdata"].version["isNeedUpdate"] == 2 or
                 jianquanData["retdata"].version["isNeedUpdate"] == 3) then
@@ -193,10 +191,10 @@ function bodyOnPluginEvent(msg)
                 end
             else
                 --暂时为了开发方便注释掉注册码代码
-               Scene:setReturn('MODULE:\\com_xsgj\\index.wdml',Alias.register)
-               -- Scene:go(Alias.register)
-               Scene:go(Alias.login)
-            end
+              Scene:setReturn('MODULE:\\com_xsgj\\index.wdml',Alias.register)
+              Scene:go(Alias.register)
+            -- Scene:go(Alias.login)
+            end 
         end
         elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
         elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -267,30 +265,66 @@ function goHome()
     goLogin()
 end
 
+
 ---------------------------------------鉴权相关函数---------------------------
 -- 用户鉴权登录
--- 如果鉴权通过，则直接进入系统主界面
 -- 否则跳转至系统注册页面
+-- 如果鉴权通过，则直接进入系统主界面
 function checkUserValidata()
-    Log:write("开始鉴权登录...")
-    local ECCode = Config:get('ECCode')
-    local mobile = Config:get('username')
+     Log:write("开始鉴权登录0...")
+     local ECCode='001'
+     local mobile='001'
+    --从config.xml读取配置文件产品key以及版本号
     local productKey = Config:get('productKey')
     local version = Config:get('version')
+    --从sdkcrad中读取企业编号和手机号码
+    local tableValue=readDownloadTxtConfig()
+    if tableValue~=nil or tableValue~='' then
+    if tableValue[1]~=nil or tableValue[1]~=''then
+          Log:write("开始鉴权登录112...",tableValue[1])
+       ECCode=tableValue[1]
+       mobile=tableValue[2]
+     end
+end
+if ECCode==nil or mobile==nil then
+ECCode='001'
+mobile='001'
+end
+    local version = Config:get('version')
+     if IO:fileExist(g_localpath) == true then 
+       Log:write("开始鉴权登录1...",mobile)
+        g_localMd5 = Util:md5(g_localpath, true)
+    else
+        Log:write("开始鉴权登录2...")
+        g_localMd5 = ""
+    end 
+    Log:write("开始鉴权登录3...")
     local imsi=System:getMachineInfo(5) 
     local imei=System:getMachineInfo(4)
-
     if(imei == '' or imei == nil) then
         imei = '000001'
     end
     if(imsi == '' or imsi == nil) then
         imsi = '000001'
     end
+     -- 构造请求地址
+    local url = nil 
+    if g_localMd5 == nil or g_localMd5 == "" then
+        Log:write("开始鉴权登录34...",mobile) 
+        Log:write(string.format('the info is %s/%s/%s/%s/%s/%s',ECCode,mobile,productKey,imsi,imei,version))
+        url = string.format('http://%s/webcloud/sso/sso_auth.action?mobile=%s&productKey=%s&ecCode=%s&imsi=%s&version=%s', 
+        Config:get('ssourl'),mobile,productKey,ECCode,imsi,version)
+    else
+         Log:write("开始鉴权登录5...")
+         url = string.format('http://%s/webcloud/sso/sso_auth.action?mobile=%s&productKey=%s&ecCode=%s&imsi=%s&version=%s&shalNum=%s', 
+            Config:get('ssourl'),mobile,productKey,ECCode,imsi,version, g_localMd5)
+    end 
     Log:write(string.format('the info is %s/%s/%s/%s/%s/%s',ECCode,mobile,productKey,imsi,imei,version))
-    local url = string.format('http://%s/webcloud/sso/sso_auth.action?mobile=%s&productKey=%s&ecCode=%s&imsi=%s&version=%s'
-                               ,Config:get('ssourl'),mobile,productKey,ECCode,imsi,version)
-    Log:write('the url is ',url)
+  --  local url = string.format('http://%s/webcloud/sso/sso_auth.action?mobile=%s&productKey=%s&ecCode=%s&imsi=%s&version=%s'
+         --                      ,Config:get('ssourl'),mobile,productKey,ECCode,imsi,version)
+    Log:write('the url is',url)
     --开始http请求
+     UmsAgent:onLoadStart()
     Http:request('jianquan', url, 101, {useCache = false})
 end
 
@@ -305,12 +339,6 @@ function scrollOnTick(sprite)
     local scrollImg = Sprite:findChild(sprite, 'scrollImg')
     local x, y, w, h = Sprite:getRect(scrollImg)
     if x > 250  then
-       -- if Config:get("register_tips")=="0" then
-       -- Scene:go("MODULE:\\com_xsgj\\pqy_register.wdml")
-       -- else
-       --修改为鉴权@zhouyu
-       --Scene:go("MODULE:\\com_xsgj\\login.wdml")
-       -- end
        x = 0
     end
     Sprite:setRect(scrollImg, x + 7, y, w, h)
@@ -384,11 +412,24 @@ function doUpgrade(md5sum,updateData)
     if g_patchUrl == nil or g_patchUrl == "" then 
         Log:write("差分包的URL地址为空！")
         bDiffUpdate = false
-    end
+  else
     -- 检查本地旧本地文件是否存在 
     if IO:fileExist(g_localpath) == false then
         Log:write("本地文件不存在！")
         bDiffUpdate =  false
+
+    else
+            -- 本地文件存在，进行校验
+            showNoticeMessage("正在校验本地安装包...")
+            Log:write("本地文件MD5:"..g_localMd5..", 服务端返回校验值为:", g_packageMd5)
+            if g_packageMd5 ~= g_localMd5 or g_localMd5 == "" 
+                or g_packageMd5 == 0 then 
+                Log:write("校验失败，与服务端不匹配！")
+                bDiffUpdate =  false 
+            else
+                Log:write("校验成功！")
+            end
+        end 
     end
     -- TODO: 进行MD5校验
 

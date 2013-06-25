@@ -46,6 +46,7 @@
            <label name="label1" rect="35,0,100,71" style="autosize" text="巡店时间" color="#0" extendstyle="0010" h-align="right" v-align="center" font-weight="bold" font-family="微软雅黑" font-size="24"/>       
            <label name="xundianTime" rect="165,0,270,71" style="autosize" color="#0" extendstyle="1111" h-align="left" v-align="center" font-size="24"/>                                          
         </node>
+        <!--这个是请求门店的-->
         <node  rect="0,151,480,71"  extendstyle="1111">
            <label name="mendianlabel" rect="35,0,100,71" style="autosize" text="门店名称" color="#0" extendstyle="0010" h-align="right" v-align="center" font-weight="bold" font-family="微软雅黑" font-size="24"/>     
            <button name="btnname2" rect="155,0,290,71" normal="normal" sel="sel" OnKeyUp="comboboxOnKeyup2" OnSelect="comboboxOnSelect2" data="" extendstyle="0010">
@@ -56,7 +57,7 @@
         </node>
         <node  rect="0,222,480,71"  extendstyle="1111">
            <label name="label3" rect="35,0,100,71" style="autosize" text="巡店位置" color="#0" extendstyle="0010" h-align="right" v-align="center" font-weight="bold" font-family="微软雅黑" font-size="24"/>                                                         
-           <scrolltext name="xundianlabel" rect="165,0,240,71" style="autosize" color="#0" font-family="微软雅黑" extendstyle="0010" h-align="left" v-align="center" font-size="24" scroll="true"/>  
+           <scrolltext name="xundianlabel" step="4" rect="165,0,240,71" style="autosize" color="#0" font-family="微软雅黑" extendstyle="0010" h-align="left" v-align="center" font-size="24" scroll="true"/>  
            <button rect="410,15,40,40" border="false" OnSelect="doLocation2" extendstyle="1111" style="autosize" >
               <image normal="normal" rect = "10,5,20,30" src="file://pics/dingwei.png" style="autosize" extendstyle="1111"/>
            </button>
@@ -133,6 +134,7 @@
 require 'com_xsgj.common.framework'
 require 'com_xsgj.common.map'
 require 'com_xsgj.common.upload'
+require 'com_xsgj.common.umsagent'
 local rootSprite
 local user_name = Config:get('truename')
 local user_code = Config:get('username')
@@ -161,6 +163,7 @@ local success
 local tishikuang
 local g_retryCount=20
 local localsuc=0
+local net_retryCount=20
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -180,7 +183,8 @@ end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
-    if msg == MSG_ACTIVATE then -- 页面激活                        
+    if msg == MSG_ACTIVATE then -- 页面激活 
+      UmsAgent:OnActivate(string.match(Alias.wjb_jishixundian, 'MODULE:\\(.*)'), '即使巡店')                       
                  setAllShoworHide(Sprite:findChild(rootSprite, 'success'), 0)                      
                  local mendian = Sprite:findChild(rootSprite, 'btnname2')          
                  local mendianContent = Sprite:findChild(mendian, 'comboboxlabel2') 
@@ -196,7 +200,9 @@ function bodyOnSpriteEvent(msg, param)
                  dingwei_address=''
                  allimg=''                
                  doLocation2() 
-                 GetLocalTime()                     
+                 GetLocalTime() 
+        elseif msg == MSG_DEACTIVATE then
+           UmsAgent:OnDeactivate()                    
     end
 end
 
@@ -206,24 +212,26 @@ function bodyOnPluginEvent(msg, param)
             local postDataString = Param:getString(param, 0)
             local postData = Json:loadString2Table(postDataString)
             local locInfo = Sprite:findChild(rootSprite, 'xundianlabel')
-            if postData.latitude ~= nil then
+            if postData.latitude ~= nil and postData.longitude ~= nil  then
+                 Timer:cancel(333)
+                 net_retryCount=20
+                 localsuc=1
                 latitude=postData.latitude
-            end
-            if postData.longitude ~= nil then
                 longitude=postData.longitude
-            end
               if postData.desc ~= '0' then
                 Log:write('解析地址成功', postData)
                 dingwei_address=postData.desc
-                localsuc=1
                 Sprite:setProperty(locInfo, 'text', postData.desc)
             end
             --修改了网达底层定位代码现在直接展现位置@chengchuan
             if postData.longitude ~= nil and postData.latitude ~= nil and postData.desc == '0' then
+                 Timer:cancel(333)
+                 net_retryCount=20
                 observer = Plugin:getObserver()
                 Map:getLocation(observer, 1001, tonumber(postData.latitude), tonumber(postData.longitude))  
             end
         end
+    end
         if msg == 1001 then--用来显示定位的位置
             local postDataString = Param:getString(param, 0)
             local postData = Json:loadString2Table(postDataString)
@@ -326,8 +334,7 @@ function comboboxOnSelect2(sprite)
 end
 
 function requestwhovisitList(tag, num, page, pagesize)
-              local requestURL = string.format(address_port..'mystore/getlistByUser?userCode='..user_code..'&pagesize=1000&page=1&keyword=')
-              Log:write("++++++++++++++requestURL:", requestURL)          
+              local requestURL = string.format(address_port..'mystore/getlistByUser?userCode='..user_code..'&pagesize=1000&page=1&keyword=')          
             Http:request(tag, requestURL, num, {useCache = false, method = 'post'})
 end
 
@@ -445,9 +452,22 @@ end
     ---开始定位
 function getLoctudeByNet()
         observer = Plugin:getObserver()
+         Timer:set(333, 1000, 'getNetWork')
         Map:getCurPosition(observer,  1000)
 end
 
+function getNetWork()
+  Log.write('net_retryCount',net_retryCount)
+  if(net_retryCount>0) then
+    local locInfo = Sprite:findChild(rootSprite, 'xundianlabel')
+    Sprite:setProperty(locInfo, "text", "网络正在定位中，剩余"..net_retryCount.."秒")
+    net_retryCount = net_retryCount - 1
+  else
+     local locInfo = Sprite:findChild(rootSprite, 'xundianlabel')
+    Sprite:setProperty(locInfo, "text", "网络定位失败")
+  end
+  Timer:set(333, 1000, 'getNetWork')
+end
 function doLocation2()
         local locInfo = Sprite:findChild(rootSprite, 'xundianlabel')
         Sprite:setProperty(locInfo, 'text', '正在定位......')
@@ -457,14 +477,8 @@ function doLocation2()
             Sprite:setProperty(locInfo, 'text', '当前GPS不可用, 尝试使用网络定位...')
             getLoctudeByNet()
         elseif result == 0 then
-            local gpsStatus = System:setGPSStatus(1)
-            if gpsStatus then
-                Sprite:setProperty(locInfo, 'text', 'GPS开启成功，正在定位...')
-                Timer:set(222, 1000, 'getLoctude')
-            else
-                Sprite:setProperty(locInfo, 'text', 'GPS开启失败, 尝试使用网络定位...')
+                Sprite:setProperty(locInfo, 'text', '使用网络定位请稍等...')
                 getLoctudeByNet()
-            end
         elseif result == 1 then
             Sprite:setProperty(locInfo, 'text', 'GPS已经开启，正在定位...')
             Timer:set(222, 1000, 'getLoctude')
@@ -479,12 +493,31 @@ function getLoctude()
           Log:write(string.format("getLoctude1: latitude=%s, lonitude=%s", latitude, longitude))
         if longitude ~= nil and longitude ~= 0 and latitude ~= nil and latitude ~= 0 
             and g_retryCount > 0 then
-            Log:write(string.format("getLoctude2: latitude=%s, lonitude=%s", latitude, longitude))
+             if g_latitude == nil and g_longitude == nil then 
+                  g_latitude = latitude
+                  g_longitude = longitude
+                  g_retryCount = g_retryCount - 1
+                  Timer:set(222, 1000, 'getLoctude')
+                return
+            end
+            -- 有效的gps数据，与上次的定位结果不同
+            if g_latitude ~= latitude and g_longitude ~= longitude then 
                 g_retryCount = 20
                 Timer:cancel(222)
                 System:setGPSStatus(0)
+                --@todo 显示到界面
                 observer = Plugin:getObserver()
                 Map:getLocation(observer, 1001, latitude, longitude)
+            else -- 无效的gps数据， 与上次的定位结果不同
+                g_retryCount = g_retryCount - 1
+                Timer:set(222, 1000, 'getLoctude')
+            end
+            -- Log:write(string.format("getLoctude2: latitude=%s, lonitude=%s", latitude, longitude))
+            --     g_retryCount = 20
+            --     Timer:cancel(222)
+            --     System:setGPSStatus(0)
+            --     observer = Plugin:getObserver()
+            --     Map:getLocation(observer, 1001, latitude, longitude)
         elseif g_retryCount > 0 then
             g_retryCount = g_retryCount - 1
             Timer:set(222, 1000, 'getLoctude')

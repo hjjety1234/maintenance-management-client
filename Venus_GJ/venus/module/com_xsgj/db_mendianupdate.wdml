@@ -249,6 +249,7 @@ require 'com_xsgj.common.framework'
 require 'com_xsgj.common.map'
 require 'com_xsgj.common.upload'
 require 'com_xsgj.common.umsagent'
+require 'framework.upload'
     local rootSprite
     local jsonDecodedData = nil
     local imgdata = ''
@@ -262,7 +263,7 @@ require 'com_xsgj.common.umsagent'
     local observer   
     local g_retryCount=20
     local dingwei_address = ""
-    local up_url =Alias.urlServer..'upload/UGC_GetUploadUrl'
+    local up_url =Alias.urlServer..'new/upload/UGC_GetUploadUrl'
     --local server1=Alias.urlServer..'mystore/add'
     --local server2=Alias.urlServer..'mystore/getAllMaterialDept?userCode='
     local server1=Alias.urlServer..'mystore/update'
@@ -337,36 +338,36 @@ require 'com_xsgj.common.umsagent'
                 afterLocation()
                 showMsg('网络定位成功')
                  end
-        elseif msg == 501  then  --返回上传路径，并启动上传
-            UmsAgent:onLoadFinish()
-            Log:write("501==01")
-            local uploadData = Http:xmlDecode('upload_url', 'RESULT')
-            Log:write("501==02")
-            local url = uploadData.URL
-            local param = uploadData.PARAM
-            Log:write("501==03")
-            if param then
-                param = param .. '&'
-            else
-                param = ''
-            end
-            Log:write("501==04")
-            local tmpSplitImage = Split(param,'&')
-            imgServerSource = string.sub(tmpSplitImage[1],15,-1) 
-            Log:write("501==05")
-            local fname = string.sub(clipImgPath,lastIndexof( clipImgPath,'/')+1,string.len(imgdata)-4)          
-            local poststr ='id=111&markid=&interfaceMainType=2&usercode='..Config:get('username')..'&uploadFileName='..fname..'.jpg'        
-            Log:write("501==06")
-            local result = Upload:append(url, param..poststr,clipImgPath, fname .. '.jpg', 'test', 'jpg')
-            Log:write('图片名称=='..fname .. '.jpg')
-            imgdata = ''
-            Log:write('图片上传完成，表单提交中。。。')
-            --showMsg('图片上传完成，表单提交中。。。')
-            Log:write('param1000 ='..imgServerSource)
-            subform()
-            --imgdata = ''
-            --Loading:close() 
-            --isok()
+        -- elseif msg == 501  then  --返回上传路径，并启动上传
+        --     UmsAgent:onLoadFinish()
+        --     Log:write("501==01")
+        --     local uploadData = Http:xmlDecode('upload_url', 'RESULT')
+        --     Log:write("501==02")
+        --     local url = uploadData.URL
+        --     local param = uploadData.PARAM
+        --     Log:write("501==03")
+        --     if param then
+        --         param = param .. '&'
+        --     else
+        --         param = ''
+        --     end
+        --     Log:write("501==04")
+        --     local tmpSplitImage = Split(param,'&')
+        --     imgServerSource = string.sub(tmpSplitImage[1],15,-1) 
+        --     Log:write("501==05")
+        --     local fname = string.sub(clipImgPath,lastIndexof( clipImgPath,'/')+1,string.len(imgdata)-4)          
+        --     local poststr ='id=111&markid=&interfaceMainType=2&usercode='..Config:get('username')..'&uploadFileName='..fname..'.jpg'        
+        --     Log:write("501==06")
+        --     local result = Upload:append(url, param..poststr,clipImgPath, fname .. '.jpg', 'test', 'jpg')
+        --     Log:write('图片名称=='..fname .. '.jpg')
+        --     imgdata = ''
+        --     Log:write('图片上传完成，表单提交中。。。')
+        --     --showMsg('图片上传完成，表单提交中。。。')
+        --     Log:write('param1000 ='..imgServerSource)
+        --     subform()
+        --     --imgdata = ''
+        --     --Loading:close() 
+        --     --isok()
         elseif msg == 503 then--提交表单成功
             if Loading:isShow() then Loading:close() end 
             jsonDecodedData = Http:jsonDecode('form_data')
@@ -548,29 +549,17 @@ require 'com_xsgj.common.umsagent'
             return
         end
         if longitude ~= '0' and clipImgName ~= '' then
-            --showMsg('请在完成照片信息采集后提交')
-            requestPicUrl()
-        else
-            subform()
+
+           subform()
         end
         
         --subform();
    end
--- 请求图片上传地址
-function requestPicUrl()  
-    --新增图片上传，图片上传完后提交表单 imgdata
-    Log:write("requestPicUrl")
-    local value = clipImgPath
-    local fname=string.sub(value,lastIndexof( value,'/')+1,string.len(value)-4)
-    local param2 = 'FILE_NAME='..fname..'&C_TYPE=jpg&C_LEN=' .. IO:fileSize(value)
-    UmsAgent:onLoadStart()
-    Http:request('upload_url', up_url, 501, {useCache = false, method = 'post', postData= param2})  
-    Log:write("requestPicUrl2")
-    Loading:show(rootSprite)
-end
+
 
     --上传表单
     function subform()
+        uploadphoto()
         local param = 'mystoreId='..oid
         ..'&mystoreName='..Sprite:getText(Sprite:findChild(rootSprite, 'mname'))
         ..'&mystoreStatus='..Sprite:getData(Sprite:findChild(rootSprite, 'mstus'))
@@ -754,8 +743,6 @@ function showCurImage()
         local delPic = Sprite:findChild(rootSprite, 'delPic')
         delPic(delPic)
     end
-    Log:write('clipImgPath ='..clipImgPath)
-    Log:write('clipImgName ='..clipImgName)
     ImgSrv = clipImgPath
     --Log:write("imgdata = "..imgdata)
     local pic1 = Sprite:findChild(rootSprite, 'pic1')
@@ -768,19 +755,56 @@ function showCurImage()
     Sprite:setEnable(pic1,1)
     Reg:release('m_picRecord')   
 end
--- 请求图片上传地址
-function requestPicUrl(imageUrl)  
-    --新增图片上传，图片上传完后提交表单
-    local value = clipImgPath
-    local fname = string.sub(value,lastIndexof( value,'/')+1,string.len(value)-4)
-    local param2 = 'FILE_NAME='..fname..'&C_TYPE=jpg&C_LEN=' .. IO:fileSize(value)
-    UmsAgent:onLoadStart()
-    Http:request('upload_url', up_url, 501, {useCache = false, method = 'post', postData= param2})  
-    local url =  Alias.url_server..'mobile/upload/UGC_GetUploadUrl?'
-    local param = 'FILE_NAME=' .. imageName .. 'ClipImg&C_TYPE=' .. 'jpg' .. '&C_LEN=' .. IO:fileSize(imageUrl)
-    Http:request('upload_url', url, 101, {useCache = false, method = 'post', postData= param})
-    Loading:show(rootSprite)
+
+
+--进行图片上传
+function uploadphoto()
+  -- Log:write("--------"..Config:get('username'))
+  -- Log:write("------"..Config:get('companyId'))
+      local value = clipImgPath
+      local fname = string.sub(value,lastIndexof( value,'/')+1,string.len(value)-4)
+     -- imgServerSource='attenceType/'..Config:get('companyId')..'/'..Config:get('username')..'/slt_'..fname..'.jpg'
+        imgServerSource='yt_'..fname..'.jpg'
+        Log:write("进行图片上传执行了clipImgPath"..imgServerSource)
+        local url = up_url
+        local strUploadFile =value
+        local strLocal =''
+        local strUsersession =Config:get('username') --上传者的员工编号
+        local strParentId ='attenceType'--type
+        local strFilePath = ''
+        local strFilename = fname..'.jpg'
+        Log:write("进行图片上传执行了strFilename"..strFilename)
+        local action = "[{\"type\":\"1\",\"tick\":\"开始上传" .. strFilename .. "文件\",\"content1\":\"".. strFilename .."\",\"content2\":\"\",\"action\":\"upload\"},{\"type\":\"2\",\"tick\":\"".. strFilename .."文件上传完成\",\"content1\":\"".. strFilename .."文件上传\",\"content2\":\"上传完成\",\"action\":\"upload\"}]"
+        Log:write('action =',action)
+        Upload:appendEx(url,strUploadFile,strLocal,strUsersession,strParentId,strFilePath,strFilename,action)
 end
+
+-- -- 请求图片上传地址
+-- function requestPicUrl(imageUrl)  
+--     --新增图片上传，图片上传完后提交表单
+--     local value = clipImgPath
+--     local fname = string.sub(value,lastIndexof( value,'/')+1,string.len(value)-4)
+--     local param2 = 'FILE_NAME='..fname..'&C_TYPE=jpg&C_LEN=' .. IO:fileSize(value)
+--     UmsAgent:onLoadStart()
+--     Http:request('upload_url', up_url, 501, {useCache = false, method = 'post', postData= param2})  
+--     local url =  Alias.url_server..'mobile/upload/UGC_GetUploadUrl?'
+--     local param = 'FILE_NAME=' .. imageName .. 'ClipImg&C_TYPE=' .. 'jpg' .. '&C_LEN=' .. IO:fileSize(imageUrl)
+--     Http:request('upload_url', url, 101, {useCache = false, method = 'post', postData= param})
+--     Loading:show(rootSprite)
+-- end
+
+-- 请求图片上传地址
+-- function requestPicUrl()  
+--     --新增图片上传，图片上传完后提交表单 imgdata
+--     Log:write("requestPicUrl")
+--     local value = clipImgPath
+--     local fname=string.sub(value,lastIndexof( value,'/')+1,string.len(value)-4)
+--     local param2 = 'FILE_NAME='..fname..'&C_TYPE=jpg&C_LEN=' .. IO:fileSize(value)
+--     UmsAgent:onLoadStart()
+--     Http:request('upload_url', up_url, 501, {useCache = false, method = 'post', postData= param2})  
+--     Log:write("requestPicUrl2")
+--     Loading:show(rootSprite)
+-- end
       --查找最后一个字符串
     function lastIndexof(s,tag)
         local index=-1
@@ -792,7 +816,9 @@ end
          end
          index = i
         end
-    end            --显示原图
+    end
+    
+            --显示原图
     function topic(sprite)
             --创建数据仓库
         if ImgSrv == '' then

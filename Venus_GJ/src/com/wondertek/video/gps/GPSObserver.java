@@ -5,11 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.GpsStatus;
@@ -19,18 +18,17 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.text.AndroidCharacter;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 
-import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;
+import com.wondertek.xsgj.R;
 
 public class GPSObserver {
 	private static String TAG = "WDGPS";
@@ -41,7 +39,7 @@ public class GPSObserver {
 	private boolean bListener = false;
 
 	private final static double PI = 3.14159265358979323; //pai
-	private final static double R = 6371229; //earth
+	private final static double RADIUS = 6371229; //earth
 
 	private GpsStatus gpsStatus = null;
 
@@ -95,12 +93,17 @@ public class GPSObserver {
 	private void openGPS()
 	{
 		if(isGPSEnable())
-			if(!mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER))
-				toggleGPS();		
+			if(!mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
+				toggleGPS();
+				// add pj
+				showGpsAlert();
+				injectGps();
+			}
 	}
 	
 	/**
 	 * inject XTRA data and time reference to the GPS in order to get a faster fix.
+	 * @author hewu <hewu2008@gmail.com>
 	 */
 	public void injectGps()
 	{
@@ -123,11 +126,47 @@ public class GPSObserver {
 		Long currentTime = date.getTime() / 1000;
 		if (bDCConnected == true && (currentTime - last_gps_age) > 600) {
 			Log.d(TAG, "[injectGps] true");
-		    mLocationManager.sendExtraCommand("gps", "force_xtra_injection", null);
-		    SharedPreferences.Editor localEditor = localSharedPreferences.edit();
+			mLocationManager.sendExtraCommand("gps", "force_xtra_injection", null);
+		   	SharedPreferences.Editor localEditor = localSharedPreferences.edit();
 		    localEditor.putLong("gps_age", currentTime);
 		    localEditor.commit();
 		}
+	}
+	
+	/**
+	 * show open GPS setting dialog if GPS is disabled.
+	 * @author hewu <hewu2008@gmail.com>
+	 */
+	public void showGpsAlert() {
+        final Dialog dialog = new Dialog(VenusActivity.appActivity, android.R.style.Theme_Translucent_NoTitleBar);
+        dialog.setContentView(R.layout.gps);
+        Button gps_yes = (Button)dialog.findViewById(R.id.button_yes);
+        gps_yes.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				VenusActivity.appActivity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+				dialog.dismiss();
+			}
+		});
+        Button gps_cancel = (Button)dialog.findViewById(R.id.button_cancel);
+        gps_cancel.setOnClickListener(new OnClickListener() {
+        	@Override
+			public void onClick(View v) {
+				dialog.dismiss();
+			}
+        });
+        final Handler threadHandler = new Handler(); ;  
+        new Thread() {
+        	@Override
+        	public void run() {
+        		 threadHandler.post( new Runnable(){
+					@Override
+					public void run() {
+						dialog.show();
+					}
+        		 });
+        	}
+        }.start();
 	}
 
 	private void closeGPS()
@@ -147,8 +186,6 @@ public class GPSObserver {
 		{
 			if(!mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER))
 				toggleGPS();
-			
-			injectGps();
 			
 			if(mLocationManager.addGpsStatusListener(gpsListener))
 				mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
@@ -185,10 +222,10 @@ public class GPSObserver {
 		Log.d(TAG, "on getdistance");
 		double x, y, distance;
 
-		x = (endLongitude - startLongitude) * PI * R
+		x = (endLongitude - startLongitude) * PI * RADIUS
 				* Math.cos(((startLatitude + endLatitude) / 2) * PI / 180)
 				/ 180;
-		y = (endLatitude - startLatitude) * PI * R / 180;
+		y = (endLatitude - startLatitude) * PI * RADIUS / 180;
 		distance = Math.hypot(x, y);
 		return (int) distance;
 	}

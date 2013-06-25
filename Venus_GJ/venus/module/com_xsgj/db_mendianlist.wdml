@@ -74,6 +74,7 @@
     </body>
     <![CDATA[
     require 'com_xsgj.common.framework'
+     require 'com_xsgj.common.umsagent'
     local server=Alias.urlServer..'mystore/getStoreList?pagesize=6'
     local serverImg=Alias.imgServer
     local rootSprite=nil
@@ -82,24 +83,32 @@
     local morebtn=nil
     local nomsg=nil
     local hisParm=nil
+    local error
+    local usercode=Config:get('username')
     -- 第一次创建页面事件
     function bodyBuildChildrenFinished(sprite)
         rootSprite = sprite
+         Loading:show(rootSprite)
+        error = Sprite:findChild(rootSprite, 'error')  
+    end
+
+    -- 页面加载事件
+    function bodyOnSpriteEvent(msg, param)
+       if msg == MSG_ACTIVATE then -- 页面激活
+          UmsAgent:OnActivate(string.match(Alias.mendianlist, 'MODULE:\\(.*)'), '我的门店')
         curpage=Sprite:findChild(rootSprite, 'curpage')
         morebtn=Sprite:findChild(rootSprite, 'morebtn')
         nomsg=Sprite:findChild(rootSprite, 'nomsg')
         hisParm=Sprite:findChild(rootSprite, 'hisParm')
         --2.获取数据
-        Log:write(server..'&page=1'..'&userCode='..Config:get('username')..'&name=')
-        Http:request('json_data', server, 901, {useCache = false, method = 'post',postData='&page=1'..'&userCode='..Config:get('username')..'&keyword='})
-        Loading:show(rootSprite)
-    end
-    -- 页面加载事件
-    function bodyOnSpriteEvent(msg, param)
-       if msg == MSG_ACTIVATE then -- 页面激活
+        Log:write(server..'&page=1'..'&userCode='..usercode..'&name=')
+        UmsAgent:onLoadStart()
+        Http:request('json_data', server, 901, {useCache = false, method = 'post',postData='&page=1'..'&userCode='..usercode..'&keyword='})
        elseif msg == MSG_DEACTIVATE then
+         UmsAgent:OnDeactivate()
        end
     end
+
     -- 获取接口返回时的反馈处理
     function bodyOnPluginEvent(msg, param)
         if msg == 901 then -- 页面激活
@@ -135,8 +144,8 @@
     -- 按键响应处理
     function mainNodeOnKeyUp(sprite, kc) 
         if kc == Key.F2 then -- 按下返回键
-             Scene:go(Alias.home,true)
-            return 1
+             Scene:go(Alias.home)
+             return 1
         end
     end
     ---------------------------------------其他方法---------------------------
@@ -152,7 +161,7 @@
         if (jsonDecodedData ~= nil and jsonDecodedData['Rows'] ~= nil) then
             local value = jsonDecodedData['Rows'][index]
             if value ~= nil then
-                if value["mystorePhoto"] == nil or value["mystorePhoto"] == '' then
+                if value["slt_mystorePhoto"] == nil or value["slt_mystorePhoto"] == '' then
                     if value["systemtype"]=='1' then--沃尔玛
                         Sprite:setProperty(icon, 'src', 'file://pics/mengdianlog_woerma.png')
                     elseif value["systemtype"]=='2' then--家乐福
@@ -169,7 +178,8 @@
                         Sprite:setProperty(icon, 'src', 'file://pics/mengdianlog_baixing.png')
                     end
                 else
-                    local datestr = Split(value["mystorePhoto"], ',')
+                    local datestr = Split(value["slt_mystorePhoto"], ',')
+                    Sprite:setProperty(icon, 'src','file://pics/jingdu.png')
                     Sprite:setProperty(icon, 'src', serverImg..datestr[1])
                 end
                 Sprite:setProperty(srw, 'data', value["mystoreCode"])
@@ -177,10 +187,11 @@
                 Sprite:setProperty(saddr, 'text',value["addMan"]..'   '..value["mystoreAddr"])
             end
         end
+        UmsAgent:onLoadFinish() --页面值加载结束
     end
     -- @brief 返回按钮处理
     function doBack()
-        Scene:go(Alias.home,true)
+        Scene:go(Alias.home)
     end
     --- 添加按钮处理
     function add()

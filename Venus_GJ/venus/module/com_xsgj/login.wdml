@@ -53,6 +53,7 @@
     <![CDATA[
 
     require 'com_xsgj.common.framework'
+    require 'framework.umsagent' --引入时间执行脚本
     local rootSprite
     local loginData
     local flag= 1
@@ -72,17 +73,18 @@
          Log:write('页面激活')
         if msg == MSG_ACTIVATE then -- 页面激活
             -- @brief 取账号密码
+           UmsAgent:OnActivate(string.match(Alias.login, 'MODULE:\\(.*)'), "登录")
             connectNet()
             readPwd()
             elseif msg == MSG_DEACTIVATE then
+                 UmsAgent:OnDeactivate()
              elseif msg == MSG_NETWORK then
-
                  local paramFlag = param.flag
                  local paramStatus = param.networkstatus
-                  Log.write('paramStatus',paramStatus)
+                  Log:write('paramStatus',paramStatus)
                  if paramStatus == NETWORK_ERROR then
                     if paramFlag == 5  then
-                        Dialog:show('提示', '网络连接失败。', 'ok_cancel')
+                    Dialog:show('提示', '网络连接失败。', 'ok_cancel')
                     end
                  end               
         elseif msg > MSG_NETWORK_ERROR then -- 请求超时
@@ -94,16 +96,15 @@
     function bodyOnPluginEvent(msg)
         Loading:close()
         if msg == 101 then
+            UmsAgent:onLoadFinish()
             loginData = Http:jsonDecode('login_istrue')
-            Log:write('111111111:', loginData)
             local result=loginData["Total"]
             if result=='1' then
                 writeuserInfo()
-       
                if Config:get("upgrade_tips") == "0" then
                  Scene:go("MODULE:\\com_xsgj\\pqy_genxin.wdml")
                else
-                 Scene:go(Alias.home)
+                Scene:go(Alias.home)
                end
             else
                 Dialog:show('登陆提醒','账户密码错误','ok')
@@ -116,7 +117,7 @@
     function mainNodeOnKeyUp(sprite, kc)
         if kc == Key.F2 then -- 按下返回键
             if Loading:isShow() then
-                Loading:close()
+                 Loading:close()
                 else
                 Dialog:show('', '是否确定退出？', 'ok_cancel', 'doExit')
             end
@@ -134,6 +135,7 @@
         local requestURL=string.format(Alias.urlServer..'userMgr/loginPhone')
         local param = string.format('userCode=%s&userPass=%s', username, password)
         Loading:show(rootSprite)
+         UmsAgent:onLoadStart()
         Http:request('login_istrue', requestURL, 101, {method='post', postData=param, useCache=false})
         Log:write('dataString=============================', requestURL, param)
     end
@@ -145,7 +147,22 @@
         local passwordnode=Sprite:findChild(pwdnode, 'edpwd')
         local flagn = Sprite:findChild(flagnode,'btnwrite')
         local imgNode = Sprite:findChild(flagn,'image8')
-        local username = Config:get('username')
+         Log:write("开始鉴权登录111...")
+        --从sdkcrad中读取企业编号和手机号码
+           --先获取企业编号和手机号码
+                local mobile,username
+                local tableValue=readDownloadTxtConfig()
+                Log:write('tableValue is ',tableValue)
+                if tableValue~=nil then
+                  if tableValue[1]~=nil or tableValue[1]~=''then
+                       mobile=tableValue[2]
+                   end
+               end
+      if mobile~=nil then
+         username =mobile
+         else
+         username = Config:get('username')
+         end
         local password = Config:get('password')
         if username~=nil and password~=nil then
             Sprite:setProperty(imgNode, 'src', 'file://pics/login_checkbox1.png')
@@ -155,7 +172,6 @@
         end
     end
     function writePwd(sprite)
-      
         local imgNode = Sprite:findChild(sprite,'image8')
         if flag==1 then
             Sprite:setProperty(imgNode, 'src', 'file://pics/login_checkbox.png')
@@ -186,6 +202,21 @@
         Config:set('departmentName',value["departmentName"])
         Config:set('departmentId',value["departmentId"])
         Config:set('employeeId',value["employeeId"])
+        --先获取企业编号和手机号码
+                local ECCode,mobile,configTable
+                local tableValue=readDownloadTxtConfig()
+                Log:write('tableValue is ',tableValue)
+                if tableValue~=nil then
+                  if tableValue[1]~=nil or tableValue[1]~=''then
+                       ECCode=tableValue[1]
+                       mobile=value["userCode"]
+                   end
+               end
+               Log:write('ECCode is ',ECCode)
+               --再将所有的值保存到文件中去
+                configTable=ECCode..'\n'..mobile
+                Log:write("configTable2-----------",configTable)
+                savebtn_onselected(configTable)
         if flag==1 then
             Config:set('username', username)
             Config:set('password', password)
@@ -193,10 +224,8 @@
             Config:delete('username')
             Config:delete('password')
         end
-
     end
     function connectNet()
-
         WLAN:setUrl('http://www.baidu.com/', '')
         if WLAN:isSwitchOn() then
             local attach = WLAN:isAttach()
@@ -248,16 +277,16 @@ end
 
 -- 下载菜单进度提示
 function getPicDoloadStatus()
-    Log:write('the download is ',Download:getStatus())
+   -- Log:write('the download is ',Download:getStatus())
     local count = Download:getCount(true)
     if count == 0 then 
         Timer:cancel(222)
         return
     end
-    Log:write('the download count is ',count)
+    --Log:write('the download count is ',count)
     for i=1,count do
         local task = Download:getStatus(i, true)
-        Log:write('the task is ',task)
+       -- Log:write('the task is ',task)
         if task.title == 'picDownload' then
             --Log:write('the task status is ',task.status)
             if task.status == 3 then
@@ -279,7 +308,7 @@ function getDownloadIconPath()
     local downloadPath = System:getFlashCardName(1) 
     if downloadPath == nil or downloadPath == "" then 
         Log:write("SD卡不存在,使用内部存储！")
-    downloadPath = System:getFlashCardName(0)
+        downloadPath = System:getFlashCardName(0)
         Log:write('内部存储卡地址为：',downloadPath)
         --在SD卡不存在的话，如果是htc_t327t_android_A001，则使用缓存
         if(System:getUserAgent() == 'htc_t327t_android_A001') then
@@ -294,7 +323,7 @@ function getDownloadIconPath()
     end
     -- 如果apk已经存在，删除之
     iconPath = iconPath.."/"
-    Log:write("getDownloadPath: iconPath="..iconPath)
+   -- Log:write("getDownloadPath: iconPath="..iconPath)
     --[[if IO:fileExist(iconPath) == true then 
         IO:fileRemove(iconPath)
     end--]]

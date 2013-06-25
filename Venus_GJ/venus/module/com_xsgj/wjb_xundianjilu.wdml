@@ -123,6 +123,7 @@
     <![CDATA[
 
     require 'com_xsgj.common.framework'
+     require 'com_xsgj.common.umsagent'
     local rootSprite
     local urlRequestServer
     local curxundianBtn
@@ -158,6 +159,7 @@
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
+            UmsAgent:OnActivate(string.match(Alias.wjb_xundianjilu, 'MODULE:\\(.*)'), '巡店记录')
             Sprite:setVisible(error,0)
             Sprite:setVisible(listNode,1)
             local guolvren = Sprite:findChild(rootSprite, 'guolvren')
@@ -168,6 +170,7 @@
             dosearch(searchRen)--返回拜访记录页面，刷新数据
             dolingdao()
         elseif msg == MSG_DEACTIVATE then
+           UmsAgent:OnDeactivate()
         end
     end
     -- @brief 插件消息方法
@@ -235,7 +238,7 @@
     function doBack()
          local list = Sprite:findChild(rootSprite, 'sampleList')
          ListView:removeAllItems(list) 
-         Scene:go('MODULE:\\com_xsgj\\home.wdml')
+         Scene:go(Alias.home)
     end
     
     function dolingdao()

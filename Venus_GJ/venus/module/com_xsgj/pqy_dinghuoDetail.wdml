@@ -90,6 +90,7 @@
     <![CDATA[
 
     require 'com_xsgj.common.framework'
+    require 'framework.umsagent' --引入时间执行脚本
     local rootSprite
     local ItemsInNum
     local daohuolist =''
@@ -102,7 +103,8 @@
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
-        
+          UmsAgent:OnActivate(string.match(Alias.dinghuoDetail, 'MODULE:\\(.*)'), '订货明细')
+         
             --列表上面的订货人、门店名称从数据仓库中读取各字段的值
             local dinghuoDetailHandler = Reg:create("dinghuoDetail")
             local doorName = Sprite:findChild(rootSprite,"doorName")
@@ -123,15 +125,18 @@
             elseif Sprite:getText(dhState)=='打回修改' then
               Sprite:setProperty(dhState, 'color', '#1027a0')
            end
+           UmsAgent:onLoadStart()
             requestDinghuoList('noticeDetail', 101, Reg:getString(dinghuoDetailHandler, "dingdanhaoDet"))
        
             elseif msg == MSG_DEACTIVATE then
+                 UmsAgent:OnDeactivate()
         end
     end
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg)
         if msg == 101 then
             if Loading:isShow() then Loading:close() end
+            UmsAgent:onLoadFinish()
             jsonDecodedDaohuo = Http:jsonDecode('noticeDetail')
             Log:write('hewu:', jsonDecodedDaohuo)
             local totalPage = tonumber(jsonDecodedDaohuo["Total"])

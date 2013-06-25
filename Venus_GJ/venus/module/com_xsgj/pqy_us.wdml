@@ -31,7 +31,7 @@
                     font-family="微软雅黑" extendstyle="1111" font-size="32" h-align="center"
                     v-align="center" color="#ffffff" scroll="true" step="2"></scrolltext>
                  <textarea name="detail" rect="50,120,380,380"  autoextend="true" order="false" h-align="left"
-                    text="      销售管家，由中国移动安徽公司开发运营，是基于定位、GIS、云计算等先进技术，为企业外勤人员管理、终端数据和市场信息采集提供工作平台，助力企业提升销售精细化管理水平和人员工作效率。" font-size="26" extendstyle="1111"  line-height="40" font-family="微软雅黑" color="#3c3d3e">
+                    text="" font-size="26" extendstyle="1111"  line-height="40" font-family="微软雅黑" color="#3c3d3e">
                 </textarea>
                 <!--
                 <label rect="50,380,400,32" text="客服电话： 0551-xxxxxx"  font-size="26" v-align="center" font-family="微软雅黑" h-align="left"/>
@@ -43,6 +43,7 @@
     <![CDATA[
 
 require('framework.common')
+require 'com_xsgj.common.framework'
 local rootSprite
 
 ---------------------------------------callbacks--------------------------------
@@ -54,7 +55,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-
+         readVersion()
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -84,5 +85,12 @@ function doBack()
     Scene:go("MODULE:\\com_xsgj\\home.wdml")
 end
 
+function readVersion()
+local usnamenode=Sprite:findChild(rootSprite, 'detail')
+Log:write("usnamenode"..usnamenode)
+local textValue='       销售管家，由中国移动安徽公司开发运营，是基于定位、GIS、云计算等先进技术，为企业外勤人员管理、终端数据和市场信息采集提供工作平台，助力企业提升销售精细化管理水平和人员工作效率。版本号为：V'
+Log:write("textValue"..Config:get('version'))
+Sprite:setProperty(usnamenode,'text',textValue..Config:get('version')) 
+end
     ]]>
 </root>

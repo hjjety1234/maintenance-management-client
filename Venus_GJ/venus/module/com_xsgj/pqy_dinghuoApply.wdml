@@ -121,6 +121,7 @@
     <![CDATA[
 
     require 'com_xsgj.common.framework'
+     require 'framework.umsagent' --引入时间执行脚本
     local rootSprite
     local ItemsInNum
     local daohuolist = ''
@@ -144,6 +145,7 @@
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
             --从商品选择的数据仓库中取得
+              UmsAgent:OnActivate(string.match(Alias.dinghuoApply, 'MODULE:\\(.*)'), '订货申请')
             local mendianHandler = Reg:create("mendian")
             local mendian2 = Reg:getString(mendianHandler, "mendian")
             local mendianIDReg = Reg:getString(mendianHandler, "mendianID")
@@ -173,12 +175,14 @@
                 ListView:adjust(list)
             end
             elseif msg == MSG_DEACTIVATE then
+                 UmsAgent:OnDeactivate()
         end
     end
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg)
         if msg == 101 then
             if Loading:isShow() then Loading:close() end
+            UmsAgent:onLoadFinish()
             jsondinghuotj = Http:jsonDecode('notice')
             if (jsondinghuotj ~= nil or jsondinghuotj["Rows"] =='添加成功') then
                -- Dialog:show('提示', '提交成功', 'ok',"okFanhui")
@@ -351,6 +355,7 @@
 	             
 	           end
 	        end
+            UmsAgent:onLoadStart()
 	        requestgoodsList('notice', 101,usercode,daohuolist)
 	     end
          

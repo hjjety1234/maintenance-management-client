@@ -33,7 +33,7 @@
 				
 				</image>
 			    
-				<scrolltext name="title" rect="110,0,280,100" text="安徽移动销售管家" font-family="微软雅黑" 
+				<scrolltext name="title" rect="110,0,280,100" text="销售管家" font-family="微软雅黑" 
                     extendstyle="1111" font-size="30" h-align="center" v-align="center"
                     color="#ffffff" scroll="true" step="2"></scrolltext>
 			</node>
@@ -87,6 +87,9 @@
         menuData = t_S2T(Config:get('menu'))
         Log:write("the menu is ",menuData)
         inteMenu()
+       -- local strType = 'GPS'
+       -- Util:openSettingForType('GPS')
+         doLocation()
     end
     --动态加载菜单
     function inteMenu()
@@ -199,6 +202,59 @@
                 Util:openURL(dataUrl)
             end
         end
+        --[[if dataInfo == '01' then
+            --通知公告
+            Scene:setReturn(Alias.home, Alias.news)
+            Scene:go(Alias.news)
+        elseif dataInfo == '02' then
+            --信息反馈
+            Scene:setReturn(Alias.home, Alias.xinxi)
+            Scene:go(Alias.xinxi,true)
+        elseif dataInfo == '03' then
+             --考勤管理
+            Scene:setReturn(Alias.home, Alias.kaoqinlist)
+            Scene:go(Alias.kaoqinlist,true)
+        elseif dataInfo == '04' then
+            --巡店计划
+            Scene:setReturn(Alias.home, Alias.wjb_xundianjihua)
+            Scene:go(Alias.wjb_xundianjihua,true)
+        elseif dataInfo == '05' then
+            --巡店执行
+            Scene:setReturn(Alias.home, Alias.wjb_xundianzhixing)
+            Scene:go(Alias.wjb_xundianzhixing,true)    
+        elseif dataInfo == '06' then           
+            --巡店记录
+            Scene:setReturn(Alias.home, Alias.wjb_xundianjilu)
+            Scene:go(Alias.wjb_xundianjilu,true)
+        elseif dataInfo == '07' then
+            --我的门店
+            Scene:setReturn(Alias.home, Alias.mendianlist)
+            Scene:go(Alias.mendianlist,true)    
+        elseif dataInfo == '17' then
+            --订货管理
+            Scene:setReturn(Alias.home, Alias.dinghuo)
+            Scene:go(Alias.dinghuo,true) 
+        elseif dataInfo == '18' then
+            --到货管理
+            Scene:setReturn(Alias.home, Alias.daohuo)
+            Scene:go(Alias.daohuo,true)
+        elseif dataInfo == '19' then
+            --调货管理改成销售分析
+            Scene:setReturn(Alias.home, Alias.wjb_myxiaoliang)
+            Scene:go(Alias.wjb_myxiaoliang,true)
+        elseif dataInfo == '20' then
+            --销量上报改成日销量
+            Scene:setReturn(Alias.home, Alias.wjb_rixiaoliang)
+            Scene:go(Alias.wjb_rixiaoliang,true)       
+        elseif dataInfo == '21' then
+            --库存盘点
+            Scene:setReturn(Alias.home, Alias.kucunpandian)
+            Scene:go(Alias.kucunpandian,true)
+        elseif dataInfo == '22' then
+            --设置
+           Scene:setReturn(Alias.home, "MODULE:\\com_xsgj\\pqy_setup.wdml")
+           Scene:go("MODULE:\\com_xsgj\\pqy_setup.wdml",true)       
+        end--]]
     end
     
     function shezhi_OnSelect(sprite)
@@ -213,6 +269,10 @@
     function tuichu()
         Scene:go('MODULE:\\com_xsgj\\index.wdml',true)
     end
+    
+    function shezhi_OnSelect(sprite)
+    end
+
     --获取SD卡上的Download目录
     function getDownloadIconPath()
         local iconPath = ''
@@ -239,6 +299,23 @@
         end
         return iconPath
     end
+       -- 当前无经纬度信息，检查当前gps状态
+     function doLocation()
+      local result = System:getGPSStatus()
+        Log:write('result',result)
+      if result == -1 then 
+        System:setGPSStatus(1)
+        local longitude,latitude = System:getGPSData()
+      elseif result == 0 then
+            local gpsStatus = System:setGPSStatus(1)
+            local longitude,latitude = System:getGPSData()
+          if gpsStatus then
+            local longitude,latitude = System:getGPSData()
+           else
+            --跳到手动调节gps设置页面
+          end
+  end
+end
  
 ]]>
 </root>

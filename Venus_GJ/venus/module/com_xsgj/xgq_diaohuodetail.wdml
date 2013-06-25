@@ -164,6 +164,7 @@
     <![CDATA[
 
     require 'com_xsgj.common.framework'
+   require 'com_xsgj.common.umsagent'
     local rootSprite
     local ItemsInNum
     local daohuolist = ''
@@ -184,12 +185,14 @@
         local noticeDetailHandler = Reg:create("diaohuoDetailData")
         diaohuodan = Reg:getString(noticeDetailHandler, "diaohuodanId")
         Log:write('diaohuodanhao:'..diaohuodan)
+         UmsAgent:onLoadStart()
         Http:request("noticeDetail", server_diaohuodetail..diaohuodan, 101,{useCache=false})
         Loading:show(rootSprite)
     end
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
+              UmsAgent:OnActivate(string.match(Alias.diaohuodetail, 'MODULE:\\(.*)'), '调货详情')
             local noticeDetailHandler = Reg:create("diaohuoDetailData")
             diaohuodan = Reg:getString(noticeDetailHandler, "diaohuodanId")
             local diaorudoorName = Reg:getString(noticeDetailHandler, "diaorudoorName")
@@ -200,12 +203,14 @@
             Sprite:setProperty(Sprite:findChild(node1, 'diaorudoorName'), 'text', diaorudoorName)
             Sprite:setProperty(Sprite:findChild(node1, 'diaochudoorName'), 'text', diaochudoorName)
             Sprite:setProperty(Sprite:findChild(node1, 'qsState'), 'text', qianshouzhuangtai)
-        elseif msg == MSG_DEACTIVATE then
+        elseif msg == MSG_DEACTIVATE then     
+ UmsAgent:OnDeactivate()
         end
     end
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg, param)
         if msg == 101 then
+            UmsAgent:onLoadFinish()
             if Loading:isShow() then Loading:close() end
             jsonDecodedDaohuo = Http:jsonDecode('noticeDetail')
             Log:write('hewu:', jsonDecodedDaohuo)

@@ -44,7 +44,7 @@
             <node name="searchBar" rect="0,80,480,70" extendstyle="1111">
 				<image name="Image1" rect="0,0,480,70" src="file://pics/search_bg.png"extendstyle="1111" style="autosize"></image>
 				<image name="Image1" rect="10,10,400,52" src="file://pics/input_search.png" sudoku="50,0,50,0" style="sudoku-auto" extendstyle="1111"></image>
-				<edit name="keywordEdit" rect="45,15,350,40" extendstyle='1111' v-align="center" h-align="left" color="#c5c6c5" font-size="24" text="搜索新闻标题" OnLostFocus="editOnTextChanged" OnSetFocus="initText" font-family="微软雅黑"></edit>
+				<edit name="keywordEdit" rect="45,15,350,40" extendstyle='1111' v-align="center" h-align="left" color="#c5c6c5" font-size="24" text="搜索公告标题" OnLostFocus="editOnTextChanged" OnSetFocus="initText" font-family="微软雅黑"></edit>
 				<button name="appBtn" rect="420,15,40,40" style="autosize" normal="src:file://pics/button_search_d.png;" sel="src:file://pics/button_search_s.png;" OnSelect="OnSearchButtonClicked" extendstyle="1111" />
 			</node>
 			<!-- 公告列表视图  -->
@@ -123,6 +123,7 @@
     <![CDATA[
 
     require 'com_xsgj.common.framework'
+     require 'com_xsgj.common.umsagent'
     local rootSprite
     local isSearchBarVisible = false
     local nSearchBarWidth = 55
@@ -144,16 +145,22 @@
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
+            UmsAgent:OnActivate(string.match(Alias.news, 'MODULE:\\(.*)'), '通知公告')
+            local FavListNodeSprite = Sprite:findChild(rootSprite, "ContextMenuNode")
+            Sprite:setProperty(FavListNodeSprite, 'visible', 'false')
             curpage=Sprite:findChild(rootSprite, 'curpage')
             morebtn=Sprite:findChild(rootSprite, 'morebtn')
             pages=Sprite:getData(curpage)
+            UmsAgent:onLoadStart()--计算的为页面请求时间
             requestNoticeList('notice', 101, usercode, '',  Sprite:getData(curpage), pagesize)
             elseif msg == MSG_DEACTIVATE then
+             UmsAgent:OnDeactivate()
         end
     end
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg)
         if msg == 101 then
+            UmsAgent:onLoadFinish()
             if Loading:isShow() then Loading:close() end
             jsonDecodedNotice = Http:jsonDecode('notice')
             Log:write('pqy:', jsonDecodedNotice)
@@ -213,7 +220,7 @@
     --当进入编辑框时，修改文字为输入
     function initText(sprite)
         local txt= Sprite:getProperty(sprite, 'text')
-        if txt=='搜索新闻标题' then
+        if txt=='搜索公告标题' then
             Sprite:setProperty(sprite, 'text', '')
             Sprite:setProperty(sprite, 'color', '#0')
         end
@@ -223,7 +230,7 @@
         local txt= Sprite:getProperty(sprite, 'text')
         if txt=='' or txt ==nil then
             Sprite:setProperty(sprite, 'color', '#8f8e8e')
-            Sprite:setProperty(sprite, 'text', '搜索新闻标题')
+            Sprite:setProperty(sprite, 'text', '搜索公告标题')
         end
     end
     -- @brief 按键响应处理
@@ -249,7 +256,7 @@
     end
     -- @brief 返回按钮处理
     function doBack()
-        Scene:go(Alias.home,true)
+        Scene:go(Alias.home)
     end
     ---------------------------------------util functions---------------------------
  
@@ -387,7 +394,7 @@
         initList()
         local txt= Sprite:findChild(rootSprite, 'keywordEdit')
         Sprite:setProperty(txt, 'color', '#8f8e8e')
-        Sprite:setProperty(txt, 'text', '搜索新闻标题')
+        Sprite:setProperty(txt, 'text', '搜索公告标题')
         requestNoticeList('notice', 101, usercode, title, pages, pagesize)
     end
     --加载更多
@@ -398,7 +405,7 @@
         Sprite:setProperty(curpage, 'data',p)
         local keywordEditSprite = Sprite:findChild(rootSprite, "keywordEdit")
         local title = Sprite:getText(keywordEditSprite)
-        if title == nil or title =='' or title=='搜索新闻标题'then
+        if title == nil or title =='' or title=='搜索公告标题'then
             Http:request('notice', Alias.urlServer..'news/selAll?'..'page='..Sprite:getData(curpage)..'&pagesize='..pagesize..'&userCode='..Config:get('username'), 101, {useCache = false, method = 'post'})
         else
             Http:request('notice', Alias.urlServer..'news/selAll?'..'title='..title..'&page='..Sprite:getData(curpage)..'&pagesize='..pagesize, 101, {useCache = false, method = 'post'})

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+fileRemoveTxtConfig<?xml version="1.0" encoding="utf-8"?>
 <!--
  == ============================================================================
  == | WonderTek [ 网络无处不在，沟通及时到达 ]
@@ -43,10 +43,10 @@
         <edit name="yzmEdit" rect="60,360,360,60" extendstyle='1111' v-align="center" h-align="center" color="#c5c6c5" font-size="28"  OnSetFocus="initText1"  font-family="微软雅黑" >
           <label name="wenben1"  rect="0,0,360,60" text="输入短信验证码"  font-size="28"  v-align="center" h-align="center" extendstyle="1111" color="#8f8e8e"  />
         </edit>
-        <image name="sucess" rect="100,460,30,30" src="file://pics/regi_sucess.png" style="autosize" extendstyle="1111" visible="false"></image>
-        <image name="fail" rect="100,460,30,30" src="file://pics/fail.png" style="autosize" extendstyle="1111" visible="false"></image>
+        <image name="sucess" rect="60,460,30,30" src="file://pics/regi_sucess.png" style="autosize" extendstyle="1111" visible="false"></image>
+        <image name="fail" rect="60,460,30,30" src="file://pics/fail.png" style="autosize" extendstyle="1111" visible="false"></image>
         
-        <scrolltext name="zcjieguo" scroll="true"  rect="150,460,280,30" text=""  font-size="28"  v-align="center" h-align="left" extendstyle="1111"  font-family="微软雅黑"/>
+        <scrolltext name="zcjieguo" scroll="true"  rect="100,460,320,30" text=""  font-size="28"  v-align="center" h-align="left" extendstyle="1111"  font-family="微软雅黑"/>
         <button name="registerBtn" rect="50,530,385,66"  normal="src:file://pics/back_d.png;style:sudoku-auto;sudoku:15,15,15,15;" text="注册" color="#ffffff" font-size="28"
             sel="src:file://pics/back_s.png;style:sudoku-auto;sudoku:15,15,15,15;" OnSelect="registerOnclick" border="false"  style="autosize" extendstyle="1111" font-family="微软雅黑" visible="true" active="true"></button>
         <button name="dengluBtn" rect="50,530,385,66"  normal="src:file://pics/back_d.png;style:sudoku-auto;sudoku:15,15,15,15;" text="继续登录" color="#ffffff" font-size="28"
@@ -59,7 +59,6 @@
 
 require 'com_xsgj.common.framework'
 local rootSprite
-local usercode=Config:get('username')
 local timeNum = 50 --获取验证码倒计时秒数
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -78,6 +77,8 @@ function bodyOnSpriteEvent(msg, param)
 end
 
 -- @brief 插件消息方法
+
+
 function bodyOnPluginEvent(msg)
     if msg == 101 then
         registerData = Http:jsonDecode('register')
@@ -107,13 +108,20 @@ function bodyOnPluginEvent(msg)
         local registerBtn=Sprite:findChild(rootSprite, 'registerBtn')
         Sprite:setProperty(zcjieguo, 'text',zhuceData["retmsg"])
         if zhuceData["retmsg"]=="恭喜您,注册成功" then
+            local  configString=''
             Sprite:setVisible(sucess,1)
             Sprite:setVisible(fail,0)
             setAllShoworHide(registerBtn,0)
             setAllShoworHide(dengluBtn,1)
             --注册成功后，将相关信息写入配置
             local phoneEdit = Sprite:findChild(rootSprite,'phoneEdit')
-            Config:set('ECCode',zhuceData["retdata"].ECCode) --企业编号
+            --保存企业编号和手机号码
+                Log.write("phoneEdit-----------",Sprite:getText(phoneEdit))
+                Log.write("ec-----------",zhuceData["retdata"].ECCode)
+            configString=zhuceData["retdata"].ECCode..'\n'..Sprite:getText(phoneEdit)
+            Log.write("xinzeeeee",configString)
+            savebtn_onselected(configString)
+            -- Config:set('ECCode',zhuceData["retdata"].ECCode) --企业编号
             Config:set('username',Sprite:getText(phoneEdit)) --手机号码
             Config:set('userName',Sprite:getText(phoneEdit))
             --Timer:set(333,2000,'goHome')  --注册成功后，提醒用户继续登录，跳转到登录界面
@@ -139,8 +147,8 @@ function getSmsCheckCodeTimer()
         Timer:set(222, 1000, 'getSmsCheckCodeTimer')
     else
         timeNum = 50
-        Sprite:setActive(messageBtn,1)
-        Sprite:setEnable(messageBtn,0)
+        Sprite:setActive(messageBtn,0)
+        Sprite:setEnable(messageBtn,false)
         Sprite:setProperty(messageBtn,'text','获取短信验证码')
         Timer:cancel(222)
     end
@@ -237,8 +245,5 @@ function dengluBtnOnSelected(sprite)
     --注册成功后，再次跳转到Loading界面，以便于下载菜单信息
     Scene:go('MODULE:\\com_xsgj\\index.wdml',true)
 end
-
-
-
     ]]>
 </root>

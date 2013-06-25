@@ -321,6 +321,86 @@ function t_S2T(_szText)
     end  
     local t = doS2T()  
     return t  
-end 
+end
+
+-----------------------------获取sdcard的路径----------------------
+--获取SD卡上的Download目录
+function getDownloadTxtPath()
+        local txtPath = ''
+        local downloadPath = System:getFlashCardName(1) 
+        Log:write('内部存储卡地址为：'..downloadPath)
+        if downloadPath == nil or downloadPath == "" then 
+        Log:write("SD卡不存在,使用内部存储！")
+        downloadPath = System:getFlashCardName(0)
+        Log:write('内部存储卡地址为：',downloadPath)
+        --在SD卡不存在的话，如果是htc_t327t_android_A001，则使用缓存
+        if(System:getUserAgent() == 'htc_t327t_android_A001') then
+            downloadPath = "MODULE:\\com_xsgj\\"
+        end
+    end
+         txtPath = downloadPath.."download"
+        Log:write("getDownloadTxtPath: localDir="..txtPath)
+        -- 如果路径不存在，创建下载目录
+        if  IO:dirExist(txtPath) == false then 
+            IO:dirCreate(txtPath)
+        end
+          return txtPath
+end
+    --------------------------------保存注册信息--------------------
+function savebtn_onselected(configString)
+    --保存至xml中
+    local path = getDownloadTxtPath() .. '/config.json'
+    if IO:fileExist(path) == false then
+        IO:fileCreate(path)
+    end
+    IO:fileWrite(path,configString)
+end
+function readDownloadTxtConfig()
+    local configTable =''
+    local path = getDownloadTxtPath() .. '/config.json'
+       Log:write("readDownloadTxtConfig: localDir=",path)
+     if IO:fileExist(path) then
+         Log:write("fileExist: fileExist="..path)
+         configTable = IO:fileReadToTable(path)
+     else
+          IO:fileCreate(path) --创建一个文件
+     end
+    return  configTable
+end
 
 
+--[[
+ ------------------------------------------------------------
+ -- @function Util:setCurSSID(ssid)
+ ------------------------------------------------------------
+ -- @brief 保存当前wlan链接ssid
+ ------------------------------------------------------------
+ -- @access public
+ ------------------------------------------------------------
+ -- @param string: ssid
+ ------------------------------------------------------------
+ -- @return nil
+ ------------------------------------------------------------
+ --]]
+function Util:setCurSSID(ssid)
+    local reg = Reg:create(Reg.com_wondertek_samples.wlan)
+    Reg:setString(reg, 'curSSID', ssid)
+end
+
+--[[
+ ------------------------------------------------------------
+ -- @function Util:getCurSSID()
+ ------------------------------------------------------------
+ -- @brief 获取当前wlan链接ssid
+ ------------------------------------------------------------
+ -- @access public
+ ------------------------------------------------------------
+ -- @param 无
+ ------------------------------------------------------------
+ -- @return string
+ ------------------------------------------------------------
+ --]]
+function Util:getCurSSID()
+    local reg = Reg:create(Reg.com_wondertek_samples.wlan)
+    return Reg:getString(reg, 'curSSID')
+end

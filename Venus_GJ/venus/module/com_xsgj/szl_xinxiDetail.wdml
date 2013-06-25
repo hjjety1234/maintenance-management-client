@@ -127,7 +127,7 @@
     <![CDATA[
 
 require 'com_xsgj.common.framework'
-require 'framework.umsagent'
+ require 'com_xsgj.common.umsagent'
 
 local rootSprite
 local jsonDecodedNotice = nil
@@ -146,6 +146,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        UmsAgent:OnActivate(string.match(Alias.detail, 'MODULE:\\(.*)'), '信息详情')
     local noticeDetailHandler = Reg:create("xinxiDetail")
     local sortType = Sprite:findChild(rootSprite, "sortType")
     local releaseDate = Sprite:findChild(rootSprite, "releaseDate")
@@ -172,6 +173,7 @@ function bodyOnSpriteEvent(msg, param)
             elseif msg == MSG_DEACTIVATE then
   --  resetListViewItemHeight()
  elseif msg == MSG_DEACTIVATE then
+       UmsAgent:OnDeactivate()
      end
 end
 

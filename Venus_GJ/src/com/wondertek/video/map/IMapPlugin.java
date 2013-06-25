@@ -28,4 +28,5 @@ public interface IMapPlugin {
     public void drawRoute(int routeId);
     public void showWeather(int nlatitude, int nlongitude, int ntype, String title, String desc);
     public void destroyMap();
+    public void GetCurrentPositionFuncCalled(boolean isCalled);
 }

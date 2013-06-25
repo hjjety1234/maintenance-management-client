@@ -70,6 +70,7 @@
 
     require 'com_xsgj.common.framework'
     require 'framework.webbrowser'
+    require 'framework.umsagent'
     local rootSprite
     local noticeId
     local userCode=Config:get('username')
@@ -81,6 +82,7 @@
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
+            UmsAgent:OnActivate(string.match(Alias.newsDetail, 'MODULE:\\(.*)'), '通知详情')
             local title = Sprite:findChild(rootSprite,"titleName")
             local date = Sprite:findChild(rootSprite,"date")
             local detail1 = Sprite:findChild(rootSprite,"details")
@@ -112,12 +114,14 @@
             WebBrowser:showWebBrowser(1)
             WebBrowser:openUrl(url)
             elseif msg == MSG_DEACTIVATE then
+                UmsAgent:OnDeactivate()
         end
     end
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg)
         if msg == 101 then
             elseif msg == 102 then
+            UmsAgent:onLoadFinish()
             local jsonResp = Http:jsonDecode("fav")
             Log:write("pqy:::",jsonResp)
             local favBtnImageSprite = Sprite:findChild(rootSprite, "favBtnImage")
@@ -164,6 +168,7 @@
             local reqURL = Alias.urlServer..'news/fav?'..'newsId='..noticeId..'&userCode='..userCode
             Sprite:setProperty(shoucang, "visible", 'true')
             Sprite:setProperty(shoucangtankuang, "text", '添加收藏成功')
+             UmsAgent:onLoadStart()
             Http:request('fav', reqURL, 102,{useCache=false})
         else
             local reqURL = Alias.urlServer..'news/fav_del?'..'newsId='..noticeId..'&userCode='..userCode

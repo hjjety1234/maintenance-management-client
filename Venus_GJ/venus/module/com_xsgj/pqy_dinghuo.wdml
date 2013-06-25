@@ -144,6 +144,7 @@
  <![CDATA[
 
     require 'com_xsgj.common.framework'
+    require 'framework.umsagent' --引入时间执行脚本
     local rootSprite
     local curErrorBtn
     local errorListTotalHeight = 0
@@ -166,6 +167,7 @@
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
+              UmsAgent:OnActivate(string.match(Alias.dinghuo, 'MODULE:\\(.*)'), '订货管理')
             curpage=Sprite:findChild(rootSprite, 'curpage')
             morebtn=Sprite:findChild(rootSprite, 'morebtn')
             local ppp= Sprite:getData(curpage)
@@ -173,14 +175,17 @@
             setAllShoworHide(errorTypeSelectNode, 0)  
             local qianshouTypeSelectNode = Sprite:findChild(rootSprite, 'qianshouTypeSelectNode')  
             setAllShoworHide(qianshouTypeSelectNode, 0)
+             UmsAgent:onLoadStart()
             requestDinghuoList('notice', 101, usercode, '', Sprite:getData(curpage), pagesize)
             elseif msg == MSG_DEACTIVATE then
+                 UmsAgent:OnDeactivate()
         end
     end
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg)
         if msg == 101 then
             if Loading:isShow() then Loading:close() end
+            UmsAgent:onLoadFinish()
             local list = Sprite:findChild(rootSprite, 'sampleList')
             jsonDecodedDinghuo = Http:jsonDecode('notice')
             Log:write('pqy:', jsonDecodedDinghuo)
@@ -229,7 +234,7 @@
     ---------------------------------------util functions---------------------------
     -- @brief 返回按钮处理
     function doBack()
-       Scene:go(Alias.home,true)
+         Scene:back()
     end
     -- @brief 门店加载
     function errorOnSelect(sprite)
@@ -326,7 +331,6 @@
         local ddState=Sprite:findChild(item, 'ddState')
         local instore =Sprite:findChild(item, 'instore')
         local value = jsonDecodedDinghuo['Rows'][index]
-        Log:write("怎么回事",value)
         Sprite:setProperty(dingdanhao, 'text', value["recordCode"])
         Sprite:setProperty(instore, 'text', value["recordId"])
         Sprite:setProperty(doorName, 'text', value["storeName"])

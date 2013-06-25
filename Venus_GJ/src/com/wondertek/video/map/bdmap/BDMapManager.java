@@ -204,7 +204,7 @@ public class BDMapManager implements IMapPlugin {
 		if (isGpsEnable() == false)
 			showGpsAlert();
 		else 
-			setMbIsGetCurrentPositionCalled(true);
+			GetCurrentPositionFuncCalled(true);
 	}
 
 	@Override
@@ -411,7 +411,7 @@ public class BDMapManager implements IMapPlugin {
 		option.setServiceName("com.baidu.location.service_v2.9");
 		option.setPoiExtraInfo(true);
 		option.setAddrType("all");
-		option.setScanSpan(5000);
+		option.setScanSpan(1000);
 		option.setOpenGps(true);
 		option.setPriority(LocationClientOption.GpsFirst);
 		option.setPoiNumber(2);
@@ -419,7 +419,8 @@ public class BDMapManager implements IMapPlugin {
 		mLocClient.setLocOption(option);
 	}
 	
-	public void setMbIsGetCurrentPositionCalled(boolean isCalled) {
+	@Override
+	public void GetCurrentPositionFuncCalled(boolean isCalled) {
 		this.mbIsGetCurrentPositionCalled = isCalled;
 		if (this.mbIsGetCurrentPositionCalled == true) {
 			mStartTime = SystemClock.elapsedRealtime();
@@ -452,7 +453,7 @@ public class BDMapManager implements IMapPlugin {
         	@Override
 			public void onClick(View v) {
 				dialog.dismiss();
-				setMbIsGetCurrentPositionCalled(true);
+				GetCurrentPositionFuncCalled(true);
 			}
         });
         final Handler threadHandler = new Handler(); ;  
@@ -500,23 +501,24 @@ public class BDMapManager implements IMapPlugin {
 			if (location == null || mStartTime == 0 || mbIsGetCurrentPositionCalled == false)
 				return ;
 			long elapsedTime = (SystemClock.elapsedRealtime() - mStartTime) / 1000;
-			if (elapsedTime <= 20 && location.getRadius() > 300) {
-				return;
-			}else if (elapsedTime <= 30 && location.getRadius() > 600) {
-				return;
-			}
+//			if (elapsedTime <= 20 && location.getRadius() > 300) {
+//				return;
+//			}else if (elapsedTime <= 30 && location.getRadius() > 600) {
+//				return;
+//			}
+			Log.d(TAG, "[onReceiveLocation] " + location.getRadius() + ", " + location.getPoi());
 			String desc = "";
 			String type = "";
-			mStartTime = 0;
 			if (location.getLocType() == BDLocation.TypeGpsLocation){
 				type = "gps";
 				String msg = String.format("GPS定位成功：误差%.1f, 耗时%d秒.", location.getRadius(), elapsedTime);
 				Toast.makeText(mContext, msg, Toast.LENGTH_LONG).show();
 			} else if (location.getLocType() == BDLocation.TypeNetWorkLocation){
-				desc = location.getAddrStr();
-				type = "network";
-				String msg = String.format("网络定位成功：误差%.1f, 耗时%d秒.", location.getRadius(), elapsedTime);
-				Toast.makeText(mContext, msg, Toast.LENGTH_LONG).show();
+				// desc = location.getAddrStr();
+				// type = "network";
+				// String msg = String.format("网络定位成功：误差%.1f, 耗时%d秒.", location.getRadius(), elapsedTime);
+				// Toast.makeText(mContext, msg, Toast.LENGTH_LONG).show();
+				return;
 			}
 			int geoLat = (int)(location.getLatitude() * 1e6);
 			int geoLog = (int)(location.getLongitude() * 1e6);
@@ -527,6 +529,7 @@ public class BDMapManager implements IMapPlugin {
 			msg.obj = str;
 			Log.d(TAG, "sendMessage");
 			handler.sendMessage(msg);	
+			mStartTime = 0;
 			mbIsGetCurrentPositionCalled = false;
 		}
 		

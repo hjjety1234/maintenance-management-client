@@ -133,6 +133,7 @@
     <![CDATA[
 
     require 'com_xsgj.common.framework'
+    require 'com_xsgj.common.umsagent'
     local rootSprite
     local ItemsInNum
     local daohuolist = ''
@@ -175,17 +176,21 @@
         --local reqURL =Alias.urlServer..'itemIn/show?'..'itemsInCode2='..dinghuoNum
         local reqURL = Alias.urlServer..'arrive/showDetail?page=1&pagesize=10&arriveItemId='..arriveItemId
         Log:write("++++++++++++++requestURL:", requestURL)
+         UmsAgent:onLoadStart()
         Http:request("noticeDetail", reqURL, 101,{useCache=false})
     end
     -- @brief root节点消息方法
     function bodyOnSpriteEvent(msg, param)
         if msg == MSG_ACTIVATE then -- 页面激活
+             UmsAgent:OnActivate(string.match(Alias.daohuoDetail, 'MODULE:\\(.*)'), '到货详情')
             elseif msg == MSG_DEACTIVATE then
+             UmsAgent:OnDeactivate()
         end
     end
     -- @brief 插件消息方法
     function bodyOnPluginEvent(msg)
         if msg == 101 then
+            UmsAgent:onLoadFinish()
             jsonDecodedDaohuo = Http:jsonDecode('noticeDetail')
             Log:write('hewu:', jsonDecodedDaohuo)
             local totalPage = tonumber(jsonDecodedDaohuo["Total"])

@@ -141,7 +141,7 @@
 	</body>
     <![CDATA[
     require 'com_xsgj.common.framework'
-    require 'framework.umsagent'
+     require 'com_xsgj.common.umsagent'
     local rootSprite
     local isSearchBarVisible = false
     local nSearchBarWidth = 55
@@ -178,11 +178,14 @@
            Sprite:setProperty(keywordEditSprite1, 'color',"#c5c6c5"  )
         elseif msg == MSG_DEACTIVATE then
            UmsAgent:OnDeactivate()
+
         end
     end
     -- @brief 插件消息方法
+
     function bodyOnPluginEvent(msg)
         if msg == 101 then
+            UmsAgent:onLoadFinish()
             if Loading:isShow() then Loading:close() end
             local list = Sprite:findChild(rootSprite, 'listView1')
             jsonDecodedNotice = Http:jsonDecode('alist')
@@ -262,6 +265,7 @@
     end
     function loadRequest(pages, pagesize) --1.http 请求
         local httpconnet=Http:getCurConnect()
+        UmsAgent:onLoadStart()
         Http:request('alist', server..'userCode='..usercode..'&page='..pages..'&pagesize='..pagesizenumber..'&keyword='..empName, 101, {useCache = false, method = 'post'})
         Loading:show(rootSprite)
     end

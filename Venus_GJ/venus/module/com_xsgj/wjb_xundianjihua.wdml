@@ -18,13 +18,11 @@
            <shadow rect="0,0,480,800"  alpha="255" extendstyle="1111">
                 <image name="titleBg" rect="0,0,480,800" src="file://pics/main_bg.png" extendstyle="1111" style="autosize"/>
              </shadow>
-
             <!-- 信息头部 -->
             <node rect="0,0,480,80" extendstyle="1111">
                 <image name="titleBg" rect="0,0,480,80" src="file://pics/sub_top_bg.png"
                     extendstyle="1111" style="autosize">
                 </image>
-
                 <!-- 返回按钮 -->
                 <button name="backBtn" rect="9,14,52,52" OnSelect="doBack"
                     extendstyle="1111" normal="normal" sel="sel">
@@ -78,6 +76,7 @@
         </node>
         <node  rect="0,384,480,228"  extendstyle="1111">
            <label name="label5" rect="35,0,100,228" text="巡店内容" color="#0" extendstyle="0010" h-align="right" v-align="top" font-weight="bold" font-family="微软雅黑" font-size="24"/>
+           <label rect="140,0,10,61" text="*" color="#ff0000" extendstyle="0010" h-align="center" v-align="center" font-weight="bold" font-family="微软雅黑" font-size="24"/>
            <image rect="155,0,290,228" src="file://pics/text_input.png" style="sudoku-auto" sudoku="35,35,35,35" extendstyle="1111"/>
            <edit name="xundianneirong"  rect="165,10,270,208"  text="请输入巡店内容..." font-family="微软雅黑" font-size="24" style="autosize" max-size="100" color="#8f8e8e" v-center="top" multiline="true" OnLostFocus="editOnTextChanged2" OnSetFocus="initText" extendstyle="0010"/>          
         </node>
@@ -117,6 +116,7 @@
     <![CDATA[
 
 require 'com_xsgj.common.framework'
+ require 'com_xsgj.common.umsagent'
 local rootSprite
 local user_name = Config:get('truename')
 local user_code = Config:get('username')
@@ -142,7 +142,8 @@ end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
-    if msg == MSG_ACTIVATE then -- 页面激活   
+    if msg == MSG_ACTIVATE then -- 页面激活  
+     UmsAgent:OnActivate(string.match(Alias.wjb_xundianjihua, 'MODULE:\\(.*)'), '巡店计划') 
      retuenTime = ''
      retuenType = ''  
      retunType=''
@@ -213,6 +214,7 @@ function bodyOnSpriteEvent(msg, param)
           Reg:setString(renRegHandler, 'Empid', empid)
      end     
      elseif msg == MSG_DEACTIVATE then
+       UmsAgent:OnDeactivate()
      end
 end
 
@@ -422,7 +424,7 @@ function doBack()
           Reg:clear(Reg:create("kehu"))
           Reg:clear(Reg:create("kehu2"))
           Reg:clear(Reg:create("renRegHandler"))
-          Scene:go('MODULE:\\com_xsgj\\home.wdml')
+          Scene:go(Alias.home)
 end
 
 function comboboxOnSelect2(sprite)

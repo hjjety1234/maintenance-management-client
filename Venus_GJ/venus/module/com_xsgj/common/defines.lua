@@ -20,18 +20,25 @@ Regs = {
 
 Alias = {
     login = 'MODULE:\\com_xsgj\\login.wdml', -- 入口页
-    home = 'MODULE:\\com_xsgj\\home.wdml', -- 首页
+    home = 'MODULE:\\com_xsgj\\home_bak.wdml', -- 首页
     register = 'MODULE:\\com_xsgj\\pqy_register.wdml',--用户注册界面
-    urlServer='http://120.209.131.143:9092/mobileSale/',--外网
-    imgServer='http://120.209.131.143:9092',
-   -- urlServer='http://120.209.131.144:9091/mobileSale/',--外网
-   -- imgServer='http://120.209.131.144:9091',
-	--urlServer='http://10.152.89.183:9080/mobileSale/',--内网新DB
-   -- urlServer="https://120.209.131.143:9060/mobileSale/",--外网新DB,https
-
-   --公共webview图片
-   browserView = 'MODULE:\\com_xsgj\\userApp.wdml', --webview通用页面
-
+    
+    urlServer = 'http://120.209.131.152:8080/mobileSale/', --外网
+    imgServer = 'http://120.209.131.152:8080',
+   
+    -- urlServer='http://120.209.131.144:9091/mobileSale/',  --外网
+    -- imgServer='http://120.209.131.144:9091',
+    
+    -- urlServer = 'http://120.209.131.143:9092/mobileSale/', --外网
+    -- imgServer = 'http://120.209.131.143:9092',
+	
+	-- urlServer = 'http://localhost:8282/mobileSale/',--内网新DB
+	-- imgServer = 'http://localhost:8282',
+    
+    -- urlServer="https://localhost:8282/mobileSale/",--外网新DB,https
+    --公共webview图片
+    
+    browserView = 'MODULE:\\com_xsgj\\userApp.wdml', --webview通用页面
 	--通知公告
     news = 'MODULE:\\com_xsgj\\pqy_news.wdml', -- 公告列表
     newsDetail = 'MODULE:\\com_xsgj\\pqy_newsDetail.wdml', -- 公告详情
@@ -40,13 +47,23 @@ Alias = {
      --到货管理
     daohuo='MODULE:\\com_xsgj\\pqy_daohuo.wdml',--我的到货
     huodaoDetail='MODULE:\\com_xsgj\\pqy_huodaoDetail.wdml',--到货签收
-    --订货管理
-    dinghuo='MODULE:\\com_xsgj\\pqy_dinghuo.wdml',--我的定货
-    dinghuoDetail='MODULE:\\com_xsgj\\pqy_dinghuoDetail.wdml',--订货明细
-    dinghuoApply='MODULE:\\com_xsgj\\pqy_dinghuoApply.wdml',--订货申请
     
-    dhgoodChoose='MODULE:\\com_xsgj\\pqy_dhgoodChoose.wdml',--选择商品
+      --订货管理
+    dinghuoApply='MODULE:\\com_xsgj\\m_dinghuoshenqing_New.wdml',--我的定货
+    dhgoodChoose='MODULE:\\com_xsgj\\m_selectGoods.wdml',--选择商品
+    selectMendian='MODULE:\\com_xsgj\\m_selectMendian.wdml',--选择门店
+    shouhuoAddr='MODULE:\\com_xsgj\\m_shouhuodizhi.wdml',--收货地址
+    --订货查询
    
+     dinghuolist='MODULE:\\com_xsgj\\m_dinghuolist.wdml',--我的定货
+     dinghuoDetail='MODULE:\\com_xsgj\\m_dinghuoDetail.wdml',--订货明细
+    --订货管理
+   -- dinghuo='MODULE:\\com_xsgj\\pqy_dinghuo.wdml',--我的定货
+   -- dinghuoDetail='MODULE:\\com_xsgj\\pqy_dinghuoDetail.wdml',--订货明细
+   -- dinghuoApply='MODULE:\\com_xsgj\\pqy_dinghuoApply.wdml',--订货申请
+     --  dinghuoApply='MODULE:\\com_xsgj\\m_dinghuoDetail.wdml',--订货申请
+   --  dhgoodChoose='MODULE:\\com_xsgj\\pqy_dhgoodChoose.wdml',--选择商品
+  --   setup='MODULE:\\com_xsgj\\pqy_setup.wdml',--选择商品
    --信息反馈
     xinxi = 'MODULE:\\com_xsgj\\szl_xinxi.wdml', -- 信息反馈列表
     xinxiDetail = 'MODULE:\\com_xsgj\\szl_xinxiDetail.wdml', -- 信息反馈详情
