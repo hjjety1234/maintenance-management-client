@@ -192,16 +192,6 @@ local personStatus = ''    -- 登录人所在模块
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
---获取角色编号
-    role = Config:get('role')
-    regionid = Config:get('regionid')
-    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
-        g_regionid = regionid
-    else
-        g_regionid = ''
-        regionid = ''
-    end
-    Log:write('角色和区域',role,g_regionid)
     local xjwcqk = Sprite:findChild(rootSprite,'xjwcqk')
     local yhclqk = Sprite:findChild(rootSprite,'yhclqk')
     local zlzb = Sprite:findChild(rootSprite,'zlzb')
@@ -266,6 +256,16 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        --获取角色编号
+        role = Config:get('role')
+        regionid = Config:get('regionid')
+        if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
+            g_regionid = regionid
+        else
+            g_regionid = ''
+            regionid = ''
+        end
+        Log:write('角色和区域',role,g_regionid)
         usercode = Config:get('username')
         request()--预加载巡检数据
         -- @jldu 客户端心跳功能
