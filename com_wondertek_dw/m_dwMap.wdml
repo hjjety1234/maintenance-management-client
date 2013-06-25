@@ -376,12 +376,14 @@ function bodyOnPluginEvent(msg, param)
     if msg == 101 then
         stasticData = Http:jsonDecode('stasticData')
         stasticTable = stasticData.value[0].data
+        OnSelectShowMap()
         -- Log:write("@jldu 请求人员统计数据:  ",stasticTable)
         Sprite:setProperty(tongjiNode,'visible','true')       
         Sprite:setProperty(renyuantongji,'text','今日登录用户'..stasticData.value[0].allstaff..'人，今日在线'..stasticData.value[0].allonlinestaff..'人，正在巡检'..stasticData.value[0].xunjian..'人，处理隐患'..stasticData.value[0].yinhuan..'人，资源核查'..stasticData.value[0].hecha..'人，其它在线'..stasticData.value[0].other..'人。') 
     elseif msg == 102 then
         carStasticData = Http:jsonDecode('carStastic')
         carStasticTable = carStasticData.value[0].data
+        OnSelectShowMap()
         Log:write("@jldu 请求车辆统计数据:  ",carStasticTable)
         Sprite:setProperty(tongjiNode,'visible','true')
         Sprite:setProperty(renyuantongji,'text','车辆总数'..carStasticData.value[0].totalcar..'辆，有任务的车辆'..carStasticData.value[0].taskcar..'辆。')
@@ -455,6 +457,11 @@ end
 function OnSelectShowMap(sprite)
     initMapData()
     Sprite:setProperty(cityNode, 'visible', 'false') 
+    if bottomFlag == 1 then
+        Sprite:setProperty(renyuantongji,'text','今日登录用户'..stasticData.value[0].allstaff..'人，今日在线'..stasticData.value[0].allonlinestaff..'人，正在巡检'..stasticData.value[0].xunjian..'人，处理隐患'..stasticData.value[0].yinhuan..'人，资源核查'..stasticData.value[0].hecha..'人，其它在线'..stasticData.value[0].other..'人。') 
+    elseif bottomFlag == 2 then
+        Sprite:setProperty(renyuantongji,'text','车辆总数'..carStasticData.value[0].totalcar..'辆，有任务的车辆'..carStasticData.value[0].taskcar..'辆。')
+    end 
 end
 
 -- @jldu 突出显示某个地市
@@ -512,7 +519,6 @@ end
 
 -- @jldu 请求人员统计数据
 function requestStastic()
-    OnSelectShowMap()
     local param = 'cmd=wlbstaffregion&page=1&pagesize=50&usercode=fanbingheng&regionid=340000'
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
     Log:write("@jldu 请求人员统计数据地址: "..reqURL)
@@ -522,7 +528,6 @@ end
 
 -- @jldu 请求车辆统计数据
 function requestCarStastic()
-    OnSelectShowMap()
     local param = 'cmd=wlbcarregion&page=1&pagesize=50&usercode=fanbingheng&regionid=340000'
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
     Log:write("@jldu 请求车辆统计数据地址: "..reqURL)
