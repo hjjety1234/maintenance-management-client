@@ -37,11 +37,10 @@
                 </button>
             </node>
             
-            <!-- 空白部分点击消息处理  
+            <!-- 空白部分点击消息处理 --> 
             <button name="showmapBtn" rect="0,100,480,734" data="0,0,20,20" extendstyle="1111" 
                 enable="true" OnSelect="OnSelectShowMap">
-            </button>
-            -->
+            </button>           
             
             <!-- 地图部分  -->
             <node name="daiweiMap" rect="0,90,480,534" extendstyle="1111">
@@ -358,11 +357,7 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_dwMap, 'MODULE:\\(.*)'), "实时监控")   
-        for i=1,16 do
-            local btnOn = Sprite:findChild(rootSprite,'btn'..i)
-            local btnTextNode = Sprite:findChild(btnOn,'btnText')
-            Sprite:setProperty(btnTextNode,'text','0')
-        end   
+        initMapData()
         if bottomFlag == 1 then
             -- 人员统计
             requestStastic()
@@ -429,11 +424,7 @@ function doRegionClick(sprite)
     if tonumber(Sprite:getText(curLableText)) == 1 then
         jumpTOMapPoit()     
     else
-        for i=1,16 do
-            local btnOn = Sprite:findChild(rootSprite,'btn'..i)
-            local btnTextNode = Sprite:findChild(btnOn,'btnText')
-            Sprite:setProperty(btnTextNode,'text','0')
-        end 
+        initMapData()
         Sprite:setProperty(curLableText,'text','1')
         -- @jldu 突出显示某个地市
         showDetail(selCity)
@@ -462,6 +453,7 @@ function hideCityNode(sprite)
 end
 
 function OnSelectShowMap(sprite)
+    initMapData()
     Sprite:setProperty(cityNode, 'visible', 'false') 
 end
 
@@ -536,6 +528,15 @@ function requestCarStastic()
     Log:write("@jldu 请求车辆统计数据地址: "..reqURL)
     Http:request('carStastic', reqURL, 102, {useCache = false})
     Loading:show()  
+end
+
+-- @jldu 初始化地图数据
+function initMapData()
+    for i=1,16 do
+        local btnOn = Sprite:findChild(rootSprite,'btn'..i)
+        local btnTextNode = Sprite:findChild(btnOn,'btnText')
+        Sprite:setProperty(btnTextNode,'text','0')
+    end
 end
 
     ]]>
