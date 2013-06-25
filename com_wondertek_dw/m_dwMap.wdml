@@ -327,12 +327,15 @@ require 'framework.umsagent'
 local rootSprite
 local stasticData = nil
 local carStasticData = nil
+local stasticTable = nil
+local carStasticTable = nil
 local regionid
 local tongjiNode
 local daiweiMap
 local cityNode
 local selCity
 local bottomFlag = 1
+local renyuantongji
 
 local testTable={{city='合肥',regionid='340100'},{city='芜湖',regionid='340200'},{city='蚌埠',regionid='340300'},
         {city='淮南',regionid='340400'},{city='马鞍山',regionid='340500'},{city='淮北',regionid='340600'},
@@ -347,14 +350,21 @@ function bodyBuildChildrenFinished(sprite)
     tongjiNode = Sprite:findChild(rootSprite,'tongjiNode')
     daiweiMap = Sprite:findChild(rootSprite,'daiweiMap')
     cityNode = Sprite:findChild(rootSprite, 'cityNode')
+
+    renyuantongji = Sprite:findChild(rootSprite,'renyuantongji')
 end
 
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        UmsAgent:OnActivate(string.match(Alias.m_dwMap, 'MODULE:\\(.*)'), "实时监控")
-        -- Log:write("@jldu 测试testTable ： ",testTable)
-
+        UmsAgent:OnActivate(string.match(Alias.m_dwMap, 'MODULE:\\(.*)'), "实时监控")     
+        if bottomFlag == 1 then
+            -- 人员统计
+            requestStastic()
+        elseif bottomFlag == 2 then
+            -- 车辆统计
+            requestCarStastic()
+        end 
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
@@ -365,26 +375,16 @@ function bodyOnPluginEvent(msg, param)
     if Loading:isShow() then Loading:close() end 
     if msg == 101 then
         stasticData = Http:jsonDecode('stasticData')
-        local stasticTable = stasticData.value[0].data
+        stasticTable = stasticData.value[0].data
         -- Log:write("@jldu 请求人员统计数据:  ",stasticTable)
-        Sprite:setProperty(tongjiNode,'visible','true')
-        local renyuantongji = Sprite:findChild(rootSprite,'renyuantongji')
-        for i=0,#stasticTable do
-            if selCity == stasticTable[i].dimension then
-                Sprite:setProperty(renyuantongji,'text',selCity..'今日登录用户'..stasticTable[i].staff..'人，当前在线'..stasticTable[i].staffonline..'人。') 
-            end
-        end
+        Sprite:setProperty(tongjiNode,'visible','true')       
+        Sprite:setProperty(renyuantongji,'text','今日登录用户'..stasticData.value[0].allstaff..'人，今日在线'..stasticData.value[0].allonlinestaff..'人，正在巡检'..stasticData.value[0].xunjian..'人，处理隐患'..stasticData.value[0].yinhuan..'人，资源核查'..stasticData.value[0].hecha..'人，其它在线'..stasticData.value[0].other..'人。') 
     elseif msg == 102 then
         carStasticData = Http:jsonDecode('carStastic')
-        local carStasticTable = carStasticData.value[0].data
+        carStasticTable = carStasticData.value[0].data
         Log:write("@jldu 请求车辆统计数据:  ",carStasticTable)
         Sprite:setProperty(tongjiNode,'visible','true')
-        local renyuantongji = Sprite:findChild(rootSprite,'renyuantongji')
-        for i=0,#carStasticTable do
-            if selCity == carStasticTable[i].dimension then
-                Sprite:setProperty(renyuantongji,'text','车辆总数'..carStasticTable[i].car..'辆，有任务的车辆'..carStasticTable[i].taskcar..'辆。') 
-            end
-        end
+        Sprite:setProperty(renyuantongji,'text','车辆总数'..carStasticData.value[0].totalcar..'辆，有任务的车辆'..carStasticData.value[0].taskcar..'辆。')
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -435,9 +435,17 @@ function doRegionClick(sprite)
         -- @jldu 请求统计数据
         Log:write("@jldu 底部菜单标志："..bottomFlag)
         if bottomFlag == 1 then
-            requestStastic()
+            for i=0,#stasticTable do
+                if selCity == stasticTable[i].dimension then
+                    Sprite:setProperty(renyuantongji,'text',selCity..'今日登录用户'..stasticTable[i].staff..'人，当前在线'..stasticTable[i].staffonline..'人。') 
+                end
+            end
         elseif bottomFlag == 2 then
-            requestCarStastic()
+            for i=0,#carStasticTable do
+                if selCity == carStasticTable[i].dimension then
+                    Sprite:setProperty(renyuantongji,'text',selCity..'车辆总数'..carStasticTable[i].car..'辆，有任务的车辆'..carStasticTable[i].taskcar..'辆。') 
+                end
+            end
         end 
     end 
 end
@@ -450,7 +458,6 @@ end
 
 function OnSelectShowMap(sprite)
     Sprite:setProperty(cityNode, 'visible', 'false') 
-    showDetail(selCity)
 end
 
 -- @jldu 突出显示某个地市
@@ -483,7 +490,7 @@ function searchOnSelect(sprite)
         Sprite:setVisible(renyuan,'1')
         Sprite:setVisible(cheliang,'0')
         Sprite:setVisible(yinhuan,'0')
-        -- Log:write("@jldu 点击人员")
+        Log:write("@jldu 点击人员")
         requestStastic()
     elseif btnData=='02' then
         bottomFlag = 2
