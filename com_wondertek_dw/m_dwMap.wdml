@@ -357,7 +357,12 @@ end
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        UmsAgent:OnActivate(string.match(Alias.m_dwMap, 'MODULE:\\(.*)'), "实时监控")     
+        UmsAgent:OnActivate(string.match(Alias.m_dwMap, 'MODULE:\\(.*)'), "实时监控")   
+        for i=1,16 do
+            local btnOn = Sprite:findChild(rootSprite,'btn'..i)
+            local btnTextNode = Sprite:findChild(btnOn,'btnText')
+            Sprite:setProperty(btnTextNode,'text','0')
+        end   
         if bottomFlag == 1 then
             -- 人员统计
             requestStastic()
