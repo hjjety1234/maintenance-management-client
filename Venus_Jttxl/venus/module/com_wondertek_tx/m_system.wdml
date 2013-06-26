@@ -738,7 +738,8 @@ function doUpgrade()
         -- 如果是强制升级，只能选择升级
         if Config:get("forceUpdate") == "true" then 
             Log:write("进入版本的强制升级或回退!")
-            local cancelBtn = Sprite:findChild(rootSprite, "cancelBtn")
+            local diffUpdateNode = Sprite:findChild(rootSprite, "diffUpdateNode")
+            local cancelBtn = Sprite:findChild(diffUpdateNode, "cancelBtn")
             Sprite:setProperty(cancelBtn, "visible", "false")
             Sprite:setProperty(cancelBtn, "enable", "false")
             local x, y, w, h = Sprite:getRect(updateBtn)
@@ -926,13 +927,14 @@ end
 
 --  显示下载状态
 function onGetDownloadStatus()
+    local diffUpdateNode = Sprite:findChild(rootSprite, "diffUpdateNode")
     local count = Download:getCount(true)
     g_downloadTime = g_downloadTime + 0.5
-    local progressImg = Sprite:findChild(rootSprite, 'progressImg') -- 下载进度
+    local progressImg = Sprite:findChild(diffUpdateNode, 'progressImg') -- 下载进度
     -- local speedLab = Sprite:findChild(rootSprite, 'speedLab')       -- 下载速度
     -- local proLab = Sprite:findChild(rootSprite, 'proLab')           -- 总体下载进度
     -- local noticeLbl = Sprite:findChild(rootSprite, "noticeLbl")     -- 通知信息
-    local percentJttxl = Sprite:findChild(rootSprite, 'percent')    -- 下载百分比
+    local percentJttxl = Sprite:findChild(diffUpdateNode, 'percent')    -- 下载百分比
     
     -- 迭代下载队列
     for i = 1, count do
