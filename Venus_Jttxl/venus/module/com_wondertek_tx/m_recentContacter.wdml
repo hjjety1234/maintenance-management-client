@@ -588,14 +588,19 @@ function bodyOnPluginEvent(msg)
         Log:write('index_checkversion', checkversionData)
         if checkversionData and checkversionData['version'] then
             if tonumber(checkversionData['version']['isNeedUpdate']) == 1 then  -- 需要升级
-                Log:write("isNeedUpdate: ".."true")
+                Log:write("检测到可选的升级信息")
                 Config:set("isNeedUpdate", "true")
                 setAllShoworHide(newNode, 1)
-            elseif tonumber(checkversionData['version']['isNeedUpdate']) == 2 then -- 强制升级
-                Log:write("检测到需要强制升级")
+            elseif tonumber(checkversionData['version']['isNeedUpdate']) == 2  then -- 强制升级
+                Log:write("检测到强制升级信息")
                 Config:set("isNeedUpdate", "true")
                 Config:set("forceUpdate", "true")
                 Dialog:show("", "您的客户端版本过于陈旧，请升级!", "ok", "goSetting")
+            elseif tonumber(checkversionData['version']['isNeedUpdate']) == 3  then -- 强制回退
+                Log:write("检测到强制回退信息")
+                Config:set("isNeedUpdate", "true")
+                Config:set("forceUpdate", "true")
+                Dialog:show("", "您的客户端版本存在问题，需要回退!", "ok", "goSetting")
             end
         end
     elseif msg == 105 then
@@ -813,7 +818,7 @@ function loadSearchListItem(list, item, index)
         Sprite:setProperty(parentDeptName,'font-size','22')
         Sprite:setProperty(employeeName,'font-size','28')
     end
-    ]]
+    --]]
 
     if curpage == 1 and tonumber(totalNum) <= 7 then
         local lastPageNum = math.floor(tonumber(totalNum)/pagesize)+1
@@ -1510,7 +1515,7 @@ end
 
 -- 检测客户端版本
 function checkClientVersion()
-    Log:write(">>>checkClientVersion<<<")
+    Log:write("正在请求版本信息...")
     -- 获取appkey, appversion和本地文件的md5值
     local webcloud = Config:get('webcloud')
     local appKey = Config:get('appKey')
@@ -1528,8 +1533,6 @@ function checkClientVersion()
     local requestURL = string.format('http://%s/webcloud/sso/sso_upgrade.html?appkey=%s&version=%s&imei=%s&imsi=%s', 
         webcloud, appKey, appVer, imeicode, imsicode)
     Log:write('checkClientVersion() requestURL=', requestURL)
-    -- default value
-    -- Config:set("isNeedUpdate", "false")
     Http:request('index_checkversion', requestURL, 104, {useCache = false})
 end
 

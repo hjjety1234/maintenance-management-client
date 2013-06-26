@@ -410,7 +410,6 @@ function bodyOnSpriteEvent(msg, param)
         -- Timer:set(222, 100, "checkDeviceInfo")
 
         -- 检测是否有强制升级信息
-        checkClientVersion()
         if Config:get("forceUpdate") == "true" then 
             checkClientVersion()
         end 
@@ -440,6 +439,12 @@ function bodyOnPluginEvent(msg)
                 Config:set("forceUpdate", "false")
                 doUpgrade()
             elseif tonumber(checkversionData['version']['isNeedUpdate']) == 2 then -- 强制升级
+                g_releaseLog = checkversionData.version.releaseLog
+                g_patchUrl = nil -- 禁止增量升级
+                Config:set("forceUpdate", "true")
+                doUpgrade()
+            elseif tonumber(checkversionData['version']['isNeedUpdate']) == 3 then -- 强制回退
+                g_releaseLog = checkversionData.version.releaseLog
                 g_patchUrl = nil -- 禁止增量升级
                 Config:set("forceUpdate", "true")
                 doUpgrade()
@@ -732,7 +737,7 @@ function doUpgrade()
         Sprite:setProperty(updateBtn, 'data','1')
         -- 如果是强制升级，只能选择升级
         if Config:get("forceUpdate") == "true" then 
-            Log:write("进入强制升级!")
+            Log:write("进入版本的强制升级或回退!")
             local cancelBtn = Sprite:findChild(rootSprite, "cancelBtn")
             Sprite:setProperty(cancelBtn, "visible", "false")
             Sprite:setProperty(cancelBtn, "enable", "false")
