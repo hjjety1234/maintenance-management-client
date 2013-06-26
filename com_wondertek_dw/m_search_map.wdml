@@ -37,6 +37,42 @@
                      extendstyle="1111" />
                 </button>
             </node>
+            <!-- 时间段选择 -->
+            <node name="timeSprite" rect="0,66,480,200" extendstyle="1111" >
+                <image rect="20,10,32,32" border="false" src="file://image/iconClock.png" 
+                 extendstyle="1111"/>
+                <label rect="60,10,300,30" text="请选择回放时间段" color="#434343" v-align="center"  
+                  h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                <shadow rect="0,50,480,2" color="#3d7fc4" alpha="255" extendstyle="1111"/>
+                <label rect="20,60,300,30" text="日期：" color="#434343" v-align="center"  
+                  h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                <image rect="110,61,358,30" border="false" src="file://image/border.png" 
+                 extendstyle="1111" style="autosize" />
+                <label rect="120,60,360,30" text="         年       月       日       点—      点" color="#434343" v-align="center"  
+                  h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                --年月日时参数
+                <edit name='yearlabel' rect="115,62,60,30" text="" color="#3d7fc4" v-align="center"  
+                  h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                <edit name='yuelabel' rect="210,62,60,30" text="" color="#3d7fc4" v-align="center"  
+                  h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                <edit name='rilabel' rect="260,62,60,30" text="" color="#3d7fc4" v-align="center"  
+                  h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                <edit name='startdian' rect="330,62,60,30" text="0" color="#3d7fc4" v-align="center"  
+                  h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                <edit name='enddian' rect="410,62,60,30" text="24" color="#3d7fc4" v-align="center"  
+                  h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                --确定、取消
+                <button name="defineBtn" rect="130,110,100,30"  
+                    OnSelect="dodefine" extendstyle="1111">
+                    <image  rect="0,0,100,30" src="file://image/map_yes.png" 
+                     extendstyle="1111" />
+                </button>
+                <button name="cancelBtn" rect="270,110,100,30" 
+                    OnSelect="dodecancel" extendstyle="1111">
+                    <image  rect="0,0,100,30" src="file://image/map_no.png"
+                     extendstyle="1111" />
+                </button>
+            </node>
              <!-- 底部工具栏  -->
              <node name="bottombar" rect="0,714,480,86" extendstyle="1511">
 	            <image rect="0,0,480,86" src="file://image/bottom_new.png"
@@ -89,32 +125,36 @@ local g_longitudeValue = nil -- 单位位置精度
 local g_stationdata = nil    -- 附近的Pois信息
 local g_isMapOpen = false    -- 标记地图是否已经打开
 local staffData              -- 人员信息
-local pois                   -- 地图数据
+local pois                   -- 地图人员数据
+local drawpois               -- 地图轨迹数据                   
 local id                     -- 人员编号
+local drawData               -- 轨迹数据
+local simid                  -- 设备编号
+local flag                   -- 菜单编号
+local starttime              -- 轨迹开始时间
+local endtime                -- 轨迹结束时间
+local postData               -- 点击人员图标传递数据
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     Log:write('区域编号',regionid)
+    Log:write('底部菜单编号',bottomFlag)
+
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_search_map, 'MODULE:\\(.*)'), '实时监控')
-        --设置人员背景为蓝色
-        local renyuan=Sprite:findChild(rootSprite,'renyuan')
-        local ziyuan=Sprite:findChild(rootSprite,'ziyuan')
-        local yinhuan =Sprite:findChild(rootSprite,'yinhuan')
-        Sprite:setVisible(renyuan,'1')
-        Sprite:setVisible(ziyuan,'0')
-        Sprite:setVisible(yinhuan,'0')
+        --设置底部颜色
+        bottomSelect()
+        setDefaultTime()
         -- 打开底图
         if g_isMapOpen == false then 
             openMap(0, 70, 480, 644)
         end
-        --请求接口数据
-        request()
+
     elseif msg == MSG_DEACTIVATE then
         Map:close()
         g_isMapOpen = false
@@ -143,12 +183,11 @@ function bodyOnPluginEvent(msg, param)
             len = len + 1 
         end
         Log:write('人员数量',len)
-        -- 格式化基站数据
-        local poisString = '{"showType":"3","pois":['
+        -- 格式化人员数据
+        local poisString = '{"showType":"8","pois":['
         for i=1,len do 
-            -- 取感兴趣的站点数据
             local staff = respValue[i-1]
-            id  = staff.usercode
+            id  = staff.usercode..'-'..staff.simid
             local lon = staff.lon
             local lat = staff.lat
             local company = staff.unit
@@ -177,16 +216,32 @@ function bodyOnPluginEvent(msg, param)
         Log:write('转换后的数据',poisString)
         pois = poisString
         showNearbyPois()
-    elseif msg == 1001 then -- 获取附近的POI点，并显示的地图上
+    elseif msg ==102 then 
+        drawData = Http:jsonDecode('drawData')
+        Log:write('获取轨迹数据',drawData)
+        drawlinebyPois()
+    elseif msg ==103 then 
+        drawData = Http:jsonDecode('drawData')
+        Log:write('获取隐患数据',drawData)
+        dangerbyPois()
     elseif msg == 1002 then -- POI详情和导航消息处理ss
         local postDataString = Param:getString(param, 0)
-        local postData = Json:loadString2Table(postDataString) 
+        postData = Json:loadString2Table(postDataString) 
         Log:write('msg 1002 ', postData) 
         Log:write('传过去的id',postData.PoiId)
-        Scene:setReturn(Alias.m_search_map, Alias.m_renyuanDetail)
-        Scene:go(Alias.m_renyuanDetail..'?id='..postData.PoiId)
-        Map:close()
-        g_isMapOpen = false
+        --usercode和simid拆分
+        postData.PoiId = Split(postData.PoiId, "-")
+        Log:write("处理后的PoiId:", postData.PoiId)
+        if postData.cmd=='Person' then
+            Scene:setReturn(Alias.m_search_map, Alias.m_renyuanDetail)
+            Scene:go(Alias.m_renyuanDetail..'?id='..postData.PoiId[1])
+            Map:close()
+            g_isMapOpen = false
+        elseif postData.cmd=='Guiji' then 
+            --加载轨迹数据
+            openMap(0, 170, 480, 544) 
+        end 
+
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -268,6 +323,55 @@ function showNearbyPois()
     Map:showPOIs(observer, 1002, pois, 1)
 end
 
+--显示轨迹poi点
+function drawlinebyPois()
+    Log:write('开始画轨迹')
+    if drawData.total=='0' or drawData.value==nil then
+            --closeMap()
+            Dialog:show('','当前时间段没有轨迹','ok')
+            return
+        end
+         -- 获取查询结果数目
+        local respValue = drawData.value
+        local len = #respValue
+        if len == 0 and respValue[0] ~= nil and respValue[0] ~= '' then 
+            len = 1
+        elseif len > 0 then
+            len = len + 1 
+        end
+        Log:write('轨迹打点数',len)
+        -- 格式化轨迹数据
+        local poisString = '{"showType":"6","pois":['
+        for i=1,len do 
+            local draw = respValue[i-1]
+            local lon = draw.lon
+            local lat = draw.lat
+            local id = draw.time
+            -- 如果轨迹没有经纬度，做一下保护
+            if lon ~= nil and lon ~= '' 
+                and lat ~= nil and lat ~= '' then 
+                -- 创建poi点
+                local poiString = string.format('{"id":"%s", "longitude":%d, "latitude":%d}',
+                       id, lon * 1000000, lat * 1000000)
+                Log:write('poiString', poiString)
+                if i < len then
+                    poisString = poisString..poiString..',' 
+                else
+                    poisString = poisString..poiString
+                end
+            end
+        end
+        poisString = poisString..']}'
+        Log:write('转换后的轨迹数据',poisString)
+        drawpois = poisString
+    --pois = '{"showType":"6","pois":[{"id":"777","longitude":121592782,"latitude":31244582},{"id":"888","longitude":121590745,"latitude":31244910},{"id":"999","longitude":121595483,"latitude":31246584}]}'
+    local observer = Plugin:getObserver()
+    Map:showPOIs(observer, 1003, drawpois, 1)
+end
+--地图显示隐患
+function dangerbyPois()
+    
+end
 ------------------------------------服务器交互相关函数---------------------------
 -- 获取人员数据
 function request()
@@ -277,7 +381,50 @@ function request()
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
     Http:request('staffData', reqURL, 101, {useCache = false})
 end
-
+--获取人员轨迹数据
+function drawrequest(usercode,simid)
+    local param = string.format('usercode=%s&simid=%s&page=1&pagesize=10000&cmd=wlbstafflocus&starttime=%s&endtime=%s', 
+        usercode,simid,starttime,endtime)
+    local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
+    Log:write('轨迹url：',reqURL)
+    Http:request('drawData', reqURL, 102, {useCache = false})
+end
+function carrequest()
+    -- body
+end
+--获取隐患数据
+function dangerrequest()
+    local usercode = Config:get('username')
+    local param = string.format('usercode=%s&page=1&pagesize=10000&cmd=wlbdangermap&regionid=%s', 
+        usercode,regionid)
+    local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
+    Log:write('隐患url：',reqURL)
+    Http:request('dangerData', reqURL, 103, {useCache = false})
+end
+--初始化底部财订单
+function bottomSelect()
+    local renyuan=Sprite:findChild(rootSprite,'renyuan')
+    local ziyuan=Sprite:findChild(rootSprite,'ziyuan')
+    local yinhuan =Sprite:findChild(rootSprite,'yinhuan')
+    Log:write('底部标示',bottomFlag)
+    if bottomFlag =='1' then
+        Sprite:setVisible(renyuan,'1')
+        Sprite:setVisible(ziyuan,'0')
+        Sprite:setVisible(yinhuan,'0')
+        --请求人员数据
+        request()
+    elseif bottomFlag == '2' then
+        Log:write('底部菜单变色','1111111111')
+        Sprite:setVisible(renyuan,'0')
+        Sprite:setVisible(ziyuan,'1')
+        Sprite:setVisible(yinhuan,'0')
+    elseif bottomFlag == '3' then
+        Sprite:setVisible(renyuan,'0')
+        Sprite:setVisible(ziyuan,'0')
+        Sprite:setVisible(yinhuan,'1')
+    end
+end
+--底部菜单
 function searchOnSelect(sprite)
    local btnData = Sprite:getData(sprite)
    local renyuan=Sprite:findChild(rootSprite,'renyuan')
@@ -292,22 +439,46 @@ function searchOnSelect(sprite)
         if g_isMapOpen == false then 
             openMap(0, 70, 480, 644)
         end
+      --请求人员数据
+      request()
    elseif btnData=='02' then
      Sprite:setVisible(renyuan,'0')
      Sprite:setVisible(ziyuan,'1')
      Sprite:setVisible(yinhuan,'0')
-     closeMap()
-     Dialog:show('', '正在开发，敬请期待!', 'ok')
+     --请求车辆数据
+     carrequest()
    elseif btnData=='03' then
      Sprite:setVisible(renyuan,'0')
      Sprite:setVisible(ziyuan,'0')
      Sprite:setVisible(yinhuan,'1')
-     closeMap()
-     Dialog:show('', '正在开发，敬请期待!', 'ok')
+     --请求隐患数据
+     dangerrequest()
    end
 end
-
-
-
+--设置初始时间
+function setDefaultTime()
+    local year = os.date("*t", os.time() + 86400)["year"]
+    local yue = os.date("*t", os.time() + 86400)["month"]
+    local ri = os.date("*t", os.time() + 86400)["day"]
+    Log:write('当前年月日',year,yue,ri)
+    local yearlabel = Sprite:findChild(rootSprite,'yearlabel')
+    local yuelabel = Sprite:findChild(rootSprite,'yuelabel')
+    local rilabel = Sprite:findChild(rootSprite,'rilabel')
+    Sprite:setProperty(yearlabel,'text',year)
+    Sprite:setProperty(yuelabel,'text',yue)
+    Sprite:setProperty(rilabel,'text',ri)
+end
+--确定搜索时间区间
+function dodefine()
+    local yearlabel = Sprite:getText(Sprite:findChild(rootSprite,'yearlabel'))
+    local yuelabel = Sprite:getText(Sprite:findChild(rootSprite,'yuelabel'))
+    local rilabel = Sprite:getText(Sprite:findChild(rootSprite,'rilabel'))
+    local startdian = Sprite:getText(Sprite:findChild(rootSprite,'startdian'))
+    local enddian = Sprite:getText(Sprite:findChild(rootSprite,'enddian'))
+    starttime = yearlabel..'-'..yuelabel..'-'..rilabel..' '..startdian..':00'
+    endtime   = yearlabel..'-'..yuelabel..'-'..rilabel..' '..enddian..':00'
+    Log:write('开始结束时间',starttime,endtime)
+    drawrequest(postData.PoiId[1],postData.PoiId[2])
+end
 ]]>
 </root>
