@@ -290,6 +290,7 @@ local rootSprite
 local renyuandata = nil
 local stasticData = nil
 local carStasticData = nil
+local dangerStastic = nil
 
 local regionid
 local citydata 
@@ -298,6 +299,8 @@ local staff
 local staffonline
 local car
 local taskcar
+local danger
+local majordanger
 local daiweiMap
 local cityNode
 local bottomFlag = 1
@@ -345,9 +348,14 @@ function bodyOnPluginEvent(msg, param)
         Sprite:setProperty(renyuantongji,'text',citydata.city..'今日登录用户'..staff..'人，当前在线'..staffonline..'人。')
     elseif msg == 102 then
         carStasticData = Http:jsonDecode('carStastic')
-        Log:write("@jldu 请求车辆统计数据:  ",carStasticData)
+        -- Log:write("@jldu 请求车辆统计数据:  ",carStasticData)
         handlecartongji()
         Sprite:setProperty(renyuantongji,'text',citydata.city..'今日在线'..car..'辆车，其中'..taskcar..'辆有代维任务。')
+    elseif msg == 103 then
+        dangerStasticData = Http:jsonDecode('dangerStastic')
+        Log:write("@jldu 请求隐患统计数据：",dangerStasticData)
+        handleDangertongji()
+        Sprite:setProperty(renyuantongji,'text',citydata.city..'当前未闭环隐患'..danger..'个，其中重大隐患'..majordanger..'个。')
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -451,14 +459,13 @@ function searchOnSelect(sprite)
         Log:write("@jldu 点击车辆")
         requestCarStastic()
     elseif btnData=='03' then
-        Sprite:setProperty(daiweiMap,'enable','false') 
+        Sprite:setProperty(daiweiMap,'enable','true')
+        Sprite:setProperty(tongjiNode,'visible','true') 
         Sprite:setVisible(renyuan,'0')
         Sprite:setVisible(cheliang,'0')
         Sprite:setVisible(yinhuan,'1')
         Log:write("@jldu 点击隐患")
-        Sprite:setProperty(tongjiNode,'visible','false')
-        Dialog:show('', '正在开发，敬请期待!', 'ok')
-        return
+        requestDingerStastic()
     end
 end
 
@@ -480,6 +487,15 @@ function requestCarStastic()
     -- Loading:show()  
 end
 
+-- @jldu 请求隐患数据
+function requestDingerStastic()
+    local param = 'cmd=wlbdangerregion&page=1&pagesize=50&usercode=fanbingheng&regionid=340000'
+    local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
+    Log:write("@jldu 请求隐患统计数据地址: "..reqURL)
+    Http:request('dangerStastic', reqURL, 103, {useCache = false})
+    -- Loading:show()  
+end
+
 -- @jldu 请求地图数据
 function requestMap()
     OnSelectShowMap()
@@ -487,6 +503,8 @@ function requestMap()
         requestStastic() 
     elseif bottomFlag == 2 then
         requestCarStastic()
+    elseif bottomFlag == 3 then
+        requestDingerStastic()
     end     
 end
 
@@ -512,6 +530,20 @@ function handlecartongji()
             taskcar = stasCity.taskcar
             Log:write("@jldu 登录人所在地市 车辆总数："..car)
             Log:write("@jldu 登录人所在地市 有任务车辆数："..taskcar)
+        end
+    end
+end
+
+-- @jldu 定位登陆人所在地市隐患数据
+function handleDangertongji()
+    for i=0,#dangerStasticData.value[0].data do
+        local stasCity = dangerStasticData.value[0].data[i]
+        if regionid == stasCity.regionid then
+            Log:write("@jldu 登陆人所在地市："..stasCity.dimension)
+            danger = stasCity.danger
+            majordanger = stasCity.majordanger
+            Log:write("@jldu 登录人所在地市 未处理隐患数："..danger)
+            Log:write("@jldu 登录人所在地市 未处理高级别隐患数："..majordanger)
         end
     end
 end
