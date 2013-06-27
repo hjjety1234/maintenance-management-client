@@ -582,8 +582,11 @@ function queryDeptList()
     local querySql = "select com.company_id,com.company_name,com.org_flag"..
         " from tb_c_employee emp left join tb_c_company com on emp.company_id=com.company_id"..
         " where emp.employee_id='"..employeeId..
-        "' and emp.employee_name='"..employeeName..
-        "' order by com.org_flag desc"..
+        "' and emp.employee_name='"..employeeName.."'"
+        if flag == '1' then
+            querySql = querysql .. " AND com.company_id='"..companyId.."'"
+        end
+        querysql = querysql .. " order by com.org_flag desc"..
         " limit 0,1;"
     Log:write("查询用户信息SQL = ",querySql)
     bRet, retCompanyTable, errMsg = Sqlite:query(databaseName, querySql)  
@@ -642,9 +645,13 @@ function queryUserInfoSQL()
                 "emp.manage_flag,"..
                 "emp.employee_name,"..
                 "com.company_name,"..                             
-                "emp.headship_name,"..  
-                "emp.department_name,"..
-                "emp.mood,"..
+                "emp.headship_name," 
+            if tonumber(orgFlag) == 1 then
+                sql = sql .. 'dept.department_name,'
+            else
+                sql = sql .. "emp.department_name,"
+            end
+            sql = sql .."emp.mood,"..
                 "emp.mobile,"..
                 "emp.mobile_short,"..
                 "emp.tel,"..
@@ -672,10 +679,13 @@ function queryUserInfoSQL()
                 "emp.home_address,"..
                 "emp.remark"
         if tonumber(orgFlag) == 1 then
-            sql = sql .. " FROM tb_c_employee emp,tb_c_department dept,tb_c_company com"..
+            sql = sql .. " FROM tb_c_employee emp,tb_c_department dept,tb_c_company com,tb_c_user_department udept "..
                 " WHERE emp.company_id = com.company_id"..  
                 " AND emp.employee_id = '"..employeeId.."'"..
-                " AND emp.department_id = dept.department_id"
+                " AND udept.user_company_id=emp.user_company_id AND dept.department_id=udept.department_id "
+                if departmentId1 ~= nil and departmentId1 ~= '' then
+                    sql = sql .. " AND udept.department_id='"..departmentId1.."' "
+                end
         else
             sql = sql .. " FROM tb_c_employee emp,tb_c_company com"..
                 " WHERE emp.company_id = com.company_id"..  
@@ -683,10 +693,11 @@ function queryUserInfoSQL()
         end
                 
         if flag == '3' then
-            sql = sql .. " AND emp.company_id = '"..retCompanyTable[1][1].."';"
+            sql = sql .. " AND emp.company_id = '"..retCompanyTable[1][1].."'"
         else
-            sql = sql .. " AND emp.company_id = '"..companyId.."';"
-        end           
+            sql = sql .. " AND emp.company_id = '"..companyId.."'"
+        end
+        sql = sql .. ";"
         Log:write("查询用户信息SQL = ",sql)
         bRet, retUserTable, errMsg = Sqlite:query(databaseName, sql)
 end

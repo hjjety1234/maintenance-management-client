@@ -308,9 +308,9 @@ function bodyOnPluginEvent(msg)
                 else
                     sql = "insert into tb_c_company(company_id,company_name,org_flag,status) values ('"..company_id.."','"..company_name.."','"..org_flag .."','1');"
                 end
-                Log:write('下载群组插入语句==第i=='..i..'次==sql=='..sql)
+                --Log:write('下载群组插入语句==第i=='..i..'次==sql=='..sql)
                 bRet, errMsg = Sqlite:update(databaseName, sql)
-                Log:write("载群组插入语句:bRet = "..bRet.." errMsg ="..errMsg)
+                --Log:write("载群组插入语句:bRet = "..bRet.." errMsg ="..errMsg)
                 
             end
             bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
@@ -393,6 +393,9 @@ function initdatabase()
     "town,index_logo,index_pictrue,status,display_order INTEGER,org_flag,mark1,mark2,mark3,mark4,company_version);"
     bRet, errMsg = Sqlite:update(databaseName, sq1)
     Log:write("创建数据库表tb_c_company结果:bRet = "..bRet.." errMsg ="..errMsg)
+    local sql2 = "create table tb_c_user_department(user_department_id varchar(32) primary key not null,user_company_id varchar(32),headship_id varchar(32),headship_name varchar(200),department_id varchar(32),department_path varchar(800),taxis int,visible_flag varchar(1),mark1 varchar(200), mark2 varchar(200));"
+    bRet,errMsg = Sqlite:update(databaseName,sql2)
+    Log:write("创建数据库表tb_c_user_department结果:"..bRet.." errMsg="..errMsg)
 end
 
 function getDownloadPath()
@@ -542,7 +545,7 @@ function initUserDatabase()
     Log:write("首次安装应用--人员添加事务开始:bRet = "..bRet.." errMsg ="..errMsg)
     for i=0,totalNum do 
             -- 新增用户SQL
-            local sqlInsert = "insert into tb_c_employee(employee_id ,company_id,employee_name,"..
+        local sqlInsert = "insert into tb_c_employee(employee_id ,company_id,employee_name,"..
         "department_id,department_name,headship_level,headship_name,mobile,mobile_short,"..
         "tel,tel_short,home_telephone,weibo,weixin,qq,school,user_major,user_grade,user_class,student_id,birthday,native_place,"..
         "address,home_address,remark,email,versionNum,picture,employee_firstword,employee_fullword,"..
@@ -565,7 +568,20 @@ function initUserDatabase()
             "','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."','"..
             returnValue[i].manage_flag.."','"..returnValue[i].mood.."' ,'' ,'' ,'' ,'','"..returnValue[i].user_company_id.."','"..returnValue[i].company_address.."','"..returnValue[i].user_company.."');"                  
             bRet, errMsg = Sqlite:update(databaseName, sqlInsert)
-            --Log:write("sqlInsert 语句：",sqlInsert)   
+            --Log:write("sqlInsert 语句：",sqlInsert)
+            --Log:write('deptList is ',returnValue[i].deptList) 
+            --插入用户部门信息
+            local deptList = returnValue[i].deptList
+            --Log:write('deptlist size is ',#deptList)
+            --Log:write("user_department_id is ",deptList[0].user_department_id)
+            for i=0,#deptList do
+                local dept_path = deptList[i].department_path
+                if dept_path == nil then dept_path = '' end
+                local sqlInsert = "insert into tb_c_user_department (user_department_id,user_company_id,headship_id,department_id,department_path,taxis,headship_name)"
+                sqlInsert = sqlInsert .." values ('"..deptList[i].user_department_id.."','"..deptList[i].user_company_id.."','"..deptList[i].headship_id.."','"..deptList[i].department_id.."','"..dept_path.."',"..deptList[i].taxis..",'"..deptList[i].headship_name.."');"
+                --Log:write('department insert sql is ',sqlInsert)
+                bRet,errMsg = Sqlite:update(databaseName,sqlInsert)
+            end
     end
     bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
     Log:write("首次安装应用--人员添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)

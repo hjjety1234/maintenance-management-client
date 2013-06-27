@@ -407,10 +407,10 @@ function lookUserData()
 
     -- 判断用户是否存在SQL
     local sqlCount = "SELECT COUNT(*)"
-             .." FROM tb_c_employee emp,tb_c_department dept"
-             .." WHERE emp.department_id = dept.department_id"
+             .." FROM tb_c_employee emp,tb_c_department dept,tb_c_user_department udept "
+             .." WHERE udept.user_company_id=emp.user_company_id AND dept.department_id=udept.department_id AND (emp.mark1 = '1' OR emp.mark1 = '') "
              .." AND (emp.mark1 = '1' OR emp.mark1 = '')"
-             .." AND dept.department_id = '"..department_id.."';"
+             .." AND udept.department_id = '"..department_id.."';"
     Log:write("sqlCount = ",sqlCount)  
 
     bRet, retCountTable, errMsg = Sqlite:query(databaseName, sqlCount)
@@ -434,10 +434,10 @@ function lookUserData()
     else
         local sql = "SELECT emp.employee_id,emp.company_id,emp.employee_name,emp.mobile,dept.department_name,"
                  .."emp.headship_name,emp.headship_level"
-                 .." FROM tb_c_employee emp,tb_c_department dept"
-                 .." WHERE emp.department_id = dept.department_id"
+                 .." FROM tb_c_employee emp,tb_c_department dept,tb_c_user_department udept  "
+                 .." WHERE udept.user_company_id=emp.user_company_id AND dept.department_id=udept.department_id AND (emp.mark1 = '1' OR emp.mark1 = '') "
                  .." AND (emp.mark1 = '1' OR emp.mark1 = '')"
-                 .." AND dept.department_id = '"..department_id.."'"
+                 .." AND udept.department_id = '"..department_id.."'"
                  .." ORDER BY emp.headship_level ASC,emp.display_order ASC;"
         Log:write("查询联系人列表 SQL =",sql)           
         bRet, retUserTable, errMsg = Sqlite:query(databaseName, sql) 

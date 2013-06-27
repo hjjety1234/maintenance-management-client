@@ -480,10 +480,9 @@ function queryGroupData()
     if databaseName == nil then
         databaseName = Config:get('databaseName')
         local bRet, errMsg = Sqlite:open(databaseName)
-    Log:write("创建数据库jttxlDatabase结果:bRet = "..bRet.." errMsg ="..errMsg)
     end
     
-    local queryGroup = "select company_id,company_name,status,org_flag from tb_c_company order by org_flag desc"
+    local queryGroup = "select company_id,company_name,status,org_flag from tb_c_company order by org_flag desc,company_name desc;"
     local  bRet2, data, errMsg2 = Sqlite:query(databaseName, queryGroup)
     groupDatas = data
     showData = {}
@@ -493,38 +492,39 @@ function queryGroupData()
 end
 
 function initTitleData()
-    --字段顺序company_id,company_name,status,org_flag
     --本地通讯录
     local localContacts
     if Config:get('localContactStatus') == '1' then
         localContacts = {[2]="本机通讯录",[4]="-1"}
     end
     local group
-    local special
+    local special = {}
     for i=1,#groupDatas do
         group = groupDatas[i]
         if group[3] == '1' then
             table.insert(showData,group)
             if group[4] == '1' then
-                special = group
+                table.insert(special,group)
             end
         end
     end
      if localContacts ~= nil then
         if special == nil then
             table.insert(showData,1,localContacts)
-        else
+        elseif #special == 1 then
             table.insert(showData,2,localContacts)
+        elseif #special == 2 then
+            table.insert(showData,3,localContacts)
         end
     end
-     companyGroup = special
-     localGroup = localContacts
+    Log:write("@jldu 企业、非企业、本地通讯录：",showData)
+    companyGroup = special
+    localGroup = localContacts
 end
 
 function showTitleData(company_name)
-    --27,0,213,62|240,0,214,62
     if company_name == nil and companyGroup ~= nil then
-        company_name = companyGroup[2]
+        company_name = companyGroup[1][2]
     end
     local title = Sprite:findChild(rootSprite, 'fenleibtnName')
     local leftBtn = Sprite:findChild(rootSprite, 'left')
@@ -534,6 +534,11 @@ function showTitleData(company_name)
     local centerLabel = Sprite:findChild(rootSprite, 'centerLabel')
     local rightLabel = Sprite:findChild(rootSprite, 'rightLabel')
     local showMore = Sprite:findChild(rootSprite, 'showMoreBtn') 
+    -- 初始化默认Tab 图片
+    Sprite:setProperty(leftBtn, 'src', 'file://image/jttxl/local_menu_a2.png')
+    Sprite:setProperty(centerBtn, 'src', 'file://image/jttxl/local_menu_b2.png')
+    Sprite:setProperty(rightBtn, 'src', 'file://image/jttxl/local_menu_c2.png')
+
     Sprite:setVisible(showMore, 0)
     Sprite:setEnable(showMore, 0)
     Sprite:setProperty(title, 'text', company_name.."▼")
@@ -623,7 +628,7 @@ function groupOnSelect(sprite)
     Reg:setString(reg, 'org_flag', data[4])
     if data[2].."▼" ~= Sprite:getText(Sprite:findChild(rootSprite, 'title')) then
         if data[4] == '1' then
-             Scene:go(Alias.m_renyuantongji,true)
+             Scene:go(Alias.m_renyuantongji..'?judgeFlag=2&compId='..data[1]..'&compName='..data[2],true)
         elseif data[4] == '-1' then
              Scene:go(Alias.m_local,true)
         elseif data[4] == '0' then

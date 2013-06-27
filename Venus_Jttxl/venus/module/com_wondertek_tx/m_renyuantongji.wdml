@@ -25,7 +25,7 @@
             <node name="baseSprite" rect="0,0,480,80" extendstyle="1111">
                  <image rect="0,0,480,80" border="false" src="file://image/jttxl/top.png" 
                     style="autosize" extendstyle="1111">
-                    <label name="title" rect="0,0,480,80" text="集团联系人" color="#ffffff" v-align="center"  
+                    <label name="title" rect="0,0,480,80" text="" color="#ffffff" v-align="center"  
                        h-align="center" font-family="微软雅黑" font-size="32" extendstyle="1111" />
                  </image>
             </node>
@@ -56,11 +56,10 @@
             
             <node name="cityListNode" rect="0,155,480,564" extendstyle="1111">
                 <listview name="cityList" rect="0,0,480,564" extendstyle="1111" line="17" >
-                    <!--<list-item rect="0,0,420,90"></list-item>-->
                 </listview>    
             </node>
             <!--部门列表的item-->
-            <node name="cityListItems" extendstyle="1111" visible="false">
+            <node name="cityListItems" extendstyle="1111" visible="false" enable="false" active="false">
                  <!-- 图片连接线 -->
                 <image name="jiange_line" rect="53,74,10,16" src="file://image/jttxl/jiange_line.png"
                     style='autosize' extendstyle="1111"/>
@@ -68,7 +67,7 @@
                     style="autosize" extendstyle="1111" text="">
                     <label name="lblid" visible="false" />
                     <!-- 组织机构名 -->
-                    <scrolltext name="listButtonLabel" rect="150,12,240,45" text="$(ctext)" font-family='微软雅黑' color="#ffffff" font-size="28"
+                    <scrolltext name="listButtonLabel" rect="150,12,240,45" text="" font-family='微软雅黑' color="#ffffff" font-size="28"
                         h-align="left" v-align="center" extendstyle="1111" border="false" scroll="true" />
                     <!--  正常时组织结构图片 -->
                     <node name="normal" extendstyle="1111">
@@ -129,8 +128,6 @@ local rootSprite
 local textcontent = {}
 local currentCity 
 local newNode
-local data1,data2,data3,data4
-local search,contact,person,site
 data = {{key="hefei",      name="合肥",  deptid=""}, 
 		{key="bengbu",     name="蚌埠",  deptid=""},
 		{key="wuhu",       name="芜湖",  deptid=""},
@@ -166,40 +163,15 @@ local blank
 
 --保存从数据库取出来的城市列表
 local retDeptTable2
+
+local bRet2,companyTable,errMsg2
+
 ---------------------------------------回调函数--------------------------------
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     newNode = Sprite:findChild(rootSprite, 'newNode')
     reg = Reg:create('group_data')
-    --定义列表按钮data属性
-    search =Sprite:findChild(rootSprite,'search')
-    contact =Sprite:findChild(rootSprite,'contact')
-    person =Sprite:findChild(rootSprite,'person')
-    site =Sprite:findChild(rootSprite,'site')
-    data1 = Sprite:getData(search)
-    data2 = Sprite:getData(contact)
-    data3 = Sprite:getData(person)
-    data4 = Sprite:getData(site)
-    
-    --[[local list
-    list = Sprite:findChild(rootSprite, 'cityList')
-    local ListViewItemNum = ListView:getItemCount(list)
-    local item
-    item = ListView:getItem(list, ListViewItemNum - 1)
-    if 0 ~= item then
-    	local jiangeline = Sprite:findChild(item, 'jiange_line')
-    	Sprite:setProperty(jiangeline, 'visible', 'false')
-    end
-    --]]
-    initCityData()
-    --[[local localstatus = Config:get('localContactStatus')
-	    if localstatus == '0' then
-	    setAllShoworHide(Sprite:findChild(rootSprite, 'localContactNode'), 0)
-	    Sprite:setRect(Sprite:findChild(rootSprite, 'anhuimapNode'),0,130,480,534)
-	    Sprite:setRect(Sprite:findChild(rootSprite, 'cityNode'),0,130,480,534)
-	    Sprite:setRect(Sprite:findChild(rootSprite, 'showmapBtn'),0,130,480,534)
-	end--]]
 	--更多下拉框
     comboboxListview = Sprite:findChild(rootSprite, 'comboboxListview')
     comboboxItem = Sprite:findChild(rootSprite, 'comboboxItem')
@@ -220,28 +192,35 @@ function bodyOnSpriteEvent(msg, param)
         Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
         Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_s.png')
         Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
-        Timer:set(222, 100, "checkDeviceInfo")
-        --更改标题
+        Timer:set(222, 100, "checkDeviceInfo") 
+        -- 初始化数据
+        initCityData()
         queryGroupData()
-        local showGroup
-        for i=1,#showData do
-            showGroup=showData[i]
-            if showGroup[4] == '1' then
-                showTitleData()
-                break
-            elseif showGroup[4] == '-1' then
-                Reg:setString(reg, 'company_name', showGroup[2])
-                Scene:go(Alias.m_local,true)
-                Log:write('m_local')
-                break
-            else
-                Reg:setString(reg, 'company_id', (showGroup[1] == nil and "") or showGroup[1])
-                Reg:setString(reg, 'company_name', showGroup[2])
-                Log:write('m_group')
-                Scene:go(Alias.m_group, true)
-                break
+        if tonumber(judgeFlag) == 2 then
+            showTitleData(compName)
+        else
+
+            local showGroup
+            for i=1,#showData do
+                showGroup=showData[i]
+                --更改标题
+                if showGroup[4] == '1' then
+                    showTitleData()
+                    break
+                elseif showGroup[4] == '-1' then
+                    Reg:setString(reg, 'company_name', showGroup[2])
+                    Scene:go(Alias.m_local,true)
+                    Log:write('m_local')
+                    break
+                else
+                    Reg:setString(reg, 'company_id', (showGroup[1] == nil and "") or showGroup[1])
+                    Reg:setString(reg, 'company_name', showGroup[2])
+                    Log:write('m_group')
+                    Scene:go(Alias.m_group, true)
+                    break
+                end
             end
-        end   
+        end    
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
@@ -395,40 +374,52 @@ function goSearchPage()
 end
 
 function initCityData()
+    Log:write("@jldu 初始化数据：")
     databaseName = Config:get('databaseName')
     local bRet, errMsg = Sqlite:open(databaseName)
-    Log:write("创建数据库jttxlDatabase结果:bRet = "..bRet.." errMsg ="..errMsg)
     --如果非企业用户不执行下面的
-    local queryGroup = "select company_id,company_name,status,org_flag from tb_c_company where org_flag='1'"
-    local  bRet2, data, errMsg2 = Sqlite:query(databaseName, queryGroup)
-    if data == nil or #data ==0 then
+    local queryGroup = "select company_id,company_name,status,org_flag from tb_c_company where org_flag='1' order by org_flag desc,company_name desc;"
+    bRet2, companyTable, errMsg2 = Sqlite:query(databaseName, queryGroup)
+    if companyTable == nil or #companyTable ==0 then
         return
     end
-    
-    local sql2 = "select department_id, department_name from tb_c_department where parent_department_id='0' and department_id!='001' ;"
+    local company_id = companyTable[1][1]
+    if tonumber(judgeFlag) == 2 then
+        Log:write("@jldu 从本机通讯录跳转过来")
+        loadDeptData(compId)
+    else
+        Log:write("@jldu 从底部菜单点击")
+        loadDeptData(company_id)  
+    end       
+end
+
+-- 加载部门数据
+function loadDeptData(company_id)
+    Log:write("@jldu 展示某个企业下的部门：",company_id)
+    local sql2 = "select department_id, department_name from tb_c_department where parent_department_id='0' and department_id!='001' and company_id='"..company_id.."';"
     Log:write("==查询语句=="..sql2)
     bRet2, retDeptTable2, errMsg2 = Sqlite:query(Config:get('databaseName'), sql2)
-    Log:write('the retDeptTable2 is ',retDeptTable2)
+    Log:write('@jldu 部门树数据： ',retDeptTable2)
     --开始绑定部门树
     local len = getJsonArrayCount(retDeptTable2)-1
     Log:write('the length is ',len)
     local list = Sprite:findChild(rootSprite,'cityList')
     ListView:removeAllItems(list,1)
     ListView:loadItem(list, Sprite:findChild(rootSprite, 'cityListItems'), len, 'LoadListItemCallback')
-    ListView:adjust(list)    
+    ListView:adjust(list)  
 end
 
 --加载部门列表
 function LoadListItemCallback(list,item,index)
     Log:write('then company is ',retDeptTable2[index+1][2])
-    Sprite:setRect(item,0,0,420,90) --node item location
-    Sprite:setProperty(item,'extendstyle','1111') --node item's extend style
-    local zuzhiBtn = Sprite:findChild(item,'zuzhiBtn')  --按钮data 绑定deptid
+    Sprite:setRect(item,0,0,420,90) 
+    Sprite:setProperty(item,'extendstyle','1111') 
+    local zuzhiBtn = Sprite:findChild(item,'zuzhiBtn')  
     Sprite:setProperty(zuzhiBtn,'Data',retDeptTable2[index+1][1])
     --改用label绑定（data取不到，郁闷）
     local lblid = Sprite:findChild(item,'lblid')
     Sprite:setProperty(lblid,'text',retDeptTable2[index+1][1])
-    local listButtonLabel = Sprite:findChild(item,'listButtonLabel') --部门名称绑定
+    local listButtonLabel = Sprite:findChild(item,'listButtonLabel') 
     Sprite:setProperty(listButtonLabel,'text',retDeptTable2[index+1][2])
 end
 
@@ -436,16 +427,14 @@ function queryGroupData()
     if databaseName == nil then
         databaseName = Config:get('databaseName')
         local bRet, errMsg = Sqlite:open(databaseName)
-    Log:write("创建数据库jttxlDatabase结果:bRet = "..bRet.." errMsg ="..errMsg)
     end
     
-    local queryGroup = "select company_id,company_name,status,org_flag from tb_c_company order by org_flag desc"
-    local  bRet2, data, errMsg2 = Sqlite:query(databaseName, queryGroup)
-    groupDatas = data
+    local queryGroup = "select company_id,company_name,status,org_flag from tb_c_company order by org_flag desc,company_name desc;"
+    bRet2, companyTable, errMsg2 = Sqlite:query(databaseName, queryGroup)
+    groupDatas = companyTable
     showData = {}
-    Log:write('groupDatas', groupDatas)
+    Log:write('@jldu 群组数据（企业与非企业）：', groupDatas)
     initTitleData()
-    Log:write('showData', showData)
 end
 function initTitleData()
     --字段顺序company_id,company_name,status,org_flag
@@ -454,32 +443,41 @@ function initTitleData()
     if Config:get('localContactStatus') == '1' then
         localContacts = {[2]="本机通讯录",[3]="1",[4]="-1"}
     end
+    local num = 0     -- 企业用户个数
     local group
-    local special
+    local special = {}
     for i=1,#groupDatas do
         group = groupDatas[i]
         if group[3] == '1' then
             table.insert(showData,group)
             if group[4] == '1' then
-                special = group
+                num = num + 1
+                table.insert(special,group)
             end
         end
     end
+    Log:write("@jldu 企业、非企业：",showData)
+    Log:write("@jldu 企业用户个数：",num)
+    Log:write("@jlud 企业用户：",special)
     if localContacts ~= nil then
         if special == nil then
             table.insert(showData,1,localContacts)
-        else
+        elseif #special == 1 then
             table.insert(showData,2,localContacts)
+        elseif #special == 2 then
+            table.insert(showData,3,localContacts)
         end
     end
+    Log:write("@jldu 企业、非企业、本地通讯录：",showData)
+    -- 企业单位
+    companyGroup = special
+    -- 本机通讯录
+    localGroup = localContacts
     
-     companyGroup = special
-     localGroup = localContacts
 end
 function showTitleData(company_name)
-    --27,0,213,62|240,0,214,62
     if company_name == nil and companyGroup ~= nil then
-        company_name = companyGroup[2]
+        company_name = companyGroup[1][2]
     end
     local title = Sprite:findChild(rootSprite, 'title')
     local leftBtn = Sprite:findChild(rootSprite, 'left')
@@ -488,12 +486,17 @@ function showTitleData(company_name)
     local leftLabel = Sprite:findChild(rootSprite, 'leftLabel')
     local centerLabel = Sprite:findChild(rootSprite, 'centerLabel')
     local rightLabel = Sprite:findChild(rootSprite, 'rightLabel')
-    local showMore = Sprite:findChild(rootSprite, 'showMoreBtn') 
+    local showMore = Sprite:findChild(rootSprite, 'showMoreBtn')
+    -- 初始化默认Tab 图片
+    Sprite:setProperty(leftBtn, 'src', 'file://image/jttxl/local_menu_a2.png')
+    Sprite:setProperty(centerBtn, 'src', 'file://image/jttxl/local_menu_b2.png')
+    Sprite:setProperty(rightBtn, 'src', 'file://image/jttxl/local_menu_c2.png')
+
     Sprite:setVisible(showMore, 0)
     Sprite:setEnable(showMore, 0)
     Sprite:setProperty(title, 'text', company_name)
     local count = #showData
-    Log:write('###count', count)
+    Log:write('@jldu count：', count)
     if count == 1 then
         Sprite:setVisible(leftBtn, 0)
         Sprite:setEnable(leftBtn, 0)
@@ -501,12 +504,11 @@ function showTitleData(company_name)
         Sprite:setEnable(centerBtn, 0)
         Sprite:setVisible(rightBtn, 0)
         Sprite:setEnable(rightBtn, 0)
-        --Sprite:setProperty(title, 'text', showData[1][2])
         local cityListNode = Sprite:findChild(rootSprite, 'cityListNode')
         local cityList = Sprite:findChild(cityListNode, 'cityList')
         local x,y,w,h=Sprite:getRect(cityListNode)
         Sprite:setRect(cityListNode, x, y-62, w, h+62)
-         Sprite:setRect(cityList, 0, 0, w, h+62)
+        Sprite:setRect(cityList, 0, 0, w, h+62)
     elseif count == 2 then
         Sprite:setVisible(centerBtn, 0)
         Sprite:setRect(centerBtn, 0, 0, 0, 0)
@@ -514,6 +516,7 @@ function showTitleData(company_name)
         Sprite:setRect(rightBtn, 239,0,213,62)
         Sprite:setProperty(leftLabel, 'text', showData[1][2])
         Sprite:setProperty(rightLabel, 'text', showData[2][2])
+
         Sprite:setRect(leftLabel, 0,0,213,50)
         Sprite:setRect(rightLabel, 0,0,213,50)
         Sprite:setProperty(leftBtn, 'src', 'file://image/jttxl/local_top_a2.png')
@@ -529,6 +532,7 @@ function showTitleData(company_name)
         Sprite:setProperty(leftLabel, 'text', showData[1][2])
         Sprite:setProperty(centerLabel, 'text', showData[2][2])
         Sprite:setProperty(rightLabel, 'text', showData[3][2])
+
         Sprite:setRect(leftBtn, 50,10,130,62)
         Sprite:setRect(centerBtn, 181,10,130,62)
         Sprite:setRect(rightBtn, 312,10,130,62)
@@ -547,6 +551,7 @@ function showTitleData(company_name)
         Sprite:setProperty(leftLabel, 'text', showData[1][2])
         Sprite:setProperty(centerLabel, 'text', showData[2][2])
         Sprite:setProperty(rightLabel, 'text', showData[3][2])
+
         Sprite:setRect(leftBtn, 30,10,130,62)
         Sprite:setRect(centerBtn, 161,10,130,62)
         Sprite:setRect(rightBtn, 292,10,130,62)
@@ -568,17 +573,19 @@ end
 function groupOnSelect(sprite)
     local index = Sprite:getData(sprite)
     local data = showData[tonumber(index)]
-    Log:write('groupOnSelect', data)
+    Log:write('@jldu 点击群组获得数据：', data)
+    Log:write('@jldu 组织结构标题：'..Sprite:getText(Sprite:findChild(rootSprite, 'title')))
     Reg:setString(reg, 'company_id', (data[1] == nil and "") or data[1])
     Reg:setString(reg, 'company_name', data[2])
     Reg:setString(reg, 'org_flag', data[4])
     if data[2] ~= Sprite:getText(Sprite:findChild(rootSprite, 'title')) then
         if data[4] == '1' then
-             Scene:go(Alias.m_renyuantongji,true)
+            loadDeptData(data[1])
+            showTitleData(data[2])
         elseif data[4] == '-1' then
-             Scene:go(Alias.m_local,true)
+            Scene:go(Alias.m_local,true)
         elseif data[4] == '0' then
-             Scene:go(Alias.m_group,true)
+            Scene:go(Alias.m_group,true)
         end
     end
 end
