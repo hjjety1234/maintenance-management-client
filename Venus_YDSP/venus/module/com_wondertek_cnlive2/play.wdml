@@ -1,0 +1,2377 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: jianglican <jianglican@wdit.com.cn>
+ == ============================================================================
+ == | Desc: 播放页
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="640,960" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,640,960" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image rect="0,0,640,960" extendstyle="1111" style="autosize" src="file://image/background_nofont.png" />      
+            <!-- 顶部所有menu button -->
+		    <image rect="0,0,640,70" style="tile" src="file://image/top_bg.png" extendstyle="1010" />
+		    <button rect="0,0,130,70" normal="normal" sel="sel" extendstyle="0000" OnSelect="returnOnSelect" >
+		    	<image name="normal" rect="23,10,84,50" extendstyle="0000" style="autosize" src="file://image/goback_bg.png" />
+		    	<image name="sel" rect="23,10,84,50" extendstyle="0000" style="autosize" src="file://image/goback_bg_f.png" />
+		        <label name = "btntop1" rect="33,10,79,50" extendstyle="0000" text="返回" h-align="center" v-align="center" color="#ffffff" font-size="24" />
+		    </button>
+		    <scrolltext name="totaltitle" rect="120,10,400,50" scroll="true" text="" color="#a40c0c" v-align="center" h-align="center" font-size="24" font-style="bolder" extendstyle="1010" />
+		    <button name="btntop2" rect="510,0,130,70" normal="normal" sel="sel" extendstyle="1111" OnSelect="finishButtonOnSelect" enable="false" visible="false" >
+		        <image name="normal" rect="23,10,84,50" extendstyle="1010" style="autosize" src="file://image/account_log_btn_n.png" />
+		        <image name="sel" rect="15,15,70,40" extendstyle="1010" style="autosize" src="file://image/account_log_btn_f.png" />
+		        <label rect="25,10,79,50" extendstyle="1111" text="完成" h-align="center" v-align="center" color="#ffffff" font-size="24" />
+		    </button>
+		    <node name="node11" rect="0,70,640,890" enable="true" active="true" layouttype="1" extendstyle="1111">
+		        <!-- 正常播放控制及进度条 -->
+	            <node name="normalplayControlNode" rect="0,330,640,60" visible="false" enable="false" extendstyle="1111" >
+	                <shadow name="colorshadow2" rect="0,0,640,60" style="autosize" color="#0" alpha="255" extendstyle="1111" />
+	                <button name="playBtn2" rect="13,10,36,40" normal="src:file://image/play_play.png;style:autosize"
+	                    sel="src:file://image/play_play.png;style:autosize" OnSelect="playBtnOnSelect" extendstyle="1111"/>
+	                <button name="pauseBtn2" rect="13,10,35,40" normal="src:file://image/play_pause.png;style:autosize"
+	                    sel="src:file://image/play_pause.png;style:autosize" OnSelect="pauseBtnOnSelect"
+	                    visible="false" enable="false" extendstyle="1111"/>
+	                <node name="progressNode2" rect="55,5,300,50" extendstyle="1111" >
+	                    <button name="progressBtn2" rect="0,0,300,50" OnMouseDown="progressOnMouseDown" OnMouseMove="progressOnMouseMove" OnMouseUp="progressOnMouseUp" extendstyle="1111" >
+	                        <image name="progressBgImg2" rect="0,16,270,18" src="file://image/play_progress_bar.png" style="autosize" extendstyle="1111" />
+	                        <image name="progressBarImg2" rect="0,16,0,18" src="file://image/play_progress.png" style="autosize" extendstyle="1111" />
+	                        <image name="progressPointImg2" rect="-13,4,41,42" style="autosize" src="file://image/play_progress_point.png" extendstyle="1111" />
+	                    </button>
+	                </node>
+	                <image name="volumeImg2" rect="365,11,46,39" extendstyle="1111" style="autosize" src="file://image/volume_image.png" />
+	                <node name="volumeNode2" rect="420,5,155,50" extendstyle="1111" >	                    
+	                    <button name="volumeprogressBtn2" rect="0,0,155,50" extendstyle="1111" OnMouseDown="volumeprogressOnMouseDown" OnMouseMove="volumeprogressOnMouseMove" OnMouseUp="volumeprogressOnMouseUp">
+	                        <image name="volumeprogressBgImg2" rect="0,16,110,18" extendstyle="1111" src="file://image/volume_slider_bg1.png" style="autosize" />
+	                        <image name="volumeprogressBarImg2" rect="0,16,0,18" extendstyle="1111" src="file://image/volume_slider_bg2.png" style="autosize" />
+	                        <image name="volumeprogressPointImg2" rect="-13,4,41,42" extendstyle="1111" style="autosize" src="file://image/play_progress_point.png" />
+	                    </button>
+	                </node>
+	                <!--<button name="shezhiBtn" rect="525,5,60,50" text="设置" font-size="20" color="#ffffff" normal="src:file://image/play_liaotianbg.png;style:autosize"
+                    sel="src:file://image/play_liaotianbg_f.png;style:autosize" OnSelect="shezhiBtnOnSelect" extendstyle="1111"/>-->
+	                
+	                <button name="fullscreenBtn" rect="590,5,50,50" style="autosize" src="file://image/play_fullscreen.png" OnSelect="fullscreenOnSelect" extendstyle="1111"/>
+	            </node>
+	            <!-- 满屏按钮 -->
+	            <button name="fullPlayBtn" rect="0,0,640,890" src="" OnSelect="fullPlayBtnOnSelect" extendstyle="1111"/>
+                <!-- 全屏播放控制及进度条 -->
+  		        <node name="fullplayControlNode" rect="0,618,640,282" extendstyle="1111">  		            
+  		            <node name="node2" rect="0,100,640,210" extendstyle="1111" >
+                      <image name="jujibackgroundBg" rect="0,0,0,0" extendstyle="1111" style="autosize" src="file://image/play_fullscreen_bottombg.png" visible="0" enable="0"/>
+                      <shadow name="jujicolorshadow" rect="0,0,0,0" color="#0" alpha="255" extendstyle="1177"/>
+                      <listview name="jujiListview" rect="0,30,640,120" extendstyle="1111" limit="true" direction="horizontal"/>
+                    </node>
+  		            <shadow name="colorshadow1" rect="0,0,640,100" style="autosize" color="#0" alpha="255" extendstyle="1111" />
+  		            <!--<button name="playBtn1" rect="8,30,36,40" normal="src:file://image/play_play.png;style:center"
+  		                sel="src:file://image/play_play.png;style:center" OnSelect="playBtnOnSelect" extendstyle="1100" visible="0" enable="0" />
+  		            <button name="pauseBtn1" rect="8,30,35,40" normal="src:file://image/play_pause.png;style:center"
+  		                sel="src:file://image/play_pause.png;style:center" OnSelect="pauseBtnOnSelect"
+  		                visible="false" enable="false" extendstyle="1100"/>-->
+  		            <button name="playBtn1" rect="0,10,44,100" normal="normal" sel="sel" OnSelect="playBtnOnSelect" extendstyle="1111" visible="0" enable="0">
+                      	<image name="normal" rect="8,10,36,80" src="file://image/play_play.png" style="center" extendstyle="1111"/>
+                      	<image name="sel" rect="8,10,36,80" src="file://image/play_play.png" style="center" extendstyle="1111"/>
+                  	</button>
+                  	<button name="pauseBtn1" rect="0,10,44,100" normal="normal" sel="sel" OnSelect="pauseBtnOnSelect" visible="false" enable="false" extendstyle="1111">
+                     	<image name="normal" rect="8,10,36,80" src="file://image/play_pause.png" style="center" extendstyle="1111"/>
+                     	<image name="sel" rect="8,10,36,80" src="file://image/play_pause.png" style="center" extendstyle="1111"/>
+                  	</button>
+  		            <node name="progressNode1" rect="60,25,290,70" extendstyle="1111"  visible="0" enable="0" >
+		                <button name="progressBtn1" rect="0,0,290,70" OnMouseDown="progressOnMouseDown" OnMouseMove="progressOnMouseMove" OnMouseUp="progressOnMouseUp" extendstyle="1111" >
+		                    <image name="progressBgImg1" rect="0,25,275,18" src="file://image/play_progress_bar.png" style="autosize" extendstyle="1111" />
+		                    <image name="progressBarImg1" rect="0,25,0,20" src="file://image/play_progress.png" style="autosize" extendstyle="1111" />
+		                    <image name="progressPointImg1" rect="-12,5,41,42" extendstyle="1100" style="center" src="file://image/play_progress_point.png" />
+		                </button>  		            
+  		            </node>
+  		            
+  		            <!--音量控制按钮区域-->
+  		            <image name="volumeImg1" rect="350,30,46,39" extendstyle="1100" style="center" src="file://image/volume_image.png" OnSelect="volumeMuteOnSelect"  visible="0" enable="0" />
+  	  	            <node name="volumeNode1" rect="393,25,137,100" extendstyle="1111"  visible="0" enable="0" > 	  	                
+  	  	                <button name="volumeprogressBtn1" rect="0,0,137,100" extendstyle="1111" OnMouseDown="volumeprogressOnMouseDown" OnMouseMove="volumeprogressOnMouseMove" OnMouseUp="volumeprogressOnMouseUp">
+  		  	                <image name="volumeprogressBgImg1" rect="0,25,110,18" extendstyle="1111" src="file://image/volume_slider_bg1.png" style="autosize" />
+  		  	                <image name="volumeprogressBarImg1" rect="0,25,0,20" extendstyle="1111" src="file://image/volume_slider_bg2.png" style="autosize" />
+  		  	                <image name="volumeprogressPointImg1" rect="-12,0,50,50" extendstyle="1100" style="center" src="file://image/play_progress_point.png" />
+  	  	                </button>
+  	  	            </node>
+  	  	            <button name="liaotianBtn" rect="530,15,50,50" text="聊天" font-size="24" color="#ffffff"                        
+  	  	          	  normal="src:file://image/play_liaotianbg.png;style:autosize"
+  	  	              sel="src:file://image/play_liaotianbg_f.png;style:autosize" OnSelect="liaotianBtnOnSelect" extendstyle="1010" visible="0" enable="0" />
+  	  	            <button name="fullshezhiBtn" rect="585,15,50,50" text="设置" font-size="24" color="#ffffff" normal="src:file://image/play_liaotianbg.png;style:autosize"
+                    sel="src:file://image/play_liaotianbg_f.png;style:autosize" OnSelect="shezhiBtnOnSelect" extendstyle="1010" visible="0" enable="0" />
+  	  	            <!--底部listview区域
+  	            	<node name="node2" rect="0,70,640,80" extendstyle="1010"> 
+  	            		<listview name="jujiListview" rect="0,0,640,80" direction="horizontal" extendstyle="1010"/>
+  	            	</node> 
+  	                <node name="jujiListviewItem" rect="0,10,150,60" extendstyle="1010">
+  	                	<button name="btn1" text="" OnSelect="jujiOnSelect" rect="0,0,150,60" extendstyle="1010"                
+  	                	  normal="src:file://image/play_fullscreen_item_n.png;style:autosize;font-size:23" 
+  	                    disabled="src:file://image/play_fullscreen_item_f.png;style:autosize;font-size:23"/>
+  	                </node>-->
+  	                                                
+  		        </node>      
+  		        <node name="jujiListviewItem" rect="10,0,150,50" visible="0" enable="0" extendstyle="1010" >
+		            <button name="jujiBtn" rect="0,0,130,50" extendstyle="1010" normal="normal" disabled="disabled" OnSelect="jujiOnSelect">
+		                <node name="normal" rect="0,0,130,50" extendstyle="1010">
+		                    <image rect="0,0,130,50" extendstyle="1010" style="autosize" src="file://image/play_fullscreen_item_n.png"/>
+		                    <label name="nLabel" rect="5,0,120,50" text="" postfix="..." extendstyle="1010" h-align="center" v-align="center" font-size="18"/>
+		                </node>
+		                <node name="disabled" rect="0,0,130,50" extendstyle="1010">
+		                    <image rect="0,0,130,50" extendstyle="1010" style="autosize" src="file://image/play_fullscreen_item_f.png"/>
+		                    <label name="dLabel" rect="5,0,120,50" text="" postfix="..." extendstyle="1010" color="#ffffff" h-align="center" v-align="center" font-size="18"/>
+		                </node>
+		            </button>
+			    </node>         
+	              <!--边看边聊区域-->
+	            <node name="liaotian" rect="0,390,640,530" extendstyle="1111" visible="0" enable="0">   
+		        	<node name="node3" rect="20,10,600,50" extendstyle="1111">     	
+			            <image rect="0,0,600,50" style="tile" alpha="128" src="file://image/play_zaixianrenshu_bg_.png"/>
+			            <label name="personNumber" rect="10,10,200,30" h-align="center" v-align="center" color="#BB1815" font-size="20" text=""/>
+			            <!--右边三个个按钮-->                  
+			            <button name="shezhiBtn" rect="410,0,60,50" extendstyle="1111" OnSelect="shezhiBtnOnSelect" visible="0" enable="0">
+			                <image rect="7,2,46,46" extendstyle="1111" style="autosize" src="file://image/play_shezhibg.png" />			                
+			            </button>
+			            <button name="favBtn" normal="normal" disabled="disabled" rect="470,0,60,50" extendstyle="1111" OnSelect="favBtnOnSelect" >
+			                <image name="disabled" rect="7,2,46,46" extendstyle="1111" style="autosize" src="file://image/detail_fav_grey.png" />
+			                <image name="normal" rect="7,2,46,46" extendstyle="1111" style="autosize" src="file://image/detail_fav_red.png" />
+			            </button>
+			            <button rect="530,0,60,50" extendstyle="1111" OnSelect="shareBtnOnSelect" >
+			                <image rect="7,2,46,46" extendstyle="1111" style="autosize" src="file://image/detail_share.png" />
+			            </button>
+		            </node>
+    	            <!--聊天内容listview-->
+    		        <node rect="20,60,600,365" extendstyle="1111">
+    		        	  <shadow rect="0,0,0,0" extendstyle="1177" color="#ffffff" alpha="255"/>
+    		            <listview name="liaotianlistview" OnHead="listviewOnHead" OnTrail="listviewOnTrail" rect="20,5,530,340" extendstyle="1111">
+    		            </listview>
+    		        </node>
+    		        <node name="liaotianlistitem" rect="0,0,530,60" extendstyle="1111" visible="0" enable="0">
+    		            <label name="actor" rect="10,5,500,30" extendstyle="1111" font-size="24" text="" h-align="left" v-align="center"/>
+    		            <textarea name="neirong" rect="10,35,530,30" extendstyle="1111" line-height="40" autoextend="true" font-size="24" text="        国内这么多节目，即能那么开怀大笑又让人学习除了天天向上基本上没有。正如“天天向上”一样，能让人学习。" />
+    		        </node>
+	                  <!--聊天侧边栏在线按钮区域-->
+    		        <node name="node4" rect="20,60,600,365" extendstyle="1111" visible="0" enable="0">   		            
+    			         <image rect="300,0,0,0" extendstyle="1177" src="file://image/play_online_bg.png" style="autosize"/>
+    			         <listview name="onlinelistview" rect="310,5,280,305" extendstyle="1111"/>
+    			         <button rect="0,0,340,365" extendstyle="1111" OnSelect="hideOnline"/>
+    			    </node>
+    		        <node name="onlinebtn" rect="580,180,40,80" extendstyle="1111">
+    		        	<image rect="0,0,0,0" extendstyle="1177" src="file://image/play_online.png" style="autosize"/>
+    		        	<button rect="0,0,40,80" extendstyle="1177" OnSelect="OnLineSelect"/>
+    		        </node>
+    		        <node name="onlinelistitem" rect="0,0,300,60" extendstyle="1111" visible="0" enable="0">
+    		        	<!--<image rect="30,10,30,30" extendstyle="1111" src="file://image/friend1.png" style="autosize"/>-->
+    		        	<image name="userphoto" rect="35,10,30,30" extendstyle="1111" src="file://image/play_yonghutouxiang.png" style="autosize"/>
+    		        	<label name="username" rect="70,10,250,30" extendstyle="1111" text="" font-size="24" v-align="center" color="#0"/>
+    		        	<image rect="10,40,280,2" extendstyle="1111" src="file://image/play_yonghufenge.png" style="autosize"/>
+    		        </node>  
+		            
+		            <!--发表评论区域-->
+		            <node name="inputblock" rect="0,435,640,65" extendstyle="1111" >
+		                <image name="editBg" rect="20,0,475,60" extendstyle="1111" style="sudoku-auto" sudoku="7,7,7,7" src="file://image/input_bg.png" />
+		                <label name="commentLab" rect="30,20,455,40" extendstyle="1111" text="我来说两句" color="#777777" font-size="25"/>
+		                <edit name="commentInput" autoup="false" OnTextChanged="chatDetailOnTextChanged" OnKeyboardSizeChanged="chatOnKeyboardSizeChanged" rect="30,20,455,40" extendstyle="1111" text="" color="#777777" font-size="25" />
+		                <button rect="500,0,122,60" extendstyle="1111" OnSelect="uploadMyComment" >
+		                    <image rect="0,0,122,60" extendstyle="1111" style="autosize" src="file://image/detail_playbtn_bg_n.png" />
+		                    <label rect="0,0,122,60" extendstyle="1111" v-align="center" h-align="center" text="发表" color="#ffffff" font-size="25" />
+		                </button>
+		            </node> 
+                </node>
+         	</node>
+            <!--分享区域-->
+            <node name="shareArea" rect="0,70,640,890" extendstyle="1111" visible="false" enable="false" >                
+                <image rect="0,45,640,2" extendstyle="1115" style="tile" src="file://image/detail_greyline.png" />
+                <image rect="0,90,640,2" extendstyle="1115" style="tile" src="file://image/detail_greyline.png" />
+                <image rect="0,135,640,2" extendstyle="1115" style="tile" src="file://image/detail_greyline.png" />
+                <image rect="0,180,640,2" extendstyle="1115" style="tile" src="file://image/detail_greyline.png" />
+                <image rect="0,225,640,2" extendstyle="1115" style="tile" src="file://image/detail_greyline.png" />
+                <textarea name="shareText" rect="30,15,580,45" line-height="45" text="//分享视频中国：[天涯明月刀]" font-size="20" autoextend="true" extendstyle="1111"/>
+                <edit name="content" rect="30,60,580,180" direction="vertical" line-height="45" font-size="20" multiline="true" extendstyle="1111" h-align="left" v-align="top" OnTextChanged="editOnTextChanged"/>
+                <label name="shengyu" rect="30,260,580,40" extendstyle="1111" v-align="top" h-align="right" text="还剩80个字" color="#DD4949" font-size="30" />
+                <label rect="30,270,580,40" extendstyle="1111" v-align="top" text="您要分享到：" font-size="30" />
+                <list name="shareList" rect="90,320,480,0" extendstyle="1111" offset="40,40" />
+                <node name="shareItem" rect="0,0,84,86" extendstyle="1111" visible="false" enable="false" >
+                    <button rect="0,0,84,86" extendstyle="1111" OnSelect="weiboOnSelect" >
+                        <image name="shareImage" rect="0,0,84,86" extendstyle="1111" style="maxsize" src="file://image/sina.png" />
+                        <image name="select" rect="52,54,32,32" extendstyle="1111" style="maxsize" visible="0" src="file://image/mark@2x.png" />
+                    </button>
+                </node>
+                <label name="friendTitle" rect="30,400,280,40" extendstyle="1111" v-align="top" text="同时@以下好友：" font-size="30" />                        
+                <listview name="shareListView" rect="0,480,640,890" extendstyle="1111" OnTrail="shareListViewOnTrail">
+                    <list-item name="shareListViewItem" rect="0,0,640,400" extendstyle="1111" >
+                    	<list name="friendList" rect="90,0,480,0" extendstyle="1111" offset="40,0" />
+                    </list-item>
+                </listview>
+                <node name="friendItem" rect="0,0,80,130" extendstyle="1111" visible="false" enable="false" >
+                    <button rect="0,0,80,80" extendstyle="1111" OnSelect="fansOnSelect">
+                        <image name="friendPhoto" rect="0,0,80,80" extendstyle="1111" style="autosize" />
+                        <image name="select1" rect="48,48,32,32" extendstyle="1111" style="autosize" visible="0" src="file://image/mark@2x.png" />
+                        <scrolltext name="friendName" rect="0,80,80,50" scroll="true" step="2" extendstyle="1111" v-align="center" h-align="center" font-size="18" />
+                    </button>
+                </node>
+            </node>
+            <node name="weiboBind" rect="0,70,640,890" extendstyle="1111" visible="false" enable="false" >
+                <textarea rect="20,20,600,30" extendstyle="1111" text="你尚未授权任何微博，请点击以下按钮进行授权！" line-height="30" v-align="center" h-align="left" font-size="20" />
+                    <list name="cooperatorList" rect="60,80,220,90" extendstyle="1111" line="1" col="2" auto-adjust="true" offset="50,0" />
+                    <node name="cooperatorItem" rect="0,0,84,86" extendstyle="1111" visible="false" enable="false" >
+                        <image rect="0,0,84,86" extendstyle="1111" style="autosize" />
+                        <button  rect="0,0,84,86" extendstyle="1111" OnSelect="panelLoginBycooperator" />
+                    </node>
+            </node>
+			<node name="loginArea" rect="0,70,640,890" extendstyle="1111" visible="false" enable="false" >
+                <image rect="0,0,640,890" extendstyle="1111" style="autosize" src="file://image/background_nofont.png" />
+				<label rect="50,40,110,60" extendstyle="1111" font-size="30" v-align="center" h-align="center" text="帐户:" />               
+                    <image rect="160,40,420,62" extendstyle="1111" style="autosize" src="file://image/panel_edit.png" />
+                    <label name="chatTips1" rect="180,60,300,54" extendstyle="1111" text="手机号或邮箱" color="#777777" font-size="22" />
+                    <edit name="accountInput" rect="180,50,380,40" extendstyle="1111" text="" color="#777777" font-size="30" OnTextChanged="chatDetailOnTextChanged1" OnKeyboardSizeChanged="chatOnKeyboardSizeChanged1"/>
+                    
+                    <label rect="50,130,110,60" extendstyle="1111" font-size="30" v-align="center" h-align="center" text="密码:" />
+                    <image rect="160,130,420,62" extendstyle="1111" style="autosize" src="file://image/panel_edit.png" />
+                    <label name="chatTips2" rect="180,150,300,54" extendstyle="1111" text="请输入密码" color="#777777" font-size="22" />
+                    <edit name="passwordInput" rect="180,140,380,40" text="" max-size="18" extendstyle="1111" color="#777777" font-size="30" password="true" OnTextChanged="chatDetailOnTextChanged2" OnKeyboardSizeChanged="chatOnKeyboardSizeChanged2"/>
+
+					<button normal="normal" sel="sel" rect="242,230,156,56" extendstyle="1111" OnSelect="loginBtnOnSelect" >
+		                        <image name="normal" rect="0,0,156,56" extendstyle="1111" style="autosize" src="file://image/account_log_btn_n.png" />
+		                        <image name="sel" rect="0,0,156,56" extendstyle="1111" style="autosize" src="file://image/account_log_btn_f.png" />
+		                        <label rect="0,0,156,56" extendstyle="1111" font-size="24" color="#ffffff" v-align="center" h-align="center" text="登录" />
+		            </button>
+            </node>
+            <!--温馨提示框区域-->
+            <node name="wenxinTips" rect="0,0,640,960" extendstyle="1111" visible="false" enable="false" >
+            	<button rect="0,0,640,960" extendstyle="1111" OnSelect=""/>
+            	<shadow name="shadow" rect="0,0,640,960" extendstyle="1010" />
+            	<image rect="150,580,340,240" extendstyle="1111" style="autosize" src="file://image/play_wenxintips1.png" />
+            	<button name="wenxinTipsCloseBtn" rect="470,560,70,70" extendstyle="1111" OnSelect="wenxinTipsCloseBtnOnSelect">
+            		<image rect="0,0,40,40" extendstyle="1111" style="autosize" src="file://image/search_dialog_close_f.png"/>
+            	</button>
+            	<label rect="245,595,150,40" text="温馨提示" extendstyle="1111" v-align="center" h-align="center" font-size="30" font-style="bold"/>
+            	<label rect="160,670,320,40" text="请您返回首页完成注册或登录。" extendstyle="1111" v-align="center" h-align="center" font-size="20"/>
+            	<button name="wenxinTipsBtn" rect="220,680,200,180" extendstyle="1111" OnSelect="wenxinTipsBtnOnSelect">
+                	<image rect="20,75,160,50" extendstyle="1111" style="autosize" src="file://image/play_wenxintips2.png"/>
+                	<label rect="40,80,120,40" text="回首页" color="#ffffff" extendstyle="1111" v-align="center" h-align="center" font-size="24"/>
+                </button>
+            </node> 
+            <!-- 设置跳过片头模块-->
+            <node name="shezhi" rect="0,0,640,960" extendstyle="1111" visible="false" enable="false">
+            	<button rect="0,0,640,960" extendstyle="1111" OnSelect=""/>
+	        	<shadow name="shezhishadow" rect="0,0,640,960" extendstyle="1111" />
+	        	<node rect="120,600,400,200" extendstyle="1111" >	        	
+		            <image name="shezhidialogBg" rect="0,0,0,0" extendstyle="1177" style="autosize" src="file://image/play_wenxintips1.png" />
+		            <button name="shezhiCloseBtn" rect="370,-30,60,60" extendstyle="1111" OnSelect="shezhiCloseBtnOnSelect" >
+		                <image rect="11,10,38,39" extendstyle="1111" style="autosize" src="file://image/search_dialog_close_f.png" />
+		            </button>
+		            <label rect="150,10,100,40" extendstyle="1111" v-align="center" h-align="center" text="设置" color="#ffffff" font-size="30"/>
+		            <button name="jumpHeadBtn" rect="140,120,120,40" extendstyle="1111" OnSelect="jumpHeadBtnOnSelect" >
+		                <image rect="0,0,40,40" extendstyle="1111" style="autosize" src="file://image/shezhiCheckBox_n.png" />
+					    <image name="jumpHeadBtnImg1" rect="0,0,40,40" visible="false" enable="false" extendstyle="1111" style="autosize" src="file://image/shezhiCheckBox_f.png" />
+		                <label rect="40,0,90,40" extendstyle="1111" v-align="center" h-align="center" text="跳过片头" color="#ffffff" font-size="20"/>
+		            </button>
+		            <button name="lianxuPlayBtn" rect="360,120,160,40" extendstyle="1111" OnSelect="lianxuPlayBtnOnSelect" visible="false" enable="false">
+		                <image name="lianxuPlayBtnImg" rect="10,5,30,30" extendstyle="1111" style="autosize" src="file://image/shezhiCheckBox_n.png" />		               
+		                <label rect="60,0,100,40" extendstyle="1111" v-align="center" h-align="center" text="连续播放" font-size="20"/>
+		            </button>
+	            </node> 	          
+        	</node>	
+        	<!-- 设置跳过片头模块  -->
+            <node name="fullshezhi" rect="0,0,640,960" extendstyle="1111" visible="false" enable="false">
+	            	<button rect="0,0,640,960" extendstyle="1111" OnSelect=""/>
+			        	<shadow name="shezhishadow" rect="0,0,640,960" extendstyle="1111" />
+			        	<node rect="0,620,640,154" extendstyle="1111" >
+				        	  <node rect="220,70,200,84" extendstyle="1010" >	        	
+						            <image name="shezhidialogBg" rect="0,0,200,84" extendstyle="1010" style="autosize" src="file://image/play_wenxintips1.png" />
+						            <button name="shezhiCloseBtn" rect="170,-30,60,60" extendstyle="1010" OnSelect="shezhiCloseBtnOnSelect" >
+						                <image rect="11,10,38,39" extendstyle="1144" style="center" src="file://image/search_dialog_close_f.png" />
+						            </button> 
+						            <label rect="50,0,100,25" extendstyle="1010" v-align="center" h-align="center" text="设置" color="#ffffff" font-size="18"/>
+						            <button name="jumpHeadBtn" rect="25,40,150,40" extendstyle="1010" OnSelect="jumpHeadBtnOnSelect" >
+						                <image rect="0,0,40,40" extendstyle="1010" style="autosize" src="file://image/shezhiCheckBox_n.png" />
+									    <image name="jumpHeadBtnImg2" rect="0,0,40,40" visible="false" enable="false" extendstyle="1010" style="autosize" src="file://image/shezhiCheckBox_f.png" />
+						                <label rect="40,0,90,40" extendstyle="1010" v-align="center" h-align="center" text="跳过片头" color="#ffffff" font-size="18"/>
+						            </button>
+						            <button name="lianxuPlayBtn" rect="360,70,160,60" extendstyle="1111" OnSelect="lianxuPlayBtnOnSelect" visible="false" enable="false">
+						                <image name="lianxuPlayBtnImg" rect="10,15,30,30" extendstyle="1111" style="autosize" src="file://image/shezhiCheckBox_n.png" />		               
+						                <label rect="60,10,100,40" extendstyle="1111" v-align="center" h-align="center" text="连续播放" font-size="24"/>
+						            </button> 
+				            </node>    	  
+			          </node>        
+        	  </node>                          
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_cnlive2.common.framework'
+local rootSprite
+local listview
+local listviewitem
+local currIndex = 0
+local isfullscreen = 1
+local curPageStatus = 1 -- 1-详情界面 2-分享界面
+local shareImageTable = {'file://image/sina.png', 'file://image/tengxun.png'}
+local friendPhotoTable = {'file://image/friend1.png', 'file://image/friend2.png', 'file://image/friend3.png', 'file://image/friend4.png', 'file://image/friend1.png', 'file://image/friend2.png', 'file://image/friend3.png', 'file://image/friend4.png', 'file://image/friend1.png', 'file://image/friend2.png', 'file://image/friend3.png', 'file://image/friend4.png', 'file://image/friend1.png', 'file://image/friend2.png'}
+local shareNodeClick = 0
+local isAllFullScreen = 0
+local posttail = Util:getRequestTail()
+local friendnames = ''
+local currSelectBtn = 0
+local isPlayerCreate -- 播放器是否已经调用create方法
+local isPlayerShow -- 播放器是否show出来
+local beforeBackStatus -- 最小化之前的播放器状态
+local status -- 播放器状态
+local continuePlayProgram = 1 --进一次播放页只开头做一次seek
+local weiboFlag = 0 -- 0、新浪、腾讯均未授权 1、新浪授权 2、腾讯授权 3、腾讯新浪都授权
+local posttail = Util:getRequestTail()
+local isExsit -- 0、代表浏览器尚未创建 1、已创建浏览器
+local WebBrowserIsShow
+local programCurTime = 0 --记录节目播放的位置，便于继续播放
+local myAccountflag = 1 --1,表示直接跳转到个人中心我的帐户页面
+local isfavBtnOnSelect = 0
+local curPage = 0 -- 当前显示第几页
+local friendCount = 0
+local isfavBtnOnSelect = 0
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    -- 正常进度条
+    normalplayControlNode = Sprite:findChild(sprite,'normalplayControlNode')
+    playBtn2 = Sprite:findChild(rootSprite,'playBtn2')
+    pauseBtn2 = Sprite:findChild(rootSprite,'pauseBtn2')
+    progressBtn2 = Sprite:findChild(rootSprite, 'progressBtn2')
+    progressBgImg2 = Sprite:findChild(rootSprite, 'progressBgImg2')
+    progressBarImg2 = Sprite:findChild(rootSprite, 'progressBarImg2')
+    progressPointImg2 = Sprite:findChild(rootSprite, 'progressPointImg2')
+    volumeprogressBtn2 = Sprite:findChild(rootSprite, 'volumeprogressBtn2')
+    volumeprogressBgImg2 = Sprite:findChild(rootSprite, 'volumeprogressBgImg2')
+    volumeprogressBarImg2 = Sprite:findChild(rootSprite, 'volumeprogressBarImg2')
+    volumeprogressPointImg2 = Sprite:findChild(rootSprite, 'volumeprogressPointImg2')
+    fullScreenBtn = Sprite:findChild(normalplayControlNode, 'fullscreenBtn')
+    fullPlayBtn = Sprite:findChild(rootSprite, 'fullPlayBtn')
+    Log:write('fullPlayBtn=======9999999999999999=======',fullPlayBtn)
+    
+    -- 全屏进度条
+    fullplayControlNode = Sprite:findChild(sprite, 'fullplayControlNode')
+    playBtn1 = Sprite:findChild(rootSprite,'playBtn1')
+    pauseBtn1 = Sprite:findChild(rootSprite,'pauseBtn1')
+    progressNode1 = Sprite:findChild(rootSprite,'progressNode1')
+    volumeNode1 = Sprite:findChild(rootSprite,'volumeNode1')
+    volumeImg1 = Sprite:findChild(rootSprite,'volumeImg1')
+    liaotianBtn = Sprite:findChild(rootSprite,'liaotianBtn')
+    fullshezhiBtn = Sprite:findChild(rootSprite,'fullshezhiBtn')
+    progressBtn1 = Sprite:findChild(rootSprite, 'progressBtn1')
+    progressBgImg1 = Sprite:findChild(rootSprite, 'progressBgImg1')
+    progressBarImg1 = Sprite:findChild(rootSprite, 'progressBarImg1')
+    progressPointImg1 = Sprite:findChild(rootSprite, 'progressPointImg1')
+    volumeprogressBtn1 = Sprite:findChild(rootSprite, 'volumeprogressBtn1')
+    volumeprogressBgImg1 = Sprite:findChild(rootSprite, 'volumeprogressBgImg1')
+    volumeprogressBarImg1 = Sprite:findChild(rootSprite, 'volumeprogressBarImg1')
+    volumeprogressPointImg1 = Sprite:findChild(rootSprite, 'volumeprogressPointImg1')
+    liaotian = Sprite:findChild(rootSprite,'liaotian')
+    
+    inputblock = Sprite:findChild(rootSprite,'inputblock')
+    commentLab = Sprite:findChild(rootSprite,'commentLab')
+    commentInput = Sprite:findChild(rootSprite,'commentInput')
+    favBtn = Sprite:findChild(rootSprite,'favBtn')
+    shareArea = Sprite:findChild(rootSprite,'shareArea')
+    
+    -- 分享页面的加载
+    shareList = Sprite:findChild(rootSprite, 'shareList')
+    shareItem = Sprite:findChild(rootSprite, 'shareItem')
+    shareListView = Sprite:findChild(rootSprite, 'shareListView')
+    shareListViewItem = Sprite:findChild(rootSprite, 'shareListViewItem')
+    
+    friendTitle = Sprite:findChild(rootSprite, 'friendTitle')
+    friendList = Sprite:findChild(rootSprite, 'friendList')
+    friendItem = Sprite:findChild(rootSprite, 'friendItem')
+    
+    liaotianlistview = Sprite:findChild(liaotian, 'liaotianlistview')
+    liaotianlistitem = Sprite:findChild(liaotian, 'liaotianlistitem')
+    
+    jujiListview = Sprite:findChild(rootSprite, 'jujiListview')
+    jujiListviewItem = Sprite:findChild(rootSprite, 'jujiListviewItem')
+    
+    -- 温馨提示
+    wenxinTips = Sprite:findChild(rootSprite, 'wenxinTips')
+    weiboBind = Sprite:findChild(sprite,'weiboBind')
+	loginArea = Sprite:findChild(sprite,'loginArea')
+    
+    -- 设置提示
+    shezhi = Sprite:findChild(rootSprite, 'shezhi')
+    shezhiBtn = Sprite:findChild(rootSprite, 'shezhiBtn')
+    fullshezhi = Sprite:findChild(rootSprite, 'fullshezhi')
+    fullshezhiBtn = Sprite:findChild(rootSprite, 'fullshezhiBtn')
+    -- android平台播放时，不允许自动锁屏
+    if not Util:isIOSPlatform() then
+        System:startMonitor(0)
+    end
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+    	  -- 转屏效果
+        ScreenRotate(0)       -- 0- (960*640), 1- (640*960), 其它 - 未定义
+
+    	local reg = Reg:create(Reg.com_wondertek_cnlive2.play)
+        isLive = Reg:getString(reg,'isLive') 
+          		   
+        startTime = Reg:getNumber(reg,'currTime')
+    	playopenUrl = Reg:getString(reg,'playopenUrl')  	
+    	 
+        --如果是直播节目进度条不可拖动
+        Log:write('isLive==========================', isLive)
+        if isLive == '1' then
+            Log:write('进到设置按钮里了==========================')
+            Sprite:setEnable(progressBtn1, 0) 
+            Sprite:setEnable(progressBtn2, 0) 
+            Sprite:setVisible(progressPointImg1, 0) 
+            Sprite:setVisible(progressPointImg2, 0)                      
+    	end     
+    	if playopenUrl ~='' then
+	        Http:request('playopenData',playopenUrl,106,{useCache=false, method = 'post',postData=Util:getRequestTail()})
+	        setHengPingLoading()
+	        Loading:show(rootSprite)
+	        setShuPingLoading()
+   		end 
+   	elseif msg == MSG_DEACTIVATE then
+        Tips:close()	
+        if Loading:isShow() then Loading:close() end
+        Timer:cancel(1)
+        Timer:cancel(2)
+        Player:stop()
+        Player:show(0)
+        Scene:freeByHandle(rootSprite)
+    elseif msg == MSG_MINIMIZED then
+        if not Util:isIOSPlatform() then
+		        beforeBackStatus = status
+				    if isPlayerCreate then
+				        if status == Player.status.Buffering then
+				            local curTime = Player:getCurTime()
+				            Log:write('curTime ============ ', curTime)
+				            if curTime ~= 0 then
+				                local reg = Reg:create(Reg.com_wondertek_cnlive2.play)
+				                Reg:setNumber(reg, 'currTime', curTime)
+				            end
+				            Timer:cancel(3)
+				            Player:show(0)
+				            Player:stop()
+				        else
+				            Player:show(0)
+				            Player:pause()
+				        end
+				    end
+				end
+    elseif msg == MSG_MAXIMIZED then
+        if not Util:isIOSPlatform() then
+		        if isPlayerCreate then
+				        if beforeBackStatus ~= Player.status.Paused then
+				            if beforeBackStatus == Player.status.Buffering then
+				                openUrl()
+				            else
+				                UiPlay()
+				                Player:show(1)
+				                Player:play()
+				            end
+				        end
+				    end
+				end
+    else
+        Util:onSpriteEvent(msg, param)
+    end
+end
+
+-- @brief 设置横屏loading样式
+function setHengPingLoading()
+    Loading.propTable.loadingRect.rect = '302,462,52,52' -- 横屏时增大loading图标的大小
+    Loading.propTable.frame0.rect = '0,0,52,52'
+    Loading.propTable.frame1.rect = '0,0,52,52'
+    Loading.propTable.frame2.rect = '0,0,52,52'
+    Loading.propTable.frame3.rect = '0,0,52,52'
+    Loading.propTable.frame4.rect = '0,0,52,52'
+    Loading.propTable.frame5.rect = '0,0,52,52'
+    Loading.propTable.frame6.rect = '0,0,52,52'
+    Loading.propTable.frame7.rect = '0,0,52,52'
+    Loading.propTable.frame8.rect = '0,0,52,52'
+    Loading.propTable.frame9.rect = '0,0,52,52'
+    Loading.propTable.frame10.rect = '0,0,52,52'
+    Loading.propTable.frame11.rect = '0,0,52,52'
+end
+
+-- @brief 设置横屏loading样式
+function setShuPingLoading()
+    Loading.propTable.loadingRect.rect = '302,462,35,35'
+    Loading.propTable.frame0.rect = '0,0,35,35'
+    Loading.propTable.frame1.rect = '0,0,35,35'
+    Loading.propTable.frame2.rect = '0,0,35,35'
+    Loading.propTable.frame3.rect = '0,0,35,35'
+    Loading.propTable.frame4.rect = '0,0,35,35'
+    Loading.propTable.frame5.rect = '0,0,35,35'
+    Loading.propTable.frame6.rect = '0,0,35,35'
+    Loading.propTable.frame7.rect = '0,0,35,35'
+    Loading.propTable.frame8.rect = '0,0,35,35'
+    Loading.propTable.frame9.rect = '0,0,35,35'
+    Loading.propTable.frame10.rect = '0,0,35,35'
+    Loading.propTable.frame11.rect = '0,0,35,35'
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then
+        ChatData = Http:jsonDecode('ChatsData')
+        if ChatData and type(ChatData) == 'table' then
+            currData = ChatData
+            Log:write('ChatData',currData)
+            if ChatData.chats and type(ChatData.chats) == 'table' and ChatData.chats[0] then
+                Log:write('aaa=111==')
+                loadLiaotian()
+            end
+        end
+    elseif msg == 102 then
+    	if Loading:isShow() then Loading:close() end
+        commentData = Http:jsonDecode('comment')
+        Log:write('commentData===',commentData)
+        if commentData and commentData.resultCode == '1' then
+            --Tips:show('发表成功')
+            --ListView:removeAllItems(liaotianlistview,1,1) 
+	        --ListView:loadItem(liaotianlistview, liaotianlistitem, 1, 'loadliaotianListItem1')
+       	    --ListView:setItemToTop(liaotianlistview, ListView:getItemCount(liaotianlistview)-1)
+       	    --ListView:adjust(liaotianlistview)
+			      Timer:cancel(5)
+       	    Timer:set(5,1000,'requestChatData')
+       	elseif commentData.resultCode == '0' then
+       	 	Tips:show(commentData.resultMsg)
+            Timer:cancel(5)
+            Timer:set(5,1000,'requestChatData')
+        end
+    elseif msg == 103 then
+        currData = Http:jsonDecode('currData')
+        Log:write('currData===',currData)
+        if currData and currData.chats then
+            Tips:show('正在加载上一页')
+            loadPreTime()
+        end
+	 elseif msg == Msg.login then
+        if Loading:isShow() then Loading:close() end
+        loginData = Http:jsonDecode('per_login')
+        Log:write('loginData========555555555555',loginData)
+        if loginData.resultCode == '1' then
+        	local reg_authority = Reg:create('authority')
+            Reg:setInteger(reg_authority, 'userStatus', 1)
+            local account = getAccountAndPasswordFromLocal()
+            
+            if account == '' then
+                Log:write('33333333333333333333333333',account)
+                delWeibo('sinaaccessToken') -- 删除本地微博绑定记录
+                delWeibo('qqaccessToken')
+                delWeibo('sinauid')
+                delWeibo('qquid')
+            end
+            saveUserAccountAndPassword(g_account, g_password)
+            Reg:setString(reg_authority, 'loginName', g_account)
+            if loginData.weibo then
+                for i=0,#loginData.weibo do
+                    if loginData.weibo[i].type == 1 then
+                        Log:write('33333333333333333333')
+                        saveWeiboToLocal(g_account..'sinaaccessToken', loginData.weibo[i].token)
+                        saveWeiboToLocal(g_account..'sinauid', loginData.weibo[i].uid)
+                    elseif loginData.weibo[i].type == 2 then
+                        Log:write('444444444444444444444')
+                        saveWeiboToLocal(g_account..'qqaccessToken', loginData.weibo[i].token)
+                        saveWeiboToLocal(g_account..'qquid', loginData.weibo[i].uid)
+                    end
+                end
+            end
+	        showSubArea(1)
+	        local btntop1 = Sprite:findChild(rootSprite,'btntop1')
+	        Sprite:setProperty(btntop1,'text','返回')
+	        Sprite:setEnable(btntop1,1)
+	        Sprite:setVisible(btntop1,1)
+	        local toplabel = Sprite:findChild(rootSprite,'totaltitle')
+	        Sprite:setProperty(toplabel,'text',livingName)
+	        Sprite:setEnable(toplabel,1)
+	        Sprite:setVisible(toplabel,1)
+	        local btntop2 = Sprite:findChild(rootSprite,'btntop2')
+	        Sprite:setEnable(btntop2,0)
+	        Sprite:setVisible(btntop2,0)
+	        Player:show(1)
+	        isPlayerShow = true
+	        shareNodeClick = 0
+
+			if isfavBtnOnSelect == 0 then
+				local commenturl = Util:getServer()..'clt/addChat.msp'
+				local client
+				if Config:get('platform') == 'iOS' then
+					client = 'iphone'
+				else
+					client = 'aphone'
+				end
+				Http:request('comment',commenturl,102,{useCache = false, method = 'post', postData = 'nodeId='..nodeId..'&contId='..cid..'&isLive=0&client='..client..'&content='..txt..'&userName='..g_account..Util:getRequestTail()})
+			else
+				if Loading:isShow() then Loading:close() end
+				if isLive == '1' then
+					local favUrl = favoritesUrl..'&loginName='..g_account..posttail
+					local url,postData = getUrlAndPostdata(favUrl)
+					Http:request('shoucangData',url,104,{useCache=false,method='post',postData=postData})
+			  elseif isLive == '0' then
+				  local shoucangUrl = Util:getServer()..'clt/addFavorite.msp'
+				  Http:request('shoucangData',shoucangUrl,104,{useCache = true, method = 'post', postData = 'loginName='..g_account..'&mn='..nodeId..'&c='..cid..'&isLive=0'..Util:getRequestTail()})
+			  end
+			end
+        else
+			if Loading:isShow() then Loading:close() end
+            Tips:show(loginData.resultMsg)
+        end
+    elseif msg == 104 then
+    	shoucangData = Http:jsonDecode('shoucangData')
+    	Tips:show(shoucangData.resultMsg)	
+    	if shoucangData and shoucangData.resultCode == '1' then
+    		Sprite:setEnable(favBtn, 0) 
+    	end 
+    elseif msg == 106 then
+    	playopenData = Http:jsonDecode('playopenData')
+    	Log:write('playopenData==111=',playopenData)
+    	if playopenData and playopenData.url then
+    		createPlayer()
+    		getdataFromPlayopenData()
+    		--Timer:set(1, 1000, 'createPlayer')
+    		createJujiList()
+    	end
+    elseif msg == 107 then
+    	isfav = Http:jsonDecode('isfav')
+    	Log:write('777777',isfav)
+    	if isfav.isCollected == true then
+    	    setFavBtnStatus(0)
+    	else
+    		setFavBtnStatus(1)
+    	end 
+    elseif msg == 112 then --播放历史
+        AddHistoty = Http:jsonDecode('AddHistoty')
+        Log:write('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww',AddHistoty)
+        if AddHistoty and AddHistoty.resultCode == '1' then
+            --Tips:show('播放历史添加成功')
+        end 
+    elseif msg == 119 then --获取在线人数信息
+        ChatUserData = Http:jsonDecode('ChatUserData')
+        --Log:write('111111111111111111111111',ChatUserData)
+        if ChatUserData.user and type(ChatUserData.user) == 'table' and ChatUserData.user[0] then
+        	--Log:write('ChatUserData===',ChatUserData)
+            local personNumber = Sprite:findChild(rootSprite, 'personNumber')
+            local chatNumber = tonumber(#ChatUserData.user+1)
+            --Log:write('chatNumber===',chatNumber)
+            Sprite:setProperty(personNumber,'text','[在线人数：'..chatNumber..'人]')
+            --ListView:removeAllItems(personList,1,1)
+            --ListView:loadItem(personList, personListItem, #ChatUserData.user+1, 'loadPersonListItem')
+            --ListView:adjust(personList)
+            onlinelistview = Sprite:findChild(rootSprite, 'onlinelistview')
+		    onlinelistitem = Sprite:findChild(rootSprite, 'onlinelistitem')
+		    ListView:removeAllItems(onlinelistview)
+		    if ChatUserData.user and ChatUserData.user[0] then
+		        ListView:loadItem(onlinelistview, onlinelistitem, #ChatUserData.user+1, 'onlineloadListItem')
+		    end
+		    ListView:adjust(onlinelistview)
+        end
+    elseif msg == 121 then --点剧集按钮获取新的url信息
+        b01LeftListviewData = Http:jsonDecode('b01LeftListviewData')
+        playopenData = b01LeftListviewData 
+        --Log:write('b01LeftListviewData',b01LeftListviewData)
+        if b01LeftListviewData and type(b01LeftListviewData) == 'table' then
+            Player:stop()
+            local reqPlayUrl = b01LeftListviewData.url
+            --剧集跳片头
+		        if Config:get('jumpHeadBtnFlag') == '1' then
+		            startTime = tonumber(b01LeftListviewData.titleSec)
+		        end
+		        if startTime ~= 0 then
+		            continuePlayProgram = 1
+		        end
+		        if Util:isIOSPlatform() then
+		        	local toplabel = Sprite:findChild(rootSprite,'totaltitle')
+   					Sprite:setProperty(toplabel, 'text', b01LeftListviewData.historyName)
+		            Player:open(reqPlayUrl, Http:getCurConnect())
+		        else
+		        	local toplabel = Sprite:findChild(rootSprite,'totaltitle')
+   					Sprite:setProperty(toplabel, 'text', b01LeftListviewData.historyName)
+		            Log:write('startTime===121===',startTime)
+		            Player:open(reqPlayUrl, Http:getCurConnect(), startTime)
+		        end
+		        --
+            createJujiList()
+        end
+    elseif msg == 130 then
+        sinaWeibo = Http:jsonDecode('sinaWeibo')       
+        if sinaWeibo and sinaWeibo.resultCode == '1' then
+            Tips:show('分享成功！')
+            local content = Sprite:findChild(shareArea,'content')
+            Sprite:setProperty(content,'text','')
+            local shareText = Sprite:findChild(shareArea,'shareText')
+            Sprite:setProperty(shareText,'text','//分享视频中国：['..contDetail.name..']')
+            setShengyuCount()
+            cancelFriendSelected()
+            btntop2OnSelect()
+            
+        else
+            Tips:show('分享失败！')
+        end
+    elseif msg == 131 then
+        qqWeibo = Http:jsonDecode('qqWeibo')
+        Log:write('66666666666666666',qqWeibo)
+        if qqWeibo and qqWeibo.resultCode == '1' then
+            Tips:show('分享成功！')
+            local content = Sprite:findChild(shareArea,'content')
+            Sprite:setProperty(content,'text','')
+            local shareText = Sprite:findChild(shareArea,'shareText')
+            Sprite:setProperty(shareText,'text','//分享视频中国：['..contDetail.name..']')
+            setShengyuCount()
+            cancelFriendSelected()
+            btntop2OnSelect()
+        else
+            Tips:show('分享失败！')
+        end
+    elseif msg == 132 then
+        sinaFans = Http:jsonDecode('sinaFans')
+        Log:write('77777777777777777',sinaFans.resultCode)
+        local shareItem = List:getItem(shareList,0)
+        local select = Sprite:findChild(shareItem,'select')
+        Sprite:setVisible(select,1)
+        local shareItem1 = List:getItem(shareList,1)
+        local select1 = Sprite:findChild(shareItem1,'select')
+        Sprite:setVisible(select1,0)
+        currSelectBtn = 0
+        if sinaFans and sinaFans.users then
+        	isLast = sinaFans.isLast
+            loadsinaFans()
+        end
+    elseif msg == 133 then
+        qqFans = Http:jsonDecode('qqFans')
+        Log:write('888888888888888888888',qqFans.resultCode)
+        local shareItem = List:getItem(shareList,1)
+        local select = Sprite:findChild(shareItem,'select')
+        Sprite:setVisible(select,1)
+        local shareItem1 = List:getItem(shareList,0)
+        local select1 = Sprite:findChild(shareItem1,'select')
+        Sprite:setVisible(select1,0)
+        currSelectBtn = 1
+        if qqFans and qqFans.users then
+        	isLast = sinaFans.isLast
+            loadqqFans()
+        end
+    elseif msg == 118 then
+        local weiboAuthData = Http:jsonDecode('get_auth_url')
+        Log:write('weiboAuthData', weiboAuthData)
+        local reg_weibo = Reg:create(Reg.com_wondertek_cnlive2.weibo)
+        if weiboAuthData.resultCode == '1' then
+            local isExsit = Reg:getString(reg_weibo,'WBisExsit')
+            if isExsit == '' or isExsit == nil then
+                isExsit = '0'
+                Reg:setString(reg_weibo,'WBisExsit','0')
+            end
+            if isExsit == '0' then
+                WebBrowser:create(0, 70, 640, 890)
+                isExsit = '1'
+                Reg:setString(reg_weibo,'WBisExsit','1')
+            end
+            local fromWhere = Reg:getString(reg_weibo,'fromWhere')
+            WebBrowser:removeCookie()
+            Plugin:invoke(WebBrowser:_getHandle(), 'OpenUrl', fromWhere == '1' and weiboAuthData.authUrl or weiboAuthData.authUrl .. '&wap=2' , Plugin:getObserver(), 120)
+            WebBrowser:showWebBrowser(1)
+            WebBrowserIsShow = 1
+        else
+            Tips:show('获取微博授权地址失败！')
+        end
+    elseif msg == 120 then
+        local rtn = Param:getString(param, 0)
+        Log:write('rtn77777777777777777777777777777',rtn)
+        local _, _, result = string.find(rtn, 'resultCode=(%d)')
+        if result then
+            if result == '1' then
+                WebBrowser:showWebBrowser(0)
+                WebBrowserIsShow = 0
+                local reg_weibo = Reg:create(Reg.com_wondertek_cnlive2.weibo)
+                 local fromWhere = Reg:getString(reg_weibo,'fromWhere')
+                if fromWhere == '1' then
+                    local _, _, sinaaccessToken = string.find(rtn, 'accessToken=([%w_\.]*)')
+                    local _, _, sinauid = string.find(rtn, 'uid=([%w\.]*)')
+                    local _, _, loginName = string.find(rtn, 'loginName=([%w\_.]*)')
+                    local _, _, sname = string.find(rtn, 'sname=([%w_\.]*)')
+                    if weiboFlag == 2 then
+                        weiboFlag = 3
+                    else
+                        weiboFlag = 1
+                    end
+                    
+                    saveWeiboToLocal('sinaaccessToken',sinaaccessToken)
+                    saveWeiboToLocal('sinauid',sinauid)
+                    Tips:show('新浪微博授权成功！')
+                    local url = Util:getServer()..'clt/sinaFollows.msp'
+                    local postData1 = 'accessToken='..sinaaccessToken..'&uid='..sinauid..'&pageSize=28&page=0'..posttail
+                    Log:write('8888888888',postData1)
+                    Http:request('sinaFans',url,132,{useCache=false, method='post', postData=postData1})
+                else
+                    local _, _, qqaccessToken = string.find(rtn, 'accessToken=([%w\.]*)')
+                    local _, _, qquid = string.find(rtn, 'uid=([%w\.]*)')
+                    local _, _, loginName = string.find(rtn, 'loginName=([%w\_.]*)')
+                    local _, _, sname = string.find(rtn, 'sname=([%w_\.]*)')
+                    if weiboFlag == 1 then
+                        weiboFlag = 3
+                    else
+                        weiboFlag = 2
+                    end
+
+                    saveWeiboToLocal('qqaccessToken',qqaccessToken)
+                    saveWeiboToLocal('qquid',qquid)
+                    Tips:show('腾讯微博授权成功!')
+                    local url = Util:getServer()..'clt/qqFollows.msp'
+                    local postData1 = 'accessToken='..qqaccessToken..'&openId='..qquid..'&pageSize=28&page=0'..posttail
+                    Log:write('8888888888',postData1)
+                    Http:request('qqFans',url,133,{useCache=false, method='post', postData=postData1})
+                end
+                showSubArea(2)
+                Player:pause()
+                Player:show(0) 
+                isPlayerShow = false
+                setBottomMenuStatus(0)
+                local btntop1 = Sprite:findChild(rootSprite,'btntop1')
+                Sprite:setProperty(btntop1,'text','取消')
+                Sprite:setEnable(btntop1,1)
+                Sprite:setVisible(btntop1,1)
+                local toplabel = Sprite:findChild(rootSprite,'totaltitle')
+                Sprite:setProperty(toplabel,'text','分享')
+                Sprite:setEnable(toplabel,1)
+                Sprite:setVisible(toplabel,1)
+                local btntop2 = Sprite:findChild(rootSprite,'btntop2')
+                Sprite:setEnable(btntop2,1)
+                Sprite:setVisible(btntop2,1)
+            else
+                Tips:show('微博授权失败！')
+            end
+        end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    else
+        Util:onPluginEvent(msg, param)
+    end
+end
+
+function getdataFromPlayopenData()
+	local toplabel = Sprite:findChild(rootSprite,'totaltitle')
+   	Sprite:setProperty(toplabel, 'text', playopenData.historyName) 
+   	Log:write('toplabel===========',playopenData.historyName)
+   	isFavoritesUrl = playopenData.isFavoritesUrl
+    favoritesUrl = playopenData.favoritesUrl
+    nodeId = playopenData.nodeId
+    cid = playopenData.contId
+    Log:write('nodeId===========',playopenData.nodeId)
+    Log:write('cid===========',playopenData.contId)
+    livingName = playopenData.name
+    
+   	requestIsFavData() --判断是否收藏的信息
+   	requestChatData() -- 获取聊天记录及在线用户
+   	  
+end
+
+-- @brief 发表之后请求获取聊天记录
+function requestChat()
+    local chaturl = Util:getServer()..'clt/getChats.msp'
+    local chatpost = 'nodeId='..nodeId..'&contId='..cid..'&isLive=0&date='..Util:getRequestTail()
+    Log:write('666666666666',chatpost)
+    Http:request('ChatsData',chaturl,101,{useCache = false, method = 'post', postData = chatpost})
+end
+
+function requestChatData()
+    --获取聊天记录信息
+   	local chaturl = Util:getServer()..'clt/getChats.msp'
+    local chatpost = 'nodeId='..nodeId..'&contId='..cid..'&isLive=0&date='..Util:getRequestTail()
+    Log:write('666666666666',chatpost)
+    Http:request('ChatsData',chaturl,101,{useCache = false, method = 'post', postData = chatpost})
+     
+    --获取聊天在线用户信息		
+    local chatUserUrl = Util:getServer()..'clt/onlineUser.msp'
+    Http:request('ChatUserData',chatUserUrl,119,{useCache = false, method = 'post', postData = 'n='..nodeId..'&c='..cid..Util:getRequestTail()})
+	
+	--实时请求聊天在线用户信息和聊天记录信息
+	Timer:set(5,8000,'requestChatData')
+end    
+-- @brief 加载聊天记录
+function loadLiaotian()
+    ListView:removeAllItems(liaotianlistview)
+    ListView:loadItem(liaotianlistview, liaotianlistitem, #ChatData.chats+1, 'loadliaotianListItem')
+    ListView:setItemToTop(liaotianlistview, #ChatData.chats)
+    ListView:adjust(liaotianlistview)
+end
+
+-- @brief 顶部按钮“返回”
+function returnOnSelect(sprite)	
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    ScreenRotate(1)       -- 0- (960*640), 1- (640*960), 其它 - 未定义
+    if shareNodeClick == 0 then
+    	if isfullscreen == 1 then
+            saveHistory()
+            Scene:back()
+        else
+            fullScreen()
+        end
+    else
+        if WebBrowserIsShow == 1 then
+            WebBrowser:showWebBrowser(0)
+            WebBrowserIsShow = 0
+            return
+        end
+    	showSubArea(1)
+    	local btntop1 = Sprite:findChild(rootSprite,'btntop1')
+	    Sprite:setProperty(btntop1,'text','返回')
+	    Sprite:setEnable(btntop1,1)
+	    Sprite:setVisible(btntop1,1)
+	    local toplabel = Sprite:findChild(rootSprite,'totaltitle')
+	    Sprite:setProperty(toplabel,'text',livingName)
+	    Sprite:setEnable(toplabel,1)
+	    Sprite:setVisible(toplabel,1)
+	    local btntop2 = Sprite:findChild(rootSprite,'btntop2')
+	    Sprite:setEnable(btntop2,0)
+	    Sprite:setVisible(btntop2,0)
+	    Player:show(1)
+	    isPlayerShow = true
+	    shareNodeClick = 0
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)	
+    Log:write('kc ==',kc)
+    if kc == Key.F2 then -- 按下返回键
+        if WebBrowserIsShow == 1 then
+            WebBrowser:showWebBrowser(0)
+            WebBrowserIsShow = 0
+            return
+        end
+    	if Loading:isShow() then 
+        	Loading:close()
+        	return 
+        end
+        ScreenRotate(1)       -- 0- (960*640), 1- (640*960), 其它 - 未定义
+
+        if shareNodeClick == 0 then
+			if isfullscreen == 1 then
+                saveHistory()
+                Scene:back()
+            else
+                fullScreen()
+            end
+			  else
+			    	showSubArea(1)
+			    	local btntop1 = Sprite:findChild(rootSprite,'btntop1')
+				    Sprite:setProperty(btntop1,'text','返回')
+				    Sprite:setEnable(btntop1,1)
+				    Sprite:setVisible(btntop1,1)
+				    local toplabel = Sprite:findChild(rootSprite,'totaltitle')
+				    Sprite:setProperty(toplabel,'text',livingName)
+				    Sprite:setEnable(toplabel,1)
+				    Sprite:setVisible(toplabel,1)
+				    local btntop2 = Sprite:findChild(rootSprite,'btntop2')
+				    Sprite:setEnable(btntop2,0)
+				    Sprite:setVisible(btntop2,0)
+				    Player:show(1)
+				    isPlayerShow = true
+				    shareNodeClick = 0
+			  end
+    elseif kc == Key.VolumeUp then
+        Log:write('kc == Key.VolumeUp')
+	      if Sprite:isVisible(fullplayControlNode) == 1 then
+            if not Util:isIOSPlatform() then
+		            --Player.curVolume = Player:getVolume()
+				        --else
+				        local aaa = System:getSysVolume()
+				        if aaa ~= 4 then
+				            Player.curVolume = 25*(aaa+1)
+				        else
+				            Player.curVolume = 25*4
+				        end
+		            Log:write('Player.curVolume===volumeprogressBgImg1',Player.curVolume)
+		            local _, _, volumebg_w = Sprite:getRect(volumeprogressBgImg1)
+		            --Log:write('volumebg_w===volumeprogressBgImg1',volumebg_w)
+		            if Player.curVolume then
+		                local pct1 = Player.curVolume / 100
+		                local x1 = math.floor(pct1 * volumebg_w)
+		                volumesetProgressBarPos(volumeprogressBtn1, x1)
+		            end
+		        end
+        elseif Sprite:isVisible(normalplayControlNode) == 1 then
+            if not Util:isIOSPlatform() then
+		            --Player.curVolume = Player:getVolume()
+				        --else
+				        local aaa = System:getSysVolume()
+				        if aaa ~= 4 then
+				            Player.curVolume = 25*(aaa+1)
+				        else
+				            Player.curVolume = 25*4
+				        end
+				        --end
+				        Log:write('Player.curVolume===volumeprogressBgImg2',Player.curVolume)
+		            local _, _, volumebg_w = Sprite:getRect(volumeprogressBgImg2)
+		            --Log:write('volumebg_w===volumeprogressBgImg2',volumebg_w)
+		            if Player.curVolume then
+		                local pct1 = Player.curVolume / 100
+		                local x1 = math.floor(pct1 * volumebg_w)
+		                volumesetProgressBarPos(volumeprogressBtn2, x1)
+		            end
+		        end
+        end
+	  elseif kc == Key.VolumeDown then
+	      Log:write('kc == Key.VolumeDown')
+	      if Sprite:isVisible(fullplayControlNode) == 1 then
+            if not Util:isIOSPlatform() then
+		            --Player.curVolume = Player:getVolume()
+				        --else
+				        local aaa = System:getSysVolume()
+				        if aaa ~= 0 then
+				            Player.curVolume = 25*(aaa-1)
+				        else
+				            Player.curVolume = 0
+				        end
+				        --end
+		            Log:write('Player.curVolume===volumeprogressBgImg1',Player.curVolume)
+		            local _, _, volumebg_w = Sprite:getRect(volumeprogressBgImg1)
+		            --Log:write('volumebg_w===volumeprogressBgImg1',volumebg_w)
+		            if Player.curVolume then
+		                local pct1 = Player.curVolume / 100
+		                local x1 = math.floor(pct1 * volumebg_w)
+		                volumesetProgressBarPos(volumeprogressBtn1, x1)
+		            end
+		        end
+        elseif Sprite:isVisible(normalplayControlNode) == 1 then
+            if not Util:isIOSPlatform() then
+		            --Player.curVolume = Player:getVolume()
+				        --else
+				        local aaa = System:getSysVolume()
+				        if aaa ~= 0 then
+				            Player.curVolume = 25*(aaa-1)
+				        else
+				            Player.curVolume = 0
+				        end
+				        --end
+				        Log:write('Player.curVolume===volumeprogressBgImg2',Player.curVolume)
+		            local _, _, volumebg_w = Sprite:getRect(volumeprogressBgImg2)
+		            --Log:write('volumebg_w===volumeprogressBgImg2',volumebg_w)
+		            if Player.curVolume then
+		                local pct1 = Player.curVolume / 100
+		                local x1 = math.floor(pct1 * volumebg_w)
+		                volumesetProgressBarPos(volumeprogressBtn2, x1)
+		            end
+		        end
+        end
+	  end
+end
+
+function saveHistory()
+	  if isPlayerCreate then
+				local curTime = programCurTime
+		    local account,password = getAccountAndPasswordFromLocal()
+		    local historyUrl = playopenData.historyUrl
+		    local tt = totalTime
+		    --if account ~= nil and account ~= '' then
+		        local postData = 'loginName='..account..'&totalTime='..tt..'&endTime='..curTime..Util:getRequestTail()
+		        Http:request('AddHistoty',historyUrl,112,{useCache = false,method = 'post',postData = postData})
+		    --end
+		    if curTime == totalTime then
+		        saveHistoryToLocal(playopenData.contId, playopenData.nodeId,playopenData.historyName, curTime,tt,'0',isLive)
+		    else
+		        saveHistoryToLocal(playopenData.contId, playopenData.nodeId,playopenData.historyName, curTime,tt,'1',isLive)
+		    end
+		end
+end
+
+--------------请求是否收藏--------------------------
+function requestIsFavData() 
+    if isLive == '1' then
+        --获取是否收藏的信息
+        local account,password = getAccountAndPasswordFromLocal()
+        local isfavUrl = isFavoritesUrl..'&loginName='..account..posttail
+        local url,postData = getUrlAndPostdata(isfavUrl)
+        Log:write('account===1111111111111100000000000000',account)
+            Http:request('isfav',url,107,{useCache=false,method='post',postData=postData})
+    elseif isLive == '0' then
+        local account,password = getAccountAndPasswordFromLocal()
+        local isfavUrl = Util:getServer()..'clt/isFavorite.msp'
+            Http:request('isfav',isfavUrl,107,{useCache=false,method='post',postData = 'loginName='..account..'&mn='..nodeId..'&c='..cid..'&isLive=0' ..Util:getRequestTail()})
+    end
+end     
+
+function favBtnOnSelect(sprite)
+    local reg_authority = Reg:create('authority')
+    local userStatus = Reg:getInteger(reg_authority, 'userStatus')
+    
+        if isLive == '1' then
+	        local account,password = getAccountAndPasswordFromLocal()
+            local favUrl = favoritesUrl..'&loginName='..account..posttail
+            local url,postData = getUrlAndPostdata(favUrl)
+            Log:write('account===1111111111111100000000000000',account)
+            Http:request('shoucangData',url,104,{useCache=false,method='post',postData=postData})
+	    	
+	    elseif isLive == '0' then
+	        local account, password = getAccountAndPasswordFromLocal()
+	        local shoucangUrl = Util:getServer()..'clt/addFavorite.msp'
+	        Http:request('shoucangData',shoucangUrl,104,{useCache = true, method = 'post', postData = 'loginName='..account..'&mn='..nodeId..'&c='..cid..'&isLive=0'..Util:getRequestTail()})
+	    end
+end
+
+function setFavBtnStatus(status)
+    Sprite:setEnable(favBtn, status)
+end
+
+function getUrlAndPostdata(url)  --解析url
+    local resulturl = Util:split(url,'?')
+    return resulturl[1],resulturl[2]
+end
+
+function shareBtnOnSelect(sprite)
+    shareNodeClick = 1
+    loadFriendList()
+    if weiboFlag == 0 then
+        local cooperatorList = Sprite:findChild(weiboBind, 'cooperatorList')
+        local cooperatorItem = Sprite:findChild(weiboBind, 'cooperatorItem')
+        List:removeAllItems(cooperatorList)
+        List:loadItem(cooperatorList, cooperatorItem, 2, 'cooperatorItemOnLoad')
+        List:adjust(cooperatorList)
+        showSubArea(3)
+        setBottomMenuStatus(0)
+        Player:pause()
+        Player:show(0)
+        isPlayerShow = false
+        local btntop1 = Sprite:findChild(rootSprite,'btntop1')
+        Sprite:setProperty(btntop1,'text','取消')
+        Sprite:setEnable(btntop1,1)
+        Sprite:setVisible(btntop1,1)
+        local toplabel = Sprite:findChild(rootSprite,'totaltitle')
+        Sprite:setProperty(toplabel,'text','微博授权')
+        Sprite:setEnable(toplabel,1)
+        Sprite:setVisible(toplabel,1)
+        return
+    end
+    showSubArea(2)
+    Player:pause()
+    Player:show(0) 
+    isPlayerShow = false
+    setBottomMenuStatus(0)
+    local btntop1 = Sprite:findChild(rootSprite,'btntop1')
+    Sprite:setProperty(btntop1,'text','取消')
+    Sprite:setEnable(btntop1,1)
+    Sprite:setVisible(btntop1,1)
+    local toplabel = Sprite:findChild(rootSprite,'totaltitle')
+    Sprite:setProperty(toplabel,'text','分享')
+    Sprite:setEnable(toplabel,1)
+    Sprite:setVisible(toplabel,1)
+    local btntop2 = Sprite:findChild(rootSprite,'btntop2')
+    Sprite:setEnable(btntop2,1)
+    Sprite:setVisible(btntop2,1)
+    
+    createShareList()
+end
+
+--点击完成按钮
+function btntop2OnSelect(sprite)
+	local btntop2 = Sprite:findChild(rootSprite,'btntop2')
+	showSubArea(1)
+	Player:play()
+    Player:show(1)
+    isPlayerShow = true
+    local btntop1 = Sprite:findChild(rootSprite,'btntop1')
+    Sprite:setProperty(btntop1,'text','返回')
+    Sprite:setEnable(btntop1,1)
+    Sprite:setVisible(btntop1,1)
+    local toplabel = Sprite:findChild(rootSprite,'totaltitle')
+    Sprite:setProperty(toplabel,'text',livingName)
+    Sprite:setEnable(toplabel,1)
+    Sprite:setVisible(toplabel,1)
+    local btntop2 = Sprite:findChild(rootSprite,'btntop2')
+    Sprite:setEnable(btntop2,0)
+    Sprite:setVisible(btntop2,0)
+end
+
+function showSubArea(areaIndex)
+    local node11 = Sprite:findChild(rootSprite,'node11')
+    local subAreaTable = {node11, shareArea,weiboBind,loginArea}
+    for i= 1, #subAreaTable do
+        if i == areaIndex then
+            Sprite:setVisible(subAreaTable[i], 1) 
+            Sprite:setEnable(subAreaTable[i], 1)
+        else
+            Sprite:setVisible(subAreaTable[i], 0) 
+            Sprite:setEnable(subAreaTable[i], 0)
+        end
+    end
+    curPageStatus = areaIndex
+end
+
+function setBottomMenuStatus(visibleFlag)
+    local spriteMenu = Sprite:findChild(Sprite:getCurScene(), 'spriteMenu')
+    local bottomMenu = Sprite:findChild(spriteMenu, 'bottomMenu')
+    Sprite:setEnable(bottomMenu, visibleFlag)
+    Sprite:setVisible(bottomMenu, visibleFlag)
+    
+end
+
+---------------------------------------满屏播放---------------------------
+function fullPlayBtnOnSelect(sprite)
+    Log:write('fullPlayBtnOnSelect===')
+    if isPlayerCreate and isPlayerShow then
+		    ScreenRotate(0)
+		    if isAllFullScreen == 0 and status == Player.status.Playing then 
+		        Player:setFullScreen(1)
+		        isAllFullScreen = 1
+		    elseif isAllFullScreen == 1 then 
+		        Player:setFullScreen(0)
+		        --ScreenRotate(0)    --因主干对手机视频做了自动旋屏为竖屏，所以此时我还要旋为横屏
+		        isAllFullScreen = 0
+		    end
+		end
+end
+
+----------------------------播放控制函数--------------------------
+
+-- @brief 【播放】OnSelect事件
+function playBtnOnSelect()
+    Log:write('playBtnOnSelect')
+    if status == Player.status.Ready or status == Player.status.Idle or status == Player.status.Paused then
+        UiPlay()        --隐藏播放按钮，显示暂停按钮，然后播放
+        Player:show(1)
+        isPlayerShow = true
+        Player:play()
+    end
+end
+
+-- @brief 【暂停】OnSelect事件
+function pauseBtnOnSelect()
+    Log:write('pauseBtnOnSelect')
+    if status == Player.status.Playing then
+		    UiPause()
+		    Player:pause()
+		end
+end
+
+-- @brief 创建播放器区域
+function createPlayer()
+    Player:create(0*E1, 70*E2, 960*E1, 360*E2)
+    --Player:create(0*E1, 70*E2, 640*E1, 340*E2) 
+    isPlayerCreate = true   
+    --Timer:set(2, 1000, 'openUrl')
+    openUrl()
+end
+
+function chatDetailOnTextChanged1(sprite)
+	local chatTips1 = Sprite:findChild(loginArea, 'chatTips1')
+    if Sprite:getText(sprite)=='' then
+        Sprite:setVisible(chatTips1, 1)
+    	  Sprite:setEnable(chatTips1, 1)
+    else 
+        Sprite:setVisible(chatTips1, 0)
+    	  Sprite:setEnable(chatTips1, 0)
+    end
+end
+
+-- @brief 键盘高度变化
+function chatOnKeyboardSizeChanged1(sprite, nHeight)
+    shurufaHeight = nHeight
+    Log:write('shurufaHeight==111=',shurufaHeight)
+    local chatTips1 = Sprite:findChild(loginArea, 'chatTips1')
+    -------------出现光标，文字消失---------------
+    if nHeight ~= 0 then	
+    	Sprite:setVisible(chatTips1, 0)
+    	Sprite:setEnable(chatTips1, 0)
+    end
+end
+
+function chatDetailOnTextChanged2(sprite)
+	local chatTips1 = Sprite:findChild(loginArea, 'chatTips2')
+    if Sprite:getText(sprite)=='' then
+        Sprite:setVisible(chatTips2, 1)
+    	  Sprite:setEnable(chatTips2, 1)
+    else 
+        Sprite:setVisible(chatTips2, 0)
+    	  Sprite:setEnable(chatTips2, 0)
+    end
+end
+
+-- @brief 键盘高度变化
+function chatOnKeyboardSizeChanged2(sprite, nHeight)
+    shurufaHeight = nHeight
+    Log:write('shurufaHeight==111=',shurufaHeight)
+    local chatTips2 = Sprite:findChild(loginArea, 'chatTips2')
+    -------------出现光标，文字消失---------------
+    if nHeight ~= 0 then	
+    	Sprite:setVisible(chatTips2, 0)
+    	Sprite:setEnable(chatTips2, 0)
+    end
+end
+
+function loginBtnOnSelect(sprite)
+    local account, password = getAccountAndPasswordFromEdit(Sprite:getParent(Sprite:getParent(sprite)))
+    checkAccountAndPassword(account, password)
+end
+
+-- @brief 登录时，验证用户名和密码是否正确
+function checkAccountAndPassword(account, password)
+    g_account = account
+    g_password = password
+    local url = Util:getServer() .. 'clt/login.msp'
+    local postData = 'loginName=' .. account .. '&psw=' .. password .. '&type=0'
+    Log:write('account',account)
+    Http:request('per_login', url, Msg.login , {useCache=false, method ='post', postData=postData.. Util:getRequestTail()})
+    Loading:show(rootSprite)
+end
+
+function getAccountAndPasswordFromEdit(subNode)
+    local accountInput = Sprite:findChild(subNode, 'accountInput')
+    local passwordInput = Sprite:findChild(subNode, 'passwordInput')
+    return (accountInput ~= 0 and Sprite:getText(accountInput) or ''), (passwordInput ~= 0 and Sprite:getText(passwordInput) or '')
+end
+
+
+-- 显示全屏播放控制区域
+function showfullplayControlNode()
+	Sprite:setVisible(playBtn1,1)
+    Sprite:setEnable(playBtn1,1)
+    Sprite:setVisible(progressNode1,1)
+    Sprite:setEnable(progressNode1,1)
+    Sprite:setVisible(volumeNode1,1)
+    Sprite:setEnable(volumeNode1,1)
+    Sprite:setVisible(volumeImg1,1)
+    Sprite:setEnable(volumeImg1,1)
+    Sprite:setVisible(liaotianBtn,1)
+    Sprite:setEnable(liaotianBtn,1)
+    if isLive == '0' then
+	    Sprite:setVisible(fullshezhiBtn,1)
+	    Sprite:setEnable(fullshezhiBtn,1)
+	end
+end
+
+-- @brief 打开url
+function openUrl()
+    local playUrl = playopenData.url
+    Log:write('playUrl===openUrl',playUrl)
+    if playUrl ~= '' then
+        if startTime == 0 and Config:get('jumpHeadBtnFlag') == '1' then
+            startTime = tonumber(playopenData.titleSec)
+        end    
+        if Util:isIOSPlatform() then
+            Player:open(playUrl, Http:getCurConnect())
+        else
+            Log:write('startTime===openUrl===',startTime)
+            Player:open(playUrl, Http:getCurConnect(), startTime)
+        end
+        if Loading:isShow() then Loading:close() end
+        Player:show(1)
+        isPlayerShow = true
+        totalTime = Player:getTotalTime()
+        if Util:isIOSPlatform() then
+            Player.curVolume = Player:getVolume()
+        else
+            Player.curVolume = 25*System:getSysVolume()
+        end
+        local _, _, volumebg_w = Sprite:getRect(volumeprogressBgImg1)
+        --Log:write('volumebg_w===volumeprogressBgImg1',volumebg_w)
+        if Player.curVolume then
+            local pct1 = Player.curVolume / 100
+            local x1 = math.floor(pct1 * volumebg_w)
+            volumesetProgressBarPos(volumeprogressBtn1, x1)
+        end
+        showfullplayControlNode()    -- 显示全屏播放控制区域 
+        Timer:set(1, 1000, 'getStatus')
+    else
+       if Loading:isShow() then Loading:close() end
+    end
+end	
+
+-- @brief 刷新播放与暂停按钮状态
+function getStatus()
+    Log:write('totalTime=0=getStatus=', totalTime)
+    if totalTime == 0 then
+        totalTime = Player:getTotalTime()
+        --Log:write('totalTime==getStatus=', totalTime)
+    end
+    status = Player:getStatus()
+    Log:write('status', status)
+    if status == Player.status.Playing or status == Player.status.Idle or status == Player.status.Connecting then
+        UiPlay()
+        local curTime = Player:getCurTime()
+        programCurTime = curTime
+        --Log:write('curTime', curTime)
+        --Sprite:setProperty(totalTimeLbl, 'text', timeFormat(totalTime))
+        --Sprite:setProperty(curTimeLbl, 'text', timeFormat(curTime))
+        --关于继续播放或跳过片头功能seek
+        if Util:isIOSPlatform() and continuePlayProgram == 1 and startTime ~= 0 then
+            Log:write('startTime===openUrl==getStatus=',startTime)
+            curTime = startTime 
+            local _, _, bg_w = Sprite:getRect(progressBgImg2)
+            if totalTime and totalTime ~= 0 and curTime then
+                local pct = curTime / totalTime
+                local x = math.floor(pct * bg_w)
+                if isLive == '0' then
+                    setProgressBarPos(progressBtn1, x, 1)
+                end
+            end
+            continuePlayProgram = 0
+        end
+        if Sprite:isVisible(fullplayControlNode) == 1 then
+            local _, _, bg_w = Sprite:getRect(progressBgImg1)
+            --Log:write('bg_w===', bg_w)
+            if totalTime and totalTime ~= 0 and curTime then
+                local pct = curTime / totalTime
+                local x = math.floor(pct * bg_w)
+                if isLive == '0' then
+                    setProgressBarPos(progressBtn1, x)
+                end
+            end
+            if Util:isIOSPlatform() then
+		            Player.curVolume = Player:getVolume()
+				    else
+				        Player.curVolume = 25*System:getSysVolume()
+				    end
+		            --Log:write('Player.curVolume===volumeprogressBgImg1',Player.curVolume)
+		            local _, _, volumebg_w = Sprite:getRect(volumeprogressBgImg1)
+		            --Log:write('volumebg_w===volumeprogressBgImg1',volumebg_w)
+		            if Player.curVolume then
+		                local pct1 = Player.curVolume / 100
+		                local x1 = math.floor(pct1 * volumebg_w)
+		                volumesetProgressBarPos(volumeprogressBtn1, x1)
+		            end
+		        --end
+        elseif Sprite:isVisible(normalplayControlNode) == 1 then
+            local _, _, bg_w = Sprite:getRect(progressBgImg2)
+            if totalTime and totalTime ~= 0 and curTime then
+                local pct = curTime / totalTime
+                local x = math.floor(pct * bg_w)
+                if isLive == '0' then
+                    setProgressBarPos(progressBtn2, x)
+                end
+            end
+            if Util:isIOSPlatform() then
+		            Player.curVolume = Player:getVolume()
+				    else
+				        Player.curVolume = 25*System:getSysVolume()
+				    end
+		            local _, _, volumebg_w = Sprite:getRect(volumeprogressBgImg2)
+		            --Log:write('volumebg_w===volumeprogressBgImg2',volumebg_w)
+		            if Player.curVolume then
+		                local pct1 = Player.curVolume / 100
+		                local x1 = math.floor(pct1 * volumebg_w)
+		                volumesetProgressBarPos(volumeprogressBtn2, x1)
+		            end
+		        --end
+        end
+    elseif status == Player.status.Buffering then
+        UiPause()
+        local bufferPct = Player:getBufferPercent()
+        --Log:write('bufferPct', bufferPct)
+        if bufferPct then
+            --Sprite:setProperty(bufferLbl, 'text', '缓冲' .. bufferPct .. '%')
+        end
+    elseif status == Player.status.Paused or status == Player.status.Ready or status == Player.status.Stopped then
+        --saveHistory()
+        UiPause()
+    elseif status == Player.status.Finished then
+        saveHistory()
+        UiPause()
+        Player:show(0)
+        Timer:cancel(3)
+        return
+    end
+    Timer:set(3, 1000, 'getStatus')
+end
+
+function UiPlay()
+    if Sprite:isVisible(normalplayControlNode) == 1 then
+        Sprite:setVisible(pauseBtn2, 1)
+        Sprite:setEnable(pauseBtn2, 1)
+        Sprite:setVisible(playBtn2, 0)
+        Sprite:setEnable(playBtn2, 0)
+    elseif Sprite:isVisible(fullplayControlNode) == 1 then
+        Sprite:setVisible(pauseBtn1, 1)
+        Sprite:setEnable(pauseBtn1, 1)
+        Sprite:setVisible(playBtn1, 0)
+        Sprite:setEnable(playBtn1, 0)
+    end
+end
+
+function UiPause()
+    if Sprite:isVisible(normalplayControlNode) == 1 then
+        Sprite:setVisible(pauseBtn2, 0)
+        Sprite:setEnable(pauseBtn2, 0)
+        Sprite:setVisible(playBtn2, 1)
+        Sprite:setEnable(playBtn2, 1)
+    elseif Sprite:isVisible(fullplayControlNode) == 1 then
+        Sprite:setVisible(pauseBtn1, 0)
+        Sprite:setEnable(pauseBtn1, 0)
+        Sprite:setVisible(playBtn1, 1)
+        Sprite:setEnable(playBtn1, 1)
+    end
+end
+
+----------------------------播放进度条--------------------------
+
+-- @brief 进度条OnMouseDown事件
+function progressOnMouseDown(sprite, x, y)
+    setProgressBarPos(sprite, x)
+    progressBarFlag = 1
+    return 0
+end
+
+-- @brief 进度条OnMouseUp事件
+function progressOnMouseUp(sprite, x, y)
+    setProgressBarPos(sprite, x, 1)
+    progressBarFlag = 0
+    return 0
+end
+
+-- @brief 进度条OnMouseMove事件
+function progressOnMouseMove(sprite, x, y)
+    if progressBarFlag == 1 then -- 在OnMouseDown时设置此标识量，表明需要响应OnMouseMove事件，否则不响应
+        setProgressBarPos(sprite, x)
+    else
+        return 0
+    end
+end
+
+
+-- @brief 设置进度条
+function setProgressBarPos(sprite, x, seek)
+    if Sprite:isVisible(fullplayControlNode) == 1 then
+        Log:write('fullplayControlNode===visible')
+        local _, _, bg_w = Sprite:getRect(progressBgImg1)
+        Log:write('bg_w==progressBgImg1====visible',bg_w)
+        local _, point_y, point_w, point_h = Sprite:getRect(progressPointImg1)
+        --Log:write('point_h==progressBgImg1====visible',point_h)
+        if x > bg_w then
+            x = bg_w
+        elseif x < 0 then
+            x = 0
+        end
+        local bar_x, bar_y, _, bar_h = Sprite:getRect(progressBarImg1)
+        Sprite:setRect(progressBarImg1, bar_x, bar_y, x, bar_h)
+        Sprite:setRect(progressPointImg1, x-13, point_y, point_w, point_h)
+        Log:write('seek===',seek)
+        if seek then
+            local pct = x / bg_w
+            Log:write('bg_w==progressBgImg1====visible',bg_w)
+            Log:write('totalTime==fullplayControlNode==',totalTime)
+            if totalTime then
+                local curTime = math.floor(totalTime * pct)
+                Log:write('curTime====',curTime)
+                Player:seek(curTime)
+            end
+        end
+    elseif Sprite:isVisible(normalplayControlNode) == 1 then
+        local _, _, bg_w = Sprite:getRect(progressBgImg2)
+        local _, point_y, point_w, point_h = Sprite:getRect(progressPointImg2)
+        if x > bg_w then
+            x = bg_w
+        elseif x < 0 then
+            x = 0
+        end
+        local bar_x, bar_y, _, bar_h = Sprite:getRect(progressBarImg2)
+        Sprite:setRect(progressBarImg2, bar_x, bar_y, x, bar_h)
+        Sprite:setRect(progressPointImg2, x-5, point_y, point_w, point_h)
+        if seek then
+            local pct = x / bg_w
+            if totalTime then
+                local curTime = math.floor(totalTime * pct)
+                Player:seek(curTime)
+            end
+        end
+    end
+end
+
+---------------------------------------音量控制-------------------------------
+
+-- @brief 音量OnMouseDown事件
+function volumeprogressOnMouseDown(sprite, x, y)
+    volumesetProgressBarPos(sprite, x)
+    volumeprogressBarFlag = 1
+    return 0
+end
+
+-- @brief 音量OnMouseUp事件
+function volumeprogressOnMouseUp(sprite, x, y)
+    volumesetProgressBarPos(sprite, x, 1)
+    volumeprogressBarFlag = 0
+    return 0
+end
+
+-- @brief 音量OnMouseMove事件
+function volumeprogressOnMouseMove(sprite, x, y)
+    if volumeprogressBarFlag == 1 then -- 在OnMouseDown时设置此标识量，表明需要响应OnMouseMove事件，否则不响应
+        volumesetProgressBarPos(sprite, x)
+    else
+        return 0
+    end
+end
+
+-- @brief 设置音量进度条
+function volumesetProgressBarPos(sprite,x)
+    if Sprite:isVisible(fullplayControlNode) == 1 then
+        local _, _, bg_w = Sprite:getRect(volumeprogressBgImg1)
+        local _, point_y, point_w, point_h = Sprite:getRect(volumeprogressPointImg1)
+        Log:write('volumeprogressPointImg1===',_, point_y, point_w, point_h)
+        if x > bg_w then
+            x = bg_w
+        elseif x < 0 then
+            x = 0
+        end
+        local bar_x, bar_y, _, bar_h = Sprite:getRect(volumeprogressBarImg1)
+        Sprite:setRect(volumeprogressBarImg1, bar_x, bar_y, x, bar_h)
+        Sprite:setRect(volumeprogressPointImg1, x-5, point_y, point_w, point_h)
+        local pct = x / bg_w
+        Player.curVolume = math.floor(100 * pct)
+        --Log:write('Player.curVolume===volumesetProgressBarPos',Player.curVolume)
+        if Util:isIOSPlatform() then
+            Player:setVolume()
+        else
+            System:setSysVolume(math.floor(Player.curVolume/25))
+        end
+    elseif Sprite:isVisible(normalplayControlNode) == 1 then
+        local _, _, bg_w = Sprite:getRect(volumeprogressBgImg2)
+        local _, point_y, point_w, point_h = Sprite:getRect(volumeprogressPointImg2)
+        if x > bg_w then
+            x = bg_w
+        elseif x < 0 then
+            x = 0
+        end
+        local bar_x, bar_y, _, bar_h = Sprite:getRect(volumeprogressBarImg2)
+        Sprite:setRect(volumeprogressBarImg2, bar_x, bar_y, x, bar_h)
+        Sprite:setRect(volumeprogressPointImg2, x-5, point_y, point_w, point_h)
+        local pct = x / bg_w
+        Player.curVolume = math.floor(100 * pct)
+        if Util:isIOSPlatform() then
+            Player:setVolume()
+        else
+            System:setSysVolume(math.floor(Player.curVolume/25))
+        end
+    end
+end
+
+----------------------------点击聊天按钮进行移动屏幕--------------------------
+function liaotianBtnOnSelect(sprite)
+	Player:moveWindow(0*E1, 70*E2, 640*E1, 320*E2)
+    ScreenRotate(1)       -- 0- (960*640), 1- (640*960), 其它 - 未定义
+	Sprite:setVisible(normalplayControlNode,1)
+	Sprite:setEnable(normalplayControlNode,1)
+	Sprite:setVisible(fullplayControlNode,0)
+	Sprite:setEnable(fullplayControlNode,0)
+	Sprite:setVisible(fullPlayBtn,0)
+	Sprite:setEnable(fullPlayBtn,0)
+	Sprite:setEnable(liaotian,1)
+	Sprite:setVisible(liaotian,1)
+	if isLive == '0' then
+		Sprite:setEnable(shezhiBtn,1)
+		Sprite:setVisible(shezhiBtn,1)		
+	end
+	--Sprite:setEnable(jujiListview,0)
+	--Sprite:setVisible(jujiListview,0)
+	isfullscreen = 0 
+	Log:write('isfullscreen===',isfullscreen)
+end
+
+----------------------------点击设置跳转片头--------------------------
+function shezhiBtnOnSelect(sprite) 
+  Log:write('shezhiBtnOnSelect===')
+	if isfullscreen == 1 then  
+	    Log:write('isfullscreen == 1===')
+	    Sprite:setVisible(fullshezhi,1)
+	    Sprite:setEnable(fullshezhi,1)
+	    --Sprite:setVisible(shezhi,0)
+	    --Sprite:setEnable(shezhi,0)
+	else 
+		Sprite:setVisible(shezhi,1)
+	    Sprite:setEnable(shezhi,1)
+	    --Sprite:setVisible(fullshezhi,0)
+	    --Sprite:setEnable(fullshezhi,0) 
+	end
+    local jumpHeadBtnImg1 = Sprite:findChild(rootSprite, 'jumpHeadBtnImg1')
+    local jumpHeadBtnImg2 = Sprite:findChild(rootSprite, 'jumpHeadBtnImg2')
+    if Config:get('jumpHeadBtnFlag') == '1' then
+	    Sprite:setVisible(jumpHeadBtnImg1,1)
+    	Sprite:setEnable(jumpHeadBtnImg1,1)
+    	Sprite:setVisible(jumpHeadBtnImg2,1)
+    	Sprite:setEnable(jumpHeadBtnImg2,1)
+	elseif Config:get('jumpHeadBtnFlag') == '0' then
+		Sprite:setVisible(jumpHeadBtnImg1,0)
+		Sprite:setEnable(jumpHeadBtnImg1,0)
+		Sprite:setVisible(jumpHeadBtnImg2,0)
+		Sprite:setEnable(jumpHeadBtnImg2,0)
+	end
+end
+
+function shezhiCloseBtnOnSelect(sprite)
+    local shezhiCloseBtn = Sprite:findChild(rootSprite, 'shezhiCloseBtn')
+    Sprite:setVisible(shezhi,0)
+    Sprite:setEnable(shezhi,0)
+    Sprite:setVisible(fullshezhi,0)
+	Sprite:setEnable(fullshezhi,0) 
+end
+
+function jumpHeadBtnOnSelect(sprite)
+    Log:write('jumpHeadBtnOnSelect===')
+	local jumpHeadBtnImg1 = Sprite:findChild(rootSprite, 'jumpHeadBtnImg1')
+    local jumpHeadBtnImg2 = Sprite:findChild(rootSprite, 'jumpHeadBtnImg2')
+	if Config:get('jumpHeadBtnFlag') == '0' then
+	    Log:write('jumpHeadBtnFlag=0==')
+		Sprite:setVisible(jumpHeadBtnImg1,1)
+		Sprite:setEnable(jumpHeadBtnImg1,1)
+		Sprite:setVisible(jumpHeadBtnImg2,1)
+		Sprite:setEnable(jumpHeadBtnImg2,1)
+		Config:set('jumpHeadBtnFlag','1')
+	elseif Config:get('jumpHeadBtnFlag') == '1' then
+	    Log:write('jumpHeadBtnFlag=1==')
+		Sprite:setVisible(jumpHeadBtnImg1,0)
+		Sprite:setEnable(jumpHeadBtnImg1,0)
+		Sprite:setVisible(jumpHeadBtnImg2,0)
+		Sprite:setEnable(jumpHeadBtnImg2,0)
+		Config:set('jumpHeadBtnFlag', '0')
+	end
+end
+
+----------------------------全屏按钮--------------------------
+
+function fullscreenOnSelect(sprite)
+    fullScreen()
+end
+
+function fullScreen()
+    Player:moveWindow(0*E1, 70*E2, 960*E1, 360*E2)  
+    ScreenRotate(0)       -- 0- (960*640), 1- (640*960), 其它 - 未定义
+    Sprite:setVisible(fullplayControlNode, 1)
+    Sprite:setEnable(fullplayControlNode, 1)
+    if isLive == '0' then
+	    Sprite:setVisible(fullshezhiBtn,1)
+	    Sprite:setEnable(fullshezhiBtn,1)
+	end
+    Sprite:setVisible(fullPlayBtn,1)
+	Sprite:setEnable(fullPlayBtn,1)
+    Sprite:setVisible(normalplayControlNode, 0)
+    Sprite:setEnable(normalplayControlNode, 0)
+    Sprite:setVisible(liaotian, 0)
+    Sprite:setEnable(liaotian, 0)
+    --Sprite:setVisible(jujiListview,1)
+    --Sprite:setEnable(jujiListview,1)
+    isfullscreen = 1
+    Log:write('isfullscreen===1111111111',isfullscreen)
+end
+
+function loadliaotianListItem(list,item,index)
+	Sprite:setProperty(item, 'extendstyle', '1111')
+	local actor = Sprite:findChild(item,'actor')
+	local firstline = '['..ChatData.chats[index].userName..']说：('..ChatData.chats[index].createTime..')'
+	Sprite:setProperty(actor,'text',firstline)
+	
+    local commentTextarea = Sprite:findChildByClass(item, 'textarea')
+    Sprite:setProperty(commentTextarea,'text','    '..ChatData.chats[index].content)
+    local x_txt, y_txt, w_txt, h_txt = Sprite:getRect(commentTextarea)
+    local itemHeight = h_txt + 30
+    Sprite:setRect(item, 0, 0, 530, itemHeight)
+end
+
+function OnLineSelect(sprite)
+	--local OnLineuserUrl = Util:getServer()..'clt/onlineUser.msp'
+	--Http:request('OnLineuserData',OnLineuserUrl,105,{useCache=false,method ='post',postData='n='..nodeId..Util:getRequestTail()})
+	createOnlineUser()
+end
+
+function createOnlineUser()
+	node4 = Sprite:findChild(rootSprite, 'node4')
+	Sprite:setVisible(node4,1)
+	Sprite:setEnable(node4,1)
+	onlinebtn = Sprite:findChild(rootSprite, 'onlinebtn')
+	Sprite:setVisible(onlinebtn,0)
+	Sprite:setEnable(onlinebtn,0)
+end
+
+function hideOnline(sprite)
+	Sprite:setVisible(node4,0)
+	Sprite:setEnable(node4,0)
+	Sprite:setVisible(onlinebtn,1)
+	Sprite:setEnable(onlinebtn,1)
+end
+
+function onlineloadListItem(list,item,index)
+    Sprite:setRect(item,0,0,300,60)
+    local userPhoto = Sprite:findChild(item,'userphoto')
+    local username = Sprite:findChild(item,'username')
+    Sprite:setProperty(userPhoto,'src',ChatUserData.user[index].pic)
+    Sprite:setProperty(username,'text',ChatUserData.user[index].username)
+end
+---------------------------------------util functions--------------------------------
+-- @brief 编辑框内容变化
+function chatDetailOnTextChanged(sprite)
+	local commentLab = Sprite:findChild(rootSprite,'commentLab')
+    if Sprite:getText(sprite)=='' then
+        Sprite:setVisible(commentLab, 1)
+    	Sprite:setEnable(commentLab, 1)
+    else
+        Sprite:setVisible(commentLab, 0)
+    	Sprite:setEnable(commentLab, 0)
+    end
+end
+
+-- @brief 键盘高度变化
+function chatOnKeyboardSizeChanged(sprite, nHeight)
+    shurufaHeight = nHeight
+    Log:write('shurufaHeight==11111111111111111111=',shurufaHeight)
+    if nHeight ~= 0 then
+        local x1,y1,w1,h1 = Sprite:getRect(inputblock)
+        --Sprite:setRect(sprite,x,y-nHeight,w,h)
+        --Sprite:setRect(editBg,x1,y1-nHeight,w1,h1)
+        if nHeight ~= 432 then --中文输入法
+          Player:moveWindow(0*E1, 70*E2, 640*E1, 280*E2)
+          Sprite:setRect(normalplayControlNode,0,290,640,60)
+          Sprite:setRect(inputblock,x1,-85,w1,h1)
+        else --英文
+            Player:moveWindow(0*E1, 70*E2, 640*E1, 300*E2)
+            Sprite:setRect(normalplayControlNode,0,310,640,60)
+            Sprite:setRect(inputblock,x1,-10,w1,h1) 
+        end
+
+      Sprite:setVisible(commentLab,0)
+    	local commentLab = Sprite:findChild(rootSprite,'commentLab')
+        Sprite:setVisible(commentLab, 0)
+    	Sprite:setEnable(commentLab, 0)
+    else
+      Player:moveWindow(0*E1, 70*E2, 640*E1, 320*E2)
+	  Sprite:setRect(inputblock,0,435,640,65)
+      Sprite:setRect(normalplayControlNode,0,330,640,60)
+    end
+end
+
+-- @brief 输入法调起时调整播放区域大小及edit坐标
+function resetPlayerArea()
+    --Sprite:setRect(inputblock,0,960-70-shurufaHeight-65-410-50,640,65)
+
+end
+
+-- @brief 发表按钮点击
+function uploadMyComment(sprite)
+    Sprite:setRect(inputblock,0,435,640,65)
+    txt = Sprite:getText(commentInput)
+    Log:write('txt==111=',txt)
+    local commenturl = Util:getServer()..'clt/addChat.msp'
+    Log:write('nodeId==111=',nodeId)
+    Log:write('contId==111==',cid) 
+    local client
+    if Config:get('platform') == 'iOS' then
+        client = 'iphone'
+    else
+        client = 'aphone'
+    end
+    local account, password = getAccountAndPasswordFromLocal()
+    Log:write('account===fabiaoOnSelect===',account)
+        if txt == '' then
+            Tips:show('您还没有填写发表信息！')
+            return
+        else
+            Http:request('comment',commenturl,102,{useCache = false, method = 'post', postData = 'nodeId='..nodeId..'&contId='..cid..'&isLive=0&client='..client..'&content='..txt..'&userName='..account..Util:getRequestTail()})
+        	Loading:show(rootSprite)
+        end 
+    Sprite:setVisible(commentLab,1)
+    Sprite:setProperty(commentInput,'text','')
+end
+
+function loadliaotianListItem1(list,item,index)	
+	Sprite:setProperty(item, 'extendstyle', '1111')
+	local actor = Sprite:findChild(item,'actor')
+	local account, password = getAccountAndPasswordFromLocal()
+	local nowTable = os.date("*t")
+    local year = nowTable.year
+	local month = nowTable.month
+	local day = nowTable.day
+	if string.len(month) == 1 then
+	    month = '0'..month
+	end
+	if string.len(day) == 1 then
+	    day = '0'..day
+    end
+	local firstline = '['..account..']说：('..year..'-'..month..'-'..day..' '..nowTable.hour..':'..nowTable.min..':'..nowTable.sec..')'
+	Sprite:setProperty(actor,'text',firstline)
+    local commentTextarea = Sprite:findChildByClass(item, 'textarea')
+    Sprite:setProperty(commentTextarea,'text','    '..txt)
+    local x_txt, y_txt, w_txt, h_txt = Sprite:getRect(commentTextarea)
+    local itemHeight = h_txt + 30
+    Sprite:setRect(item, 0, 0, 580, itemHeight)
+end
+
+-----------------------------加载上一页聊天记录--------------------
+function listviewOnHead(sprite)
+    Log:write('listviewOnHead===')
+    Log:write('listviewOnHead==222=',currData.hasPre)
+    if currData.hasPre == '1' then
+        local chaturl = Util:getServer()..'clt/getPreChats.msp'
+        local chatpost = 'nodeId='..nodeId..'&contId='..cid..'&isLive=0&date='..currData.preTime..Util:getRequestTail()
+    	  Log:write('3333333333',chatpost)
+        Http:request('currData',chaturl,103,{useCache = false, method = 'post', postData = chatpost})
+    end
+end
+
+function loadPreTime()
+    for i=0,#currData.chats do
+        Log:write('444444444444444444444',currData.chats[i].userName)
+        local listitem = Sprite:create('listitem', 0)
+        Sprite:loadFromSprite(listitem, liaotianlistitem)
+        local actor = Sprite:findChild(listitem,'actor')
+        local firstline = '['..currData.chats[i].userName..']说：('..currData.chats[i].createTime..')'
+        Sprite:setProperty(actor,'text',firstline)        
+        local commentTextarea = Sprite:findChildByClass(listitem, 'textarea')
+        Sprite:setProperty(commentTextarea,'text','    '..currData.chats[i].content)
+        local x_txt, y_txt, w_txt, h_txt = Sprite:getRect(commentTextarea)
+        local itemHeight = h_txt + 30
+        Sprite:setRect(listitem, 0, 0, 580, itemHeight)
+        Log:write('666666666666',liaotianlistview)
+        Log:write('777777777777777777',listitem)
+        local r = ListView:insertItem(liaotianlistview,i,listitem)
+        Log:write('333333333333',r)
+        ListView:adjust(liaotianlistview)
+    end
+    ListView:setItemToTop(liaotianlistview,#currData.chats)
+    ListView:adjust(liaotianlistview)
+end
+
+-----------------------------刷新聊天记录--------------------
+function listviewOnTrail(sprite)
+    Log:write('listviewOnTrail===')
+    local chaturl = Util:getServer()..'clt/getChats.msp'
+    local chatpost = 'nodeId='..nodeId..'&contId='..cid..'&isLive=0&date='..Util:getRequestTail()
+    Log:write('666666666666',chatpost)
+    Http:request('ChatsData',chaturl,101,{useCache = false, method = 'post', postData = chatpost})
+end
+
+function createShareList()
+    local count = #shareImageTable
+    local col = 4
+    local line = math.ceil(count/col)
+    local x_l,y_l,w_l,h_l = Sprite:getRect(shareList)
+    Sprite:setRect(shareList, x_l,y_l,w_l, line*120)
+    Sprite:setProperty(shareList, 'col', col)
+    Sprite:setProperty(shareList, 'line', line)
+    List:removeAllItems(shareList, 1, 1)
+    List:loadItem(shareList, shareItem, count, 'shareItemOnLoad')
+    List:adjust(shareList)
+end
+
+function loadFriendList()
+    local account, password = getAccountAndPasswordFromLocal()
+    local sinaaccessToken = loadWeiboDataFromXml(account..'sinaaccessToken')
+    local sinauid = loadWeiboDataFromXml(account..'sinauid')
+    local qqaccessToken = loadWeiboDataFromXml(account..'qqaccessToken')
+    local qqopenId = loadWeiboDataFromXml(account..'qquid')
+    if sinaaccessToken == nil or sinaaccessToken == '' then
+        sinaaccessToken = loadWeiboDataFromXml('sinaaccessToken')
+    end
+    if sinauid == nil or sinauid == '' then
+        sinauid = loadWeiboDataFromXml('sinauid')
+    end
+    if qqaccessToken == nil or qqaccessToken == '' then
+        qqaccessToken = loadWeiboDataFromXml('qqaccessToken')
+    end
+    if qqopenId == nil or qqopenId == '' then
+        qqopenId = loadWeiboDataFromXml('qquid')
+    end
+    if sinaaccessToken ~= nil and sinaaccessToken ~= '' then
+        local url = Util:getServer()..'clt/sinaFollows.msp'
+        local postData1 = 'accessToken='..sinaaccessToken..'&uid='..sinauid..'&pageSize=28&page=0'..posttail
+        Log:write('8888888888',postData1)
+        Http:request('sinaFans',url,132,{useCache=false, method='post', postData=postData1})
+        weiboFlag = 1
+    end
+    
+    if qqaccessToken ~= nil and qqaccessToken ~= '' then
+        if weiboFlag == 0 then
+            local url = Util:getServer()..'clt/qqFollows.msp'
+            local postData1 = 'accessToken='..qqaccessToken..'&openId='..qqopenId..'&pageSize=28&page=0'..posttail
+            Log:write('8888888888',postData1)
+            Http:request('qqFans',url,133,{useCache=false, method='post', postData=postData1})
+            weiboFlag = 2
+            return
+        end
+        weiboFlag = 3
+    end
+end
+
+function createFriendList(count)
+    local col = 4
+    friendCount = friendCount + count
+    local line = math.ceil(friendCount/col)
+    local x_sl,y_sl,w_sl,h_sl = Sprite:getRect(shareList)
+    local x_fl,y_fl,w_fl,h_fl = Sprite:getRect(friendList)
+    local x_t,y_t,w_t,h_t = Sprite:getRect(friendTitle)
+    local x_item,y_item,w_item,h_item = Sprite:getRect(shareListViewItem)
+    local itemHeight = y_sl + h_sl + h_t + line*130 > 870 and y_sl + h_sl + h_t + 20 + line*130 or 890
+    Sprite:setRect(friendTitle, x_t, y_sl + h_sl, w_t, h_t)
+    Sprite:setRect(shareListView, 0, y_sl + h_sl + h_t + 20, 640, 870-y_sl - h_sl - h_t)
+    Sprite:setRect(friendList, 90, 0, 480, line*130)
+    Sprite:setRect(shareListViewItem, 0, 0, 640, line*130)
+    --Sprite:setRect(friendList, x_fl, y_sl + h_sl + h_t + 20, w_fl, line*130)
+    --Sprite:setRect(shareListViewItem, x_item, y_item, w_item, itemHeight)
+    Sprite:setProperty(friendList, 'col', col)
+    Sprite:setProperty(friendList, 'line', line)
+    --List:removeAllItems(friendList, 1, 1)
+    List:loadItem(friendList, friendItem, count, 'friendItemOnLoad')
+    List:adjust(friendList)
+    ListView:adjust(shareListView) 
+end
+
+--  加载微博好友下一页
+function shareListViewOnTrail(sprite)
+    local currSelectBtn1 = 0
+    local account, password = getAccountAndPasswordFromLocal()
+    local sinaaccessToken = ''
+    local sinauid = ''
+    local qqaccessToken = ''
+    local qqopenId = ''
+    
+    if account ~= nil and account ~= '' then
+        sinaaccessToken = loadWeiboDataFromXml(account..'sinaaccessToken')
+        sinauid = loadWeiboDataFromXml(account..'sinauid')
+        qqaccessToken = loadWeiboDataFromXml(account..'qqaccessToken')
+        qqopenId = loadWeiboDataFromXml(account..'qquid')
+    end
+    if sinaaccessToken == nil or sinaaccessToken == '' then
+        sinaaccessToken = loadWeiboDataFromXml('sinaaccessToken')
+    end
+    if sinauid == nil or sinauid == '' then
+        sinauid = loadWeiboDataFromXml('sinauid')
+    end
+    if qqaccessToken == nil or qqaccessToken == '' then
+        qqaccessToken = loadWeiboDataFromXml('qqaccessToken')
+    end
+    if qqopenId == nil or qqopenId == '' then
+        qqopenId = loadWeiboDataFromXml('qquid')
+    end
+    for i=0,1 do
+        local item = List:getItem(shareList,i)
+        local selectimg = Sprite:findChild(item,'select')
+        if Sprite:isVisible(selectimg) == 1 then
+            currSelectBtn1 = i
+        end
+    end
+    if isLast == '0' then
+        if currSelectBtn == 0 then
+            curPage = curPage+1
+            local url = Util:getServer()..'clt/sinaFollows.msp'
+            local postData1 = 'accessToken='..sinaaccessToken..'&uid='..sinauid..'&pageSize=28&page='..curPage..Util:getRequestTail()
+            Http:request('sinaFans',url,132,{useCache=false, method = 'post', postData=postData1})
+        elseif currSelectBtn == 1 then
+            curPage = curPage+1
+            local url = Util:getServer()..'clt/qqFollows.msp'
+            local postData1 = 'accessToken='..qqaccessToken..'&openId='..qqopenId..'&pageSize=28&page='..curPage..Util:getRequestTail()
+            Http:request('qqFans',url,133,{useCache=false, method ='post', postData=postData1})
+        end
+        Tips:show('正在加载下一页！')
+    else
+        Tips:show('已是最后一页！')
+    end
+end
+
+function friendItemOnLoad(list, item, index)
+    local user = {}
+    if currSelectBtn == 0 then
+        user = sinaFans.users
+    elseif currSelectBtn == 1 then
+        user = qqFans.users
+    end
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    Sprite:setRect(item, 0, 0, 80, 130)
+    Sprite:setProperty(Sprite:findChild(item, 'friendPhoto'), 'src', user[index].head..'.jpg' or '')
+    if user[index].head == '' then
+        Sprite:setProperty(Sprite:findChild(item, 'friendPhoto'), 'src', 'file://image/userInfo.jpg')
+    end
+    Sprite:setProperty(Sprite:getParent(Sprite:findChild(item, 'friendPhoto')),'data',user[index].name or '')
+    Sprite:setProperty(Sprite:findChild(item, 'friendName'), 'text', user[index].screenName or '好友'..(index + 1))
+end
+
+function shareItemOnLoad(list, item, index)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    Sprite:setRect(item, 0, 0, 84, 86)
+    Sprite:setProperty(Sprite:findChild(item, 'shareImage') , 'src', shareImageTable[index + 1])
+    local shareText = Sprite:findChild(shareArea,'shareText')
+    Sprite:setProperty(shareText,'text','//分享视频中国：['..livingName..']')
+    Sprite:setProperty(Sprite:findChildByClass(item, 'button'),'data',index)
+    local shengyu = Sprite:findChild(rootSprite,'shengyu')
+    local txt = livingName
+    jiemuzishu = Util:stringLength(txt)     
+    --Sprite:setProperty(shengyu,'text','还剩'..(109-jiemuzishu)..'个字')
+    setShengyuCount()
+end
+
+function setShengyuCount()
+    local shengyu = Sprite:findChild(rootSprite,'shengyu')
+    local shareText = Sprite:findChild(shareArea,'shareText')
+    local content = Sprite:findChild(shareArea,'content')
+    
+    local sharetext = Sprite:getText(shareText)
+    local conText = Sprite:getText(content) 
+    Sprite:setProperty(shengyu,'text','还剩'..(121-GetStringLen(sharetext)-GetStringLen(conText))..'个字')
+end
+--------------------------------分享到微博------------
+-- @brief 加载新浪好友列表
+function loadsinaFans()
+    createFriendList(#sinaFans.users+1)
+end
+
+-- @brief 加载腾讯好友列表
+function loadqqFans()
+    createFriendList(#qqFans.users+1)
+end
+
+function weiboOnSelect(sprite)
+    friendnames = ''
+    currSelectBtn = List:getItemIndex(Sprite:getParent(sprite))
+    
+    local account, password = getAccountAndPasswordFromLocal()
+    local sinaaccessToken = loadWeiboDataFromXml(account..'sinaaccessToken')
+    local sinauid = loadWeiboDataFromXml(account..'sinauid')
+    local qqaccessToken = loadWeiboDataFromXml(account..'qqaccessToken')
+    local qqopenId = loadWeiboDataFromXml(account..'qquid')
+    if sinaaccessToken == nil or sinaaccessToken == '' then
+        sinaaccessToken = loadWeiboDataFromXml('sinaaccessToken')
+    end
+    if sinauid == nil or sinauid == '' then
+        sinauid = loadWeiboDataFromXml('sinauid')
+    end
+    if qqaccessToken == nil or qqaccessToken == '' then
+        qqaccessToken = loadWeiboDataFromXml('qqaccessToken')
+    end
+    if qqopenId == nil or qqopenId == '' then
+        qqopenId = loadWeiboDataFromXml('qquid')
+    end
+    local authUrlActionTable = {'clt/sinaAuthUrl.msp', 'clt/qqAuthUrl.msp'}
+    Log:write('weiboFlag===============================,00000000000000',weiboFlag)
+    if currSelectBtn == 0 then
+        if weiboFlag ~= 1 and weiboFlag ~= 3 then
+            local reg_weibo = Reg:create(Reg.com_wondertek_cnlive3.weibo)
+            Reg:setString(reg_weibo,'fromWhere',1)
+            local getAuthUrl = Util:getServer() .. authUrlActionTable[1] 
+            Http:request('get_auth_url', getAuthUrl, 118, {useCache = false,method='post', postData = Util:getRequestTail()})
+            return
+        end
+        local url = Util:getServer()..'clt/sinaFollows.msp'
+        local postData1 = 'accessToken='..sinaaccessToken..'&uid='..sinauid..'&pageSize=28&page=0'..Util:getRequestTail()
+        Log:write('7777777777777777',postData1)
+        Http:request('sinaFans',url,132,{useCache=false, method = 'post', postData=postData1})
+    elseif currSelectBtn == 1 then
+        if weiboFlag ~= 2 and weiboFlag ~= 3 then
+            local reg_weibo = Reg:create(Reg.com_wondertek_cnlive3.weibo)
+            Reg:setString(reg_weibo,'fromWhere',2)
+            local getAuthUrl = Util:getServer() .. authUrlActionTable[2] 
+            Http:request('get_auth_url', getAuthUrl, 118, {useCache = false,method='post', postData = Util:getRequestTail()})
+            return
+        end
+        local url = Util:getServer()..'clt/qqFollows.msp'
+        local url = Util:getServer()..'clt/qqFans.msp'
+        local postData1 = 'accessToken='..qqaccessToken..'&openId='..qqopenId..'&pageSize=28&page=0'..Util:getRequestTail()
+        Log:write('8888888888',postData1)
+        Http:request('qqFans',url,133,{useCache=false, method ='post', postData=postData1})
+    end
+    List:removeAllItems(friendList, 1, 1)
+    friendCount = 0
+    curPage = 0
+    for i=0,1 do
+        local item = List:getItem(shareList,i)
+        local selectimg = Sprite:findChild(item,'select')
+        Sprite:setVisible(selectimg,0)
+    end
+    local select = Sprite:findChild(sprite,'select')
+    Sprite:setVisible(select,1)
+    local shareText = Sprite:findChild(shareArea,'shareText')
+    Sprite:setProperty(shareText,'text','//分享视频中国：['..contDetail.name..']')
+    setShengyuCount()
+    cancelFriendSelected()
+end
+
+function cancelFriendSelected()
+    local friendCount1 = List:getItemCount(friendList)
+    for i=0,friendCount1-1 do
+        local friendItem = List:getItem(friendList,i)
+        local selectimg = Sprite:findChild(friendItem,'select1')
+        Sprite:setVisible(selectimg,0)
+    end
+end
+
+function editOnTextChanged(sprite,fontCount)
+    local shareText = Sprite:findChild(shareArea,'shareText')    
+    local sharetext = Sprite:getText(shareText)
+    Log:write('sharetext==============',sharetext,GetStringLen(sharetext))
+    if fontCount > (121-GetStringLen(sharetext)) then
+        Sprite:setProperty(sprite,'text',countText1)
+        return
+    end
+    countText1 = Sprite:getText(sprite)
+    local shengyu = Sprite:findChild(rootSprite,'shengyu')
+    setShengyuCount()
+end 
+
+function finishButtonOnSelect(sprite)
+    local account, password = getAccountAndPasswordFromLocal()
+    local sinaaccessToken = loadWeiboDataFromXml(account..'sinaaccessToken')
+    local sinauid = loadWeiboDataFromXml(account..'sinauid')
+    local qqaccessToken = loadWeiboDataFromXml(account..'qqaccessToken')
+    local qqopenId = loadWeiboDataFromXml(account..'qquid')
+    for i=0,1 do
+        local item = List:getItem(shareList,i)
+        local selectimg = Sprite:findChild(item,'select')
+        if Sprite:isVisible(selectimg) == 1 then
+            currSelectBtn1 = i
+        end
+    end
+    if sinaaccessToken == nil or sinaaccessToken == '' then
+        sinaaccessToken = loadWeiboDataFromXml('sinaaccessToken')
+    end
+    if sinauid == nil or sinauid == '' then
+        sinauid = loadWeiboDataFromXml('sinauid')
+    end
+    if qqaccessToken == nil or qqaccessToken == '' then
+        qqaccessToken = loadWeiboDataFromXml('qqaccessToken')
+    end
+    if qqopenId == nil or qqopenId == '' then
+        qqopenId = loadWeiboDataFromXml('qquid')
+    end
+        local content = Sprite:findChild(shareArea,'content')
+        local shareTextArea = Sprite:findChild(shareArea,'shareText')
+        local shareText = Sprite:getText(shareTextArea)
+        local contenttext = Sprite:getText(content)
+        
+        if currSelectBtn1 == 0 then
+            if sinaaccessToken == nil or sinaaccessToken == '' then
+                Tips:show('您尚未授权！')
+                return
+            end
+            local url = Util:getServer()..'clt/sinaAdd.msp'
+            local postData1 = 'accessToken='..sinaaccessToken..'&uid='..sinauid..'&text='..Util:urlencode(shareText..' '..contenttext)..Util:getRequestTail()
+            Log:write('postData1',postData1)
+            Http:request('sinaWeibo',url,130,{useCache=false, method = 'post', postData=postData1})
+        elseif currSelectBtn1 == 1 then
+            if qqaccessToken == nil or qqaccessToken == '' then
+                Tips:show('您尚未授权！')
+                return
+            end
+            local url = Util:getServer()..'clt/qqAdd.msp'
+            local postData1 = 'accessToken='..qqaccessToken..'&openId='..qqopenId..'&text='..Util:urlencode(shareText..' '..contenttext)..Util:getRequestTail()
+            Log:write('postData1',postData1)
+            Http:request('qqWeibo',url,131,{useCache=false, method ='post', postData=postData1})
+        end
+end
+
+-- @brief @好友被点击
+function fansOnSelect(sprite)
+    local select1 = Sprite:findChild(sprite,'select1')
+    local isVisible = Sprite:isVisible(select1)
+    local friendName = Sprite:getData(sprite)
+    local shengyu = Sprite:findChild(rootSprite,'shengyu')
+    local content = Sprite:findChild(shareArea,'content')
+    local shareText = Sprite:findChild(shareArea,'shareText')    
+    local sharetext = Sprite:getText(shareText)
+    local txt = Sprite:getText(content)
+    local templen = txt..sharetext
+    local len = GetStringLen(templen)
+    if isVisible == 0 then   	
+    	if (len+1+GetStringLen(friendName)) <= 121 then
+	        Sprite:setVisible(select1,1)
+	        Sprite:setProperty(shareText,'text',sharetext..'@'..friendName) 
+        end       
+    else
+        Sprite:setVisible(select1,0)
+        Sprite:setProperty(shareText,'text',string.gsub(sharetext,'@'..friendName,''))               
+    end
+    local x,y,w,h = Sprite:getRect(shareText)
+    Sprite:setRect(content,x,y+h,w,225-h)
+    setShengyuCount()
+end
+
+----------------------------------------------剧集----------------------------------------
+
+function createJujiList()
+    ListView:removeAllItems(jujiListview, 1, 1)
+    if playopenData.contents and playopenData.contents[0] then
+        ListView:loadItem(jujiListview, jujiListviewItem, #playopenData.contents+1, 'jujiItemOnLoad')
+    end
+    
+    ListView:adjust(jujiListview)
+end
+
+function jujiItemOnLoad(list, item, index)
+    Sprite:setRect(item, 0,10,150,60)
+    Sprite:setProperty(item, 'extendstyle', '1010')
+    --if index == 0 then                       --设置底部listview第一个item显示红色
+        --onlinebtn = Sprite:findChildByClass(item,'button') 
+        --Sprite:setEnable(onlinebtn,0)
+    --end 
+    Sprite:setEnable(item,1)
+    --local btn1 = Sprite:findChild(item, 'btn1')
+    --Sprite:setProperty(btn1,'text',playopenData.contents[index].name)
+    local nLabel = Sprite:findChild(item, 'nLabel')
+    local dLabel = Sprite:findChild(item, 'dLabel')
+    Sprite:setProperty(nLabel,'text',playopenData.contents[index].name)
+    Sprite:setProperty(dLabel,'text',playopenData.contents[index].name)
+    
+end
+
+function jujiOnSelect(sprite)
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    saveHistory()
+    local item = Sprite:getParent(sprite)
+    local index = ListView:getItemIndex(item)
+    disableJujiButton(index)
+    local requrl = playopenData.contents[index].reqPlayUrl
+    Http:request('b01LeftListviewData', requrl, 121, {useCache = false, method = 'post', postData = Util:getRequestTail()})
+end
+
+-- @brief disable 剧集列表分类按钮
+function disableJujiButton(index)
+    local curIndex = index and index or 0
+    Log:write('curIndex==disableLeftListviewButton=111==',curIndex)
+    local list = Sprite:findChild(rootSprite, 'jujiListview')
+    local listviewCount = ListView:getItemCount(list)
+    for i=0, listviewCount-1 do
+        local item = ListView:getItem(list, i)
+        Sprite:setEnable(Sprite:findChildByClass(item, 'button'), 1)
+    end
+    local curItem = ListView:getItem(list, curIndex)
+    local button = Sprite:findChildByClass(curItem, 'button')
+    Sprite:setEnable(button, 0)
+end
+
+-- @brief 温馨提示 关闭按钮
+function wenxinTipsCloseBtnOnSelect(sprite)
+	Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    local wenxinTipsCloseBtn = Sprite:findChild(rootSprite, 'wenxinTipsCloseBtn')
+    Sprite:setVisible(wenxinTips,0)
+    Sprite:setEnable(wenxinTips,0)
+end 
+
+-- @brief 温馨提示 回首页按钮
+function wenxinTipsBtnOnSelect(sprite)
+	Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    local wenxinTipsBtn = Sprite:findChild(rootSprite, 'wenxinTipsBtn')
+    saveHistory()
+    Scene:go(Alias.home)
+end 
+
+function panelLoginBycooperator(sprite)
+    local reg_weibo = Reg:create(Reg.com_wondertek_cnlive2.weibo)
+    local clickIndex = List:getItemIndex(Sprite:getParent(sprite))
+    Reg:setString(reg_weibo,'fromWhere',clickIndex + 1)
+    local getAuthUrl = Util:getServer() .. Sprite:getData(sprite) 
+    Http:request('get_auth_url', getAuthUrl, 118, {useCache = false,method='post', postData = Util:getRequestTail()})
+end
+
+function cooperatorItemOnLoad(list, item, index)
+    local cooperatorImageTable = {'file://image/sina.png', 'file://image/tengxun.png'}
+    local authUrlActionTable = {'clt/sinaAuthUrl.msp', 'clt/qqAuthUrl.msp'}
+    Sprite:setProperty(item, "extendstyle", "1111")
+    Sprite:setRect(item, 0, 0, 84, 86)
+    Sprite:setProperty(Sprite:findChildByClass(item, 'image'), "src", cooperatorImageTable[index + 1])
+    Sprite:setProperty(Sprite:findChildByClass(item, 'button'), "data", authUrlActionTable[index + 1])
+end
+
+    ]]>
+</root>

@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: gaoyonglei <gaoyonglei@wdit.com.cn>
+ == ============================================================================
+ == | Desc: home展开页
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="640,960" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,640,960" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image rect="0,0,640,960" style="autosize" src="file://image/background_nofont.png" extendstyle="1111" />
+            <listview name="biglistview" foreground="foreground" rect="0,70,640,821" padding="0,0,70,0" extendstyle="1116">
+                <list-item name="foreground" rect="610,10,23,800" extendstyle="1000">
+                    <button rect="0,0,23,800" extendstyle="1000" OnMouseDown="listOnMouseDown" OnMouseMove="listOnMouseMove" OnMouseUp="listOnMouseUp">
+                        <image rect="0,0,23,800" extendstyle="1111" style="autosize" src="file://image/home_letterbg.png"/>
+                        <list name="letterList" rect="3,-3,0,0" extendstyle="0077" col="1" line="26" auto-adjust="true"/>
+                    </button>
+                </list-item>
+            </listview>
+            <button rect="610,80,23,800" extendstyle="1000" OnMouseDown="listOnMouseDown" OnMouseMove="listOnMouseMove" OnMouseUp="listOnMouseUp"/>
+            <node name="letterNode" rect="270,430,100,100" extendstyle="1000" visible="false">
+                <shadow rect="0,0,0,0" extendstyle="0077" color="#0" alpha="200"/>
+                <label name="letterLbl" rect="0,0,0,0" extendstyle="0077" text="" font-size="40" color="#ffffff" v-align="center" h-align="center"/>
+            </node>
+        </node>
+        
+        <node name="letteitem" rect="0,0,20,80" extendstyle="1111">
+            <label name="label" rect="0,0,0,0" extendstyle="1111" text="" font-size="20"  v-align="center" h-align="center" color="#ffffff"/>
+        </node>
+        
+        <!-- 列表加载模板 -->
+        <node name="picitem" rect="0,0,210,290" extendstyle="1111" enable="false" visible="false" active="false">
+                <button name="picbtn" rect="10,12,200,200" extendstyle="1000"  OnSelect="picBtnOnSelect">            
+                    <image rect="0,0,200,200" extendstyle="1100" style="autosize" src="file://image/tv_content_bg.png"/>                                    
+                	<image name="tv_bg" rect="9,9,182,182" extendstyle="1100" style="autosize" src="" dftsrc="file://image/home_recommend2.png"/> 
+                </button>
+                <label name="names" rect="10,220,200,30" extendstyle="1000" color="#000000" text="" postfix="..." font-size="22" h-align="left" v-align="center" />
+                <label name="bochu" rect="10,258,200,20" extendstyle="1000" color="#0" text="" postfix="..." font-size="20" h-align="left" v-align="center" />                
+        </node>
+        <node name="biglistviewItem" rect="0,0,640,290" enable="false" visible="false" active="false" extendstyle="1000">
+            <listview name="piclistview" rect="0,0,640,290" extendstyle="1000" limit="true" direction="horizontal"/>
+        </node>
+        <node name="letterItem" rect="0,0,640,340" visible="false" enable="false" extendstyle="0000">
+          <image rect="0,0,0,0" extendstyle="1077" src="" style="autosize"/>
+          <image name="img" rect="10,10,615,48" extendstyle="1000" style="sudoku-auto" sudoku="18,0,18,0" src="file://image/home_middlebg.png" />
+          <label name="btn" rect="30,15,400,40" text="A" color="#0" font-size="25" h-align="left" extendstyle="1000"/>
+          <listview name="list" rect="0,50,640,290" limit="true" direction="horizontal" extendstyle="1000"/>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_cnlive2.common.framework'
+local rootSprite
+local classShowTable = {"电视台", "正在播出", "直播影院", "直播剧场"} -- 导航显示
+local pictureList = {"","","","","","","","","","","","",""}
+local letterTable = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'}
+local list
+local biglistview
+local biglistviewItem
+local letterNode
+local letterLbl
+local indexList = {}
+local listcurindex = 0
+local letterTable1 = {}
+local currindex = 0
+local h = 0
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    classListBuild()
+    biglistview = Sprite:findChild(sprite, 'biglistview')
+    biglistviewItem = Sprite:findChild(sprite, 'biglistviewItem')
+    letterItem = Sprite:findChild(sprite, 'letterItem')
+    picitem = Sprite:findChild(rootSprite, 'picitem')
+    --ListView:loadItem(biglistview, biglistviewItem, 1, 'loadPictureList')
+    --ListView:loadItem(biglistview, letterItem, 26, 'loadListItem')
+    letterList = Sprite:findChild(rootSprite, 'letterList')
+    letteitem = Sprite:findChild(rootSprite, 'letteitem')
+    letterNode = Sprite:findChild(rootSprite, 'letterNode')
+    letterLbl = Sprite:findChild(letterNode, 'letterLbl')
+    piclistviewBuild()
+    --ListView:adjust(biglistview)
+    requestData()
+end
+
+function requestData()
+    local reg = Reg:create(Reg.com_wondertek_cnlive2.tvspread)
+    local moreUrl = Reg:getString(reg,'moreUrl')
+    local url,postData = getUrlAndPostdata(moreUrl)
+    Log:write('url===',url)
+    --local url = Util:getServer()..'pages/clt/v1/moreTVList.jsp'
+    Http:request('TVData',url,101,{useCache=false,method = 'post',postData=postData..Util:getRequestTail()})
+    --Http:request('TVData',url,101,{useCache=false,method = 'post'})
+    Loading:show(rootSprite)
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        local reg = Reg:create(Reg.com_wondertek_cnlive2.tvspread)
+        local isFromHome = Reg:getNumber(reg,'isFromHome')
+        if isFromHome == 1 then
+            Menu:load(rootSprite,Menu.TYPE.home)
+        elseif isFromHome == 0 then 
+            Menu:load(rootSprite,Menu.TYPE.channel)
+        end
+        local visiableNodeTable= {'topReturnButton'}
+        setTopMenuStatus(visiableNodeTable, 1,'电视台')
+    elseif msg == MSG_DEACTIVATE then
+        Tips:close()
+        Scene:freeByHandle(rootSprite)
+        if Loading:isShow() then Loading:close() end
+    else
+        Util:onSpriteEvent(msg, param)
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then
+        if Loading:isShow() then Loading:close() end
+        TVData = Http:jsonDecode('TVData')
+        Log:write('4444444444444',TVData)
+        if TVData and TVData.nodes then
+            if TVData.nodes[0].A then
+                table.insert(letterTable1,{name='A',tvs=TVData.nodes[0].A})
+            end
+            if TVData.nodes[0].B then
+                table.insert(letterTable1,{name='B',tvs=TVData.nodes[0].B})
+            end
+            if TVData.nodes[0].C then
+                table.insert(letterTable1,{name='C',tvs=TVData.nodes[0].C})
+            end
+            if TVData.nodes[0].D then
+                table.insert(letterTable1,{name='D',tvs=TVData.nodes[0].D})
+            end
+            if TVData.nodes[0].E then
+                table.insert(letterTable1,{name='E',tvs=TVData.nodes[0].E})
+            end
+            if TVData.nodes[0].F then
+                table.insert(letterTable1,{name='F',tvs=TVData.nodes[0].F})
+            end
+            if TVData.nodes[0].G then
+                table.insert(letterTable1,{name='G',tvs=TVData.nodes[0].G})
+            end
+            if TVData.nodes[0].H then
+                table.insert(letterTable1,{name='H',tvs=TVData.nodes[0].H})
+            end
+            if TVData.nodes[0].I then
+                table.insert(letterTable1,{name='I',tvs=TVData.nodes[0].I})
+            end
+            if TVData.nodes[0].J then
+                table.insert(letterTable1,{name='J',tvs=TVData.nodes[0].J})
+            end
+            if TVData.nodes[0].K then
+                table.insert(letterTable1,{name='K',tvs=TVData.nodes[0].K})
+            end
+            if TVData.nodes[0].L then
+                table.insert(letterTable1,{name='L',tvs=TVData.nodes[0].L})
+            end
+            if TVData.nodes[0].M then
+                table.insert(letterTable1,{name='M',tvs=TVData.nodes[0].M})
+            end
+            if TVData.nodes[0].N then
+                table.insert(letterTable1,{name='N',tvs=TVData.nodes[0].N})
+            end
+            if TVData.nodes[0].O then
+                table.insert(letterTable1,{name='O',tvs=TVData.nodes[0].O})
+            end
+            if TVData.nodes[0].P then
+                table.insert(letterTable1,{name='P',tvs=TVData.nodes[0].P})
+            end
+            if TVData.nodes[0].Q then
+                table.insert(letterTable1,{name='Q',tvs=TVData.nodes[0].Q})
+            end
+            if TVData.nodes[0].R then
+                table.insert(letterTable1,{name='R',tvs=TVData.nodes[0].R})
+            end
+            if TVData.nodes[0].S then
+                table.insert(letterTable1,{name='S',tvs=TVData.nodes[0].S})
+            end
+            if TVData.nodes[0].T then
+                table.insert(letterTable1,{name='T',tvs=TVData.nodes[0].T})
+            end
+            if TVData.nodes[0].U then
+                table.insert(letterTable1,{name='U',tvs=TVData.nodes[0].U})
+            end
+            if TVData.nodes[0].V then
+                table.insert(letterTable1,{name='V',tvs=TVData.nodes[0].V})
+            end
+            if TVData.nodes[0].W then
+                table.insert(letterTable1,{name='W',tvs=TVData.nodes[0].W})
+            end
+            if TVData.nodes[0].X then
+                table.insert(letterTable1,{name='X',tvs=TVData.nodes[0].X})
+            end
+            if TVData.nodes[0].Y then
+                table.insert(letterTable1,{name='Y',tvs=TVData.nodes[0].Y})
+            end
+            if TVData.nodes[0].Z then
+                table.insert(letterTable1,{name='Z',tvs=TVData.nodes[0].Z})
+            end
+            ListView:loadItem(biglistview, letterItem, #letterTable1, 'loadListItem')
+            ListView:adjust(biglistview)
+            
+            List:removeAllItems(letterList)
+            List:loadItem(letterList,letteitem,#letterTable,'loadLetterItem')
+            List:adjust(letterList)      
+        end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    else
+        Util:onPluginEvent(msg, param)
+    end
+end
+
+function getUrlAndPostdata(url)  --解析url
+    local resulturl = Util:split(url,'?')
+    return resulturl[1],resulturl[2]
+end
+
+-- @brief 返回
+function returnOnSelect(sprite)
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    Scene:back()
+end
+
+-- @brief 展开按钮点击
+function spreadOnSelect(sprite)
+	Log:write('spreadOnSelect')
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    local reg = Reg:create(Reg.com_wondertek_cnlive2.homespread)
+    Reg:setInteger(reg, 'listcurindex', listcurindex)
+    Log:write('listcurindex====tvspread==',listcurindex)
+    if listcurindex == 0 then
+        Scene:go(Alias.home,true)
+    else
+        Scene:go(Alias.home,true)
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        if Loading:isShow() then 
+        	Loading:close()
+        	return 
+        end
+        Dialog:show('', '是否确定退出？', 'ok_cancel', 'Cb_doExit')
+        return 1
+    end
+end
+
+-- @brief 分类list加载 
+function loadClassList(list, item, index)
+    Sprite:setRect(item, 0,0,130,50)
+    Sprite:setProperty(item, 'extendstyle', '1000')
+    local button = Sprite:findChildByClass(item, 'button')
+    --Sprite:setProperty(button, 'data', classShowTable[index+1].url)
+    local nLabel = Sprite:findChild(button, 'nLabel')
+    local dLabel = Sprite:findChild(button, 'dLabel')
+    Sprite:setProperty(nLabel, 'text', classShowTable[index+1])
+    Sprite:setProperty(dLabel, 'text', classShowTable[index+1])
+    if index == #classShowTable-1 then
+        Sprite:setVisible(Sprite:findChildByClass(item, 'image'), 0)
+        Sprite:setEnable(Sprite:findChildByClass(item, 'image'), 0)
+    end
+end
+
+-- @brief 列表list加载 
+function loadPictureList(list, item, index)
+    Sprite:setRect(item, 0,0,200,290)
+    Sprite:setProperty(item, 'extendstyle', '1000')
+    local button = Sprite:findChildByClass(item, 'button')
+    Sprite:setProperty(button, 'data', letterTable1[currindex+1].tvs[index].nodeId..','..letterTable1[currindex+1].tvs[index].contId)
+    local nLabel = Sprite:findChild(button, 'nLabel')
+    local dLabel = Sprite:findChild(button, 'dLabel')
+    Sprite:setProperty(nLabel, 'text', pictureList[index+1])
+    Sprite:setProperty(dLabel, 'text', pictureList[index+1])
+    
+    local tv_bg = Sprite:findChild(item,'tv_bg')
+    local names = Sprite:findChild(item,'names')
+    local bochu = Sprite:findChild(item,'bochu')
+    local picbtn = Sprite:findChild(item,'picbtn')
+    Sprite:setProperty(picbtn, 'data',(currindex+1))
+    Sprite:setProperty(tv_bg, 'src', letterTable1[currindex+1].tvs[index].image)
+    Sprite:setProperty(names, 'text', letterTable1[currindex+1].tvs[index].name)
+    Sprite:setProperty(bochu, 'text', ("正在播出："..letterTable1[currindex+1].tvs[index].livingName))
+    --Sprite:setProperty(names, 'data', letterTable1[currindex+1].tvs[index].nodeId)
+    --Sprite:setProperty(bochu, 'text', '在线人数:'..letterTable1[currindex+1].tvs[index].onlineNum)
+end
+
+function loadLetterItem(list,item,index)
+    h = 800/26
+    Log:write('0000000000000000000000000',h)
+    Sprite:setRect(item, 0,0,20,h)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    
+    local label = Sprite:findChild(item,'label')
+    Sprite:setProperty(label, 'text', letterTable[index+1])
+    Sprite:setRect(label, 0,0,20,h)
+end
+
+-- @brief 分类按钮响应 
+function classBtnOnSelect(sprite)
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    Log:write('classBtnOnSelect===')
+    local item = Sprite:getParent(sprite)
+    local index = ListView:getItemIndex(item)
+    disableClassButton(index)
+    listcurindex = index
+    local reg = Reg:create(Reg.com_wondertek_cnlive2.homespread)
+    Reg:setInteger(reg, 'listcurindex', listcurindex)
+    Log:write('listcurindex====classBtnOnSelect==',listcurindex)
+    if index == 0 then
+        Scene:go(Alias.tvspread)
+    else
+        Scene:go(Alias.homespread)
+    end
+end
+
+function listOnMouseDown(sprite, x, y)
+    local index
+    if math.floor(y / h) > 25 then
+        index = 25
+    elseif math.floor(y / h) < 0 then
+        index = 0
+    else
+        index = math.floor(y / h)
+    end
+    local item = List:getItem(letterList, index)
+    local label = Sprite:findChild(item, 'label')
+    local letter = Sprite:getText(label)
+    Sprite:setVisible(letterNode, 1)
+    Log:write('5555555555555555',letter)
+    Sprite:setProperty(letterLbl, 'text', letter)
+    Log:write('indexList[letter]===',indexList[letter])
+    if indexList[letter] then
+        ListView:setItemToTop(biglistview, indexList[letter]-1)
+    end
+    return 0
+end
+
+function listOnMouseMove(sprite, x, y)
+    local index
+    if math.floor(y / h) > 25 then
+        index = 25
+    elseif math.floor(y / h) < 0 then
+        index = 0
+    else
+        index = math.floor(y / h)
+    end
+    Log:write('66666666666666666666666',x..'+'..y..'='..index)
+    local item = List:getItem(letterList, index)
+    local label = Sprite:findChild(item, 'label')
+    local letter = Sprite:getText(label)
+    Log:write('5555555555555555',item)
+    Sprite:setProperty(letterLbl, 'text', letter)
+    if indexList[letter] then
+        ListView:setItemToTop(biglistview, indexList[letter]-1)
+    end
+    return 0
+end
+
+function listOnMouseUp(sprite, x, y)
+    Sprite:setVisible(letterNode, 0)
+    return 0
+end
+
+-- @brief 加载listitem的回调函数
+function loadListItem(list, item, index)
+    Log:write('44444444444',index)
+    Sprite:setProperty(item, 'extendstyle', '1000')
+    local btn = Sprite:findChild(item,'btn')
+    Sprite:setProperty(btn, 'text', letterTable1[index+1].name)
+    indexList[letterTable1[index+1].name] = index+1
+    currindex = index
+    list = Sprite:findChild(item, 'list')
+    Sprite:setRect(item, 0, 0, 640, 340)
+    ListView:loadItem(list, picitem, #letterTable1[index+1].tvs+1, 'loadPictureList')
+    ListView:adjust(list)
+end
+
+---------------------------------------util functions---------------------------
+-- @brief 分类list创建
+function classListBuild()
+    local list = Sprite:findChild(rootSprite, 'classlist')
+    local item = Sprite:findChild(rootSprite, 'classitem')
+    ListView:removeAllItems(list, 1, 1)
+    Log:write('classShowTable', classShowTable)
+    ListView:loadItem(list, item, #classShowTable, 'loadClassList')
+    ListView:adjust(list)
+end
+
+-- @brief 分类list创建
+function piclistviewBuild()
+    local list = Sprite:findChild(rootSprite, 'piclistview')
+    local item = Sprite:findChild(rootSprite, 'picitem')
+    ListView:removeAllItems(list, 1, 1)
+    Log:write('pictureList===', pictureList)
+    --ListView:loadItem(list, item, #pictureList, 'loadPictureList')
+    ListView:loadItem(list, item, #pictureList, 'loadPictureList')
+    ListView:adjust(list)
+end
+
+-- @brief disable分类按钮
+function disableClassButton(index)
+    local curIndex = index and index or 0
+    local list = Sprite:findChild(rootSprite, 'classlist')
+    local listviewCount = ListView:getItemCount(list)
+    local disableItem = ListView:getItem(list, curIndex)
+    for i=0, listviewCount-1 do
+        local item = ListView:getItem(list, i)
+        Sprite:setEnable(Sprite:findChildByClass(item, 'button'), 1)
+    end
+    local curItem = ListView:getItem(list, curIndex)
+    local button = Sprite:findChildByClass(curItem, 'button')
+    Sprite:setEnable(button, 0)
+end
+
+function picBtnOnSelect(sprite)
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+	local item = Sprite:getParent(sprite)
+    local names = Sprite:findChild(item,'names')
+    local bochu = Sprite:findChild(item,'bochu')
+    
+    local contentName = Sprite:getText(names)
+    local reg = Reg:create(Reg.com_wondertek_cnlive2.dianshitai_detail)
+    Reg:setString(reg,'listType','8')
+    Reg:setString(reg,'tvName',contentName)
+    local picitem = Sprite:getParent(sprite)
+    local index = ListView:getItemIndex(picitem)
+    local currindex1 = tonumber(Sprite:getData(sprite))
+    --Reg:setString(reg,'image',letterTable1[currindex1].tvs[index].image or '')
+    --Reg:setString(reg,'livingName',letterTable1[currindex1].tvs[index].livingName or '')
+    --Reg:setString(reg,'nodeUrl',letterTable1[currindex1].tvs[index].nodeUrl or '')
+    --Reg:setString(reg,'nid',letterTable1[currindex1].tvs[index].nodeId or '')
+    --Reg:setString(reg,'cid',letterTable1[currindex1].tvs[index].contId or '')
+    Reg:setString(reg,'channelUrl',letterTable1[currindex1].tvs[index].channelUrl)
+    Scene:setReturn(Alias.tvspread,Alias.dianshitai_detail)
+    Scene:go(Alias.dianshitai_detail)
+end
+
+    ]]>
+</root>

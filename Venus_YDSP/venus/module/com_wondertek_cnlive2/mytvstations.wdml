@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: yaoxiangyin <yaoxiangyin@wdit.com.cn>
+ == ============================================================================
+ == | Desc: 我的电视台
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="640,960" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,640,960" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image rect="0,0,640,960" extendstyle="1111" style="autosize" src="file://image/background_nofont.png" />
+            <!-- 顶部状态栏 -->
+            <button name="bottomBtn" rect="0,0,640,960" extendstyle="1111" />
+            <listview name="TVStationList" rect="0,70,640,820" padding="0,0,70,0" extendstyle="1116">
+                <image name="listViewBg" rect="0,0,640,820" extendstyle="1010" style="autosize" src="" />
+            	<label rect="67,360,340,50" extendstyle="1010" name="tips" text="请登录后查看收藏的信息" visible="0" color="#0" font-size="25" v-align="center" h-align="center"/>
+                <button name="loginBtn" normal="normal" sel="sel" rect="425,372,156,56" extendstyle="1111" OnSelect="loginBtnOnSelect" visible="0" enable="0">
+                    <image name="normal" rect="0,0,100,56" extendstyle="1111" style="autosize" src="file://image/account_log_btn_n.png" />
+                    <image name="sel" rect="0,0,100,56" extendstyle="1111" style="autosize" src="file://image/account_log_btn_f.png" />
+                    <label rect="0,0,100,56" extendstyle="1111" font-size="22" color="#ffffff" v-align="center" h-align="center" text="登录" />
+                </button>
+            </listview>
+            <node name="lineItem" rect="0,0,640,360" extendstyle="1010" visible="false" enable="false" >
+                <image rect="0,0,640,70" extendstyle="1011" style="tile" src="file://image/subtitle_bg.png" />
+                <label name="lineTitle" rect="40,0,600,70" extendstyle="1010" v-align="center" color="#a40c0c" font-size="30" />
+                <listview name="lineListview" rect="10,80,630,280" OnDrop="listviewOnDrop" extendstyle="1010" limit="true" direction="horizontal" />
+            </node>
+            <node name="channelItem" rect="0,0,210,280" extendstyle="1000" visible="false" enable="false" >
+                <button name="playbtn" rect="0,20,197,197" extendstyle="1000" OnSelect="channelItemOnSelect">
+                    <image rect="0,0,197,197" extendstyle="1100" style="autosize" src="file://image/tv_content_bg.png" />
+                    <image name="channelItemImg" rect="7,7,182,182" extendstyle="1100" style="autosize" src="" dftsrc="file://image/home_recommend2.png" />
+                </button>
+                <button name="deleteBtn" rect="170,0,38,39" extendstyle="0000" visible="false" enable="false" OnSelect="deleteCurItem" >
+                    <image rect="0,0,38,39" extendstyle="0000" style="autosize" src="file://image/search_dialog_close_f.png" />
+                </button>
+                <label name="contentName" rect="0,210,197,70" extendstyle="1000" color="#000000" text="" postfix="..." font-size="25" v-align="center" h-align="center" />
+            </node>
+            <node name="movieItem" rect="0,0,210,280" extendstyle="1010" visible="false" enable="false" >
+                <button name="playbtn" rect="0,20,197,197" extendstyle="1000" OnSelect="contentItemOnSelect">
+                    <image rect="0,0,197,197" extendstyle="1100" style="autosize" src="file://image/tv_content_bg.png" />
+                    <image name="movieItemImg" rect="7,7,182,182" extendstyle="1100" style="autosize" src="" dftsrc="file://image/home_recommend2.png" />
+                </button>
+                <button name="deleteBtn" rect="170,0,38,39" extendstyle="0000" visible="false" enable="false" OnSelect="deleteCurItem" >
+                    <image rect="0,0,38,39" extendstyle="0000" style="autosize" src="file://image/search_dialog_close_f.png" />
+                </button>
+                <label name="contentName" rect="0,210,197,70" extendstyle="1000" color="#000000" text="" postfix="..." font-size="25" v-align="center" h-align="center" />
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_cnlive2.common.framework'
+local rootSprite
+local IsDelectStatus = 0
+local deleteBtnTable = {}
+local subTitleTable = {}
+local favDataTable ={}
+local typeTable ={}
+local dragFlag = 0
+local listTitleTable = {'电影', '电视剧', '综艺', '动漫', '原创'}
+local favoritesid = '-1'
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    TVStationList = Sprite:findChild(sprite , 'TVStationList')
+    lineItem = Sprite:findChild(sprite , 'lineItem')
+    channelItem = Sprite:findChild(sprite , 'channelItem')
+    movieItem = Sprite:findChild(sprite , 'movieItem')
+    bottomBtn = Sprite:findChild(sprite , 'bottomBtn')
+    listViewBg = Sprite:findChild(sprite , 'listViewBg')
+end
+
+
+function loginBtnOnSelect(sprite)
+    local reg = Reg:create(Reg.com_wondertek_cnlive2.personalcenter)
+    Reg:setNumber(reg,'myAccountflag','1')        
+    Scene:setReturn(Alias.mytvstations,Alias.personalcenter)
+    Scene:go(Alias.personalcenter)
+    return
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        Menu:load(rootSprite, Menu.TYPE.mytvstations)
+        setTopMenuStatus({'editButton'}, 1, '我的电视')
+        setTopMenuStatus({'finishButton'}, 0)
+        loadMyFavData()
+        local reg_authority = Reg:create('authority')
+        local userStatus = Reg:getInteger(reg_authority, 'userStatus')
+        tips = Sprite:findChild(rootSprite,'tips')
+        local loginBtn = Sprite:findChild(rootSprite, 'loginBtn')
+        --if userStatus == 0 then
+            --setTopMenuStatus({'editButton'}, 0)
+        	--Sprite:setProperty(tips,'text','请登录后查看收藏的信息')
+            --Sprite:setVisible(tips,1)
+            --Sprite:setVisible(loginBtn, 1)
+            --Sprite:setEnable(loginBtn, 1)
+       -- else
+        	--Sprite:setVisible(tips,0)
+            --Sprite:setVisible(loginBtn, 0)
+            --Sprite:setEnable(loginBtn, 0)
+            local FavoriteListUrl = Util:getServer()..'clt/getFavoriteList.msp'
+            Log:write('FavoriteListUrl===',FavoriteListUrl)
+            local account, password = getAccountAndPasswordFromLocal()
+            Http:request('FavoriteList',FavoriteListUrl,101,{useCache = false, method = 'post', postData = 'loginName='..account..Util:getRequestTail()})
+            --Log:write('loginName='..account..Util:getRequestTail())
+            Loading:show(rootSprite)
+        --end
+        Sprite:setEnable(bottomBtn, 0)
+    elseif msg == MSG_DEACTIVATE then
+        Tips:close()
+        if Loading:isShow() then Loading:close() end
+        Scene:freeByHandle(rootSprite)
+    else
+        Util:onSpriteEvent(msg, param)
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then
+        if Loading:isShow() then Loading:close() end
+        FavoriteList = Http:jsonDecode('FavoriteList')
+        Log:write('FavoriteList===',FavoriteList)
+        if FavoriteList then
+            createMyTVStationList()
+        end
+    elseif msg == 102 then
+        orderList = Http:jsonDecode('orderList')
+        if orderList and orderList.resultCode == '1' then
+            Tips:show('已重新排序')
+        end
+    elseif msg == 103 then
+        delData = Http:jsonDecode('delData')
+        if delData and delData.resultCode == '1' then
+            Tips:show('已删除')
+            local FavoriteListUrl = Util:getServer()..'clt/getFavoriteList.msp'
+            local account, password = getAccountAndPasswordFromLocal()
+            Http:request('FavoriteList',FavoriteListUrl,104,{useCache = false, method = 'post', postData = 'loginName='..account..Util:getRequestTail()})
+        end
+    elseif msg == 104 then
+        FavoriteList = Http:jsonDecode('FavoriteList')
+        --Log:write('FavoriteList===',FavoriteList)
+        if FavoriteList then
+            createMyTVStationList()
+            changeListItemStatus('edit')           
+        end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    else
+        Util:onPluginEvent(msg, param)
+    end
+end
+
+-- @brief 返回
+function returnOnSelect(sprite)
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    Scene:back()
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        if Loading:isShow() then 
+        	Loading:close()
+        	return 
+        end
+        Dialog:show('', '是否确定退出？', 'ok_cancel', 'Cb_doExit')
+        return 1
+    end
+end
+
+function createMyTVStationList()
+    deleteBtnTable = {}
+    ListView:removeAllItems(TVStationList, 1, 1) 
+    ListView:loadItem(TVStationList, lineItem, #FavoriteList.dataList+1, 'lineItemOnLoad')
+    ListView:adjust(TVStationList)
+    local x_bg, y_bg, w_bg, h_bg = Sprite:getRect(listViewBg)
+    Sprite:setRect(listViewBg, x_bg, y_bg, w_bg, 360*(#FavoriteList.dataList+1) > 820 and 360*(#FavoriteList.dataList+1) or 820 ) 
+end
+
+function lineItemOnLoad(list, item, index)
+    favoritesid = '-1'
+    Sprite:setProperty(item,"extendstyle","1000")
+    Sprite:setRect(item, 0, 0, 640, 360)
+    local lineListview = Sprite:findChild(item , 'lineListview')
+    local lineTitle = Sprite:findChild(item , 'lineTitle')   
+    currindex = index
+    --Log:write('currindex====00000000000',currindex)
+    if FavoriteList.dataList[index].mainNodeId == 8 then
+        dragFlag = 0
+        Sprite:setProperty(lineTitle,'text','我的'..FavoriteList.dataList[index].mainNodeName)
+        Sprite:setProperty(lineListview,'data',index + 1)
+        ListView:loadItem(lineListview, channelItem, FavoriteList.dataList[index].count, 'channelItemOnLoad')
+        
+    else
+        dragFlag = 1
+        Sprite:setProperty(lineTitle,'text','我的'..FavoriteList.dataList[index].mainNodeName)
+        Sprite:setProperty(lineListview,'data',index + 1)
+        ListView:loadItem(lineListview, movieItem, FavoriteList.dataList[index].count, 'movieItemOnLoad')
+    end
+    ListView:adjust(lineListview)
+end
+
+function channelItemOnLoad(list, item, index)
+	Log:write('channelItemImg====00000000000',favoritesid)
+    local typeIndex = tonumber(Sprite:getData(list))
+    local channelItemImg = Sprite:findChild(item , 'channelItemImg')
+    Sprite:setProperty(item, 'extendstyle', '1000')
+    Sprite:setRect(item, 0, 0, 210, 280)
+    Sprite:setProperty(item, 'drag', dragFlag)
+    Sprite:setProperty(Sprite:findChild(item , 'contentName'), 'text', FavoriteList.dataList[currindex].favoritesList[index].name)
+    Sprite:setProperty(Sprite:findChild(item , 'channelItemImg'), 'src', FavoriteList.dataList[currindex].favoritesList[index].image)
+    Log:write('channelItemImg====',FavoriteList.dataList[currindex].favoritesList[index].image)
+    deleteBtnTable[#deleteBtnTable + 1] = Sprite:findChild(item , 'deleteBtn')
+    Sprite:setProperty(item, 'data', FavoriteList.dataList[currindex].favoritesList[index].favoritesid)
+    Sprite:setProperty(Sprite:findChild(item , 'deleteBtn'), 'data', FavoriteList.dataList[currindex].favoritesList[index].favoritesid..';'..FavoriteList.dataList[currindex].mainNodeId)
+end
+
+function movieItemOnLoad(list, item, index)
+    local typeIndex = tonumber(Sprite:getData(list))
+    Sprite:setProperty(item,"extendstyle","1000")
+    Sprite:setRect(item, 0, 0, 210, 280)
+    Sprite:setProperty(item, 'drag', dragFlag)
+    Sprite:setProperty(Sprite:findChild(item , 'contentName'),'text', FavoriteList.dataList[currindex].favoritesList[index].name)
+    Sprite:setProperty(Sprite:findChild(item , 'movieItemImg'), 'src', FavoriteList.dataList[currindex].favoritesList[index].image)
+    Sprite:setProperty(Sprite:findChild(item , 'contentName'),'data', FavoriteList.dataList[currindex].favoritesList[index].name)
+    deleteBtnTable[#deleteBtnTable + 1] = Sprite:findChild(item , 'deleteBtn')
+    Sprite:setProperty(item, 'data', FavoriteList.dataList[currindex].favoritesList[index].favoritesid)
+    Sprite:setProperty(Sprite:findChild(item , 'deleteBtn'), 'data', FavoriteList.dataList[currindex].favoritesList[index].favoritesid..';'..FavoriteList.dataList[currindex].mainNodeId)
+end
+
+function showDeleteBtn(sprite, keyCode)
+    local flag = IsDelectStatus == 0 and 1 or 0
+    for i = 1, #deleteBtnTable do
+        Sprite:setVisible(deleteBtnTable[i], flag) 
+        Sprite:setEnable(deleteBtnTable[i], flag)
+    end
+    Sprite:setEnable(bottomBtn, flag)
+    IsDelectStatus = flag
+end
+
+function changeListItemStatus()
+	for i = 1, #deleteBtnTable do
+        Sprite:setVisible(deleteBtnTable[i], 1) 
+        Sprite:setEnable(deleteBtnTable[i], 1)
+    end
+    Sprite:setEnable(bottomBtn, flag)
+end
+
+function deleteCurItem(sprite)
+    local deldata = Sprite:getData(sprite)
+    local parmas = Util:split(deldata,';')
+    local delUrl = Util:getServer()..'clt/deleteFavorite.msp'
+    local account, password = getAccountAndPasswordFromLocal()
+    Http:request('delData',delUrl,103,{useCache = true, method = 'post', postData = 'loginName='..account..'&favoritesId='..parmas[1]..'&mn='..parmas[2]..Util:getRequestTail()})
+end
+
+function delayFreshListView()
+    loadMyFavData()
+    createMyTVStationList()
+    IsDelectStatus = 0
+    showDeleteBtn()
+end
+
+function listviewOnDrop(curItem)
+    list_drop = Sprite:getParent(curItem)
+    currid = Sprite:getData(curItem)
+    Timer:set(2, 1000, 'delaySaveMyFav')
+end
+
+function delaySaveMyFav()
+    local typeIndex = tonumber(Sprite:getData(list_drop))
+    local count = ListView:getItemCount(list_drop)
+    local flag = 0
+    local ids1 = '-1'
+    local ids2 = ''
+    local ids3 = ''
+    for i= 0, count - 1 do
+        local item = ListView:getItem(list_drop, i)
+        local id = Sprite:getData(item)
+        --Log:write('66666666666666',currids)
+        if flag == 0 then
+            if currid == id then
+                ids2 = id
+                flag = 1
+            else
+                ids1 = id
+            end
+        elseif flag == 1 then
+            ids3 = id
+            flag = 2
+        end 
+    end
+
+    local orderUrl = Util:getServer()..'clt/orderFavorite.msp'
+    local account, password = getAccountAndPasswordFromLocal()
+    Http:request('orderList',orderUrl,102,{useCache = true, method = 'post', postData = 'loginName='..account..'&targetId='..ids2..'&frontId='..ids1..'&behindId='..ids3..Util:getRequestTail()})
+    --Log:write('loginName='..account..'&targetId='..ids2..'&frontId='..ids1..'&behindId='..ids3..Util:getRequestTail())
+end
+
+function loadMyFavData()
+    local tempTable = {'我的电视台','我的栏目','我的电影','我的电视剧','我的综艺','我的动漫','我的原创'}
+    subTitleTable = {}
+    favDataTable = {}
+    typeTable ={}
+    local k = 1
+    for i = 1,#tempTable do
+        local data = loadLocalDataFromXml(Reg.com_wondertek_cnlive2.favorite, 'USERDATA:\\favorite2.xml', 'favoriteContent'..i)
+        if data and #data>0 then
+            subTitleTable[k] = tempTable[i]
+            favDataTable[k] = data
+            typeTable[k] = i
+            k = k + 1
+        end
+    end
+    --Log:write('favDataTable',favDataTable)
+end
+
+function editButtonOnSelect(sprite)
+    showDeleteBtn(1)
+    setTopMenuStatus({'editButton'}, 0)
+    setTopMenuStatus({'finishButton'}, 1)
+end
+
+function finishButtonOnSelect(sprite)
+    showDeleteBtn(0)
+    setTopMenuStatus({'editButton'}, 1)
+    setTopMenuStatus({'finishButton'}, 0)
+end
+
+function channelItemOnSelect(sprite)
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    local item = Sprite:getParent(sprite)
+    local index = ListView:getItemIndex(item)
+    local list = Sprite:getParent(item) 
+    local lineItem = Sprite:getParent(list)
+    local currindex = ListView:getItemIndex(lineItem)
+    local reg = Reg:create(Reg.com_wondertek_cnlive2.dianshitai_detail)
+    Reg:setString(reg,'channelUrl',FavoriteList.dataList[currindex].favoritesList[index].channelUrl)
+    Reg:setString(reg,'listType','8')
+    Log:write('channelUrl===',FavoriteList.dataList[currindex].favoritesList[index].channelUrl)
+    Scene:setReturn(Alias.mytvstations,Alias.dianshitai_detail)
+    Scene:go(Alias.dianshitai_detail)
+end
+
+
+function contentItemOnSelect(sprite)
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    local item = Sprite:getParent(sprite)
+    local list = Sprite:getParent(item) 
+    local lineItem = Sprite:getParent(list)
+    local index = ListView:getItemIndex(item)
+    
+    local currindex = ListView:getItemIndex(lineItem)
+    local reg = Reg:create(Reg.com_wondertek_cnlive2.detail)
+    Reg:setString(reg,'contUrl',Util:getServer()..'pages/clt/v1/content.jsp?'..'c='..FavoriteList.dataList[currindex].favoritesList[index].contentId..'&type='..getType(FavoriteList.dataList[currindex].mainNodeName)..'&n='..FavoriteList.dataList[currindex].favoritesList[index].nodeId)
+    Reg:setString(reg,'contentName',FavoriteList.dataList[currindex].favoritesList[index].name)
+    Reg:setNumber(reg,'listType',tonumber(getType(FavoriteList.dataList[currindex].mainNodeName)))
+    Scene:setReturn(Alias.mytvstations,Alias.detail)
+    Scene:go(Alias.detail)
+end
+
+function getType(name)
+    for i=1,5 do
+        if listTitleTable[i] == name then
+            return i
+        end
+    end
+end
+
+
+
+---------------------------------------util functions---------------------------
+
+    ]]>
+</root>

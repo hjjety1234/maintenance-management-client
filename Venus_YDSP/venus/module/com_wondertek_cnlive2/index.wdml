@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: gaoyonglei <gaoyonglei@wdit.com.cn>
+ == ============================================================================
+ == | Desc: 登陆（入口）页
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="640,960" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,640,960" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image name="loginbg" rect="0,0,640,960" extendstyle="1111" style="autosize" src="file://image/login_bg.png"/>
+            <panorama name="panoramaNew" rect="0,0,640,960" visible="false" enable="false" OnKeyUp="panoramaOnKeyup" foreground="foreground" extendstyle="1111">
+                <panoramaitem rect="0,0,640,960" OnSelect = 'panoramaItemOnSelect' extendstyle="1111">
+                    <button name="recommendImg" rect="0,0,640,960" style="autosize" src="$(pimage)" extendstyle="1111" OnMouseDown="panoramaOnMouseDown" OnMouseMove="panoramaOnMouseMove" OnMouseUp="panoramaOnMouseUp"/>
+                    <button name="startUse" enable="false" visible="false" OnSelect = 'startUseOnSelect' rect="330,700,300,240" extendstyle="1111" />
+                </panoramaitem>
+                <dataset>
+                    <set pimage="file://image/guidepage01.jpg"/>
+                    <set pimage="file://image/guidepage02.jpg"/>
+                    <set pimage="file://image/guidepage03.jpg"/>
+                </dataset>
+                <panoramaitem name="foreground" rect="0,910,640,150" extendstyle="1111">
+                    <list name="foregroundList" rect="180,0,281,12" extendstyle="0000" line="1" col="3" auto-adjust="true" offset="15,10" />
+                </panoramaitem>
+            </panorama>
+            <label name="notice" rect="180,600,280,30" extendstyle="1111" text="" font-size="20" color="#0" v-align="center" h-align="center"/>
+            <node name="download" rect="180,650,280,28" extendstyle="1111" visible="false" enable="false">
+                <image rect="0,0,280,28" extendstyle="1111" style="sudoku-auto" sudoku="8,7,8,7" src="file://image/downloadbg.png"/>
+                <image name="downloadbar" rect="0,0,0,28" extendstyle="1111" style="sudoku-auto" sudoku="8,7,8,7" src="file://image/downloadbar.png"/>
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_cnlive2.common.framework'
+local rootSprite
+local checkResultData
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    System:setFontSize()
+    --WLAN:setUrl('http://www.10086.com/index.html', 'http://www.10086.com/index.html')
+    
+    local task = Download:getStatus()
+    local picName = Config:get("start_img_name")
+    if picName ~= nil and picName ~= '' then
+        for i=1, #task do
+            if task[i].title == picName then
+                if task[i].status == 4 then
+                    showStartImg()
+                elseif task[i].status == 3 or task[i].status == 5 then
+                    Download:start(i)
+                end
+            end
+        end
+    end
+    
+    --获取wduuid
+    local wduuid
+    if Config:get('wlan_support') == '1' then
+        wduuid = System:getMachineInfo(4)
+    else
+        wduuid = '12345678'
+    end
+    if wduuid == nil then wduuid = "12345678" end  
+    Config:set('wduuid', wduuid)
+    --获取wdclienttype
+    local wdclienttype
+    if Config:get('platform') == 'iOS' then
+        wdclienttype = '03'
+    else
+        wdclienttype = '04'
+    end
+    Config:set('wdclienttype', wdclienttype)
+    --获取wduseragent
+    local wduseragent = System:getUserAgent()
+    Config:set('wduseragent', wduseragent)
+    Log:write('==========111==========',Config:get('wduuid'))
+	  Log:write('==========222==========',Config:get('wdclienttype'))
+	  Log:write('==========333==========',Config:get('wduseragent'))
+    --创建用户信息文件夹
+    if not IO:dirExist('USERDATA:\\') then
+        IO:dirCreate('USERDATA:\\')  --创建用户信息文件夹，用于存放客户端升级后仍想保存下来的用户信息。
+    end
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then
+        connectNetwork()
+    elseif msg == MSG_DEACTIVATE then
+        Tips:close()
+        if Loading:isShow() then Loading:close() end
+    elseif msg == MSG_NETWORK then
+         Log:write('MSG_NETWORK ===111= ')
+        local paramStatus = param.networkstatus
+        local paramFlag = param.flag
+        Log:write('paramFlag ===111= ',paramFlag)
+        if paramStatus == NETWORK_CONNECTED then
+		         if Util:isIOSPlatform() then
+		             if paramFlag == 2 then
+		                 local reg = Reg:create(Util:getCurAppId())
+                     Reg:setString(reg, 'curConnect', 'WLAN')
+		             elseif paramFlag == 1 then
+		                 local reg = Reg:create(Util:getCurAppId())
+                     Reg:setString(reg, 'curConnect', 'CMWAP')
+		             end
+		             Timer:set(3,3000,'enterApp')
+		         else
+		            if WLAN:isSwitchOn() and Http:getCurConnect() == 'WLAN' then
+		            -- 如果支持wlan，并且优选wlan，并且wlan开启，并且wlan已经连接
+		                local curSSID = Util:getCurSSID()
+		                Log:write('DIALNET_CONNECTED curSSID = ', curSSID)
+		                WLAN:haveLogin(curSSID)
+		            else
+		                if Util:isIOSPlatform() then
+		                    --enterApp()
+		                    Timer:set(3, 3000, 'enterApp')
+		                else
+		                    checkClientVersion()
+		                end
+		            end 
+		         end
+        elseif paramStatus == NETWORK_ERROR then
+            Tips:show('当前网络中断！')
+            if Http:getCurConnect() == 'WLAN' then
+                Log:write('WLAN ===111= ')
+		            if param.errno == NETERR_TRANS_FAIL or param.errno == NETERR_TRANS_LOGIN then
+		                Log:write('WLAN ===222= ')
+		                Timer:set(1,10000,'netConnect')
+		            end
+		        else
+		            if param.errno == NETERR_TRANS_FAIL then
+		                Log:write('WLAN ===333= ')
+		                Timer:set(1,10000,'netConnect')
+		            elseif param.errno == NETERR_TRANS_INVALIDAPN then
+		                Log:write('WLAN ===444= ')
+		                if Loading:isShow() then Loading:close() end
+		                Tips:show('当前网络中断！')
+		            end
+		        end
+        end
+    elseif msg == MSG_WLAN then
+        local param1 = Param:getInteger(param, 0)
+        local param2 = Param:getInteger(param, 1)
+        local curSSID = Util:getCurSSID()
+        Log:write('MSG_WLAN param1 ================ ', param1)
+        Log:write('MSG_WLAN param2 ================ ', param2)
+        if param1 == 0 then -- haveLogin
+            if param2 == 1 then
+                if Util:isIOSPlatform() then
+                    --enterApp()
+                    Timer:set(3, 3000, 'enterApp')
+                else
+                    checkClientVersion()
+                end
+            else
+                --Tips:show('网络连接错误！')
+                Dialog:show('', '网络连接中断，是否重新连接？', 'ok_cancel', 'okOnSelect', 'Cb_doExit')
+            end
+        end    
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if Loading:isShow() then Loading:close() end
+    if msg == 101 then
+    	  checkResultData = Http:jsonDecode('index_checkVersionData')
+    	  Log:write('checkResultData===============',checkResultData)
+        if not checkResultData or type(checkResultData) ~= 'table' then
+        	  --enterApp()
+        	  Timer:set(3, 3000, 'enterApp')
+            return
+        end
+        local flag = checkResultData.flag
+        if flag == '0' then
+            --enterApp()
+            Timer:set(3, 3000, 'enterApp')
+        elseif flag == '1' then
+            Dialog:show('','发现新版客户端，是否立即升级？', 'ok_cancel', 'downloadClientPackage', 'cancelDownload')
+        elseif flag == '2' then
+            Dialog:show('','当前客户端版本过低，请立即升级！', 'ok', 'downloadClientPackage')
+        else
+        	  --enterApp()
+        	  Timer:set(3, 3000, 'enterApp')
+        end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    --else
+        --Util:onPluginEvent(msg, param)
+    --end
+    elseif msg == MSG_NETWORK_ERROR then
+        Tips:show('网络连接中断，请检查网络设置！')
+        Timer:set(3, 3000, 'enterApp')
+    elseif msg > MSG_NETWORK_ERROR then
+        Log:write('msg > MSG_NETWORK_ERROR==== ')
+        if Loading:isShow() then Loading:close() end
+        Tips:show('网络超时！')
+        Timer:set(3, 3000, 'enterApp')
+ 	end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        if Loading:isShow() then 
+        	Loading:close()
+        	return 
+        end
+        Scene:exit()
+        return 1
+    end
+end
+
+function okOnSelect(sprite)
+    Timer:set(5, 1, 'connectNetwork')
+end
+
+-- @brief 新手引导panoramaitem的OnSelect事件
+function panoramaItemOnSelect(sprite)
+    Log:write('panoramaItemOnSelect')
+    local panorama = Sprite:getParent(sprite)
+    local index = Panorama:getCurItem(panorama)
+    setPanoramaForeground(Sprite:findChild(panorama, 'foregroundList'), index)
+    if index == Panorama:getItemCount(panorama) - 1 then
+        Sprite:setVisible(Sprite:findChild(sprite, 'startUse'), 1)
+        Sprite:setEnable(Sprite:findChild(sprite, 'startUse'), 1)
+    end
+end
+
+function panoramaOnMouseDown(sprite, x, y)
+    mouseX, mouseY = x, y
+    return 0
+end
+
+function panoramaOnMouseMove(sprite, x, y)
+    moveX, moveY = x, y
+    return 0
+end
+
+function panoramaOnMouseUp(sprite, x, y)
+    Sprite:releaseCapture(sprite)
+    local diffX = mouseX - x
+    local diffY = mouseY - y
+    if diffX >= 50 and math.abs(diffX) >= math.abs(diffY) then -- 下一张图片
+        local panoramaItem = Sprite:getParent(sprite)
+        local index = Panorama:getItemIndex(panoramaItem)
+        if index == Panorama:getItemCount(Sprite:getParent(panoramaItem)) - 1 then
+            Scene:go(Alias.home)
+        end
+    end
+    return 0
+end
+
+-- @brief 开始使用按钮的OnSelect事件
+function startUseOnSelect(sprite)
+    Log:write('startUseOnSelect')
+    Scene:go(Alias.home)
+end
+
+---------------------------------------util functions---------------------------
+-- @brief 创建panorama的标识点
+function createPanoramaForeground(list, count)
+    Log:write('createPanoramaForeground================')
+    local _, y, _, h = Sprite:getRect(list)
+    local w1 = (12*count+24*(count-1))
+    local x1 = 180+(281-w1)/2
+    for i = 1, count do
+        local item = Sprite:create('listitem', list)
+        local img = Sprite:create('image', item)
+        Sprite:setRect(item, 0, 0, 12, 12)
+        Sprite:setProperty(item, 'extendstyle', '0000')
+        Sprite:setRect(img, 0, 0, 12, 12)
+        Sprite:setProperty(img, 'extendstyle', '0000')
+        Sprite:setName(img, 'img')
+        Sprite:setProperty(img, 'src', 'file://image/home_point.png')
+        Sprite:setProperty(img, 'style', 'autosize')
+        List:addItem(list, item)
+    end
+    Sprite:setRect(list, x1, y, w1, h)
+    Sprite:setProperty(list, 'extendstyle', '0000')
+    List:adjust(list)
+    setPanoramaForeground(list, 0)
+end
+
+-- @brief 设置panorama当前第几页的标识点
+function setPanoramaForeground(list, index)
+    if lastPanoramaPointIndex then
+        Sprite:setProperty(Sprite:findChild(List:getItem(list, lastPanoramaPointIndex), 'img'),
+            'src', 'file://image/home_point.png')
+    end
+    Sprite:setProperty(Sprite:findChild(List:getItem(list, index), 'img'),
+        'src', 'file://image/home_point_focus.png')
+    lastPanoramaPointIndex = index
+end
+
+-- @brief 联网
+function connectNetwork()
+    if Config:get('wlan_support') == '1' then
+        local isSwitchOn = WLAN:isSwitchOn()
+        Log:write('WLANIsSwitchOn', isSwitchOn)
+        if isSwitchOn then -- WLAN开关是否打开
+            attachedWLAN = WLAN:isAttach()
+            Log:write('attachedWLAN', attachedWLAN)
+            if attachedWLAN then -- 判断是否已附着到某个WLAN网络
+                Util:setCurSSID(attachedWLAN.ssid)
+                Http:connectWLAN(attachedWLAN.ssid)
+            else
+                --Tips:show('网络连接错误！')
+                --Dialog:show('', '未连接wlan网络，是否切换移动网络登陆？', 'ok_cancel', 'connectCellularNetwork', 'Cb_doExit')
+            end
+        else
+            connectCellularNetwork()
+        end
+    else
+        Http:connectCMWAP()-- win32平台上联网流程
+        Timer:set(3, 3000, 'enterApp')
+        --enterApp()
+        --checkClientVersion()
+    end
+end
+
+function connectCellularNetwork()
+    local APNtype = Http:getCurrentAPNType()
+    if APNtype == 1 then                     -- Net网
+        Http:setProxy('')
+    elseif APNtype == 2 then                 --移动wap
+        Http:setProxy('http://10.0.0.172:80/')
+    elseif APNtype == 3 then                 --电信wap
+        Http:setProxy('http://10.0.0.200:80/')
+    elseif APNtype == 4 then                 --联通wap
+        Http:setProxy('http://10.0.0.172:80/')
+    else
+        Http:setProxy('')
+    end
+    Http:connectCMWAP()
+end
+
+-- @brief 客户端版本检测
+function checkClientVersion()
+    local clientName
+    if Config:get('platform') == 'iOS' then
+        clientName = 'CNLive-iPhone-Client'
+    else
+        clientName = 'CNLive-Android-Phone-Client'
+    end
+	  local url = Config:get('server') .. 'clt/update.msp'
+    Http:request('index_checkVersionData', url, 101, {useCache = false, method = 'post', postData = 'version='..Config:get('app_version')..'&clientName='..clientName..Util:getRequestTail()})
+end
+
+-- @brief 取消升级
+function cancelDownload()
+	  enterApp()
+end
+
+-- @brief 客户端下载
+function downloadClientPackage()
+    toShowDownloadBar()
+    doDownlaodPackage()
+end
+
+-- @brief 显示下载进度条
+function toShowDownloadBar()
+    local notice = Sprite:findChild(rootSprite, 'notice')
+    Sprite:setProperty(notice, 'text', '升级包下载中')
+    local download = Sprite:findChild(rootSprite, 'download')
+    Sprite:setVisible(download, 1)
+end
+
+-- @brief 执行安装包下载
+function doDownlaodPackage()
+    Log:write('==========doDownlaodPackage==========',checkResultData)
+    
+    if checkResultData.downloadUrl and checkResultData.downloadUrl~='' then
+        --local downloadPath = 'WONDER:\\temp\\installPackageName.apk'
+       -- local reg = Reg:create(Reg.com_wondertek_cnlive2.index)
+       -- if Reg:getInteger(reg, 'isSpecialUA') == 1 then
+            local flashCard = getDownloadPath()
+            if flashCard == '' then
+                local notice = Sprite:findChild(rootSprite, 'notice')
+						    Sprite:setProperty(notice, 'text', '')
+						    local download = Sprite:findChild(rootSprite, 'download')
+						    Sprite:setVisible(download, 0)
+                Dialog:show('', '未检测到SD卡,升级失败!', 'ok', 'enterApp')
+                return
+            end
+            downloadPath = flashCard .. 'installPackageName.apk'
+        --end
+        local count = Download:getCount(true)
+        for i = 1, count do
+            Download:delete(i, true, true)
+        end
+        Download:append(downloadPath, 'installPackageName', checkResultData.downloadUrl, true)
+        onGetDownloadStatus()
+    else
+        Timer:set(3,3000,'enterApp')
+    end
+end
+
+-- @brief 获取SD卡路径
+function getDownloadPath()
+    local downloadPath = ''
+    local flashCard
+    if System:getFlashCardName(0) == nil then  -- 判断内置存储卡存在性
+        if System:getFlashCardName(1) == nil then  -- 判断外置存储卡存在性
+            flashCard = nil
+        else
+            flashCard = System:getFlashCardName(1)
+        end
+    else
+        flashCard = System:getFlashCardName(0)
+    end
+    Log:write('flashCard=======================', flashCard)
+    if flashCard and flashCard ~= '' then --存在存储卡
+        Log:write('Util:getDownloadPath  flashCard=================', flashCard)
+        downloadPath = flashCard .. '\\'
+    end
+    Log:write('Util:getDownloadPath=======================', downloadPath)
+    return downloadPath
+end
+
+-- @brief 获取下载状态
+function onGetDownloadStatus()
+    local task = Download:getStatus(0, true)
+    local percent = 0 
+    if task[1].size and task[1].maxsize and task[1].maxsize ~= 0 then
+        percent = math.floor(task[1].size/task[1].maxsize*100)
+    end
+    if task[1].status == Download.status.Downloading then
+        toSetDownloadProcessBar(percent)
+    elseif task[1].status == Download.status.Finished then
+        toSetDownloadProcessBar(100)
+        doInstallPackage()
+        return
+    end
+    Timer:set(1, 500, 'onGetDownloadStatus')
+end
+
+-- @brief 设置下载进度条
+function toSetDownloadProcessBar(percent)
+    local downloadbar = Sprite:findChild(rootSprite, 'downloadbar')
+    local x,y,_,h = Sprite:getRect(downloadbar)
+    local width = math.ceil(2.8 * percent)
+    if width < 15 then
+        width = 0
+    elseif width > 280 then
+        width = 280
+    end
+    Sprite:setRect(downloadbar, x,y,width,h)
+end
+
+-- @brief 执行安装
+function doInstallPackage()
+    Log:write('==========doInstallPackage==========')
+    Http:stopNetwork()
+   -- local installPackage = 'WONDER:\\temp\\installPackageName.apk'
+  --  local reg = Reg:create(Reg.com_wondertek_cnlive2.index)
+  --  if Reg:getInteger(reg, 'isSpecialUA') == 1 then
+        local flashCard = getDownloadPath()
+        installPackage = flashCard .. 'installPackageName.apk'
+   -- end
+    Util:installApp(installPackage)
+--  IO:fileRemove('WONDER:\\temp\\installPackageName.apk')
+    IO:dirRemove('CACHE:\\com_wondertek_cnlive2', 1) 
+    IO:dirCreate('CACHE:\\com_wondertek_cnlive2')
+    IO:dirCreate('CACHE:\\com_wondertek_cnlive2\\image')
+--    enterApp()
+end
+
+-- @brief 进入应用程序
+function enterApp()
+    if Config:get("show_update_log") == '1' then
+        Config:set("show_update_log",0)
+        local panoramaNew = Sprite:findChild(rootSprite, 'panoramaNew')
+        Sprite:setVisible(panoramaNew, 1)
+        Sprite:setEnable(panoramaNew, 1)
+        local foregroundList = Sprite:findChild(rootSprite, 'foregroundList')
+        local count = 3
+        createPanoramaForeground(foregroundList, count)
+    else
+        Scene:go(Alias.home)
+    end
+end
+
+-- @brief 显示启动页
+function showStartImg()
+    Log:write('==========showStartImg==========')
+    local beginTime
+    local endTime
+    if Config:get("start_img_begin_date") ~= '' and Config:get("start_img_end_date") ~= '' then
+        beginTime = tonumber(Config:get("start_img_begin_date"))
+    
+        endTime = tonumber(Config:get("start_img_end_date"))
+    
+		    local dateTable = os.date("*t", os.time())
+		    local year = dateTable.year
+		    local month = dateTable.month
+		    if tonumber(month) < 10 then
+		        month = '0' .. month
+		    end
+		    local day = dateTable.day
+		    if tonumber(day) < 10 then
+		        day = '0' .. day
+		    end
+		    local date = tonumber(year .. month .. day)
+		    Log:write('==date========',date)
+		    local picName = Config:get("start_img_name")
+		    Log:write('==picName========',picName)
+		    if IO:fileExist('WONDER:\\start_img\\' .. picName) == true and date >= beginTime and date <= endTime then
+		        Log:write('==picName=====loginbg赋值===',picName)
+		        local loginbg = Sprite:findChild(rootSprite, 'loginbg')
+		        Sprite:setProperty(loginbg, 'src', 'WONDER:\\start_img\\' .. picName)
+		    end
+    end
+end
+
+    ]]>
+</root>

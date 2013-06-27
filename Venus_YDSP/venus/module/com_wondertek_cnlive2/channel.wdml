@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: help
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="640,960" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,640,960" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image rect="0,0,640,960" extendstyle="1111" style="autosize" src="file://image/background.png" />
+            <!-- 顶部状态栏 -->
+            <listview name="channelList" rect="0,70,640,820" extendstyle="1111" limit='true'>
+                <image name="listViewBg" rect="0,0,640,820" extendstyle="1111" style="autosize" src="file://image/background_nofont.png" />
+                <list-item rect="0,0,612,820" extendstyle="1111" >
+                    <list rect="50,25,612,765" extendstyle="1111" auto-adjust="true" line="3" col="2" offset="60,20" >
+                        <list-item rect="0,0,246,245" extendstyle="1111">
+                            <button rect="0,0,246,245" extendstyle="1111" OnSelect="channelItemOnSelect" >
+                                <image rect="0,0,246,245" extendstyle="1111" style="autosize" src="file://image/channel_item_bg.png" />
+                                <image rect="63,45,120,102" extendstyle="1111" style="autosize" src="$(src)" />
+                                <label rect="0,150,246,95" extendstyle="1111" color="#a40c0c" text="$(txt)" font-size="25" v-align="center" h-align="center" />
+                            </button>
+                        </list-item>
+                        <dataset>
+                            <set txt="电视台" src="file://image/channel_item_tv.png" />
+                            <set txt="电影" src="file://image/channel_item_movie.png" />
+                            <set txt="电视剧" src="file://image/channel_item_drama.png" />
+                            <set txt="综艺" src="file://image/channel_item_arts.png" />
+                            <set txt="动漫" src="file://image/channel_item_cartoon.png" />
+                            <set txt="原创" src="file://image/channel_item_origin.png" />
+                        </dataset>
+                    </list>
+                </list-item>
+            </listview>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_cnlive2.common.framework'
+local rootSprite
+
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        Menu:load(rootSprite, Menu.TYPE.channel)
+        local spriteMenu = Sprite:findChild(rootSprite, 'spriteMenu')
+        local totaltitle = Sprite:findChild(spriteMenu, 'totaltitle')
+        Sprite:setProperty(totaltitle, 'text', '频道')
+    elseif msg == MSG_DEACTIVATE then
+        Tips:close()
+        if Loading:isShow() then Loading:close() end
+    else
+        Util:onSpriteEvent(msg, param)
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then
+        
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+    	if Loading:isShow() then 
+        	Loading:close()
+        	return 
+        end
+        Dialog:show('', '是否确定退出？', 'ok_cancel', 'Cb_doExit')
+        return 1
+    end
+end
+
+function channelItemOnSelect(sprite)
+    local index = List:getItemIndex(Sprite:getParent(sprite))
+    if index ~= 0 then
+        Scene:setReturn(Alias.channel, Alias.list)
+        Scene:go(Alias.list .. '?listType=' ..index + 1)
+    else
+        local reg = Reg:create(Reg.com_wondertek_cnlive2.tvspread)
+    	Reg:setString(reg,'moreUrl',Util:getServer()..'pages/clt/v1/moreTVList.jsp?lookType=0')
+        Reg:setNumber(reg,'isFromHome',0)
+        Scene:setReturn(Alias.channel, Alias.tvspread)
+        Scene:go(Alias.tvspread)
+    end
+    local reg = Reg:create(Reg.com_wondertek_cnlive2.list)
+    Reg:setInteger(reg, 'subTitleIndex', 0)
+end
+
+---------------------------------------util functions---------------------------
+
+
+    ]]>
+</root>

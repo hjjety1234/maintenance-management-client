@@ -1,0 +1,965 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: yaoxiangyin <yaoxiangyin@wdit.com.cn>
+ == ============================================================================
+ == | Desc: 帐户管理页
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="640,960" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,640,960" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image rect="0,0,640,960" extendstyle="1111" style="autosize" src="file://image/background_nofont.png" />
+            
+            <image name="userImage" rect="20,80,187,187" extendstyle="1100" style="autosize" dftsrc="file://image/userImage.png" />
+            <label rect="230,90,80,40" v-align="top" text="昵  称：" font-size="20" extendstyle="0111"/>
+            <label rect="230,150,80,40" v-align="top" text="帐  号：" font-size="20" extendstyle="0111"/>
+            <label name="userName" rect="310,150,700,40" v-align="top" text="" font-size="20" extendstyle="0111"/>
+            <label rect="230,210,80,40" v-align="top" text="性  别：" font-size="20" extendstyle="0111"/>
+            <node name="normalArea" rect="0,0,640,960" extendstyle="0111" >
+                <scrolltext name="nickName" rect="310,90,310,40" scroll="true" step="2" v-align="top" text="" font-size="20" extendstyle="0111"/>
+                <label name="sex" rect="310,210,700,40" v-align="top" text="" font-size="20" extendstyle="0111"/>
+                <label rect="230,270,80,40" v-align="top" text="星  座：" font-size="20" extendstyle="0111"/>
+                <label name="constellation" rect="310,270,700,40" v-align="top" text="" font-size="20" extendstyle="0111"/>
+                <label rect="230,390,80,40" v-align="top" text="生  日：" font-size="20" extendstyle="0111"/>
+                <label name="birth" rect="310,390,700,40" v-align="top" text="" font-size="20" extendstyle="0111"/>
+                <label rect="230,330,80,40" v-align="top" text="城  市：" font-size="20" extendstyle="0111"/>
+                <label name="liveCity" rect="310,330,700,40" v-align="top" text="" font-size="20" extendstyle="0111"/>
+                <label rect="230,450,80,40" v-align="top" text="签  名：" font-size="20" extendstyle="0111"/>
+                <label name="selfIntroduction" rect="310,450,250,40" font-size="20" text="" postfix="..." v-align="top" extendstyle="0111"/>
+                <label rect="230,510,80,40" v-align="top" text="标  签：" font-size="20" extendstyle="0111"/>
+                <label name="career" rect="310,510,700,40" v-align="top" text="" font-size="20" extendstyle="0111"/>
+                <shadow rect="0,560,640,2" extendstyle="0111" color="#000000"/>
+                <label rect="30,585,100,30" v-align="center" text="关联微博：" font-size="20" extendstyle="0111"/>
+                <list name="blogList" rect="100,650,440,90" extendstyle="0111" line="1" col="2" auto-adjust="true" offset="100,0" />
+                <node name="blogItem" rect="0,0,84,86" extendstyle="0111" visible="false" enable="false" >
+                    <button rect="0,0,0,0" extendstyle="1177" OnSelect="weiboOnSelect" />
+                    <image name="shareImage" rect="0,0,48,48" extendstyle="1100" style="autosize" src="file://image/sina.png" />
+                    <image name="select" rect="28,16,32,32" extendstyle="1100" style="autosize" visible="0" src="file://image/detail_select.png" />
+                </node>
+            </node>
+            <node name="editArea" rect="0,0,640,960" extendstyle="0111" visible="false" enable="false" >
+                <button name="uploadMyPhoto" normal ="normal" sel="sel" rect="230,210,157,58" extendstyle="0111" OnSelect="uploadMyPhoto">
+                    <image name="normal" rect="0,0,157,58" extendstyle="0111" style="autosize" src="file://image/panel_upload_n.png" />
+                    <image name="sel" rect="0,0,157,58" extendstyle="0111" style="autosize" src="file://image/panel_upload_f.png" />
+                    <label name="uploadLabel" rect="0,0,157,58" extendstyle="0111" v-align="center" h-align="center" color="#ffffff" text="修改头像" font-size="24" />
+                </button>
+                <image rect="310,85,250,40" extendstyle="0111" src="file://image/input_bg.png" style="sudoku-auto" sudoku="7,7,7,7"/>
+                <edit name="nickName1" rect="315,88,250,40" v-align="top" max-size="15" text="" font-size="20" OnTextChanged="editChange" extendstyle="0111"/>
+                <label rect="30,300,80,40" extendstyle="0111" v-align="top" text="性  别：" font-size="20" />
+                <node name="sexChooseArea" rect="110,280,500,50" extendstyle="1111"  >
+                    <button rect="0,0,100,50" data="1" extendstyle="1111" OnSelect="sexBtnOnSelect" >
+                        <image name="maleRadio" rect="0,0,60,50" extendstyle="0111" style="center" src="file://image/radio_select.png" />
+                        <label rect="60,15,40,40" extendstyle="0111" v-align="top" text="男" font-size="20" />
+                    </button>
+                    <button rect="110,0,100,50" data="0" extendstyle="1111" OnSelect="sexBtnOnSelect" >
+                        <image name="femaleRadio" rect="0,0,60,50" extendstyle="0111" style="center" src="file://image/radio_normal.png" />
+                        <label rect="60,15,40,40" extendstyle="0111" v-align="top" text="女" font-size="20" />
+                    </button>
+                </node>
+                <label rect="30,350,80,40" extendstyle="0111" v-align="top" text="星  座：" font-size="20" />
+                <button name="constellationBtn" rect="120,340,124,46" data="1" extendstyle="0111" OnSelect="selectBoxOnSelect" >
+                    <image rect="0,0,124,46" extendstyle="0111" style="autosize" src="file://image/selectbox_bg.png" />
+                    <label name="constellationSelectText" extendstyle="0111" rect="0,0,80,46" v-align="center" h-align="center" text="" font-size="17" />
+                </button>
+                <node name="selectBoxItem" rect="0,0,124,44" extendstyle="1111" visible="false" enable="false" >
+                    <button rect="0,0,124,44" normal="normal" focus="focus" extendstyle="1111" >
+                        <node name="normal" >
+                            <image rect="0,0,124,44" extendstyle="1111" style="autosize" src="file://image/selectbox_item_bg.png" />
+                            <label rect="0,0,124,44" extendstyle="1111" postfix="..." v-align="center" h-align="center" font-size="17" />
+                        </node>
+                        <node name="focus" >
+                            <image rect="0,0,124,44" extendstyle="1111" style="autosize" src="file://image/selectbox_item_bg_f.png" />
+                            <label rect="0,0,124,44" extendstyle="1111" postfix="..." v-align="center" color="#ffffff" h-align="center" font-size="17" />
+                        </node>
+                    </button>
+                </node>
+                <label rect="30,540,80,40" extendstyle="1111" v-align="top" text="标  签：" font-size="20" />
+                <list name="careerChooseList" rect="120,520,520,300" extendstyle="1111" line="5" col="4" auto-adjust="true" />
+                <node name="careerItem" rect="0,0,130,60" extendstyle="1111" visible="false" enable="false" >
+                    <button rect="0,0,130,68" extendstyle="1111" OnSelect="careerBtnOnSelect" >
+                        <image name="selectStatus" rect="0,10,40,40" extendstyle="1111" style="center" src="file://image/radio_normal.png" />
+                        <!--<scrolltext scroll="true" step="1" rect="65,0,65,60" extendstyle="1111" v-align="center" font-size="20" />-->
+                        <label rect="40,2,90,60" extendstyle="1111" v-align="center" font-size="18" />
+                    </button>
+                </node>
+
+                <label rect="30,470,80,40" extendstyle="1111" v-align="top" text="生  日：" font-size="20" />
+                <button name="birthYearBtn" rect="120,460,124,46" data="2" extendstyle="1111" OnSelect="selectBoxOnSelect" >
+                    <image rect="0,0,124,46" extendstyle="1111" style="autosize" src="file://image/selectbox_bg.png" />
+                    <label name="birthYearSelectText" extendstyle="1111" rect="0,0,80,46" v-align="center" h-align="center" text="1986" font-size="17" />
+                </button>
+                <label rect="250,470,30,40" extendstyle="1111" v-align="top" h-align="center" text="年" font-size="20" />
+                <button name="birthMonthBtn" rect="290,460,124,46" data="3" extendstyle="1111" OnSelect="selectBoxOnSelect" >
+                    <image rect="0,0,124,46" extendstyle="1111" style="autosize" src="file://image/selectbox_bg.png" />
+                    <label name="birthMonthSelectText" extendstyle="1111" rect="0,0,80,46" v-align="center" h-align="center" text="12" font-size="17" />
+                </button>
+                <label rect="420,470,30,40" extendstyle="1111" v-align="top" h-align="center" text="月" font-size="20" />
+                <button name="birthDayBtn" rect="460,460,124,46" data="4" extendstyle="1111" OnSelect="selectBoxOnSelect" >
+                    <image rect="0,0,124,46" extendstyle="1111" style="autosize" src="file://image/selectbox_bg.png" />
+                    <label name="birthDaySelectText" extendstyle="1111" rect="0,0,80,46" v-align="center" h-align="center" text="21" font-size="17" />
+                </button>
+                <label rect="590,470,30,40" extendstyle="1111" v-align="top" h-align="center" text="日" font-size="20" />
+
+                <label rect="30,410,80,40" v-align="top" extendstyle="1111" text="城  市：" font-size="20" />
+                <button name="countryBtn" rect="120,400,124,46" extendstyle="1111" >
+                    <image rect="0,0,124,46" extendstyle="1111" style="autosize" src="file://image/selectbox_bg.png" />
+                    <label name="countrySelectText" extendstyle="1111" rect="0,0,80,46" v-align="center" h-align="center" text="中国" font-size="17" />
+                </button>
+                <button name="provinceBtn" rect="250,400,124,46" data="5" extendstyle="1111" OnSelect="selectBoxOnSelect" >
+                    <image rect="0,0,124,46" extendstyle="1111" style="autosize" src="file://image/selectbox_bg.png" />
+                    <label name="provinceSelectText" extendstyle="1111" rect="0,0,80,46" v-align="center" h-align="center" text="北京" font-size="17" />
+                </button>
+                <button name="cityBtn" rect="380,400,124,46" data="6" extendstyle="1111" OnSelect="selectBoxOnSelect" >
+                    <image rect="0,0,124,46" extendstyle="1111" style="autosize" src="file://image/selectbox_bg.png" />
+                    <label name="citySelectText" extendstyle="1111" rect="0,0,80,46" postfix="..." v-align="center" h-align="center" text="北京" font-size="17" />
+                </button>
+
+                <label rect="30,830,80,40" v-align="top" extendstyle="1111" text="签  名：" font-size="20" />
+                <image name="editBg" rect="120,830,430,110" extendstyle="1111" style="sudoku-auto" sudoku="5,5,5,5" src="file://image/introduce_bg.png" />
+                <edit name="selfIntroductionInput" rect="130,840,410,100" autoup="false" extendstyle="1111" multiline="true" line-height="25" OnKeyboardSizeChanged="chatOnKeyboardSizeChanged" max-size="192" OnTextChanged="editOnTextChanged" font-size="16" />
+                --<textarea name="selfIntroductionEdit" rect="120,780,430,160" extendstyle="1111" line-height="30" font-size="16" step="2" loop="true" text="" />
+            </node>
+            <node name="constellationSelectBoxArea" extendstyle="1111" visible="false" enable="false" >
+                <button rect="0,0,640,960" extendstyle="1111" OnSelect="closeSelectBoxList" />
+                <image name="listbg" rect="120,386,124,220" extendstyle="1111" style="sudoku-auto" sudoku="1,1,1,1" src="file://image/selectbox_list_bg.png" />
+                <listview name="constellationListView" data="1" rect="120,386,124,220" extendstyle="1111" limit="true" />
+            </node>
+            <node name="yearSelectBoxArea" visible="false" extendstyle="1111" enable="false" >
+                <button rect="0,0,640,960" extendstyle="1111" OnSelect="closeSelectBoxList" />
+                <image name="listbg" rect="120,506,124,220" extendstyle="1111" style="sudoku-auto" sudoku="1,1,1,1" src="file://image/selectbox_list_bg.png" />
+                <listview name="yearListView" data="2" rect="120,506,124,220" extendstyle="1111" limit="true" />
+            </node>
+            <node name="monthSelectBoxArea" visible="false" extendstyle="1111" enable="false" >
+                <button rect="0,0,640,960" extendstyle="1111" OnSelect="closeSelectBoxList" />
+                <image name="listbg" rect="290,506,124,220" extendstyle="1111" style="sudoku-auto" sudoku="1,1,1,1" src="file://image/selectbox_list_bg.png" />
+                <listview name="monthListView" data="3" rect="290,506,124,220" extendstyle="1111" limit="true" />
+            </node>
+            <node name="daySelectBoxArea" extendstyle="1111" visible="false" enable="false" >
+                <button rect="0,0,640,960" extendstyle="1111" OnSelect="closeSelectBoxList" />
+                <image name="listbg" rect="460,506,124,220" extendstyle="1111" style="sudoku-auto" sudoku="1,1,1,1" src="file://image/selectbox_list_bg.png" />
+                <listview name="dayListView" data="4" rect="460,506,124,220" extendstyle="1111" limit="true" />
+            </node>
+            <node name="provinceSelectBoxArea" extendstyle="1111" visible="false" enable="false" >
+                <button rect="0,0,640,960" extendstyle="1111" OnSelect="closeSelectBoxList" />
+                <image name="listbg" rect="250,446,124,220" extendstyle="1111" style="sudoku-auto" sudoku="1,1,1,1" src="file://image/selectbox_list_bg.png" />
+                <listview name="provinceListView" data="5" rect="250,446,124,220" extendstyle="1111" limit="true" />
+            </node>
+            <node name="citySelectBoxArea" extendstyle="1111" visible="false" enable="false" >
+                <button rect="0,0,640,960" extendstyle="1111" OnSelect="closeSelectBoxList" />
+                <image name="listbg" rect="380,446,124,220" extendstyle="1111" style="sudoku-auto" sudoku="1,1,1,1" src="file://image/selectbox_list_bg.png" />
+                <listview name="cityListView" data="6" rect="380,446,124,220" extendstyle="1111" limit="true" />
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_cnlive2.common.framework'
+local rootSprite
+local blogImage = {'file://image/user_sina.png', 'file://image/user_tengxun.png', 'file://image/sohu.png', 'file://image/renren.png'}
+local careerTable = {'普通人','善良','直率','温柔','妩媚','低调','球迷','八卦','达人','上班族','苹果控','潮流控','乐活族','月光族','完美主义','靠谱青年','老男人','老者自居','老顽童','拉风老年'}
+local constellationTable = {'白羊座', '金牛座', '双子座', '巨蟹座', '狮子座', '处女座', '天秤座', '天蝎座', '射手座', '摩羯座', '水瓶座', '双鱼座'}
+local provincesTable ={ }
+local citysTable={}
+local userInfor = {}
+
+local tempImfo = {}
+
+local curPageStatus = 0 -- 0-非编辑状态 1-编辑状态
+local editclicked = 0 --是否点击编辑按钮
+local isExsit -- 0、代表浏览器尚未创建 1、已创建浏览器
+local WebBrowserIsShow = 0 --0、隐藏 1、显示
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite 
+    normalAreaNode = Sprite:findChild(sprite, 'normalArea')
+    editAreaNode = Sprite:findChild(sprite, 'editArea')
+    logindata = Http:jsonDecode('per_login')
+    Log:write('eeeeeeeeeeee',logindata)
+    --读取省、城市信息
+    local aaa = IO:fileRead("WONDER:\\module\\com_wondertek_cnlive2\\color\\city.txt")
+    local bbb = Json:loadString2Table(aaa) 
+    --Log:write("=====bbb========",bbb)
+    for i=0,#bbb.province do
+       table.insert(provincesTable,bbb.province[i].name)
+       local aaa = {}
+       for j=0,#bbb.province[i].city do
+           table.insert(aaa,bbb.province[i].city[j].name)
+       end
+       --Log:write("=====aaa========",aaa)
+       table.insert(citysTable,aaa)
+    end
+    --Log:write("=====provincesTable========",provincesTable)
+    --Log:write("=====citysTable========",citysTable)
+    --
+    local birthday
+    if logindata and  logindata.resultMsg  and logindata.resultMsg.birthday and logindata.resultMsg.birthday ~= '' then
+        birthday = logindata.resultMsg.birthday
+    else
+        birthday = '2012-01-01'
+    end
+    --Log:write('777777777',logindata)
+    userNameNode = Sprite:findChild(sprite, 'userName')
+    nickNameNode = Sprite:findChild(normalAreaNode, 'nickName')
+    local account, password = getAccountAndPasswordFromLocal()
+    g_loginName = account
+    userImage = Sprite:findChild(sprite, 'userImage')
+    local birth = Util:split(birthday,'-')
+    local areas = Util:split(logindata.resultMsg.area,',')
+    
+    if #areas == 2 then
+        pindex = getIndexFromTable(provincesTable,areas[1])
+        cindex = getIndexFromTable(citysTable[pindex],areas[2])
+    else
+        pindex = getIndexFromTable(provincesTable,areas[1])
+        cindex = 1
+    end
+    userInfor = {userName=logindata.resultMsg.name, nickName=logindata.resultMsg.sname or '视频中国', sex=tonumber(logindata.resultMsg.sex) or 1, constellation=tonumber(logindata.resultMsg.constellation) or 1, career=getIndexFromTable(careerTable,logindata.resultMsg.profession) or 1, birthYear=tonumber(birth[1]), birthMonth=tonumber(birth[2]), birthDay=tonumber(birth[3]), country = '中国', province = pindex or 1, city = cindex or 1, selfIntroduction=logindata.resultMsg.perDesc or '说点什么吧'}
+    tempImfo = {userName=logindata.resultMsg.name, nickName=logindata.resultMsg.sname or '视频中国', sex=tonumber(logindata.resultMsg.sex) or 1, constellation=tonumber(logindata.resultMsg.constellation) or 1, career=getIndexFromTable(careerTable,logindata.resultMsg.profession) or 1, birthYear=tonumber(birth[1]), birthMonth=tonumber(birth[2]), birthDay=tonumber(birth[3]), country = '中国', province = pindex or 1, city = cindex or 1, selfIntroduction=logindata.resultMsg.perDesc or '说点什么吧'}
+    copyPropertyValueTableToTable(userInfor, tempImfo)
+    Log:write('44444444444',userInfor)
+    sexNode = Sprite:findChild(normalAreaNode, 'sex')
+    constellationNode = Sprite:findChild(normalAreaNode, 'constellation')
+    careerNode = Sprite:findChild(normalAreaNode, 'career')
+    birthNode = Sprite:findChild(normalAreaNode, 'birth')
+    liveCityNode = Sprite:findChild(normalAreaNode, 'liveCity')
+    selfIntroductionNode = Sprite:findChild(normalAreaNode, 'selfIntroduction')
+    maleRadioNode = Sprite:findChild(editAreaNode, 'maleRadio')
+    femaleRadioNode = Sprite:findChild(editAreaNode, 'femaleRadio')
+    constellationSelectTextNode = Sprite:findChild(editAreaNode, 'constellationSelectText')
+    careerChooseList = Sprite:findChild(editAreaNode, 'careerChooseList')
+    birthYearSelectTextNode = Sprite:findChild(editAreaNode, 'birthYearSelectText')
+    birthMonthSelectTextNode = Sprite:findChild(editAreaNode, 'birthMonthSelectText')
+    birthDaySelectTextNode = Sprite:findChild(editAreaNode, 'birthDaySelectText')
+    countrySelectTextNode = Sprite:findChild(editAreaNode, 'countrySelectText')
+    provinceSelectTextNode = Sprite:findChild(editAreaNode, 'provinceSelectText')
+    citySelectTextNode = Sprite:findChild(editAreaNode, 'citySelectText')
+    --selfIntroductionEditNode = Sprite:findChild(editAreaNode, 'selfIntroductionEdit')
+    selfIntroductionInputNode = Sprite:findChild(editAreaNode, 'selfIntroductionInput')
+    nickName1 = Sprite:findChild(editAreaNode, 'nickName1')
+    
+    selectBoxItem = Sprite:findChild(sprite, 'selectBoxItem')
+    constellationListView = Sprite:findChild(sprite, 'constellationListView')
+    yearListView = Sprite:findChild(sprite, 'yearListView')
+    monthListView = Sprite:findChild(sprite, 'monthListView')
+    dayListView = Sprite:findChild(sprite, 'dayListView')
+    provinceListView = Sprite:findChild(sprite, 'provinceListView')
+    cityListView = Sprite:findChild(sprite, 'cityListView')
+
+    constellationSelectBoxArea = Sprite:findChild(sprite, 'constellationSelectBoxArea')
+    yearSelectBoxArea = Sprite:findChild(sprite, 'yearSelectBoxArea')
+    monthSelectBoxArea = Sprite:findChild(sprite, 'monthSelectBoxArea')
+    daySelectBoxArea = Sprite:findChild(sprite, 'daySelectBoxArea')
+    provinceSelectBoxArea = Sprite:findChild(sprite, 'provinceSelectBoxArea')
+    citySelectBoxArea = Sprite:findChild(sprite, 'citySelectBoxArea')
+    
+    createBlogList()
+    createCareerList(sprite)
+    createConstellationListView()
+    createYearListView()
+    createMonthListView()
+    createDayListView()
+    createProvinceListView()
+    createCityListView()
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        curPageStatus = 0
+        Menu:load(rootSprite)
+        setTopMenuStatus({'topReturnButton', 'editButton'}, 1, '我的帐户')
+        local spriteMenu = Sprite:findChild(rootSprite, 'spriteMenu')
+        local bottomMenu = Sprite:findChild(spriteMenu, 'bottomMenu')
+        Sprite:setEnable(bottomMenu, 0)
+        Sprite:setVisible(bottomMenu, 0)
+        copyPropertyValueTableToTable(userInfor, tempImfo)
+        showUserInfor()
+        
+        ---------------------获取用户头像-------------------
+        local userimgUrl = Util:getServer()..'clt/getUserImage.html'
+        local postData = 'loginName='..g_loginName
+        Log:write('666666666666666666',g_loginName)
+        Http:request('userImage',userimgUrl,102,{useCache=false, method = 'post', postData=postData..Util:getRequestTail()})
+    elseif msg == MSG_DEACTIVATE then
+        Tips:close()
+        if Loading:isShow() then Loading:close() end
+        Sprite:setEnable(normalAreaNode, 1)
+        Sprite:setEnable(editAreaNode, 0)
+        Sprite:setVisible(normalAreaNode, 1)
+        Sprite:setVisible(editAreaNode, 0)
+    else
+        Util:onSpriteEvent(msg, param)
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then
+        resultTable = Http:xmlDecode('upload_photo','RESULT')
+        Log:write('resultTable', resultTable)
+        if resultTable and resultTable.STATUS and resultTable.URL and resultTable.PARAM then
+            if resultTable.STATUS == '01' then
+                local _, _, uploadUrl = string.find(resultTable.URL, '(.-)UGC_FileUpload.html')
+                local uploadParam = 'loginName=' .. g_loginName .. '&' .. resultTable.PARAM
+                local photoPath = g_photo_path
+                local photoType = g_photo_type
+                local tempTable = Util:split(photoPath, '\\')
+                local tempText = tempTable and tempTable[#tempTable] and tempTable[#tempTable] or '上传图片' .. '.' .. photoType
+                local photoName = string.sub(tempText, 1, string.len(tempText) - string.len(photoType) - 1)
+                local desc = '图片上传'
+                Log:write('uploadUrl', uploadUrl)
+                Log:write('uploadParam', uploadParam)
+                Log:write('photoPath', photoPath)
+                Log:write('photoName', photoName)
+                Log:write('photoType', photoType)
+                local result = Upload:append(uploadUrl, uploadParam, photoPath, photoName, desc, photoType)
+                Log:write('result', result)
+                Timer:set(10, 10, 'showUploadStatusOnTimer')
+            else
+                Tips:show(uploadErrorTable[resultTable.STATUS] and uploadErrorTable[resultTable.STATUS] or '未知错误' )
+            end
+        --else
+            --Tips:show('获取上传地址请求返回的响应文件中缺少必要参数！')
+        end
+    elseif msg == 102 then
+        userImageData = Http:jsonDecode('userImage')
+        Log:write('55555555555555555',userImageData)
+        if userImageData and userImageData.dataInfo then
+            --Tips:show(userImageData.resultMsg)
+            Sprite:setProperty(userImage,'src',userImageData.dataInfo.imgUrl)
+        end
+    elseif msg == 103 then
+        saveMyInfo = Http:jsonDecode('saveMyInfo')
+        if saveMyInfo and saveMyInfo.resultCode == '1' then
+            showUserInfor1()
+            local account,password = getAccountAndPasswordFromLocal()
+            local url = Util:getServer() .. 'clt/login.msp'
+            local postData = 'loginName=' .. account .. '&psw=' .. password .. '&type=0'
+            Log:write('account',account)
+            Http:request('per_login', url, 224 , {useCache=false, method ='post', postData=postData.. Util:getRequestTail()})
+            Sprite:setEnable(normalAreaNode, 1)
+            Sprite:setEnable(editAreaNode, 0)
+            Sprite:setVisible(normalAreaNode, 1)
+            Sprite:setVisible(editAreaNode, 0)
+        elseif saveMyInfo.resultCode ~= '1' then
+            Tips:show(saveMyInfo.resultMsg)
+        end
+    elseif msg == 104 then
+        local weiboAuthData = Http:jsonDecode('get_auth_url')
+        local reg_weibo = Reg:create(Reg.com_wondertek_cnlive2.weibo)
+        Log:write('weiboAuthData', weiboAuthData)
+        if weiboAuthData.resultCode == '1' then
+            local isExsit = Reg:getString(reg_weibo,'WBisExsit')
+            if isExsit == '' or isExsit == nil then
+                isExsit = '0'
+                Reg:setString(reg_weibo,'WBisExsit','0')
+            end
+            if isExsit == '0' then
+                WebBrowser:create(0,70,640,890)
+                isExsit = '1'
+                Reg:setString(reg_weibo,'WBisExsit','1')
+            end
+            local fromWhere = Reg:getString(reg_weibo,'fromWhere')
+            WebBrowser:removeCookie()
+            Plugin:invoke(WebBrowser:_getHandle(), 'OpenUrl', fromWhere == '1' and weiboAuthData.authUrl or weiboAuthData.authUrl .. '&wap=2' , Plugin:getObserver(), 105)
+            WebBrowser:showWebBrowser(1)
+            WebBrowserIsShow = 1
+        else
+            Tips:show('获取微博授权地址失败！')
+        end
+    elseif msg == 105 then
+        local rtn = Param:getString(param, 0)
+		
+        Log:write('rtn77777777777777777777777777777',rtn)
+        local _, _, result = string.find(rtn, 'resultCode=(%d)')
+        local account,password = getAccountAndPasswordFromLocal()
+        if result then
+            if result == '1' then
+                WebBrowser:showWebBrowser(0)
+                WebBrowserIsShow = 0 
+				setTopMenuStatus({'editButton'}, 1)
+                local reg_weibo = Reg:create(Reg.com_wondertek_cnlive2.weibo)
+                local fromWhere = Reg:getString(reg_weibo,'fromWhere')
+                if fromWhere == '1' then
+                    local _, _, sinaaccessToken = string.find(rtn, 'accessToken=([%w_\.]*)')
+                    local _, _, sinauid = string.find(rtn, 'uid=([%w\.]*)')
+                    local _, _, loginName = string.find(rtn, 'loginName=([%w\_.]*)')
+                    local _, _, sname = string.find(rtn, 'sname=([%w_\.]*)')
+                    weiboFlag = 1
+                    
+                    saveWeiboToLocal('sinaaccessToken',sinaaccessToken)
+                    saveWeiboToLocal('sinauid',sinauid)                    
+                    if loginName ~= nil and loginName ~= '' then
+                        Tips:show('对不起,该微博已经被其他用户绑定！')
+                        return
+                    end
+                    local url = Util:getServer() .. 'clt/userBind.msp'
+                    local postData = 'loginName=' .. account .. '&password=' .. password .. '&token=' .. sinaaccessToken .. '&uid=' .. sinauid .. '&type='..fromWhere..Util:getRequestTail()
+                    Log:write(url,postData)
+                    Http:request('bindUserData', url, 106 , {useCache=false, method='post', postData=postData})
+                else
+                    local _, _, qqaccessToken = string.find(rtn, 'accessToken=([%w\.]*)')
+                    local _, _, qquid = string.find(rtn, 'uid=([%w\.]*)')
+                    local _, _, loginName = string.find(rtn, 'loginName=([%w\_.]*)')
+                    local _, _, sname = string.find(rtn, 'sname=([%w_\.]*)')
+                    weiboFlag = 2
+
+                    saveWeiboToLocal('qqaccessToken',qqaccessToken)
+                    saveWeiboToLocal('qquid',qquid)
+                    if loginName ~= nil and loginName ~= '' then
+                        Tips:show('对不起,该微博已经被其他用户绑定！')
+                        return
+                    end
+                    local url = Util:getServer() .. 'clt/userBind.msp'
+                    local postData = 'loginName=' .. account .. '&password=' .. password .. '&token=' .. qqaccessToken .. '&uid=' .. qquid .. '&type='..fromWhere..Util:getRequestTail()
+                    Log:write(url,postData)
+                    Http:request('bindUserData', url, 106 , {useCache=false, method='post', postData=postData})
+                end
+            else
+                Tips:show('微博授权失败！')
+            end
+        end
+    elseif msg == 106 then
+        local account,password = getAccountAndPasswordFromLocal()
+        bindUserData = Http:jsonDecode('bindUserData')
+        Log:write('3333333333',bindUserData)
+        if bindUserData and bindUserData.resultCode == '1' then
+            Tips:show('微博绑定成功！')
+            checkAccountAndPassword(account,password)
+            --Timer:set(5,500,'createBlogList')
+        end
+    elseif msg == 109 then
+        logindata = Http:jsonDecode('per_login')
+        createBlogList()
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    else
+        Util:onPluginEvent(msg, param)
+    end
+end
+
+-- @brief 返回
+function returnOnSelect(sprite)
+    if WebBrowserIsShow == 1 then
+        WebBrowser:showWebBrowser(0) 
+        WebBrowserIsShow = 0
+		setTopMenuStatus({'editButton'}, 1)
+        return
+    end
+    closeSelectBoxList1()
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    Scene:back()
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        if WebBrowserIsShow == 1 then
+            WebBrowser:showWebBrowser(0)
+            WebBrowserIsShow = 0
+			setTopMenuStatus({'editButton'}, 1)
+            return
+        end
+        closeSelectBoxList1()
+        Scene:back()
+        return 1
+    end
+end
+
+-- @brief 获取表中数据的索引
+function getIndexFromTable(tab,data)
+    for i=1,#tab do
+        if data == tab[i] then
+            return i
+        end
+    end
+end
+
+function checkAccountAndPassword(account, password)
+    local url = Util:getServer() .. 'clt/login.msp'
+    local postData = 'loginName=' .. account .. '&psw=' .. password .. '&type=0'..Util:getRequestTail()
+    Http:request('per_login', url, 109 , {useCache=false, method='post', postData=postData})
+end
+
+-- @brief 上传头像状态回调函数
+function showUploadStatusOnTimer()
+    local task = Upload:getStatus(1)
+    if task.status == Upload.status.Finished then  --图片上传完成状态
+        Upload:delete(1)
+        Tips:show('图片上传完成！')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'uploadLabel'),'text','修改头像')
+        Timer:cancel(10)
+        return
+    elseif task.status == Upload.status.LoadFailed or task.status == Upload.status.Failed then  --图片上传失败状态
+        Upload:delete(1)
+        Tips:show('图片上传失败！')
+        Timer:cancel(10)
+        return
+    elseif task.status == Upload.status.Uploading then
+        Log:write('已上传：', math.floor(task.size*100/ task.maxsize) .. '%')
+    elseif task.status == Upload.status.Idle then
+        Log:write('等待状态')
+    elseif task.status == Upload.status.Seeking then
+        Log:write('查找状态')
+    end
+    Timer:set(10, 10, 'showUploadStatusOnTimer')
+end
+
+function createBlogList()
+    local blogList = Sprite:findChild(rootSprite, 'blogList')
+    local blogItem = Sprite:findChild(rootSprite, 'blogItem')
+    List:removeAllItems(blogList)
+    List:loadItem(blogList, blogItem, 2, 'blogItemOnLoad')
+    List:adjust(blogList)
+end
+
+function blogItemOnLoad(list, item, index)
+    local shareImageTable = {'file://image/sina.png', 'file://image/tengxun.png'}
+    Sprite:setProperty(item, 'extendstyle', '1100')
+    Sprite:setRect(item, 0, 0, 48, 48)
+    Sprite:setProperty(Sprite:findChild(item, 'shareImage') , 'src',shareImageTable[index+1])
+    Sprite:setProperty(Sprite:findChildByClass(item, 'button') ,'data',index)
+    if logindata.weibo then
+        for i=0,#logindata.weibo do
+            if tonumber(logindata.weibo[i].type) == index+1 then
+                Sprite:setVisible(Sprite:findChild(item, 'select') , 1)
+                Sprite:setEnable(Sprite:findChildByClass(item, 'button') ,0)
+            end
+        end
+    end
+end
+
+function weiboOnSelect(sprite)
+	setTopMenuStatus({'editButton'}, 0)
+    local authUrlActionTable = {'clt/sinaAuthUrl.msp', 'clt/qqAuthUrl.msp'}
+    local index = Sprite:getData(sprite)
+    local reg_weibo = Reg:create(Reg.com_wondertek_cnlive2.weibo)
+    local fromWhere = Reg:setString(reg_weibo,'fromWhere',tonumber(index)+1)
+    local getAuthUrl = Util:getServer() .. authUrlActionTable[tonumber(index)+1] 
+    Http:request('get_auth_url', getAuthUrl, 104, {useCache = false,method='post', postData = Util:getRequestTail()})
+end
+
+function createCareerList(sprite)
+    local careerItem = Sprite:findChild(sprite, 'careerItem')
+    List:loadItem(careerChooseList, careerItem, #careerTable, 'careerItemOnLoad')
+    List:adjust(careerChooseList)
+end
+
+function careerItemOnLoad(list, item, index)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    Sprite:setRect(item, 0, 0, 130, 60)
+    Sprite:setProperty(Sprite:findChildByClass(item, 'button') , 'data', index + 1)
+    Sprite:setProperty(Sprite:findChildByClass(item, 'label') , 'text', careerTable[index + 1])
+end
+
+function editMyInfo(sprite)
+    editclicked = 1
+    setSexStatus(userInfor.sex)
+    Sprite:setProperty(constellationSelectTextNode, 'text', constellationTable[userInfor.constellation] or '')
+    Sprite:setProperty(nickName1, 'text', userInfor.nickName or '')
+    setCareerStatus(userInfor.career)
+    Log:write('55555555',userInfor)
+    Sprite:setProperty(birthYearSelectTextNode, 'text', userInfor.birthYear or '')
+    Sprite:setProperty(birthMonthSelectTextNode, 'text', userInfor.birthMonth or '')
+    Sprite:setProperty(birthDaySelectTextNode, 'text', userInfor.birthDay or '')
+    Sprite:setProperty(countrySelectTextNode, 'text', userInfor.country or '')
+    Sprite:setProperty(provinceSelectTextNode, 'text', provincesTable[userInfor.province] or '')
+    Sprite:setProperty(citySelectTextNode, 'text', citysTable[userInfor.province][userInfor.city] or '')
+    --Sprite:setProperty(selfIntroductionEditNode, 'text', userInfor.selfIntroduction or '')
+    Sprite:setProperty(selfIntroductionInputNode, 'text', userInfor.selfIntroduction or '')
+    Sprite:setEnable(normalAreaNode, 0)
+    Sprite:setEnable(editAreaNode, 1)
+    Sprite:setVisible(normalAreaNode, 0)
+    Sprite:setVisible(editAreaNode, 1)
+end
+
+function uploadMyInfo(sprite)
+    editclicked = 0
+    copyPropertyValueTableToTable(tempImfo, userInfor)
+    local account, password = getAccountAndPasswordFromLocal()
+    local infoUrl = Util:getServer()..'clt/userSave.msp'
+    if string.len(userInfor.birthMonth) == 1 then
+        userInfor.birthMonth = '0'..userInfor.birthMonth
+    end
+    if string.len(userInfor.birthDay) == 1 then
+        userInfor.birthDay = '0'..userInfor.birthDay
+    end
+    local postData = 'loginName='..account..'&sname='..userInfor.nickName..'&sex='..userInfor.sex..'&constellation='..userInfor.constellation..'&profession='..careerTable[userInfor.career]..'&birthday='..userInfor.birthYear..'-'..userInfor.birthMonth..'-'..userInfor.birthDay..'&area='..provincesTable[userInfor.province]..','..citysTable[userInfor.province][userInfor.city]..'&perDesc='..userInfor.selfIntroduction..Util:getRequestTail()
+    Log:write('6666666666666666666666666',postData)
+    Http:request('saveMyInfo', infoUrl, 103 , {useCache=false, method = 'post', postData=postData})
+    
+end
+
+function showUserInfor()
+    Sprite:setProperty(userNameNode, 'text', userInfor.userName)
+    Sprite:setProperty(nickNameNode, 'text', userInfor.nickName)
+
+    if logindata.resultMsg.sex == nil or logindata.resultMsg.sex == '' then
+        Sprite:setProperty(sexNode, 'text', '')
+    else
+        Sprite:setProperty(sexNode, 'text', userInfor.sex == 1 and '男' or '女')
+    end
+    
+    if logindata.resultMsg.constellation == nil or logindata.resultMsg.constellation == '' then
+        Sprite:setProperty(constellationNode, 'text', '')
+    else
+        Sprite:setProperty(constellationNode, 'text', constellationTable[userInfor.constellation])
+    end
+    
+    if logindata.resultMsg.profession == nil or logindata.resultMsg.profession == '' then
+        Sprite:setProperty(careerNode, 'text', '')
+    else
+        Sprite:setProperty(careerNode, 'text', careerTable[userInfor.career])
+    end
+    
+    if logindata.resultMsg.birthday == nil or logindata.resultMsg.birthday == '' then
+        Sprite:setProperty(birthNode, 'text', '')
+    else
+        Sprite:setProperty(birthNode, 'text', userInfor.birthYear..'年'.. userInfor.birthMonth..'月'..userInfor.birthDay..'日')
+    end
+    
+    if logindata.resultMsg.area == nil or logindata.resultMsg.area == '' then
+        Sprite:setProperty(liveCityNode, 'text', '')
+    else
+        Sprite:setProperty(liveCityNode, 'text', citysTable[userInfor.province][userInfor.city])
+    end
+    Sprite:setProperty(selfIntroductionNode, 'text', userInfor.selfIntroduction)
+    local _,y_text,_,h_text = Sprite:getRect(selfIntroductionNode)
+end
+
+function showUserInfor1()
+    Sprite:setProperty(userNameNode, 'text', userInfor.userName)
+    Sprite:setProperty(nickNameNode, 'text', userInfor.nickName)
+
+    Sprite:setProperty(sexNode, 'text', userInfor.sex == 1 and '男' or '女')
+    Sprite:setProperty(constellationNode, 'text', constellationTable[userInfor.constellation])
+    Sprite:setProperty(careerNode, 'text', careerTable[userInfor.career])
+    Sprite:setProperty(birthNode, 'text', userInfor.birthYear..'年'.. userInfor.birthMonth..'月'..userInfor.birthDay..'日')
+    Sprite:setProperty(liveCityNode, 'text', citysTable[userInfor.province][userInfor.city])
+    Sprite:setProperty(selfIntroductionNode, 'text', userInfor.selfIntroduction)
+    local _,y_text,_,h_text = Sprite:getRect(selfIntroductionNode)
+end
+
+function sexBtnOnSelect(sprite)
+    local sexIndex = tonumber(Sprite:getData(sprite))
+    setSexStatus(sexIndex)
+    tempImfo.sex = sexIndex
+end
+
+function careerBtnOnSelect(sprite)
+    local careerIndex = tonumber(Sprite:getData(sprite))
+    setCareerStatus(careerIndex)
+    tempImfo.career = careerIndex
+end
+
+function setSexStatus(sexFlag)
+    if sexFlag == 1 then
+        Sprite:setProperty(maleRadioNode, 'src', 'file://image/radio_select.png')
+        Sprite:setProperty(femaleRadioNode, 'src', 'file://image/radio_normal.png')
+    else
+        Sprite:setProperty(maleRadioNode, 'src', 'file://image/radio_normal.png')
+        Sprite:setProperty(femaleRadioNode, 'src', 'file://image/radio_select.png')
+    end
+end
+
+function setCareerStatus(careerIndex)
+    for i = 0, #careerTable-1 do
+        local item = List:getItem(careerChooseList, i)
+        if i+1 == careerIndex then
+            Sprite:setProperty(Sprite:findChild(item, 'selectStatus') , 'src', 'file://image/radio_select.png')
+        else
+            Sprite:setProperty(Sprite:findChild(item, 'selectStatus') , 'src', 'file://image/radio_normal.png')
+        end
+    end
+end
+
+function createConstellationListView()
+    ListView:removeAllItems(constellationListView, 1, 1)
+    ListView:loadItem(constellationListView, selectBoxItem, 12, 'checkBoxItemOnLoad')
+    ListView:adjust(constellationListView) 
+end
+
+function constellationItemOnSelect(sprite)
+    local constellationIndex = tonumber(Sprite:getData(sprite))
+    Sprite:setProperty(constellationSelectTextNode , 'text', constellationTable[constellationIndex])
+    tempImfo.constellation = constellationIndex
+    closeSelectBoxList()
+end
+
+function selectBoxOnSelect(sprite)
+    local areaIndex = tonumber(Sprite:getData(sprite))
+    local selectBoxTypeTable = {constellationSelectBoxArea, yearSelectBoxArea, monthSelectBoxArea, daySelectBoxArea, provinceSelectBoxArea, citySelectBoxArea}
+    local selectBoxListTable = {constellationListView, yearListView, monthListView, dayListView, provinceListView, cityListView}
+    local defaultIndexTable = {tempImfo.constellation-1, tempImfo.birthYear-1900, tempImfo.birthMonth-1, tempImfo.birthDay-1, tempImfo.province-1, tempImfo.city-1}
+    Sprite:setEnable(selectBoxTypeTable[areaIndex], 1)
+    Sprite:setVisible(selectBoxTypeTable[areaIndex], 1)
+    ListView:setItemToTop(selectBoxListTable[areaIndex], defaultIndexTable[areaIndex])
+    local curItem = ListView:getItem(selectBoxListTable[areaIndex], defaultIndexTable[areaIndex])
+    local bgImage = Sprite:findChild(Sprite:getParent(selectBoxListTable[areaIndex]), 'listbg')
+    local count = ListView:getItemCount(selectBoxListTable[areaIndex])
+    local x_lv, y_lv, w_lv, h_lv = Sprite:getRect(selectBoxListTable[areaIndex])
+    local x_bg, y_bg, w_bg, h_bg = Sprite:getRect(bgImage)
+    Sprite:setFocus(Sprite:findChildByClass(curItem, 'button'))
+    Sprite:setRect(selectBoxListTable[areaIndex], x_lv, y_lv, w_lv, (count < 5 and 44*count or 220))
+    Sprite:setRect(bgImage, x_bg, y_bg, w_bg, (count < 5 and 44*count or 220))
+end
+
+function closeSelectBoxList(sprite)
+    local selectBoxTypeTable = {constellationSelectBoxArea, yearSelectBoxArea, monthSelectBoxArea, daySelectBoxArea, provinceSelectBoxArea, citySelectBoxArea}
+    for i = 1, #selectBoxTypeTable  do
+        Sprite:setEnable(selectBoxTypeTable[i], 0)
+        Sprite:setVisible(selectBoxTypeTable[i], 0)
+    end
+end
+
+function closeSelectBoxList1()
+    local selectBoxTypeTable = {constellationSelectBoxArea, yearSelectBoxArea, monthSelectBoxArea, daySelectBoxArea, provinceSelectBoxArea, citySelectBoxArea}
+    Log:write('ddddddddddddddddddddddddddddddddd')
+    for i = 1, #selectBoxTypeTable  do
+        Sprite:setEnable(selectBoxTypeTable[i], 0)
+        Sprite:setVisible(selectBoxTypeTable[i], 0)
+    end
+end
+
+function createYearListView()
+    ListView:removeAllItems(yearListView, 1, 1)
+    ListView:loadItem(yearListView, selectBoxItem, 113, 'checkBoxItemOnLoad')
+    ListView:adjust(yearListView)
+end
+
+function createMonthListView()
+    ListView:removeAllItems(monthListView, 1, 1)
+    ListView:loadItem(monthListView, selectBoxItem, 12, 'checkBoxItemOnLoad')
+    ListView:adjust(monthListView)
+end
+
+function createDayListView()
+    ListView:removeAllItems(dayListView, 1, 1)
+    local daysPerMonthTable = {31, checkLeapYear(tempImfo.birthYear), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+    ListView:loadItem(dayListView, selectBoxItem, daysPerMonthTable[tempImfo.birthMonth], 'checkBoxItemOnLoad')
+    ListView:adjust(dayListView)
+end
+
+function checkLeapYear(curYear)
+    if (curYear%400 == 0) or(curYear%4 == 0 and curYear%100 ~= 0 ) then
+        return 29
+    else
+        return 28
+    end
+end
+
+function checkBoxItemOnLoad(list, item, index)
+    local selectBoxIndex = tonumber(Sprite:getData(list))
+    local itemTextTable = {constellationTable[index + 1], 1900+index, index + 1, index + 1,provincesTable[index + 1],citysTable[tempImfo.province][index + 1]}
+    local onSelectFunTable = {'constellationItemOnSelect', 'yearItemOnSelect', 'monthItemOnSelect', 'dayItemOnSelect', 'provinceItemOnSelect', 'cityItemOnSelect'}
+    local normalNode = Sprite:findChild(item, 'normal')
+    local focusNode = Sprite:findChild(item, 'focus')
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    Sprite:setRect(item, 0, 0, 124, 44)
+    Sprite:setProperty(Sprite:findChildByClass(normalNode, 'label') , 'text', itemTextTable[selectBoxIndex])
+    Sprite:setProperty(Sprite:findChildByClass(focusNode, 'label') , 'text', itemTextTable[selectBoxIndex])
+    Sprite:setProperty(Sprite:findChildByClass(item, 'button') , 'OnSelect', onSelectFunTable[selectBoxIndex])
+    Sprite:setProperty(Sprite:findChildByClass(item, 'button') , 'data', index + 1)
+end
+
+
+function yearItemOnSelect(sprite)
+    local yearIndex = tonumber(Sprite:getData(sprite))
+    Sprite:setProperty(birthYearSelectTextNode , 'text', yearIndex + 1899)
+    tempImfo.birthYear = yearIndex + 1899
+    tempImfo.birthDay = 1
+    createDayListView()
+    Sprite:setProperty(birthDaySelectTextNode , 'text', '1')
+    closeSelectBoxList()
+end
+
+function monthItemOnSelect(sprite)
+    local monthIndex = tonumber(Sprite:getData(sprite))
+    Sprite:setProperty(birthMonthSelectTextNode , 'text', monthIndex)
+    tempImfo.birthMonth = monthIndex
+    tempImfo.birthDay = 1
+    createDayListView()
+    Sprite:setProperty(birthDaySelectTextNode , 'text', '1')
+    closeSelectBoxList()
+end
+
+function dayItemOnSelect(sprite)
+    local dayIndex = tonumber(Sprite:getData(sprite))
+    Sprite:setProperty(birthDaySelectTextNode , 'text', dayIndex)
+    tempImfo.birthDay = dayIndex
+    closeSelectBoxList()
+end
+
+function createProvinceListView()
+    ListView:removeAllItems(provinceListView, 1, 1)
+    ListView:loadItem(provinceListView, selectBoxItem, #provincesTable, 'checkBoxItemOnLoad')
+    ListView:adjust(provinceListView)
+end
+
+function provinceItemOnSelect(sprite)
+    local provinceIndex = tonumber(Sprite:getData(sprite))
+    Sprite:setProperty(provinceSelectTextNode , 'text', provincesTable[provinceIndex])
+    tempImfo.province = provinceIndex
+    tempImfo.city = 1
+    createCityListView()
+    Sprite:setProperty(citySelectTextNode , 'text', citysTable[tempImfo.province][1])
+    closeSelectBoxList()
+end
+
+function createCityListView()
+    ListView:removeAllItems(cityListView, 1, 1)
+    ListView:loadItem(cityListView, selectBoxItem, #citysTable[tempImfo.province], 'checkBoxItemOnLoad')
+    ListView:adjust(cityListView)
+end
+
+function cityItemOnSelect(sprite)
+    local cityIndex = tonumber(Sprite:getData(sprite))
+    Sprite:setProperty(citySelectTextNode , 'text', citysTable[tempImfo.province][cityIndex])
+    tempImfo.city = cityIndex
+    closeSelectBoxList()
+end
+
+function editOnTextChanged(sprite,ncount)
+    local editText = Sprite:getText(sprite)
+    --Sprite:setProperty(selfIntroductionEditNode, 'text', editText)
+    tempImfo.selfIntroduction = editText
+end
+
+function editChange(sprite)
+    local editText = Sprite:getText(sprite)
+    --Sprite:setProperty(selfIntroductionEditNode, 'text', editText)
+    tempImfo.nickName = editText
+end
+
+function copyPropertyValueTableToTable(curTable, desTable)
+    desTable.userName = curTable.userName
+    desTable.nickName = curTable.nickName
+    desTable.sex = curTable.sex
+    desTable.constellation = curTable.constellation
+    desTable.career = curTable.career
+    desTable.birthYear = curTable.birthYear
+    desTable.birthMonth = curTable.birthMonth
+    desTable.birthDay = curTable.birthDay
+    desTable.country = curTable.country
+    desTable.province = curTable.province
+    desTable.city = curTable.city
+    desTable.selfIntroduction = curTable.selfIntroduction
+end
+
+function editButtonOnSelect(sprite)
+    curPageStatus = 1
+    copyPropertyValueTableToTable(userInfor, tempImfo)
+    editMyInfo(sprite)
+    setTopMenuStatus({'topReturnButton', 'finishButton'}, 1)
+    setTopMenuStatus({'editButton'}, 0)
+end
+
+function finishButtonOnSelect()
+    curPageStatus = 0
+    uploadMyInfo(sprite)
+    local handel = Reg:create("return_data")
+    Reg:setString(handel, 'return_name', Sprite:getText(Sprite:findChild(rootSprite, "nickName1")))
+    
+    setTopMenuStatus({'topReturnButton', 'editButton'}, 1)
+    setTopMenuStatus({'finishButton'}, 0)
+    
+    
+    closeSelectBoxList1()                  --jlc,编辑时点顶部完成按钮，需要把所有的SelectBox都给隐藏
+    Sprite:setEnable(normalAreaNode, 1)
+    Sprite:setEnable(editAreaNode, 0)
+    Sprite:setVisible(normalAreaNode, 1)
+    Sprite:setVisible(editAreaNode, 0)
+    closeSelectBoxList1()
+    setTopMenuStatus({'topReturnButton', 'editButton'}, 1)
+    setTopMenuStatus({'finishButton'}, 0)
+    curPageStatus = 0
+end
+
+-- @brief 返回
+function returnOnSelect(sprite)
+    if WebBrowserIsShow == 1 then
+        WebBrowser:showWebBrowser(0) 
+        WebBrowserIsShow = 0
+		setTopMenuStatus({'editButton'}, 1)
+        return
+    end
+    if curPageStatus == 0 then
+        Sprite:killFocus(sprite)
+        Sprite:releaseCapture(sprite)
+        Scene:back()
+    else
+        Sprite:setEnable(normalAreaNode, 1)
+        Sprite:setEnable(editAreaNode, 0)
+        Sprite:setVisible(normalAreaNode, 1)
+        Sprite:setVisible(editAreaNode, 0)
+        closeSelectBoxList1()
+        setTopMenuStatus({'topReturnButton', 'editButton'}, 1)
+        setTopMenuStatus({'finishButton'}, 0)
+        curPageStatus = 0
+    end
+end
+
+---------------------------------------util functions---------------------------
+-- @brief 上传头像按钮
+function chooseMyPhoto(sprite)
+    if editclicked == 1 then
+        OpenAlbumDialog('onOpenAlbumDialog')
+    end
+end
+
+function onOpenAlbumDialog(filePath, fileType)
+    Log:write('filePath', filePath)
+    Log:write('fileType', fileType)
+    g_photo_path = filePath
+    local _, _, picType = string.find(filePath,'%.([%w]*)')
+    Log:write('picType===========================',picType)
+    g_photo_type = picType
+    Sprite:setProperty(userImage, 'src', filePath)
+    Sprite:setProperty(Sprite:findChild(rootSprite,'uploadLabel'),'text','上传头像')
+end
+
+function uploadMyPhoto(sprite)
+    local aaa = Sprite:getText(Sprite:findChild(sprite,'uploadLabel'))
+    if aaa == '上传头像' then
+		    local maxLen = IO:fileSize(g_photo_path)
+		    local url = Util:getServer() .. 'clt/getUploadUrl.html'
+		    local postData = 'loginName=' .. g_loginName .. '&C_TYPE=' .. g_photo_type .. '&C_LEN=' .. maxLen
+		    Log:write('postData', postData)
+		    Http:request('upload_photo', url, 101, {useCache=false, method = 'post', postData=postData..Util:getRequestTail()})
+		elseif aaa == '修改头像' then
+		    if editclicked == 1 then
+            OpenAlbumDialog('onOpenAlbumDialog')
+        end
+		end
+end
+
+function chatOnKeyboardSizeChanged(sprite, nHeight)
+    local editBg = Sprite:findChild(editAreaNode,'editBg')
+    
+    if nHeight ~= 0 then
+        local x,y,w,h = Sprite:getRect(sprite)
+        local x1,y1,w1,h1 = Sprite:getRect(editBg)
+        Sprite:setRect(sprite,x,y-nHeight,w,h)
+        Sprite:setRect(editBg,x1,y1-nHeight,w1,h1)
+        --if nHeight ~= 432 then
+            --Sprite:setRect(sprite,x,-503,w,h)
+            --Sprite:setRect(editBg,x1,-518,w1,h1)           
+        --else
+            --Sprite:setRect(sprite,x,-430,w,h)
+            --Sprite:setRect(editBg,x1,-445,w1,h1)
+        --end
+    else
+        Sprite:setRect(sprite,130,840,410,100)
+        Sprite:setRect(editBg,120,830,430,110)
+    end
+end
+    ]]>
+</root>

@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: gaoyonglei <gaoyonglei@wdit.com.cn>
+ == ============================================================================
+ == | Desc: home
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="640,960" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,640,960" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image rect="0,0,640,960" style="autosize" src="file://image/background_nofont.png" extendstyle="1111" />
+            <listview name="listview" rect="0,70,640,821" padding="0,0,70,0" extendstyle="1116"/>
+        </node>
+        <node name="panoramaItem" OnSelect='panoramaItemOnSelect' visible="false" enable="false" active="false" >
+                <button name="recommendImg" rect="0,0,640,282" style="autosize" src="" dftsrc="file://image/home_recommend1.png" OnSelect='recommendImgOnSelect' extendstyle="1111"/>
+        </node>
+        <node name="picitem" rect="0,0,210,290" extendstyle="1000" enable="false" visible="false" active="false">
+            <button name="picbtn" data="" rect="5,12,200,200" extendstyle="1100" OnSelect="picBtnOnSelect">
+                    <image rect="0,0,200,200" extendstyle="1100" style="autosize" src="file://image/tv_content_bg.png"/>
+                    <image name="picbtn_bg" rect="9,9,182,182" extendstyle="1100" style="autosize" src="" dftsrc="file://image/home_recommend2.png"/>
+            </button>
+            <label name="title" rect="5,220,200,30" extendstyle="1010" postfix="..." color="#000000" text="" font-size="22" h-align="left" v-align="center" />
+            <label name="bottomText" rect="5,260,200,20" postfix="..." extendstyle="1010" color="#0" text="" font-size="20" h-align="left" v-align="center" />
+        </node>
+        <node name="topitem" rect="0,0,640,280" extendstyle="1010" enable="false" visible="false" active="false">
+            <panorama name="panorama" rect="0,0,640,280" style="circle" foreground="foreground" alpha="255" extendstyle="1111">
+    		    <panoramaitem name="foreground" rect="0,0,640,280" extendstyle="1111">
+    		        <image rect="0,233,640,50" style="autosize" src="file://image/home_shadowimg.png" extendstyle="1111"/> 
+    		        <list name="foregroundList" rect="500,255,281,16" extendstyle="1111" line="1" col="" auto-adjust="true" offset="15,10" />
+    		        <label name="panoName" rect="0,230,640,50" extendstyle="1111" color="#ffffff" text="" h-align="center" v-align="center" font-family="bold" font-size="26"/>    
+    		    </panoramaitem>
+	        </panorama>
+        </node>
+        <node name="bigpicitem" rect="0,0,640,358" extendstyle="1111" enable="false" visible="false" active="false">
+            <!--<image rect="0,0,640,358" style="autosize" src="file://image/background_nofont.png" extendstyle="1111" />-->
+            <node rect="0,0,0,67" extendstyle="1170">
+	            <image rect="0,0,0,0" extendstyle="1177" src="file://image/subtitle_bg.png" style="autosize"/>
+	            <label name="nametext" rect="15,0,200,0" extendstyle="1117" text="即将播出" font-size="32" color="#0" h-align="left" v-align="center"/>
+	            <button name="morebtn" rect="540,0,100,67" extendstyle="1010" OnSelect="moreOnSelect"/>
+	            <image rect="570,14,40,40" extendstyle="1010" src="file://image/play_spreadbtn.png" style="autosize"/>
+	        </node>
+            <listview name="piclist" rect="0,67,640,291" extendstyle="1010" direction="horizontal"/> 
+        </node>
+        
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_cnlive2.common.framework'
+local rootSprite
+subContentTable = {}  --存放当前次标题的内容 
+local displayType = 0
+local loadingData
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    listview = Sprite:findChild(rootSprite,'listview')
+    bigpicitem = Sprite:findChild(rootSprite,'bigpicitem')
+    topitem = Sprite:findChild(rootSprite,'topitem')
+    local account, password = getAccountAndPasswordFromLocal()
+    local reg_authority = Reg:create('authority')
+    if account ~= '' then
+        Reg:setInteger(reg_authority, 'userStatus',1)
+    else
+        Reg:setInteger(reg_authority, 'userStatus',0)
+    end
+    --local reg_weibo = Reg:create(Reg.com_wondertek_cnlive2.weibo)
+    --Reg:setString(reg_weibo,'WBisExsit','0') --设置初始浏览器状态
+    getIndexData()
+end
+
+function getIndexData()
+    Timer:cancel(1)
+    Timer:cancel(3)
+    panoramaIndex = 0
+    -----------------------------请求首页数据-----------------------------------
+    local homeUrl = Util:getServer() .. 'pages/clt/v1/index.jsp'
+    Http:request('home_data', homeUrl, 101, {useCache = false,method = 'post',postData = Util:getRequestTail()})
+    Loading:show(rootSprite)
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        Menu:load(rootSprite, Menu.TYPE.home)
+        local visiableNodeTable= {'logoImage', 'searchButton', 'personCenterButton'}
+        setTopMenuStatus(visiableNodeTable, 1)
+        local mode = Util:isAppPassiveStart()
+        Log:write("=====in Passive Mode========",Util:getRequestTail())
+        if mode then
+            Log:write("=====in Passive Mode========",Util:getRequestTail())
+            Timer:set(2, 500, 'doPassive')
+        end
+    elseif msg == MSG_DEACTIVATE then
+        Tips:close()
+        Scene:freeByHandle(rootSprite)
+        if Loading:isShow() then Loading:close() end
+    elseif msg == MSG_MINIMIZED then
+        Log:write('MSG_MINIMIZED ====================== ')
+        MINIMIZED_TIME = os.time()
+        Log:write('MINIMIZED_TIME ====================== ',MINIMIZED_TIME)
+    elseif msg == MSG_MAXIMIZED then
+        Log:write('MSG_MAXIMIZED ====================== ')
+        Log:write('MINIMIZED_TIME ====================== ',MINIMIZED_TIME)
+        local aaa = os.time()
+        Log:write('os.time() ====================== ',aaa)
+        --local difftime = aaa - MINIMIZED_TIME
+        local difftime = 61
+        local ratetime = tonumber(Config:get('refreshInternalTime')) * 60
+        Log:write('difftime',difftime)
+        Log:write('ratetime',ratetime)
+        if difftime > ratetime then 
+            getIndexData()
+        end
+    else
+        Util:onSpriteEvent(msg, param)
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then
+        if Loading:isShow() then Loading:close() end
+        homeDataTable = Http:jsonDecode('home_data')
+        createHomeList()
+        
+        -----------------------------检查并更新启动图片-----------------------------------
+        local startImgUrl = Util:getServer() .. 'pages/clt/v1/loading.jsp'
+        Http:request('start_img', startImgUrl, 119, {useCache = false, method = 'post', postData = 'nodeId=NODE_ID_START'..Util:getRequestTail()})
+    elseif msg == 119 then --接收新闻请求
+        local startDate = Http:jsonDecode('start_img')
+        if not startDate or type(startDate) ~= 'table' then
+            return
+        else
+            updateStartImg(startDate)
+        end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    else
+        Util:onPluginEvent(msg, param)
+    end
+end
+
+-- 推荐按钮功能
+function recommendImgOnSelect(sprite)
+	local recommendImg = Sprite:findChild(rootSprite,'recommendImg')
+	local programType = Sprite:getData(sprite)
+    selIndex = Panorama:getItemIndex(Sprite:getParent(sprite)) 
+	if programType == '0' then                         
+		local reg = Reg:create(Reg.com_wondertek_cnlive2.detail)
+        Reg:setString(reg,'contUrl',homeDataTable.recommendList[selIndex].programUrl)     
+		Scene:setReturn(Alias.home,Alias.detail)
+        Scene:go(Alias.detail)
+	else 
+		--local netType = Http:getCurConnect()
+    	--Log:write('netType===openUrl',netType)
+	    --if netType ~= 'WLAN' then
+	       --Log:write('netType=不等于==wlan')
+	       --Dialog.propTable.okBtn.text = '继续观看'
+	       --Dialog:show('', '您现在是非WiFi状态，为了节省流量费，建议调整为WiFi网络', 'ok_cancel', 'startPlayButtonOnSelect')
+	       --Dialog.propTable.okBtn.text = '确定'
+	       --return
+	    --end
+	    -- 判断网络是否是wifi
+	    local wifiTips_reg = Reg:create("wifiTips")
+		local continueTips = Reg:getString(wifiTips_reg,'continueTips')
+		if continueTips ~= '0' then
+	        local netType = Http:getCurConnect()
+	        Log:write('netType===openUrl',netType)
+	        if netType ~= 'WLAN' then
+	           Log:write('netType=不等于==wlan')
+	           notWifiTipsDialogShow()
+	           return
+	        end
+		end
+		local reg = Reg:create(Reg.com_wondertek_cnlive2.play)
+        Reg:setString(reg,'playopenUrl',homeDataTable.recommendList[selIndex].programUrl)
+        Reg:setString(reg,'isLive','0')
+        Reg:setNumber(reg,'currTime',0)
+		Scene:setReturn(Alias.home,Alias.play)
+        Scene:go(Alias.play)
+    end
+end
+
+--function startPlayButtonOnSelect()
+    --local reg = Reg:create(Reg.com_wondertek_cnlive2.play)
+        --Reg:setString(reg,'playopenUrl',homeDataTable.recommendList[selIndex].programUrl)
+        --Reg:setString(reg,'isLive','0')
+        --Reg:setNumber(reg,'currTime',0)
+		--Scene:setReturn(Alias.home,Alias.play)
+        --Scene:go(Alias.play)
+--end
+
+function createHomeList()
+    ListView:removeAllItems(listview,1,1)
+    ListView:loadItem(listview,topitem,1,'onLoadtopitem')
+    if homeDataTable and homeDataTable.nodes and homeDataTable.nodes[0] then
+        ListView:loadItem(listview,bigpicitem,(#homeDataTable.nodes) + 1,'onLoadpicitem')
+    end
+    ListView:adjust(listview)
+end
+
+-- @brief 加载panoramaItem
+function onLoadPanoramaItem(panorama, item, index)
+    Sprite:setRect(item, 0, 0, 640, 280)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local recommendImg = Sprite:findChild(item, 'recommendImg')
+    Sprite:setProperty(recommendImg, 'data', homeDataTable.recommendList[index].programType)
+    --Sprite:setProperty(recommendImg, 'src', 'file://image/p1.png')
+    if homeDataTable.recommendList[index].programPic and homeDataTable.recommendList[index].programPic ~= '' then
+        Sprite:setProperty(recommendImg, 'src', homeDataTable.recommendList[index].programPic)
+    end
+    Sprite:setProperty(item, 'OnSelect', 'panoramaItemOnSelect')
+end
+
+-- @brief 创建panorama的标识点
+function createPanoramaForeground(list, count)
+    Sprite:setProperty(list, 'col', count)
+    local _, y, _, h = Sprite:getRect(list)
+    local w1 = (16*count+16*(count-1))
+    local x1 = 43+350+(281-w1)/2
+    for i = 1, count do
+        local item = Sprite:create('listitem', list)
+        local img = Sprite:create('image', item)
+        Sprite:setRect(item, 0, 0, 16, 16)
+        Sprite:setProperty(item, 'extendstyle', '0000')
+        Sprite:setRect(img, 0, 0, 16, 16)
+        Sprite:setProperty(img, 'extendstyle', '1100')
+        Sprite:setName(img, 'img')
+        Sprite:setProperty(img, 'src', 'file://image/panorama_point.png')
+        Sprite:setProperty(img, 'style', 'autosize')
+        List:addItem(list, item)
+    end
+    Sprite:setRect(list, x1-10, y-5, w1, h)
+    Sprite:setProperty(list, 'extendstyle', '1111') 
+    List:adjust(list)
+    setPanoramaForeground(list, 0)
+end
+
+-- @brief 首页推荐节目panoramaitem的OnSelect事件
+function panoramaItemOnSelect(sprite)
+    local panorama = Sprite:getParent(sprite)
+    local index = Panorama:getCurItem(panorama)
+    panoramaIndex = index
+    local panoName = Sprite:findChild(rootSprite,'panoName')
+    Sprite:setProperty(panoName,'text',homeDataTable.recommendList[index].programName)
+    setPanoramaForeground(Sprite:findChild(panorama, 'foregroundList'), index)
+end
+
+-- @brief 设置panorama当前第几页的标识点
+function setPanoramaForeground(list, index)
+    if lastPanoramaPointIndex then
+        Sprite:setProperty(Sprite:findChild(List:getItem(list, lastPanoramaPointIndex), 'img'),
+            'src', 'file://image/panorama_point.png')
+    end
+    Sprite:setProperty(Sprite:findChild(List:getItem(list, index), 'img'),
+        'src', 'file://image/panorama_point_f.png')
+    lastPanoramaPointIndex = index
+end
+
+-- @brief 每三秒将panorama翻一页
+function onTimer()
+    local panorama = Sprite:findChild(rootSprite, 'panorama')
+    Panorama:setCurItem(panorama, panoramaIndex)
+    local count = #homeDataTable.recommendList+1
+    panoramaIndex = panoramaIndex + 1 > (count-1) and 0 or panoramaIndex + 1
+    Timer:set(1, 5000, 'onTimer')
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        if Loading:isShow() then 
+        	Loading:close()
+        	return 
+        end
+        Dialog:show('', '是否确定退出？', 'ok_cancel', 'Cb_doExit')
+        return 1
+    end
+end
+
+---------------------------------------util functions---------------------------
+
+-- @brief 外层listview加载 
+function onLoadtopitem(list, item, index)
+    Sprite:setRect(item, 0,0,640,280)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    
+    local panorama = Sprite:findChild(item, 'panorama')
+    local panoramaItem = Sprite:findChild(rootSprite, 'panoramaItem')
+    local foregroundList = Sprite:findChild(item, 'foregroundList')
+    Panorama:loadItem(panorama, panoramaItem, #homeDataTable.recommendList+1, 'onLoadPanoramaItem')
+    local count = #homeDataTable.recommendList+1
+    createPanoramaForeground(foregroundList, count)
+    Timer:set(1, 3000, 'onTimer')
+end
+
+function onLoadpicitem(list, item, index)
+    subContentTable = {}
+    currindex = index
+    Sprite:setRect(item, 0,0,640,358)
+    Sprite:setProperty(item, 'extendstyle', '1010')
+    local nametext = Sprite:findChild(item,'nametext')
+    local morebtn = Sprite:findChild(item,'morebtn')
+    Sprite:setProperty(nametext,'text',homeDataTable.nodes[index].name)
+    Sprite:setProperty(morebtn,'data',index)
+    local piclist = Sprite:findChild(item,'piclist')
+    local picitem = Sprite:findChild(rootSprite,'picitem')
+    displayType = homeDataTable.nodes[index] and homeDataTable.nodes[index].displayType and tonumber(homeDataTable.nodes[index].displayType) and tonumber(homeDataTable.nodes[index].displayType) or 0
+    subContentTable = homeDataTable.nodes[index] and homeDataTable.nodes[index].contents and homeDataTable.nodes[index].contents and homeDataTable.nodes[index].contents[0] and homeDataTable.nodes[index].contents or nil
+    ListView:removeAllItems(piclist)
+    if subContentTable then
+        ListView:loadItem(piclist,picitem, #subContentTable + 1,'onLoadPictureItem')
+    end
+    ListView:adjust(piclist)
+end
+
+-- @brief 内层listview加载 
+function onLoadPictureItem(list, item, index)
+    local titleNode = Sprite:findChild(item,'title')
+    local bottomTextNode = Sprite:findChild(item,'bottomText')
+    local bottomText = ''
+   
+    local picbtn = Sprite:findChild(item,'picbtn')
+    local picbtn_bg = Sprite:findChild(picbtn,'picbtn_bg')
+    if displayType == 0 then
+        bottomText = '正在播出:' .. (subContentTable[index].livingName and subContentTable[index].livingName or '' )
+    elseif displayType == 1 then
+        bottomText = '收视指数：' .. (subContentTable[index].rating and subContentTable[index].rating or '0.0' )
+    else
+        if subContentTable[index].lastTime == '0' then 
+            bottomText = '正在播出'
+        else
+            bottomText = '距离播放:' .. (subContentTable[index].lastTime and subContentTable[index].lastTime ~='' and subContentTable[index].lastTime .. '分钟' or '' )
+        end
+    end
+    Sprite:setProperty(picbtn_bg,'src',subContentTable[index].image)
+    Sprite:setProperty(picbtn,'data',currindex)
+    Sprite:setProperty(titleNode,'text', subContentTable[index].name)
+    Sprite:setProperty(bottomTextNode,'text', bottomText)
+    Sprite:setProperty(bottomTextNode,'data', subContentTable[index].nodeId..';'..subContentTable[index].contId)
+    Sprite:setRect(item, 0,0,210,291)
+    Sprite:setProperty(item, 'extendstyle', '1000')
+   
+end
+
+-- @brief 列表按钮响应  跳转和参数传给dianshitai_detail页面
+function picBtnOnSelect(sprite)
+	Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    local item = Sprite:getParent(sprite)
+    local Labtitle = Sprite:findChild(item,'title')
+    local bottomText1 = Sprite:findChild(item,'bottomText')
+    
+    local reg = Reg:create(Reg.com_wondertek_cnlive2.dianshitai_detail)
+    Reg:setString(reg,'listType','8')
+    local picitem = Sprite:getParent(sprite)
+    local index = ListView:getItemIndex(picitem)
+    local currindex = tonumber(Sprite:getData(sprite))
+    Log:write('22222222222222==',homeDataTable.nodes[currindex].contents[index].channelUrl)
+    Reg:setString(reg,'channelUrl',homeDataTable.nodes[currindex].contents[index].channelUrl)
+    Scene:setReturn(Alias.home,Alias.dianshitai_detail)
+    Scene:go(Alias.dianshitai_detail)
+end
+
+-- @brief 更多按钮响应 ------------
+function moreOnSelect(sprite)
+    local i = Sprite:getData(sprite)
+    if i == '0' then
+    	local reg = Reg:create(Reg.com_wondertek_cnlive2.tvspread)
+    	Reg:setString(reg,'moreUrl',homeDataTable.nodes[0].moreUrl)
+    	Reg:setNumber(reg,'isFromHome',1)
+        Scene:setReturn(Alias.home,Alias.tvspread)
+        Scene:go(Alias.tvspread)
+    else
+        --goHomespread(tonumber(i))
+        local reg = Reg:create(Reg.com_wondertek_cnlive2.homespread)
+    	Reg:setString(reg,'moreUrl',homeDataTable.nodes[tonumber(i)].moreUrl)
+    	Reg:setInteger(reg, 'listcurindex', i)
+    	Log:write('listcurindex====classBtnOnSelect==',homeDataTable.nodes[tonumber(i)].moreUrl,i)
+        Scene:setReturn(Alias.home,Alias.homespread)
+        Scene:go(Alias.homespread)
+    end 
+end
+
+--function goHomespread(index)
+    --local reg = Reg:create(Reg.com_wondertek_cnlive2.homespread)
+    --Reg:setInteger(reg, 'listcurindex', index)
+    --Log:write('listcurindex====classBtnOnSelect==',index)
+    --Scene:setReturn(Alias.home,Alias.homespread)
+    --Scene:go(Alias.homespread)
+--end
+
+-- @brief 下载启动页图片
+function updateStartImg(data)
+    loadingData = data
+    local picName = data.picName 
+    local beginDate = data.startTime
+    local endDate = data.endTime
+    if picName ~= Config:get("start_img_name") or beginDate ~= Config:get("start_img_begin_date") or endDate ~= Config:get("start_img_end_date") or IO:fileExist('WONDER:\\start_img\\' .. picName) == false then
+        --Config:set("start_img_name", picName)
+        --Config:set("start_img_begin_date", beginDate)
+        --Config:set("start_img_end_date", endDate)
+        IO:dirRemove('WONDER:\\start_img\\', false)
+        IO:dirCreate('WONDER:\\start_img\\')
+        Download:append('WONDER:\\start_img\\'..picName, picName, data.pic)
+        Timer:set(3, 2000, 'checkLoadingImg')
+    end
+end
+
+function checkLoadingImg()
+    local task = Download:getStatus()
+    Log:write('Download status----------', task)
+    local picName = loadingData.picName 
+    local beginDate = loadingData.startTime
+    local endDate = loadingData.endTime
+        Log:write('33333333333----------', loadingData)
+    local taskid = 0
+    for i=1, #task do
+        if task[i].title == picName then
+            if task[i].status == 4 then
+                Log:write('111111111111----------', task[i].status)
+                Config:set("start_img_name", picName)
+                Config:set("start_img_begin_date", beginDate)
+                Config:set("start_img_end_date", endDate)
+                Timer:cancel(3)
+                taskid = i
+            elseif task[i].status == 2 then
+                Log:write('33333333333----------', task[i].status)
+                --IO:fileRemove('WONDER:\\start_img\\' .. picName)
+                --Download:append('WONDER:\\start_img\\' .. picName, picName, loadingData.pic)
+                --Download:start(i)
+                Timer:set(3, 2000, 'checkLoadingImg')
+            else
+                Log:write('2222222222----------', task[i].status)
+                Download:deleteByName(picName, true)
+                --IO:fileRemove('WONDER:\\start_img\\' .. picName)
+                Download:append('WONDER:\\start_img\\' .. picName, picName, loadingData.pic)
+                Timer:set(3, 2000, 'checkLoadingImg')
+            end
+        end
+    end
+end
+
+-- @breif 被动起
+function doPassive()
+    Util:checkSmsrecommendFile()
+end
+
+    ]]>
+</root>

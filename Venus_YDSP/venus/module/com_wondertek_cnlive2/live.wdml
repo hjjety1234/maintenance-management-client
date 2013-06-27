@@ -1,0 +1,744 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: gaoyonglei <gaoyonglei@wdit.com.cn>
+ == ============================================================================
+ == | Desc: 直播页
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="640,960" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,640,960" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image rect="0,0,640,960" style="autosize" src="file://image/background_nofont.png" extendstyle="1111" />
+            <!-- 顶部所有menu button 
+            <image rect="0,70,180,45" style="autosize" src="file://image/live_whitebg.png" extendstyle="1111" />-->
+            <button name="switch" rect="480,55,180,80" OnMouseDown="btnOnMouseDown" OnMouseMove="btnOnMouseMove" OnMouseUp="btnOnMouseUp" extendstyle="1111" >
+           		<image name="switchImg" rect="0,20,151,40" src="file://image/live_liveswitch2.png" style="center" extendstyle="1111"/>
+           		<label name="switchLab1" rect="20,23,50,34" text="直播" color="#ffffff" v-align="center" h-align="left" font-size="22" extendstyle="1111"/>
+           		<label name="switchLab2" rect="90,23,50,34" text="回播" color="#a0a0a0" v-align="center" h-align="left" font-size="22" extendstyle="1111"/>
+           	</button>
+            <label rect="5,78,130,31" text="收视榜" color="#732423" v-align="center" h-align="center" font-size="22" extendstyle="1111" />
+            <label name="nowtime" rect="320,78,148,31" text="" color="#555555" v-align="center" h-align="left" font-size="26" extendstyle="1111" />
+            <!-- 中部listview -->
+            <image name="live_huibobg" rect="140,120,500,840" style="autosize" visible="0" enable="0" src="file://image/live_huibobg.png" extendstyle="1111" />
+            <listview name="mainListview" rect="0,120,640,770" OnTrail="listviewOnTrail" foreground="foreground" padding="0,0,70,0" extendstyle="1116" >
+                <list-item name="foreground" rect="390,0,5,770" padding="0,0,0,0" extendstyle="1116">
+                    <image name="timeLine" rect="0,0,5,770" style="tile" src="" padding="0,0,0,0" extendstyle="1116"/>
+                </list-item>
+            </listview>
+            <listview name="mainListview1" visible="0" enable="0" rect="0,120,640,770" OnTrail="listviewOnTrail2" foreground="foreground" padding="0,0,70,0" extendstyle="1116" >
+            </listview>
+            <node name="listitem1" visible="false" enable="false" active="false" extendstyle="1010">
+                <image rect="0,119,640,6" style="autosize" src="file://image/live_channel.png" extendstyle="1010" />
+                <image rect="0,-1,142,124" style="autosize" src="file://image/live_left_bg.png" extendstyle="1100" />
+                <button name="playBtn1" rect="0,0,140,125" extendstyle="1010" OnSelect="playBtnSelect" normal="src:file://image/blank.png;style:autosize" sel="src:file://image/live_selectbg.png;style:autosize"/>
+                <image name="sohu" rect="10,5,60,60" style="autosize" src="" dftsrc="file://image/home_recommend3.png" extendstyle="1100" />
+                <label name="channelName" rect="0,60,120,40" text="" extendstyle="1010" h-align="left" v-align="center" color="#0" font-size="24"/>
+                <scrolltext scroll="true" step="1" name="ratio" rect="80,20,60,75" text="5%" extendstyle="1010" h-align="center" v-align="center" color="#0" font-size="15"/>
+                <listview name="centerListview" rect="140,0,500,120" extendstyle="1010" limit="true" direction="horizontal"/>
+            </node>
+            <node name="listitem2" visible="false" enable="false" active="false" extendstyle="1010">
+                <image rect="0,-1,140,124" style="autosize" src="file://image/live_left_bg.png" extendstyle="1010" />
+                <image name="sohu" rect="10,5,60,60" style="autosize" src="" dftsrc="file://image/home_recommend3.png" extendstyle="1100" />
+                <button name="playBtn2" rect="0,0,140,125" extendstyle="1010" OnSelect="playBtnSelect" normal="src:file://image/blank.png;style:autosize" sel="src:file://image/live_selectbg.png;style:autosize"/>
+                <label name="channelName" rect="0,60,120,40" text="" extendstyle="1010" h-align="left" v-align="center" color="#0" font-size="24"/>
+                <scrolltext scroll="true" step="1" name="ratio" rect="80,20,60,75" text="5%" extendstyle="1010" h-align="center" v-align="center" color="#0" font-size="15"/>
+                <listview name="centerListview" rect="140,0,500,120" extendstyle="1010" limit="true" direction="horizontal"/>
+                <image border="1" rect="0,119,640,6" style="autosize" src="file://image/live_channel.png" extendstyle="1010" />
+            </node>
+            <node rect="0,0,0,0" name="centerListviewItem" visible="false" enable="false" active="false" extendstyle="1010" >
+                <button name="centerListviewbtn" enable="0" rect="0,0,0,0" color="#ffffff" OnSelect="centerItemOnSelect" extendstyle="1010" />
+                <shadow name="kuang" rect="0,0,0,0" style="autosize" color="#525152" alpha="255" extendstyle="1010" />
+                <label name="channelName" rect="0,40,159,40" text="" extendstyle="1010" h-align="left" v-align="center" postfix=""  color="#ffffff" font-size="24"/>
+                <label name="xingqi" rect="0,0,159,40" text="" extendstyle="1010" h-align="left" v-align="center" postfix="" color="#ffffff"  font-size="24"/>
+                <label name="time" rect="0,80,159,40" text="" extendstyle="1010" h-align="left" v-align="center" postfix="" color="#ffffff" font-size="20"/>
+                <image name="whiteline" rect="159,0,1,120" style="autosize" src="file://image/live_whiteline.png" postfix="" extendstyle="1040" />
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_cnlive2.common.framework'
+local rootSprite
+local list
+local item1
+local colorTable
+local kuangImg = {'file://image/live_redkuang.png','file://image/live_yellowkuang.png','file://image/live_greenkuang.png'}
+local liveSwitch = 1
+local liveTable = {}
+local liveTable1 = {}
+local currIndex = 0
+local flag = 0
+local posttail = Util:getRequestTail()
+local getCurTime
+local isLastPage = '0'
+local nextPageTable = {}
+local theNextUrl
+local isLastPage2 = '0'
+local nextPageTable2 = {}
+local theNextUrl2
+local isPlay = 0
+local firstTime
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    
+    --readColor("WONDER:\\module\\com_wondertek_cnlive2\\color\\colors.txt")  ----读取颜色表
+    list = Sprite:findChild(rootSprite, 'mainListview')
+    list1 = Sprite:findChild(rootSprite, 'mainListview1')
+    item1 = Sprite:findChild(rootSprite, 'listitem1')
+    item2 = Sprite:findChild(rootSprite, 'listitem2')
+    
+    local liveUrl = Util:getServer()..'pages/clt/v1/livingsNew.jsp'
+    Http:request('liveData',liveUrl,101,{useCache=false,method = 'post', postData=posttail})
+    
+
+    --local liveBackUrl = Util:getServer()..'pages/clt/v1/livingBacks.jsp'
+    --local liveBackUrl = Util:getServer()..'pages/clt/v1/livingBacksEnhance.jsp'
+    --Http:request('liveBackData',liveBackUrl,104,{useCache=false,method = 'post', postData=posttail})
+    Loading:show(rootSprite)
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        Menu:load(rootSprite, Menu.TYPE.live)
+        local mainNode = Sprite:findChild(Sprite:getCurScene(), 'mainNode')
+        local totaltitle = Sprite:findChild(Sprite:getCurScene(), 'totaltitle')
+        Sprite:setProperty(totaltitle, 'text', '电视墙')
+
+        
+    elseif msg == MSG_DEACTIVATE then
+        Tips:close()
+        if Loading:isShow() then Loading:close() end
+        if isPlay == 0 then
+            Scene:freeByHandle(rootSprite)
+        end
+        isPlay = 0
+    else
+        Util:onSpriteEvent(msg, param)
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then
+        if Loading:isShow() then Loading:close() end
+        liveData = Http:jsonDecode('liveData')
+        --Log:write('liveData===33333333333333333333',liveData)
+        if liveData and liveData.isLastPage then
+            isLastPage = liveData.isLastPage
+        end
+        if liveData and liveData.nextUrl then
+            theNextUrl= liveData.nextUrl
+        end
+        firstTime = liveData.nowTime
+        if liveData and liveData.nodes then
+            --Log:write('2222',liveData.nodes[1].contents)
+            ListView:loadItem(list, item1, #liveData.nodes+1, 'loadFavoritesListItem1')
+            ListView:adjust(list)
+            
+            local liveBackUrl = Util:getServer()..'pages/clt/v1/livingBacksEnhance.jsp'
+            Http:request('liveBackData',liveBackUrl,104,{useCache=false,method = 'post', postData=posttail})
+            Loading:show(rootSprite)
+            local nowday = Sprite:findChild(rootSprite,'nowday')
+            local nowtime = Sprite:findChild(rootSprite,'nowtime')
+            Sprite:setProperty(nowtime,'text',liveData.nowTime)
+            getCurTime = liveData.nowTime
+            Timer:set(1, 1000, 'addTime')
+            Sprite:setProperty(nowday,'text',liveData.nowDay)
+            
+            local live_huibobg = Sprite:findChild(rootSprite,'live_huibobg')
+            local timeLine = Sprite:findChild(list,'timeLine')
+            Sprite:setProperty(timeLine,'src','file://image/live_timeline.png')
+            Sprite:setVisible(live_huibobg,1)
+            Sprite:setEnable(live_huibobg,1)
+        end
+    elseif msg == 102 then
+        detailData = Http:jsonDecode('detailData')      
+        if detailData and detailData.living then
+            goToDianshitai()
+        end
+    elseif msg == 103 then
+        detailData1 = Http:jsonDecode('detailData1')
+        --Log:write('detailData1===33333333333333333333',detailData1)
+        if detailData1 and detailData1.living then
+            goToDetail()
+        end
+    elseif msg == 104 then
+        if Loading:isShow() then Loading:close() end
+        liveBackData = Http:jsonDecode('liveBackData')
+        --Log:write('liveBackData===33333333333333333333',liveBackData)
+        if liveBackData and liveBackData.isLastPage then
+            isLastPage2 = liveBackData.isLastPage
+        end
+        if liveBackData and liveBackData.nextUrl then
+            theNextUrl2= liveBackData.nextUrl
+        end
+        if liveBackData and liveBackData.nodes then
+            ListView:removeAllItems(list1,1,1)
+            ListView:loadItem(list1, item2, #liveBackData.nodes+1, 'loadFavoritesListItem4')
+            ListView:adjust(list1)
+        end
+    elseif msg == 105 then
+        if Loading:isShow() then Loading:close() end
+        nextPageTable = Http:jsonDecode('list_nextPageData')
+        --Log:write('nextPageTable', nextPageTable)
+        liveData = nextPageTable
+        if nextPageTable and nextPageTable ~= '' then
+            ListView:loadItem(list, item1, #nextPageTable.nodes+1, 'loadFavoritesListItem1')
+            ListView:adjust(list)
+            isLastPage = nextPageTable.isLastPage
+            theNextUrl= nextPageTable.nextUrl
+            nextPageTable = {}
+        end
+    elseif msg == 106 then
+        if Loading:isShow() then Loading:close() end
+        nextPageTable2 = Http:jsonDecode('list_nextPageData2')
+        --Log:write('nextPageTable2', nextPageTable2)
+        liveBackData = nextPageTable2
+        if nextPageTable2 and nextPageTable2 ~= '' then
+            ListView:loadItem(list1, item2, #nextPageTable2.nodes+1, 'loadFavoritesListItem4')
+            ListView:adjust(list1)
+            isLastPage2 = nextPageTable2.isLastPage
+            theNextUrl2= nextPageTable2.nextUrl
+            nextPageTable2 = {}
+        end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    else
+        Util:onPluginEvent(msg, param)
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        if Loading:isShow() then 
+        	Loading:close() 
+        	return
+        end
+        Dialog:show('', '是否确定退出？', 'ok_cancel', 'Cb_doExit')
+        return 1
+    end
+end
+
+--@breif 重新再加载下页列表数据
+function listviewOnTrail(sprite)
+    if isLastPage and isLastPage == '0' then
+        Loading:show(rootSprite)
+        Http:request('list_nextPageData', theNextUrl, 105,{useCache=false,method = 'post', postData=posttail})
+        return 1
+    end
+    Tips:show('已经到末页!')
+    return 1
+end
+
+--@breif 重新再加载下页列表数据
+function listviewOnTrail2(sprite)
+    if isLastPage2 and isLastPage2 == '0' then
+        Loading:show(rootSprite)
+        Http:request('list_nextPageData2', theNextUrl2, 106,{useCache=false,method = 'post', postData=posttail})
+        return 1
+    end
+    Tips:show('已经到末页!')
+    return 1
+end
+
+function btnOnMouseDown(sprite, x, y)
+    --Log:write('MouseDown')
+    mouseX, mouseY = x, y
+end
+
+function btnOnMouseMove(sprite, x, y)
+    --moveX, moveY = x, y
+    --Sprite:killFocus(sprite)
+    --Sprite:releaseCapture(sprite)
+    local switch = Sprite:findChild(rootSprite, 'switch')      
+    local switchImg = Sprite:findChild(rootSprite,'switchImg')
+    local switchLab1 = Sprite:findChild(rootSprite,'switchLab1')
+    local switchLab2 = Sprite:findChild(rootSprite,'switchLab2')
+    local diffX = x - mouseX
+    local diffY = y - mouseY
+    local nowtime = Sprite:findChild(rootSprite,'nowtime')
+    if diffX >= 5 and diffX >= math.abs(diffY) then
+        Sprite:setProperty(switchImg, 'src', 'file://image/live_liveswitch2.png')
+        --Sprite:setProperty(switchLab, 'text', '直播')
+        Sprite:setProperty(switchLab1, 'color', '#ffffff')
+        Sprite:setProperty(switchLab2, 'color', '#a0a0a0')
+        --Sprite:setProperty(switchLab, 'h-align', 'center') 
+        --Sprite:setProperty(switchLab, 'rect', '40,23,40,34') 
+        liveSwitch = 1
+        Sprite:setVisible(list,1)
+        Sprite:setEnable(list,1)
+        Sprite:setVisible(list1,0)
+        Sprite:setEnable(list1,0)
+        Sprite:setVisible(nowtime,1)
+    elseif diffX <= - 5 and math.abs(diffX) >= math.abs(diffY) then
+        Sprite:setProperty(switchImg, 'src', 'file://image/live_liveswitch1.png')
+        --Sprite:setProperty(switchLab, 'text', '点播')
+        
+        Sprite:setProperty(switchLab1, 'color', '#a0a0a0')
+        Sprite:setProperty(switchLab2, 'color', '#ffffff')
+        --Sprite:setProperty(switchLab, 'h-align', 'center')
+        --Sprite:setProperty(switchLab, 'rect', '80,23,40,34')
+        liveSwitch = 0
+        Sprite:setVisible(list,0)
+        Sprite:setEnable(list,0)
+        Sprite:setVisible(list1,1)
+        Sprite:setEnable(list1,1)
+        Sprite:setVisible(nowtime,0)
+    end
+end
+
+function btnOnMouseUp(sprite, x, y)
+   -- Log:write('MouseUp')
+end
+
+-- @brief 列表创建1
+function loadFavoritesListItem1(list, item, index)
+    flag = 0
+    currIndex = index
+    Sprite:setRect(item, 0,0,640,125)
+    Sprite:setProperty(item, 'extendstyle', '1010')
+    centerListview = Sprite:findChild(item, 'centerListview')
+    centerListviewItem = Sprite:findChild(rootSprite, 'centerListviewItem')
+    local channelName = Sprite:findChild(item, 'channelName')
+    local ratio = Sprite:findChild(item, 'ratio')
+    local sohu = Sprite:findChild(item, 'sohu')
+    Sprite:setProperty(channelName, 'text', liveData.nodes[index].name)
+    Sprite:setProperty(ratio, 'text', liveData.nodes[index].rating)
+    Sprite:setProperty(sohu, 'src', liveData.nodes[index].image)
+    Sprite:setProperty(Sprite:findChild(item, 'playBtn1'),'data',liveData.nodes[index].reqPlayUrl)
+    
+    ListView:removeAllItems(centerListview,1,1)
+    ListView:loadItem(centerListview, centerListviewItem,#liveData.nodes[index].contents+1, 'loadFavoritesListItem3')
+    ListView:adjust(centerListview)
+end
+
+-- @brief 列表创建4
+function loadFavoritesListItem4(list, item, index)
+    currIndex = index
+    Sprite:setRect(item, 0,0,640,125)
+    Sprite:setProperty(item, 'extendstyle', '1010')
+    local centerListview = Sprite:findChild(item, 'centerListview')
+    local centerListviewItem = Sprite:findChild(rootSprite, 'centerListviewItem')
+    local channelName = Sprite:findChild(item, 'channelName')
+    local ratio = Sprite:findChild(item, 'ratio')
+    local sohu = Sprite:findChild(item, 'sohu')
+    local xingqi = Sprite:findChild(item, 'xingqi')
+    Sprite:setProperty(channelName, 'text', liveBackData.nodes[index].name)
+    Sprite:setProperty(ratio, 'text', liveBackData.nodes[index].rating)
+    Sprite:setProperty(sohu, 'src', liveBackData.nodes[index].image)
+    Sprite:setProperty(Sprite:findChild(item, 'playBtn2'),'data',liveBackData.nodes[index].reqPlayUrl)
+    
+    ListView:removeAllItems(centerListview,1,1)
+    ListView:loadItem(centerListview, centerListviewItem,#liveBackData.nodes[index].contents+1, 'loadFavoritesListItem2')
+    ListView:adjust(centerListview)
+    ListView:setItemToTop(centerListview,#liveBackData.nodes[index].contents)
+end
+
+-- @brief 列表创建2
+function loadFavoritesListItem2(list, item, index)
+    local lastTime = 0
+   -- if index ~= (#liveBackData.nodes[currIndex].contents) then
+       -- if timetonumber(liveBackData.nodes[currIndex].contents[index+1].time) > timetonumber(liveBackData.nodes[currIndex].contents[index].time) then
+            --lastTime = timetonumber(liveBackData.nodes[currIndex].contents[index+1].time)-timetonumber(liveBackData.nodes[currIndex].contents[index].time)
+       -- else
+           -- lastTime = timetonumber(liveBackData.nodes[currIndex].contents[index+1].time)-timetonumber(liveBackData.nodes[currIndex].contents[index].time)+timetonumber('24:00')
+      --  end
+    --else
+        lastTime = tonumber(liveBackData.nodes[currIndex].contents[index].timeDiffSec)/12
+    --end
+    if liveBackData.nodes[currIndex].nodeId == '53' then
+        Log:write('000000000000000  -', lastTime, liveBackData.nodes[currIndex].contents[index].name)
+    end
+    Sprite:setRect(item, 0,0,lastTime,120)
+    Sprite:setProperty(item, 'extendstyle', '1010')
+    local channelName = Sprite:findChild(item, 'channelName')
+    local xingqi = Sprite:findChild(item, 'xingqi')
+    local whiteline = Sprite:findChild(item, 'whiteline')
+    local time = Sprite:findChild(item, 'time')
+    --local colorkuang = Sprite:findChild(item, 'colorkuang')
+    local kuang = Sprite:findChild(item, 'kuang')
+    local centerListviewbtn = Sprite:findChild(item, 'centerListviewbtn')
+    
+    Sprite:setVisible(kuang,0)
+    --Sprite:setVisible(colorkuang,0)
+    Sprite:setProperty(centerListviewbtn, 'data', liveBackData.nodes[currIndex].contents[index].reqPlayUrl)
+    Sprite:setProperty(channelName, 'text', liveBackData.nodes[currIndex].contents[index].name)
+    Sprite:setProperty(time, 'text', liveBackData.nodes[currIndex].contents[index].time)
+    Sprite:setProperty(xingqi, 'text', liveBackData.nodes[currIndex].contents[index].monthDay)
+
+    Sprite:setRect(whiteline,lastTime-1,0,1,120)
+    Sprite:setRect(channelName,20,0,lastTime-20,40)
+    --Log:write('channelName===',channelName)
+    Sprite:setRect(xingqi,20,40,lastTime-20,40)
+    Sprite:setRect(time,20,80,lastTime-20,40)
+    --Log:write('time===',time)
+    Sprite:setRect(kuang,0,0,lastTime,120)
+    Sprite:setRect(centerListviewbtn,0,0,lastTime,120)
+    --Sprite:setProperty(kuang, 'color', '#'..colorTable[currIndex+1])
+    --Sprite:setRect(colorkuang,0,0,lastTime,120)
+    --Sprite:setProperty(colorkuang, 'src', kuangImg[math.floor((currIndex+1)/26)+1])
+    
+    Sprite:setEnable(centerListviewbtn,1)
+end
+
+-- @brief 列表创建3
+function loadFavoritesListItem3(list, item, index)
+    --Sprite:setProperty(item, 'border', '1')
+    local currTime = timetonumber(firstTime)
+    local currTime1 = timetonumber(liveData.nodes[currIndex].contents[index].time)
+    if index == 0 then
+        if currTime < 250 then
+            currTime1 = currTime1 - 250
+        end
+    end
+    local channelName = Sprite:findChild(item, 'channelName')
+    local whiteline = Sprite:findChild(item, 'whiteline')
+    local time = Sprite:findChild(item, 'time')
+    local xingqi = Sprite:findChild(item, 'xingqi')
+    local kuang = Sprite:findChild(item, 'kuang')
+    local colorshadow = Sprite:findChild(item, 'colorshadow')
+    --local colorkuang = Sprite:findChild(item, 'colorkuang')
+    local centerListviewbtn = Sprite:findChild(item, 'centerListviewbtn')
+    local lastTime = 0
+    if index ~= (#liveData.nodes[currIndex].contents) then
+        lastTime = timetonumber(liveData.nodes[currIndex].contents[index+1].time)
+    else
+        lastTime = timetonumber('24:00')
+    end
+    --Log:write(currTime1,currTime)
+    if currTime1 < currTime-250 then
+        if lastTime < currTime-250 then
+            Sprite:setRect(item, 0,0,0,120)
+            Sprite:setVisible(item,0)
+            return
+        elseif lastTime > currTime then
+            if lastTime == timetonumber('24:00') then
+                Sprite:setRect(kuang,250,0,250,120)
+            else
+                Sprite:setRect(kuang,250,0,lastTime-currTime,120)
+            end
+            --Sprite:setRect(colorkuang,0,0,250,120)
+            --Sprite:setProperty(colorkuang, 'src', kuangImg[math.floor((currIndex+1)/26)+1])
+            --Sprite:setProperty(kuang, 'color', '#'..colorTable[currIndex+1])
+            Sprite:setProperty(centerListviewbtn, 'data', liveData.nodes[currIndex].contents[index].reqPlayUrl)
+            --Sprite:setVisible(kuang, 1)
+            Sprite:setEnable(centerListviewbtn,1)
+        else
+            Sprite:setProperty(channelName,'h-align','right')
+            Sprite:setProperty(time,'h-align','right')
+            local w1 = lastTime-currTime+250
+            Sprite:setVisible(kuang, 1)
+            Sprite:setRect(kuang,0,0,w1,120)
+        end
+        
+        local w = lastTime-currTime+250
+        if w > 500 then
+            w = 500
+        end
+        Sprite:setRect(item, 0,0,w,120)
+        Sprite:setRect(whiteline,w-1,0,1,120)
+        if lastTime > currTime then
+            Sprite:setRect(channelName,20,0,w-40,60)
+            Sprite:setRect(time,20,60,w-40,60)
+        else
+            Sprite:setRect(channelName,w-lastTime+currTime1+20,0,lastTime-currTime1-40,60)
+            Sprite:setRect(time,w-lastTime+currTime1+20,60,lastTime-currTime1-40,60)
+        end
+    elseif currTime1 < currTime then
+        if lastTime > currTime+250 then
+            local w = currTime+250-currTime1
+            Sprite:setRect(item, 0,0,w,120)
+            local w1 = currTime-currTime1
+            Sprite:setRect(kuang,w1,0,w-w1,120)
+            Sprite:setVisible(kuang, 1)
+            --Sprite:setRect(kuang,0,0,currTime-currTime1,120)
+            --Sprite:setVisible(kuang, 1)
+            Sprite:setEnable(centerListviewbtn,1)
+            --Sprite:setRect(colorkuang,0,0,currTime-currTime1,120)
+            Sprite:setProperty(centerListviewbtn, 'data', liveData.nodes[currIndex].contents[index].reqPlayUrl)
+            --Sprite:setProperty(colorkuang, 'src', kuangImg[math.floor((currIndex+1)/26)+1])
+            --Sprite:setProperty(kuang, 'color', '#'..colorTable[currIndex+1])
+            flag = 1
+        elseif lastTime > currTime then
+            local w = currTime-currTime1
+            Sprite:setRect(item, 0,0,lastTime-currTime1,120)
+            Sprite:setRect(kuang,0,0,w,120)
+            if lastTime == timetonumber('24:00') then
+                Sprite:setRect(kuang,w,0,250,120)
+            else
+                Sprite:setRect(kuang,w,0,lastTime-currTime1-w,120)
+            end
+            Sprite:setVisible(kuang, 1)
+            Sprite:setEnable(centerListviewbtn,1)
+            --Sprite:setRect(colorkuang,0,0,w,120)
+            Sprite:setProperty(centerListviewbtn, 'data', liveData.nodes[currIndex].contents[index].reqPlayUrl)
+            --Sprite:setProperty(colorkuang, 'src', kuangImg[math.floor((currIndex+1)/26)+1])
+            --Sprite:setProperty(kuang, 'color', '#'..colorTable[currIndex+1])
+        else
+            Sprite:setRect(item, 0,0,lastTime-currTime1,120)
+            Sprite:setRect(kuang,0,0,lastTime-currTime1,120)
+            Sprite:setVisible(kuang, 1)
+        end
+        Sprite:setRect(whiteline,lastTime-currTime1-1,0,1,120)
+        Sprite:setRect(channelName,20,0,lastTime-currTime1-20,60)
+        Sprite:setRect(time,20,60,lastTime-currTime1-20,60)
+    elseif currTime1 < currTime+250 and flag == 0 then
+        if lastTime > currTime+250 then
+            local w = currTime+250-currTime1
+            Sprite:setRect(item, 0,0,w,120)
+            Sprite:setRect(kuang,0,0,w,120)
+            Sprite:setVisible(kuang, 1)
+            Sprite:setRect(whiteline,w-1,0,1,120)
+            Sprite:setRect(channelName,20,5,w-20,30)
+            Sprite:setRect(time,20,35,w-20,30)
+            flag = 2
+        else
+            Sprite:setRect(item, 0,0,lastTime-currTime1,120)
+            if lastTime == timetonumber('24:00') then
+                Sprite:setRect(kuang,0,0,250-currTime1+currTime,120)
+            else
+                Sprite:setRect(kuang,0,0,lastTime-currTime1,120)
+            end
+            
+            Sprite:setVisible(kuang, 1)
+            Sprite:setRect(whiteline,lastTime-currTime1-1,0,1,120)
+            Sprite:setRect(channelName,20,0,lastTime-currTime1-20,60)
+            Sprite:setRect(time,20,60,lastTime-currTime1-20,60)
+        end
+    else
+        Sprite:setRect(item, 0,0,0,120)
+        Sprite:setVisible(item,0)
+        return
+    end
+    Sprite:setVisible(xingqi,0)
+    Sprite:setRect(centerListviewbtn,0,0,lastTime-currTime1,120)
+    Sprite:setRect(colorshadow,0,0,lastTime-currTime1,120)
+    Sprite:setProperty(item, 'extendstyle', '1010')
+    Sprite:setProperty(channelName, 'text', liveData.nodes[currIndex].contents[index].name)
+    Sprite:setProperty(time, 'text', liveData.nodes[currIndex].contents[index].time)
+end
+
+-- @brief item点击
+function centerItemOnSelect(sprite)
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    --local netType = Http:getCurConnect()
+    --Log:write('netType===openUrl',netType)   
+    --if netType ~= 'WLAN' then
+       --Log:write('netType=不等于==wlan')
+       --Dialog.propTable.okBtn.text = '继续观看'
+       --Dialog:show('', '您现在是非WiFi状态，为了节省流量费，建议调整为WiFi网络', 'ok_cancel', 'startCenterItemOnSelect')
+       --Dialog.propTable.okBtn.text = '确定'
+       --return
+    --end
+        
+    isPlay = 1
+    reqPlayUrl = Sprite:getData(sprite)
+    local reg = Reg:create(Reg.com_wondertek_cnlive2.play)
+    -- 判断网络是否是wifi
+    local wifiTips_reg = Reg:create("wifiTips")
+	local continueTips = Reg:getString(wifiTips_reg,'continueTips')
+	if continueTips ~= '0' then
+        local netType = Http:getCurConnect()
+        Log:write('netType===openUrl',netType)
+        if netType ~= 'WLAN' then
+           Log:write('netType=不等于==wlan')
+           notWifiTipsDialogShow()
+           return
+        end
+	end
+	if liveSwitch == 1 then
+    	Reg:setString(reg,'isLive','1')
+    	Reg:setString(reg, 'playopenUrl', reqPlayUrl)
+    else
+    	Reg:setString(reg,'isLive','1')
+    	Reg:setString(reg, 'playopenUrl', reqPlayUrl)    	
+    end
+    --Reg:setString(reg, 'nodeUrl', liveData.nodes[currIndex1].nodeUrl)
+    --Reg:setString(reg, 'requrl', liveData.nodes[currIndex1].contents[index1].reqPlayUrl)
+    --Reg:setString(reg, 'nodeId', liveData.nodes[currIndex1].nodeId)
+    --Reg:setString(reg, 'contId', liveData.nodes[currIndex1].contents[index1].contId)
+    --Reg:setString(reg,'contentName',liveData.nodes[currIndex1].contents[index1].name)
+    --Reg:setString(reg, 'playopenUrl', liveData.nodes[currIndex1].contents[index1].reqPlayUrl)
+    
+    Scene:setReturn(Alias.live, Alias.play)
+    Scene:go(Alias.play)
+    
+    
+    --if liveSwitch == 1 then
+        --local reg = Reg:create(Reg.com_wondertek_cnlive2.dianshitai_detail)
+        --Reg:setString(reg,'rating',liveData.nodes[currIndex1].rating or '')
+    	--Reg:setString(reg,'image',liveData.nodes[currIndex1].image or '')
+        ---Reg:setString(reg,'channelUrl',liveData.nodes[currIndex1].channelUrl or '')
+    	--Scene:setReturn(Alias.live,Alias.dianshitai_detail)
+        --Scene:go(Alias.dianshitai_detail)
+        --return
+    --else
+        --local reg = Reg:create(Reg.com_wondertek_cnlive2.detail)
+        --Reg:setString(reg,'contUrl',Util:getServer()..'pages/clt/v1/content.jsp?c='..liveData.nodes[currIndex1].contents[index1].contId..'&type=2&n='..liveData.nodes[currIndex1].nodeId)
+        ----Reg:setString(reg,'contentName',liveData.nodes[currIndex1].contents[index1].name)
+        --Reg:setString(reg,'listType','2')
+        
+        --Scene:setReturn(Alias.live,Alias.detail)
+        --Scene:go(Alias.detail)
+        --return
+    --end
+end
+
+function startCenterItemOnSelect()
+    local reg = Reg:create(Reg.com_wondertek_cnlive2.play)
+    --Reg:setString(reg, 'nodeUrl', liveData.nodes[currIndex1].nodeUrl)
+    --Reg:setString(reg, 'requrl', liveData.nodes[currIndex1].contents[index1].reqPlayUrl)
+    --Reg:setString(reg, 'nodeId', liveData.nodes[currIndex1].nodeId)
+    --Reg:setString(reg, 'contId', liveData.nodes[currIndex1].contents[index1].contId)
+    --Reg:setString(reg,'contentName',liveData.nodes[currIndex1].contents[index1].name)
+    --Reg:setString(reg, 'playopenUrl', liveData.nodes[currIndex1].contents[index1].reqPlayUrl)
+    if liveSwitch == 1 then
+    	Reg:setString(reg,'isLive','1')
+    	Reg:setString(reg, 'playopenUrl', reqPlayUrl)
+    else
+    	Reg:setString(reg,'isLive','0')
+    	Reg:setString(reg, 'playopenUrl', reqPlayUrl)
+    end
+    isPlay = 1
+    Scene:setReturn(Alias.live, Alias.play)
+    Scene:go(Alias.play)
+end
+
+function playBtnSelect(sprite)
+    requestUrl = Sprite:getData(sprite)
+    --local netType = Http:getCurConnect()
+    --Log:write('netType===openUrl',netType)
+    --if netType ~= 'WLAN' then
+      -- Log:write('netType=不等于==wlan')
+       ---Dialog.propTable.okBtn.text = '继续观看'
+       --Dialog:show('', '您现在是非WiFi状态，为了节省流量费，建议调整为WiFi网络', 'ok_cancel', 'startPlayButtonOnSelect')
+       --Dialog.propTable.okBtn.text = '确定'
+       --return
+    --end 
+    -- 判断网络是否是wifi
+    local wifiTips_reg = Reg:create("wifiTips")
+	local continueTips = Reg:getString(wifiTips_reg,'continueTips')
+	if continueTips ~= '0' then
+        local netType = Http:getCurConnect()
+        Log:write('netType===openUrl',netType)
+        if netType ~= 'WLAN' then
+           Log:write('netType=不等于==wlan')
+           notWifiTipsDialogShow()
+           return
+        end
+	end   
+    local reg = Reg:create(Reg.com_wondertek_cnlive2.play)
+    Reg:setString(reg,'isLive','1')
+    Reg:setString(reg, 'playopenUrl', requestUrl)
+    isPlay = 1
+    Scene:setReturn(Alias.live, Alias.play)
+    Scene:go(Alias.play)
+end
+
+--function startPlayButtonOnSelect()
+    --local reg = Reg:create(Reg.com_wondertek_cnlive2.play)
+    --Reg:setString(reg,'isLive','1')
+    --Reg:setString(reg, 'playopenUrl', requestUrl)
+    --isPlay = 1
+    --Scene:setReturn(Alias.live, Alias.play)
+    --Scene:go(Alias.play)
+--end
+
+function getUrlAndPostdata(url)  --解析url
+    local resulturl = Util:split(url,'?')
+    return resulturl[1],resulturl[2]
+end
+
+---------------------------------------util functions---------------------------
+-- @brief 将时间转换为分钟表示
+function timetonumber(time)
+    local time1 = Util:split(time,':')
+    local time2 = 0
+    if time1[3] and tonumber(time1[3])>30 then
+        time2 = tonumber(time1[1])*60+tonumber(time1[2])+1
+    else
+        time2 = tonumber(time1[1])*60+tonumber(time1[2])
+    end
+    return 5*time2
+end
+
+-- @brief 从文件中读出颜色表
+function readColor(filename)
+    local colors = IO:fileRead(filename)
+    colorTable = Util:split(colors,'\r\n')
+end
+
+function goToDianshitai()
+    local reg = Reg:create(Reg.com_wondertek_cnlive2.dianshitai_detail)
+    Reg:setString(reg,'channelUrl',detailData.living.channelUrl or '')
+    --Reg:setString(reg,'tvName',detailData.living.nodeName or '')	
+	--Reg:setString(reg,'livingName',detailData.living.name or '')
+	--Reg:setString(reg,'reqPlayUrl',detailData.living.reqPlayUrl or '')
+	--Reg:setString(reg,'willlivingName','') 
+	--Reg:setString(reg,'nid',detailData.living.nodeId or '')
+	--Reg:setString(reg,'cid',detailData.living.contId or '')
+	--Reg:setString(reg,'nodeUrl',Util:getServer()..'pages/clt/v1/tvProgramList.jsp?n='..detailData.living.nodeId..'&lookType=0')
+	Scene:setReturn(Alias.live,Alias.dianshitai_detail)
+    Scene:go(Alias.dianshitai_detail)
+end
+
+function goToDetail()
+    local reg = Reg:create(Reg.com_wondertek_cnlive2.detail)
+    Reg:setString(reg,'contUrl',Util:getServer()..'pages/clt/v1/content.jsp?c='..detailData1.living.contId..'&type=&n='..detailData1.living.nodeId)
+    Reg:setString(reg,'contentName',detailData1.living.name)
+    --Reg:setString(reg,'channelUrl',detailData1.living.channelUrl)
+    Reg:setString(reg,'listType','2')
+    
+    Scene:setReturn(Alias.live,Alias.detail)
+    Scene:go(Alias.detail)
+end
+
+function addTime()
+	local _, _, h, m, s = string.find(getCurTime, "(%d+):(%d+):(%d+)")
+	if tonumber(s) < 59 then
+		if tonumber(s) < 9 then
+			s = '0' .. tostring(tonumber(s) + 1)
+		else
+			s = tostring(tonumber(s) + 1)
+		end
+	else
+		s = '00'
+		if tonumber(m) < 59 then
+			if tonumber(m) < 9 then
+				m = '0' .. tostring(tonumber(m) + 1)
+			else
+				m = tostring(tonumber(m) + 1)
+			end
+
+		else
+			m = '00'
+			if tonumber(h) < 23 then
+				if tonumber(h) < 9 then
+					h = '0' .. tostring(tonumber(h) + 1)
+				else
+					h = tostring(tonumber(h) + 1)
+				end
+
+			else
+				h = '00'
+			end
+		end
+	end
+	getCurTime = h .. ':' ..  m .. ':' .. s
+    local nowtime = Sprite:findChild(rootSprite,'nowtime')
+    Sprite:setProperty(nowtime,'text',getCurTime)
+    Timer:set(2,1000,'addTime')
+end
+    ]]>
+</root>

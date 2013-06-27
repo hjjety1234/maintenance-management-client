@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: help
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="640,960" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,640,960" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image rect="0,0,640,960" extendstyle="1111" src="file://image/background.png" style="autosize"/>
+            <node rect="0,70,640,70" extendstyle="1111">
+                <image rect="0,0,640,70" extendstyle="1111" src="file://image/subtitle_bg.png" style="tile"/>
+                    <button name="dianshitai" rect="20,12,170,56" normal="normal" disabled="disabled" OnSelect="dianshitaiOnSelect" >
+                        <label name="normal" rect="0,0,170,46" extendstyle="1111" text="电视台收视榜" color="#0" font-size="22" h-align="center" v-align="center"/>
+                        <node name="disabled" >
+                            <image rect="0,0,170,46" extendstyle="1111" src="file://image/subtitle_focus.png" style="autosize"/>
+                            <label rect="0,0,170,46" extendstyle="1111" text="电视台收视榜" color="#ffffff" font-size="22" h-align="center" v-align="center"/>
+                        </node>
+                    </button>
+                    <button name="lanmu" rect="250,12,170,56" normal="normal" disabled="disabled" OnSelect="lanmuOnSelect" >
+                        <label name="normal" rect="0,0,170,46" extendstyle="1111" text="栏目收视榜" color="#0" font-size="22" h-align="center" v-align="center"/>
+                        <node name="disabled" >
+                            <image rect="0,0,170,46" extendstyle="1111" src="file://image/subtitle_focus.png" style="autosize"/>
+                            <label rect="0,0,170,46" extendstyle="1111" text="栏目收视榜" color="#ffffff" font-size="22" h-align="center" v-align="center"/>
+                        </node>
+                    </button>
+            </node>
+            <node rect="0,140,640,750" padding="0,0,70,0" extendstyle="1116">
+                <image rect="0,0,0,0" extendstyle="1177" src="file://image/background_nofont.png" style="autosize"/>
+                <listview name="listview" rect="0,0,640,0" padding="0,0,0,0" extendstyle="1016"/>
+            </node>
+            <node name="listitem1" rect="0,200,640,200" extendstyle="1111" visible="0" enable="0">
+            	<button name="rankingContent" rect="0,0,640,200" extendstyle="1111" OnSelect="BtnrankingContent1">
+	                <image rect="0,0,0,2" extendstyle="1171" src="file://image/person_item_line.png" style="autosize"/>
+	                <image rect="10,5,190,190" extendstyle="1100" src="file://image/tv_content_bg.png" style="autosize"/>
+	                <image name="titleimage" rect="14,9,182,182" extendstyle="1100" src="" dftsrc="file://image/home_recommend2.png" style="autosize"/>
+	                <label name="tiltename" rect="205,30,400,50" extendstyle="0010" font-size="25" text="湖南卫视" color="#0" h-align="left" v-align="top"/>
+	                <label name="bochu" rect="205,100,400,50" extendstyle="0010" text="湖南卫视" color="#0" font-size="20" h-align="left" v-align="top"/>
+	                <label name="shoushi" rect="205,150,400,50" extendstyle="0010" font-size="20" text="湖南卫视" color="#0" h-align="left" v-align="top"/>
+	                <image rect="560,65,62,64" extendstyle="1010" src="file://image/ranking_forword.png" style="center"/>
+                </button>
+            </node>
+            <node name="listitem2" rect="0,200,640,200" extendstyle="1111" visible="0" enable="0">
+            	<button name="rankingContent" rect="0,0,640,200" extendstyle="1111" OnSelect="BtnrankingContent2">
+	                <image rect="0,0,0,2" extendstyle="1171" src="file://image/person_item_line.png" style="autosize"/>
+	                <image rect="10,5,190,190" extendstyle="1100" src="file://image/tv_content_bg.png" style="autosize"/>
+	                <image name="titleimage" rect="14,9,182,182" extendstyle="1100" src="" dftsrc="file://image/home_recommend2.png" style="autosize"/>
+	                <label name="tiltename" rect="205,30,400,50" extendstyle="0010" font-size="25" text="快乐大本营" color="#0" h-align="left" v-align="top"/>
+	                <label name="tvStationbochu" rect="205,100,400,50" extendstyle="0010" text="湖南卫视" color="#0" font-size="20" h-align="left" v-align="top"/>
+	                <label name="viewNum" rect="205,150,400,50" extendstyle="0010" font-size="20" text="正在观看：1人" color="#0" h-align="left" v-align="top"/>
+	                <image rect="560,65,62,64" extendstyle="1010" src="file://image/ranking_forword.png" style="center"/>
+                </button>
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_cnlive2.common.framework'
+local rootSprite
+local isDianshi = 1
+
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    listview = Sprite:findChild(rootSprite,'listview')
+    listitem1 = Sprite:findChild(rootSprite,'listitem1')
+    listitem2 = Sprite:findChild(rootSprite,'listitem2')
+    
+    local dianshitai = Sprite:findChild(rootSprite,'dianshitai')
+        Sprite:setEnable(dianshitai,0)
+        
+        ---------------发送数据请求----------------
+        local url = Util:getServer()..'pages/clt/v1/tvProgramList.jsp?'
+        Log:write('55555555555555',url)
+        Http:request("tv_data",url,101,{useCache=false,method = 'post',postData=Util:getRequestTail()})
+        Loading:show(rootSprite)
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+    		---------------加载顶部和底部菜单----------
+        Menu:load(rootSprite, Menu.TYPE.ranking)
+        setTopMenuStatus({}, 1, '排行榜')
+        
+    elseif msg == MSG_DEACTIVATE then
+        Tips:close()
+        if Loading:isShow() then Loading:close() end
+        if isDianshi == 0 then
+            Scene:freeByHandle(rootSprite)
+        else
+            isDianshi = 0
+        end
+    else
+        Util:onSpriteEvent(msg, param)
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then
+        if Loading:isShow() then Loading:close() end
+    	--------------获取请求返回的数据----------------------
+        reqData = Http:jsonDecode("tv_data")   
+        if reqData and reqData.nodes then
+			ListView:loadItem(listview, listitem1, #reqData.nodes+1, 'Loadlistitem1')
+			ListView:adjust(listview)
+        end
+    elseif msg == 102 then
+        if Loading:isShow() then Loading:close() end
+    	--------------获取请求返回的数据----------------------
+        lanmuData = Http:jsonDecode("lanmu_data")
+        --Log:write('lanmuData===',lanmuData)
+        if lanmuData and lanmuData.contents[0] then
+			ListView:loadItem(listview, listitem2, #lanmuData.contents+1, 'Loadlistitem2')
+			ListView:adjust(listview)
+        end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        if Loading:isShow() then 
+        	Loading:close() 
+        	return
+        end
+        -- 跳转到该页面时，需要Scene:setReturn才能跳回
+        Dialog:show('', '是否确定退出？', 'ok_cancel', 'Cb_doExit')
+        return 1
+    end
+end
+-----------------------加载列表项的回调函数------------------------
+function Loadlistitem1(list, item, index)
+	Sprite:setRect(item, 0,0,640,200)
+		
+	local titleimage = Sprite:findChild(item, 'titleimage')
+    local tiltename = Sprite:findChild(item, 'tiltename')
+    local bochu = Sprite:findChild(item, 'bochu')
+    local shoushi = Sprite:findChild(item, 'shoushi')
+    
+	Sprite:setProperty(titleimage, 'src', reqData.nodes[index].image) 
+	Sprite:setProperty(tiltename, 'text', reqData.nodes[index].name)
+	Sprite:setProperty(bochu, 'text', '正在播出：'..reqData.nodes[index].livingName)
+	Sprite:setProperty(shoushi, 'text', '收视指数：'..reqData.nodes[index].rating)
+end
+
+function Loadlistitem2(list, item, index)
+	Sprite:setRect(item, 0,0,640,200)
+		
+	local titleimage = Sprite:findChild(item, 'titleimage')
+    local tiltename = Sprite:findChild(item, 'tiltename')
+    local tvStationbochu = Sprite:findChild(item, 'tvStationbochu')
+    local viewNum = Sprite:findChild(item, 'viewNum')
+    
+	Sprite:setProperty(titleimage, 'src', lanmuData.contents[index].livingImage) 
+	Sprite:setProperty(tiltename, 'text', lanmuData.contents[index].name)
+	Sprite:setProperty(tvStationbochu, 'text',lanmuData.contents[index].nodeName)
+	Sprite:setProperty(viewNum, 'text', '正在观看：'..lanmuData.contents[index].onlineNum..'人')
+end
+
+function dianshitaiOnSelect(sprite)
+	local dianshitai = Sprite:findChild(rootSprite,'dianshitai')
+    Sprite:setEnable(dianshitai,0)
+    local lanmu = Sprite:findChild(rootSprite,'lanmu')
+    Sprite:setEnable(lanmu,1)
+    local url = Util:getServer()..'pages/clt/v1/tvProgramList.jsp?'
+    Log:write('55555555555555',url)
+    Http:request("tv_data",url,101,{useCache=true,method = 'post',postData=Util:getRequestTail()})
+    Loading:show(rootSprite)
+    ListView:removeAllItems(listview,1,1)
+end
+
+function lanmuOnSelect(sprite)
+	local dianshitai = Sprite:findChild(rootSprite,'dianshitai')
+    Sprite:setEnable(dianshitai,1)
+    local lanmu = Sprite:findChild(rootSprite,'lanmu')
+    Sprite:setEnable(lanmu,0)
+    local url = Util:getServer()..'pages/clt/v1/nodeProgramList.jsp?'
+    Log:write('55555555555555',url)
+    Http:request("lanmu_data",url,102,{useCache=true,method = 'post',postData=Util:getRequestTail()})
+    Loading:show(rootSprite)
+    ListView:removeAllItems(listview,1,1)
+end
+
+
+function BtnrankingContent1(sprite)
+	isDianshi = 1
+	local dianshitai = Sprite:findChild(rootSprite,'dianshitai')
+	local lanmu = Sprite:findChild(rootSprite,'lanmu')
+	local rankingContent = Sprite:findChild(rootSprite,'rankingContent')
+	local index = ListView:getItemIndex(Sprite:getParent(sprite))
+	local reg = Reg:create(Reg.com_wondertek_cnlive2.dianshitai_detail)
+	Reg:setString(reg,'channelUrl',reqData.nodes[index].channelUrl)
+	--Reg:setString(reg,'nid',reqData.nodes[index].nodeId)
+	--Reg:setString(reg,'tvName',reqData.nodes[index].name)
+	--Reg:setString(reg,'livingName',reqData.nodes[index].livingName) 
+    --Reg:setString(reg,'willlivingName',reqData.nodes[index].willlivingName)
+	--Reg:setString(reg,'rating',reqData.nodes[index].rating)
+	--Reg:setString(reg,'reqPlayUrl',reqData.nodes[index].reqPlayUrl)
+	--Reg:setString(reg,'tvPaperUrl',reqData.nodes[index].tvPaperUrl)
+	--Reg:setString(reg,'image',reqData.nodes[index].image)
+	Reg:setString(reg,'listType','8')
+	--Sprite:setEnable(dianshitai,0)
+	--Sprite:setEnable(lanmu,1)
+	Scene:setReturn(Alias.ranking,Alias.dianshitai_detail)
+	Scene:go(Alias.dianshitai_detail)
+end
+
+function BtnrankingContent2(sprite)
+	isDianshi = 1
+	local dianshitai = Sprite:findChild(rootSprite,'dianshitai')
+	local lanmu = Sprite:findChild(rootSprite,'lanmu')
+	local rankingContent = Sprite:findChild(rootSprite,'rankingContent')
+	local index = ListView:getItemIndex(Sprite:getParent(sprite))
+	local reg = Reg:create(Reg.com_wondertek_cnlive2.dianshitai_detail)
+	Reg:setString(reg,'channelUrl',lanmuData.contents[index].channelUrl)
+	Reg:setString(reg,'listType','8')
+	--Sprite:setEnable(dianshitai,0)
+	--Sprite:setEnable(lanmu,1)
+	Scene:setReturn(Alias.ranking,Alias.dianshitai_detail)
+	Scene:go(Alias.dianshitai_detail)
+
+end
+
+    ]]>
+</root>

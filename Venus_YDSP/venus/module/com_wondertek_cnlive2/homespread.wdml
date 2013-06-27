@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: gaoyonglei <gaoyonglei@wdit.com.cn>
+ == ============================================================================
+ == | Desc: home展开页
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="640,960" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,640,960" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <image rect="0,0,640,960" style="autosize" src="file://image/background_nofont.png" extendstyle="1111" />
+            <!-- 列表 -->
+            <listview name="contentListview" rect="0,70,640,820" padding="0,0,70,0" extendstyle="1116" >
+                <image name="listViewBg" rect="0,0,640,820" extendstyle="1111" style="autosize" src="" />
+                <list-item rect="0,0,640,0" extendstyle="1010">
+                    <list name="contentList" rect="0,0,640,0" extendstyle="1010" line="" col="3" auto-adjust="true" />
+                </list-item>
+            </listview>
+            <node name="contentItem" rect="0,0,213,290" extendstyle="1000" visible="false" enable="false" >
+                <!--<image rect="0,0,0,0" extendstyle="1177" src="file://image/background_nofont.png" style="autosize"/>-->
+                <button name="homespread_btn" rect="8,15,200,200" extendstyle="1000" OnSelect="contentItemOnSelect" >
+                    <image rect="0,0,200,200" extendstyle="1100" style="autosize" src="file://image/tv_content_bg.png" />
+                    <image name="homespread_bg" rect="14,12,170,170" extendstyle="1100" style="autosize" src="" dftsrc="file://image/home_recommend2.png"/>
+                </button>
+                <label name="contentText" rect="8,215,197,40" text="视频中国" extendstyle="1000" color="#000000" postfix="..." font-size="22" v-align="center" h-align="left" />
+                <label name="shoushilv" rect="8,255,213,20" extendstyle="1000" text="" font-size="20" postfix="..." v-align="center" h-align="left" />
+                <!--<shadow rect="0,288,640,2" extendstyle="1114" visible="true" color="#000000"/>-->
+            </node>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_cnlive2.common.framework'
+local rootSprite
+local classShowTable = {"正在播出", "直播影院", "直播剧场"} -- 导航显示
+local contentTable
+local pictureList = {}
+local listcurindex = 0
+local displayType = 0
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    contentListview = Sprite:findChild(sprite, 'contentListview')
+    contentList = Sprite:findChild(sprite, 'contentList')
+    contentItem = Sprite:findChild(sprite, 'contentItem')
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        Menu:load(rootSprite, Menu.TYPE.home)
+        local reg = Reg:create(Reg.com_wondertek_cnlive2.homespread)
+        listcurindex = Reg:getInteger(reg, 'listcurindex')
+           
+        local url = Reg:getString(reg, 'moreUrl')
+        
+        --if listcurindex == 1 then
+            --url = Util:getServer()..'pages/clt/v1/moreWillList.jsp?lookType='..listcurindex 
+        --elseif listcurindex == 2 then
+            --url = Util:getServer()..'pages/clt/v1/moreWillList.jsp?lookType='..listcurindex 
+        --elseif listcurindex == 3 then
+            --url = Util:getServer()..'pages/clt/v1/moreMoiveList.jsp?lookType='..listcurindex 
+        --end   
+        --Log:write('url =====11111111111111111111',url) 
+        Http:request('HomeData',url,101,{useCache=false,method = 'post',postData=Util:getRequestTail()})
+        List:removeAllItems(contentList, 1, 1)
+    elseif msg == MSG_DEACTIVATE then
+        Tips:close()
+        Scene:freeByHandle(rootSprite)
+        if Loading:isShow() then Loading:close() end
+    else
+        Util:onSpriteEvent(msg, param)
+    end
+    Loading:show(rootSprite)
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then
+    	if Loading:isShow() then Loading:close() end
+        HomeData = Http:jsonDecode('HomeData')
+        Log:write('0000000000000',HomeData)
+        if HomeData and HomeData.nodes and HomeData.nodes[listcurindex].contents and HomeData.nodes[listcurindex].contents[0] then
+            local visiableNodeTable= {'topReturnButton'}
+            setTopMenuStatus(visiableNodeTable, 1,HomeData.nodes[listcurindex].name)
+            contentTable = HomeData.nodes[listcurindex].contents  
+            createContentList()
+        end
+    --elseif msg == 102 then
+    	--detailData = Http:jsonDecode('detailData')
+    	--Log:write('0000000000000',detailData)
+    	--if detailData and detailData.nodes then
+    		--godianshitai_detail()
+		--end
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    else
+        Util:onPluginEvent(msg, param)
+    end
+end
+
+-- @brief 返回
+function returnOnSelect(sprite)
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    Scene:back()
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        if Loading:isShow() then 
+        	Loading:close() 
+        	return
+        end
+        Dialog:show('', '是否确定退出？', 'ok_cancel', 'Cb_doExit')
+        return 1
+    end
+end
+
+-- @brief 展开按钮点击
+function spreadOnSelect(sprite)
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    local reg = Reg:create(Reg.com_wondertek_cnlive2.homespread)
+    Reg:setInteger(reg, 'listcurindex', listcurindex)
+    if listcurindex == 0 then
+        Scene:setReturn(Alias.tvspread, Alias.home)
+        Scene:go(Alias.home,true)
+    else
+        Scene:setReturn(Alias.homespread, Alias.home)
+        Scene:go(Alias.home,true)
+    end
+end
+
+function onLoadContentItem(list, item, index)
+    Sprite:setProperty(item, "extendstyle", "1000")
+    Sprite:setRect(item, 0, 0, 213, 290)
+    local contentText = Sprite:findChild(item, 'contentText')
+    local shoushilv = Sprite:findChild(item, 'shoushilv')
+    local homespread_bg = Sprite:findChild(item,'homespread_bg')
+    Sprite:setProperty(contentText, 'text', contentTable[index].name or '')
+    --Sprite:setProperty(shoushilv, 'text', '收视率:'..contentTable[index].rating or '')
+    Sprite:setProperty(homespread_bg, 'src', contentTable[index].image or '')
+    local reg = Reg:create(Reg.com_wondertek_cnlive2.homespread)
+    Reg:getInteger(reg, 'listcurindex', listcurindex)
+    if HomeData.nodes[listcurindex].displayType == '1' then
+    	Sprite:setProperty(shoushilv, 'text', '收视指数'..contentTable[index].rating or '')
+	else   
+	    if contentTable[index].lastTime == '0' then 
+	    	Sprite:setProperty(shoushilv, 'text', '正在播出')
+	    else
+	        Sprite:setProperty(shoushilv, 'text', '距离播放:' .. (contentTable[index].lastTime and contentTable[index].lastTime ~='' and contentTable[index].lastTime .. '分钟' or '' ))
+	    end
+	end
+end
+
+function contentItemOnSelect(sprite)
+	Sprite:killFocus(sprite)
+	Sprite:releaseCapture(sprite)
+	local homespread_btn = Sprite:findChild(rootSprite,'homespread_btn')
+	index = List:getItemIndex(Sprite:getParent(sprite))
+	local reg = Reg:create(Reg.com_wondertek_cnlive2.dianshitai_detail)
+	Reg:setString(reg,'channelUrl',contentTable[index].channelUrl or '')
+	--local detailUrl = contentTable[index].nodeUrl..Util:getRequestTail()
+	--Http:request('detailData',detailUrl,102,{useCache=false,method ='post',postData=postData})		
+	Scene:setReturn(Alias.homespread,Alias.dianshitai_detail)
+	Scene:go(Alias.dianshitai_detail)
+end
+
+--function godianshitai_detail()
+	--local reg = Reg:create(Reg.com_wondertek_cnlive2.dianshitai_detail)
+	--Reg:setString(reg,'cid',contentTable[index].contId or '')
+    --Reg:setString(reg,'rating',detailData.nodes[index].rating or '')
+    --Reg:setString(reg,'image',detailData.nodes[index].image or '')
+    --Reg:setString(reg,'livingName',detailData.nodes[index].livingName or '')
+    --Reg:setString(reg,'tvName',detailData.nodes[index].name or '')
+    --Reg:setString(reg,'willlivingName',detailData.nodes[index].willlivingName or '')
+    
+	--Scene:setReturn(Alias.homespread,Alias.dianshitai_detail)
+	--Scene:go(Alias.dianshitai_detail)
+--end
+
+-- @brief 列表list加载 
+function loadPictureList(list, item, index)
+    Sprite:setRect(item, 0,0,76,50)
+    Sprite:setProperty(item, 'extendstyle', '1000')
+    local button = Sprite:findChildByClass(item, 'button')
+    Sprite:setProperty(button, 'data', pictureList[index+1].url)
+    local nLabel = Sprite:findChild(button, 'nLabel')
+    local dLabel = Sprite:findChild(button, 'dLabel')
+    Sprite:setProperty(nLabel, 'text', pictureList[index+1].name)
+    Sprite:setProperty(dLabel, 'text', pictureList[index+1].name)
+end
+
+-- @brief 分类按钮响应 
+function classBtnOnSelect(sprite)
+    Sprite:killFocus(sprite)
+    Sprite:releaseCapture(sprite)
+    local item = Sprite:getParent(sprite)
+    local index = ListView:getItemIndex(item)
+    disableClassButton(index)
+    listcurindex = index
+    local reg = Reg:create(Reg.com_wondertek_cnlive2.homespread)
+    Reg:setInteger(reg, 'listcurindex', listcurindex)
+    if index == 0 then
+        Scene:go(Alias.tvspread)
+    else
+        Scene:go(Alias.homaspread)
+    end
+end
+
+
+---------------------------------------util functions---------------------------
+
+function createContentList()
+    local listViewBg = Sprite:findChild(rootSprite,'listViewBg')
+    local count = #contentTable+1
+    local h_bg = math.ceil(count/3)*290
+    if h_bg<820 then
+        h_bg = 820
+    end
+    Sprite:setRect(listViewBg, 0, 0, 640, h_bg)
+    Sprite:setProperty(contentList, "line", math.ceil(count/3))
+    local x_list, y_list, w_list, h_list = Sprite:getRect(contentList)
+    Sprite:setRect(contentList, x_list, y_list, w_list, math.ceil(count/3)*290)
+    Sprite:setRect(Sprite:getParent(contentList) , x_list, y_list, w_list, math.ceil(count/3)*290)
+    List:loadItem(contentList, contentItem, count, 'onLoadContentItem')
+    List:adjust(contentList)
+    ListView:setItemToTop(contentListview, 0)
+    ListView:adjust(contentListview)
+end
+
+-- @brief disable分类按钮
+function disableClassButton(index)
+    local curIndex = index and index or 0
+    local list = Sprite:findChild(rootSprite, 'classlist')
+    local listviewCount = ListView:getItemCount(list)
+    local disableItem = ListView:getItem(list, curIndex)
+    for i=0, listviewCount-1 do
+        local item = ListView:getItem(list, i)
+        Sprite:setEnable(Sprite:findChildByClass(item, 'button'), 1)
+    end
+    local curItem = ListView:getItem(list, curIndex)
+    local button = Sprite:findChildByClass(curItem, 'button')
+    Sprite:setEnable(button, 0)
+end
+
+    ]]>
+</root>
