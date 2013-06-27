@@ -379,14 +379,14 @@ function bodyOnPluginEvent(msg, param)
         OnSelectShowMap()
         -- Log:write("@jldu 请求人员统计数据:  ",stasticTable)
         Sprite:setProperty(tongjiNode,'visible','true')       
-        Sprite:setProperty(renyuantongji,'text','今日登录用户'..stasticData.value[0].allstaff..'人，今日在线'..stasticData.value[0].allonlinestaff..'人，正在巡检'..stasticData.value[0].xunjian..'人，处理隐患'..stasticData.value[0].yinhuan..'人，资源核查'..stasticData.value[0].hecha..'人，其它在线'..stasticData.value[0].other..'人。') 
+        Sprite:setProperty(renyuantongji,'text','今日登录用户'..stasticData.value[0].allstaff..'人，当前在线'..stasticData.value[0].allonlinestaff..'人，正在巡检'..stasticData.value[0].xunjian..'人，处理隐患'..stasticData.value[0].yinhuan..'人，资源核查'..stasticData.value[0].hecha..'人，其它在线'..stasticData.value[0].other..'人。') 
     elseif msg == 102 then
         carStasticData = Http:jsonDecode('carStastic')
         carStasticTable = carStasticData.value[0].data
         OnSelectShowMap()
         Log:write("@jldu 请求车辆统计数据:  ",carStasticTable)
         Sprite:setProperty(tongjiNode,'visible','true')
-        Sprite:setProperty(renyuantongji,'text','车辆总数'..carStasticData.value[0].totalcar..'辆，有任务的车辆'..carStasticData.value[0].taskcar..'辆。')
+        Sprite:setProperty(renyuantongji,'text','今日在线'..carStasticData.value[0].totalcar..'辆车，其中'..carStasticData.value[0].taskcar..'辆有代维任务。')
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -441,7 +441,7 @@ function doRegionClick(sprite)
         elseif bottomFlag == 2 then
             for i=0,#carStasticTable do
                 if selCity == carStasticTable[i].dimension then
-                    Sprite:setProperty(renyuantongji,'text',selCity..'车辆总数'..carStasticTable[i].car..'辆，有任务的车辆'..carStasticTable[i].taskcar..'辆。') 
+                    Sprite:setProperty(renyuantongji,'text',selCity..'今日在线'..carStasticTable[i].car..'辆车，其中'..carStasticTable[i].taskcar..'辆有代维任务。') 
                 end
             end
         end 
@@ -523,7 +523,7 @@ function requestStastic()
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
     Log:write("@jldu 请求人员统计数据地址: "..reqURL)
     Http:request('stasticData', reqURL, 101, {useCache = false})
-    Loading:show()
+    -- Loading:show()
 end
 
 -- @jldu 请求车辆统计数据
@@ -532,7 +532,7 @@ function requestCarStastic()
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
     Log:write("@jldu 请求车辆统计数据地址: "..reqURL)
     Http:request('carStastic', reqURL, 102, {useCache = false})
-    Loading:show()  
+    -- Loading:show()  
 end
 
 -- @jldu 初始化地图数据
