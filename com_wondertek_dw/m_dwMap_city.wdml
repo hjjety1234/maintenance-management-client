@@ -347,7 +347,7 @@ function bodyOnPluginEvent(msg, param)
         carStasticData = Http:jsonDecode('carStastic')
         Log:write("@jldu 请求车辆统计数据:  ",carStasticData)
         handlecartongji()
-        Sprite:setProperty(renyuantongji,'text',citydata.city..'车辆总数'..car..'辆，有任务车辆数'..taskcar..'辆。')
+        Sprite:setProperty(renyuantongji,'text',citydata.city..'今日在线'..car..'辆车，其中'..taskcar..'辆有代维任务。')
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -477,7 +477,7 @@ function requestCarStastic()
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
     Log:write("@jldu 请求车辆统计数据地址: "..reqURL)
     Http:request('carStastic', reqURL, 102, {useCache = false})
-    Loading:show()  
+    -- Loading:show()  
 end
 
 -- @jldu 请求地图数据
