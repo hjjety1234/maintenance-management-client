@@ -182,7 +182,7 @@ public class FloatRelativeLayout extends RelativeLayout {
 		SimpleAdapter listItemAdapter = new SimpleAdapter(context, listItem,
 				R.layout.float_view_listitem, 
 				new String[] { "deptname", "headship" }, 
-				new int[] { R.id.deptname, R.id.caller_name });
+				new int[] { R.id.deptname, R.id.headship});
 		listview.setAdapter(listItemAdapter);
 		
 		// 尝试下载员工第一个职位的照片
