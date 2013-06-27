@@ -1,5 +1,6 @@
 package com.wondertek.video.caller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -44,7 +45,9 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 			} else if (msg.what == 2) {
 				Log.d(TAG,
 						"[handleMessage] handle get employee info by http method... ");
-				addPopup((Employee) msg.obj, mContext);
+				List<Employee> empList = new ArrayList<Employee>();
+				empList.add((Employee) msg.obj);
+				addPopup(empList, mContext);
 			}
 			super.handleMessage(msg);
 		}
@@ -64,13 +67,12 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 			Log.d(TAG, "[onReceive] outgoing caller number: " + number);
 			// search sqlite database
 			DbHelper helper = new DbHelper(context);
-			Employee e = helper.getEmployee(number);
-			if (e != null) {
-				addToHistory(number, "1", context, e.getEmpid());
-				addPopup(e, context);
+			List<Employee> empList = helper.getEmployee(number);
+			if (empList != null && empList.size() > 0) {
+				addToHistory(number, "1", context, empList.get(0).getEmpid());
+				addPopup(empList, context);
 			} else {
-				Log.w(TAG,
-						"[onReceive] can't find the outgoing caller in sqlite database.");
+				Log.w(TAG, "[onReceive] can't find the outgoing caller in sqlite database.");
 			}
 			return;
 		}
@@ -83,14 +85,13 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 			Log.d(TAG, "[onReceive] incoming call number:" + number);
 			// search sqlite database
 			DbHelper helper = new DbHelper(context);
-			Employee e = helper.getEmployee(number);
-			if (e != null) {
+			List<Employee> empList = helper.getEmployee(number);
+			if (empList != null && empList.size() > 0) {
 				// record to history first
-				addToHistory(number, "0", context, e.getEmpid());
-				addPopup(e, context);
+				addToHistory(number, "0", context, empList.get(0).getEmpid());
+				addPopup(empList, context);
 			} else {
-				Log.w(TAG,
-						"[onReceive] can't find the incoming caller in sqlite database.");
+				Log.w(TAG, "[onReceive] can't find the incoming caller in sqlite database.");
 			}
 			break;
 		case TelephonyManager.CALL_STATE_OFFHOOK:
@@ -119,10 +120,8 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 	}
 
 	// add popup window
-	public void addPopup(Employee e, Context c) {
-		Log.d(TAG,
-				"[addPopup] name: " + e.getName() + " department: "
-						+ e.getDepartment() + " headship: " + e.getHeadship());
+	public void addPopup(List<Employee> empList, Context c) {
+		Log.d(TAG,">>>addPopup<<<");
 		WindowManager wm = (WindowManager) c
 				.getSystemService(Context.WINDOW_SERVICE);
 
@@ -178,7 +177,7 @@ public class PhoneStatReceiver extends BroadcastReceiver {
 			Log.d(TAG, "[addPopup] clear previous popup window...");
 			removePopup(c);
 		}
-		relativeLayout = new FloatRelativeLayout(c, params, e);
+		relativeLayout = new FloatRelativeLayout(c, params, empList);
 		wm.addView(relativeLayout, params);
 		
 		relativeLayout.setScaleEnabled(true);

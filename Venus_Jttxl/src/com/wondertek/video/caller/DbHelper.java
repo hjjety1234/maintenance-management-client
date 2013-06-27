@@ -2,6 +2,8 @@ package com.wondertek.video.caller;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
@@ -128,8 +130,12 @@ public class DbHelper extends SQLiteOpenHelper {
 		onCreate(db);
 	}
 
-	// Getting single employee
-	public Employee getEmployee(String number) {
+	/**
+	* @Description 由电话号码查找员工列表
+	* @author hewu <hewu2008@gmail.com>
+	* @date 2013-6-27 下午10:03:43
+	*/
+	public List<Employee> getEmployee(String number) {
 		SQLiteDatabase db = null;
 		Log.d(TAG, "[getEmployee] number: " + number);
 		try {
@@ -146,16 +152,14 @@ public class DbHelper extends SQLiteOpenHelper {
 				if (systemUser != null && systemUser.getDepartmentFax() != "") {
 					Log.d(TAG, "[getEmployee] system user deparment fax is: "
 							+ systemUser.getDepartmentFax());
-					cursor = db.query(TABLE_EMPLOYEE, new String[] {
-							KEY_EMPLOYEE_NAME, KEY_DEPARTMENT_ID,
-							KEY_DEPARTMENT_NAME, KEY_EMPLOYEE_HEADSHIP_NAME,
-							KEY_EMPLOYEE_MOBILE, KEY_EMPLOYEE_PICTURE,
-							KEY_EMPLOYEE_ID, KEY_EMPLOYEE_DEPARTMENT_FAX }, "("
-							+ KEY_EMPLOYEE_DEPARTMENT_FAX + "=?) and ("
-							+ KEY_EMPLOYEE_MOBILE_SHORT + "=? or "
-							+ KEY_EMPLOYEE_TEL_SHORT + "=? )", new String[] {
-							systemUser.getDepartmentFax(), number, number },
-							null, null, null, null);
+					cursor = db.rawQuery("select emp.employee_name, udept.department_id," +
+							" dept.department_name, udept.headship_name, emp.mobile," +
+							" emp.picture, emp.employee_id, emp.department_fax from" +
+							" tb_c_employee emp,tb_c_user_department udept,tb_c_department dept" +
+							" where udept.user_company_id = emp.user_company_id and" +
+							" dept.department_id = udept.department_id and" +
+							" emp.department_fax=? and (emp.mobile_short = ? or emp.tel_short = ?)", 
+							new String[]{systemUser.getDepartmentFax(), number, number});
 				} else {
 					Log.w(TAG,
 							"[getEmployee] system user's deparment fax is empty, return null!");
@@ -164,18 +168,18 @@ public class DbHelper extends SQLiteOpenHelper {
 				}
 			} else {
 				Log.d(TAG, "[getEmployee] " + number + " is not short number!");
-				cursor = db.query(TABLE_EMPLOYEE, new String[] {
-						KEY_EMPLOYEE_NAME, KEY_DEPARTMENT_ID,
-						KEY_DEPARTMENT_NAME, KEY_EMPLOYEE_HEADSHIP_NAME,
-						KEY_EMPLOYEE_MOBILE, KEY_EMPLOYEE_PICTURE,
-						KEY_EMPLOYEE_ID, KEY_EMPLOYEE_DEPARTMENT_FAX, 
-						KEY_EMPLOYEE_COMPANY_ID },
-						KEY_EMPLOYEE_MOBILE + "=? or " + KEY_EMPLOYEE_TEL
-								+ "=?", new String[] { number, number }, null,
-						null, null, null);
+				cursor = db.rawQuery("select emp.employee_name, udept.department_id," +
+						" dept.department_name, udept.headship_name, emp.mobile," +
+						" emp.picture, emp.employee_id, emp.department_fax from" +
+						" tb_c_employee emp,tb_c_user_department udept,tb_c_department dept" +
+						" where udept.user_company_id = emp.user_company_id and" +
+						" dept.department_id = udept.department_id and" +
+						" (emp.mobile = ? or emp.tel = ?)", 
+						new String[]{number, number});
 			}
-
-			if (cursor != null && cursor.moveToFirst()) {
+			
+			List<Employee> employeeList = new ArrayList<Employee>();
+			while (cursor != null && cursor.moveToNext()) {
 				String name = cursor.getString(0);
 				Log.d(TAG, "[getEmployee] name: " + name);
 				String departmentId = cursor.getString(1);
@@ -211,18 +215,17 @@ public class DbHelper extends SQLiteOpenHelper {
 				Log.d(TAG, "[getEmployee] employee_id:" + empolyeeId);
 				String departmentFax = cursor.getString(7);
 				Log.d(TAG, "[getEmployee] department fax:" + departmentFax);
-				cursor.close();
-				db.close();
-				return new Employee(empolyeeId, name, mobile, headshipName,
+				Employee e = new Employee(empolyeeId, name, mobile, headshipName,
 						qualifiedDeptName, picture, departmentFax);
-			} else {
-				Log.d(TAG,
-						"[getEmployee] can't find the caller in sqlite database.");
-				if (cursor != null)
-					cursor.close();
-				db.close();
+				employeeList.add(e);
+			} 
+			if (cursor != null) cursor.close();
+			db.close();
+			if (employeeList.size() == 0) {
+				Log.d(TAG, "[getEmployee] can't find the caller in sqlite database.");
 				return null;
-			}
+			}else
+				return employeeList;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

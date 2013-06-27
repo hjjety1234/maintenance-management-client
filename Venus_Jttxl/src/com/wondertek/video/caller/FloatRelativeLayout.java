@@ -3,6 +3,7 @@ package com.wondertek.video.caller;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -15,7 +16,6 @@ import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -28,9 +28,6 @@ public class FloatRelativeLayout extends RelativeLayout {
 	
 	// 标记是否是自定义的布局
 	private static boolean bIsCustomLayout = false;
-	
-	// 员工信息类
-	private Employee employee;
 	
 	public boolean isScale = false;     // 标记是否需要缩放
 	private float mScaleFactor = 1;		// 缩放比例
@@ -59,33 +56,29 @@ public class FloatRelativeLayout extends RelativeLayout {
 	* @param e
 	*/
 	public FloatRelativeLayout(Context context,
-			WindowManager.LayoutParams params, Employee e) {
+			WindowManager.LayoutParams params, List<Employee> empList) {
 		super(context);
 		// 初始化变量
-		employee = e;
 		mContext = context;
 		wmParams = params;
 		mScaleDetector = new ScaleGestureDetector(context, new OnPinchListener());
-		
-		// 检查自定义照片是否存在
+		// 如果有照片则显示带照片的名片
+		Employee employee = empList.get(0);
 		if (employee.getPicutre() != null && !employee.getPicutre().trim().equals("")) {
-			// 如果保存的照片目录不存在，需要先创建
 			File dir = new File(Constants.getLocPicDir());
 			dir.mkdir();
-			
-			// 检查照片文件是否存在
 			String localPicPath = Constants.getLocPicDir() + employee.getPicutre();
 			Log.d(TAG, "[initLayout] local picture path: " + localPicPath);
 			File pic = new File(localPicPath);
-			if (pic.exists() == true) {
-				showCustomLayout(context);
-			} else {
-				// showDefaultLayout(context);
-				showListViewLayout(context);
+			if (pic.exists() == true)  {
+				showCustomLayout(context, employee);
+				return;
 			}
-		} else {
-			// showDefaultLayout(context);
-			showListViewLayout(context);
+		}
+		if (empList.size() == 1) {
+			showDefaultLayout(context, employee);
+		}else {
+			showListViewLayout(context, empList);
 		}
 	}
 	
@@ -94,8 +87,8 @@ public class FloatRelativeLayout extends RelativeLayout {
 	* @author hewu <hewu2008@gmail.com>
 	* @date 2013-6-26 下午6:01:38
 	*/
-	private void showDefaultLayout(Context context) {
-		Log.d(TAG, "[initDefaultLayout]");
+	private void showDefaultLayout(Context context, Employee employee) {
+		Log.d(TAG, "[showDefaultLayout]");
 		bIsCustomLayout = false; 
 		inflate(context, R.layout.float_view, this);
 
@@ -115,33 +108,9 @@ public class FloatRelativeLayout extends RelativeLayout {
 
 		// 显示提示信息
 		showTipText();
-
-		// 如果自定义照片不存在则进行下载
-		if (employee.getPicutre() != null && !employee.getPicutre().trim().equals("")) {
-			File dir = new File(Constants.getLocPicDir());
-			dir.mkdir();
-			String localPicPath = Constants.getLocPicDir() + employee.getPicutre();
-			Log.d(TAG, "[initDefaultLayout] local picture path: " + localPicPath);
-			File pic = new File(localPicPath);
-			if (pic.exists() == false) {
-				Log.d(TAG, "[initLayout] trying to async download picture...");
-				final DownloadFileTask downloadFile = new DownloadFileTask(employee.getPicutre());
-				new Thread() {
-					@Override
-					public void run() {
-						String requestUri = downloadFile.requestResourceUri();
-						if (requestUri != null) {
-							String resourceUri = Constants.RES_PIC_URL_PREFIX + requestUri;
-							downloadFile.execute(resourceUri);
-						} else {
-							Log.w(TAG, "[initLayout] request resource uri failed!");
-						}
-					}
-				}.start();
-			} else {
-				Log.w(TAG, "[initLayout] picture path is null.");
-			}
-		}
+		
+		// 尝试下载员工照片
+		downloadImg(employee);
 		
 		// 显示自定义LOGO
 		ImageView iv = (ImageView) findViewById(R.id.m_logo);
@@ -153,8 +122,8 @@ public class FloatRelativeLayout extends RelativeLayout {
 	* @author hewu <hewu2008@gmail.com>
 	* @date 2013-6-26 下午5:54:51
 	*/
-	private void showCustomLayout(Context context) {
-		Log.d(TAG, "[initCustomLayout]");
+	private void showCustomLayout(Context context, Employee employee) {
+		Log.d(TAG, "[showCustomLayout]");
 		bIsCustomLayout = true;
 		inflate(context, R.layout.float_view_withphoto, this);
 		
@@ -191,26 +160,71 @@ public class FloatRelativeLayout extends RelativeLayout {
 	* @author hewu <hewu2008@gmail.com>
 	* @date 2013-6-26 下午5:36:19
 	*/
-	private void showListViewLayout(Context context) {
-		inflate(context, R.layout.float_view_listview, this);
+	private void showListViewLayout(Context context, List<Employee> empList) {
+		Log.d(TAG, "[showListViewLayout] employee count: " + empList.size());
 		bIsCustomLayout = true;
+		inflate(context, R.layout.float_view_listview, this);
 		
+		// 显示姓名
+		TextView callerName = (TextView) findViewById(R.id.caller_name);
+		callerName.setText(empList.get(0).getName());
+		
+		// 显示多职位信息
 		NonScrollableListView listview = (NonScrollableListView) findViewById(R.id.listView1);
 		listview.setLayout(this);
 		ArrayList<HashMap<String, Object>> listItem = new ArrayList<HashMap<String, Object>>();
-		for(int i = 0; i < 3; i++) {  
+		for(int i = 0; i < empList.size(); i++) {  
             HashMap<String, Object> map = new HashMap<String, Object>();  
-            map.put("deptname", "安徽移动信息系统部ICT支撑中心");  
-            map.put("headship", "初级研发工程师");  
+            map.put("deptname", empList.get(i).getDepartment());  
+            map.put("headship", empList.get(i).getHeadship());  
             listItem.add(map);  
         } 
-		
 		SimpleAdapter listItemAdapter = new SimpleAdapter(context, listItem,
 				R.layout.float_view_listitem, 
 				new String[] { "deptname", "headship" }, 
 				new int[] { R.id.deptname, R.id.caller_name });
-		
 		listview.setAdapter(listItemAdapter);
+		
+		// 尝试下载员工第一个职位的照片
+		downloadImg(empList.get(0));
+		
+		// 显示员工第一个职位对应的自定义LOGO
+		ImageView logo = (ImageView)findViewById(R.id.m_logo);
+		showCustomLogo(logo, empList.get(0).getEmpid());
+	}
+	
+	/**
+	* @Description 异步下载员工的照片
+	* @author hewu <hewu2008@gmail.com>
+	* @date 2013-6-27 下午10:33:37
+	*/
+	private void downloadImg(Employee employee) {
+		// 如果自定义照片不存在则进行下载
+		if (employee.getPicutre() != null && !employee.getPicutre().trim().equals("")) {
+			File dir = new File(Constants.getLocPicDir());
+			dir.mkdir();
+			String localPicPath = Constants.getLocPicDir() + employee.getPicutre();
+			Log.d(TAG, "[downloadImg] local picture path: " + localPicPath);
+			File pic = new File(localPicPath);
+			if (pic.exists() == false) {
+				Log.d(TAG, "[downloadImg] trying to async download picture...");
+				final DownloadFileTask downloadFile = new DownloadFileTask(employee.getPicutre());
+				new Thread() {
+					@Override
+					public void run() {
+						String requestUri = downloadFile.requestResourceUri();
+						if (requestUri != null) {
+							String resourceUri = Constants.RES_PIC_URL_PREFIX + requestUri;
+							downloadFile.execute(resourceUri);
+						} else {
+							Log.w(TAG, "[downloadImg] request resource uri failed!");
+						}
+					}
+				}.start();
+			} else {
+				Log.w(TAG, "[showDefaultLayout] picture path is null.");
+			}
+		}
 	}
 	
 	/**
