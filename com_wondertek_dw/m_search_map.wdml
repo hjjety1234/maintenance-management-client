@@ -39,38 +39,41 @@
             </node>
             <!-- 时间段选择 -->
             <node name="timeSprite" rect="0,66,480,200" extendstyle="1111" >
-                <image rect="20,10,32,32" border="false" src="file://image/iconClock.png" 
+                <image rect="20,10,32,32" border="false" src="file://image/iconClock.png"  style="autosize"
                  extendstyle="1111"/>
                 <label rect="60,10,300,30" text="请选择回放时间段" color="#434343" v-align="center"  
                   h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
                 <shadow rect="0,50,480,2" color="#3d7fc4" alpha="255" extendstyle="1111"/>
                 <label rect="20,60,300,30" text="日期：" color="#434343" v-align="center"  
                   h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
-                <image rect="110,61,358,30" border="false" src="file://image/border.png" 
-                 extendstyle="1111" style="autosize" />
-                <label rect="120,60,360,30" text="         年       月       日       点—      点" color="#434343" v-align="center"  
+                <label rect="130,60,360,30" text="    年      月       日       点 —       点" color="#434343" v-align="center"  
                   h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
                 --年月日时参数
-                <edit name='yearlabel' rect="115,62,60,30" text="" color="#3d7fc4" v-align="center"  
+                <edit name='yearlabel' rect="88,62,60,30" text="" color="#3d7fc4"  v-align="center"  
                   h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
-                <edit name='yuelabel' rect="210,62,60,30" text="" color="#3d7fc4" v-align="center"  
+                <shadow rect="80,92,70,1" color="#3d7fc4" alpha="255" extendstyle="1111"/>
+                <edit name='yuelabel' rect="182,62,60,30"  text="" color="#3d7fc4" v-align="center"  
                   h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
-                <edit name='rilabel' rect="260,62,60,30" text="" color="#3d7fc4" v-align="center"  
+                <shadow rect="175,92,30,1" color="#3d7fc4" alpha="255" extendstyle="1111"/>
+                <edit name='rilabel' rect="247,62,60,30" text="" color="#3d7fc4" v-align="center"  
                   h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
-                <edit name='startdian' rect="330,62,60,30" text="0" color="#3d7fc4" v-align="center"  
+                <shadow rect="247,92,30,1" color="#3d7fc4" alpha="255" extendstyle="1111"/>
+                <edit name='startdian' rect="316,62,60,30" text="0" color="#3d7fc4" v-align="center"  
                   h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
-                <edit name='enddian' rect="410,62,60,30" text="24" color="#3d7fc4" v-align="center"  
+                <shadow rect="316,92,40,1" color="#3d7fc4" alpha="255" extendstyle="1111"/>
+                <edit name='enddian' rect="395,62,60,30" text="24" color="#3d7fc4" v-align="center"  
                   h-align="left" font-family="微软雅黑" font-size="24" extendstyle="1111" />
+                <shadow rect="395,92,40,1" color="#3d7fc4" alpha="255" extendstyle="1111"/>
                 --确定、取消
                 <button name="defineBtn" rect="130,110,100,30"  
-                    OnSelect="dodefine" extendstyle="1111">
+                    OnSelect="dodefine" extendstyle="1111" style="autosize" >
                     <image  rect="0,0,100,30" src="file://image/map_yes.png" 
-                     extendstyle="1111" />
+                     extendstyle="1111"  style="autosize"/>
                 </button>
                 <button name="cancelBtn" rect="270,110,100,30" 
-                    OnSelect="dodecancel" extendstyle="1111">
+                    OnSelect="docancel" extendstyle="1111" style="autosize" >
                     <image  rect="0,0,100,30" src="file://image/map_no.png"
-                     extendstyle="1111" />
+                     extendstyle="1111"  style="autosize"/>
                 </button>
             </node>
              <!-- 底部工具栏  -->
@@ -239,7 +242,7 @@ function bodyOnPluginEvent(msg, param)
             g_isMapOpen = false
         elseif postData.cmd=='Guiji' then 
             --加载轨迹数据
-            openMap(0, 170, 480, 544) 
+            openMap(0, 230, 480, 484) 
         end 
 
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
@@ -457,9 +460,9 @@ function searchOnSelect(sprite)
 end
 --设置初始时间
 function setDefaultTime()
-    local year = os.date("*t", os.time() + 86400)["year"]
-    local yue = os.date("*t", os.time() + 86400)["month"]
-    local ri = os.date("*t", os.time() + 86400)["day"]
+    local year = os.date("*t", os.time())["year"]
+    local yue = os.date("*t", os.time())["month"]
+    local ri = os.date("*t", os.time())["day"]
     Log:write('当前年月日',year,yue,ri)
     local yearlabel = Sprite:findChild(rootSprite,'yearlabel')
     local yuelabel = Sprite:findChild(rootSprite,'yuelabel')
@@ -474,11 +477,16 @@ function dodefine()
     local yuelabel = Sprite:getText(Sprite:findChild(rootSprite,'yuelabel'))
     local rilabel = Sprite:getText(Sprite:findChild(rootSprite,'rilabel'))
     local startdian = Sprite:getText(Sprite:findChild(rootSprite,'startdian'))
-    local enddian = Sprite:getText(Sprite:findChild(rootSprite,'enddian'))
+    local enddian = tonumber(Sprite:getText(Sprite:findChild(rootSprite,'enddian')))-1
     starttime = yearlabel..'-'..yuelabel..'-'..rilabel..' '..startdian..':00'
-    endtime   = yearlabel..'-'..yuelabel..'-'..rilabel..' '..enddian..':00'
+    endtime   = yearlabel..'-'..yuelabel..'-'..rilabel..' '..enddian..':59'
     Log:write('开始结束时间',starttime,endtime)
+    openMap(0, 70, 480, 644)
     drawrequest(postData.PoiId[1],postData.PoiId[2])
+end
+--取消搜索
+function docancel()
+    openMap(0, 70, 480, 644)
 end
 ]]>
 </root>
