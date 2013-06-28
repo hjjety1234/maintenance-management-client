@@ -40,7 +40,7 @@
                 <label name="lblTips" extendstyle="1111" rect="68,38,200,21" font-size="17" font-family="黑体" color="#707070" />
             </node>
             <!--语音检索结果展示区域-->
-            <node name="nodeSearchResult" rect="0,455,480,160" extendstyle="1111">
+            <node name="nodeSearchResult" rect="0,455,480,160" extendstyle="1111" visible="false" enable="false" active="false">
                 <shadow name="shadowResult" rect="0,0,480,160" extendstyle="1111" color="#32B16C" alpha="255" />
                 <shadow name="shadowResultBg" rect="5,40,470,115" extendstyle="1111" color="#FFFFFF" alpha="255" />
                 <!--顶部标题-->
@@ -70,7 +70,7 @@
                   </button>
             </node>
             <!--开始录音按钮-->
-            <button name="btnStart" rect="145,635,200,165" extendstyle="1111" style="autosize" OnSelect="RecognizedUserVoice"
+            <button name="btnStart" rect="145,635,200,165" extendstyle="1111" style="autosize" OnSelect="voiceBtnOnSelect"
             normal="normal" sel="sel">
                 <node name="nodeTipsTitle" rect="0,70,480,40" extendstyle="1111">
                 </node>
@@ -87,6 +87,7 @@
 require('com_wondertek_ydsx.common.framework')
 require('framework.voiceinput')
 
+local mobile
 local rootSprite
 local dataSource = {
                         {icon='icon_user.png',text='我要找“周瑜”',tips='公司通讯录搜索',type='1'},
@@ -145,29 +146,33 @@ function bodyOnPluginEvent(msg, param)
         if not voiceData.RecognizedText then
             Dialog:show(rootSprite, '语音转换失败!', 'ok')
         else
-            local voiceText = Sprite:findChild(rootSprite, 'voiceText')
-            Sprite:setProperty(voiceText, 'text', voiceData.RecognizedText)
             if voiceData.RecognizedText ~= '' and voiceData.RecognizedText ~= '' then
                 -- 根据语音输入的内容进行判断用户行为
-                Log:write('打电话')
+                Log:write('打电话给')
                 RecognizedUserVoice(voiceData.RecognizedText)
             end
         end
     end
 end
 
+-- 语音识别以后，业务操作开始
 function RecognizedUserVoice(voiceText)
     Log:write('开始打电话相关操作')
-    local startIndex,endIndex = string.find(voiceText,'打电话')
-    local jttxlStartIndex = string.find()
+    local startIndex,endIndex = string.find(voiceText,'打电话给')
     Log:write('endIndex is ',endIndex)
+    setParent(voiceText)
     if startIndex ~= nil and endIndex ~= nil then
-        local mobile = '15156892727'
-        Log:write('mobile is ',mobile)
-        if Util:openCallDialog('callFinished',mobile, 0) then
-            Log:write('拔打电话成功')
+        --获取用户电话号码
+        local db_path = getLocalDiskPath().."/jttxlDatabase.db"
+        if IO:fileExist(db_path) then 
+            local user = query_employee(db_path, string.sub(voiceText,1,4))
+            log:write('user is ',user)
+            if user == '' or user == nil then
+            else
+                mobile = user[0].mobile
+            end
         else
-           Log:write('拔打电话失败')
+            Log:write("数据库文件不存在!")
         end
     else
         -- 从数据库中搜索联系人信息
@@ -175,12 +180,42 @@ function RecognizedUserVoice(voiceText)
     end 
 end
 
+--语音识别后，显示识别成功的对话框
+function setParent(voiceText)
+    local list = Sprite:findChild(rootSprite,'lvTips')
+    local lblSearchTitle = Sprite:findChild(rootSprite,'lblSearchTitle')
+    Sprite:setProperty(lblSearchTitle,'text',voiceText)
+    local nodeSearchResult = Sprite:findChild(rootSprite,'nodeSearchResult')
+    setAllShoworHide(nodeSearchResult,1)
+    Sprite:setRect(list,0,0,480,260)
+    ListView:adjust(list)
+end
+
+--语音按钮点击
 function voiceBtnOnSelect(sprite)
     Sprite:releaseCapture(sprite)
     Sprite:killFocus(sprite)
     local success = VoiceInput:startVoiceInput('0000', '')
     if success == 0 then
         Dialog:show(rootSprite, '打开录音失败!', 'ok')
+    end
+end
+
+function btnTel_OnSelect(sprite)
+    Log:write('mobile is ',mobile)
+    if Util:openCallDialog('callFinished',mobile, 0) then
+        Log:write('拔打电话成功')
+    else
+       Log:write('拔打电话失败')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    Log:write('mainNodeOnKeyUp')
+    if kc == Key.F2 then -- 按下返回键
+        Log:write('backgroundApp')
+        Util:backgroundApp()
     end
 end
 

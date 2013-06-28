@@ -99,3 +99,10 @@ function query_full_department_name(db_path, department_id)
 		end
 	end  
 end
+
+-- 设置对象隐藏或显示
+function setAllShoworHide(sprite, isShow)
+    Sprite:setVisible(sprite, isShow)
+    Sprite:setActive(sprite, isShow)
+    Sprite:setEnable(sprite, isShow)
+end
