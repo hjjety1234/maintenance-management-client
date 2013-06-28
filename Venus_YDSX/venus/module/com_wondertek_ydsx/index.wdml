@@ -3,22 +3,24 @@
  == ============================================================================
  == | WonderTek [ 网络无处不在，沟通及时到达 ]
  == ============================================================================
- == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == | Copyright (c) 2013, WonderTek, Inc. All Rights Reserved.
  == ============================================================================
- == | Author: xxxx <xxxx@xxxx.com>
+ == | Author: hewu <hewu2008@gmail.com>
  == ============================================================================
- == | Desc: 页面描述
+ == | Desc: 显示应用名称和团队名称，并跳转到首页
  == ============================================================================
 -->
 <root>
     <header/>
     <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
         <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
-
+            <image rect="0,0,480,800" border="false" src="file://image/bg.png" style="autosize" extendstyle="1111" />
+            <image rect="130,100,220,320" border="false" src="file://image/logo.png" style="autosize" extendstyle="1111" />
+            <label rect="0,720,490,30" font-size="30" font-family="微软雅黑" 
+                text="龙在江湖研发小组" v-align="center" h-align="center" color="#ffffff" extendstyle="1111" />
         </node>
     </body>
-    <![CDATA[
-
+<![CDATA[
 require('com_wondertek_ydsx.common.framework')
 local rootSprite
 
@@ -31,7 +33,7 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        Scene:go(Alias.voiceinput)
+        Timer:set(111, 2000, "goHome")
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -39,7 +41,6 @@ end
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
     if msg == 101 then
-
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -56,10 +57,11 @@ function mainNodeOnKeyUp(sprite, kc)
     end
 end
 
----------------------------------------util functions---------------------------
-function myfunc()
-
+-- @brief 跳转到主页
+function goHome()
+    Scene:go(Alias.voiceinput)
 end
 
-    ]]>
+---------------------------------------util functions---------------------------
+]]>
 </root>
