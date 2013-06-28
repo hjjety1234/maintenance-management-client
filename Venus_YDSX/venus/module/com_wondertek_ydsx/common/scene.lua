@@ -29,7 +29,4 @@ function Scene:go(destSceneName, bFreeDestScene, bHiddeMenu, menuIndex)
     Scene:_go(destSceneName, bFreeDestScene, 0)
     local destSceneHandle = Scene:getHandleByName(destSceneName)
     local sprite = Sprite:findChild(destSceneHandle, 'mainNode')
-    if not bHiddeMenu then -- 加载menu
-        Menu:load(sprite, menuIndex)
-    end
 end
