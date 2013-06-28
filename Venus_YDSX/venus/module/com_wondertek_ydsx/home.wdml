@@ -19,6 +19,8 @@
             <!--顶部文字-->
             <label name="lblTitle" text="移动声秀" extendstyle="1111" rect="0,0,480,70" v-align="center" h-align="center" 
                color="#FFFFFF" font-size="28" font-family="黑体" />
+            <!--下方灰色背景-->
+            <shadow rect="0,70,480,760" color="#f4f4f4" name="bg" extendstyle="1111" alpha="255" />
             <!--提示title-->
             <node name="nodeTipsTitle" rect="0,70,480,40" extendstyle="1111">
                 <shadow rect="0,0,480,40" color="#e5e5e5" name="tipsBg" extendstyle="1111" alpha="255" />
@@ -26,16 +28,52 @@
                 text="按住麦克风，参照下面示例对我说话吧~~" />
             </node>
             <!--中间提示框-->
-            <node name="nodeTips" extendstyle="1111" rect="0,110,480,310">
-                <shadow name="tipsBg" rect="0,0,480,310" color="#FFFFFF" extendstyle="1111" alpha="255" />
-                <listview name="lvTips" rect="0,0,480,310" extendstyle="1111">
+            <node name="nodeTips" extendstyle="1111" rect="0,110,480,420">
+                <shadow name="tipsBg" rect="0,0,480,420" color="#FFFFFF" extendstyle="1111" alpha="255" />
+                <listview name="lvTips" cols="1" rect="0,0,480,420" extendstyle="1111">
                 </listview>
+            </node>
+            <!--list view 的填充项-->
+            <node name="listItem" rect="0,0,480,70" visible="false" enable="false" active="false" extendstyle="1111">
+                <image name="imgIcon" src="file://image/icon_user.png" extendstyle="1111" rect="23,15,32,32" />
+                <label name="lblTitle" extendstyle="1111" rect="70,12,200,25" font-size="18" font-family="黑体" color="#1b1b1b" />
+                <label name="lblTips" extendstyle="1111" rect="68,38,200,21" font-size="17" font-family="黑体" color="#707070" />
+            </node>
+            <!--语音检索结果展示区域-->
+            <node name="nodeSearchResult" rect="0,455,480,160" extendstyle="1111">
+                <shadow name="shadowResult" rect="0,0,480,160" extendstyle="1111" color="#32B16C" alpha="255" />
+                <shadow name="shadowResultBg" rect="5,40,470,115" extendstyle="1111" color="#FFFFFF" alpha="255" />
+                <!--顶部标题-->
+                <image src="file://image/icon_wireless.png" rect="24,5,32,32" extendstyle="1111" />
+                <label name="lblSearchTitle" text="您说“周瑜”" color="#FFFFFF" font-family="黑体" extendstyle="1111" rect="68,0,300,40"
+                 v-align="center" h-align="left" font-size="22">
+                </label>
+                <!--照片-->
+                <image src="file://image/photo.png" rect="18,57,80,80" extendstyle="1111" />
+                <!--姓名-->
+                <label name="lblUserName" rect="115,65,70,25" extendstyle="1111"
+                 text="周瑜" font-size="22" font-family="黑体" />
+                 <!--电话号码-->
+                 <label name="lblPhone" rect="190,65,100,100" text="15156892727" font-family="黑体" font-size="22" color="#959595"
+                  extendstyle="1111"></label>
+                  <!--拔打电话图标-->
+                  <button name="btnTel" rect="120,110,90,24" extendstyle="1111" style="autosize" OnSelect="btnTel_OnSelect">
+                        <image src="file://image/icon024.png" rect="0,0,24,24" extendstyle="1111" style="autosize" />
+                        <label name="lblText" extendstyle="1111" rect="28,3,90,24" text="打电话"
+                         font-size="18" color="#747474" font-family="黑体" />
+                  </button>
+                  <!--发短信图标-->
+                  <button name="btnSMS" rect="226,110,90,24" extendstyle="1111" style="autosize" OnSelect="btnSMS_OnSelect">
+                        <image src="file://image/icon034.png" rect="0,0,24,24" extendstyle="1111" style="autosize" />
+                        <label name="lblText" extendstyle="1111" rect="28,3,90,24" text="发短信"
+                         font-size="18" color="#747474" font-family="黑体" />
+                  </button>
             </node>
             <!--开始录音按钮-->
             <button name="btnStart" rect="145,635,200,165" extendstyle="1111" style="autosize" OnSelect="RecognizedUserVoice"
-            normal="normal" sel="sel">title-->
-            <node name="nodeTipsTitle" rect="0,70,480,40" extendstyle="1111">
-            </node>
+            normal="normal" sel="sel">
+                <node name="nodeTipsTitle" rect="0,70,480,40" extendstyle="1111">
+                </node>
                 <node name="normal" extendstyle="1111">
                     <image src="file://image/mac.png" style="autosize" rect="0,0,190,165" extendstyle="1111" />
                 </node>
@@ -50,14 +88,43 @@ require('com_wondertek_ydsx.common.framework')
 require('framework.voiceinput')
 
 local rootSprite
+local dataSource = {
+                        {icon='icon_user.png',text='我要找“周瑜”',tips='公司通讯录搜索',type='1'},
+                        {icon='icon_phone.png',text='打电话给“何武”',tips='打电话',type='2'},
+                        {icon='icon_msg.png',text='发短信给“刘祥武”',tips='发短信',type='3'},
+                        {icon='icon_soft.png',text='打开集团通讯录',tips='打开应用',type='4'},
+                        {icon='icon_music.png',text='播放“江南style”',tips='播放音乐',type='1'},
+                        {icon='icon_set.png',text='调节“亮度”',tips='调节系统参数',type='1'}
+                   }
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    
+    initListview()
 end
 
+-- 加载listview
+function initListview()
+    Log:write('table size is ',#dataSource)
+    local len = #dataSource
+    local list = Sprite:findChild(rootSprite,'lvTips')
+    ListView:removeAllItems(list,1)
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
+    ListView:adjust(list)  
+end
+
+function loadListItem(list,item,index)
+    Sprite:setRect(item, 0, 0, 480, 70)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    Log:write('dataSource is ',dataSource[index])
+    local imgIcon = Sprite:findChild(item,'imgIcon')
+    Sprite:setProperty(imgIcon,'src','file://image/'..dataSource[index+1].icon)
+    local lblTitle = Sprite:findChild(item,'lblTitle')
+    Sprite:setProperty(lblTitle,'text',dataSource[index+1].text)
+    local lblTips = Sprite:findChild(item,'lblTips')
+    Sprite:setProperty(lblTips,'text',dataSource[index+1].tips)
+end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活

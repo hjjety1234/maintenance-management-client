@@ -58,8 +58,32 @@ function bodyOnPluginEvent(msg, param)
         else
             local voiceText = Sprite:findChild(rootSprite, 'voiceText')
             Sprite:setProperty(voiceText, 'text', voiceData.RecognizedText)
+            if voiceData.RecognizedText ~= '' and voiceData.RecognizedText ~= '' then
+                -- 根据语音输入的内容进行判断用户行为
+                Log:write('打电话')
+                RecognizedUserVoice(voiceData.RecognizedText)
+            end
         end
     end
+end
+
+function RecognizedUserVoice(voiceText)
+    Log:write('开始打电话相关操作')
+    local startIndex,endIndex = string.find(voiceText,'打电话')
+    local jttxlStartIndex = string.find()
+    Log:write('endIndex is ',endIndex)
+    if startIndex ~= nil and endIndex ~= nil then
+        local mobile = '15156892727'
+        Log:write('mobile is ',mobile)
+        if Util:openCallDialog('callFinished',mobile, 0) then
+            Log:write('拔打电话成功')
+        else
+           Log:write('拔打电话失败')
+        end
+    else
+        -- 从数据库中搜索联系人信息
+        Log:write('从数据库搜索用户信息')
+    end 
 end
 
 function voiceBtnOnSelect(sprite)
