@@ -90,7 +90,11 @@ function query_full_department_name(db_path, department_id)
 			department[1][1] == nil or department[1][1] == "" then 
 			return full_department_name
 		else
-			full_department_name = full_department_name.."-"..department[1][1]
+			if full_department_name == "" then 
+				full_department_name = department[1][1]
+			else
+				full_department_name = full_department_name.."-"..department[1][1]
+			end
 			department_id = department[1][2]
 		end
 	end  

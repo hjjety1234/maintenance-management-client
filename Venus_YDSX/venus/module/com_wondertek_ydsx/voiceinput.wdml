@@ -35,9 +35,13 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-
+        local db_path = getLocalDiskPath().."/jttxlDatabase.db"
+        if IO:fileExist(db_path) then 
+            query_employee(db_path, "江峰")
+        else
+            Log:write("数据库文件不存在!")
+        end
     elseif msg == MSG_DEACTIVATE then
-
     end
 end
 
