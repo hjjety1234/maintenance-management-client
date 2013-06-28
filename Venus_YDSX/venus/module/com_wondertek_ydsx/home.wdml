@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2013, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+-- | Author: gaoyonglei <gaoyonglei@wdit.com.cn>
+ == ============================================================================
+ == | Desc: 语音输入插件页面
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!--头部-->
+            <shadow rect="0,0,480,800" color="#08904E" extendstyle="1111"  />
+            <!--顶部文字-->
+            <label name="lblTitle" text="移动声秀" extendstyle="1111" rect="0,0,480,70" v-align="center" h-align="center" 
+               color="#FFFFFF" font-size="28" font-family="黑体" />
+            <!--提示title-->
+            <node name="nodeTipsTitle" rect="0,70,480,40" extendstyle="1111">
+                <shadow rect="0,0,480,40" color="#e5e5e5" name="tipsBg" extendstyle="1111" alpha="255" />
+                <label rect="10,0,480,40" h-align="left" v-align="center" name="lblTipsTitle" color="#ADADAD" extendstyle="1111" font-family="黑体" font-size="20" 
+                text="按住麦克风，参照下面示例对我说话吧~~" />
+            </node>
+            <!--中间提示框-->
+            <node name="nodeTips" extendstyle="1111" rect="0,110,480,310">
+                <shadow name="tipsBg" rect="0,0,480,310" color="#FFFFFF" extendstyle="1111" alpha="255" />
+                <listview name="lvTips" rect="0,0,480,310" extendstyle="1111">
+                </listview>
+            </node>
+            <!--开始录音按钮-->
+            <button name="btnStart" rect="145,635,200,165" extendstyle="1111" style="autosize" OnSelect="RecognizedUserVoice"
+            normal="normal" sel="sel">title-->
+            <node name="nodeTipsTitle" rect="0,70,480,40" extendstyle="1111">
+            </node>
+                <node name="normal" extendstyle="1111">
+                    <image src="file://image/mac.png" style="autosize" rect="0,0,190,165" extendstyle="1111" />
+                </node>
+                <node name="sel" extendstyle="1111">
+                    <image src="file://image/mac_s.png" style="autosize" rect="0,0,190,165" extendstyle="1111" />
+                </node>
+            </button>
+        </node>
+    </body>
+    <![CDATA[
+require('com_wondertek_ydsx.common.framework')
+require('framework.voiceinput')
+
+local rootSprite
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+
+    elseif msg == MSG_DEACTIVATE then
+
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then
+  
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_VOICEINPUT then --语音返回消息 
+        local toText = VoiceInput:getInputText()
+        local voiceData = Json:loadString2Table(toText)
+        if not voiceData.RecognizedText then
+            Dialog:show(rootSprite, '语音转换失败!', 'ok')
+        else
+            local voiceText = Sprite:findChild(rootSprite, 'voiceText')
+            Sprite:setProperty(voiceText, 'text', voiceData.RecognizedText)
+            if voiceData.RecognizedText ~= '' and voiceData.RecognizedText ~= '' then
+                -- 根据语音输入的内容进行判断用户行为
+                Log:write('打电话')
+                RecognizedUserVoice(voiceData.RecognizedText)
+            end
+        end
+    end
+end
+
+function RecognizedUserVoice(voiceText)
+    Log:write('开始打电话相关操作')
+    local startIndex,endIndex = string.find(voiceText,'打电话')
+    local jttxlStartIndex = string.find()
+    Log:write('endIndex is ',endIndex)
+    if startIndex ~= nil and endIndex ~= nil then
+        local mobile = '15156892727'
+        Log:write('mobile is ',mobile)
+        if Util:openCallDialog('callFinished',mobile, 0) then
+            Log:write('拔打电话成功')
+        else
+           Log:write('拔打电话失败')
+        end
+    else
+        -- 从数据库中搜索联系人信息
+        Log:write('从数据库搜索用户信息')
+    end 
+end
+
+function voiceBtnOnSelect(sprite)
+    Sprite:releaseCapture(sprite)
+    Sprite:killFocus(sprite)
+    local success = VoiceInput:startVoiceInput('0000', '')
+    if success == 0 then
+        Dialog:show(rootSprite, '打开录音失败!', 'ok')
+    end
+end
+
+    ]]>
+</root>
