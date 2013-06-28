@@ -24,9 +24,13 @@
  ------------------------------------------------------------
  --]] 
 Scene._go = Scene.go
-function Scene:go(destSceneName, bFreeDestScene, bHiddeMenu, menuIndex)
-    if destSceneName == Scene:getNameByHandle(Sprite:getCurScene()) then return end -- 不让场景自己跳自己
-    Scene:_go(destSceneName, bFreeDestScene, 0)
-    local destSceneHandle = Scene:getHandleByName(destSceneName)
-    local sprite = Sprite:findChild(destSceneHandle, 'mainNode')
+function Scene:go(destSceneName,effect)
+	-- 不让场景自己跳自己
+    if destSceneName == Scene:getNameByHandle(Sprite:getCurScene()) then 
+       return 
+    end 
+    --Scene:_go(destSceneName, effect,bFreeDestScene, 0)
+    self:_go(destSceneName, true, effect)
+    --local destSceneHandle = Scene:getHandleByName(destSceneName)
+    --local sprite = Sprite:findChild(destSceneHandle, 'mainNode')
 end

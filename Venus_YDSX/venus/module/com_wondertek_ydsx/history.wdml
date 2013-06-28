@@ -18,68 +18,95 @@
         <node name="mainNode" rect="0,0,480,800" enable="true" 
             active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
             <node name="baseSprite" rect="0,0,480,160" extendstyle="1111">
-                    <image rect="0,0,480,800" src="file://image/globe_bg.png" style="autosize"
-                       extendstyle="1111" />
-                <node rect="0,0,480,66" name="NodeTitle" extendstyle="1111">
-                    <!-- 返回按钮  -->
-                    <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
-                        OnSelect="doBack" extendstyle="1111">
-                        <image name="normal" rect="15,8,75,75" src="file://image/iconBack.png"
-                             extendstyle="1111" />
-                        <image name="sel" rect="15,8,75,75" src="file://image/iconBack.png"
-                             extendstyle="1111" />
-                    </button>  
-                    <scrolltext name="title" rect="105,5,280,40" text="历史记录" font-family='微软雅黑'
-                        extendstyle="1111" font-size="36" h-align="center" v-align="center"
-                        color="#ffffff" scroll="true"  step="2" />
+                <image rect="0,0,480,800" src="file://image/globe_bg.png" style="autosize"
+                   extendstyle="1111" />
+                <!-- 返回按钮  -->
+                <button name="backBtn" rect="0,0,66,66" OnSelect="doBack" extendstyle="1111">
+                    <image  rect="10,10,48,48" src="file://image/iconBack.png"
+                         extendstyle="1111" style="autosize"/>
+                </button>  
+                <scrolltext name="title" rect="0,0,480,70" text="历史记录" font-family='黑体'
+                    extendstyle="1111" font-size="28" h-align="center" v-align="center"
+                    color="#ffffff" scroll="true"  step="2" />
+
+                <!-- 球形体  -->
+                <globe rect="40,200,400,400" final-scale="10">
+                    <globe-item normal-size="120,10" normal-font-size="30" normal-color="#F0F0F0" final-color="#202020"  OnMouseUp="up" h-align="center" v-align="center" autoextend="true" text="$(text)"/>
+                        <dataset>
+                            <set text="转啊转"/>
+                            <set text="场景根"/>
+                            <set text="网络"/>
+                            <set text="到达"/>
+                            <set text="示例"/>
+                            <set text="大家好"/>
+                            <set text="通知"/>
+                            <set text="集需要"/>
+                            <set text="前汇"/>
+                            <set text="采集工作"/>
+                            <set text="谢谢大家"/>
+                            <set text="愉快！"/>
+                            <set text="需求"/>
+                            <set text="库文件"/>
+                            <set text="使用"/>
+                            <set text="公开"/>
+                            <set text="链接"/>
+                            <set text="运营"/>
+                            <set text="库文件"/>
+                            <set text="使用"/>
+                            <set text="公开"/>
+                            <set text="链接"/>
+                            <set text="运营"/>
+                            <set text="甄嬛传"/>
+                            <set text="宫心计"/>
+                            <set text="专业"/>
+                        </dataset>
+                </globe>
+                <listview name="sampleList" rect="0,70,480,730" extendstyle="0017"/>
+                <node name="listitem" visible="false" enable="false" active="false">
+                    <button name="btnname" rect="0,0,480,80" style="autosize" normal="src:file://image/normal.png" color="#FFFFFF"
+                    sel="src:file://image/focus.png" text="" OnSelect="itemOnSelect" data="" font-size="32" extendstyle="0010"/>
                 </node>
-            <!-- 球形体  -->
-            <globe rect="40,200,400,400" final-scale="10">
-                <globe-item normal-size="120,10" normal-font-size="30" normal-color="#F0F0F0" final-color="#202020"  OnMouseUp="up" h-align="center" v-align="center" autoextend="true" text="$(text)"/>
-                    <dataset>
-                        <set text="转啊转"/>
-                        <set text="场景根"/>
-                        <set text="网络"/>
-                        <set text="到达"/>
-                        <set text="示例"/>
-                        <set text="大家好"/>
-                        <set text="通知"/>
-                        <set text="集需要"/>
-                        <set text="前汇"/>
-                        <set text="采集工作"/>
-                        <set text="谢谢大家"/>
-                        <set text="愉快！"/>
-                        <set text="需求"/>
-                        <set text="库文件"/>
-                        <set text="使用"/>
-                        <set text="公开"/>
-                        <set text="链接"/>
-                        <set text="运营"/>
-                        <set text="库文件"/>
-                        <set text="使用"/>
-                        <set text="公开"/>
-                        <set text="链接"/>
-                        <set text="运营"/>
-                        <set text="甄嬛传"/>
-                        <set text="宫心计"/>
-                        <set text="专业"/>
-                    </dataset>
-            </globe>
             </node>
-
-
         </node>
     </body>
     <![CDATA[
 
 require 'com_wondertek_ydsx.common.framework'
 local rootSprite
+local effectTable = {
+    [0]='无特效', 
+    [1]='水平百叶窗', 
+    [2]='垂直百叶窗', 
+    [3]='水平向前推进', 
+    [4]='水平向后推进', 
+    [5]='垂直向下推进',
+    [6]='垂直向上推进', 
+    [7]='淡入淡出', 
+    [8]='飞入效果', 
+    [9]='从上弹入', 
+    [10]='从下弹入', 
+    [11]='向右旋转', 
+    [12]='向左旋转',
+    [13]='立方体右旋转', 
+    [14]='立方体左旋转',
+    [15]='向后翻页（暂未提供）',
+    [16]='向前翻页（暂未提供）',
+    [17]='水平向右推进',
+    [18]='水平向左推进',
+    [19]='中心放大',
+    [20]='中心缩小',
+    [21]='水平向右退出',
+    [22]='水平向左退出'
+}
 
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    local list = Sprite:findChild(rootSprite, 'sampleList')
+    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), 22, 'loadListItem')
+    ListView:adjust(list)
 end
 
 -- @brief root节点消息方法
@@ -117,6 +144,25 @@ function up(sprite)
     local text =Sprite:getText(sprite)
     Log:write('点击获取的文字',text)
 end
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 80)
+    Sprite:setProperty(item, 'extendstyle', '0010')
+    local btnname = Sprite:findChild(item, 'btnname')
+    Sprite:setProperty(btnname, 'text', effectTable[index + 1])
+    Sprite:setProperty(btnname, 'data', index+1)
+end
 
+function itemOnSelect(sprite)
+    local item = Sprite:getParent(sprite)
+    local btnname = Sprite:findChild(item, 'btnname')
+    local efftiveValue = tonumber(Sprite:getData(btnname))
+    if efftiveValue == 15 or efftiveValue == 16 then
+        Dialog:show('', '该特效暂未实现')
+        return
+    end
+    --Scene:setReturn(Alias.all_effect, Alias.index)
+    Log:write('efftiveValue=================', efftiveValue)
+    Scene:go(Alias.index, efftiveValue)
+end
 ]]>
 </root>
