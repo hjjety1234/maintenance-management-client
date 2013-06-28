@@ -21,4 +21,5 @@ Alias = {
     home = 'MODULE:\\com_wondertek_ydsx\\home.wdml', -- 首页
     help = 'MODULE:\\com_wondertek_ydsx\\help.wdml', -- 帮助页
     detail = 'MODULE:\\com_wondertek_ydsx\\detail.wdml', -- 详情页
+    voiceinput = 'MODULE:\\com_wondertek_ydsx\\voiceinput.wdml', -- 语音输入页面
 }
