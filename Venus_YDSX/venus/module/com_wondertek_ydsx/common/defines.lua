@@ -22,4 +22,6 @@ Alias = {
     help = 'MODULE:\\com_wondertek_ydsx\\help.wdml', -- 帮助页
     detail = 'MODULE:\\com_wondertek_ydsx\\detail.wdml', -- 详情页
     voiceinput = 'MODULE:\\com_wondertek_ydsx\\voiceinput.wdml', -- 语音输入页面
+    history = 'MODULE:\\com_wondertek_ydsx\\history.wdml', -- 历史记录页面
+    all_effect = 'MODULE:\\com_wondertek_ydsx\\all_effect.wdml', -- 动画效果history
 }

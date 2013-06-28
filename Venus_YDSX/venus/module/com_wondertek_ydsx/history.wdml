@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: hewu <hewu2008@gmail.com>
+ == ============================================================================
+ == | Desc: 2012/12/22 调用高德的地图接口，实现站点导航
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <!-- 主节点  -->
+        <node name="mainNode" rect="0,0,480,800" enable="true" 
+            active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <node name="baseSprite" rect="0,0,480,160" extendstyle="1111">
+                    <image rect="0,0,480,800" src="file://image/globe_bg.png" style="autosize"
+                       extendstyle="1111" />
+                <node rect="0,0,480,66" name="NodeTitle" extendstyle="1111">
+                    <!-- 返回按钮  -->
+                    <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
+                        OnSelect="doBack" extendstyle="1111">
+                        <image name="normal" rect="15,8,75,75" src="file://image/iconBack.png"
+                             extendstyle="1111" />
+                        <image name="sel" rect="15,8,75,75" src="file://image/iconBack.png"
+                             extendstyle="1111" />
+                    </button>  
+                    <scrolltext name="title" rect="105,5,280,40" text="历史记录" font-family='微软雅黑'
+                        extendstyle="1111" font-size="36" h-align="center" v-align="center"
+                        color="#ffffff" scroll="true"  step="2" />
+                </node>
+            <!-- 球形体  -->
+            <globe rect="40,200,400,400" final-scale="10">
+                <globe-item normal-size="120,10" normal-font-size="30" normal-color="#F0F0F0" final-color="#202020"  OnMouseUp="up" h-align="center" v-align="center" autoextend="true" text="$(text)"/>
+                    <dataset>
+                        <set text="转啊转"/>
+                        <set text="场景根"/>
+                        <set text="网络"/>
+                        <set text="到达"/>
+                        <set text="示例"/>
+                        <set text="大家好"/>
+                        <set text="通知"/>
+                        <set text="集需要"/>
+                        <set text="前汇"/>
+                        <set text="采集工作"/>
+                        <set text="谢谢大家"/>
+                        <set text="愉快！"/>
+                        <set text="需求"/>
+                        <set text="库文件"/>
+                        <set text="使用"/>
+                        <set text="公开"/>
+                        <set text="链接"/>
+                        <set text="运营"/>
+                        <set text="库文件"/>
+                        <set text="使用"/>
+                        <set text="公开"/>
+                        <set text="链接"/>
+                        <set text="运营"/>
+                        <set text="甄嬛传"/>
+                        <set text="宫心计"/>
+                        <set text="专业"/>
+                    </dataset>
+            </globe>
+            </node>
+
+
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_ydsx.common.framework'
+local rootSprite
+
+
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+    elseif msg == MSG_DEACTIVATE then
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 101 then  -- 将当前位置放置到屏幕中央
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+       Scene:back()
+    end
+end
+
+-- 返回上一个页面
+function doBack()
+    Scene:back()
+end
+--球形点击事件
+function up(sprite)
+    local text =Sprite:getText(sprite)
+    Log:write('点击获取的文字',text)
+end
+
+]]>
+</root>
