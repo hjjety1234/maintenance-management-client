@@ -191,18 +191,16 @@ function RecognizedUserVoice(voiceText)
         voice_view_news(news_url)
     else
         -- 到通讯录中进行一次搜索
-        voiceText = translateUsers(voiceText)
         local user = query_employee(db_path,voiceText)
         if #user == 0 then
-            erroInfo(voiceText,'1')
+            user = translateUsers(voiceText)
+        end
+        if #user > 0 then
+            addSearchLog('1',voiceText,'',db_path)
+            mobile = user[1][4]
+            setParent(RecVoiceText,mobile,RecVoiceText)
         else
-            if #user > 0 then
-                addSearchLog('1',voiceText,'',db_path)
-                mobile = user[1][4]
-                setParent(voiceText,mobile,voiceText)
-            else
-                erroInfo(voiceText,'1')
-            end
+            erroInfo(voiceText,'1')
         end
     end 
 end
@@ -237,6 +235,7 @@ function translateUsers(username)
     elseif username == '陈小波' then
         username = '陈晓波'
     end
+    RecVoiceText = username
     return query_employee(db_path,username)
 end
 
