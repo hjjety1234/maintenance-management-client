@@ -166,7 +166,7 @@ function voice_invoke_app(app_name)
 	local app_info  = query_app(app_name)
 	if app_info ~= nil then 
 		Log:write("应用详细信息为：", app_info)
-		if AppManager:getInfoById(app_info.app_id) ~= nil then 
+		if AppManager:getInfoById(app_info.app_id) ~= "" then 
 			run_app(app_info.app_id)
 		else
 			download_app(app_info.download_url)
