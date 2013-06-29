@@ -148,9 +148,13 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-
+        gravityOnSelect()
     elseif msg == MSG_DEACTIVATE then
-
+        -- 关闭传感器
+        System:setSensorStatus(0, 0)
+        System:setSensorStatus(1, 0)
+        System:setSensorStatus(2, 0)
+        Scene:freeByHandle(rootSprite)
     end
 end
 
@@ -424,5 +428,26 @@ function playMusic(filename)
 	Player:play()  
 end
 
+-----------------------------------------------------摇一摇功能---------------------------
+-- @brief 重力感应按钮响应
+function gravityOnSelect()
+    Log:write('开启重力感应')
+    -- 开启重力感应
+    local result = System:setSensorStatus(0, 1, 'gravityOnCallback')
+    if not result then
+        Dialog:show('提示', '开启重力感应失败', 'ok')
+        return 1
+    end
+    -- 设置重力感应灵敏度
+    System:setSensorAccuracy(0, 5, 5, 5)
+end
+-- @brief 重力感应回调,调到历史详情界面
+function gravityOnCallback(xAccle, yAccle, zAccle)
+    Log:write('重力参数',xAccle, yAccle, zAccle)
+    --根据重力感应返回
+    if tonumber(xAccle)<-7 or tonumber(xAccle)>7 then 
+        Scene:go(Alias.history,13)
+    end
+end
 ]]>
 </root>
