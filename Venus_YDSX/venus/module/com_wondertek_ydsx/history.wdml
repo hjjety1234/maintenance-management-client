@@ -28,20 +28,20 @@
                 <scrolltext name="title" rect="0,0,480,70" text="历史记录" font-family='黑体'
                     extendstyle="1111" font-size="28" h-align="center" v-align="center"
                     color="#ffffff" scroll="true"  step="2" />
-                <button rect="140,150,203,65" extendstyle="1111" sudoku="4,4,4,4" text="重力传感器" 
+                <button rect="140,150,203,65" extendstyle="1111" sudoku="4,4,4,4" text="" 
                             color="#ffffff" OnSelect="gravityOnSelect" />
-                <label rect="30,200,120,40" extendstyle="1111" color="#ffffff" text="x加速度:" v-align="center" font-size="30"/>
+                <label rect="30,200,120,40" extendstyle="1111" color="#ffffff" text="" v-align="center" font-size="30"/>
                 <label name="xAccelerate" rect="150,200,100,40" extendstyle="1111" color="#ffffff" v-align="center" font-size="30"/>
-                <label rect="30,240,120,40" extendstyle="1111" color="#ffffff" text="y加速度:" v-align="center" font-size="30"/>
+                <label rect="30,240,120,40" extendstyle="1111" color="#ffffff" text="" v-align="center" font-size="30"/>
                 <label name="yAccelerate" rect="150,240,100,40" extendstyle="1111" color="#ffffff" v-align="center" font-size="30"/>
-                <label rect="30,280,120,40" extendstyle="1111" color="#ffffff" text="z加速度:" v-align="center" font-size="30"/>
+                <label rect="30,280,120,40" extendstyle="1111" color="#ffffff" text="" v-align="center" font-size="30"/>
                 <label name="zAccelerate" rect="150,280,100,40" extendstyle="1111" color="#ffffff" v-align="center" font-size="30"/>
                 <!-- 球形体  -->
                 <globe rect="40,100,400,400" final-scale="10">
                     <globe-item normal-size="120,10" normal-font-size="30" normal-color="#F0F0F0" final-color="#202020"  OnMouseUp="up" h-align="center" v-align="center" autoextend="true" text="$(text)"/>
                         <dataset>
                             <set text="周瑜"/>
-                            <set text="集团通讯录"/>
+                            <set text="通讯录"/>
                             <set text="何武"/>
                             <set text="微信"/>
                             <set text="江峰"/>
@@ -51,7 +51,7 @@
                             <set text="看新闻"/>
                             <set text="周本文"/>
                             <set text="爱拍照"/>
-                            <set text="严翔翔"/>
+                            <set text="陈晓波"/>
                             <set text="丁兵"/>
                             <set text="包文菖"/>
                             <set text="徐刚强"/>
@@ -59,6 +59,7 @@
                             <set text="鹿南南"/>
                             <set text="吴滨"/>
                             <set text="飞信"/>
+                            <set text="李荣福"/>
                         </dataset>
                 </globe>
                 <listview name="sampleList" rect="0,70,480,730" extendstyle="0017"/>
@@ -112,19 +113,26 @@
 
                 <!-- 记录区域  -->
                 <node name="recordSprite" rect="0,600,480,200" extendstyle="1111" visible='false'>
-                    <image  rect="50,40,48,48" src="file://image/history_people.png"
+                    <image  name='record_img' rect="20,40,48,48" src="file://image/history_people.png"
                          extendstyle="1111" />
 
-                    <label name="username" rect="115,40,100,40" text="周瑜" v-align="center" 
-                       color="#fff100"  extendstyle="1111" font-family='黑体' font-size="24"/>
+                    <label name="username" rect="85,40,100,40" text="周瑜" v-align="center" 
+                       color="#fff100"  extendstyle="1111" font-family='黑体' font-size="26"/>
 
-                    <label name="searchtime" rect="180,45,100,40" text="共5次搜索" v-align="center" 
-                       color="#fff100"  extendstyle="1111" font-family='黑体' font-size="17"/>
+                    <label  rect="170,45,200,40" text="共    次搜索" v-align="center" 
+                       color="#fff100"  extendstyle="1111" font-family='黑体' font-size="20"/>
+                    <label name="searchtime" rect="193,45,100,40" text="0" v-align="center" 
+                       color="#fff100"  extendstyle="1111" font-family='黑体' font-size="20"/>
 
-                    <label rect="115,75,100,40" text="最近一次：" v-align="center" 
-                       color="#ffffff"  extendstyle="1111" font-family='黑体' font-size="17"/>
-                    <label name="lasttime" rect="210,75,200,40" text="2013-6-13 16:53" v-align="center" 
-                       color="#ffffff"  extendstyle="1111" font-family='黑体' font-size="17"/>
+                    <label rect="85,80,100,40" text="最近一次：" v-align="center" 
+                       color="#ffffff"  extendstyle="1111" font-family='黑体' font-size="20"/>
+                    <label name="lasttime" rect="185,80,300,40" text="暂未搜索哦" v-align="center" 
+                       color="#ffffff"  extendstyle="1111" font-family='黑体' font-size="20"/>
+
+                    <label rect="85,115,100,40" text="搜索详情：" v-align="center" 
+                       color="#ffffff"  extendstyle="1111" font-family='黑体' font-size="20"/>
+                    <textarea name="searchDetail" rect="185,120,250,80" text="暂无搜索详情" v-align="top" 
+                       color="#ffffff"  extendstyle="1111" font-family='黑体' font-size="20"/>
 
                 </node>
             </node>
@@ -136,6 +144,8 @@ require 'com_wondertek_ydsx.common.framework'
 local rootSprite
 local db_path = getLocalDiskPath().."/jttxlDatabase.db" -- 数据库地址
 local userTable   --用户信息
+local logTable --日志信息
+local userText --球形用户数据
 
 
 ---------------------------------------callbacks--------------------------------
@@ -178,10 +188,10 @@ function doBack()
 end
 --球形点击事件
 function up(sprite)
-    local text =Sprite:getText(sprite)
-    Log:write('点击获取的文字',text)
+    userText =Sprite:getText(sprite)
+    Log:write('点击获取的文字',userText)
     -- 查询用户表
-    local sql = "select user_company, department_id, headship_name, mobile from tb_c_employee where employee_name=".."'"..text.."'"..';'
+    local sql = "select user_company, department_id, headship_name, mobile from tb_c_employee where employee_name=".."'"..userText.."'"..';'
     Log:write("查询用户表sql语句为: "..sql)
     local bRet, retCountTable, errMsg = Sqlite:query(db_path, sql)
     Log:write("查询用户表返回：", retCountTable)
@@ -201,8 +211,62 @@ end
 function record()
     local defaultSprite = Sprite:findChild(rootSprite,'defaultSprite')
     local recordSprite = Sprite:findChild(rootSprite,'recordSprite')
+    local record_img = Sprite:findChild(rootSprite,'record_img')
     Sprite:setProperty(defaultSprite,'visible','false')
     Sprite:setProperty(recordSprite,'visible','true')
+    local username = Sprite:findChild(rootSprite,'username')
+    local searchDetail = Sprite:findChild(rootSprite,'searchDetail')
+    Sprite:setProperty(username,'text',userText)
+    if #userTable==0  then 
+        Sprite:setProperty(searchDetail,'text','暂无搜索详情哦')
+        Sprite:setProperty(record_img,'src','file://image/history_people.png')
+    end 
+    if userText=='飞信'  then
+        Sprite:setProperty(searchDetail,'text','一款支持全平台的即时通讯免费软件')
+        Sprite:setProperty(record_img,'src','file://image/history_app.png')
+    elseif userText=='微信'  then
+        Sprite:setProperty(searchDetail,'text','免费提供即时通讯服务的聊天软件')
+        Sprite:setProperty(record_img,'src','file://image/history_app.png')
+    elseif userText=='通讯录'  then
+        Sprite:setProperty(searchDetail,'text','企业联系人的查询助手')
+        Sprite:setProperty(record_img,'src','file://image/history_app.png')
+    elseif userText=='计步器'  then
+        Sprite:setProperty(searchDetail,'text','运动达人、酷跑族必备产品')
+        Sprite:setProperty(record_img,'src','file://image/history_app.png')
+    elseif userText=='QQ'  then
+        Sprite:setProperty(searchDetail,'text','免费提供即时通讯服务的聊天软件')
+        Sprite:setProperty(record_img,'src','file://image/history_app.png')
+    elseif userText=='看新闻'  then
+        Sprite:setProperty(searchDetail,'text','第一时间获取新浪网提供的高品质的全球资讯新闻')
+        Sprite:setProperty(record_img,'src','file://image/history_app.png')
+    elseif userText=='应用汇'  then
+        Sprite:setProperty(searchDetail,'text','搜索本地应用，未找到则从服务端下载')
+        Sprite:setProperty(record_img,'src','file://image/history_app.png')
+    elseif userText=='爱拍照'  then
+        Sprite:setProperty(searchDetail,'text','打开本地相机，爱美人士必备')
+        Sprite:setProperty(record_img,'src','file://image/history_app.png')
+    else 
+        Sprite:setProperty(searchDetail,'text',userTable[1][2])
+        Sprite:setProperty(record_img,'src','file://image/history_people.png')
+    end
+    --计算搜索次数和搜索时间
+    local time_search = 0 --搜索次数
+    local time_last=''  --最后一次搜索时间
+    for i=1, #logTable do
+        if userText == logTable[i][1] then 
+            time_search = time_search+1
+            time_last = logTable[i][3]
+        end
+    end
+    local searchtime = Sprite:findChild(rootSprite,'searchtime')
+    local lasttime = Sprite:findChild(rootSprite,'lasttime')
+    if time_last=='' or time_last==nil then 
+        Sprite:setProperty(lasttime,'text','暂未搜索哦')
+    else
+        Sprite:setProperty(lasttime,'text',time_last)
+    end
+    Sprite:setProperty(searchtime,'text',time_search)
+
 end
 
 -- @brief 重力感应按钮响应
@@ -269,30 +333,8 @@ function request()
     Sprite:setProperty(app,'text',time_app)
     Sprite:setProperty(news,'text',time_news)
     Sprite:setProperty(cam,'text',time_cam)
+    logTable = retCountTable
 end
 
--- @brief 由姓名查找联系人信息
--- @author hewu
-function query_employee()
-    -- 打开数据库
-    local bRet, errMsg = Sqlite:open(db_path) 
-    Log:write("打开数据库：bRet = "..bRet.." errMsg ="..errMsg)
-    
-    -- 查询用户表
-    local sql = string.format("select user_company, department_id, headship_name, mobile"..
-        " from tb_c_employee where employee_name='%s';", emp_name)
-    Log:write("查询用户表sql语句为: "..sql)
-    local bRet, retCountTable, errMsg = Sqlite:query(db_path, sql)
-    Log:write("查询用户表返回：", retCountTable)
-    
-    -- 获取部门全名称
-    if retCountTable ~= nil and retCountTable[1] ~= nil then 
-        retCountTable[1][2] = query_full_department_name(db_path, retCountTable[1][2])
-    end 
-
-    -- 返回联系人信息
-    Log:write("联系人信息为：", retCountTable)
-    return retCountTable
-end
 ]]>
 </root>
