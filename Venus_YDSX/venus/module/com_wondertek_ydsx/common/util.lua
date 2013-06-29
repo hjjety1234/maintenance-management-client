@@ -195,11 +195,11 @@ end
 -- @brief 根据appId启动应用
 -- @author hewu
 function run_app(app_id)
-	local app_info = AppManager:getInfoById(appId)
+	local app_info = AppManager:getInfoById(app_id)
 	Log:write("app_info", app_info)
 	if app_info ~= nil then 
 		Log:write("启动应用"..app_id)
-		AppManager:runApp(appId) 
+		AppManager:runApp(app_id) 
 	else
 		Log:write("调用应用程序失败，应用未安装！")
 	end
