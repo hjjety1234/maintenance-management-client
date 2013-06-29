@@ -154,7 +154,7 @@ local g_app_infos = {
 		app_id = "cn.com.fetion",
 		download_url = "http://cdn.market.hiapk.com/data/upload/2013/06_07/15/cn.com.fetion_152359.apk"
 	},{
-		app_name = "qq", 
+		app_name = "QQ", 
 		app_id = "com.tencent.mobileqq",
 		download_url = "http://gdown.baidu.com/data/wisegame/ef58dc6eed2ad12a/QQ.apk"
 	},{
