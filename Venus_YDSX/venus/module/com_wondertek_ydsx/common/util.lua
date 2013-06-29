@@ -100,6 +100,25 @@ function query_full_department_name(db_path, department_id)
 	end  
 end
 
+
+--搜索记录存入数据库
+function addSearchLog(type,title,other_log,db_path)
+    local createSql = "CREATE TABLE IF NOT EXIST tb_c_search_logs (id INTEGER PRIMARY KEY,search_key VARCHAR(80),search_count INTEGER default 0,logtime datetime default datetime('now'),mark1 varchar(200),mark2 varchar(200));"
+    Log:write('createSql is ',createSql)
+    local bRet, retCountTable, errMsg = Sqlite:query(db_path, createSql)
+    local sql = "SELECT id,search_key,search_count FROM tb_c_search_logs WHERE search_key='"..title.."';"
+    bRet,retCountTable,errMsg = Sqlite:query(db_path,sql)
+    if #retCountTable > 0 then
+    	Log:write('更新')
+    	sql = "UPDATE tb_c_search_logs SET search_count=search_count+1,logtime=datetime('now') WHERE id='"..retCountTable[1][1].."'"
+    	Sqlite:query(db_path,sql)
+    else
+    	Log:write('新增')
+    	sql = string.format("INSERT INTO tb_c_search_logs (search_key,search_count) VALUES ('%s',0);",title)
+    	Sqlite:query(db_path,sql)
+    end
+end
+
 -- 设置对象隐藏或显示
 function setAllShoworHide(sprite, isShow)
     Sprite:setVisible(sprite, isShow)

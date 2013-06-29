@@ -54,7 +54,7 @@
                 <label name="lblUserName" rect="115,65,70,25" extendstyle="1111"
                  text="周瑜" font-size="22" font-family="黑体" />
                  <!--电话号码-->
-                 <label name="lblPhone" rect="190,65,100,100" text="15156892727" font-family="黑体" font-size="22" color="#959595"
+                 <label name="lblPhone" rect="190,65,70,200" text="15156892727" font-family="黑体" font-size="22" color="#959595"
                   extendstyle="1111"></label>
                   <!--拔打电话图标-->
                   <button name="btnTel" rect="120,110,90,24" extendstyle="1111" style="autosize" OnSelect="btnTel_OnSelect">
@@ -160,16 +160,20 @@ function RecognizedUserVoice(voiceText)
     Log:write('开始打电话相关操作')
     local startIndex,endIndex = string.find(voiceText,'打电话给')
     Log:write('endIndex is ',endIndex)
-    setParent(voiceText)
     if startIndex ~= nil and endIndex ~= nil then
         --获取用户电话号码
         local db_path = getLocalDiskPath().."/jttxlDatabase.db"
-        if IO:fileExist(db_path) then 
-            local user = query_employee(db_path, string.sub(voiceText,1,4))
-            log:write('user is ',user)
+        if IO:fileExist(db_path) then
+            local key = string.sub(voiceText,13,string.len(voiceText))
+            Log:write('搜索姓名为：',key)
+            local user = query_employee(db_path, key)
+            Log:write('user is ',user)
             if user == '' or user == nil then
+
             else
-                mobile = user[0].mobile
+                addSearchLog('1',key,'',db_path)
+                mobile = user[1][4]
+                setParent(voiceText,mobile,key)
             end
         else
             Log:write("数据库文件不存在!")
@@ -180,18 +184,24 @@ function RecognizedUserVoice(voiceText)
     end 
 end
 
---语音识别后，显示识别成功的对话框
-function setParent(voiceText)
+
+-- 语音识别后，显示识别成功的对话框
+function setParent(voiceText,mobile,key)
+    Log:write('the mobile is ',mobile)
     local list = Sprite:findChild(rootSprite,'lvTips')
     local lblSearchTitle = Sprite:findChild(rootSprite,'lblSearchTitle')
     Sprite:setProperty(lblSearchTitle,'text',voiceText)
     local nodeSearchResult = Sprite:findChild(rootSprite,'nodeSearchResult')
+    local lblUserName = Sprite:findChild(rootSprite,'lblUserName')
+    Sprite:setProperty(lblUserName,'text',key)
+    local lblPhone = Sprite:findChild(rootSprite,'lblPhone')
+    Sprite:setProperty(lblPhone,'text',mobile)
     setAllShoworHide(nodeSearchResult,1)
-    Sprite:setRect(list,0,0,480,260)
+    Sprite:setRect(list,0,0,480,300)
     ListView:adjust(list)
 end
 
---语音按钮点击
+-- 语音按钮点击
 function voiceBtnOnSelect(sprite)
     Sprite:releaseCapture(sprite)
     Sprite:killFocus(sprite)
@@ -214,8 +224,7 @@ end
 function mainNodeOnKeyUp(sprite, kc)
     Log:write('mainNodeOnKeyUp')
     if kc == Key.F2 then -- 按下返回键
-        Log:write('backgroundApp')
-        Util:backgroundApp()
+        Dialog:show('', '是否确定退出？', 'ok_cancel', 'doExit')
     end
 end
 
