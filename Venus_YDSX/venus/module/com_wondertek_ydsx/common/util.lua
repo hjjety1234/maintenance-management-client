@@ -210,7 +210,7 @@ end
 function download_app(url)
 	if url ~= nil and url ~= "" then 
 		Log:write("打开地址"..url)
-		WebBrowser:openUrl(url) 
+		Util:openURL(url)
 	else
 		Log:write("url地址非法")
 	end
