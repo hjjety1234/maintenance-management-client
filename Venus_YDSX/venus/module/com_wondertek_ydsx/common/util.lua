@@ -140,7 +140,7 @@ local g_app_infos = {
 	{
 		app_name = "集团通讯录", 
 		app_id = "com.wondertek.jttxl",
-		download_url = "http://120.209.138.173:8088/resources/wap"
+		download_url = "http://120.209.138.173:8080/resources/wap" 
 	},{
 		app_name = "计步器", 
 		app_id = "com.cmcc.pedometer",
