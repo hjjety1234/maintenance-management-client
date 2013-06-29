@@ -90,13 +90,15 @@ require "framework.player"
 
 local mobile
 local rootSprite
+local key -- 写日志需要使用的标题名称
+local db_path = getLocalDiskPath().."/jttxlDatabase.db" -- 数据库地址
 local dataSource = {
                         {icon='icon_user.png',text='我要找“周瑜”',tips='公司通讯录搜索',type='1'},
                         {icon='icon_phone.png',text='打电话给“何武”',tips='打电话',type='2'},
                         {icon='icon_msg.png',text='发短信给“刘祥武”',tips='发短信',type='3'},
                         {icon='icon_soft.png',text='打开集团通讯录',tips='打开应用',type='4'},
-                        {icon='icon_music.png',text='播放“江南style”',tips='播放音乐',type='1'},
-                        {icon='icon_set.png',text='调节“亮度”',tips='调节系统参数',type='1'}
+                        {icon='icon_music.png',text='播放“江南style”',tips='播放音乐',type='5'},
+                        {icon='icon_set.png',text='调节“亮度”',tips='调节系统参数',type='6'}
                    }
 
 ---------------------------------------callbacks--------------------------------
@@ -168,33 +170,85 @@ end
 -- 语音识别以后，业务操作开始
 function RecognizedUserVoice(voiceText)
     Log:write('开始打电话相关操作')
-    local startIndex,endIndex = string.find(voiceText,'打电话给')
+    local startIndex,endIndex = string.find(voiceText,'我要找')
     Log:write('endIndex is ',endIndex)
     if startIndex ~= nil and endIndex ~= nil then
-        --获取用户电话号码
-        local db_path = getLocalDiskPath().."/jttxlDatabase.db"
-        if IO:fileExist(db_path) then
-            local key = string.sub(voiceText,13,string.len(voiceText))
-            Log:write('搜索姓名为：',key)
-            local user = query_employee(db_path, key)
-            Log:write('user is ',user)
-            if user == '' or user == nil then
-
-            else
-                addSearchLog('1',key,'',db_path)
-                mobile = user[1][4]
-                setParent(voiceText,mobile,key)
-            end
-        else
-            Log:write("数据库文件不存在!")
-        end
-    else
-        -- 从数据库中搜索联系人信息
-        Log:write('从数据库搜索用户信息')
+        searchUser(voiceText)
+    elseif string.find(voiceText,'打电话给') ~= nil then
+        telUser(voiceText)
+    elseif string.find(voiceText,'发短信给') ~= nil then
+        smsUser(voiceText)
+    elseif string.find(voiceText,'打开') ~= nil then
+        openApplication(voiceText)
+    elseif string.find(voiceText,'设置') ~= nil then
+        openSet(voiceText)
     end 
 end
 
+-- 语音识别成功，业务操作错误
+function erroInfo(voiceText)
+end
 
+----------------------------------------------------- 语音识别成功，分发函数----------------------------------
+-- 搜索用户
+function searchUser(voiceText)
+    --搜索用户 type=1
+    if IO:fileExist(db_path) then
+        key = string.sub(voiceText,10,string.len(voiceText))
+        Log:write('搜索姓名为：',key)
+        local user = query_employee(db_path, key)
+        Log:write('user is ',user)
+        if #user == 0 then
+            erroInfo(voiceText)
+        else
+            addSearchLog('1',key,'',db_path)
+            mobile = user[1][4]
+            setParent(voiceText,mobile,key)
+        end
+    else
+        Log:write("数据库文件不存在!")
+    end
+end
+-- 打电话给某个用户
+function telUser(voiceText)
+    -- 打电话
+    key = string.sub(voiceText,13,string.len(voiceText))
+    Log:write('姓名为：',key)
+    local user = query_employee(db_path, key)
+    Log:write('user is ',user)
+    if #user == 0 then
+        erroInfo(voiceText)
+    else
+        mobile = user[1][4]
+        addSearchLog('2',key,mobile,db_path)
+        --直接打电话
+        btnTel_OnSelect(Sprite:findChild(rootSprite,'btnTel'))
+    end
+end
+-- 发短信给某人
+function smsUser(voiceText)
+    -- 发短信
+    key = string.sub(voiceText,13,string.len(voiceText))
+    Log:write('姓名为：',key)
+    local user = query_employee(db_path, key)
+    Log:write('user is ',user)
+    if #user == 0 then
+        erroInfo(voiceText)
+    else
+        mobile = user[1][4]
+        addSearchLog('2',key,mobile,db_path)
+        --直接发短信
+        btnSMS_OnSelect(Sprite:findChild(rootSprite,'btnSMS'))
+    end
+end
+-- 打开应用
+function openApplication(voiceText)
+end
+-- 打开某个应用设置
+function openSet(voiceText)
+end
+
+----------------------------------------------------- 语音识别成功，分发函数----------------------------------
 -- 语音识别后，显示识别成功的对话框
 function setParent(voiceText,mobile,key)
     Log:write('the mobile is ',mobile)
@@ -207,7 +261,7 @@ function setParent(voiceText,mobile,key)
     local lblPhone = Sprite:findChild(rootSprite,'lblPhone')
     Sprite:setProperty(lblPhone,'text',mobile)
     setAllShoworHide(nodeSearchResult,1)
-    Sprite:setRect(list,0,0,480,300)
+    Sprite:setRect(list,0,0,480,320)
     ListView:adjust(list)
 end
 
@@ -221,12 +275,24 @@ function voiceBtnOnSelect(sprite)
     end
 end
 
+-- 打电话
 function btnTel_OnSelect(sprite)
     Log:write('mobile is ',mobile)
     if Util:openCallDialog('callFinished',mobile, 0) then
+        addSearchLog('2',key,mobile,db_path)
         Log:write('拔打电话成功')
     else
        Log:write('拔打电话失败')
+    end
+end
+
+-- 发短信
+function btnSMS_OnSelect(sprite)
+    if Util:sendSMS(mobile,'',false) then
+        addSearchLog('3',key,mobile,db_path)
+        Log:write('发送短信成功')
+    else
+        Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
     end
 end
 
