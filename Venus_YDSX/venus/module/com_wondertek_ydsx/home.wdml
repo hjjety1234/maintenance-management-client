@@ -25,7 +25,7 @@
             <node name="nodeTipsTitle" rect="0,70,480,40" extendstyle="1111">
                 <shadow rect="0,0,480,40" color="#e5e5e5" name="tipsBg" extendstyle="1111" alpha="255" />
                 <label rect="10,0,480,40" h-align="left" v-align="center" name="lblTipsTitle" color="#ADADAD" extendstyle="1111" font-family="黑体" font-size="20" 
-                text="按住麦克风，参照下面示例对我说话吧~~" />
+                text="点击下方麦克风，参照下面示例对我说话吧~~" />
             </node>
             <!--中间提示框-->
             <node name="nodeTips" extendstyle="1111" rect="0,110,480,420">
@@ -38,6 +38,7 @@
                 <image name="imgIcon" src="file://image/icon_user.png" extendstyle="1111" rect="23,15,32,32" />
                 <label name="lblTitle" extendstyle="1111" rect="70,12,200,25" font-size="18" font-family="黑体" color="#1b1b1b" />
                 <label name="lblTips" extendstyle="1111" rect="68,38,200,21" font-size="17" font-family="黑体" color="#707070" />
+                <shadow name="lineShadow" extendstyle="1111" rect="0,62,480,1" color="#DCDCDC" />
             </node>
             <!--语音检索结果展示区域-->
             <node name="nodeSearchResult" rect="0,455,480,160" extendstyle="1111" visible="false" enable="false" active="false">
@@ -54,7 +55,7 @@
                 <label name="lblUserName" rect="115,65,70,25" extendstyle="1111"
                  text="周瑜" font-size="22" font-family="黑体" />
                  <!--电话号码-->
-                 <label name="lblPhone" rect="190,65,70,200" text="15156892727" font-family="黑体" font-size="22" color="#959595"
+                 <label name="lblPhone" rect="190,65,300,25" text="15156892727" font-family="黑体" font-size="22" color="#959595"
                   extendstyle="1111"></label>
                   <!--拔打电话图标-->
                   <button name="btnTel" rect="120,110,90,24" extendstyle="1111" style="autosize" OnSelect="btnTel_OnSelect">
@@ -68,6 +69,16 @@
                         <label name="lblText" extendstyle="1111" rect="28,3,90,24" text="发短信"
                          font-size="18" color="#747474" font-family="黑体" />
                   </button>
+                  <!--错误提示node-->
+                  <node name="errorNode" rect="5,40,470,115" extendstyle="1111" visible="false" enable="false" active="false">
+                    <shadow name="errorShadow" rect="0,0,470,115" color="#FFFFFF" extendstyle="1111" alpha="255" />
+                    <image src="file://image/icon_error.png" rect="33,20,80,80" extendstyle="1111" />
+                    <scrolltext name="lblErrorTitle" rect="112,18,200,30" font-size="22" font-family="黑体"
+                     extendstyle="1111" text="抱歉没有相关搜索结果" />
+                     <image src="file://image/icon_star.png" rect="112,66,24,24" extendstyle="1111" />
+                     <button rect="140,66,300,25" name="btnNetSearch" extendstyle="1111"
+                      h-align="left" OnSelect="btnNetSearch_OnClick" text="联网搜索" font-family="黑体"></button>
+                  </node>
             </node>
             <!--开始录音按钮-->
             <button name="btnStart" rect="145,635,200,165" extendstyle="1111" style="autosize" OnSelect="voiceBtnOnSelect"
@@ -95,10 +106,10 @@ local db_path = getLocalDiskPath().."/jttxlDatabase.db" -- 数据库地址
 local dataSource = {
                         {icon='icon_user.png',text='我要找“周瑜”',tips='公司通讯录搜索',type='1'},
                         {icon='icon_phone.png',text='打电话给“何武”',tips='打电话',type='2'},
-                        {icon='icon_msg.png',text='发短信给“刘祥武”',tips='发短信',type='3'},
-                        {icon='icon_soft.png',text='打开集团通讯录',tips='打开应用',type='4'},
-                        {icon='icon_music.png',text='播放“江南style”',tips='播放音乐',type='5'},
-                        {icon='icon_set.png',text='调节“亮度”',tips='调节系统参数',type='6'}
+                        {icon='icon_msg.png',text='发短信给“刘祥武”',tips='发短信',type='2'},
+                        {icon='icon_soft.png',text='打开集团通讯录',tips='打开应用',type='5'},
+                        {icon='icon_news.png',text='看新闻',tips='查看新浪新闻',type='4'},
+                        {icon='icon_cameral.png',text='拍照片',tips='调用摄像头拍照',type='6'}
                    }
 
 ---------------------------------------callbacks--------------------------------
@@ -146,6 +157,7 @@ function bodyOnPluginEvent(msg, param)
     elseif msg == MSG_VOICEINPUT then --语音返回消息 
         local toText = VoiceInput:getInputText()
         local voiceData = Json:loadString2Table(toText)
+        Log:write('voiceData is ',voiceData)
         if not voiceData.RecognizedText then
             Dialog:show(rootSprite, '语音转换失败!', 'ok')
         else
@@ -170,8 +182,10 @@ function RecognizedUserVoice(voiceText)
         smsUser(voiceText)
     elseif string.find(voiceText,'打开') ~= nil then
         openApplication(voiceText)
-    elseif string.find(voiceText,'设置') ~= nil then
-        openSet(voiceText)
+    elseif string.find(voiceText,'拍照') ~= nil then
+        takePic(voiceText)
+    else
+        erroInfo(voiceText,'1')
     elseif voiceText == "看新闻" then 
         local news_url = "http://3g.sina.com.cn"
         voice_view_news(news_url)
@@ -179,7 +193,32 @@ function RecognizedUserVoice(voiceText)
 end
 
 -- 语音识别成功，业务操作错误
-function erroInfo(voiceText)
+function erroInfo(voiceText,type)
+    Log:write('start show error')
+    local list              = Sprite:findChild(rootSprite,'lvTips')
+    local nodeSearchResult  = Sprite:findChild(rootSprite,'nodeSearchResult')
+    local errorNode         = Sprite:findChild(rootSprite,'errorNode')
+    local lblErrorTitle     = Sprite:findChild(rootSprite,'lblErrorTitle')
+    local btnNetSearch      = Sprite:findChild(rootSprite,'btnNetSearch')
+    local lblSearchTitle       = Sprite:findChild(rootSprite,'lblSearchTitle')
+    local btnNetSearch      = Sprite:findChild(rootSprite,'btnNetSearch')
+    setAllShoworHide(nodeSearchResult,1)
+    setAllShoworHide(errorNode,1)
+    Sprite:setProperty(lblSearchTitle,'text','您说“'..voiceText..'”')
+    Sprite:setProperty(btnNetSearch,'text','联网搜索“'..voiceText..'”')
+    Sprite:setRect(list,0,0,480,320)
+    ListView:adjust(list)
+    Log:write('end show error')
+end
+
+-- 对一些常用联系人进行转换
+function translateUsers(username)
+    if username == '包文昌' then
+        username = '包文菖'
+    elseif username == '冯瑞' then
+        username = '冯锐'
+    end
+    return query_employee(db_path,username)
 end
 
 ----------------------------------------------------- 语音识别成功，分发函数----------------------------------
@@ -192,11 +231,14 @@ function searchUser(voiceText)
         local user = query_employee(db_path, key)
         Log:write('user is ',user)
         if #user == 0 then
-            erroInfo(voiceText)
-        else
+            user = translateUsers(key)
+        end
+        if #user > 0 then
             addSearchLog('1',key,'',db_path)
             mobile = user[1][4]
             setParent(voiceText,mobile,key)
+        else
+            erroInfo(voiceText,'1')
         end
     else
         Log:write("数据库文件不存在!")
@@ -210,12 +252,14 @@ function telUser(voiceText)
     local user = query_employee(db_path, key)
     Log:write('user is ',user)
     if #user == 0 then
-        erroInfo(voiceText)
-    else
+        translateUsers(key)
+    end
+    if #user > 0 then
         mobile = user[1][4]
-        addSearchLog('2',key,mobile,db_path)
         --直接打电话
         btnTel_OnSelect(Sprite:findChild(rootSprite,'btnTel'))
+    else
+        erroInfo(voiceText,'1')
     end
 end
 -- 发短信给某人
@@ -226,12 +270,14 @@ function smsUser(voiceText)
     local user = query_employee(db_path, key)
     Log:write('user is ',user)
     if #user == 0 then
-        erroInfo(voiceText)
-    else
+        translateUsers(key)
+    end
+    if #user > 0 then
         mobile = user[1][4]
-        addSearchLog('2',key,mobile,db_path)
         --直接发短信
         btnSMS_OnSelect(Sprite:findChild(rootSprite,'btnSMS'))
+    else
+        erroInfo(voiceText,'1')
     end
 end
 
@@ -248,7 +294,19 @@ function openApplication(voiceText)
 end
 
 -- 打开某个应用设置
-function openSet(voiceText)
+function takePic(voiceText)
+    local result = System:openCamera('cameraCallBack', 'file://image/123.jpg', 'jpg')
+    addSearchLog('6',key,'',db_path)
+    if result == 0 then
+        Dialog:show('相机打开失败!', 'ok')
+    end
+end
+
+-- 摄像头回调函数
+function cameraCallBack(path, type)
+-- path:照片实际存储的全路径(/data/data/com.wondertek.demo/module/com_wondertek_demo/image/123.jpg)；
+-- type:照片实际存储的类型(jpg);
+-- 拿到照片信息执行某些操作;
 end
 
 ----------------------------------------------------- 语音识别成功，分发函数----------------------------------
@@ -292,10 +350,18 @@ end
 -- 发短信
 function btnSMS_OnSelect(sprite)
     if Util:sendSMS(mobile,'',false) then
-        addSearchLog('3',key,mobile,db_path)
+        addSearchLog('2',key,mobile,db_path)
         Log:write('发送短信成功')
     else
         Dialog:show('提示', '调用接口失败，请检查手机设置！', 'ok')
+    end
+end
+
+-- 联网搜索
+function btnNetSearch_OnClick(sprite)
+    Log:write('btnNetSearch',voiceText)
+    if voiceText ~= nil and voiceText ~= '' then
+        System:openURL('http://m.baidu.com/ssid=0/from=0/bd_page_type=1/uid=AB26C4A16552D671F055F0A7F89E3D5D/baiduid=463CBC218FCF7E98679765734895C3F7/s?word='..voiceText)
     end
 end
 
