@@ -190,7 +190,22 @@ function RecognizedUserVoice(voiceText)
         local news_url = "http://3g.sina.com.cn"
         voice_view_news(news_url)
     else
-        erroInfo(voiceText,'1')
+        -- 到通讯录中进行一次搜索
+        local user = query_employee(db_path,voiceText)
+        if #user == 0 then
+            erroInfo(voiceText,'1')
+        else
+            if #user == 0 then
+                user = translateUsers(key)
+            end
+            if #user > 0 then
+                addSearchLog('1',key,'',db_path)
+                mobile = user[1][4]
+                setParent(voiceText,mobile,key)
+            else
+                erroInfo(voiceText,'1')
+            end
+        end
     end 
 end
 
@@ -286,6 +301,7 @@ end
 -- @brief 打开应用
 -- @author hewu
 function openApplication(voiceText)
+    reload()
     local appInfo = voice_query_app(voiceText)
     if appInfo ~= nil then 
         voice_invoke_app(appInfo.app_name)
@@ -297,6 +313,7 @@ end
 
 -- 打开某个应用设置
 function takePic(voiceText)
+    reload()
     local result = System:openCamera('cameraCallBack', 'file://image/123.jpg', 'jpg')
     addSearchLog('6',key,'',db_path)
     if result == 0 then
@@ -330,6 +347,14 @@ function setParent(voiceText,mobile,key)
     ListView:adjust(list)
 end
 
+-- 操作完成后，恢复界面
+function reload()
+    local list = Sprite:findChild(rootSprite,'lvTips')
+    local nodeSearchResult = Sprite:findChild(rootSprite,'nodeSearchResult')
+    setAllShoworHide(nodeSearchResult,0)
+    Sprite:setRect(list,0,0,480,420)
+end
+
 -- 语音按钮点击
 function voiceBtnOnSelect(sprite)
     Sprite:releaseCapture(sprite)
@@ -342,6 +367,7 @@ end
 
 -- 打电话
 function btnTel_OnSelect(sprite)
+    reload()
     Log:write('mobile is ',mobile)
     if Util:openCallDialog('callFinished',mobile, 0) then
         addSearchLog('2',key,mobile,db_path)
@@ -353,6 +379,7 @@ end
 
 -- 发短信
 function btnSMS_OnSelect(sprite)
+    reload()
     if Util:sendSMS(mobile,'',false) then
         addSearchLog('2',key,mobile,db_path)
         Log:write('发送短信成功')
