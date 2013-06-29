@@ -108,6 +108,10 @@ local rootSprite
 local key -- 写日志需要使用的标题名称
 local RecVoiceText --声音识别出来的文字
 local db_path = getLocalDiskPath().."/jttxlDatabase.db" -- 数据库地址
+local x=0
+local y=0
+local z=0
+local gravityFlag = 0
 local dataSource = {
                         {icon='icon_user.png',text='我要找“周瑜”',tips='公司通讯录搜索',type='1'},
                         {icon='icon_phone.png',text='打电话给“何武”',tips='打电话',type='2'},
@@ -116,7 +120,6 @@ local dataSource = {
                         {icon='icon_news.png',text='看新闻',tips='查看新浪新闻',type='4'},
                         {icon='icon_cameral.png',text='拍照片',tips='调用摄像头拍照',type='6'}
                    }
-
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -365,9 +368,7 @@ function reload()
 end
 
 -- 语音按钮点击
-function voiceBtnOnSelect(sprite)
-    Sprite:releaseCapture(sprite)
-    Sprite:killFocus(sprite)
+function voiceBtnOnSelect()
     local success = VoiceInput:startVoiceInput('0000', '')
     if success == 0 then
         Dialog:show(rootSprite, '打开录音失败!', 'ok')
@@ -441,12 +442,30 @@ function gravityOnSelect()
     -- 设置重力感应灵敏度
     System:setSensorAccuracy(0, 5, 5, 5)
 end
--- @brief 重力感应回调,调到历史详情界面
+-- @brief 重力感应回调
 function gravityOnCallback(xAccle, yAccle, zAccle)
     Log:write('重力参数',xAccle, yAccle, zAccle)
-    --根据重力感应返回
-    if tonumber(xAccle)<-7 or tonumber(xAccle)>7 then 
+    x = xAccle
+    y = yAccle
+    z = zAccle
+    --根据x加速判断，跳转到详情页面
+    if xAccle<-6 or xAccle>6 then 
         Scene:go(Alias.history,13)
+    end
+    --根据x、y、z加速判断
+    if gravityFlag==1 or zAccle>=5 then 
+        Timer:set(222, 1, "gravityCall")
+        gravityFlag = 1
+    else
+        Timer:cancel(222) 
+        gravityFlag = 0
+    end 
+end
+--@brief 根据重力感应判断是否打电话状态
+function gravityCall()
+    Log:write('打电话重力参数',x, y, z)
+    if x<=2 and y>=4 and z<=2 then
+        voiceBtnOnSelect()
     end
 end
 ]]>
