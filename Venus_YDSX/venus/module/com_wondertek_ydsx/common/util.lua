@@ -8,6 +8,8 @@
 -- | Desc: 常用功能函数
 -- -----------------------------------------------------------------------------
 require 'framework.sqlite'
+require 'framework.appmanager'
+require 'framework.webbrowser'
 
 -- @brief 获取本地数据库目录
 -- @author hewu 
@@ -93,7 +95,7 @@ function query_full_department_name(db_path, department_id)
 			if full_department_name == "" then 
 				full_department_name = department[1][1]
 			else
-				full_department_name = full_department_name.."-"..department[1][1]
+				full_department_name = department[1][1].."-"..full_department_name
 			end
 			department_id = department[1][2]
 		end
@@ -124,4 +126,92 @@ function setAllShoworHide(sprite, isShow)
     Sprite:setVisible(sprite, isShow)
     Sprite:setActive(sprite, isShow)
     Sprite:setEnable(sprite, isShow)
+end
+
+-- @brief 应用详细信息
+local g_app_infos = {
+	{
+		app_name = "集团通讯录", 
+		app_id = "com.wondertek.jttxl",
+		download_url = "http://120.209.138.173:8088/resources/wap"
+	},
+}
+
+-- @brief 语音搜索app，匹配返回app详细信息，否则返回nil 
+-- @author hewu
+function voice_query_app(voice_text)
+	if voice_text == nil or voice_text == "" then 
+		return  nil
+	end
+	local str_prefix = "打开"
+	if string.starts(voice_text, str_prefix) == false then 
+		Log:write(voice_text.."不是以“打开”开头")
+		return nil
+	else
+		local app_name = string.sub(voice_text, string.len(str_prefix) + 1)
+		Log:write("查询的应用名称为：", app_name)
+		return query_app(app_name)
+	end
+end
+
+-- @brief 检查是字符串是否有特定的起始符
+-- @author hewu
+function string.starts(String, Start)
+   return string.sub(String, 1, string.len(Start)) == Start
+end
+
+-- @brief 语音调用app
+-- @author hewu
+function voice_invoke_app(app_name)
+	local app_info  = query_app(app_name)
+	if app_info ~= nil then 
+		Log:write("应用详细信息为：", app_info)
+		if AppManager:getInfoById(app_info.app_id) ~= nil then 
+			run_app(app_info.app_id)
+		else
+			download_app(app_info.download_url)
+		end
+	else
+		app_name = app_name or "" 
+		Log:write("找不到应用"..app_name.."的详细信息！")
+	end
+end
+
+-- @brief 由应用名称查询其详细信息
+-- @author hewu
+function query_app(app_name)
+	if app_name == nil or app_name == "" then 
+		return nil
+	end
+	local i = 1
+	for i=1, #g_app_infos do 
+		if g_app_infos[i].app_name == app_name then 
+			return g_app_infos[i]
+		end
+	end
+	return nil 
+end
+
+-- @brief 根据appId启动应用
+-- @author hewu
+function run_app(app_id)
+	local app_info = AppManager:getInfoById(appId)
+	Log:write("app_info", app_info)
+	if app_info ~= nil then 
+		Log:write("启动应用"..app_id)
+		AppManager:runApp(appId) 
+	else
+		Log:write("调用应用程序失败，应用未安装！")
+	end
+end
+
+-- @brief 下载应用
+-- @author hewu
+function download_app(url)
+	if url == nil or url == "" then 
+		Log:write("打开地址"..url)
+		WebBrowser:openUrl(url) 
+	else
+		Log:write("url地址非法")
+	end
 end
