@@ -150,17 +150,7 @@ function bodyOnPluginEvent(msg, param)
             Dialog:show(rootSprite, '语音转换失败!', 'ok')
         else
             if voiceData.RecognizedText ~= '' and voiceData.RecognizedText ~= '' then
-                local voiceText = voiceData.RecognizedText
-                Log:write("识别的语音为:", voiceText)
-                local appInfo = voice_query_app(voiceText)
-                if appInfo ~= nil then 
-                    voice_invoke_app(appInfo.app_name)
-                    return
-                else
-                    Log:write("未找到指定应用的信息")
-                end 
                 -- 根据语音输入的内容进行判断用户行为
-                Log:write('打电话给')
                 RecognizedUserVoice(voiceData.RecognizedText)
             end
         end
@@ -241,9 +231,19 @@ function smsUser(voiceText)
         btnSMS_OnSelect(Sprite:findChild(rootSprite,'btnSMS'))
     end
 end
--- 打开应用
+
+-- @brief 打开应用
+-- @author hewu
 function openApplication(voiceText)
+    local appInfo = voice_query_app(voiceText)
+    if appInfo ~= nil then 
+        voice_invoke_app(appInfo.app_name)
+        return
+    else
+        Log:write("未找到指定应用的信息")
+    end 
 end
+
 -- 打开某个应用设置
 function openSet(voiceText)
 end

@@ -141,7 +141,27 @@ local g_app_infos = {
 		app_name = "集团通讯录", 
 		app_id = "com.wondertek.jttxl",
 		download_url = "http://120.209.138.173:8088/resources/wap"
-	},
+	},{
+		app_name = "计步器", 
+		app_id = "com.cmcc.pedometer",
+		download_url = "http://120.209.131.146/download/pedometer.apk"
+	},{
+		app_name = "微信", 
+		app_id = "com.tencent.mm",
+		download_url = "http://u.androidgame-store.com/android/new/game1/13/107613/wx_1369542545090.apk?f=baidu_1"
+	},{
+		app_name = "飞信", 
+		app_id = "cn.com.fetion",
+		download_url = "http://cdn.market.hiapk.com/data/upload/2013/06_07/15/cn.com.fetion_152359.apk"
+	},{
+		app_name = "qq", 
+		app_id = "com.tencent.mobileqq",
+		download_url = "http://gdown.baidu.com/data/wisegame/ef58dc6eed2ad12a/QQ.apk"
+	},{
+		app_name = "微博", 
+		app_id = "com.sina.weibo",
+		download_url = "http://gdown.baidu.com/data/wisegame/dca1df31413bac05/weibo.apk"
+	}
 }
 
 -- @brief 语音搜索app，匹配返回app详细信息，否则返回nil 
