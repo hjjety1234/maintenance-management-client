@@ -242,3 +242,12 @@ function download_app(url)
 		Log:write("url地址非法")
 	end
 end
+
+-- @brief 语音命令看新闻
+function voice_view_news(news_url)
+	if news_url == nil or news_url == "" then 
+		Log:write("news_url", news_url)
+		return
+	end
+	Util:openURL(news_url)
+end
