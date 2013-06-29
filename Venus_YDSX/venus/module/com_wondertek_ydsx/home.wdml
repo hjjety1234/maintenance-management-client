@@ -86,6 +86,7 @@
     <![CDATA[
 require('com_wondertek_ydsx.common.framework')
 require('framework.voiceinput')
+require "framework.player"
 
 local mobile
 local rootSprite
@@ -228,5 +229,20 @@ function mainNodeOnKeyUp(sprite, kc)
     end
 end
 
-    ]]>
+-- @brief 播放音乐
+function playMusic(filename)
+    if filename == nil or filename == "" then 
+        return
+    end
+    if IO:fileExist(filename) == false then 
+        Log:write("媒体文件"..filename.."不存在!")
+        return
+    end
+    Log:write("尝试播放文件"..filename)
+    Player:create(140, 200, 400, 200) 
+    Player:open(filename)
+	Player:play()  
+end
+
+]]>
 </root>
