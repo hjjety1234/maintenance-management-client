@@ -208,7 +208,7 @@ end
 -- @brief 下载应用
 -- @author hewu
 function download_app(url)
-	if url == nil or url == "" then 
+	if url ~= nil and url ~= "" then 
 		Log:write("打开地址"..url)
 		WebBrowser:openUrl(url) 
 	else

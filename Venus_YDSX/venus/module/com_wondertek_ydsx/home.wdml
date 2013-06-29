@@ -148,6 +148,13 @@ function bodyOnPluginEvent(msg, param)
             Dialog:show(rootSprite, '语音转换失败!', 'ok')
         else
             if voiceData.RecognizedText ~= '' and voiceData.RecognizedText ~= '' then
+                local voiceText = voiceData.RecognizedText
+                Log:write("识别的语音为:", voiceText)
+                local appInfo = voice_query_app(voiceText)
+                if appInfo ~= nil then 
+                    voice_invoke_app(appInfo.app_name)
+                    return
+                end 
                 -- 根据语音输入的内容进行判断用户行为
                 Log:write('打电话给')
                 RecognizedUserVoice(voiceData.RecognizedText)
