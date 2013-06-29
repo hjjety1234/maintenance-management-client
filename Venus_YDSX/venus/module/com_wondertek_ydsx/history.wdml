@@ -37,7 +37,7 @@
                 <label rect="30,280,120,40" extendstyle="1111" color="#ffffff" text="z加速度:" v-align="center" font-size="30"/>
                 <label name="zAccelerate" rect="150,280,100,40" extendstyle="1111" color="#ffffff" v-align="center" font-size="30"/>
                 <!-- 球形体  -->
-                <globe rect="40,400,400,400" final-scale="10">
+                <globe rect="40,100,400,400" final-scale="10">
                     <globe-item normal-size="120,10" normal-font-size="30" normal-color="#F0F0F0" final-color="#202020"  OnMouseUp="up" h-align="center" v-align="center" autoextend="true" text="$(text)"/>
                         <dataset>
                             <set text="周瑜"/>
@@ -46,7 +46,7 @@
                             <set text="微信"/>
                             <set text="江峰"/>
                             <set text="QQ"/>
-                            <set text="刘翔武"/>
+                            <set text="刘祥武"/>
                             <set text="计步器"/>
                             <set text="看新闻"/>
                             <set text="周本文"/>
@@ -134,45 +134,21 @@
 
 require 'com_wondertek_ydsx.common.framework'
 local rootSprite
-local effectTable = {
-    [0]='无特效', 
-    [1]='水平百叶窗', 
-    [2]='垂直百叶窗', 
-    [3]='水平向前推进', 
-    [4]='水平向后推进', 
-    [5]='垂直向下推进',
-    [6]='垂直向上推进', 
-    [7]='淡入淡出', 
-    [8]='飞入效果', 
-    [9]='从上弹入', 
-    [10]='从下弹入', 
-    [11]='向右旋转', 
-    [12]='向左旋转',
-    [13]='立方体右旋转', 
-    [14]='立方体左旋转',
-    [15]='向后翻页（暂未提供）',
-    [16]='向前翻页（暂未提供）',
-    [17]='水平向右推进',
-    [18]='水平向左推进',
-    [19]='中心放大',
-    [20]='中心缩小',
-    [21]='水平向右退出',
-    [22]='水平向左退出'
-}
+local db_path = getLocalDiskPath().."/jttxlDatabase.db" -- 数据库地址
+local userTable   --用户信息
 
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    local list = Sprite:findChild(rootSprite, 'sampleList')
-    ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), 22, 'loadListItem')
-    ListView:adjust(list)
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+    --获取数据库数据
+        request()
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -204,26 +180,29 @@ end
 function up(sprite)
     local text =Sprite:getText(sprite)
     Log:write('点击获取的文字',text)
-end
-function loadListItem(list, item, index)
-    Sprite:setRect(item, 0, 0, 480, 80)
-    Sprite:setProperty(item, 'extendstyle', '0010')
-    local btnname = Sprite:findChild(item, 'btnname')
-    Sprite:setProperty(btnname, 'text', effectTable[index + 1])
-    Sprite:setProperty(btnname, 'data', index+1)
+    -- 查询用户表
+    local sql = "select user_company, department_id, headship_name, mobile from tb_c_employee where employee_name=".."'"..text.."'"..';'
+    Log:write("查询用户表sql语句为: "..sql)
+    local bRet, retCountTable, errMsg = Sqlite:query(db_path, sql)
+    Log:write("查询用户表返回：", retCountTable)
+    -- 获取部门全名称
+    if retCountTable ~= nil and retCountTable[1] ~= nil then 
+        retCountTable[1][2] = query_full_department_name(db_path, retCountTable[1][2])
+    end 
+
+    -- 返回联系人信息
+    Log:write("联系人信息为：", retCountTable)
+    userTable = retCountTable
+    --显示用户信息
+    record()
 end
 
-function itemOnSelect(sprite)
-    local item = Sprite:getParent(sprite)
-    local btnname = Sprite:findChild(item, 'btnname')
-    local efftiveValue = tonumber(Sprite:getData(btnname))
-    if efftiveValue == 15 or efftiveValue == 16 then
-        Dialog:show('', '该特效暂未实现')
-        return
-    end
-    --Scene:setReturn(Alias.all_effect, Alias.index)
-    Log:write('efftiveValue=================', efftiveValue)
-    Scene:go(Alias.index, efftiveValue)
+--显示用户信息
+function record()
+    local defaultSprite = Sprite:findChild(rootSprite,'defaultSprite')
+    local recordSprite = Sprite:findChild(rootSprite,'recordSprite')
+    Sprite:setProperty(defaultSprite,'visible','false')
+    Sprite:setProperty(recordSprite,'visible','true')
 end
 
 -- @brief 重力感应按钮响应
@@ -253,6 +232,67 @@ function gravityOnCallback(xAccle, yAccle, zAccle)
     if tonumber(xAccle)<-5 or tonumber(xAccle)>5 then 
         Scene:back()
     end
+end
+--初始加载数据库
+function request()
+    local bRet, errMsg = Sqlite:open(db_path) 
+    Log:write("打开数据库：bRet = "..bRet.." errMsg ="..errMsg)
+    -- 查询用户表
+    local sql = string.format("select search_key, type, logtime from tb_c_search_logs;")
+    Log:write("查询用户表sql语句为: "..sql)
+    local bRet, retCountTable, errMsg = Sqlite:query(db_path, sql)
+    Log:write("查询用户表返回：", retCountTable)
+    local len = #retCountTable
+    --计算各个应用打开次数
+    local time_contract = 0
+    local time_app = 0
+    local time_news = 0
+    local time_cam = 0 
+    for i=1,len do
+        if retCountTable[i][2] == '1' or retCountTable[i][2] == '2' then
+           time_contract=time_contract+1
+        elseif retCountTable[i][2] == '3'  then
+           time_app=time_app+1
+        elseif retCountTable[i][2] == '4'  then
+           time_news=time_news+1
+        elseif retCountTable[i][2] == '5'  then
+           time_cam=time_cam+1
+        end 
+    end
+    Log:write('打开次数',time_contract,time_app,time_news,time_cam)
+    --数据填充
+    local contract =Sprite:findChild(rootSprite,'contract')
+    local app =Sprite:findChild(rootSprite,'app')
+    local news =Sprite:findChild(rootSprite,'news')
+    local cam =Sprite:findChild(rootSprite,'cam')
+    Sprite:setProperty(contract,'text',time_contract)
+    Sprite:setProperty(app,'text',time_app)
+    Sprite:setProperty(news,'text',time_news)
+    Sprite:setProperty(cam,'text',time_cam)
+end
+
+-- @brief 由姓名查找联系人信息
+-- @author hewu
+function query_employee()
+    -- 打开数据库
+    local bRet, errMsg = Sqlite:open(db_path) 
+    Log:write("打开数据库：bRet = "..bRet.." errMsg ="..errMsg)
+    
+    -- 查询用户表
+    local sql = string.format("select user_company, department_id, headship_name, mobile"..
+        " from tb_c_employee where employee_name='%s';", emp_name)
+    Log:write("查询用户表sql语句为: "..sql)
+    local bRet, retCountTable, errMsg = Sqlite:query(db_path, sql)
+    Log:write("查询用户表返回：", retCountTable)
+    
+    -- 获取部门全名称
+    if retCountTable ~= nil and retCountTable[1] ~= nil then 
+        retCountTable[1][2] = query_full_department_name(db_path, retCountTable[1][2])
+    end 
+
+    -- 返回联系人信息
+    Log:write("联系人信息为：", retCountTable)
+    return retCountTable
 end
 ]]>
 </root>
