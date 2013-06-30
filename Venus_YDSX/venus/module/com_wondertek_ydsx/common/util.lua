@@ -118,7 +118,7 @@ function addSearchLog(type,title,other_log,db_path)
     	bRet,retCountTable,errMsg = Sqlite:query(db_path,sql)
     else
     	Log:write('新增')
-    	sql = string.format("INSERT INTO tb_c_search_logs (type,search_key,search_count,mark1,logtime) VALUES ('%s','%s',0,'%s',datetime(CURRENT_TIMESTAMP,'localtime'));",type,title,other_log)
+    	sql = string.format("INSERT INTO tb_c_search_logs (type,search_key,search_count,mark1,logtime) VALUES ('%s','%s',1,'%s',datetime(CURRENT_TIMESTAMP,'localtime'));",type,title,other_log)
     	bRet,retCountTable,errMsg = Sqlite:query(db_path,sql)
     end
     Log:write('set log errMsg is ',errMsg)

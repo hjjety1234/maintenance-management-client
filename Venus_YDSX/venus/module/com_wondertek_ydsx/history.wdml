@@ -33,7 +33,7 @@
                     <globe-item normal-size="120,10" normal-font-size="30" normal-color="#F0F0F0" final-color="#202020"  OnMouseUp="up" h-align="center" v-align="center" autoextend="true" text="$(text)"/>
                         <dataset>
                             <set text="周瑜"/>
-                            <set text="通讯录"/>
+                            <set text="集团通讯录"/>
                             <set text="何武"/>
                             <set text="微信"/>
                             <set text="江峰"/>
@@ -111,9 +111,9 @@
                     <label name="username" rect="85,40,100,40" text="周瑜" v-align="center" 
                        color="#fff100"  extendstyle="1111" font-family='黑体' font-size="26"/>
 
-                    <label  rect="170,45,200,40" text="共    次搜索" v-align="center" 
+                    <label  rect="190,45,200,40" text="共       次搜索" v-align="center" 
                        color="#fff100"  extendstyle="1111" font-family='黑体' font-size="20"/>
-                    <label name="searchtime" rect="193,45,100,40" text="0" v-align="center" 
+                    <label name="searchtime" rect="203,45,40,40" text="0" h-align="center" v-align="center" 
                        color="#fff100"  extendstyle="1111" font-family='黑体' font-size="20"/>
 
                     <label rect="85,80,100,40" text="最近一次：" v-align="center" 
@@ -244,11 +244,18 @@ function record()
     --计算搜索次数和搜索时间
     local time_search = 0 --搜索次数
     local time_last=''  --最后一次搜索时间
-    for i=1, #logTable do
+    --[[for i=1, #logTable do
         if userText == logTable[i][1] then 
             time_search = time_search+1
             time_last = logTable[i][3]
         end
+    end--]]
+    local sql = string.format("select IFNULL(min(search_key),0) as search_key,IFNULL(sum(search_count),0) as search_count,IFNULL(max(logtime),'') as logtime from tb_c_search_logs where search_key='%s';",userText)
+    local bRet, logArray, errMsg = Sqlite:query(db_path, sql)
+    Log:write('logArray',logArray)
+    if logArray ~= nil then
+        time_search = logArray[1][2]
+        time_last = logArray[1][3]
     end
     local searchtime = Sprite:findChild(rootSprite,'searchtime')
     local lasttime = Sprite:findChild(rootSprite,'lasttime')

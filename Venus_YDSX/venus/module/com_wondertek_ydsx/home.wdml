@@ -211,6 +211,7 @@ function RecognizedUserVoice(voiceText)
         takePic(voiceText)
     elseif voiceText == "看新闻" then 
         local news_url = "http://3g.sina.com.cn"
+        addSearchLog('4','看新闻','',db_path)
         voice_view_news(news_url)
     else
         -- 到通讯录中进行一次搜索
@@ -328,9 +329,11 @@ function openApplication(voiceText)
     reload()
     local appInfo = voice_query_app(voiceText)
     if appInfo ~= nil then 
+        addSearchLog('5',appInfo.app_name,voiceText,db_path)
         voice_invoke_app(appInfo.app_name)
         return
     else
+        erroInfo(voiceText,'5')
         Log:write("未找到指定应用的信息")
     end 
 end
@@ -339,7 +342,7 @@ end
 function takePic(voiceText)
     reload()
     local result = System:openCamera('cameraCallBack', 'file://image/123.jpg', 'jpg')
-    addSearchLog('6',key,'',db_path)
+    addSearchLog('6','爱拍照','',db_path)
     if result == 0 then
         Dialog:show('相机打开失败!', 'ok')
     end
