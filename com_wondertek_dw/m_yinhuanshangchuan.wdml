@@ -408,7 +408,12 @@ function bodyOnPluginEvent(msg, param)
         end
     elseif msg == 104 then
         local uploadData = Http:xmlDecode('upload_url', 'RESULT')
-        Log:write("网达中间件图片上传返回数据uploadData: ", uploadData)
+        -- @jldu 上传图片返回地址为空
+        if uploadData == nil or uploadData == '' then
+            Dialog:show('', '隐患提交成功！', 'ok', 'doBack')
+            return
+        end
+        Log:write("网达中间件图片上传返回数据uploadData: ", uploadData) 
         local url = uploadData.URL
         Log:write('网达中间件图片上传返回URL : ', url)
         local param = uploadData.PARAM
@@ -421,6 +426,11 @@ function bodyOnPluginEvent(msg, param)
         doRealUploadPic(url, param)
     elseif msg == 105 then
         local uploadData = Http:xmlDecode('upload_url', 'RESULT')
+        -- @jldu 上传语音返回地址为空
+        if uploadData == nil or uploadData == '' then
+            Dialog:show('', '隐患提交成功！', 'ok', 'doBack')
+            return
+        end
         Log:write("网达中间件声音上传返回数据uploadData: ", uploadData)
         local url = uploadData.URL
         Log:write('网达中间件声音上传返回URL : ', url)
