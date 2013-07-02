@@ -447,7 +447,7 @@ function doRegionClick(sprite)
         if bottomFlag == 1 then
             for i=0,#stasticTable do
                 if selCity == stasticTable[i].dimension then
-                    Sprite:setProperty(renyuantongji,'text',selCity..'今日登录用户'..stasticTable[i].staff..'人，当前在线'..stasticTable[i].staffonline..'人。') 
+                    Sprite:setProperty(renyuantongji,'text',selCity..'今日登录用户'..stasticTable[i].staff..'人，当前在线'..stasticTable[i].staffonline..'人，正在巡检'..stasticTable[i].xunjian..'人，处理隐患'..stasticTable[i].yinhuan..'人，资源核查'..stasticTable[i].hecha..'人，其它在线'..stasticTable[i].other..'人。')
                 end
             end
         elseif bottomFlag == 2 then
@@ -504,6 +504,7 @@ end
 
 -- @jldu 底部菜单
 function searchOnSelect(sprite)
+    Sprite:setProperty(renyuantongji,'text','数据加载中...')
     local btnData = Sprite:getData(sprite)
     local renyuan=Sprite:findChild(rootSprite,'renyuan')
     local cheliang=Sprite:findChild(rootSprite,'cheliang')
@@ -522,7 +523,7 @@ function searchOnSelect(sprite)
         Sprite:setVisible(renyuan,'0')
         Sprite:setVisible(cheliang,'1')
         Sprite:setVisible(yinhuan,'0')
-        Log:write("@jldu 点击车辆")        
+        Log:write("@jldu 点击车辆")       
         requestCarStastic()
     elseif btnData=='03' then
         bottomFlag = 3
