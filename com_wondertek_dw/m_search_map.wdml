@@ -38,7 +38,7 @@
                 </button>
             </node>
             <!-- 时间段选择 -->
-            <node name="timeSprite" rect="0,66,480,200" extendstyle="1111" >
+            <node name="timeSprite" rect="0,66,480,200" extendstyle="1111" visible='false'>
                 <image rect="20,10,32,32" border="false" src="file://image/iconClock.png"  style="autosize"
                  extendstyle="1111"/>
                 <label rect="60,10,300,30" text="请选择回放时间段" color="#434343" v-align="center"  
@@ -150,6 +150,12 @@ local pYinhuanID             -- 传过去的隐患编号
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    if regionid~=nil then 
+      Config:set('map_regionid',regionid)
+    end
+    if bottomFlag~=nil then 
+      Config:set('map_bottomFlag',bottomFlag)
+    end
     Log:write('区域编号',regionid)
     Log:write('底部菜单编号',bottomFlag)
 
@@ -159,7 +165,8 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_search_map, 'MODULE:\\(.*)'), '实时监控')
-        --设置底部颜色
+        --打开地图，加载数据，获取初始时间，地图中心点移动
+        openMap(0, 70, 480, 644)
         bottomSelect()
         setDefaultTime()
         moveCenterMap()
@@ -182,10 +189,12 @@ function bodyOnPluginEvent(msg, param)
         staffData = Http:jsonDecode('staffData')
         Log:write('人员数据',staffData)
         --异常保护
-        if staffData.total=='0' or staffData.value==nil then
-            closeMap()
-            Dialog:show('','当前没有在线代维人员','ok')
-            return
+        if staffData~=nil then
+            if staffData.code=='50'  then
+               closeMap()
+               Dialog:show('','当前无在线人员','ok')
+               return
+            end
         end
          -- 获取查询结果数目
         local respValue = staffData.value
@@ -236,6 +245,13 @@ function bodyOnPluginEvent(msg, param)
     elseif msg ==104 then 
         carData = Http:jsonDecode('carData')
         Log:write('获取车辆数据',carData)
+        if carData~=nil then
+            if carData.code=='50'  then
+               closeMap()
+               Dialog:show('','当前无在线车辆','ok')
+               return
+            end
+        end
         carbyPois()
     elseif msg ==105 then 
         cardrawData = Http:jsonDecode('cardrawData')
@@ -244,6 +260,14 @@ function bodyOnPluginEvent(msg, param)
     elseif msg ==106 then 
         dangerData = Http:jsonDecode('dangerData')
         Log:write('获取隐患数据',dangerData)
+        --异常保护
+        if dangerData~=nil then
+            if dangerData.code=='50'  then
+               closeMap()
+               Dialog:show('','当前无未闭环隐患','ok')
+               return
+            end
+        end
         dangerbyPois()
     elseif msg ==107 then 
         local postDataString = Param:getString(param, 0)
@@ -251,9 +275,9 @@ function bodyOnPluginEvent(msg, param)
         Log:write('msg 107 ', dangerpostData) 
         if dangerpostData.cmd=='Yinhuan'  then 
             closeMap()
-            Scene:setReturn(Alias.m_search_map, Alias.m_yinhuanDetail_map)
-            Scene:go(Alias.m_yinhuanDetail_map..'?pYinhuanID='..'000000045085') 
-            --g_isMapOpen = false
+            Scene:setReturn(Alias.m_search_map, Alias.m_yinhuanDetail)
+            --flag标示，返回用
+            Scene:go(Alias.m_yinhuanDetail..'?pYinhuanID='..dangerpostData.PoiId..'&flag='..'2') 
         end
     elseif msg == 1002 then -- POI详情和导航消息处理ss
         local postDataString = Param:getString(param, 0)
@@ -268,7 +292,10 @@ function bodyOnPluginEvent(msg, param)
             Scene:go(Alias.m_renyuanDetail..'?id='..postData.PoiId[1])
             Map:close()
             g_isMapOpen = false
-        elseif postData.cmd=='Guiji' then 
+        elseif postData.cmd=='Guiji' then
+            --显示回放时间段
+            local timeSprite =Sprite:findChild(rootSprite,'timeSprite')
+            Sprite:setProperty(timeSprite,'visible','true') 
             --加载轨迹数据
             openMap(0, 230, 480, 484) 
         end 
@@ -278,6 +305,9 @@ function bodyOnPluginEvent(msg, param)
         carpostData = Json:loadString2Table(postDataString) 
         Log:write('msg 1004 ', carpostData) 
         Log:write('传过去的id',carpostData.PoiId)
+        --显示回放时间段
+        local timeSprite =Sprite:findChild(rootSprite,'timeSprite')
+        Sprite:setProperty(timeSprite,'visible','true')
         openMap(0, 230, 480, 484)
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
@@ -303,62 +333,23 @@ function doBack()
 end
 
 
----------------------------------------地图相关函数---------------------------
--- 打开地图
-function openMap(x, y, w, h)
-    local xscal = SCREEN_WIDTH / 480
-    local yscal = SCREEN_HEIGHT / 800
-    Map:open(x*xscal, y*yscal, w*xscal, h*yscal)
-    g_isMapOpen = true
-end
 
--- 关闭地图 
-function  closeMap()
-    Map:close()
-    g_isMapOpen = false
-end
---底部菜单
-function searchOnSelect(sprite)
-   local btnData = Sprite:getData(sprite)
-   local renyuan=Sprite:findChild(rootSprite,'renyuan')
-   local ziyuan=Sprite:findChild(rootSprite,'ziyuan')
-   local yinhuan =Sprite:findChild(rootSprite,'yinhuan')
-   Log:write('btnData',btnData)
-   if btnData=='01' then
-     Sprite:setVisible(renyuan,'1')
-     Sprite:setVisible(ziyuan,'0')
-     Sprite:setVisible(yinhuan,'0')
-        -- 打开底图
-        if g_isMapOpen == false then 
-            openMap(0, 70, 480, 644)
-        end
-      --请求人员数据
-      request()
-   elseif btnData=='02' then
-     Sprite:setVisible(renyuan,'0')
-     Sprite:setVisible(ziyuan,'1')
-     Sprite:setVisible(yinhuan,'0')
-     --请求车辆数据
-     carrequest()
-   elseif btnData=='03' then
-     Sprite:setVisible(renyuan,'0')
-     Sprite:setVisible(ziyuan,'0')
-     Sprite:setVisible(yinhuan,'1')
-     --请求隐患数据
-     dangerrequest()
-   end
-end
 -------------------------------人员数据相关函数----------------------------------------
 -- 获取人员数据
 function request()
+    local map_regionid = Config:get('map_regionid')
     local usercode = Config:get('username')
     local param = string.format('usercode=%s&page=1&pagesize=10000&cmd=wlbstaffmap&regionid=%s', 
-        usercode,regionid)
+        usercode,map_regionid)
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
     Http:request('staffData', reqURL, 101, {useCache = false})
 end
--- 显示人员的poi点
-function showNearbyPois()   
+-- 显示地图人员的poi点
+function showNearbyPois()  
+    -- 是否打开底图
+    if g_isMapOpen == false then 
+        openMap(0, 70, 480, 644)
+    end 
     Log:write('开始定位')
     --local pois = '{"showType":"3","pois":[{"id":"111","longitude":121592782,"latitude":31244582,"company":"荣斐酒店","major":"线路巡检","name":"张三","status":"正在巡检","desc":"aaa"},{"id":"222","longitude":121590745,"latitude":31244910,"company":"浦东华美达","major":"线路巡检","name":"李四","status":"正在巡检","desc":"bbb"},{"id":"333","longitude":121595483,"latitude":31246584,"company":"碧云国际","major":"线路巡检","name":"王五","status":"正在巡检","desc":"ccc"}]}'
     local observer = Plugin:getObserver()
@@ -375,6 +366,7 @@ end
 --显示人员轨迹poi点
 function drawlinebyPois()
     Log:write('开始画轨迹')
+    --Map:setZoom(17)  有问题
      -- 获取查询结果数目
     local respValue = drawData.value
     local len = #respValue
@@ -415,14 +407,19 @@ end
 ----------------------------------------显示车辆相关函数----------------------------------------------
 --获取地图车辆信息
 function carrequest()
+    local map_regionid = Config:get('map_regionid')
     local usercode = Config:get('username')
     local param = string.format('usercode=%s&page=1&pagesize=10000&cmd=wlbcarmap&regionid=%s', 
-        usercode,regionid)
+        usercode,map_regionid)
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
     Http:request('carData', reqURL, 104, {useCache = false})
 end
 --地图显示车辆
 function carbyPois()
+    -- 是否打开底图
+    if g_isMapOpen == false then 
+        openMap(0, 70, 480, 644)
+    end
     Log:write('显示数据')
      -- 获取查询结果数目
     local respValue = carData.value
@@ -519,15 +516,20 @@ end
 --------------------------------------------------显示隐患相关函数------------------------------------
 --获取隐患数据
 function dangerrequest()
+    local map_regionid = Config:get('map_regionid')
     local usercode = Config:get('username')
     local param = string.format('usercode=%s&page=1&pagesize=10000&cmd=wlbdangermap&regionid=%s', 
-        usercode,regionid)
+        usercode,map_regionid)
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
     Log:write('隐患url：',reqURL)
     Http:request('dangerData', reqURL, 106, {useCache = false})
 end
 --地图显示隐患
 function dangerbyPois()
+    -- 是否打开底图
+    if g_isMapOpen == false then 
+        openMap(0, 70, 480, 644)
+    end
     Log:write('显示数据')
      -- 获取查询结果数目
     local respValue = dangerData.value
@@ -572,7 +574,53 @@ function dangerbyPois()
     local observer = Plugin:getObserver()
     Map:showPOIs(observer, 107, dangerpois, 1)   
 end
+---------------------------------------地图相关函数---------------------------
+-- 打开地图
+function openMap(x, y, w, h)
+    local xscal = SCREEN_WIDTH / 480
+    local yscal = SCREEN_HEIGHT / 800
+    Map:open(x*xscal, y*yscal, w*xscal, h*yscal)
+    g_isMapOpen = true
+end
 
+-- 关闭地图 
+function  closeMap()
+    local timeSprite =Sprite:findChild(rootSprite,'timeSprite')
+    Sprite:setProperty(timeSprite,'visible','false')
+    Map:close()
+    g_isMapOpen = false
+end
+--底部菜单
+function searchOnSelect(sprite)
+   local btnData = Sprite:getData(sprite)
+   local renyuan=Sprite:findChild(rootSprite,'renyuan')
+   local ziyuan=Sprite:findChild(rootSprite,'ziyuan')
+   local yinhuan =Sprite:findChild(rootSprite,'yinhuan')
+   Log:write('btnData',btnData)
+   if btnData=='01' then
+     Sprite:setVisible(renyuan,'1')
+     Sprite:setVisible(ziyuan,'0')
+     Sprite:setVisible(yinhuan,'0')
+        -- 打开底图
+        if g_isMapOpen == false then 
+            openMap(0, 70, 480, 644)
+        end
+      --请求人员数据
+      request()
+   elseif btnData=='02' then
+     Sprite:setVisible(renyuan,'0')
+     Sprite:setVisible(ziyuan,'1')
+     Sprite:setVisible(yinhuan,'0')
+     --请求车辆数据
+     carrequest()
+   elseif btnData=='03' then
+     Sprite:setVisible(renyuan,'0')
+     Sprite:setVisible(ziyuan,'0')
+     Sprite:setVisible(yinhuan,'1')
+     --请求隐患数据
+     dangerrequest()
+   end
+end
 ------------------------------------其他通用函数--------------------------------------------------
 --初始化底部菜单
 function bottomSelect()
@@ -580,20 +628,21 @@ function bottomSelect()
     local ziyuan=Sprite:findChild(rootSprite,'ziyuan')
     local yinhuan =Sprite:findChild(rootSprite,'yinhuan')
     Log:write('底部标示',bottomFlag)
-    if bottomFlag =='1' then
+    local map_bottomFlag =Config:get('map_bottomFlag')
+    if map_bottomFlag =='1' then
         Sprite:setVisible(renyuan,'1')
         Sprite:setVisible(ziyuan,'0')
         Sprite:setVisible(yinhuan,'0')
         --请求人员数据
         request()
-    elseif bottomFlag == '2' then
+    elseif map_bottomFlag == '2' then
         Log:write('底部菜单变色','1111111111')
         Sprite:setVisible(renyuan,'0')
         Sprite:setVisible(ziyuan,'1')
         Sprite:setVisible(yinhuan,'0')
         --请求车辆数据
         carrequest()
-    elseif bottomFlag == '3' then
+    elseif map_bottomFlag == '3' then
         Sprite:setVisible(renyuan,'0')
         Sprite:setVisible(ziyuan,'0')
         Sprite:setVisible(yinhuan,'1')
@@ -626,17 +675,14 @@ function dodefine()
     endtime   = yearlabel..'-'..yuelabel..'-'..rilabel..' '..enddian..':59'
     Log:write('开始结束时间',starttime,endtime)
     openMap(0, 70, 480, 644)
-    --数据保护
-    if postData.cmd == nil then
-        postData.cmd = ''
-    end
-    if carpostData.cmd == nil then
-        carpostData.cmd = ''
-    end    
-    if postData.cmd=='Guiji' then 
+    if  postData~=nil then 
+      if postData.cmd=='Guiji' then 
         drawrequest(postData.PoiId[1],postData.PoiId[2])
-    elseif carpostData.cmd=='CarGuiji' then 
+      end 
+    elseif carpostData~=nil then
+      if carpostData.cmd=='CarGuiji' then 
         cardrawrequest(carpostData.PoiId)
+      end
     end 
 
 end
@@ -647,37 +693,39 @@ end
 --移动地图到地市中心点
 function moveCenterMap()
     Log:write('准备移动')
-    if string.sub(regionid,3,4)=='01' then --合肥
+    local map_regionid = Config:get('map_regionid')
+    Log:write('map_regionid',map_regionid)
+    if string.sub(map_regionid,3,4)=='01' then --合肥
         Map:moveTo(31.83*1000000,117.25*1000000,'') 
-    elseif string.sub(regionid,3,4)=='02' then--芜湖
+    elseif string.sub(map_regionid,3,4)=='02' then--芜湖
         Map:moveTo(31.33*1000000,118.38*1000000,'') 
-    elseif string.sub(regionid,3,4)=='03' then--蚌埠
+    elseif string.sub(map_regionid,3,4)=='03' then--蚌埠
         Map:moveTo(32.92*1000000,117.38*1000000,'') 
-    elseif string.sub(regionid,3,4)=='04' then--淮南
+    elseif string.sub(map_regionid,3,4)=='04' then--淮南
         Map:moveTo(32.63*1000000,117.00*1000000,'') 
-    elseif string.sub(regionid,3,4)=='05' then--马鞍山
+    elseif string.sub(map_regionid,3,4)=='05' then--马鞍山
         Map:moveTo(31.70*1000000,118.50*1000000,'') 
-    elseif string.sub(regionid,3,4)=='06' then--淮北
+    elseif string.sub(map_regionid,3,4)=='06' then--淮北
         Map:moveTo(33.95*1000000,116.80*1000000,'') 
-    elseif string.sub(regionid,3,4)=='07' then--铜陵
+    elseif string.sub(map_regionid,3,4)=='07' then--铜陵
         Map:moveTo(30.93*1000000,117.82*1000000,'') 
-    elseif string.sub(regionid,3,4)=='08'then--安庆
+    elseif string.sub(map_regionid,3,4)=='08'then--安庆
         Map:moveTo(30.53*1000000,117.05*1000000,'')
-    elseif string.sub(regionid,3,4)=='10' then--黄山
+    elseif string.sub(map_regionid,3,4)=='10' then--黄山
         Map:moveTo(29.72*1000000,118.33*1000000,'')
-    elseif string.sub(regionid,3,4)=='11' then--滁州
+    elseif string.sub(map_regionid,3,4)=='11' then--滁州
         Map:moveTo(32.30*1000000,118.32*1000000,'')
-    elseif string.sub(regionid,3,4)=='12' then--阜阳
+    elseif string.sub(map_regionid,3,4)=='12' then--阜阳
         Map:moveTo(32.90*1000000,115.82*1000000,'')
-    elseif string.sub(regionid,3,4)=='13' then--宿州
+    elseif string.sub(map_regionid,3,4)=='13' then--宿州
         Map:moveTo(33.63*1000000,116.98*1000000,'') 
-    elseif string.sub(regionid,3,4)=='15' then--六安
+    elseif string.sub(map_regionid,3,4)=='15' then--六安
         Map:moveTo(31.77*1000000,116.50*1000000,'')
-    elseif string.sub(regionid,3,4)=='16' then--亳州
+    elseif string.sub(map_regionid,3,4)=='16' then--亳州
         Map:moveTo(33.85*1000000,115.78*1000000,'')
-    elseif string.sub(regionid,3,4)=='17' then--池州
+    elseif string.sub(map_regionid,3,4)=='17' then--池州
         Map:moveTo(30.67*1000000,117.48*1000000,'') 
-    elseif string.sub(regionid,3,4)=='18' then--宣城
+    elseif string.sub(map_regionid,3,4)=='18' then--宣城
         Map:moveTo(30.95*1000000,118.75*1000000,'')
     end  
 end
