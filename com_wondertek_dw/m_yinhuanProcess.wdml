@@ -133,6 +133,12 @@ end
 
 ---------------------------------------util functions---------------------------
 
+--返回按钮消息处理函数
+function doBack(sprite)
+    if Loading:isShow() == true then Loading:close() end
+    Scene:go(Alias.m_yinhuanDetail..'?pYinhuanID='..pYinhuanID..'&flag='..flag)
+end
+
 -- 隐患工单流程接口
 function requestOrderProcess()
 	local param = 'cmd=wlbdangerdealdetaillist&usercode='..Config:get('username')..'&page=1&id='..pYinhuanID 
@@ -141,6 +147,7 @@ function requestOrderProcess()
     Http:request('dangerOrderData', url, 101, {useCache = false})		
 	Loading:show(rootSprite)	
 end
+
 -- 加载隐患工单流程列表项 
 function loadListItem(list, item, index)
 	Log:write("@jldu index = ",index)	
@@ -169,12 +176,5 @@ function loadListItem(list, item, index)
 	Sprite:setProperty(orderOpinion, 'text', opinionValue) 
 	Sprite:setProperty(stepStatus, 'text', statusValue)
 end
-
---返回按钮消息处理函数
-function doBack(sprite)
-    if Loading:isShow() == true then Loading:close() end
-    Scene:go(Alias.m_yinhuanDetail..'?pYinhuanID='..pYinhuanID)
-end
-
     ]]>
 </root>
