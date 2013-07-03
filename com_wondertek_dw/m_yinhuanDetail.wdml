@@ -249,7 +249,6 @@ end
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-        Scene:freeByHandle(rootSprite)
         doBack()
         return 1
     end
@@ -258,7 +257,11 @@ end
 ---------------------------------------util functions---------------------------
 function doBack()
     Scene:freeByHandle(rootSprite)
-    Scene:go(Alias.m_yinhuanList,true)
+    if tonumber(flag) == 1 then
+        Scene:go(Alias.m_yinhuanList,true)
+    elseif tonumber(flag) == 2 then
+        Scene:go(Alias.m_search_map,true)
+    end
 end
 
 -- 加载隐患详情数据
@@ -276,7 +279,7 @@ end
 -- 隐患工单流程跳转
 function doDangerProcess()
     Scene:setReturn(Alias.m_yinhuanDetail, Alias.m_yinhuanProcess)
-    Scene:go(Alias.m_yinhuanProcess..'?pYinhuanID='..pYinhuanID,true)
+    Scene:go(Alias.m_yinhuanProcess..'?pYinhuanID='..pYinhuanID..'&flag='..flag,true)
 end
 
 function doFillData()
