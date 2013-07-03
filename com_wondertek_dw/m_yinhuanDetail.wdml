@@ -215,6 +215,8 @@ local playStatus = 0 --0未播 1 播放中 2暂停中
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    -- 加载隐患详情数据
+    loadDangerData()
 end
 
 -- @brief root节点消息方法
@@ -225,14 +227,6 @@ function bodyOnSpriteEvent(msg, param)
         imageNameArray = {}
         thumbImageArray = {}
         recordNameArray = {}
-        if pYinhuanID==nil or pYinhuanID=='' then
-            local regHandle = Reg:create("imageId")
-            pYinhuanID=Reg:getString(regHandle, "pYinhuanID")
-        end
-        local param = 'cmd=wlbdangerdetail&id='..pYinhuanID
-        local reqURL = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
-        Http:request('daiban_data', reqURL, 101, {useCache = false})
-        Loading:show()
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -256,7 +250,7 @@ end
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
         Scene:freeByHandle(rootSprite)
-        Scene:back()
+        doBack()
         return 1
     end
 end
@@ -264,7 +258,19 @@ end
 ---------------------------------------util functions---------------------------
 function doBack()
     Scene:freeByHandle(rootSprite)
-    Scene:back()
+    Scene:go(Alias.m_yinhuanList,true)
+end
+
+-- 加载隐患详情数据
+function loadDangerData()
+    if pYinhuanID==nil or pYinhuanID=='' then
+        local regHandle = Reg:create("imageId")
+        pYinhuanID=Reg:getString(regHandle, "pYinhuanID")
+    end
+    local param = 'cmd=wlbdangerdetail&id='..pYinhuanID
+    local reqURL = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
+    Http:request('daiban_data', reqURL, 101, {useCache = false})
+    Loading:show()
 end
 
 -- 隐患工单流程跳转
