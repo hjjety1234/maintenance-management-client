@@ -42,8 +42,8 @@
 				</listview>  
 	        </node>		
 	        <!-- 列表项模板  -->
-	        <node name="listitem" visible="true" enable="false" active="false"
-	            rect="60,80,420,126" extendstyle="1111">
+	        <node name="listitem" visible="false" enable="false" active="false"
+	            rect="0,0,420,126" extendstyle="1111">
 				<image name="imageCircle" rect="0,50,16,16" border="false" src="file://image/finished_circle.png" 
 					style="autosize" extendstyle="1111" />					 
 				<node name="baseSprite" rect="20,4,420,100" extendstyle="1111"> 
@@ -52,22 +52,22 @@
 					<label rect="25,5,150,30" text="工单派发：" color="#ffffff"
 						font-size="20" h-align="left" v-align="center" extendstyle="1111"
 						border="false" />
-					<label name="orderName" rect="120,5,300,30" text="周礼" color="#ffffff"
+					<label name="orderName" rect="120,5,300,30" text="" color="#ffffff"
 						font-size="20" h-align="left" v-align="center" extendstyle="1111"
 						border="false" />
 					<label rect="25,30,150,30" text="派单时间：" color="#ffffff" font-size="20"
 						h-align="left" v-align="center" extendstyle="1111" border="false" />
-					<label name="orderTime" rect="120,30,300,30" text="2012-06-14 08:35:03" color="#ffffff"
+					<label name="orderTime" rect="120,30,300,30" text="" color="#ffffff"
 						font-size="20" h-align="left" v-align="center" extendstyle="1111"
 						border="false" />
 					<label rect="25,55,150,30" text="处理意见：" color="#ffffff" font-size="20"
 						h-align="left" v-align="center" extendstyle="1111" border="false" />
-					<label name="orderOpinion" rect="120,55,300,30" text="" color="#0"
+					<label name="orderOpinion" rect="120,55,300,30" text="" color="#ffffff"
 						font-size="20" h-align="left" v-align="center" extendstyle="1111"
 						border="false" />
 					<label rect="25,80,150,30" text="步骤状态：" color="#ffffff" font-size="20"
 						h-align="left" v-align="center" extendstyle="1111" border="false" />
-					<label name="stepStatus" rect="120,80,300,30" text="已完成" color="#ffffff"
+					<label name="stepStatus" rect="120,80,300,30" text="" color="#ffffff"
 						font-size="20" h-align="left" v-align="center" extendstyle="1111"
 						border="false" />              
 				</node>  
@@ -114,10 +114,11 @@ function bodyOnPluginEvent(msg)
         ListView:removeAllItems(list) 
         dangerOrdValue = dangerOrderTab.value
         Log:write('@jldu dangerOrdValue is : ',dangerOrdValue)
-        local len = getJsonArrayCount(dangerOrdValue)
+        local len = getJsonArrayCount(dangerOrdValue) 
+        Log:write("@jldu len: ",len)
         -- 加载列表项
-        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listitem'), len, 'loadListItem')
-        ListView:adjust(listView)
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), len, 'loadListItem')
+        ListView:adjust(list)
         Loading:close()
     end
 end
@@ -134,14 +135,15 @@ end
 
 -- 隐患工单流程接口
 function requestOrderProcess()
-	local param = 'cmd=wlbdangerdealdetaillist&page=1&id='  
+	local param = 'cmd=wlbdangerdealdetaillist&usercode='..Config:get('username')..'&page=1&id='..pYinhuanID 
 	local url = getWholeUrl('nbspweb/webservice/accident!doWebservice.action', param)
-	-- Log:write("@jldu requestUrl: ",url)
- --    Http:request('dangerOrderData', url, 101, {useCache = false})		
-	-- Loading:show(rootSprite)	
+	Log:write("@jldu requestUrl: ",url)
+    Http:request('dangerOrderData', url, 101, {useCache = false})		
+	Loading:show(rootSprite)	
 end
 -- 加载隐患工单流程列表项 
-function loadListItem(list, item, index)	
+function loadListItem(list, item, index)
+	Log:write("@jldu index = ",index)	
     Sprite:setRect(item, 0,0,420,126)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local listItemBg = Sprite:findChild(item, 'listItemBg')
@@ -152,26 +154,26 @@ function loadListItem(list, item, index)
 	local stepStatus = Sprite:findChild(item, 'stepStatus')
     -- 读取返回的数据(根据接口返回值)
     local value = dangerOrdValue[index]
-    -- local nameValue = value.
-    -- local timeValue = value.
-    -- local opinionValue = value.
-    -- local statusValue = value.
+    local nameValue = value.DEALMAN
+    local timeValue = value.DEALDATE
+    local opinionValue = value.DEALOPINION
+    local statusValue = value.STATUS
 	-- 根据状态返回值，设置圆圈与背景图片
-	if statusValue == "未完成" then
+	if statusValue == "通过" then
 		Sprite:setProperty(listItemBg,'src','file://image/unfinished_bg.png')
 		Sprite:setProperty(imageCircle,'src','file://image/unfinished_circle.png')	
 	end
 	-- 显示到界面
-	Sprite:setProperty(textTitle, 'text', nameValue)
-	Sprite:setProperty(textTime, 'text', timeValue)
-	Sprite:setProperty(textOpinion, 'text', opinionValue)
+	Sprite:setProperty(orderName, 'text', nameValue)
+	Sprite:setProperty(orderTime, 'text', timeValue)
+	Sprite:setProperty(orderOpinion, 'text', opinionValue) 
 	Sprite:setProperty(stepStatus, 'text', statusValue)
 end
 
 --返回按钮消息处理函数
 function doBack(sprite)
     if Loading:isShow() == true then Loading:close() end
-    Scene:back()
+    Scene:go(Alias.m_yinhuanDetail..'?pYinhuanID='..pYinhuanID,true)
 end
 
     ]]>
