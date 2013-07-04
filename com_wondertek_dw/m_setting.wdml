@@ -38,8 +38,15 @@
             </node>
 
             <node name="resultNode" rect="10,80,460,100" extendstyle="1111">
-                <label rect="0,0,460,50" text="服务器连接地址" font-family='微软雅黑' color="#0" v-align="center"
-                    h-align="left" font-size="28" extendstyle="1111" />
+                <node rect="0,0,460,50" extendstyle="1111">
+                    <label rect="0,0,200,50" text="服务器连接地址" font-family='微软雅黑' color="#0" v-align="center"
+                        h-align="left" font-size="28" extendstyle="1111" />
+                    <button name="exchangeServe" rect="365,5,90,40" text="切换" color="#ffffff"
+                        extendstyle="1111" OnSelect="doExchange"
+                        normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+                        sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+                         font-size="24" />
+                </node>
                 <image rect="0,50,360,50" src="file://image/title_edit_bg.png"
                     style="sudoku-auto" extendstyle="1111" sudoku="15,15,15,15" />
                 <edit name="editServer" rect="5,60,350,30" border="false" font-family='微软雅黑' font-size="22"
@@ -97,7 +104,7 @@
                 </button>
             </node>
 
-            <node name="xlContent" rect="10,440,460,100" extendstyle="1111" visible="false" enable="false" active="false">
+            <node name="xlContent" rect="10,440,460,100" extendstyle="1111" visible="true" enable="false" active="false">
                 <label rect="0,0,200,50" text="设备编号" extendstyle="1111" font-family="微软雅黑" color="#0" v-align="center" h-align="left"
                  font-size="28"></label>
                  <image rect="210,0,210,50" src="file://image/title_edit_bg.png"
@@ -170,7 +177,7 @@ function doSave()
     local deviceno = Sprite:getProperty(Sprite:findChild(rootSprite,'editDeviceno'),'text')
     if xlFlag == '1' then
         if deviceno == '' then
-            Dialog:show('提示','设备编号必须填写','ok')
+            Dialog:show('','设备编号必须填写','ok')
             return
         end
     end
@@ -184,7 +191,7 @@ function doSave()
         if isStrAllNum(editLines) then
             Config:set('lines', editLines)
         else
-            Dialog:show('提示','分页显示条数必须全为数字？','ok')
+            Dialog:show('','分页显示条数必须全为数字？','ok')
             return
         end
     else
@@ -198,7 +205,7 @@ function doSave()
     else
         Config:set('deviceId','')
     end
-    Dialog:show('提示','配置已保存！','ok')
+    Dialog:show('','配置已保存！','ok')
 end
 
 function autoRemeber(sprite)
@@ -211,7 +218,25 @@ function autoRemeber(sprite)
         Sprite:setProperty(imgNode, 'src', 'file://image/form_psw_s.png')
         Sprite:setProperty(sprite,'data','0')
     end
+end
 
+-- 正式、测试切换
+function doExchange()    
+    local editServer = Sprite:findChild(rootSprite,'editServer')
+    local editPort = Sprite:findChild(rootSprite,'editPort')
+    if Config:get('server_port') == '80' then
+        Log:write("@jldu 当前正式环境")
+        Sprite:setProperty(editServer, 'text', '61.191.25.238')
+        Sprite:setProperty(editPort, 'text', '7001')
+        Config:set('server_url','61.191.25.238')
+        Config:set('server_port','7001')
+    elseif Config:get('server_port') == '7001' then
+        Log:write("@jldu 当前测试环境")
+        Sprite:setProperty(editServer, 'text', '211.138.191.86')
+        Sprite:setProperty(editPort, 'text', '80')
+        Config:set('server_url','211.138.191.86')
+        Config:set('server_port','80')
+    end 
 end
 
 function autoUpdate(sprite)
