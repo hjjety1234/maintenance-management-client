@@ -277,7 +277,7 @@ function bodyOnPluginEvent(msg, param)
             closeMap()
             Scene:setReturn(Alias.m_search_map, Alias.m_yinhuanDetail)
             --flag标示，返回用
-            Scene:go(Alias.m_yinhuanDetail..'?pYinhuanID='..dangerpostData.PoiId..'&flag='..'2') 
+            Scene:go(Alias.m_yinhuanDetail..'?pYinhuanID='..dangerpostData.PoiId..'&flag=2') 
         end
     elseif msg == 1002 then -- POI详情和导航消息处理ss
         local postDataString = Param:getString(param, 0)
@@ -329,7 +329,12 @@ end
 -- 返回上一个页面
 function doBack()
     closeMap()
-    Scene:back()
+    --根据角色返回
+    if Config:get('regionid')=='340000' then 
+        Scene:go(Alias.m_dwMap)
+    else
+        Scene:go(Alias.m_dwMap_city)
+    end
 end
 
 
@@ -551,7 +556,9 @@ function dangerbyPois()
         local bugname = danger.name
         local bugstatus = danger.time
         if bugstatus == '' or bugstatus== nil then
-            bugstatus = '尚未超时'
+            bugstatus = '暂无上报日期'
+        else
+            bugstatus=bugstatus..'上报'
         end 
         -- 如果轨迹没有经纬度，做一下保护
         if lon ~= nil and lon ~= '' 
