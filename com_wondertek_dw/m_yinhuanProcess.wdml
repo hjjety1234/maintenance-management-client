@@ -43,11 +43,11 @@
 	        </node>		
 	        <!-- 列表项模板  -->
 	        <node name="listitem" visible="false" enable="false" active="false"
-	            rect="0,0,420,126" extendstyle="1111">
-				<image name="imageCircle" rect="0,50,16,16" border="false" src="file://image/finished_circle.png" 
+	            rect="0,0,420,156" extendstyle="1111">
+				<image name="imageCircle" rect="0,65,16,16" border="false" src="file://image/finished_circle.png" 
 					style="autosize" extendstyle="1111" />					 
 				<node name="baseSprite" rect="20,4,420,100" extendstyle="1111"> 
-					<image name="listItemBg" rect="0,0,342,110" border="false" src="file://image/finished_bg.png" 
+					<image name="listItemBg" rect="0,0,342,140" border="false" src="file://image/finished_bg.png" 
 						style="autosize" extendstyle="1111" />    
 					<label rect="25,5,150,30" text="处理人员：" color="#ffffff"
 						font-size="20" h-align="left" v-align="center" extendstyle="1111"
@@ -59,17 +59,22 @@
 						h-align="left" v-align="center" extendstyle="1111" border="false" />
 					<label name="orderTime" rect="120,30,300,30" text="" color="#ffffff"
 						font-size="20" h-align="left" v-align="center" extendstyle="1111"
-						border="false" />
-					<label rect="25,55,150,30" text="处理意见：" color="#ffffff" font-size="20"
+						border="false" />    
+					<label rect="25,55,150,30" text="步骤状态：" color="#ffffff" font-size="20"
 						h-align="left" v-align="center" extendstyle="1111" border="false" />
-					<label name="orderOpinion" rect="120,55,300,30" text="" color="#ffffff"
+					<label name="stepStatus" rect="120,55,300,30" text="" color="#ffffff"
 						font-size="20" h-align="left" v-align="center" extendstyle="1111"
 						border="false" />
-					<label rect="25,80,150,30" text="步骤状态：" color="#ffffff" font-size="20"
+					<label rect="25,80,150,30" text="处理意见：" color="#ffffff" font-size="20"
 						h-align="left" v-align="center" extendstyle="1111" border="false" />
-					<label name="stepStatus" rect="120,80,300,30" text="" color="#ffffff"
+					<label name="orderOpinion" rect="120,80,300,30" text="" color="#ffffff"
 						font-size="20" h-align="left" v-align="center" extendstyle="1111"
-						border="false" />              
+						border="false" />  	 
+					<label rect="25,105,150,30" text="处理结果：" color="#ffffff" font-size="20"
+						h-align="left" v-align="center" extendstyle="1111" border="false" />
+					<label name="dealResult" rect="120,105,300,30" text="" color="#ffffff"
+						font-size="20" h-align="left" v-align="center" extendstyle="1111"
+						border="false" />            
 				</node>  
 			</node>
         </node>
@@ -151,22 +156,24 @@ end
 -- 加载隐患工单流程列表项 
 function loadListItem(list, item, index)
 	Log:write("@jldu index = ",index)	
-    Sprite:setRect(item, 0,0,420,126)
+    Sprite:setRect(item, 0,0,420,156)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local listItemBg = Sprite:findChild(item, 'listItemBg')
 	local imageCircle = Sprite:findChild(item, 'imageCircle')
     local orderName = Sprite:findChild(item, 'orderName')
 	local orderTime = Sprite:findChild(item, 'orderTime')
 	local orderOpinion = Sprite:findChild(item, 'orderOpinion')
+	local dealResult = Sprite:findChild(item, 'dealResult')
 	local stepStatus = Sprite:findChild(item, 'stepStatus')
     -- 读取返回的数据(根据接口返回值)
     local value = dangerOrdValue[index]
     local nameValue = value.DEALMAN
     local timeValue = value.DEALDATE
     local opinionValue = value.DEALOPINION
-    local statusValue = value.STATUS
+    local resultValue = value.STATUS
+    local statusValue = value.DEALNAME
 	-- 根据状态返回值，设置圆圈与背景图片
-	if statusValue ~= "通过" then
+	if resultValue ~= "通过" then
 		Sprite:setProperty(listItemBg,'src','file://image/unfinished_bg.png')
 		Sprite:setProperty(imageCircle,'src','file://image/unfinished_circle.png')	
 	end
@@ -174,6 +181,7 @@ function loadListItem(list, item, index)
 	Sprite:setProperty(orderName, 'text', nameValue)
 	Sprite:setProperty(orderTime, 'text', timeValue)
 	Sprite:setProperty(orderOpinion, 'text', opinionValue) 
+	Sprite:setProperty(dealResult, 'text', resultValue)
 	Sprite:setProperty(stepStatus, 'text', statusValue)
 end
     ]]>
