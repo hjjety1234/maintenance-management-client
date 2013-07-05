@@ -358,10 +358,10 @@ function bodyOnPluginEvent(msg, param)
         Log:write("-------------location got2--------------", postDataString)
         postData = Json:loadString2Table(postDataString)
         if postData.latitude ~= nil then
-            Config:set("latitude", postData.latitude)
+            Config:set("latitude", tonumber(postData.latitude)/1000000)
         end
         if postData.longitude ~= nil then
-            Config:set("longitude", postData.longitude)
+            Config:set("longitude", tonumber(postData.longitude)/1000000)
         end
         if postData.longitude ~= nil and postData.latitude ~= nil then
             Log:write("-------------location got3--------------")
@@ -735,8 +735,8 @@ function getLoctude()
         System:setGPSStatus(0)
         
         -- 判断定位是否成功
-        local latitudeValue = tonumber(latitude) / 10000000.0
-        local longitudeValue = tonumber(longitude) / 10000000.0
+        local latitudeValue = tonumber(latitude) /1000000
+        local longitudeValue = tonumber(longitude) /1000000
         local posValue = string.format('%f,%f', longitudeValue, latitudeValue)
         Sprite:setProperty(locInfo, 'text', '定位成功，经纬度为:'.. posValue)
     elseif timerNum > 0 then

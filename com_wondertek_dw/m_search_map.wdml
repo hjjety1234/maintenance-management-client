@@ -288,10 +288,12 @@ function bodyOnPluginEvent(msg, param)
         postData.PoiId = Split(postData.PoiId, "-")
         Log:write("处理后的PoiId:", postData.PoiId)
         if postData.cmd=='Person' then
-            Scene:setReturn(Alias.m_search_map, Alias.m_renyuanDetail)
-            Scene:go(Alias.m_renyuanDetail..'?id='..postData.PoiId[1])
             Map:close()
             g_isMapOpen = false
+            --释放地图
+            Scene:freeByName(Alias.m_search_map) 
+            Scene:setReturn(Alias.m_search_map, Alias.m_renyuanDetail)
+            Scene:go(Alias.m_renyuanDetail..'?id='..postData.PoiId[1])
         elseif postData.cmd=='Guiji' then
             --显示回放时间段
             local timeSprite =Sprite:findChild(rootSprite,'timeSprite')
@@ -328,9 +330,14 @@ end
 
 -- 返回上一个页面
 function doBack()
-    closeMap()
+    Map:close()
+    g_isMapOpen = false
+    --释放地图
+    Scene:freeByName(Alias.m_search_map) 
     --根据角色返回
-    if Config:get('regionid')=='340000' then 
+    local role_regionid = Config:get('regionid')
+    Log:write('用户角色：',role_regionid)
+    if role_regionid=='340000' then 
         Scene:go(Alias.m_dwMap)
     else
         Scene:go(Alias.m_dwMap_city)
