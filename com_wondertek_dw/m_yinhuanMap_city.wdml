@@ -290,8 +290,8 @@ local staff
 local staffonline
 local car
 local taskcar
-local danger
-local majordanger
+local dangercount
+local dealdangercount
 local daiweiMap
 local cityNode
 local renyuantongji
@@ -339,9 +339,8 @@ function bodyOnPluginEvent(msg, param)
     if Loading:isShow() then Loading:close() end
     if msg == 103 then
         dangerStasticData = Http:jsonDecode('dangerStastic')
-        Log:write("@jldu 请求隐患统计数据：",dangerStasticData)
         handleDangertongji()
-        Sprite:setProperty(renyuantongji,'text',citydata.city..'当前未闭环隐患'..danger..'个，其中重大隐患'..majordanger..'个。')
+        Sprite:setProperty(renyuantongji,'text',citydata.city..'当前隐患上报数量'..dangercount..'个，隐患处理率'..dealdangercount..'。')
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -422,10 +421,11 @@ end
 
 -- @jldu 请求隐患数据
 function requestDingerStastic()
-    local param = 'cmd=wlbdangerregion&page=1&pagesize=50&usercode=fanbingheng&regionid=340000'
-    local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
+    local param = string.format("cmd=dangerreport&type=0&page=1&pagesize=30&usercode=%s&date=%s&regionid=%s", 
+        Config:get('username'), date,regionid)
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write("@jldu 请求隐患统计数据地址: "..reqURL)
-    Http:request('dangerStastic', reqURL, 103, {useCache = false}) 
+    Http:request('dangerStastic', reqURL, 103, {useCache = false})
 end
 
 -- @jldu 请求地图数据
@@ -436,14 +436,13 @@ end
 
 -- @jldu 定位登陆人所在地市隐患数据
 function handleDangertongji()
-    for i=0,#dangerStasticData.value[0].data do
-        local stasCity = dangerStasticData.value[0].data[i]
-        if regionid == stasCity.regionid then
-            Log:write("@jldu 登陆人所在地市："..stasCity.dimension)
-            danger = stasCity.danger
-            majordanger = stasCity.majordanger
-            Log:write("@jldu 登录人所在地市 未处理隐患数："..danger)
-            Log:write("@jldu 登录人所在地市 未处理高级别隐患数："..majordanger)
+    for i=0,#dangerStasticData.value do
+        local stasCity = dangerStasticData.value[i]
+        if '合计' == stasCity.name then
+            dangercount = stasCity.dangercount
+            dealdangercount = stasCity.dealdangercount
+            Log:write(" 隐患上报数量："..dangercount)
+            Log:write(" 隐患处理率："..dealdangercount)
         end
     end
 end
