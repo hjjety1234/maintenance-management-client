@@ -275,6 +275,7 @@ function bodyOnPluginEvent(msg, param)
         Log:write('msg 107 ', dangerpostData) 
         if dangerpostData.cmd=='Yinhuan'  then 
             closeMap()
+            Config:set('map_bottomFlag','3')
             Scene:setReturn(Alias.m_search_map, Alias.m_yinhuanDetail)
             --flag标示，返回用
             Scene:go(Alias.m_yinhuanDetail..'?pYinhuanID='..dangerpostData.PoiId..'&flag=2') 
@@ -290,6 +291,7 @@ function bodyOnPluginEvent(msg, param)
         if postData.cmd=='Person' then
             Map:close()
             g_isMapOpen = false
+            Config:set('map_bottomFlag','1')
             --释放地图
             Scene:freeByName(Alias.m_search_map) 
             Scene:setReturn(Alias.m_search_map, Alias.m_renyuanDetail)
@@ -377,8 +379,7 @@ function drawrequest(usercode,simid)
 end
 --显示人员轨迹poi点
 function drawlinebyPois()
-    Log:write('开始画轨迹和精确度')
-    Map:setZoom(15)  
+    Log:write('开始画轨迹') 
      -- 获取查询结果数目
     local respValue = drawData.value
     local len = #respValue
