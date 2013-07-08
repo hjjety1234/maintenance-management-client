@@ -186,28 +186,34 @@ local g_type = 0            -- 隐患统计类型
 local g_respValue = nil     -- 服务端返回数据
 local searchDate = 'month'   --默认按当月进行查询
 local dangyue
-local dangjidu 
+local dangjidu
+
+local yearLabel 
+local monthLabel
 local g_sum
 local date = ''
-local g_regionid = ''        -- 当前查询的区域纬度，空为全省
 local g_regionname = '区域'        -- 当前查询的区域名称，默认为全省
 local regionid=''
+local mainTitle
+
+local selCity
+local testTable={{city='合肥',regionid='340100'},{city='芜湖',regionid='340200'},{city='蚌埠',regionid='340300'},
+        {city='淮南',regionid='340400'},{city='马鞍山',regionid='340500'},{city='淮北',regionid='340600'},
+        {city='铜陵',regionid='340700'},{city='安庆',regionid='340800'},{city='黄山',regionid='341000'},
+        {city='滁州',regionid='341100'},{city='阜阳',regionid='341200'},{city='宿州',regionid='341300'},
+        {city='六安',regionid='341500'},{city='亳州',regionid='341600'},{city='池州',regionid='341700'},
+        {city='宣城',regionid='341800'}}
 ---------------------------------------系统回调函数列表--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
---获取角色编号
-    local role = Config:get('role')
-    regionid = Config:get('regionid')
-    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
-        g_regionid = regionid
-    else
-        g_regionid = ''
-        regionid = ''
-    end
-    Log:write('角色和区域',role,g_regionid)
+    mainTitle = Sprite:findChild(rootSprite,'mainTitle')
+    Log:write('区域',g_regionid)
     dangyue = Sprite:findChild(rootSprite,'dangyue')
     dangjidu = Sprite:findChild(rootSprite,'dangjidu')
+    -- 获取当前月份
+    yearLabel = Sprite:findChild(rootSprite, "yearLabel")
+    monthLabel = Sprite:findChild(rootSprite, "monthLabel")
     setDefaultMonth()
     monthOnSelect(sprite)
 end
@@ -315,7 +321,6 @@ function cityOn(sprite)
     g_type = 0
     g_regionid = regionid
     g_regionname = '区域'
-    local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
     Sprite:setProperty(mainTitle, 'text', '隐患情况')
     request()
 end
@@ -495,6 +500,14 @@ end
 --按当月或当年两个维度进行切换
 function monthOnSelect(sprite)
     date = getSelectedMonth()
+    -- 隐患地图
+    if mapDate ~= '' then
+        date = mapDate
+        local spliteDate = Split(date,'-') 
+        Log:write("@jldu 隐患地图传递日期：",Split(date,'-'))
+        Sprite:setProperty(yearLabel, "text", tostring(spliteDate[1]))
+        Sprite:setProperty(monthLabel, "text", tostring(spliteDate[2]))
+    end   
     function_name(dangyue,dangjidu)
     local data = Sprite:getData(sprite)
     searchDate = 'month'
@@ -562,6 +575,16 @@ end
 ---------------------------------------服务端交互函数列表-------------------------------- 
 -- @brief 获取统计数据
 function request()
+    if g_regionid ~= '' then
+        -- @jldu 查询点击地市名称
+        for i=1,#testTable do
+            if g_regionid == testTable[i].regionid then
+                selCity = testTable[i].city
+                Log:write("@jldu 地市名称 ："..selCity)
+            end
+        end
+        Sprite:setProperty(mainTitle, 'text', '隐患情况('..selCity..')')
+    end 
     chgDateButtonBg()
     local param = string.format("cmd=dangerreport&type=%d&page=1&pagesize=30&usercode=%s&date=%s&regionid=%s", 
         g_type, Config:get('username'), date, g_regionid)
@@ -583,11 +606,9 @@ function request2(regionid)
     Loading:show(rootSprite)
     UmsAgent:onLoadStart()
 end
+
 -- 设置默认的月份
 function setDefaultMonth()
-    -- 获取当前月份
-    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
-    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
     Sprite:setProperty(yearLabel, "text", 
         os.date("*t", os.time() + 86400)["year"])      
     Sprite:setProperty(monthLabel, "text", 
@@ -601,8 +622,6 @@ end
 
 -- 上个月份
 function prevMonthOnSelect(sprite)
-    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
-    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
     local year = tonumber(Sprite:getText(yearLabel))
     local month = tonumber(Sprite:getText(monthLabel))
     if month == 1 then 
@@ -619,8 +638,6 @@ end
 
 -- 下个月份
 function nextMonthOnSelect(sprite)
-    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
-    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
     local year = tonumber(Sprite:getText(yearLabel))
     local month = tonumber(Sprite:getText(monthLabel))
     if month == 12 then 
@@ -637,8 +654,6 @@ end
 
 -- 获取当前选择的月份
 function getSelectedMonth()
-    local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
-    local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
     local year = Sprite:getText(yearLabel)
     local month = Sprite:getText(monthLabel)
     return year.."-"..month
@@ -648,7 +663,6 @@ function cityItemBtnOnselect(sprite)
     
       local dimName = Sprite:findChild(sprite,'dimName')                    -- 地市名称
       local dimension = Sprite:findChild(rootSprite,'dimension')            -- 维度名称
-      local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
       local companyBtn = Sprite:findChild(rootSprite,'companyBtn') 
       local regionid = Sprite:getData(sprite)
       g_regionid = regionid
