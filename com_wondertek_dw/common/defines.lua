@@ -150,7 +150,9 @@ Alias = {
     m_resource_tower1 = "MODULE:\\com_wondertek_dw\\m_resource_tower1.wdml",  -- 铁塔统计
     m_resource_group1 = "MODULE:\\com_wondertek_dw\\m_resource_group1.wdml",  -- 集客统计
     m_resource_home1 = "MODULE:\\com_wondertek_dw\\m_resource_home1.wdml",  -- 家庭宽带统计          
-    m_yinhuantongji = "MODULE:\\com_wondertek_dw\\m_yinhuantongji.wdml",  -- 隐患统计   
+    m_yinhuantongji = "MODULE:\\com_wondertek_dw\\m_yinhuantongji.wdml",  -- 隐患统计 
+    m_yinhuanMap = "MODULE:\\com_wondertek_dw\\m_yinhuanMap.wdml",  -- 隐患处理地图
+    m_yinhuanMap_city = "MODULE:\\com_wondertek_dw\\m_yinhuanMap_city.wdml",  -- 地市隐患处理地图 
     m_renchepeizhi = "MODULE:\\com_wondertek_dw\\m_renchepeizhi.wdml",  -- 人车配置   
 
 
