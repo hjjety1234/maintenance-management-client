@@ -381,6 +381,7 @@ function listItemOnSelect(sprite)
     Log:write("@jldu dataInfo: ",dataInfo)
     regionid = Config:get('regionid')
     Log:write("@jldu 登录人区号："..regionid)
+    Log:write("@jldu 登录人角色："..role)
     if dataInfo == '01' then    -- 站点搜索
         personStatus = 'C21'  -- 现场检查
         Scene:setReturn(Alias.home_sheng_leader, Alias.m_checkzhandian)
@@ -393,8 +394,20 @@ function listItemOnSelect(sprite)
         Scene:setReturn(Alias.home_sheng_leader, Alias.m_daibangongdan)
         Scene:go(Alias.m_daibangongdan)
     elseif dataInfo == '04' then -- 隐患处理情况
-        Scene:setReturn(Alias.home_sheng_leader, Alias. m_yinhuantongji)
-        Scene:go(Alias. m_yinhuantongji)
+        if role=='MM003' or role=='MM004' then
+            Log:write("@jldu 省公司")
+            Scene:setReturn(Alias.home_sheng_leader, Alias.m_yinhuanMap)
+            Scene:go(Alias.m_yinhuanMap)
+        elseif role=='MM007' or role=='MM008' then           
+            Log:write("@jldu 地市公司 ")
+            Scene:setReturn(Alias.home_sheng_leader, Alias.m_yinhuanMap_city)
+            Scene:go(Alias.m_yinhuanMap_city)
+        elseif role=='MM011' then
+            -- @jldu 县公司
+            Log:write("@jldu 县公司")
+            Scene:setReturn(Alias.home_sheng_leader, Alias.m_yinhuantongji)
+            Scene:go(Alias.m_yinhuantongji..'?g_regionid='..regionid..'&mapDate=')
+        end    
     elseif dataInfo == '05' then --质量指标
         personStatus = 'C22'
         Scene:setReturn(Alias.home_sheng_leader, Alias.m_quality)
@@ -419,7 +432,6 @@ function listItemOnSelect(sprite)
         Scene:go(Alias.m_thirdPartySoft)
     elseif dataInfo == '11' then
         personStatus = 'C23' -- 地图监控
-        Log:write("@jldu 点击代维地图登录人角色："..role)
         if role=='MM003' or role=='MM004' then
             Log:write("@jldu 省公司")
             Scene:setReturn(Alias.home_sheng_leader, Alias.m_dwMap)
