@@ -216,6 +216,7 @@ function bodyOnPluginEvent(msg, param)
             local major = staff.major
             local name = staff.username
             local status = staff.userstatus
+            local role = staff.role
             if status == nil or status == '' then
                 status ='我在工作'
             end
@@ -224,8 +225,8 @@ function bodyOnPluginEvent(msg, param)
             if lon ~= nil and lon ~= '' 
                 and lat ~= nil and lat ~= '' then 
                 -- 创建poi点
-                local poiString = string.format('{"id":"%s", "longitude":%d, "latitude":%d,"company":"%s","major":"%s","name":"%s","status":"%s","desc":"aaa"}',
-                       id, lon * 1000000, lat * 1000000, company,major,name,status)
+                local poiString = string.format('{"id":"%s", "longitude":%d, "latitude":%d,"company":"%s","major":"%s","name":"%s","status":"%s","desc":"aaa","role":"%s"}',
+                       id, lon * 1000000, lat * 1000000, company,major,name,status,role)
                 Log:write('poiString', poiString)
                 if i < len then
                     poisString = poisString..poiString..',' 
@@ -337,10 +338,15 @@ function doBack()
     --释放地图
     Scene:freeByName(Alias.m_search_map) 
     --根据角色返回
-    local role_regionid = Config:get('regionid')
-    Log:write('用户角色：',role_regionid)
-    if role_regionid=='340000' then 
+    local role = Config:get('role')
+    Log:write('用户角色：',role)
+    if role =='MM000' or role =='MM001' or role =='MM002' or role =='MM005' 
+        or role =='MM006' or role =='MM006'   then
         Scene:go(Alias.m_dwMap)
+    elseif role =='MM009' or role =='MM010' then 
+        Scene:go(Alias.home_sheng)
+    elseif role =='MM011' then 
+        Scene:go(Alias.home_sheng_leader)
     else
         Scene:go(Alias.m_dwMap_city)
     end
