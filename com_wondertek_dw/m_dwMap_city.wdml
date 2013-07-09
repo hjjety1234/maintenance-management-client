@@ -243,7 +243,7 @@
                 </image>
             </node>
             <!-- 底部工具栏  -->
-            <node name="bottombar" rect="0,714,480,86" extendstyle="1511">
+            <node name="bottombar" rect="0,714,480, 86" extendstyle="1511">
                 <image rect="0,0,480,86" src="file://image/bottom_new.png"
                     style="autosize" extendstyle="1511" />
                 <button name="button1" rect="0,0,160,86" border="false"
@@ -259,7 +259,7 @@
                   h-align="center" font-family="微软雅黑" font-size="22" extendstyle="1111" />
                 </button>
                 <button name="button2" rect="160,0,160,86" border="false" 
-                    text="" color="#ffffff" OnSelect="searchOnSelect"  xtendstyle="1111"
+                    text="" color="#ffffff" OnSelect="searchOnSelect"  extendstyle="1111"
                     data="02">
                     <image name="cheliang" rect="0,0,160,86" src="file://image/dt_btn_s.png"
                     style="autosize" extendstyle="1111" visible="false"/>
@@ -307,10 +307,6 @@ local cityNode
 local bottomFlag 
 local renyuantongji
 
-local renyuan
-local cheliang
-local yinhuan
-
 local testTable={{city='合肥',regionid='340100'},{city='芜湖',regionid='340200'},{city='蚌埠',regionid='340300'},
         {city='淮南',regionid='340400'},{city='马鞍山',regionid='340500'},{city='淮北',regionid='340600'},
         {city='铜陵',regionid='340700'},{city='安庆',regionid='340800'},{city='黄山',regionid='341000'},
@@ -324,10 +320,6 @@ function bodyBuildChildrenFinished(sprite)
     tongjiNode = Sprite:findChild(rootSprite,'tongjiNode')
     daiweiMap = Sprite:findChild(rootSprite,'daiweiMap')
     cityNode = Sprite:findChild(rootSprite, 'cityNode')
-
-    renyuan = Sprite:findChild(rootSprite,'renyuan')
-    cheliang = Sprite:findChild(rootSprite,'cheliang')
-    yinhuan = Sprite:findChild(rootSprite,'yinhuan')
 
     renyuantongji = Sprite:findChild(rootSprite,'renyuantongji')
     
@@ -359,7 +351,6 @@ function bodyOnPluginEvent(msg, param)
         Sprite:setProperty(renyuantongji,'text',citydata.city..'今日在线'..car..'辆车，其中'..taskcar..'辆有代维任务。')
     elseif msg == 103 then
         dangerStasticData = Http:jsonDecode('dangerStastic')
-        Log:write("@jldu 请求隐患统计数据：",dangerStasticData)
         handleDangertongji()
         Sprite:setProperty(renyuantongji,'text',citydata.city..'当前未闭环隐患'..danger..'个，其中重大隐患'..majordanger..'个。')
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then 
@@ -450,30 +441,28 @@ end
 function searchOnSelect(sprite)
     Sprite:setProperty(renyuantongji,'text','数据加载中...')
     local btnData = Sprite:getData(sprite)
+    Log:write("data: "..btnData)
+    local renyuan = Sprite:findChild(rootSprite,'renyuan')
+    local cheliang = Sprite:findChild(rootSprite,'cheliang')
+    local yinhuan = Sprite:findChild(rootSprite,'yinhuan')
+    Sprite:setVisible(renyuan,'0')
+    Sprite:setVisible(cheliang,'0')
+    Sprite:setVisible(yinhuan,'0')
     if btnData=='01' then
         bottomFlag = 1
         Sprite:setProperty(daiweiMap,'enable','true') 
-        Sprite:setProperty(tongjiNode,'visible','true')
         Sprite:setVisible(renyuan,'1')
-        Sprite:setVisible(cheliang,'0')
-        Sprite:setVisible(yinhuan,'0')
         Log:write("@jldu 点击人员")
         requestStastic()
     elseif btnData=='02' then
         bottomFlag = 2
-        Sprite:setProperty(daiweiMap,'enable','true') 
-        Sprite:setProperty(tongjiNode,'visible','true')
-        Sprite:setVisible(renyuan,'0')
+        Sprite:setProperty(daiweiMap,'enable','true')
         Sprite:setVisible(cheliang,'1')
-        Sprite:setVisible(yinhuan,'0')
-        Log:write("@jldu 点击车辆")
+        Log:write("@jldu 点击车辆")       
         requestCarStastic()
     elseif btnData=='03' then
         bottomFlag = 3
         Sprite:setProperty(daiweiMap,'enable','true')
-        Sprite:setProperty(tongjiNode,'visible','true') 
-        Sprite:setVisible(renyuan,'0')
-        Sprite:setVisible(cheliang,'0')
         Sprite:setVisible(yinhuan,'1')
         Log:write("@jldu 点击隐患")
         requestDingerStastic()
@@ -484,7 +473,6 @@ end
 function requestStastic()
     local param = 'cmd=wlbstaffregion&page=1&pagesize=50&usercode=fanbingheng&regionid=340000'
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
-    Log:write("@jldu 请求统计数据地址: "..reqURL)
     Http:request('stasticData', reqURL, 101, {useCache = false})
 end
 
@@ -492,7 +480,6 @@ end
 function requestCarStastic()
     local param = 'cmd=wlbcarregion&page=1&pagesize=50&usercode=fanbingheng&regionid=340000'
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
-    Log:write("@jldu 请求车辆统计数据地址: "..reqURL)
     Http:request('carStastic', reqURL, 102, {useCache = false})
 end
 
@@ -500,17 +487,20 @@ end
 function requestDingerStastic()
     local param = 'cmd=wlbdangerregion&page=1&pagesize=50&usercode=fanbingheng&regionid=340000'
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
-    Log:write("@jldu 请求隐患统计数据地址: "..reqURL)
     Http:request('dangerStastic', reqURL, 103, {useCache = false})
 end
 
 -- @jldu 请求地图数据
 function requestMap()
+    Log:write("页面激活")
+    local renyuan = Sprite:findChild(rootSprite,'renyuan')
+    local cheliang = Sprite:findChild(rootSprite,'cheliang')
+    local yinhuan = Sprite:findChild(rootSprite,'yinhuan')
     OnSelectShowMap()
-    bottomFlag = tonumber(Config:get('map_bottomFlag'))
     Sprite:setVisible(renyuan,'0')
     Sprite:setVisible(cheliang,'0')
     Sprite:setVisible(yinhuan,'0')
+    bottomFlag = tonumber(Config:get('map_bottomFlag'))
     if bottomFlag == 1 then
         Sprite:setVisible(renyuan,'1')
         requestStastic() 
@@ -528,7 +518,6 @@ function handletongji()
     for i=0,#stasticData.value[0].data do
         local stasCity = stasticData.value[0].data[i]
         if regionid == stasCity.regionid then
-            Log:write("@jldu 登陆人所在地市："..stasCity.dimension)
             staff = stasCity.staff
             staffonline = stasCity.staffonline
             xunjian = stasCity.xunjian
@@ -545,11 +534,8 @@ function handlecartongji()
     for i=0,#carStasticData.value[0].data do
         local stasCity = carStasticData.value[0].data[i]
         if regionid == stasCity.regionid then
-            Log:write("@jldu 登陆人所在地市："..stasCity.dimension)
             car = stasCity.car
             taskcar = stasCity.taskcar
-            Log:write("@jldu 登录人所在地市 车辆总数："..car)
-            Log:write("@jldu 登录人所在地市 有任务车辆数："..taskcar)
         end
     end
 end
@@ -559,11 +545,8 @@ function handleDangertongji()
     for i=0,#dangerStasticData.value[0].data do
         local stasCity = dangerStasticData.value[0].data[i]
         if regionid == stasCity.regionid then
-            Log:write("@jldu 登陆人所在地市："..stasCity.dimension)
             danger = stasCity.danger
             majordanger = stasCity.majordanger
-            Log:write("@jldu 登录人所在地市 未处理隐患数："..danger)
-            Log:write("@jldu 登录人所在地市 未处理高级别隐患数："..majordanger)
         end
     end
 end
