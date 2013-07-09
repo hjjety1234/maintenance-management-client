@@ -24,7 +24,7 @@
             <node name="baseSprite" rect="0,0,480,66" extendstyle="1111">
                  <image name="title" rect="0,0,480,66" border="false" src="file://image/title_bg_new.png" 
                     style="autosize" extendstyle="1111">
-                    <label rect="0,0,480,66" text="实时监控" name="titlename" color="#ffffff" v-align="center"  
+                    <label rect="0,0,480,66" text="隐患处理情况" name="titlename" color="#ffffff" v-align="center"  
                        h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />
                  </image>
                  <!-- 返回按钮  -->
@@ -261,7 +261,7 @@
                 </image>   
             </node>
             <!-- 人员统计 -->
-            <node name='tongjiNode' rect="0,690,480,77" extendstyle="1111">
+            <node name='tongjiNode' rect="0,710,480,77" extendstyle="1111">
                 <image rect="1,0,477,77" visible="true" border="false" style="autosize"
                     src="file://image/tongji_bg.png" extendstyle="1111">
                     <textarea name="renyuantongji" rect="5,5,467,67" loop='false' step="1" border="false" 
@@ -340,7 +340,7 @@ function bodyOnPluginEvent(msg, param)
     if msg == 103 then
         dangerStasticData = Http:jsonDecode('dangerStastic')
         handleDangertongji()
-        Sprite:setProperty(renyuantongji,'text',citydata.city..'当前隐患上报数量'..dangercount..'个，隐患处理率'..dealdangercount..'。')
+        Sprite:setProperty(renyuantongji,'text',citydata.city..Split(date,'-')[2]..'月份隐患上报数量'..dangercount..'个，隐患处理率'..dealdangercount..'。')
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -360,7 +360,7 @@ end
 
 -- 返回上一个页面
 function doBack()
-    Scene:go(Alias.home_sheng_leader)
+    Scene:back()
 end
 
 ----------------------------------服务端交互函数列表---------------------------------
