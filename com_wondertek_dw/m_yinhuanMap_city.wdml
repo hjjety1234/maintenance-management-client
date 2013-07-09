@@ -299,6 +299,7 @@ local renyuantongji
 local yearLabel
 local monthLabel
 local date = ''
+local selCity
 
 local testTable={{city='合肥',regionid='340100'},{city='芜湖',regionid='340200'},{city='蚌埠',regionid='340300'},
         {city='淮南',regionid='340400'},{city='马鞍山',regionid='340500'},{city='淮北',regionid='340600'},
@@ -365,7 +366,7 @@ end
 -- @brief 区域点击按钮消息处理
 function doRegionClick(sprite)
     -- 获取当前被选地市的数据
-    local selCity = Sprite:getData(sprite)
+    selCity = Sprite:getData(sprite)
     if selCity == citydata.city then
         Log:write("@jldu 点击登录人所在地市")
         jumpTOMapPoit()
@@ -410,7 +411,7 @@ end
 -- @jldu 跳转到地图打点页面
 function jumpTOMapPoit()
     Scene:setReturn(Alias.m_yinhuanMap_city, Alias.m_yinhuantongji)
-    Scene:go(Alias.m_yinhuantongji..'?g_regionid='..regionid..'&mapDate='..date)   
+    Scene:go(Alias.m_yinhuantongji..'?g_regionid='..regionid..'&mapDate='..date..'&selCity='..selCity)   
 end
 
 -- @jldu 请求隐患数据
