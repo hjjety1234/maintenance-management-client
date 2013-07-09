@@ -222,7 +222,6 @@ function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_yinhuantongji, 
             'MODULE:\\(.*)'), "隐患统计")
-        --request()
     elseif msg == MSG_DEACTIVATE then
        UmsAgent:OnDeactivate()
     end
@@ -345,6 +344,7 @@ function companyOn(sprite)
     Sprite:setProperty(dimension,'text','代维公司')
     -- 刷新界面
     g_type = 1
+    Sprite:setProperty(mainTitle, 'text', '隐患情况')
     request()
 end
 
@@ -371,6 +371,7 @@ function majorOn(sprite)
     Sprite:setProperty(dimension,'text','专业')
     -- 刷新界面
     g_type = 2
+    Sprite:setProperty(mainTitle, 'text', '隐患情况')
     request()
 end
 
@@ -520,6 +521,9 @@ function monthOnSelect(sprite)
     Sprite:setRect(contentCenter,10,12,460,600)
     Sprite:setRect(contentBottom,10,608,460,12)
     Sprite:setRect(sampleList1,0,45,480,510)
+    if selCity ~= '' then
+        Sprite:setProperty(mainTitle, 'text', '隐患情况('..selCity..')')
+    end 
     request()
 end
 function yearOnSelect(sprite)
@@ -571,25 +575,6 @@ end
 ---------------------------------------服务端交互函数列表-------------------------------- 
 -- @brief 获取统计数据
 function request()
-    -- if g_regionid ~= '' then
-    --     -- @jldu 查询点击地市名称
-    --     for i=1,#testTable do
-    --         if string.sub(g_regionid,5) == '00' then           
-    --             if g_regionid == testTable[i].regionid then
-    --                 selCity = testTable[i].city
-    --                 Log:write("@jldu 地市名称 ："..selCity)
-    --             end
-    --         end
-    --     end
-    --     if mapDate == '' then
-    --         selCity = Config:get('region')
-    --     end 
-    --     Log:write("隐患处理情况 selCity: "..selCity)
-        
-    -- end 
-    if selCity ~= '' then
-        Sprite:setProperty(mainTitle, 'text', '隐患情况('..selCity..')')
-    end 
     chgDateButtonBg()
     local param = string.format("cmd=dangerreport&type=%d&page=1&pagesize=30&usercode=%s&date=%s&regionid=%s", 
         g_type, Config:get('username'), date, g_regionid)
