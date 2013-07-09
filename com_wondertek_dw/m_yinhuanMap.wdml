@@ -378,7 +378,6 @@ function bodyOnPluginEvent(msg, param)
     if msg == 103 then
         dangerStasticData = Http:jsonDecode('dangerStastic')
         dangerStasticTable = dangerStasticData.value
-        -- Log:write("@jldu 请求隐患统计数据：",dangerStasticTable)
         OnSelectShowMap()
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
@@ -428,7 +427,7 @@ function doRegionClick(sprite)
         -- @jldu 请求统计数据
         for i=0,#dangerStasticTable do 
             if selCity == dangerStasticTable[i].name then
-                Sprite:setProperty(renyuantongji,'text',selCity..'当前隐患上报数量'..dangerStasticTable[i].dangercount..'个，隐患处理率'..dangerStasticTable[i].dealdangercount..'。')
+                Sprite:setProperty(renyuantongji,'text',selCity..Split(date,'-')[2]..'月份隐患上报数量'..dangerStasticTable[i].dangercount..'个，隐患处理率'..dangerStasticTable[i].dealdangercount..'。')
             end
         end 
     end 
@@ -475,7 +474,6 @@ end
 
 -- @jldu 请求隐患统计数据
 function requestDingerStastic()
-    Log:write("@jldu 日期 date : "..date)
     local param = string.format("cmd=dangerreport&type=0&page=1&pagesize=30&usercode=%s&date=%s&regionid=", 
         Config:get('username'), date)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
