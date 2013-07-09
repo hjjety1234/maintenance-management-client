@@ -324,9 +324,7 @@ end
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        UmsAgent:OnActivate(string.match(Alias.m_dwMap_city, 'MODULE:\\(.*)'), "实时监控")
-        -- Log:write("@jldu 测试testTable ： ",testTable)
-        -- @jldu 请求地图数据
+        UmsAgent:OnActivate(string.match(Alias.m_yinhuanMap_city, 'MODULE:\\(.*)'), "隐患处理情况")
         requestMap() 
         
     elseif msg == MSG_DEACTIVATE then
@@ -368,8 +366,6 @@ end
 function doRegionClick(sprite)
     -- 获取当前被选地市的数据
     local selCity = Sprite:getData(sprite)
-    Log:write('@jldu 被选中地市：',selCity)
-    Log:write('@jldu 登录人所在地市：',citydata.city)
     if selCity == citydata.city then
         Log:write("@jldu 点击登录人所在地市")
         jumpTOMapPoit()
@@ -388,7 +384,6 @@ function OnSelectShowMap(sprite)
     -- @jldu 查询登录人所属地市
     regionid = Config:get('regionid')
     local subRegion = string.sub(regionid,3,4)
-    Log:write("@jldu 区号三、四位 ： "..subRegion) 
     
     for i=1,#testTable do
         local serviceRegion = testTable[i].regionid
@@ -403,7 +398,6 @@ end
 
 -- @jldu 突出显示某个地市
 function showDetail(strName)
-    Log:write("突出显示："..strName)
     Sprite:setProperty(cityNode, 'visible', "true")
     for i=1,#testTable do
         local cityImage = Sprite:findChild(rootSprite, testTable[i].city)
