@@ -307,6 +307,10 @@ local cityNode
 local bottomFlag = 1
 local renyuantongji
 
+local renyuan
+local cheliang
+local yinhuan
+
 local testTable={{city='合肥',regionid='340100'},{city='芜湖',regionid='340200'},{city='蚌埠',regionid='340300'},
         {city='淮南',regionid='340400'},{city='马鞍山',regionid='340500'},{city='淮北',regionid='340600'},
         {city='铜陵',regionid='340700'},{city='安庆',regionid='340800'},{city='黄山',regionid='341000'},
@@ -321,6 +325,10 @@ function bodyBuildChildrenFinished(sprite)
     daiweiMap = Sprite:findChild(rootSprite,'daiweiMap')
     cityNode = Sprite:findChild(rootSprite, 'cityNode')
 
+    renyuan = Sprite:findChild(rootSprite,'renyuan')
+    cheliang = Sprite:findChild(rootSprite,'cheliang')
+    yinhuan = Sprite:findChild(rootSprite,'yinhuan')
+
     renyuantongji = Sprite:findChild(rootSprite,'renyuantongji')
     
 end
@@ -330,10 +338,8 @@ function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         Map:close()
         UmsAgent:OnActivate(string.match(Alias.m_dwMap_city, 'MODULE:\\(.*)'), "实时监控")
-        -- Log:write("@jldu 测试testTable ： ",testTable)
         -- @jldu 请求地图数据
-        requestMap() 
-        
+        requestMap()         
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
@@ -446,33 +452,27 @@ end
 function searchOnSelect(sprite)
     Sprite:setProperty(renyuantongji,'text','数据加载中...')
     local btnData = Sprite:getData(sprite)
-    local renyuan=Sprite:findChild(rootSprite,'renyuan')
-    local cheliang=Sprite:findChild(rootSprite,'cheliang')
-    local yinhuan =Sprite:findChild(rootSprite,'yinhuan')
+    Sprite:setVisible(renyuan,'0')
+    Sprite:setVisible(cheliang,'0')
+    Sprite:setVisible(yinhuan,'0')
     if btnData=='01' then
         bottomFlag = 1
         Sprite:setProperty(daiweiMap,'enable','true') 
         Sprite:setProperty(tongjiNode,'visible','true')
         Sprite:setVisible(renyuan,'1')
-        Sprite:setVisible(cheliang,'0')
-        Sprite:setVisible(yinhuan,'0')
         Log:write("@jldu 点击人员")
         requestStastic()
     elseif btnData=='02' then
         bottomFlag = 2
         Sprite:setProperty(daiweiMap,'enable','true') 
         Sprite:setProperty(tongjiNode,'visible','true')
-        Sprite:setVisible(renyuan,'0')
         Sprite:setVisible(cheliang,'1')
-        Sprite:setVisible(yinhuan,'0')
         Log:write("@jldu 点击车辆")
         requestCarStastic()
     elseif btnData=='03' then
         bottomFlag = 3
         Sprite:setProperty(daiweiMap,'enable','true')
         Sprite:setProperty(tongjiNode,'visible','true') 
-        Sprite:setVisible(renyuan,'0')
-        Sprite:setVisible(cheliang,'0')
         Sprite:setVisible(yinhuan,'1')
         Log:write("@jldu 点击隐患")
         requestDingerStastic()
@@ -485,7 +485,6 @@ function requestStastic()
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
     Log:write("@jldu 请求统计数据地址: "..reqURL)
     Http:request('stasticData', reqURL, 101, {useCache = false})
-    --Loading:show()
 end
 
 -- @jldu 请求车辆统计数据
@@ -494,7 +493,6 @@ function requestCarStastic()
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
     Log:write("@jldu 请求车辆统计数据地址: "..reqURL)
     Http:request('carStastic', reqURL, 102, {useCache = false})
-    -- Loading:show()  
 end
 
 -- @jldu 请求隐患数据
@@ -503,17 +501,22 @@ function requestDingerStastic()
     local reqURL = getUrl()..'nbspweb/webservice/map!doWebservice.action?'..param
     Log:write("@jldu 请求隐患统计数据地址: "..reqURL)
     Http:request('dangerStastic', reqURL, 103, {useCache = false})
-    -- Loading:show()  
 end
 
 -- @jldu 请求地图数据
 function requestMap()
     OnSelectShowMap()
+    Sprite:setVisible(renyuan,'0')
+    Sprite:setVisible(cheliang,'0')
+    Sprite:setVisible(yinhuan,'0')
     if bottomFlag == 1 then
+        Sprite:setVisible(renyuan,'1')
         requestStastic() 
     elseif bottomFlag == 2 then
+        Sprite:setVisible(cheliang,'1')
         requestCarStastic()
     elseif bottomFlag == 3 then
+        Sprite:setVisible(yinhuan,'1')
         requestDingerStastic()
     end     
 end
