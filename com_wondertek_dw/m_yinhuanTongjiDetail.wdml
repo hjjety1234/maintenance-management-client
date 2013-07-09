@@ -275,8 +275,7 @@ end
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-        Scene:freeByHandle(rootSprite)
-        Scene:back()
+        doBack()
         return 1
     end
 end
@@ -337,13 +336,16 @@ function loadListItem(list, item, index)
             Sprite:setProperty(pic, "enable", 'true')
         end
     end
-    --local mm = #pictures
-    --Log:write("shumu=="..mm)
 end
 --返回函数
-function doBack(sprite)
+function doBack()
     Scene:freeByHandle(rootSprite)
-    Scene:back()
+    if g_regionid ~= '' then
+        Log:write("g_regionid ====== "..g_regionid)
+        Scene:go(Alias.m_yinhuantongji..'?g_regionid='..g_regionid..'&mapDate='..date..'&selCity='..selCity)
+    else
+        Scene:go(Alias.m_yinhuantongji..'?g_regionid=&selCity=&mapDate='..date)
+    end 
 end
 -- 查看更多函数
 function  moreclientBtnOnselect(spite)
