@@ -304,7 +304,7 @@ local danger
 local majordanger
 local daiweiMap
 local cityNode
-local bottomFlag = 1
+local bottomFlag 
 local renyuantongji
 
 local renyuan
@@ -350,13 +350,11 @@ function bodyOnPluginEvent(msg, param)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
         stasticData = Http:jsonDecode('stasticData')
-        -- Log:write("@jldu 请求统计数据:  ",stasticData)
         -- @jldu 定位登录人所在地市数据
         handletongji()
         Sprite:setProperty(renyuantongji,'text',citydata.city..'今日登录用户'..staff..'人，当前在线'..staffonline..'人，正在巡检'..xunjian..'人，处理隐患'..yinhuan..'人，资源核查'..hecha..'人，其它在线'..other..'人。')
     elseif msg == 102 then
         carStasticData = Http:jsonDecode('carStastic')
-        -- Log:write("@jldu 请求车辆统计数据:  ",carStasticData)
         handlecartongji()
         Sprite:setProperty(renyuantongji,'text',citydata.city..'今日在线'..car..'辆车，其中'..taskcar..'辆有代维任务。')
     elseif msg == 103 then
@@ -364,11 +362,11 @@ function bodyOnPluginEvent(msg, param)
         Log:write("@jldu 请求隐患统计数据：",dangerStasticData)
         handleDangertongji()
         Sprite:setProperty(renyuantongji,'text',citydata.city..'当前未闭环隐患'..danger..'个，其中重大隐患'..majordanger..'个。')
-    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
-    elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
-    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then 
+    elseif msg == 101 + MSG_NETWORK_ERROR then 
+    elseif msg == MSG_NETWORK_ERROR then 
         Log:write('拨号失败')
-    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+    elseif msg > MSG_NETWORK_ERROR then 
         Log:write('请求超时')
     end
 end
@@ -452,27 +450,30 @@ end
 function searchOnSelect(sprite)
     Sprite:setProperty(renyuantongji,'text','数据加载中...')
     local btnData = Sprite:getData(sprite)
-    Sprite:setVisible(renyuan,'0')
-    Sprite:setVisible(cheliang,'0')
-    Sprite:setVisible(yinhuan,'0')
     if btnData=='01' then
         bottomFlag = 1
         Sprite:setProperty(daiweiMap,'enable','true') 
         Sprite:setProperty(tongjiNode,'visible','true')
         Sprite:setVisible(renyuan,'1')
+        Sprite:setVisible(cheliang,'0')
+        Sprite:setVisible(yinhuan,'0')
         Log:write("@jldu 点击人员")
         requestStastic()
     elseif btnData=='02' then
         bottomFlag = 2
         Sprite:setProperty(daiweiMap,'enable','true') 
         Sprite:setProperty(tongjiNode,'visible','true')
+        Sprite:setVisible(renyuan,'0')
         Sprite:setVisible(cheliang,'1')
+        Sprite:setVisible(yinhuan,'0')
         Log:write("@jldu 点击车辆")
         requestCarStastic()
     elseif btnData=='03' then
         bottomFlag = 3
         Sprite:setProperty(daiweiMap,'enable','true')
         Sprite:setProperty(tongjiNode,'visible','true') 
+        Sprite:setVisible(renyuan,'0')
+        Sprite:setVisible(cheliang,'0')
         Sprite:setVisible(yinhuan,'1')
         Log:write("@jldu 点击隐患")
         requestDingerStastic()
@@ -506,6 +507,7 @@ end
 -- @jldu 请求地图数据
 function requestMap()
     OnSelectShowMap()
+    bottomFlag = tonumber(Config:get('map_bottomFlag'))
     Sprite:setVisible(renyuan,'0')
     Sprite:setVisible(cheliang,'0')
     Sprite:setVisible(yinhuan,'0')
