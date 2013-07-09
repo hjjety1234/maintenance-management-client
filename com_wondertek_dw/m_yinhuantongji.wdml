@@ -196,7 +196,6 @@ local g_regionname = '区域'        -- 当前查询的区域名称，默认为�
 local regionid=''
 local mainTitle
 
-local selCity
 local testTable={{city='合肥',regionid='340100'},{city='芜湖',regionid='340200'},{city='蚌埠',regionid='340300'},
         {city='淮南',regionid='340400'},{city='马鞍山',regionid='340500'},{city='淮北',regionid='340600'},
         {city='铜陵',regionid='340700'},{city='安庆',regionid='340800'},{city='黄山',regionid='341000'},
@@ -265,9 +264,6 @@ function bodyOnPluginEvent(msg, param)
 
         g_sum = g_respValue[len]
         g_respValue[len]=nil
-        Log:write('len',len)
-        Log:write('g_sum',g_sum)
-        Log:write('g_respValue',g_respValue)
         ListView:removeAllItems(listView1)
         ListView:loadItem(listView1, Sprite:findChild(rootSprite, 'listItem1'), 
             len, 'loadListItem')
@@ -560,7 +556,6 @@ function function_name(b1,b2)
 end
 --切换月、年度选择的背景
 function chgDateButtonBg()
-    --file://image/major_on.png
     Log:write('searchDate is ',searchDate)
     local dangyue  = Sprite:findChild(rootSprite, 'dangyue')
     local dangjidu = Sprite:findChild(rootSprite, 'dangjidu')
@@ -576,17 +571,23 @@ end
 ---------------------------------------服务端交互函数列表-------------------------------- 
 -- @brief 获取统计数据
 function request()
-    if g_regionid ~= '' then
-        -- @jldu 查询点击地市名称
-        for i=1,#testTable do
-            if g_regionid == testTable[i].regionid then
-                selCity = testTable[i].city
-                Log:write("@jldu 地市名称 ："..selCity)
-            end
-        end
-        if mapDate == '' then
-            selCity = Config:get('region')
-        end   
+    -- if g_regionid ~= '' then
+    --     -- @jldu 查询点击地市名称
+    --     for i=1,#testTable do
+    --         if string.sub(g_regionid,5) == '00' then           
+    --             if g_regionid == testTable[i].regionid then
+    --                 selCity = testTable[i].city
+    --                 Log:write("@jldu 地市名称 ："..selCity)
+    --             end
+    --         end
+    --     end
+    --     if mapDate == '' then
+    --         selCity = Config:get('region')
+    --     end 
+    --     Log:write("隐患处理情况 selCity: "..selCity)
+        
+    -- end 
+    if selCity ~= '' then
         Sprite:setProperty(mainTitle, 'text', '隐患情况('..selCity..')')
     end 
     chgDateButtonBg()
@@ -671,6 +672,7 @@ function cityItemBtnOnselect(sprite)
       local regionid = Sprite:getData(sprite)
       g_regionid = regionid
       local regionText = Sprite:getText(dimName)
+      selCity = regionText
       Sprite:setProperty(dimension, 'text', regionText)
       Sprite:setProperty(mainTitle, 'text', '隐患情况('..regionText..')')
       g_regionname = regionText
@@ -721,8 +723,14 @@ function detailBtnOnselect(sprite)
         Reg:setString(regHandle, 'codevalue', btndata)
         Reg:setString(regHandle, 'codename', btnName)
     end
-        Scene:setReturn(Alias.m_yinhuantongji, Alias.m_yinhuanTongjiDetail)
-        Scene:go(Alias.m_yinhuanTongjiDetail, true)
+    if g_regionid ~= '' then
+        if selCity ~= '' then
+            Scene:go(Alias.m_yinhuanTongjiDetail..'?g_regionid='..g_regionid..'&selCity='..selCity, true)
+        end 
+    else
+        Scene:go(Alias.m_yinhuanTongjiDetail..'?g_regionid=&selCity=', true)
+    end 
+    
 
 end
 
