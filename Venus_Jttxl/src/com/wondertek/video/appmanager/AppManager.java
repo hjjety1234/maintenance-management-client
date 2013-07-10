@@ -24,6 +24,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -100,7 +102,7 @@ public class AppManager {
 			return false;
 		}
 
-		Util.Trace("[install] in");
+		Util.Trace("[install] in path =" + path);
 		File file = new File(path);
 		if (file.exists()) {
 			final Uri uri = Uri.fromFile(file);
@@ -259,13 +261,14 @@ public class AppManager {
 		if (name == null || name.equals("")) {
 			return false;
 		} 
-
+		Util.Trace("RunApp name = " + name);
 		StringBuffer packageName = new StringBuffer();
 		List<String> Param = new ArrayList<String>();
 		AnalyAppString( name, packageName, Param );
 		
 		Intent intent = new Intent();
 		String activityName = null;
+		String serviceName = null;
 		if (Param.size() > 0) {
 			Bundle bundle = new Bundle();
 			for (int i = 0; i < Param.size(); i++) {
@@ -274,13 +277,29 @@ public class AppManager {
 				if (i == 0 && keyValue[0].equals("activity")) {
 					activityName = keyValue[1];
 				} else {
+					
 					bundle.putString(keyValue[0], keyValue[1]);
 				}
 			}
-			intent.putExtras(bundle);
+			
+			
+			for (int i = 0; i < Param.size(); i++) {
+				String strParam = Param.get(i);
+				String[] keyValue = strParam.split("=");
+				if (i == 0 && keyValue[0].equals("service")) {
+					serviceName = keyValue[1];
+				} else {
+					if(keyValue[0].equals("Cmv_PlayerType"))
+						intent.putExtra(keyValue[0], 3);
+					else
+						intent.putExtra(keyValue[0], keyValue[1]);
+				}
+			}
+			if(serviceName == null)
+				intent.putExtras(bundle);
 		}
-	
-		if (activityName == null) {
+		
+		if (activityName == null && serviceName == null) {
 			PackageManager pm = VenusActivity.appActivity.getPackageManager();
 			try {
 				// Intent intent = pm.getLaunchIntentForPackage(name);
@@ -306,6 +325,16 @@ public class AppManager {
             intent.setComponent(component);
             VenusActivity.appActivity.startActivity(intent);
             return true;
+        } if(serviceName != null){
+        	intent.setAction(packageName.toString());
+        	if(serviceName.equals("start")){
+        		Util.Trace("startService intent=" + intent);
+        		VenusActivity.appActivity.startService(intent);
+        	}else if(serviceName.equals("stop")){
+        		Util.Trace("stopService intent=" + intent);
+        		VenusActivity.appActivity.stopService(intent);
+        	}
+        	return true;
         } else {
             return false;
         }
@@ -342,7 +371,7 @@ public class AppManager {
 
 			ComponentName comp = new ComponentName(pkgName, appClass);
 			shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(action)
-			.setComponent(comp));
+					.setComponent(comp));
 
 			ShortcutIconResource iconRes = new ShortcutIconResource();
 			iconRes.packageName = pkgName;
@@ -523,7 +552,7 @@ public class AppManager {
 		String appInfo = "";
 		PackageManager pm = VenusActivity.appActivity.getPackageManager();
 		List<PackageInfo> packages = pm.getInstalledPackages(0);
-
+		Util.Trace("[getInstalledAppInfoById] id =" + id);
 		for(int i=0;i<packages.size();i++) { 
 			PackageInfo packageInfo = packages.get(i); 
 			if(packageInfo.packageName.equals(id)
@@ -538,7 +567,7 @@ public class AppManager {
 						+ "," + packageInfo.versionName + "," + dir + "," + iconPath + "," + size + ";";
 			}
 		}
-
+		Util.Trace("[getInstalledAppInfoById] appInfo" + appInfo);
 		return appInfo;
 	}
 
@@ -734,7 +763,113 @@ public class AppManager {
 			 return EFile_Type.FIEL_TYPE_UNKOWN;
 		}
     }
+	
+	    public boolean queryInnerShortcut(String appName) {
+    	Util.Trace( "hwx[createInnerShortCut] appName=" + appName);
+		if (appName == null || appName.equals(""))
+			return false;
+
+		String url = "";
+		if (android.os.Build.VERSION.SDK_INT < 8) {
+			url = "content://com.android.launcher.settings/favorites?notify=true";
+		} else {
+			url = "content://com.android.launcher2.settings/favorites?notify=true";
+		}
+
+		ContentResolver resolver = VenusActivity.appActivity.getContentResolver();
+		Cursor cursor = resolver.query(Uri.parse(url), null, "title=?",
+				new String[] { appName }, null);
+		if (cursor != null && cursor.moveToFirst()) {
+			cursor.close();
+			return true;
+		} else {
+			cursor = resolver.query(Uri.parse(url), null, null,
+					null, null);
+			if (cursor != null && cursor.moveToFirst()) {
+				do {
+					String name = cursor.getString(cursor.getColumnIndex("title"));
+					Util.Trace("hwx name =" + name);
+				} while (cursor.moveToNext());
+			}
+			return false;
+		}
+	}
     
+    public void createInnerShortCut(String shortCutName, String iconPath, String uri){	
+		Util.Trace( "[createInnerShortCut]"+shortCutName+"==="+iconPath+"==="+uri);
+        Util.Trace( "[createInnerShortCut] = "+VenusActivity.appActivity.getPackageName());
+        if(queryInnerShortcut(shortCutName)){
+        	Util.Trace( "[createInnerShortCut] sss");
+        	return;
+        }
+        	
+		try {
+			Intent shortcut = new Intent(
+					"com.android.launcher.action.INSTALL_SHORTCUT");
+			//shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, getAppName(venusHandle.appActivity.getPackageName()));
+			shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, shortCutName);
+			shortcut.putExtra("duplicate", false);
+
+			String clsName = getClassName(VenusActivity.appActivity.getPackageName());
+			String action = VenusActivity.appActivity.getPackageName() + ".action.test";
+			String appClass = clsName;
+
+			ComponentName comp = new ComponentName(VenusActivity.appActivity.getPackageName(), appClass);
+			Intent intent = new Intent(action);
+			intent.setComponent(comp);
+			intent.putExtra("uri", uri);
+			shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, intent);
+
+			ShortcutIconResource iconRes = new ShortcutIconResource();
+			iconRes.packageName = shortCutName;
+			iconRes.resourceName = iconPath;
+			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconRes);
+			
+			//add pj
+			Bitmap bitmap;
+			Util.Trace("hwx VenusActivity.getScreenWidth()= " + VenusActivity.getInstance().getScreenWidth());
+			if(VenusActivity.getInstance().getScreenWidth()<=240){
+				bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(iconPath), 36, 36, true);
+			}else if(VenusActivity.getInstance().getScreenWidth()<=320){
+				bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(iconPath), 48, 48, true);
+			}else if(VenusActivity.getInstance().getScreenWidth()<=540){
+			    bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(iconPath), 72, 72, true);
+			}else if(VenusActivity.getInstance().getScreenWidth()<=720){
+			    bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(iconPath), 96, 96, true);
+			}else{
+				 bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(iconPath), 120, 120, true);
+		    }
+			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON, bitmap);
+			VenusActivity.appActivity.sendBroadcast(shortcut);
+			//return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		//return false;
+    }
+    
+    public void removeInnerShortcut(String shortCutName) {
+    	Util.Trace( "[removeInnerShortcut] shortCutName = "+shortCutName);
+		try {
+			Intent shortcut = new Intent(
+					"com.android.launcher.action.UNINSTALL_SHORTCUT");
+            shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, shortCutName);
+			String clsName = getClassName(VenusActivity.appActivity.getPackageName());
+			String action = VenusActivity.appActivity.getPackageName() + ".action.test";
+			String appClass = clsName;
+
+			ComponentName comp = new ComponentName(VenusActivity.appActivity.getPackageName(), appClass);
+			shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(action)
+					.setComponent(comp));
+
+			VenusActivity.appActivity.sendBroadcast(shortcut);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+    }
+
+
 	class MyReceiver extends BroadcastReceiver {
 
 		@Override

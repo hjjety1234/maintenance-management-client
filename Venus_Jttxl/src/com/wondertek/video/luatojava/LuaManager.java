@@ -53,7 +53,7 @@ public class LuaManager {
 							LuaResult asyncCr = null;
 							try {
 								// Call execute on the plugin so that it can do it's thing
-								asyncCr = luaContent.execute(action, args);
+								asyncCr = luaContent.execute(action, args, callbackId);
 								Util.Trace("callbackId=" + callbackId);
 								Util.Trace("asyncCr=" + asyncCr.getJSONString());
 							} catch (Exception e) {
@@ -69,7 +69,7 @@ public class LuaManager {
 					thread.start();
 					return new LuaResult(LuaResult.Status.OK_ASYNC).getJSONString();
 				} else {
-					cr = luaContent.execute(action, args);
+					cr = luaContent.execute(action, args, callbackId);
 				}
 			}
 			else

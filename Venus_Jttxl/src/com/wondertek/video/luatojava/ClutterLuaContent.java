@@ -1,10 +1,19 @@
 package com.wondertek.video.luatojava;
 
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.provider.CallLog;
+
+import android.util.Log;
 
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
@@ -16,7 +25,11 @@ public class ClutterLuaContent extends LuaContent {
 	private static final String ACTION_CADD = "CAdd";
 	private static final String ACTION_CCBTEST = "CCBTest";
 	private static final String ACTION_CCBTESTTWO = "CCBTestTwo";
+
+	private static final String ACTION_SETMAPZOOM = "SetMapZoom";
 	private static final String ACTION_DELETECALLCONTENT = "DeleteCallContent";
+	
+	private static final String TAG = "ClutterLuaContent";
 	private static final String ACTION_DELETE_CALLLOG = "deleteCallLog";
 	private static ClutterLuaContent instance = null;
 
@@ -38,7 +51,7 @@ public class ClutterLuaContent extends LuaContent {
     }
     
 	@Override
-	public LuaResult execute(String action, JSONArray args) {
+	public LuaResult execute(String action, JSONArray args, String callbackId) {
 		// TODO Auto-generated method stub
 		LuaResult.Status status = LuaResult.Status.OK;
         String result = "";
@@ -58,6 +71,12 @@ public class ClutterLuaContent extends LuaContent {
         	else if(action.equals(ACTION_CCBTESTTWO))
         	{
         		CCBTestTwo(args.getString(0), args.getString(1), args.getString(2));
+        		return null;
+        	}
+        	else if(action.equals(ACTION_SETMAPZOOM))
+        	{
+        		Log.d(TAG, " @@@ACTION_SETMAPZOOM: ");
+        		// GDMapManager.getInstance().setMapZoom(args.getInt(0));
         		return null;
         	}
         	else if(action.equals(ACTION_DELETECALLCONTENT))
@@ -116,6 +135,23 @@ public class ClutterLuaContent extends LuaContent {
 	public void CCBTestTwo(String str1,String str2,String str3)
 	{
 		Util.Trace("CCBTestTwo =" + str1 + ","+str2+ ","+str3);
+		Intent sendIntent =new Intent();
+		sendIntent.setAction(Intent.ACTION_VIEW);
+
+//		sendIntent.setData(Uri.parse("file:///mnt/sdcard/3D/TOPGIRL.mp4"));
+		sendIntent.setDataAndType(Uri.parse("file:///mnt/sdcard/3D/TOPGIRL.mp4"), "video/mp4");
+
+//		sendIntent.setType("video/mp4");
+//		sendIntent.setComponent(new ComponentName("com.android.gallery3d", "com.android.gallery3d.app.MovieActivit"));
+//		final PackageManager packageManager = VenusActivity.appActivity.getPackageManager();
+//        List<ResolveInfo> list = packageManager.queryIntentActivities(sendIntent, PackageManager.GET_ACTIVITIES);
+//        if (list.size() > 0) {
+//        	VenusActivity.appActivity.startActivity(Intent.createChooser(sendIntent, "ѡ��Ӧ��"));
+//   
+//        } else {
+//        }
+        
+		VenusActivity.appActivity.startActivity(sendIntent); 
 	}
 	
 	public void DeleteCallContent()

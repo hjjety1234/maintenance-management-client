@@ -1,6 +1,11 @@
 package com.wondertek.video.wifi;
 
 import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
@@ -569,6 +574,122 @@ public class WifiObserver {
 				}
 				bWLanPortalFlag = false;
 			}
+		}
+	}
+	
+	class NotificationInfo
+	{
+		public String tick;
+		public String content1;
+		public String content2;
+		public String action;
+	}
+	
+    public static final char EIdle				= 0;
+    public static final char ELoadFailed	= 1;
+    public static final char ESeeking		= 2;
+    public static final char EUploading			= 3;
+    public static final char EPaused			= 4;
+    public static final char EFinished			= 5;
+    public static final char EFailed			= 6;
+	public void javaSendNotification( int nTaskID, int nTaskSize, int nTaskMaxSize, int nTaskFlag, String strTaskAction)
+	{
+		Util.Trace("nTaskID = " + nTaskID + ",nTaskSize = " + nTaskSize + ",nTaskMaxSize = " + nTaskMaxSize + ",nTaskFlag = " + nTaskFlag + ",strTaskAction = " +strTaskAction);
+		if ( strTaskAction == null || strTaskAction.length() == 0 )
+			return ;
+		
+		if ( nTaskFlag == EPaused || nTaskFlag == EFailed || nTaskFlag == -1 )
+		{
+			if ( nTaskSize != nTaskMaxSize || nTaskSize == 0  )
+				VenusActivity.javaSetNotificationFunction(nTaskID, 0, 0, 0, 0, 1, 0, "", "", "", "", "", "", null, "");
+			return;
+		}
+	
+		NotificationInfo itemText 	= new NotificationInfo();
+		NotificationInfo itemProcess= new NotificationInfo();
+		
+		String tmp = strTaskAction;
+		for (int i = 0; i<2; i++)
+		{
+			int nIndex = tmp.indexOf("\"type\":\"");
+			String help = tmp.substring(nIndex+8, nIndex+9);
+			int nType  = Integer.valueOf(help) ;
+			tmp = tmp.substring(tmp.indexOf("\"action\":\"")+ 10, tmp.length());
+			
+			String act = null;
+			if ( i == 0 )
+				act = tmp.substring(0, tmp.indexOf("\"}"));
+			else
+				act = tmp.substring(0, tmp.lastIndexOf("\""));
+			
+			if ( nType == 1 )
+			{
+				itemProcess.action = act;
+			}
+			else
+			{
+				itemText.action = act;
+			}
+		}
+	
+		JSONObject jsonObject;
+		strTaskAction = "{Result:" + strTaskAction + "}";
+		try {
+			jsonObject = new JSONObject(strTaskAction);
+			JSONArray jsonArray = jsonObject.getJSONArray("Result");
+			
+			for(int i=0;i<jsonArray.length();i++){ 
+				JSONObject jsonObject2 = (JSONObject)jsonArray.opt(i);
+				if( jsonObject2 != null )
+				{
+					int nType 			= jsonObject2.getInt("type");
+					if ( nType == 2 )
+					{
+						itemText.tick 		= jsonObject2.getString("tick");
+						itemText.content1 	= jsonObject2.getString("content1");
+						itemText.content2 	= jsonObject2.getString("content2");
+					} 
+					else if ( nType == 1 )
+					{
+						itemProcess.tick 		= jsonObject2.getString("tick");
+						itemProcess.content1 	= jsonObject2.getString("content1");
+						itemProcess.content2 	= jsonObject2.getString("content2");
+					}
+					else
+					{
+						Util.Trace("error type");
+					}
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return;
+		}
+//		Util.Trace("itemText.tick, itemText.content1, itemText.action, itemText.content2");
+        // delete pause notification id
+        VenusActivity.javaSetNotificationFunction(1688, 0, 0, 0, 0, 1, 0, "", "", "", "", "", "", null, "");
+		
+		if ( nTaskMaxSize != 0 && nTaskSize == nTaskMaxSize )
+		{
+			VenusActivity.javaSetNotificationFunction(nTaskID, 2, 0, 0, 0, 0, 0, 
+					itemText.tick, itemText.content1, itemText.action, itemText.content2, "", "", 
+					null, "");
+			return;
+		}
+		
+		if (nTaskSize == 0 && nTaskMaxSize == 0)
+		{
+			VenusActivity.javaSetNotificationFunction(nTaskID, 1, 0, 0, 0, 0, 0, 
+					itemProcess.tick, itemProcess.content1, itemProcess.action, itemProcess.content2, "", "", null, "");
+			return;
+		}
+		
+		if ( nTaskMaxSize != 0 && nTaskMaxSize != nTaskSize)
+		{
+			int nProcess = (int)(((float)nTaskSize/(float)nTaskMaxSize)*100);
+			VenusActivity.javaSetNotificationFunction(nTaskID, 1, nProcess, 0, 0, 0, 0, 
+					itemProcess.tick, itemProcess.content1, itemProcess.action, itemProcess.content2, "", "", null, "");
+			return;
 		}
 	}
 }

@@ -310,10 +310,10 @@ public class ConnectionOMS extends ConnectionImpl{
 				NetworkInfo ni = arrInfo[i];
 				String sExtraInfo	= ni.getExtraInfo(); 
 				Util.Trace("isOMSAPNConnected sExtraInfo =" +sExtraInfo);
-				if ( sExtraInfo == null || ( "cmwap".equals(sExtraInfo) == false && "cmnet".equals(sExtraInfo) == false ) )
-				{
-					continue;
-				}
+//				if ( sExtraInfo == null || ( "cmwap".equals(sExtraInfo) == false && "cmnet".equals(sExtraInfo) == false ) )
+//				{
+//					continue;
+//				}
 
 				if(apnType == APN_TYPE_WAP)
 				{
@@ -419,6 +419,14 @@ public class ConnectionOMS extends ConnectionImpl{
 				cursor.close();
 			}
 		}
+		
+
+		if(apnType.equals("wap")&& apn1.equals("cmwap"))
+		{
+			Util.Trace("checkProxy return true");
+			return true;
+		}
+		
 		return false;
 	}
 

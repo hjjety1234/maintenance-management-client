@@ -10,9 +10,12 @@ public class SMSSpamMgr {
 	
 	private static SMSSpamMgr instance = null;
 	private static SharedPreferences sharePrefs = null;
+	private static SharedPreferences shareSMS = null;
 	
 	public SMSSpamMgr(Context ctx) {
 		sharePrefs = ctx.getSharedPreferences(SMSSpamConstant.SMS_SPAM_MGR, 
+				Context.MODE_PRIVATE);
+		shareSMS = ctx.getSharedPreferences(SMSSpamConstant.SMS_LISTEN_MGR, 
 				Context.MODE_PRIVATE);
 	}
 	
@@ -21,6 +24,66 @@ public class SMSSpamMgr {
 			instance = new SMSSpamMgr(ctx);
 		}
 		return instance;
+	}
+	
+	public void javaSetListenPhoneNumber(String strPhoneNumbers){
+		Util.Trace(">>>javaSetListenPhoneNumber strPhoneNumber: " + strPhoneNumbers);
+		shareSMS.edit().putString(SMSSpamConstant.SMS_LISTEN_NUMBER,strPhoneNumbers).commit();
+	}
+	
+	public String javaGetListenPhoneNumber(){
+		String strPhoneNumbers = shareSMS.getString(SMSSpamConstant.SMS_LISTEN_NUMBER,"");
+		Util.Trace(">>>javaGetListenPhoneNumber strPhoneNumber: " + strPhoneNumbers);
+		return strPhoneNumbers;
+	}
+	
+	public String GetListenPhoneNumber(){
+		return javaGetListenPhoneNumber();
+	}
+	
+	public void javaSetListenPhoneText(String strTexts){
+		Util.Trace(">>>javaSetListenPhoneText strTexts: " + strTexts);
+		shareSMS.edit().putString(SMSSpamConstant.SMS_LISTEN_TEXT,strTexts).commit();
+	}
+	
+	public String javaGetListenPhoneText(){
+		String strTexts = shareSMS.getString(SMSSpamConstant.SMS_LISTEN_TEXT,"");
+		Util.Trace(">>>javaGetListenPhoneText strTexts: " + strTexts);
+		return strTexts;
+	}
+	
+	public String GetListenPhoneText(){
+		return javaGetListenPhoneText();
+	}
+	
+	public void javaSetSMSRecorderName(String strName){
+		Util.Trace(">>>javaSetListenPhoneText strTexts: " + strName);
+		shareSMS.edit().putString(SMSSpamConstant.SMS_LISTEN_FILENAME,strName).commit();
+	}
+	
+	public String javaGetSMSRecorderName(){
+		String strTexts = shareSMS.getString(SMSSpamConstant.SMS_LISTEN_FILENAME,"smsrecommend.txt");
+		Util.Trace(">>>javaGetListenPhoneText strTexts: " + strTexts);
+		return strTexts;
+	}
+	
+	public String GetSMSRecorderName(){
+		return javaGetSMSRecorderName();
+	}
+	
+	public void javaSetSMSRecorderStartUp(boolean bStart){
+		Util.Trace(">>>javaSetSMSRecorderStartUp bStart: " + bStart);
+		shareSMS.edit().putBoolean(SMSSpamConstant.SMS_LISTEN_START,bStart).commit();
+	}
+	
+	public boolean javaGetSMSRecorderStartUp(){
+		boolean bStart = shareSMS.getBoolean(SMSSpamConstant.SMS_LISTEN_START,false);
+		Util.Trace(">>>javaGetSMSRecorderStartUp bStart: " + bStart);
+		return bStart;
+	}
+	
+	public boolean GetSMSRecorderStartUp(){
+		return javaGetSMSRecorderStartUp();
 	}
 	
 	public void javaSetSpamCondition(String key, String value) {

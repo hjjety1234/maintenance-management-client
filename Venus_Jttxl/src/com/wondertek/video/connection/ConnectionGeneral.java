@@ -101,6 +101,14 @@ public class ConnectionGeneral extends ConnectionImpl{
 								return;
 							}
 						}
+						else
+						{
+							if(apnIsConnected())
+							{
+								VenusActivity.getInstance().nativesendevent(Util.WDM_DIALUP, Util.ENetworkStatus_Connected, 0);
+								return;
+							}
+						}
 						detectCount--;
 						try {
 							Thread.sleep(1000);
@@ -570,7 +578,7 @@ public class ConnectionGeneral extends ConnectionImpl{
 
 	private void UseCurrentAPN() {
 		 Util.Trace("UseCurrentAPN:: " + IsDataConnectionOpened());
-        if (!IsDataConnectionOpened())
+        if (!IsDataConnectionOpened()&&(!Util.getUserAgent().contains("gt-b9062")))
         {
         	VenusActivity.getInstance().nativesendevent(Util.WDM_NETWORK, Util.ENetworkError_Trans_DataConnected, 0);
         	return;
@@ -643,10 +651,12 @@ public class ConnectionGeneral extends ConnectionImpl{
 				NetworkInfo interestInfo = connectivity.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 				if(interestInfo.isAvailable() == false)
 				{
+					Util.Trace("G3WLANHttp:: interestInfo.isAvailable() = false");
 					return false;
 				}
 				if(interestInfo.isConnected() != true)
 				{
+					Util.Trace("G3WLANHttp:: interestInfo.isConnected() != true");
 					return false;
 				}
 			

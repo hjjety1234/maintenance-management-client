@@ -11,7 +11,7 @@ public interface ILuaContent {
 	 * @param args 			json格式参数表
 	 * @return 				返回执行函数的一个LuaResult类型数据结果
 	 */
-	public LuaResult execute(String action, JSONArray args);
+	public LuaResult execute(String action, JSONArray args, String callbackId);
 	
 	/**
 	 * 声明某些函数为异步调用接口

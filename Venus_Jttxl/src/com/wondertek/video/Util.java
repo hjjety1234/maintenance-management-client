@@ -70,6 +70,8 @@ public class Util {
 	public final static int  WDM_GestureBegin =   0x000f;
 	public final static int  WDM_GestureMove  =   0x0010;
 	public final static int  WDM_GestureEnd   =   0x0011;
+	public final static int  WDM_TOUCH        =	  0x0012;
+	public final static int  WDM_CLICKPUSHMSG =   0x0013;
 
    //Custom SysEvent
 	public final static int  WDM_SYSPAUSE     =   0x0100;

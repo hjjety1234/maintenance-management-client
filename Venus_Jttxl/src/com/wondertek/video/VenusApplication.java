@@ -363,12 +363,19 @@ public class VenusApplication  extends Application {
 		}
 		return s;
 	}
-	public static final int MSG_ID_BOOT_APPACTIVITY			= 0;
-	public static final int MSG_ID_RECEIVE_MESSAGE			= 1;
+	public static final int MSG_ID_BOOT_APPACTIVITY						= 0;
+	public static final int MSG_ID_RECEIVE_RECOMMEND_MESSAGE			= 1;
+	public static final int MSG_ID_RECEIVE_WIDGETSNOTIFY				= 2;
+	public static final int MSG_ID_RECEIVE_NOTIFICATION_NEWS_NOTIFY		= 3;
+	public static final int MSG_ID_RECEIVE_NOTIFICATION_CUSTOM_MESSAGE	= 4;
+	public static final int MSG_ID_RECEIVE_MESSAGE						= 5;
+	public static final int MSG_ID_RECEIVE_APPOINTMENT					= 6;
+	public static final int MSG_ID_RECEIVE_COMMUNITY					= 7;
+	public static final int MSG_ID_RECEIVE_SMS_MESSAGE					= 8;
 
 	public static Handler applicationHandler = new Handler(){
 		public void handleMessage(Message message) {
-			Util.Trace("applicationHandler::handleMessage " );
+			Util.Trace("applicationHandler::handleMessage message.what =" + message.what );
 			switch(message.what)
 			{
 			case MSG_ID_BOOT_APPACTIVITY :
@@ -380,7 +387,7 @@ public class VenusApplication  extends Application {
 					int height = message.getData().getInt("Height");
 					int orientation = message.getData().getInt("orientation");
 					VenusActivity.SetFakeScreen(width,height,orientation);
-					startAppActivity(false);
+					startAppActivity(0);
 				}
 				break;
 			case MSG_ID_RECEIVE_MESSAGE :
@@ -388,11 +395,25 @@ public class VenusApplication  extends Application {
 				if(VenusApplication.bAppActivityIsRunning)
 				{
 					VenusActivity.nativesendsmsevent();
-					startAppActivity(false);
+					startAppActivity(0);
 				}
 				else
 				{
 					startAppFakeActivity();
+				}
+				break;
+			}
+			case MSG_ID_RECEIVE_SMS_MESSAGE:
+			{
+				Util.Trace("applicationHandler::handleMessage VenusApplication.bAppActivityIsRunning" + VenusApplication.bAppActivityIsRunning );
+				if(VenusApplication.bAppActivityIsRunning)
+				{
+					VenusActivity.getInstance().nativesendevent(Util.WDM_SMS, MSG_ID_RECEIVE_SMS_MESSAGE, 0);
+				}
+				else
+				{
+					if(message.getData().getBoolean("SMS_STARTUP"))
+						startAppFakeActivity();
 				}
 				break;
 			}
@@ -402,10 +423,10 @@ public class VenusApplication  extends Application {
 		}
 	};
 
-	public static void startAppActivity(boolean passiveStart)
+	public static void startAppActivity(int passiveStart)
 	{
 		Util.Trace("VenusApplication:: start " + activityPackage + ".AppActivity");
-		appPassiveStart = passiveStart== true ? 1 : 0;
+		appPassiveStart = passiveStart;
 		
 		if(VenusApplication.bAppActivityIsRunning)
 		{

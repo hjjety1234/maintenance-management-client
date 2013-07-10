@@ -9,7 +9,7 @@ public class LuaResult {
 	
 	public LuaResult(Status status) {
 		this.status = status.ordinal();
-		this.message = "'" + LuaResult.StatusMessages[this.status] + "'";
+		this.message = "" + LuaResult.StatusMessages[this.status] + "";
 	}
 	
 	public LuaResult(Status status, String message) {
@@ -52,7 +52,7 @@ public class LuaResult {
 	
 	
 	public String getJSONString() {
-		return "{status:" + this.status + ",message:" + this.message + "}";
+		return "{\"status\":\"" + this.status + "\",\"message\":" + this.message + "}";
 	}
 	
 	public static String[] StatusMessages = new String[] {

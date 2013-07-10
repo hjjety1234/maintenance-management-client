@@ -1,10 +1,14 @@
 package com.wondertek.video.camera;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Environment;
@@ -22,6 +26,7 @@ public class CameraObserver {
 
 	public Camera camera;
 	private Bitmap cameraBitmap;
+	public boolean bFlag = false;
 	
 	public String strPhotoPath;
 	public String strPhotoName;
@@ -98,14 +103,13 @@ public class CameraObserver {
 		
 		
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		
-		File f = new File(dir,this.strPhotoName);
-		
-		Uri u = Uri.fromFile(f);
-		
-		intent.putExtra(MediaStore.Images.Media.ORIENTATION, 0);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, u);
-		
+		if(bFlag)
+		{
+			File f = new File(dir,this.strPhotoName);
+			Uri u = Uri.fromFile(f);
+			intent.putExtra(MediaStore.Images.Media.ORIENTATION, 0);
+			intent.putExtra(MediaStore.EXTRA_OUTPUT, u);
+		}
 		VenusActivity.appActivity.startActivityForResult(intent, VenusActivity.CAMERA_RESULT);
 	}
 	 
@@ -127,10 +131,75 @@ public class CameraObserver {
 	public native void nativecamerareturn(String strPhotoPath, String strPhotoName, long photoSize, int photoType, String photoCreateTime);
 	public void callback() {
 		// TODO Auto-generated method stub
+		Bitmap bimap = checkMaxImage(this.strPhotoPath+this.strPhotoName);
+		if(bimap!=null)
+		{
+			disposeImage(bimap, 0,this.strPhotoPath+ "temp" +this.strPhotoName);
+			this.strPhotoName = "temp" +this.strPhotoName;
+		}
 		File dir=new File(this.strPhotoPath+this.strPhotoName);
 		if(dir.exists())
 			nativecamerareturn(this.strPhotoPath,this.strPhotoName,(long)0,this.photoType,this.photoCreateTime);
 	}
 	
+	public void callback(String strPath,int orientation)
+	{
+		if(!strPath.trim().equals(""))
+		{
+			disposeImage(strPath, orientation,this.strPhotoPath+this.strPhotoName);
+			File dir=new File(this.strPhotoPath+this.strPhotoName);
+			if(dir.exists())
+				nativecamerareturn(this.strPhotoPath,this.strPhotoName,(long)0,this.photoType,this.photoCreateTime);
+		}
+	}
+
+	public void callback(Bitmap bitmap) {
+		// TODO Auto-generated method stub
+		try {
+			FileOutputStream out = new FileOutputStream(this.strPhotoPath+this.strPhotoName);
+			bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+			bFlag = true;
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		File dir=new File(this.strPhotoPath+this.strPhotoName);
+		if(dir.exists())
+			nativecamerareturn(this.strPhotoPath,this.strPhotoName,(long)0,this.photoType,this.photoCreateTime);
+	}
 	
+	public Bitmap checkMaxImage(String srcPath)
+	{
+		Bitmap bitmap = BitmapFactory.decodeFile(srcPath);
+		if(bitmap.getWidth()>1024||bitmap.getHeight()>1024)
+			return bitmap;
+		return null;
+	}
+	
+	public void disposeImage(Bitmap bitmap,int orientation, String decPath)
+	{
+		Matrix matrix = new Matrix();
+		int max = bitmap.getWidth()>bitmap.getHeight()?bitmap.getWidth():bitmap.getHeight();
+		float fScale = (float) (1000.0/max);
+		if(fScale>1.0 && fScale <= 0.0001)
+		{
+			fScale = 1;
+		}
+		matrix.postScale(fScale, fScale);
+		matrix.postRotate(orientation);
+		bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+		try {
+			FileOutputStream out = new FileOutputStream(decPath);
+			bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void disposeImage(String srcPath,int orientation, String decPath)
+	{
+		Bitmap bitmap = BitmapFactory.decodeFile(srcPath);
+		disposeImage(bitmap,orientation,decPath);
+	}
 }

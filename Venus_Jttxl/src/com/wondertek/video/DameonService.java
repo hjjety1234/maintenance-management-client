@@ -230,7 +230,7 @@ public class DameonService extends Service {
 	
 	public static void showNotification(String tickerText, String contentTitle, String contentText, String resptext)
 	{
-		Intent intent = new Intent("com.wondertek.mobilevideo3.appointmentclick");
+		Intent intent = new Intent("com.wondertek.ahyd.appointmentclick"); //add pj
 		intent.putExtra("RESPTEXT", resptext);
 
 		PendingIntent pIntent = PendingIntent.getBroadcast(VenusApplication.getInstance().getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);

@@ -26,7 +26,7 @@ public class DameonReceiver extends BroadcastReceiver {
 			Intent Intent = new Intent(context, DameonService.class);
 			context.startService(Intent);
 		}
-		else if(intent.getAction().equals("com.wondertek.mobilevideo3.appointmentclick"))
+		else if(intent.getAction().equals("com.wondertek.ahyd.appointmentclick")) //add pj
 		{
 			final String resp = intent.getStringExtra("RESPTEXT");
 			writeToFile(resp);

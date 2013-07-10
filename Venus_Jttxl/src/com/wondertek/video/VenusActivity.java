@@ -22,6 +22,9 @@ import java.io.LineNumberReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 //import java.io.RandomAccessFile;
 //import java.io.InputStream;
 //import java.net.HttpURLConnection;
@@ -35,6 +38,7 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +53,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.util.InetAddressUtils;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 
@@ -156,6 +161,7 @@ import com.wondertek.video.monitor.MonitorManager;
 import com.wondertek.video.monitor.MonitorScreen;
 import com.wondertek.video.msgpush.MsgPushManager;
 import com.wondertek.video.msgpush.mqtt.MsgBomb;
+import com.wondertek.video.notification.CNotificationCustom;
 // import com.wondertek.video.phonegap.PhonegapObserver;
 //add pj
 // import com.wondertek.video.sangforvpn.SangforvpnPlugin;
@@ -238,7 +244,10 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	private int g_player_handle = 0;
 
-	private static int update_frequency = 40;
+	private static int update_frequency_fast = 20;
+	private static int update_frequency_slow = 20;
+	public int update_fast = 0;
+	public static int update_fastest = 150; 
 
 	public static String mActivityFullName = "";
 
@@ -349,6 +358,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public static final int CAMERA_RESULT = 100;
 	public static final int CALL_RESULT = 101;
 	public static final int REQUEST_PICKER_ALBUM = 102;
+	public static final int REQUESTCODE_BESTPAY = 103;
 	
 	public static long tolRxTraffic = -1;
 	public static long tolTxTraffic = -1;
@@ -418,14 +428,27 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			if(msg.what == VenusActivity.GUIUPDATEIDENTIFIER)
 			{
 				long delay = System.currentTimeMillis();
+				long update_frequency = update_frequency_slow;
+		//		if (update_fast > 0) {
+		//			update_frequency = update_frequency_fast;
+		//			update_fast--;
+		//		}
 				nativetimeslice();
 				delay = System.currentTimeMillis() - delay;
-				delay = (delay>=update_frequency) ?  1 : update_frequency - delay;
+				delay = (delay<0 || delay>=update_frequency) ?  1 : update_frequency - delay;
 				refashHandler.sendEmptyMessageDelayed(VenusActivity.GUIUPDATEIDENTIFIER, delay);
 			}
 		}
 	};
 
+	public void java_Flip()
+	{
+		if(venusview!=null)
+		{
+			venusview.eglSwap();
+		}
+	}
+	
 	public void onPreInit()
 	{
 		//TODO
@@ -520,7 +543,6 @@ public class VenusActivity implements SurfaceHolder.Callback {
 					Edit_textone.clearFocus();
 					Edit_inputone.hideSoftInputFromWindow(Edit_textone.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 					Edit_viewone.setVisibility(View.GONE);
-					maxCounts = 256;
 					bmultiLines = false;
 				}
 				else
@@ -1214,16 +1236,14 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				appActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 			else
 				appActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			//add pj
-			venusview.setVisibility(View.VISIBLE);
+			//venusview.setVisibility(View.VISIBLE);
 			nativesendevent(Util.WDM_SYSRESUME, 0, 0);
 			SystemConnectionManager.getInstance().PostEvent(ConnectionImpl.EVENT_ID_SYSTEM_RESUME, null);
 			WifiObserver.getInstance(this).dealWithWLan(Util.WDM_SYSRESUME);
 			AppManager.getInstance(this).dealWithAppManager(Util.WDM_SYSRESUME);
 			PhoneObserver.getInstance().enablePhoneStateListener(PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 			//            mapPluginMgr.start();
-            //add pj
-			sendredraw();
+            //sendredraw();
 			//MsgPush
             //add PJ
 			if (msgPushMgr != null) {
@@ -1258,20 +1278,20 @@ public class VenusActivity implements SurfaceHolder.Callback {
 			System.exit(0);
 		}
 	}
-    //add pj
-	private boolean redrawall = true;
-	public void sendredraw()
-	{
-		{
-			if( VenusViewHolder!= null)
-			{
-				redrawall = false;
-				nativeupdatemaincanvas(VenusViewHolder.getSurface(), Build.VERSION.SDK_INT);
-			}
-			else
-				redrawall = true;
-		}
-	}
+
+	//private boolean redrawall = true;
+	//public void sendredraw()
+	//{
+	//	{
+	//		if( VenusViewHolder!= null)
+	//		{
+	//			redrawall = false;
+	//			nativeupdatemaincanvas(VenusViewHolder.getSurface(), Build.VERSION.SDK_INT);
+	//		}
+	//		else
+	//			redrawall = true;
+	//	}
+	//}
 	
 	public boolean javaInstallApp(String apkPath)
 	{
@@ -1344,6 +1364,14 @@ public class VenusActivity implements SurfaceHolder.Callback {
 
 	public boolean javaShareWebByWX(String url, String title, String imagePath, String desc, boolean isFriendCircle) {
 		return AppManager.getInstance(this).shareWebByWX(url, title, imagePath, desc, isFriendCircle);
+	}
+	
+	public void javaCreateInnerShortcut(String shortCutName, String iconPath, String uri) {
+		AppManager.getInstance(this).createInnerShortCut(shortCutName, iconPath, uri);
+	}
+	
+	public void javaRemoveInnerShortcut(String shortCutName) {
+		AppManager.getInstance(this).removeInnerShortcut(shortCutName);
 	}
 
 	public boolean javaOpenFileByApplication(String fileType, String filePath) {
@@ -1842,7 +1870,9 @@ public class VenusActivity implements SurfaceHolder.Callback {
 	public static native void nativesendsmsevent();
 
 	public native void nativeupdatemaincanvas(Surface surface,int sdkint);
-
+    public native void nativeEglOnCreateSurface();
+    public native void nativeEglOnDestroySurface();
+    
 	public native void nativebrowserreturn(String strUrl, int uType);
 
 	//public native void nativeadmobviewreturn(int uType);
@@ -2235,7 +2265,7 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		m_height = height;
 		if(type == 0)
 		{
-			this.maxCounts = 15;
+			this.maxCounts = 256;
 			this.bmultiLines = false;
 			nativeneweditreturn(Edit_textone.getText().toString(), 0, false);
 			msg.what = MSG_ID_EDIT;
@@ -3934,6 +3964,32 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		Util.OpenSettingForType(strType);
 	}
 	
+	public String javaGetLocalHostIP() {
+		String ipaddress = "";
+		try {
+			Enumeration<NetworkInterface> en = NetworkInterface
+					.getNetworkInterfaces();
+
+			while (en.hasMoreElements()) {
+				NetworkInterface nif = en.nextElement();
+				Enumeration<InetAddress> inet = nif.getInetAddresses();
+				while (inet.hasMoreElements()) {
+					InetAddress ip = inet.nextElement();
+					if (!ip.isLoopbackAddress()
+							&& InetAddressUtils.isIPv4Address(ip
+									.getHostAddress())) {
+						ipaddress = ip.getHostAddress();
+					}
+				}
+
+			}
+		} catch (SocketException e) {
+			// Log.e("feige", "Get LocalHostIP Failed");
+			e.printStackTrace();
+		}
+		return ipaddress;
+	}
+	
 	public void onSaveInstanceState(Bundle outState) {
 		// TODO Auto-generated method stub
 		Util.Trace("onSaveInstanceState");
@@ -3942,42 +3998,44 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		outState.putInt(FAKE_ORIENTATION, fakeScreenorientation);
 	}
 	
-	public static String getGroupId(String contactId) {
-		String groupId = "";
-		Cursor dataCursor = appActivity
-				.getContentResolver()
-				.query(ContactsContract.Data.CONTENT_URI,
-						new String[] { ContactsContract.Data.CONTACT_ID,
-								ContactsContract.Data.DATA1 },
-						ContactsContract.Data.MIMETYPE + "=? and "
-								+ ContactsContract.Data.CONTACT_ID + "=?",
-						new String[] {
-								ContactsContract.CommonDataKinds.GroupMembership.CONTENT_ITEM_TYPE,
-								contactId }, null);
-		if (dataCursor.getCount() > 0) {
-			dataCursor.moveToFirst();
-			groupId = dataCursor.getString(dataCursor
-					.getColumnIndex(ContactsContract.Data.DATA1));
-		} 
-		dataCursor.close();
-		return groupId;
-	}
-	
-	public static String getGroupName(String groupId) {
-		String groupName = "";
-		Cursor groupCursor = appActivity
-				.getContentResolver()
-				.query(ContactsContract.Groups.CONTENT_URI,
-						new String[] { ContactsContract.Groups._ID,
-								ContactsContract.Groups.TITLE },
-						ContactsContract.Groups._ID + "=?",
-						new String[] { groupId }, null);
-		if (groupCursor.getCount() > 0) {
-			groupCursor.moveToFirst();
-			groupName = groupCursor.getString(groupCursor
-					.getColumnIndex(ContactsContract.Groups.TITLE));
-		} 
-		groupCursor.close();
-		return groupName;
+	 public static void javaSetNotificationFunction(
+			int nNotificationID,
+			int nNotificatioinType,
+			int nProcess,
+			int enableSound,
+			int enableVibrate,
+			int enableDelete,
+			int clickHide,
+			String tick,
+			String strContent,
+			String strURL,
+			String strContentSecond,
+			String packetName,
+			String startParam,
+			String iconFile,
+			String strEvent)
+	{	
+		CNotificationCustom.getInstance().setStartInfo(packetName, startParam);
+		if ( enableDelete != 0 )
+		{
+			CNotificationCustom.getInstance().DeleteNotification(nNotificationID);
+			return;
+		}
+		
+		if ( nNotificatioinType == 0 )
+		{	// text
+			CNotificationCustom.getInstance().ShowNotificationText(nNotificationID, tick, strContent, 
+					strURL, iconFile, enableSound, enableVibrate, clickHide, strEvent);
+		}
+		else if ( nNotificatioinType == 1 )
+		{
+			CNotificationCustom.getInstance().showNotificationProcess(nNotificationID, tick, strContent, 
+					strURL, nProcess, iconFile, enableSound, enableVibrate, clickHide);
+		}
+		else if ( nNotificatioinType == 2 )
+		{
+			CNotificationCustom.getInstance().ShowNotificationStandardText(nNotificationID, tick, strContent, 
+					strURL, iconFile, enableSound, enableVibrate, clickHide, strContentSecond, strEvent);
+		}
 	}
 }

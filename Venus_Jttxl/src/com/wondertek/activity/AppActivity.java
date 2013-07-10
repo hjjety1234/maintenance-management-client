@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -130,7 +131,31 @@ public class AppActivity extends Activity{
 		{
 			if(requestCode == VenusActivity.CAMERA_RESULT)
 			{
-				VenusActivity.getInstance().cameraObserver.callback();
+				if(data!=null)
+				{
+					Uri imgUri = data.getData();
+					if(imgUri!=null)
+					{
+						String[] proj = { MediaStore.Images.Media.DATA,MediaStore.Images.Media.ORIENTATION };
+						Cursor cursor = VenusActivity.appActivity.getContentResolver().query(imgUri, proj, null, null, null);
+						if (cursor != null && cursor.moveToFirst()) {
+							String imgPath = cursor.getString(0);
+							String orientation = cursor.getString(1);
+							VenusActivity.getInstance().cameraObserver.callback(imgPath,Integer.parseInt(orientation));
+						}
+					}
+					else{
+						Bundle bundle = data.getExtras();
+						Bitmap bitmap = (Bitmap) bundle.get("data");
+						if(bitmap!=null){
+							VenusActivity.getInstance().cameraObserver.callback(bitmap);
+						}
+					}
+				}
+				else
+				{
+					VenusActivity.getInstance().cameraObserver.callback();
+				}
 			}
 			else if(requestCode == VenusActivity.CALL_RESULT)
 			{
@@ -151,6 +176,11 @@ public class AppActivity extends Activity{
 			           }
 		            }
 
+			}
+			else if(requestCode == VenusActivity.REQUESTCODE_BESTPAY)
+			{
+				//for plugin Bestpay
+				//Bestpay.onActivityResult(requestCode, resultCode, data);
 			}
 		}
 	}
