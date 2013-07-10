@@ -80,6 +80,8 @@ Alias = {
     m_stdEditInfo = 'MODULE:\\com_wondertek_tx\\m_stdEditInfo.wdml', -- 个人信息编辑
 
     m_update = 'MODULE:\\com_wondertek_tx\\m_update.wdml', -- 入口页
+
+    m_main = 'MODULE:\\com_wondertek_tx\\m_main.wdml', -- 带有滑动效果的主页
     
     --url_server = 'http://120.209.138.173:8080/'     --测试服务器地址
 
