@@ -67,7 +67,7 @@ local g_handle3 = nil
 local g_subPages = {
     Alias.m_recentContacter,   
     Alias.m_renyuantongji,
-    Alias.m_myInfo,
+    Alias.m_stdMyInfo,
     Alias.m_system,
 }
 
@@ -146,16 +146,17 @@ function panoramaItemOnSelect(sprite)
     Sprite:setProperty(g_menuTable[index+1][2], 'src', 
         'file://image/book/' .. g_menuTable[index+1][1] .. 's.png')
     -- 激活当前页
-    if index == 0 then 
+    if index == 0 and g_pageVisited[index + 1] == 0 then 
         Sprite:sendEvent(g_handle0, MSG_ACTIVATE)
-    elseif index == 1 then 
+    elseif index == 1 and g_pageVisited[index + 1] == 0 then 
         Sprite:sendEvent(g_handle1, MSG_ACTIVATE)
-    elseif index == 2 then 
+    elseif index == 2 and g_pageVisited[index + 1] == 0 then 
         Sprite:sendEvent(g_handle2, MSG_ACTIVATE)
-    elseif index == 3 then 
+    elseif index == 3 and g_pageVisited[index + 1] == 0 then 
         Sprite:sendEvent(g_handle3, MSG_ACTIVATE)
     end
     -- 去激活上一个页面
+    --[[
     if g_lastIndex == 0 and g_pageVisited[index + 1] == 0 then 
         Sprite:sendEvent(g_handle0, MSG_DEACTIVATE)
     elseif g_lastIndex == 1 and g_pageVisited[index + 1] == 0 then 
@@ -165,6 +166,7 @@ function panoramaItemOnSelect(sprite)
     elseif g_lastIndex == 3 and g_pageVisited[index + 1] == 0 then
         Sprite:sendEvent(g_handle3, MSG_DEACTIVATE)
     end 
+    --]]
     g_pageVisited[index + 1] = 1
     -- 保存上一个页面
     g_lastPage = index
@@ -190,7 +192,7 @@ function selectPage(index)
     local curIndex = Panorama:getCurItem(g_panoramaNode)
     Log:write("页面跳转，当前页为:"..curIndex..", 目标页为："..index)
     if curIndex ~= index then 
-        Panorama:setCurItem(g_panoramaNode, index)
+        Panorama:setCurItem(g_panoramaNode, index, false)
     end
 end
 
