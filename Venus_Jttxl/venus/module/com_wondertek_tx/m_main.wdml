@@ -71,6 +71,8 @@ local g_subPages = {
     Alias.m_system,
 }
 
+local g_pageVisited  = {0, 0, 0, 0}
+
 ---------------------------------------callbacks--------------------------------
 -- @brief root节点消息方法
 function bodyPreBuildChildren()
@@ -154,15 +156,16 @@ function panoramaItemOnSelect(sprite)
         Sprite:sendEvent(g_handle3, MSG_ACTIVATE)
     end
     -- 去激活上一个页面
-    if g_lastIndex == 0 then 
+    if g_lastIndex == 0 and g_pageVisited[index + 1] == 0 then 
         Sprite:sendEvent(g_handle0, MSG_DEACTIVATE)
-    elseif g_lastIndex == 1 then 
+    elseif g_lastIndex == 1 and g_pageVisited[index + 1] == 0 then 
         Sprite:sendEvent(g_handle1, MSG_DEACTIVATE)
-    elseif g_lastIndex == 2 then 
+    elseif g_lastIndex == 2 and g_pageVisited[index + 1] == 0 then 
         Sprite:sendEvent(g_handle2, MSG_DEACTIVATE)
-    elseif g_lastIndex == 3 then
+    elseif g_lastIndex == 3 and g_pageVisited[index + 1] == 0 then
         Sprite:sendEvent(g_handle3, MSG_DEACTIVATE)
     end 
+    g_pageVisited[index + 1] = 1
     -- 保存上一个页面
     g_lastPage = index
 end
