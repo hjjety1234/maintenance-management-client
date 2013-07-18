@@ -325,13 +325,19 @@ function indexitemOnSelect(sprite)
 end
 
 function fistdeptBtnSelect(sprite)
+    if currentCompanyId == nil then
+        currentCompanyId = ''
+    end
     Log:write('====fistdeptBtnSelect=='..par_department_id)
     Scene:setReturn(Alias.m_zuzhijiegou, Alias.m_lianxirenlist)
-    Scene:go(Alias.m_lianxirenlist.."?department_id="..par_department_id.."&parent_departmentname="..par_department_name, true)
+    Scene:go(Alias.m_lianxirenlist.."?department_id="..par_department_id.."&parent_departmentname="..par_department_name..'&currentCompanyId='..currentCompanyId, true)
 end
 
 function itemOnSelect(sprite)
     Log:write('====itemOnSelect==')
+    if currentCompanyId == nil then
+        currentCompanyId = ''
+    end
     local index = ListView:getItemIndex(sprite)
     local listItemLabel = Sprite:findChild(sprite, 'listButtonLabel')
     local deptname = Sprite:getText(listItemLabel)
@@ -341,10 +347,10 @@ function itemOnSelect(sprite)
     Log:write('====itemOnSelect..deptid=='..deptid..'==childcout=='..childcout)
     if tonumber(childcout) == 0 then
         Scene:setReturn(Alias.m_zuzhijiegou, Alias.m_lianxirenlist)
-        Scene:go(Alias.m_lianxirenlist.."?department_id="..deptid.."&parent_departmentname="..deptname, true)
+        Scene:go(Alias.m_lianxirenlist.."?department_id="..deptid.."&parent_departmentname="..deptname..'&currentCompanyId='..currentCompanyId, true)
     else
         Scene:setReturn(Alias.m_zuzhijiegou, Alias.m_zuzhijiegou)
-        Scene:go(Alias.m_zuzhijiegou.."?departmentid="..deptid.."&departmentname="..deptname, true)
+        Scene:go(Alias.m_zuzhijiegou.."?departmentid="..deptid.."&departmentname="..deptname..'&currentCompanyId='..currentCompanyId, true)
     end
 end
 

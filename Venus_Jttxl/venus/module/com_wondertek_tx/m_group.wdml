@@ -247,8 +247,6 @@ function initGroupEmployeeData(data)
         local bRet, errMsg = Sqlite:open(databaseName)
         Log:write("创建数据库jttxlDatabase结果:bRet = "..bRet.." errMsg ="..errMsg)
     end
-    --"select employee_id,mobile,tel,home_telephone,mobile_short,tel_short from tb_c_employee where='"
-    --"select employee_id,employee_name,employee_firstword,employee_fullword from tb_c_employee where='"
     local print = true
     for i=0,#data do
         local home_telephone = ((data[i].home_telephone==nil and '') or data[i].home_telephone)
@@ -412,9 +410,8 @@ function queryGroupData()
         databaseName = Config:get('databaseName')
         local bRet, errMsg = Sqlite:open(databaseName)
     Log:write("创建数据库jttxlDatabase结果:bRet = "..bRet.." errMsg ="..errMsg)
-    end
-    
-    local queryGroup = "select company_id,company_name,status,org_flag from tb_c_company order by org_flag desc"
+    end  
+    local queryGroup = "select company_id,company_name,status,org_flag from tb_c_company order by org_flag desc,company_name desc;"
     local  bRet2, data, errMsg2 = Sqlite:query(databaseName, queryGroup)
     groupDatas = data
     showData = {}
@@ -430,26 +427,27 @@ function initTitleData()
         localContacts = {[2]="本机通讯录",[4]="-1"}
     end
     local group
-    local special
+    local special = {}
     for i=1,#groupDatas do
         group = groupDatas[i]
         if group[3] == '1' then
             table.insert(showData,group)
             if group[4] == '1' then
-                special = group
+                table.insert(special,group)
             end
         end
     end
-     if localContacts ~= nil then
+    if localContacts ~= nil then
         if special == nil then
             table.insert(showData,1,localContacts)
-        else
+        elseif #special == 1 then
             table.insert(showData,2,localContacts)
+        elseif #special == 2 then
+            table.insert(showData,3,localContacts)
         end
-     end
-    
-     companyGroup = special
-     localGroup = localContacts
+    end
+    companyGroup = special
+    localGroup = localContacts
 end
 function revertTopIcon()
     local leftBtn = Sprite:findChild(rootSprite, 'left')
@@ -460,7 +458,6 @@ function revertTopIcon()
     Sprite:setProperty(rightBtn, 'src', 'file://image/jttxl/local_menu_c2.png')
 end
 function showTitleData(company_name)
-    --27,0,213,62|240,0,214,62
     if company_name == nil and companyGroup ~= nil then
         company_name = companyGroup[2]
     end
@@ -472,6 +469,11 @@ function showTitleData(company_name)
     local centerLabel = Sprite:findChild(rootSprite, 'centerLabel')
     local rightLabel = Sprite:findChild(rootSprite, 'rightLabel')
     local showMore = Sprite:findChild(rootSprite, 'showMoreBtn')
+    -- 初始化默认Tab 图片
+    Sprite:setProperty(leftBtn, 'src', 'file://image/jttxl/local_menu_a2.png')
+    Sprite:setProperty(centerBtn, 'src', 'file://image/jttxl/local_menu_b2.png')
+    Sprite:setProperty(rightBtn, 'src', 'file://image/jttxl/local_menu_c2.png')
+
     Sprite:setVisible(showMore, 0)
     Sprite:setEnable(showMore, 0)
     if more_name ~= '' then
@@ -489,7 +491,6 @@ function showTitleData(company_name)
         Sprite:setEnable(centerBtn, 0)
         Sprite:setVisible(rightBtn, 0)
         Sprite:setEnable(rightBtn, 0)
-        --Sprite:setProperty(title, 'text', showData[1][2])
         local searchNode = Sprite:findChild(rootSprite, 'searchNode')
         local sx,sy,sw,sh = Sprite:getRect(searchNode)
         Sprite:setRect(searchNode, sx, sy-62, sw, sh)
@@ -588,7 +589,7 @@ function groupOnSelect(sprite)
     lastClick = sprite
     if data[2] ~= Sprite:getText(Sprite:findChild(rootSprite, 'title')) then
         if data[4] == '1' then
-             Scene:go(Alias.m_renyuantongji,true)
+             Scene:go(Alias.m_renyuantongji..'?judgeFlag=2&compId='..data[1]..'&compName='..data[2],true)
         elseif data[4] == '-1' then
              Scene:go(Alias.m_local,true)
         elseif data[4] == '0' then
@@ -708,7 +709,6 @@ function doSearch(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
-    Scene:setReturn(Alias.m_local, Alias.m_recentContacter)
     Scene:go(Alias.m_recentContacter, true)
 end
 
@@ -718,7 +718,6 @@ function doContact(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
-    Scene:setReturn(Alias.m_local, Alias.m_renyuantongji)
     Scene:go(Alias.m_renyuantongji, true)
     --Log:write("已在联系人列表界面，点击不做任何操作！")
 end
@@ -729,7 +728,6 @@ function doPersonalCenter(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')   
-    Scene:setReturn(Alias.m_local, Alias.m_stdMyInfo)
     Scene:go(Alias.m_stdMyInfo, true)
 end
 
@@ -739,7 +737,6 @@ function doSetting(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/zuijinglianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png') 
-    Scene:setReturn(Alias.m_local, Alias.m_system)
     Scene:go(Alias.m_system, true)
 end
 

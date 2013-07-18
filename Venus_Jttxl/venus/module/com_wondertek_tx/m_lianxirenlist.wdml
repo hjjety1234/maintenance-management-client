@@ -11,7 +11,7 @@
  == ============================================================================
 -->
 <root>
-    <header/>
+    <header/>   
     <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
         <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
             <!-- 设置背景 -->
@@ -144,6 +144,7 @@ local newNode
 local databaseName
 local len
 local list
+local reg
 local bRet, errMsg, retUserTable, retCountTable
 local departmentname1
 ---------------------------------------callbacks--------------------------------
@@ -153,6 +154,7 @@ function bodyBuildChildrenFinished(sprite)
     list = Sprite:findChild(rootSprite, 'sampleList')
     newNode = Sprite:findChild(rootSprite, 'newNode')
     Log:write("部门编号：",department_id)  
+    reg = Reg:create('group_data')
 end
 
 -- @brief root节点消息方法
@@ -188,32 +190,7 @@ end
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-		-- Scene:back()
-       local sql1 = "select department_id, department_name from tb_c_department where department_id = "..
-            "(select parent_department_id  from tb_c_department where department_id = '"..department_id.."');"
-        Log:write("==查询上级组织结构=="..sql1)
-        local  bRet1, retDeptTable1, errMsg1 = Sqlite:query(Config:get('databaseName'), sql1)
-        Log:write("查询数据库表成功1:bRet = "..bRet1.." errMsg ="..errMsg1.." 查询结果retDeptTable1 =", retDeptTable1)
-        local sql2 = "select count(*) from tb_c_department where parent_department_id = '"..department_id.."' ;"
-        Log:write("==查询上级组织结构=="..sql2)
-        local  bRet2, retDeptTable2, errMsg2 = Sqlite:query(Config:get('databaseName'), sql2)
-        Log:write("查询数据库表成功1:bRet = "..bRet2.." errMsg ="..errMsg2.." 查询结果retDeptTable1 =", retDeptTable2)
-
-        local sql3 = "select parent_department_id from tb_c_department where department_id = '"..department_id.."' ;"
-        Log:write("==查询上级组织结构=="..sql3)
-        local  bRet3, retDeptTable3, errMsg3 = Sqlite:query(Config:get('databaseName'), sql3)
-        Log:write("查询数据库表成功1:bRet = "..bRet3.." errMsg ="..errMsg3.." 查询结果retDeptTable1 =", retDeptTable3)
-        
-        local bRet = Sqlite:close('jttxlDatabase')
-        Log:write("数据库关闭："..bRet)
-        if  tonumber(retDeptTable3[1][1]) == 0 then
-            Scene:go(Alias.m_renyuantongji, true)
-        end
-        if tonumber(retDeptTable2[1][1]) > 0 then
-              Scene:go(Alias.m_zuzhijiegou.."?departmentid="..department_id.."&departmentname="..departmentname1, true)
-        else
-              Scene:go(Alias.m_zuzhijiegou.."?departmentid="..retDeptTable1[1][1].."&departmentname="..retDeptTable1[1][2], true)
-        end
+		doBack()
         return 1
     end
 end
@@ -222,7 +199,6 @@ end
 
 -- 返回
 function doBack()
-    -- Scene:back()
         local sql1 = "select department_id, department_name from tb_c_department where department_id = "..
             "(select parent_department_id  from tb_c_department where department_id = '"..department_id.."');"
         Log:write("==查询上级组织结构=="..sql1)
@@ -241,7 +217,10 @@ function doBack()
         local bRet = Sqlite:close('jttxlDatabase')
         Log:write("数据库关闭："..bRet)
         if  tonumber(retDeptTable3[1][1]) == 0 then
-            Scene:go(Alias.m_renyuantongji, true)
+            local compName = Reg:getString(reg, 'compName')
+            local compId = Reg:getString(reg, 'compId')
+            Log:write("@jldu compName="..compName.." compId="..compId)
+            Scene:go(Alias.m_renyuantongji..'?backFlag=1&compName='..compName..'&compId='..compId, true)
         end
         if tonumber(retDeptTable2[1][1]) > 0 then
               Scene:go(Alias.m_zuzhijiegou.."?departmentid="..department_id.."&departmentname="..departmentname1, true)
@@ -276,7 +255,11 @@ function loadListItem(list, item, index)
     local listButtonImage_d = Sprite:findChild(item, 'listButtonImage_d')   --更多
     local listButtonImage_s = Sprite:findChild(item, 'listButtonImage_s')
     Sprite:setProperty(employeeId, 'text', retUserTable[index+1][1]) 
-    Sprite:setProperty(companyId, 'text', retUserTable[index+1][2]) 
+    if currentCompanyId ~= nil and currentCompanyId ~= '' then
+        Sprite:setProperty(companyId, 'text', currentCompanyId)
+    else
+        Sprite:setProperty(companyId, 'text', retUserTable[index+1][2]) 
+    end
     Sprite:setProperty(employeeName, 'text', retUserTable[index+1][3])
     Sprite:setProperty(mobile, 'text', retUserTable[index+1][4]) 
     Sprite:setProperty(departmentName, 'text', retUserTable[index+1][5])  
@@ -310,7 +293,7 @@ function loadListItem(list, item, index)
         Sprite:setProperty(headshipName,'font-size','22')
         Sprite:setProperty(headshipName,'text',headShipName)
     end  
-    --]]       
+    ]]       
     if index == len - 1 then
         Sprite:setProperty(jiangeline, 'visible', 'false')
     end   
@@ -429,7 +412,6 @@ function lookUserData()
         local titleLabel = Sprite:findChild(rootSprite,'titleLabel')
         Sprite:setProperty(titleLabel,'text', parent_departmentname)
         departmentname1 = parent_departmentname
-        -- Dialog:show('提示', '该部门联系人为空！','ok','doBack')
         return 
     else
         local sql = "SELECT emp.employee_id,emp.company_id,emp.employee_name,emp.mobile,dept.department_name,"

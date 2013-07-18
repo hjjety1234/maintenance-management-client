@@ -102,6 +102,7 @@
 require 'com_wondertek_tx.common.framework'
 require 'framework.umsagent'
 require 'framework.sqlite'
+require 'framework.download'
 
 local rootSprite
 local url_login = Alias.url_server..'mobile/login/check?'
@@ -111,6 +112,8 @@ local url_userversion = Alias.url_server..'mobile/UserInfo/getUserInfo?'
 local url_register = Alias.url_server..'mobile/login/register?'
 local url_downcompanylist = Alias.url_server..'mobile/group/mygroups?cmd=mygroups'
 local url_downloadSingleCompany = Alias.url_server..'mobile/group/getgroupusers?cmd=getgroupusers'
+local url_downskin = Alias.url_server..'resources/skin/'
+
 
 
 local departmentdata1   --组织结构数据
@@ -128,6 +131,11 @@ local employee_version=0
 local right_config=''
 local timeNum = 50 --获取验证码倒计时秒数
 local groupData,downLoadgroupID,org_f=false
+local g_ECCode = ''    -- 企业EC编码
+local g_skinFlag = ''     -- 标记皮肤是否需要更新
+local g_skinPath = ''     --皮肤的本地地址
+local g_localPatchPath = nil        -- 皮肤文件临时解压路径
+local g_localpath = nil             -- 皮肤文件本地路径
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -184,6 +192,11 @@ function bodyOnPluginEvent(msg)
             updateDeviceInfoToDb(phone) --在本机进行三码绑定
             --记住用户名和密码
             writeuserInfo()
+            local skinvalue = loginData["skins"][0] 
+            g_ECCode = skinvalue.skin
+            Log:write("需要下载的皮肤为:"..g_ECCode)
+            --判断是否需要下载皮肤
+            --checkEcSkinFlag()
             --开始下载群组信息
             local paras = '&usercode='..Config:get('username')..'&token='
             Http:request('companydata0', url_downcompanylist..paras, 119, {useCache = false})
@@ -252,8 +265,8 @@ function bodyOnPluginEvent(msg)
             bRet, errMsg = Sqlite:update(databaseName, sql)
         end
 
-        if Loading:isShow() then Loading:close() end
-        Sprite:setProperty(noticeLabel, 'text', '正在进行页面跳转。。。')
+        --if Loading:isShow() then Loading:close() end
+        --Sprite:setProperty(noticeLabel, 'text', '正在进行页面跳转。。。')
         Timer:set(1,500,'jumpPage')
 
     elseif msg == 104 then  --下载企业下的用户信息
@@ -275,8 +288,8 @@ function bodyOnPluginEvent(msg)
         local sql = "update tb_c_system set employee_version = '"..employee_version.."';"
         bRet, errMsg = Sqlite:update(databaseName, sql)
         
-        if Loading:isShow() then Loading:close() end
-        Sprite:setProperty(noticeLabel, 'text', '正在进行页面跳转。。。')
+        --if Loading:isShow() then Loading:close() end
+        --Sprite:setProperty(noticeLabel, 'text', '正在进行页面跳转。。。')
         Timer:set(1,500,'jumpPage')
 
     elseif msg == 119 then --下载群组信息
@@ -506,15 +519,20 @@ end
 
 --跳转页面
 function jumpPage()
-    
     Config:set('forceUpdateDatabase', '0')
-	Log:write("forceUpdateDatabase2= "..Config:get('forceUpdateDatabase'))
+    Log:write("forceUpdateDatabase2= "..Config:get('forceUpdateDatabase'))
     UmsAgent:writeCallLog()
     -- hewu 进入最近联系人之前，设置强制进入注册页面标志位为0
     -- 防止没有调用到三码合一接口或调用失败导致重复注册
     Config:set('forceUpdateDatabase', "0")
-    Scene:setReturn(Alias.m_login, Alias.m_recentContacter)
-    Scene:go(Alias.m_recentContacter, true)
+    if g_ECCode == nil  or g_ECCode == '' then
+        Scene:setReturn(Alias.m_login, Alias.m_recentContacter)
+        Scene:go(Alias.m_recentContacter, true)
+    else
+    --判断是否需要下载皮肤
+    --if Loading:isShow() ~= true then Loading:show() end
+        checkEcSkinFlag()
+    end
 end
 
 
@@ -574,13 +592,17 @@ function initUserDatabase()
             local deptList = returnValue[i].deptList
             --Log:write('deptlist size is ',#deptList)
             --Log:write("user_department_id is ",deptList[0].user_department_id)
-            for i=0,#deptList do
-                local dept_path = deptList[i].department_path
-                if dept_path == nil then dept_path = '' end
-                local sqlInsert = "insert into tb_c_user_department (user_department_id,user_company_id,headship_id,department_id,department_path,taxis,headship_name)"
-                sqlInsert = sqlInsert .." values ('"..deptList[i].user_department_id.."','"..deptList[i].user_company_id.."','"..deptList[i].headship_id.."','"..deptList[i].department_id.."','"..dept_path.."',"..deptList[i].taxis..",'"..deptList[i].headship_name.."');"
-                --Log:write('department insert sql is ',sqlInsert)
-                bRet,errMsg = Sqlite:update(databaseName,sqlInsert)
+            if deptList ~= nil then
+                for i=0,#deptList do
+                    local dept_path = deptList[i].department_path
+                    if dept_path == nil then dept_path = '' end
+                    local gheadship_name = deptList[i].headship_name
+                    if gheadship_name == nil then gheadship_name = '' end
+                    local sqlInsert = "insert into tb_c_user_department (user_department_id,user_company_id,headship_id,headship_name,department_id,department_path,taxis,headship_name)"
+                    sqlInsert = sqlInsert .." values ('"..deptList[i].user_department_id.."','"..deptList[i].user_company_id.."','"..deptList[i].headship_id.."','"..gheadship_name.."','"..deptList[i].department_id.."','"..dept_path.."',"..deptList[i].taxis..",'"..deptList[i].headship_name.."');"
+                    --Log:write('department insert sql is ',sqlInsert)
+                    bRet,errMsg = Sqlite:update(databaseName,sqlInsert)
+                end
             end
     end
     bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
@@ -634,6 +656,141 @@ function setVersionNum(version)
     Log:write('更新系统表语句==sql=='..sql)
     bRet, errMsg = Sqlite:update(databaseName, sql)
     Log:write("系统表更新数据:bRet = "..bRet.." errMsg ="..errMsg)   
+end
+
+---------------------------换肤相关函数列表---------------------
+-- @brief 检查配置文件，确认是否需要下载皮肤
+function checkEcSkinFlag()
+    Log:write("===检查配置文件，确认是否需要下载皮肤===")
+    g_skinPath = Config:get('skinPath')
+    if isSkinAvailable() == false then   --需要下载皮肤
+        Log:write("尝试下载皮肤文件...") 
+        Sprite:setProperty(noticeLabel, "text", "下载皮肤中...")
+        checkEcSkin() 
+    else
+        Log:write("不需要下载皮肤文件...") 
+        if Loading:isShow() then Loading:close() end
+        Sprite:setProperty(noticeLabel, 'text', '正在进行页面跳转。。。')
+        Scene:setReturn(Alias.m_login, Alias.m_recentContacter)
+        Scene:go(Alias.m_recentContacter, true)
+    end
+end
+
+-- @brief 返回皮肤文件是否有效
+function isSkinAvailable()
+    Log:write("本地皮肤路径为:"..g_skinPath)
+    if g_skinPath == nil or g_skinPath == "" or IO:dirExist(g_skinPath) == false then
+        Log:write("皮肤目录不存在或为空!")
+        return false
+    end 
+    Log:write("皮肤目录存在!")
+    Config:set('skinPath', g_skinPath)
+    Config:set('skinFlag', '1')
+    return true
+end 
+
+-- @brief 需要下载皮肤文件，新建下载任务
+function checkEcSkin()
+    Log:write("===正在建立下载任务===")
+    g_localpath = getDownloadPath()
+    Log:write("本地文件路径为:",g_localpath)
+    g_patchUrl=url_downskin..g_ECCode      -- 路径命名规则按照企业ECcode
+    Log:write("服务端文件路径为:",g_patchUrl)
+    Timer:cancel(112)
+    local count = Download:getCount(true)
+    for i = 1, count do
+        Download:delete(i, false, true)
+    end
+    Log:write("下载历史记录已清除.")
+    Download:append(g_localpath, g_ECCode, g_patchUrl, true)
+    Log:write("添加下载队列中成功，任务名为:"..g_ECCode)
+    onGetDownloadStatus()
+end
+
+
+-- @brief 显示下载状态
+function onGetDownloadStatus()
+    local count = Download:getCount(true)
+    -- Log:write("当前任务数:"..count)
+    if count == 0 then 
+        Log:write("当前无下载任务，停止显示下载状态！")
+        return 
+    end
+    
+    -- 迭代下载队列
+    for i = 1, count do
+        local task = Download:getStatus(count, true)
+        if task.title == g_ECCode then   
+            -- Log:write("任务状态:", task)
+           
+            if  task.status == 0 then 
+                Download:start(count, true)
+                Timer:set(112, 500, 'onGetDownloadStatus')
+            elseif task.status == 1 then -- 空间不足
+                Dialog:show('抱歉', '本地空间不足，请清理磁盘后重试!', 'ok')
+                return
+            elseif task.status == 2 then -- 下载中  
+                Log:write("正在下载中！")  
+                Timer:set(112, 500, 'onGetDownloadStatus')
+            elseif task.status == 3 then -- 下载暂停
+                Download:start(count, true)
+                Timer:set(112, 500, 'onGetDownloadStatus')
+            elseif task.status == 4 then -- 下载完毕
+                Sprite:setProperty(noticeLabel, 'text', '完成')
+                Download:delete(count, false, true)    
+                unzipSkin() 
+                Timer:set(333, 1000)  
+            elseif task.status == 5 then -- 下载失败
+                Dialog:show('抱歉', '皮肤下载失败，请检查服务是否可用!', 'ok')
+                return
+            else
+                Dialog:show('抱歉', '皮肤下载失败，发生未知错误!', 'ok')
+                return
+            end
+
+        end
+    end
+
+end
+
+-- @brief 解压缩皮肤文件
+function unzipSkin()
+    Log:write("===正在替换皮肤文件===")
+    Log:write("皮肤文件路径为:"..g_localpath)
+    Log:write("解压目标路径为:"..g_localPatchPath)
+    local rtn = Util:unzip(g_localpath, g_localPatchPath) --下载完成进行解压缩操作
+    if rtn then --表示解压成功
+        g_skinFlag = '1'
+        Config:set('ECCode', g_ECCode)
+        Config:set('skinFlag', g_skinFlag)
+        Config:set('skinPath', g_localPatchPath)
+    else
+        Dialog:show('抱歉', '解压失败', 'ok')
+    end
+    if Loading:isShow() then Loading:close() end
+    Sprite:setProperty(noticeLabel, 'text', '正在进行页面跳转。。。')
+    goHome()
+end
+
+-- 跳转至首页
+function goHome()
+    Scene:setReturn(Alias.m_login, Alias.m_recentContacter)
+    Scene:go(Alias.m_recentContacter, true)
+end
+
+-- 获取本地皮肤文件的路径
+function getDownloadPath()
+    g_localpath = getLocalDiskPath()
+    Log:write('g_localpath is ',g_localpath)
+    -- 如果路径不存在，创建下载目录
+    if IO:dirExist(g_localpath) == false then 
+        IO:dirCreate(g_localpath)
+    end
+    Log:write('g_ECCode is ',g_ECCode)
+    -- 返回皮肤文件的路径
+    g_localPatchPath = g_localpath
+    g_localpath = g_localpath.."/"..g_ECCode
+    return g_localpath
 end
 
 ]]>

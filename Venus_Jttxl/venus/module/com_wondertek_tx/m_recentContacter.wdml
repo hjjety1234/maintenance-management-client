@@ -143,6 +143,7 @@
                     <label name="org_flag" text=""  visible="false" extendstyle="1111"/>
                     <lable name="employeeNameH" text="" visible="false" extendstyle="1111" />
                     <lable name="employeePhoneH" text="" visible="false" extendstyle="1111" />
+                    <label name="departmentIdLabel" text="" visible="false" />
                     <!-- 正常时组织机构图片 -->
                     <node name="normal" extendstyle="1111">
                         <image name="listButtonImage_d" rect="327,25,33,34" src="file://image/jttxl/more_d.png"
@@ -778,6 +779,7 @@ function loadSearchListItem(list, item, index)
     local listButtonImage_s = Sprite:findChild(item, 'listButtonImage_s')
     local employeeNameH = Sprite:findChild(item,'employeeNameH')    --本机通讯录用户姓名
     local employeePhoneH = Sprite:findChild(item,'employeePhoneH')  --本机通讯录录号码
+    local departmentIdLabel = Sprite:findChild(item,'departmentIdLabel')    -- 部门ID
     Sprite:setProperty(employeeId, 'text', retUserTable[index+1][1]) 
     Sprite:setProperty(employeeName, 'text', retUserTable[index+1][2])
     Sprite:setProperty(companyId, 'text', retUserTable[index+1][10])
@@ -786,6 +788,7 @@ function loadSearchListItem(list, item, index)
     Sprite:setProperty(mobile, 'text', retUserTable[index+1][3])
     -- Log:write('the mobile is ',Sprite:getText(mobile)) 
     Sprite:setProperty(employeePhoneH,'text',Sprite:getText(mobile))
+    Sprite:setProperty(departmentIdLabel,'text',retUserTable[index+1][5])
  
     if retUserTable[index+1][12] == '1' then
         Sprite:setProperty(parentDeptName, 'text', retUserTable[index+1][8])
@@ -966,12 +969,14 @@ function itemOnSelect(sprite)
         Scene:setReturn(Alias.m_recentContacter, Alias.m_stdContacterInfo)
         Scene:go(Alias.m_stdContacterInfo .. '?employeeId=' .. employeeId..'&flag=2',true)
     else
+        local departmentIdLabel_id = Sprite:getText(Sprite:findChild(Sprite:getParent(sprite),'departmentIdLabel'))
+        if departmentIdLabel_id == nil then departmentIdLabel_id = '' end
         if judgeData == '1' then 
             local companyId = Sprite:getText(Sprite:findChild(sprite,'companyId'))
             local org_flag = Sprite:getText(Sprite:findChild(sprite,'org_flag'))
             Log:write('the org_flag is:',org_flag)      
-            Scene:setReturn(Alias.m_recentContacter, Alias.m_stdContacterInfo .. '?employeeId=' .. employeeId..'&companyId=' .. companyId..'&orgFlag='..org_flag..'&flag=2')
-            Scene:go(Alias.m_stdContacterInfo .. '?employeeId=' .. employeeId..'&companyId=' .. companyId..'&orgFlag='..org_flag..'&flag=2',true)
+            Scene:setReturn(Alias.m_recentContacter, Alias.m_stdContacterInfo .. '?employeeId=' .. employeeId..'&companyId=' .. companyId..'&orgFlag='..org_flag..'&flag=2&departmentId1='..departmentIdLabel_id)
+            Scene:go(Alias.m_stdContacterInfo .. '?employeeId=' .. employeeId..'&companyId=' .. companyId..'&orgFlag='..org_flag..'&flag=2&departmentId1='..departmentIdLabel_id,true)
         elseif judgeData == '0' then
             Scene:setReturn(Alias.m_recentContacter, Alias.m_stdContacterInfo .. '?employeeId=' .. employeeId..'&employeeName='.. employeeNameData .. '&flag=3')
             Scene:go(Alias.m_stdContacterInfo .. '?employeeId=' .. employeeId..'&employeeName=' .. employeeNameData .. '&flag=3',true)
@@ -1125,8 +1130,8 @@ end
 -- 查询搜索数据条数
 function searchUserCount()
     local sqlCount = "SELECT COUNT(emp.employee_id)"..
-                " FROM tb_c_employee emp"..
-                " WHERE (emp.mark1 = '1' OR emp.mark1 = '')"
+                " FROM tb_c_employee emp,tb_c_user_department udept"..
+                " WHERE udept.user_company_id=emp.user_company_id and (emp.mark1 = '1' OR emp.mark1 = '')"
     if tonumber(editeKeyword) == nil then
         Log:write("关键字非数字")
         sqlCount = sqlCount .. " AND (emp.employee_name LIKE '%"..editeKeyword..
@@ -1161,9 +1166,10 @@ function searchUserData()
                 "cmp.company_name,"..
                 "cmp.org_flag,"..
                 "dept.company_id"..
-                " FROM tb_c_employee emp left join tb_c_department dept on emp.department_id = dept.department_id "..
-                "left join tb_c_company cmp on emp.company_id = cmp.company_id"..
-                " WHERE(emp.mark1 = '1' OR emp.mark1 = '') AND cmp.status = '1' "  
+                " FROM tb_c_employee emp "..
+                "left join tb_c_company cmp on emp.company_id = cmp.company_id left join tb_c_user_department udept on udept.user_company_id=emp.user_company_id "..
+                "left join tb_c_department dept on dept.department_id=udept.department_id "..
+                " WHERE (emp.mark1 = '1' OR emp.mark1 = '') AND cmp.status = '1' "  
     if tonumber(editeKeyword) == nil then
         Log:write("关键字非数字")
         sql = sql .. " AND (emp.employee_name LIKE '%"..editeKeyword..
@@ -1267,7 +1273,7 @@ function firstSpell(sortKey)
     local sortKeyArray = Util:split(sortKey, " ")
     local fs = ""
     for i = 1, #sortKeyArray do 
-        fs = fs..string.sub(sortKeyArray[i], 1, 1)
+        fs = fs..sortKeyArray[i]
     end 
     return fs
 end

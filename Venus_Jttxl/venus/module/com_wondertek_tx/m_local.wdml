@@ -412,7 +412,7 @@ function editOnTextChanged(sprite)
     local tempTab = {}
     if editeKeyword ~= '' then    
         for i=1 , #groupContacts do
-            if string.find(groupContacts[i].sortKey, editeKeyword) ~= nil 
+            if string.find(groupContacts[i].name, editeKeyword) ~= nil 
                 or string.find(firstSpell(groupContacts[i].sortKey), editeKeyword) ~= nil
                 or string.find(groupContacts[i].phone[1], editeKeyword) ~= nil  then
                 table.insert(tempTab, groupContacts[i])
@@ -430,8 +430,9 @@ function firstSpell(sortKey)
     local sortKeyArray = Util:split(sortKey, " ")
     local fs = ""
     for i = 1, #sortKeyArray do 
-        fs = fs..string.sub(sortKeyArray[i], 1, 1)
+        fs = fs..sortKeyArray[i]
     end 
+    --Log:write('fs key is ',fs)
     return fs
 end
 
@@ -486,7 +487,7 @@ function queryGroupData()
     local  bRet2, data, errMsg2 = Sqlite:query(databaseName, queryGroup)
     groupDatas = data
     showData = {}
-    Log:write('groupDatas', groupDatas)
+    --Log:write('groupDatas', groupDatas)
     initTitleData()
     Log:write('showData', showData)
 end

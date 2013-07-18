@@ -94,6 +94,9 @@ require 'framework.sqlite'
 local rootSprite
 local department_name
 
+local skinFalg='' --皮肤更新的标志
+local skinPath='' --皮肤更新的路径
+
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -103,6 +106,8 @@ function bodyBuildChildrenFinished(sprite)
     progressPointImg = Sprite:findChild(sprite, 'progressPointImg')
     local imageCard = Sprite:findChild(Sprite:findChild(rootSprite,'cardNode'),'cardImg')
     imageCard_x,imageCard_y,imageCard_w,imageCard_h = Sprite:getRect(imageCard)
+    
+    checkSkinPath()
     readUserInfo() --读取用户信息，显示在名片上
     --读取配置文件，显示默认的比例
     readDefaultConfig()
@@ -176,6 +181,26 @@ function mainNodeOnKeyUp(sprite, kc)
         local bRet = Sqlite:close('jttxlDatabase')
         Scene:back()
         return 1
+    end
+end
+
+---------------------------------检查皮肤是否更新了-------------
+
+function checkSkinPath()
+    local imageLog = Sprite:findChild(rootSprite,'imgLog')
+  
+    Log:write("开始鉴权皮肤是否更新1...")
+    skinFalg = Config:get('skinFlag')
+    skinPath = Config:get('skinPath')
+    Log:write("开始鉴权皮肤是否更新skinFalg...", skinFalg)
+    Log:write("开始鉴权皮肤是否更新skinPath...", skinPath)
+    
+    if (skinFalg~='' and skinFalg=='1' and skinPath~='' and skinPath~=nil) then --如果皮肤已经更新
+         Log:write("皮肤更新了"..skinPath..'/m_logo.png')
+         Sprite:setProperty(imageLog,'src',skinPath..'/m_logo.png')
+    else
+         Log:write("皮肤没有更新")
+         Sprite:setProperty(imageLog,'src','file://image/m_logo.png')
     end
 end
 

@@ -298,7 +298,7 @@
                             <scrolltext name="company" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
                                 scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
                                 border="false" style="autosize" extendstyle="1111">
-                            </scrolltext>                            
+                            </scrolltext>
                         </list-item>
                         <!-- 部门 -->
                         <list-item name="companyNode2" rect="0,0,458,63.4" extendstyle="1111" border="false"> 
@@ -314,7 +314,7 @@
                         <list-item name="companyNode3" rect="0,0,458,63.4" extendstyle="1111" border="false">
                             <label rect="15, 0, 50, 63.4"  text="职位" font-family='微软雅黑' 
                                 color="#686868" font-size="22" h-align="left" v-align="center" 
-                                border="false" extendstyle="1111"/>                       
+                                border="false" extendstyle="1111"/>
                             <scrolltext name="heashipDisplay" rect="70, 0, 370, 63.4"  text="" font-family='微软雅黑' 
                                 scroll="true" color="#686868" font-size="22" h-align="left" v-align="center"
                                 border="false" style="autosize" extendstyle="1111">
@@ -584,9 +584,9 @@ function queryDeptList()
         " where emp.employee_id='"..employeeId..
         "' and emp.employee_name='"..employeeName.."'"
         if flag == '1' then
-            querySql = querysql .. " AND com.company_id='"..companyId.."'"
+            querySql = querySql .. " AND com.company_id='"..companyId.."'"
         end
-        querysql = querysql .. " order by com.org_flag desc"..
+        querySql = querySql .. " order by com.org_flag desc"..
         " limit 0,1;"
     Log:write("查询用户信息SQL = ",querySql)
     bRet, retCompanyTable, errMsg = Sqlite:query(databaseName, querySql)  
@@ -645,8 +645,8 @@ function queryUserInfoSQL()
                 "emp.manage_flag,"..
                 "emp.employee_name,"..
                 "com.company_name,"..                             
-                "emp.headship_name," 
-            if tonumber(orgFlag) == 1 then
+                "udept.headship_name," 
+            if tonumber(orgFlag) == 1 and (flag == '1' or flag == '2') then
                 sql = sql .. 'dept.department_name,'
             else
                 sql = sql .. "emp.department_name,"
@@ -668,7 +668,7 @@ function queryUserInfoSQL()
             sql = sql .. "emp.user_company,"..
                 "emp.department_name,"
         end
-        sql = sql .. "emp.headship_name,".. 
+        sql = sql .. "udept.headship_name,".. 
                 "emp.company_address,"..
                 "emp.school,"..
                 "emp.user_major,"..

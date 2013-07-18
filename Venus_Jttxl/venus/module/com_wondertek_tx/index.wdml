@@ -15,7 +15,7 @@
     <header />
     <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
         <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
-            <image rect="0,0,0,0" border="false" src="file://image/loading.png" style="autosize" extendstyle="1177" />
+            <image name="loading" rect="0,0,0,0" border="false" style="autosize" extendstyle="1177" />
 
             <!-- 下载进度指示-->
             <node name="downloadingNode" rect="0,700,480,60" visible="false"
@@ -123,11 +123,16 @@ local g_updateMethod = 0            -- 更新方法：0为全新升级，1为差
 
 --local databaseName
 local jumpFlag = 1
+
+local skinFalg='' --皮肤更新的标志
+local skinPath='' --皮肤更新的路径
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     UmsAgent:postClientData()
+    
+    checkSkinPath()
     startMsgPushService()
     --鉴权
     Config:set('togohomeTag','1')  ---进入home页是否需要更新组织结构联系人标记
@@ -263,6 +268,25 @@ function connectToWAP()
         Http:setProxy('')
     end
     Http:connectCMWAP()
+end
+
+---------------------------------检查皮肤是否更新了-------------
+
+function checkSkinPath()
+    local loading=Sprite:findChild(rootSprite, 'loading')  
+    Log:write("开始鉴权皮肤是否更新1...")
+    skinFalg = Config:get('skinFlag')
+    skinPath = Config:get('skinPath')
+    Log:write("开始鉴权皮肤是否更新skinFalg...", skinFalg)
+    Log:write("开始鉴权皮肤是否更新skinPath...", skinPath)
+    
+    if (skinFalg~='' and skinFalg=='1' and skinPath~='' and skinPath~=nil ) then --如果皮肤已经更新
+         Log:write("皮肤更新了"..skinPath..'/bj.png')
+         Sprite:setProperty(loading,'src',skinPath..'/loading.png')
+    else
+         Log:write("皮肤没有更新")
+         Sprite:setProperty(loading,'src','file://image/loading.png')
+    end 
 end
 ---------------------------------------util functions---------------------------
 -- 检测客户端版本

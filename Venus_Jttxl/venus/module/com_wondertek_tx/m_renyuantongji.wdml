@@ -128,24 +128,6 @@ local rootSprite
 local textcontent = {}
 local currentCity 
 local newNode
-data = {{key="hefei",      name="合肥",  deptid=""}, 
-		{key="bengbu",     name="蚌埠",  deptid=""},
-		{key="wuhu",       name="芜湖",  deptid=""},
-		{key="maanshan",   name="马鞍山",  deptid=""},
-		{key="bozhou",     name="亳州",  deptid=""},
-		{key="huaibei",    name="淮北",  deptid=""},
-		{key="suzhou",     name="宿州",  deptid=""},
-		{key="fuyang",     name="阜阳",  deptid=""},
-		{key="huainan",    name="淮南",  deptid=""},
-		{key="chuzhou",    name="滁州",  deptid=""},
-		{key="liuan",      name="六安",  deptid=""},
-		{key="anqing",     name="安庆",  deptid=""},
-		{key="chizhou",    name="池州",  deptid=""},
-		{key="xuancheng",  name="宣城",  deptid=""},
-		{key="huangshan", name="黄山",  deptid=""},
-		{key="tongling",   name="铜陵",  deptid=""},
-		{key="anhui",   name="省公司",  deptid=""},
-        }
 
 --群组代码
 local groupDatas
@@ -166,12 +148,18 @@ local retDeptTable2
 
 local bRet2,companyTable,errMsg2
 
+local currentCompanyId --保存当前选中的公司ID
+local skinFalg='' --皮肤更新的标志
+local skinPath='' --皮肤更新的路径
+
 ---------------------------------------回调函数--------------------------------
 -- root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     newNode = Sprite:findChild(rootSprite, 'newNode')
     reg = Reg:create('group_data')
+    
+    checkSkinPath()
 	--更多下拉框
     comboboxListview = Sprite:findChild(rootSprite, 'comboboxListview')
     comboboxItem = Sprite:findChild(rootSprite, 'comboboxItem')
@@ -250,6 +238,26 @@ function mainNodeOnKeyUp(sprite, kc)
     end
 end
 
+---------------------------------检查皮肤是否更新了-------------
+
+function checkSkinPath()
+    local imagebj=Sprite:findChild(rootSprite, 'image_bj')  
+    Log:write("开始鉴权皮肤是否更新1...")
+    skinFalg = Config:get('skinFlag')
+    skinPath = Config:get('skinPath')
+    Log:write("开始鉴权皮肤是否更新skinFalg...", skinFalg)
+    Log:write("开始鉴权皮肤是否更新skinPath...", skinPath)
+    
+    if (skinFalg~='' and skinFalg=='1' and skinPath~='' and skinPath~=nil) then --如果皮肤已经更新
+         Log:write("皮肤更新了"..skinPath..'/bg.png')
+         Sprite:setProperty(imagebj,'src',skinPath..'/bg.png')
+    else
+         Log:write("皮肤没有更新")
+         Sprite:setProperty(imagebj,'src','file://image/jttxl/bj.png')
+    end
+end
+
+
 ----------------------------------服务端交互函数列表---------------------------------
 
 function doRegionClick(sprite)
@@ -265,10 +273,10 @@ function doRegionClick(sprite)
     local strSQL = "SELECT count(*) FROM tb_c_department WHERE parent_department_id='"..current_dept_id.."'"
     local  bRet1, retDeptTable1, errMsg1 = Sqlite:query(Config:get('databaseName'), strSQL)
     if(tonumber(retDeptTable1[1][1])>0) then
-        Scene:go(Alias.m_zuzhijiegou.."?departmentid="..current_dept_id.."&departmentname="..current_dept_name, true)
+        Scene:go(Alias.m_zuzhijiegou.."?departmentid="..current_dept_id.."&departmentname="..current_dept_name..'&currentCompanyId='..currentCompanyId, true)
     else
         Scene:setReturn(Alias.m_renyuantongji, Alias.m_lianxirenlist)
-        Scene:go(Alias.m_lianxirenlist.."?department_id="..current_dept_id.."&parent_departmentname="..current_dept_name, true)
+        Scene:go(Alias.m_lianxirenlist.."?department_id="..current_dept_id.."&parent_departmentname="..current_dept_name..'&currentCompanyId='..currentCompanyId, true)
     end
     --Timer:set(3, 50, 'jumpToDeptPage')
 end
@@ -332,7 +340,6 @@ function doSearch(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
-    Scene:setReturn(Alias.m_lianxirenlist, Alias.m_recentContacter)
     Scene:go(Alias.m_recentContacter, true)
 end
 
@@ -342,7 +349,6 @@ function doContact(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
-    Scene:setReturn(Alias.m_lianxirenlist, Alias.m_renyuantongji)
     Scene:go(Alias.m_renyuantongji, true)
     --Log:write("已在联系人列表界面，点击不做任何操作！")
 end
@@ -353,7 +359,6 @@ function doPersonalCenter(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/zuijinglianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')   
-    Scene:setReturn(Alias.m_lianxirenlist, Alias.m_stdMyInfo)
     Scene:go(Alias.m_stdMyInfo, true)
 end
 
@@ -363,7 +368,6 @@ function doSetting(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/zuijinglianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png') 
-    Scene:setReturn(Alias.m_lianxirenlist, Alias.m_system)
     Scene:go(Alias.m_system, true)
 end
 
@@ -383,13 +387,16 @@ function initCityData()
     if companyTable == nil or #companyTable ==0 then
         return
     end
+    currentCompanyId = companyTable[1][1]
     local company_id = companyTable[1][1]
     if tonumber(judgeFlag) == 2 then
         Log:write("@jldu 从本机通讯录跳转过来")
         loadDeptData(compId)
+        Reg:setString(reg, 'compId', compId)
     else
         Log:write("@jldu 从底部菜单点击")
-        loadDeptData(company_id)  
+        loadDeptData(company_id) 
+        Reg:setString(reg, 'compId', company_id)
     end       
 end
 
@@ -478,6 +485,7 @@ end
 function showTitleData(company_name)
     if company_name == nil and companyGroup ~= nil then
         company_name = companyGroup[1][2]
+        Reg:setString(reg, 'compName', company_name)
     end
     local title = Sprite:findChild(rootSprite, 'title')
     local leftBtn = Sprite:findChild(rootSprite, 'left')
@@ -578,10 +586,16 @@ function groupOnSelect(sprite)
     Reg:setString(reg, 'company_id', (data[1] == nil and "") or data[1])
     Reg:setString(reg, 'company_name', data[2])
     Reg:setString(reg, 'org_flag', data[4])
+    currentCompanyId = (data[1] == nil and "") or data[1]
     if data[2] ~= Sprite:getText(Sprite:findChild(rootSprite, 'title')) then
         if data[4] == '1' then
             loadDeptData(data[1])
             showTitleData(data[2])
+            Reg:setString(reg, 'compId',data[1])
+            Reg:setString(reg, 'compName',data[2])
+            local compName = Reg:getString(reg, 'compName')
+            local compId = Reg:getString(reg, 'compId')
+            Log:write("@jldu renyuantongji compName="..compName.." compId="..compId)
         elseif data[4] == '-1' then
             Scene:go(Alias.m_local,true)
         elseif data[4] == '0' then
