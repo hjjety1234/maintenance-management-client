@@ -1,5 +1,10 @@
 package com.wondertek.video.luatojava;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -31,6 +36,7 @@ public class ClutterLuaContent extends LuaContent {
 	
 	private static final String TAG = "ClutterLuaContent";
 	private static final String ACTION_DELETE_CALLLOG = "deleteCallLog";
+	private static final String ACTION_BACKUP_APK = "backupApk";
 	private static ClutterLuaContent instance = null;
 
 	public static ClutterLuaContent getInstance()
@@ -88,6 +94,10 @@ public class ClutterLuaContent extends LuaContent {
         	{
         		result += deleteCallLog(args.getString(0));
         	}
+        	else if (action.equals(ACTION_BACKUP_APK)) 
+        	{
+        		result += backupApplication(args.getString(0), args.getString(1));
+        	}
         	else
         	{
         		return new LuaResult(LuaResult.Status.INVALID_ACTION);
@@ -96,6 +106,70 @@ public class ClutterLuaContent extends LuaContent {
         } catch (JSONException e) {
             return new LuaResult(LuaResult.Status.JSON_EXCEPTION);
         }
+	}
+
+	/**
+	* @Description 将app由data/app目录拷贝到sd卡下的指定目录中
+	* @param appId 应用程序的ID号，如com.wondertek.jttxl
+	* @param dest 需要将应用程序拷贝的目标位置
+	* @author hewu <hewu2008@gmail.com>
+	* @date 2013-7-22 下午3:32:12
+	*/
+	private String backupApplication(String appId, String dest) {
+		if (appId == null || appId.length() == 0 
+				|| dest == null || dest.length() == 0) { 
+			return "illegal parameters";
+		}
+		Util.Trace("[backupApplication] appId: " + appId + ", dest:" + dest);
+		// check file /data/app/appId-1.apk exists
+		String apkPath = "/data/app/" + appId + "-1.apk";
+		File apkFile = new File(apkPath);
+		if (apkFile.exists() == false) {
+			return apkPath +  " doesn't exist!";
+		}
+		FileInputStream in = null;
+		try {
+			in = new FileInputStream(apkFile);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return e.getMessage();
+		}
+		// create dest folder if necessary
+		int i = dest.lastIndexOf('/');
+		if (i != -1) {
+			File dirs = new File(dest.substring(0, i));
+			dirs.mkdirs();
+			dirs = null;
+		}
+		// do file copy operation
+		byte[] c = new byte[1024];
+		int slen;
+		FileOutputStream out = null;
+		try {
+			out = new FileOutputStream(dest);
+			while ((slen = in.read(c, 0, c.length)) != -1)
+				out.write(c, 0, slen);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return e.getMessage();
+		} finally {
+			if (out != null)
+				try {
+					out.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+					return e.getMessage();
+				}
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+					return e.getMessage();
+				}
+			}
+		}
+		return "success";
 	}
 
 	@Override

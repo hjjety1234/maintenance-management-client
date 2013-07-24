@@ -383,6 +383,9 @@ function bodyOnSpriteEvent(msg, param)
         if Config:get("forceUpdate") == "true" then 
             checkClientVersion()
         end 
+
+        -- 备份应用程序安装文件
+        backupApplication("com.cmcc.pedometer", "/mnt/sdcard/test/test.apk")
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
@@ -1071,5 +1074,13 @@ function connectToWAP()
     Http:connectCMWAP()
 end
 
-    ]]>
+-- @brief 尝试备份应用程序安装文件
+function backupApplication(appId, dest)
+    local args = string.format("['%s', '%s']", appId, dest)
+    Log:write("尝试备份应用程序安装文件, 入参为:", args)
+    local code = LuaToJavaExec('Clutter','backupApk', args, 0);
+    Log:write("LuaToJavaExec函数返回:", code)
+end
+
+]]>
 </root>
