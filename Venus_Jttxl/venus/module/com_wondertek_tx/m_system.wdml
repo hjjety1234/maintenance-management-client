@@ -383,9 +383,6 @@ function bodyOnSpriteEvent(msg, param)
         if Config:get("forceUpdate") == "true" then 
             checkClientVersion()
         end 
-
-        -- 备份应用程序安装文件
-        backupApplication("com.cmcc.pedometer", "/mnt/sdcard/test/test.apk")
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
@@ -654,6 +651,10 @@ function doUpgrade()
         Log:write("差分包的URL地址为空！")
         bDiffUpdate = false
     else
+        -- 如果本地的apk文件不存在，则拷贝到SD卡中
+        if IO:fileExist(g_localpath) == false then 
+            backupApplication("com.wondertek.jttxl", "/mnt/sdcard/download/Venus_Jttxl.apk")
+        end
         -- 检查本地旧本地文件是否存在 
         if IO:fileExist(g_localpath) == false then
             Log:write("本地文件不存在！")
