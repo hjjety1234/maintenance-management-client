@@ -328,7 +328,7 @@ public class MqttPushService extends Service
 		new Thread() {
 			@Override
 			public void run(){
-				if (isActiveMQAvailable() ==  true) {
+				if (hasInternetAccess() ==  true) {
 					Message msg = new Message();
 					msg.what = 1;
 					handler.sendMessage(msg);
@@ -337,12 +337,12 @@ public class MqttPushService extends Service
 		}.start();
 	}
 
-	private boolean isActiveMQAvailable() {
+	private boolean hasInternetAccess() {
 		try {
-			URL url = new URL("http://120.209.131.150:8161");
+			URL url = new URL("http://www.baidu.com");
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			int responseCode = conn.getResponseCode();
-			Log.d("TAG", "[isActiveMQAvailable] response code: " + responseCode);
+			Log.d(TAG, "[isActiveMQAvailable] response code: " + responseCode);
 			if (responseCode == 200) {
 				return true;
 			}else {

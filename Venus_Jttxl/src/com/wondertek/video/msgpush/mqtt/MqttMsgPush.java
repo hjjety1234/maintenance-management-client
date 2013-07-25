@@ -26,7 +26,7 @@ public class MqttMsgPush implements IMsgPush {
 
 	private final String mDefaultHost = "120.209.131.150";
 	private final int mDefaultPort = 1883;
-	private final String mDefaultAppkey = "5af2f40e1bf4e13cdbafbea1057affd0";
+	private final String mDefaultAppkey = "appkey-207-31";
 
 	public MqttMsgPush(Context cxt) {
 		mContext = cxt;
