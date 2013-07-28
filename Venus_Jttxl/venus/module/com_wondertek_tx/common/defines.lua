@@ -90,3 +90,4 @@ Alias = {
     -- url_server = 'http://120.209.131.147:8088/'  --生产服务器地址
 }
 
+MSG_TAB_CLICKED = 2222

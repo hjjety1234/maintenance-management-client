@@ -211,6 +211,15 @@ function bodyOnSpriteEvent(msg, param)
         end    
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
+    elseif msg == MSG_TAB_CLICKED then 
+        local tab = Config:get("tab")
+        if tab == '0' then 
+            local left = Sprite:findChild(rootSprite, "left")
+            groupOnSelect(left)
+        elseif tab == '1' then 
+            local center = Sprite:findChild(rootSprite, "center")
+            groupOnSelect(center)
+        end
     end
 end
 
@@ -597,7 +606,7 @@ function groupOnSelect(sprite)
             local compId = Reg:getString(reg, 'compId')
             Log:write("@jldu renyuantongji compName="..compName.." compId="..compId)
         elseif data[4] == '-1' then
-            Scene:go(Alias.m_local,true)
+            Scene:go(Alias.m_main.."?page=1&tab=2")
         elseif data[4] == '0' then
             Scene:go(Alias.m_group,true)
         end
