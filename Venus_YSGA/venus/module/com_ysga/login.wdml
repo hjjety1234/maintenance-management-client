@@ -24,29 +24,32 @@
            <!-- <node name="bg" rect="15,250,436,279">
                 <image name="image3" rect="0,0,436,300" border="false" src="file://pics/login_window_bg.png" style="autosize" extendstyle="1111" />
              </node>-->
-            <node name="namenode" rect="2,276,480,47">
-                <image name="image4" rect="29,0,402,51" border="false" src="file://pics/icons_login_user.png" style="autosize"></image>
+            <node name="namenode" rect="8,276,480,47" extendstyle="1111">
+                <image name="image4" rect="29,0,402,51" border="false" src="file://pics/icons_login_user.png" style="autosize" extendstyle="1111"></image>
                 <edit name="edname" rect="101,0,300,47" border="false" extendstyle="1111" v-center="true" color="#666666" font-size="23" autoup="true" enable="false"></edit>
             </node>
-            <node name="pwdnode" rect="0,353,480,47">
-                <image name="image6" rect="29,0,402,51" border="false" src="file://pics/icons_login_lock.png" style="autosize"></image>
-              <!--  <image name="image7" rect="40,7,36,36" border="false" src="file://pics/icons_login_lock.png" style="autosize"></image>-->
+            <node name="pwdnode" rect="8,353,480,47" extendstyle="1111">
+                <image name="image6" rect="29,0,402,51" border="false" src="file://pics/icons_login_lock.png" style="autosize" extendstyle="1111"></image>
+              <!--  <image name="image7" rect="40,7,36,36" border="false" src="file://pics/icons_login_lock.png" style="autosize" extendstyle="1111"></image>-->
                 <edit name="edpwd" rect="101,0,300,47" border="false" password="true" extendstyle="1111" v-center="true" font-size="23" autoup="true"></edit>
             </node>
-            <node name="node1" rect="0,410,480,100">
+            <node name="node1" rect="0,410,480,100" extendstyle="1111">
                 <button name="btnwrite" rect="40,0,35,35" text="" color="#ffffff" OnSelect="writePwd" extendstyle="1111" data="1">
                  <image name="image8" rect="5,5,30,30" border="false"
                         src="file://pics/login_checkbox1.png" style="sudoku-auto" sudoku="15,15,15,15"
                         extendstyle="1111"></image>
                 </button>
-                <label name="label1" rect="45,0,152,35" text="记住密码" h-align="right"
+                <label name="label1" rect="45,0,152,35" text="记住密码" h-align="right" extendstyle="1111"
                     v-align="center" color="#ffffff" font-size="26" font-family="微软雅黑"></label>
-                <button name="btnLogin" rect="30,40,402,58" color="#ffffff"
+                <button name="btnLogin" rect="35,40,402,58" color="#ffffff"
                     extendstyle="1111" OnSelect="loginOnSelect" text="登     录" font-family="微软雅黑" font-size="28"
                     normal="src:file://pics/login_button_da.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
                     sel="src:file://pics/login_button_sa.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000" />
             </node>
-            
+             <node name="nodeFor" rect="0,480,480,100">
+                    <button name="btnTxt" rect="70,50,340,58" color="#ffffff"
+                    extendstyle="1111" v-center="true"  text="记住密码存在信息泄露风险,请您谨慎选择" font-family="微软雅黑" font-size="22"/>
+               </node>
         </node>
     </body>
     <![CDATA[
@@ -110,7 +113,7 @@
                 Scene:go(Alias.home)
                end
             else
-                Dialog:show('登录提醒','账户密码错误','ok')
+                Dialog:show('登陆提醒','账户密码错误','ok')
             end
         elseif msg == 102 then --  版本检测
            
@@ -192,9 +195,6 @@ function checkSkinPath()
          username = Config:get('username')
          end
         local password = Config:get('password')
-        if password == "000000" then 
-            password = username
-        end 
         if username~=nil and password~=nil then
             Sprite:setProperty(imgNode, 'src', 'file://pics/login_checkbox1.png')
             Sprite:setProperty(usernamenode,'text',username)
@@ -203,22 +203,23 @@ function checkSkinPath()
         end
     end
     function writePwd(sprite)
+        Log:write("flag",flag)
         local imgNode = Sprite:findChild(sprite,'image8')
+        local btnLogin=Sprite:findChild(rootSprite,'btnTxt')
         if flag==1 then
             Sprite:setProperty(imgNode, 'src', 'file://pics/login_checkbox.png')
+            Sprite:setVisible(btnLogin,0)
+            -- Sprite:setProperty(btnLogin, "text", '记住密码存在信息泄露风险，请您谨慎选择');
+            
             flag=0
-        elseif flag==0 then
-            Dialog:show("", "设置记住密码存在安全风险，请您谨慎。", "ok_cancel", "alertUser")
+            elseif flag==0 then
+            Sprite:setProperty(imgNode, 'src', 'file://pics/login_checkbox1.png')
+            --Sprite:setProperty(sprite,'data','1')
+             Sprite:setVisible(btnLogin,1)
+            --Sprite:setProperty(btnLogin, "text", '');
+            flag=1
         end
     end
-    
-    -- @brief 保存密码时进行提示
-    function alertUser() 
-         local imgNode = Sprite:findChild(rootSprite,'image8')
-         Sprite:setProperty(imgNode, 'src', 'file://pics/login_checkbox1.png')
-         flag=1
-    end 
-    
     function writeuserInfo()
         local namenode=Sprite:findChild(rootSprite, 'namenode')
         local pwdnode=Sprite:findChild(rootSprite, 'pwdnode')
@@ -253,9 +254,9 @@ function checkSkinPath()
                if(ECCode==nil) then
                 ECCode='001'
                 end
-               Log:write('skinPath is ', skinPath)
+               Log:write('skinPath is '..skinPath)
                --再将所有的值保存到文件中去
-                configTable=ECCode..'\n'..mobile..'\n'..skinFalg..'\n'..(skinPath or "")
+                configTable=ECCode..'\n'..mobile..'\n'..skinFalg..'\n'..skinPath
                 Log:write("configTable2-----------"..configTable)
                 savebtn_onselected(configTable)
         if flag==1 then
