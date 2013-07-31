@@ -162,28 +162,23 @@ end
 -- @brief 获取接口返回时的反馈处理
 function bodyOnPluginEvent(msg, param)
    if msg == 1002 then
-       Log:write('定位成功-----', postData)
-       Log.write('定位成功----------s',localsuc)
        UmsAgent:onLoadFinish()
        local postDataString = Param:getString(param, 0)
        local postData = Json:loadString2Table(postDataString)
        if postData.longitude ~= nil and postData.latitude ~= nil then
-         Log:write('定位成功', postData)
+         Log:write('MapABC网络定位成功', postData)
          Timer:cancel(333)
-         net_retryCount=20
-         latitude=postData.latitude
-             longitude=postData.longitude
-             local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
-             if postData.desc ~= '0' then
-                Log:write('解析地址成功', postData)
-                localsuc=1
-                Log.write('定位成功----------2',localsuc)
-                Sprite:setProperty(locInfo, 'text', postData.desc)
-            end
-        --修改了网达底层定位代码现在直接展现位置@chengchuan
-        if postData.longitude ~= nil and postData.latitude ~= nil  then
-             observer = Plugin:getObserver()
-             Map:getLocation(observer,1003,postData.latitude,postData.longitude)  
+         net_retryCount = 20
+         latitude = postData.latitude
+         longitude = postData.longitude
+         local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+         if postData.desc ~= '0' and postData.desc ~= "" then
+            localsuc = 1
+            Sprite:setProperty(locInfo, 'text', postData.desc)
+        else
+            Log:write("定位接口未返回地址信息，开始进行地址反解...")
+            observer = Plugin:getObserver()
+            Map:getLocation(observer, 1003, postData.latitude, postData.longitude)  
         end
       end
    elseif msg == 1003 then--用来显示定位的位置  
@@ -192,10 +187,10 @@ function bodyOnPluginEvent(msg, param)
         local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
         if postData.address ~= nil then
             Log:write('解析地址成功', postData)
-            localsuc=1
+            localsuc = 1
             Sprite:setProperty(locInfo, 'text', postData.address)
         end
-    elseif msg>=504 and msg<=600 then--返回上传路径，并启动上传
+    elseif msg>=504 and msg<=600 then --返回上传路径，并启动上传
         local ii=(msg-504);
         local uploadData = Http:xmlDecode('upload_url'..ii, 'RESULT')
         Log:write('upload_url result '..ii, uploadData)
