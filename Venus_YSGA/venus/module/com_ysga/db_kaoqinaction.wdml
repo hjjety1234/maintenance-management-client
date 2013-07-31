@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
 ==
 ============================================================================
@@ -10,6 +10,7 @@
 == | Revised: hewu <hewu2008@gmail.com>
 ============================================================================
 == | Desc: @20130510 修改定位展现采用LBS定位的时候直接获取经纬度无需再进行逆地理编码
+== | Desc: 2013/7/31 增加地址选择对话框
 ============================================================================
 -->
 <root>
@@ -39,6 +40,7 @@
                 extendstyle="1111"/>
             <image name="normal" rect="388,0,2,80" src="file://pics/sub_top_line.png" extendstyle="1111"/>
         </node>
+        <!-- 签到人信息  -->
         <node rect="0,84,460,68" extendstyle="1111">
             <label rect="0,0,130,68"  text="签到人"  extendstyle="1111" style="autosize" h-align="right" v-align="center" 
                 font-family="微软雅黑" font-size="24"/>
@@ -46,19 +48,22 @@
                 extendstyle="1111" style="autosize" h-align="left" v-align="center"
                 font-family="微软雅黑" font-size="24"/>
         </node>
+        <!-- 签到时间信息  -->
         <node rect="0,152,460,68" extendstyle="1111">
             <label rect="0,0,130,68"  text="签到时间"  extendstyle="1111" style="autosize" h-align="right" v-align="center" 
                 font-family="微软雅黑" font-size="24"/>
             <label name="kqtime" rect="160,0,300,68" extendstyle="1111" style="autosize" h-align="left" v-align="center"
                 font-family="微软雅黑" font-size="24"/>
         </node>
+        <!-- 签到位置信息  -->
         <node rect="0,220,460,136" extendstyle="1111" >
-            <label rect="0,0,130,68"  text="签到位置" extendstyle="1111" style="autosize" h-align="right" v-align="center"
+            <textarea rect="0,0,130,136"  text="签到位置" extendstyle="1111" style="autosize" h-align="right" top="20"
                 font-family="微软雅黑" font-size="24"/>
-            <textarea name="kaoqinlocation" rect="160,0,300,136" extendstyle="1111" style="autosize" h-align="left" top="25"
+            <textarea name="kaoqinlocation" rect="160,0,300,136" extendstyle="1111" style="autosize" h-align="left" top="20"
                 font-family="微软雅黑" font-size="24" step="4" scroll="true"/>
         </node>
-        <node rect="0,378,470,68" extendstyle="1111">
+        <!-- 签到类型  -->
+        <node rect="0,378,480,68" extendstyle="1111">
            <label name="kaoqinContent" rect="0,0,0,0" border="false" />
            <button name="btn1" rect="165,0,64,64" border="false" OnSelect="kaoqinGroupOnSelect"
                 src="file://pics/shangbang_d.png"  style="autosize"
@@ -69,6 +74,7 @@
                 extendstyle="1111" data="2"/>
            <label rect="252,64,64,64" text="下班" font-family="微软雅黑" font-size="24" h-align="center"  extendstyle="1111"></label>
         </node>
+         <!-- 打卡图片列表  -->
         <node name="imageListItem" rect="0,498,480,98" extendstyle="1111" type="fallow">
             <shadow rect="0,0,480,98"  alpha="150" color="#BEE3FF"  extendstyle="1111"/>
             <button name="pic1" rect="20,0,98,98" border="false" enable="false" visible="false"
@@ -95,6 +101,44 @@
                 normal="src:file://pics/addpic_d.png;"  sel="src:file://pics/addpic_s.png;" style="autosize"
                 extendstyle="1111"/>
         </node>
+        <!-- 签到地址列表项模板  -->
+        <node name="addrSelectItem" rect="0,650,330,72" visible="false" enable="false" active="false">
+            <button name="addrSelectButton" rect="20,0,330,61" color="#ffffff"
+                extendstyle="1111" OnSelect="addressOnSelect" font-family="微软雅黑"  h-align="left"
+                normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,0,0;color:#000000" 
+                sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,0,0;color:#ffffff"
+                font-size="24" data="C30" text="" />
+            <scrolltext name="address" rect="20,0,255,61" border="false" color="#000000"
+                text="" h-align="center" v-align="center" font-family="微软雅黑" scroll="true" step="2"
+                font-size="24">
+            </scrolltext>
+            <image rect="0,70,342,2" src="file://pics/Dialogs/line.png"  style="autosize" extendstyle="1111" /> 
+        </node>
+        <!-- 签到位置列表 -->
+        <node name="addrListNode" rect="0,0,480,800" extendstyle="1111" visible="false" enable="false" border="false" >
+            <shadow rect="0,0,480,800" alpha="150" color="#0" extendstyle="1111"></shadow>
+            <node rect="66,240,368,68" extendstyle="1111" border="false">
+                <image rect="0,0,368,68" src="file://pics/Dialogs/top.png"
+                    style="autosize" extendstyle="1111" />
+                <image rect="20,30,31,32" src="file://pics/Dialogs/icon_arrow.png"
+                    style="autosize" extendstyle="1111" />
+                <label rect="40,10,120,68" border="false" color="#FFFFFF"
+                    text="考勤地点" h-align="center" v-align="center" font-family="微软雅黑"
+                    font-size="24"></label>
+            </node>
+            <image rect="66,308,368,320" src="file://pics/Dialogs/center.png" style="autosize" extendstyle="1111" />
+            <listview name="addrList" rect="66,310,368,300" auto-adjust="true" extendstyle="1111"></listview>
+            <image rect="66,628,368,21" src="file://pics/Dialogs/bottom.png"  style="autosize" extendstyle="1111"/>
+        </node>
+        <!-- 签到结果提示 -->
+        <button name="success" border="false" visible="false" enable="false" OnSelect="hideWin" 
+            rect="0,80,480,720" style="autosize" extendstyle="1111">
+            <image  rect="37,620,398,58" src="file://pics/tishichengong.png" style="autosize" extendstyle="1111">
+                <label name="msg" rect="0,0,398,58" 
+                   color="#FFFFFF" extendstyle="1111" style="autosize" h-align="center"
+                   v-align="center" font-family="微软雅黑" font-size="24"/>
+            </image>
+        </button>
    </node>
 </body>
 <![CDATA[
@@ -121,6 +165,7 @@ local net_retryCount=20
 local localsuc=0
 local  skinFalg='' --皮肤更新的标志
 local skinPath='' --皮肤更新的路径
+local g_address = "" 
     
 -- @brief 第一次创建页面事件
 function bodyBuildChildrenFinished(sprite)
@@ -150,7 +195,7 @@ end
 -- @brief 页面加载事件
 function bodyOnSpriteEvent(msg, param)
    if msg == MSG_ACTIVATE then -- 页面激活
-    --.开始定位
+       -- 开始定位
        doLocation()
        checkSkinPath()
        UmsAgent:OnActivate(string.match(Alias.kaoqinaction, 'MODULE:\\(.*)'), "考勤签到")
@@ -165,15 +210,17 @@ function bodyOnPluginEvent(msg, param)
        UmsAgent:onLoadFinish()
        local postDataString = Param:getString(param, 0)
        local postData = Json:loadString2Table(postDataString)
+       Log:write('MapABC网络定位结果：', postData)
        if postData.longitude ~= nil and postData.latitude ~= nil then
-         Log:write('MapABC网络定位成功', postData)
          Timer:cancel(333)
          net_retryCount = 20
          latitude = postData.latitude
          longitude = postData.longitude
-         local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+         -- 地址反解测试
+         postData.desc = "0"
          if postData.desc ~= '0' and postData.desc ~= "" then
             localsuc = 1
+            local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
             Sprite:setProperty(locInfo, 'text', postData.desc)
         else
             Log:write("定位接口未返回地址信息，开始进行地址反解...")
@@ -181,16 +228,21 @@ function bodyOnPluginEvent(msg, param)
             Map:getLocation(observer, 1003, postData.latitude, postData.longitude)  
         end
       end
-   elseif msg == 1003 then--用来显示定位的位置  
+   elseif msg == 1003 then -- 用来显示定位的位置  
         local postDataString = Param:getString(param, 0)                                                                                                             taString = Param:getString(param, 0)
         local postData = Json:loadString2Table(postDataString)
-        local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
-        if postData.address ~= nil then
-            Log:write('解析地址成功', postData)
-            localsuc = 1
-            Sprite:setProperty(locInfo, 'text', postData.address)
-        end
-    elseif msg>=504 and msg<=600 then --返回上传路径，并启动上传
+        Log:write('MapABC地址反解结果：', postData)
+        -- 加载地址列表
+        g_address = postData.address or ""
+        local addrList = Sprite:findChild(rootSprite, "addrList")
+        local addrSelectItem = Sprite:findChild(rootSprite, "addrSelectItem")
+        ListView:loadItem(addrList, addrSelectItem, 4, 'loadListItem')
+        ListView:adjust(addrList) 
+        -- 显示取消列表按钮
+        local addrListNode = Sprite:findChild(rootSprite, "addrListNode")
+        Sprite:setProperty(addrListNode, "visible", "true")
+        Sprite:setProperty(addrListNode, "enable", "true")
+    elseif msg >= 504 and msg <= 600 then --返回上传路径，并启动上传
         local ii=(msg-504);
         local uploadData = Http:xmlDecode('upload_url'..ii, 'RESULT')
         Log:write('upload_url result '..ii, uploadData)
@@ -546,6 +598,41 @@ function showMsg(text)
     if Sprite:isVisible(btn)~=true then
         setAllShoworHide(btn, 1)
         Sprite:setEnable(btn, 1);
+    end
+end
+
+-- @brief 加载地址列表项
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 330, 95)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local address = Sprite:findChild(item, 'address'); 
+    Sprite:setProperty(address, "text", g_address);
+end
+
+-- @brief 隐藏地址列表
+function onSelectHideAddrList(sprite)
+    local addrListNode = Sprite:findChild(rootSprite, "addrListNode")
+    Sprite:setProperty(addrListNode, "visible", "false")
+    Sprite:setProperty(addrListNode, "enable", "false")
+end
+
+-- @brief 选择地址消息处理函数
+function addressOnSelect(sprite)
+    local item = Sprite:getParent(sprite) 
+    local addr = Sprite:getText(Sprite:findChild(item, "address"))
+    Log:write("当前选择的地址为:"..addr)
+    local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+    Sprite:setProperty(locInfo, 'text', addr)
+    onSelectHideAddrList(sprite)
+    localsuc = 1
+end
+
+-- @brief 隐藏提交提示
+function hideWin()
+    local btn=Sprite:findChild(rootSprite, 'success');
+    if Sprite:isVisible(btn)then
+        setAllShoworHide(btn, 0)
+        Sprite:setEnable(btn, 0);
     end
 end
 ]]>
