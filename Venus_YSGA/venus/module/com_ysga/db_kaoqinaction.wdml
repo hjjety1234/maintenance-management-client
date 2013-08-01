@@ -11,6 +11,7 @@
 ============================================================================
 == | Desc: @20130510 修改定位展现采用LBS定位的时候直接获取经纬度无需再进行逆地理编码
 == | Desc: 2013/7/31 增加地址选择对话框
+== | Desc: 2013/8/1 新增辽宁基地基站定位，使用新的poi查询接口
 ============================================================================
 -->
 <root>
@@ -147,56 +148,50 @@ require 'com_ysga.common.map'
 require 'com_ysga.common.upload'
 require 'com_ysga.common.umsagent'
 require 'framework.upload'
+
 local rootSprite
+-- 图片上传相关变量
+local imgdata = {}
+local allimg = ''
+local kqtime = nil
+local addPic = nil
 local jsonDecodedData = nil
-local observer
-local latitude
-local longitude
-local imgdata={}
-local allimg=''
-local server=Alias.urlServer..'attendence/add'
+local server = Alias.urlServer..'attendence/add'
 local up_url = Alias.urlServer..'upload/UGC_GetUploadUrl'
 local newUploadUrl = Alias.urlServer..'new/upload/UGC_GetUploadUrl' -- 新的上传接口
-local kqtime=nil
-local addPic=nil
-local g_retryCount=20
-local net_retryCount=20 
---是否定位成功
-local localsuc=0
-local  skinFalg='' --皮肤更新的标志
-local skinPath='' --皮肤更新的路径
-local g_address = "" 
-    
+
+local g_retryCount    = 20     -- GPS定位超时计数
+local net_retryCount  = 20     -- 网络定位超时计数
+local isLocateSuccess = false  -- 标记是否定位成功
+local latitude        = 0      -- 当前的纬度
+local longitude       = 0      -- 当前的经度 
+local observer        = nil    -- Map的Observer
+
+local skinFalg = ''           -- 皮肤更新的标志
+local skinPath = ''           -- 皮肤更新的路径
+
+local g_addressList = ""      -- 地址反解的地址列表
+local g_address = ""          -- MapABC定位返回的地址
+
+---------------------------------------callbacks--------------------------------    
 -- @brief 第一次创建页面事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    nilNode= Sprite:findChild(rootSprite, 'picdialog')
-    addPic= Sprite:findChild(rootSprite, 'addPic')
-    imgdata = {pic1='',
-        pic2='',
-        pic3='',
-        pic4=''
-    }
+    nilNode = Sprite:findChild(rootSprite, 'picdialog')
+    addPic = Sprite:findChild(rootSprite, 'addPic')
+    imgdata = {pic1='', pic2='', pic3='', pic4=''}
     imageListNode = Sprite:findChild(rootSprite, 'imageListNode')
     imageList = Sprite:findChild(imageListNode, 'imageList')
-    kqtime= Sprite:findChild(rootSprite, 'kqtime')
-    --1.加载定位
-    local lusr=Sprite:findChild(rootSprite, 'kaoqinren')
+    kqtime = Sprite:findChild(rootSprite, 'kqtime')
+    local lusr = Sprite:findChild(rootSprite, 'kaoqinren')
     Sprite:setProperty(lusr, 'text', Config:get('truename'))
     updateTime()
-end
-
--- @brief 每秒更新显示时间
-function updateTime()
-    Sprite:setProperty(kqtime, 'text', getCurDateAndTime1())
-    Timer:set(1,1000,'updateTime')
 end
 
 -- @brief 页面加载事件
 function bodyOnSpriteEvent(msg, param)
    if msg == MSG_ACTIVATE then -- 页面激活
-       -- 开始定位
-       doLocation()
+       getCurrentLocation()
        checkSkinPath()
        UmsAgent:OnActivate(string.match(Alias.kaoqinaction, 'MODULE:\\(.*)'), "考勤签到")
    elseif msg == MSG_DEACTIVATE then
@@ -206,44 +201,72 @@ end
 
 -- @brief 获取接口返回时的反馈处理
 function bodyOnPluginEvent(msg, param)
-   if msg == 1002 then
-       UmsAgent:onLoadFinish()
-       local postDataString = Param:getString(param, 0)
-       local postData = Json:loadString2Table(postDataString)
-       Log:write('MapABC网络定位结果：', postData)
-       if postData.longitude ~= nil and postData.latitude ~= nil then
-         Timer:cancel(333)
-         net_retryCount = 20
-         latitude = postData.latitude
-         longitude = postData.longitude
-         -- 地址反解测试
-         postData.desc = "0"
-         if postData.desc ~= '0' and postData.desc ~= "" then
-            localsuc = 1
-            local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
-            Sprite:setProperty(locInfo, 'text', postData.desc)
-        else
-            Log:write("定位接口未返回地址信息，开始进行地址反解...")
-            observer = Plugin:getObserver()
-            Map:getLocation(observer, 1003, postData.latitude, postData.longitude)  
+    if msg == 1001 then  -- MapABC定位返回
+        local postDataString = Param:getString(param, 0)
+        local postData = Json:loadString2Table(postDataString)
+        Log:write('MapABC网络定位结果：', postData)
+        if postData.longitude ~= nil and postData.latitude ~= nil then
+            resetNetworkLocation()
+            latitude = postData.latitude
+            longitude = postData.longitude
+            g_address = postData.desc
+            local lat = tonumber(latitude) / 1000000.0
+            local lon = tonumber(longitude) / 1000000.0
+            poiSearch(lat, lon, "0")
         end
-      end
-   elseif msg == 1003 then -- 用来显示定位的位置  
+    elseif msg == 1002 then -- 辽宁基地定位接口返回
+        local postDataString = Param:getString(param, 0)
+        local postData = Json:loadString2Table(postDataString)
+        Log:write('辽宁基地网络定位结果：', postData)
+        if postData.longitude ~= nil and postData.latitude ~= nil 
+            and postData.longitude ~= 0 and  postData.latitude ~= 0 then
+            resetNetworkLocation()
+            latitude = postData.latitude
+            longitude = postData.longitude
+            local lat = tonumber(latitude)
+            local lon = tonumber(longitude) 
+            poiSearch(lat, lon, "1")
+        end
+    elseif msg == 1003 then -- 自定义POI查询接口返回
+        Loading:close()
+        local json = Http:jsonDecode('pois')
+        Log:write("自定义POI查询接口返回：", json)
+        if json.success == "true" and json.list ~= nil 
+            and getJsonArrayCount(json.list) > 0 then
+            g_addressList = json.list
+            -- 加载地址选择列表
+            local len = getJsonArrayCount(g_addressList)
+            local addrList = Sprite:findChild(rootSprite, "addrList")
+            local addrSelectItem = Sprite:findChild(rootSprite, "addrSelectItem")
+            ListView:loadItem(addrList, addrSelectItem, len, 'loadListItem')
+            ListView:adjust(addrList) 
+            -- 显示取消列表按钮
+            local addrListNode = Sprite:findChild(rootSprite, "addrListNode")
+            Sprite:setProperty(addrListNode, "visible", "true")
+            Sprite:setProperty(addrListNode, "enable", "true")
+        else
+            Log:write("自定义POI查询失败或为空！")
+            if g_address ~= nil then 
+                Log:write("使用高德定位返回的地址")
+                local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+                Sprite:setProperty(locInfo, "text", g_address)
+                isLocateSuccess = true
+            else
+                Log:write("调用高德地址反解接口...")
+                observer = Plugin:getObserver()
+                Map:getLocation(observer, 1004, latitude, longitude)
+            end 
+        end 
+    elseif msg == 1004 then -- MapABC地址反解返回  
         local postDataString = Param:getString(param, 0)                                                                                                             taString = Param:getString(param, 0)
         local postData = Json:loadString2Table(postDataString)
         Log:write('MapABC地址反解结果：', postData)
-        -- 加载地址列表
-        g_address = postData.address or ""
-        local addrList = Sprite:findChild(rootSprite, "addrList")
-        local addrSelectItem = Sprite:findChild(rootSprite, "addrSelectItem")
-        ListView:loadItem(addrList, addrSelectItem, 4, 'loadListItem')
-        ListView:adjust(addrList) 
-        -- 显示取消列表按钮
-        local addrListNode = Sprite:findChild(rootSprite, "addrListNode")
-        Sprite:setProperty(addrListNode, "visible", "true")
-        Sprite:setProperty(addrListNode, "enable", "true")
+        local address = postData.address
+        local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+        Sprite:setProperty(locInfo, "text", g_address)
+        isLocateSuccess = true
     elseif msg >= 504 and msg <= 600 then --返回上传路径，并启动上传
-        local ii=(msg-504);
+        local ii=(msg - 504);
         local uploadData = Http:xmlDecode('upload_url'..ii, 'RESULT')
         Log:write('upload_url result '..ii, uploadData)
         local url = uploadData.URL
@@ -255,12 +278,12 @@ function bodyOnPluginEvent(msg, param)
         end
         local tmpSplitImage = Split(param,'&')
         Log:write('tmpSplitImage----->', tmpSplitImage)
-      if string.len(allimg)>0 then
-          allimg=allimg..','..string.sub(tmpSplitImage[1],15,-1) 
-      else
-          allimg=string.sub(tmpSplitImage[1],15,-1)   
-      end
-      Log:write('allimg', allimg)
+        if string.len(allimg)>0 then
+            allimg = allimg..','..string.sub(tmpSplitImage[1],15,-1) 
+        else
+            allimg = string.sub(tmpSplitImage[1],15,-1)   
+        end
+        Log:write('allimg', allimg)
         local iname=imgdata['pic'..ii]
         local fname=string.sub(iname,lastIndexof(iname,'/')+1,string.len(iname)-4)
         --local result = Upload:append(url, param,'MODULE:\\com_xsgj\\pics\\list_news_d.jpg', fname , '', 'jpg')
@@ -270,17 +293,16 @@ function bodyOnPluginEvent(msg, param)
         imgdata['pic'..ii]=''
         Log:write('this pic upload task finish...')
         isok()
-  elseif msg == 503 then--提交表单成功
+    elseif msg == 503 then -- 提交表单成功
         if Loading:isShow() then Loading:close() end 
         jsonDecodedData = Http:jsonDecode('kaoqin_data')
         Log:write('后台接口返回数据为',jsonDecodedData)
         if (jsonDecodedData == nil or jsonDecodedData["Total"] == '0') then
             showMsg(jsonDecodedData["Rows"])
             return
-       else--提交成功
-           --所有结束则结束load，提示成功
-           showMsg('信息保存成功')
-       Timer:set(1,1000,'doBack')
+        else
+            showMsg('信息保存成功')
+            Timer:set(1,1000,'doBack')
        end
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
         elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -293,12 +315,24 @@ end
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc) 
     if kc == Key.F2 then -- 按下返回键
-        Scene:back()
+        doBack()
         return 1
     end
 end
 
-----------------------------换肤---------------
+-- @brief 返回按钮处理
+function doBack()
+    Scene:back(true)
+end
+    
+---------------------------------------util functions---------------------------
+-- @brief 每秒更新显示时间
+function updateTime()
+    Sprite:setProperty(kqtime, 'text', getCurDateAndTime1())
+    Timer:set(1,1000,'updateTime')
+end
+
+-- @brief 更换皮肤
 function checkSkinPath()
     local  title=Sprite:findChild(rootSprite, 'imgMainBg')
     local tableValue=readDownloadTxtConfig()
@@ -319,8 +353,7 @@ function checkSkinPath()
         Sprite:setProperty(title,'src','file://pics/main_bg.png')
      end
 end
-    
----------------------------------------util functions---------------------------
+
 --- @brief 选中下拉框后
 function kaoqinGroupOnSelect(sprite)
    local kaoqinContent = Sprite:findChild(rootSprite, 'kaoqinContent')
@@ -408,14 +441,14 @@ end
 
 -- @brief 上传数据
 function submitOnSelect(sprite)
-    local data=Sprite:getData(Sprite:findChild(rootSprite, 'kaoqinContent'))
-    if data==nil or data =='' then
+    local data = Sprite:getData(Sprite:findChild(rootSprite, 'kaoqinContent'))
+    if data == nil or data == '' then
        showMsg('请选择考勤打卡类型');
        return
     end
-    if localsuc~=1 then
-       showMsg('定位失败,请重试!');
-     return
+    if isLocateSuccess == false then
+        showMsg('定位失败,请重试!');
+        return
     end
     uploadphoto()
     subform()
@@ -445,11 +478,7 @@ function uploadphoto()
         end
     end
 end
-    
--- @brief 返回按钮处理
-function doBack()
-    Scene:back(true)
-end
+
 -- @brief 上传表单
 function subform()
     local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
@@ -482,7 +511,6 @@ end
 -- @brief 成功上传
 function isok()
     --图片都已添加到队列
-    
     Log:write('is all task is finish..')
     local r=0;
     for key, value in pairs(imgdata) do
@@ -520,48 +548,30 @@ function topic(sprite)
     Scene:go(Alias.orignImg,true)
 end
   
--- @brief 综合定位方式，优先使用gps，在gps定位失败时采用网络定位
-function doLocation()
-  local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
-  Sprite:setProperty(locInfo, 'text', '正在定位......')
-  -- 当前无经纬度信息，检查当前gps状态
-  local result = System:getGPSStatus()
-  if result == -1 then
-    Sprite:setProperty(locInfo, 'text', '当前GPS不可用, 尝试使用网络定位...')
-    Log:write('0GPS开启失败, 尝试使用网络定位...')
-    getGPSDataByMap()
-  elseif result == 0 then
-    Sprite:setProperty(locInfo, 'text', '使用网络定位请稍等...')
-    getGPSDataByMap()
-  elseif result == 1 then
-    Sprite:setProperty(locInfo, 'text', 'GPS已经开启，正在定位...')
-    Timer:set(222, 1000, 'getLoctude')
-  end
+---------------------------------------定位相关函数--------------------------- 
+-- @brief 组合定位方式获取当前的经纬度
+function getCurrentLocation()
+    -- 初始化MapABC定位地址
+    g_address = nil 
+    local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+    Sprite:setProperty(locInfo, 'text', '正在定位......')
+    -- 当前无经纬度信息，检查当前gps状态
+    local result = System:getGPSStatus()
+    if result == -1 then
+        Sprite:setProperty(locInfo, 'text', '当前GPS不可用, 尝试使用网络定位...')
+        Log:write('GPS开启失败, 尝试使用网络定位...')
+        getLocationByNetwork()
+    elseif result == 0 then
+        Sprite:setProperty(locInfo, 'text', 'GPS未开启，尝试使用网络定位...')
+        getLocationByNetwork()
+    elseif result == 1 then
+        Sprite:setProperty(locInfo, 'text', 'GPS已经开启，正在使用GPS定位...')
+        Timer:set(222, 1000, 'getLocationByGPS')
+    end
 end
 
--- @brief 传统方式获取经纬度
-function getGPSDataByMap()
-  UmsAgent:onLoadStart()
-  observer = Plugin:getObserver()
-  Timer:set(333, 1000, 'getNetWork')
-  Map:getCurPosition(observer, 1002)
-end
-  
--- @brief 网络定位时进行倒计时
-function getNetWork()
-    if (net_retryCount > 0) then
-      local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
-      Sprite:setProperty(locInfo, "text", "网络正在定位中，剩余"..net_retryCount.."秒")
-      net_retryCount = net_retryCount - 1
-    else
-      local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
-      Sprite:setProperty(locInfo, "text", "网络定位失败")
-    end
-    Timer:set(333, 1000, 'getNetWork')
-end
-  
 -- @brief 利用GPS获取经纬度，需要多次进行请求
-function getLoctude()
+function getLocationByGPS()
     -- 获取当前的经纬度数据
     local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
     Sprite:setProperty(locInfo, "text", "GPS正在定位中，剩余"..g_retryCount.."秒")
@@ -570,24 +580,83 @@ function getLoctude()
     -- 对获得的数据进行处理
     if longitude ~= nil and longitude ~= 0 and latitude ~= nil and latitude ~= 0 
         and g_retryCount > 0 then
-            Log:write("GPS数据有效!")
-            g_retryCount = 20
-            System:setGPSStatus(0)
-            observer = Plugin:getObserver()
-            Map:getLocation(observer, 1003, latitude, longitude)
+        Log:write("GPS数据有效!")
+        g_retryCount = 20
+        System:setGPSStatus(0)
+        poiSearch(latitude, longitude, "1")
     elseif longitude == 0 and latitude == 0 and g_retryCount > 0 then
         -- 未超时需要继续请求
-         Log:write("GPS数据无效!")
+        Log:write("GPS数据无效!")
         g_retryCount = g_retryCount - 1
-        Timer:set(222, 1000, 'getLoctude')
+        Timer:set(222, 1000, 'getLocationByGPS')
     else
         -- 已经超时，进行网络定位
         System:setGPSStatus(0)
         g_retryCount = 20
-        Log:write('GPS定位失败, 采用网络定位...')
-        Sprite:setProperty(locInfo, 'text', 'GPS定位失败，采用网络定位...')
-        getGPSDataByMap()
+        Log:write('GPS定位失败, 尝试使用网络定位...')
+        Sprite:setProperty(locInfo, 'text', 'GPS定位失败，尝试使用网络定位...')
+        getLocationByNetwork()
      end
+end
+
+-- @brief 网络定位获取经纬度
+function getLocationByNetwork()
+    local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+    if net_retryCount > 10 then
+        if net_retryCount == 20 then 
+            getLocationByMapABC()
+        end 
+        Sprite:setProperty(locInfo, "text", "MapABC网络定位中，剩余"..(net_retryCount - 10).."秒")
+        net_retryCount = net_retryCount - 1
+    elseif net_retryCount > 0 then 
+        if net_retryCount == 10 then 
+            getLocationByJD()
+        end
+        Sprite:setProperty(locInfo, "text", "辽宁基地网络定位中，剩余"..net_retryCount.."秒")
+        net_retryCount = net_retryCount - 1 
+    else
+        Sprite:setProperty(locInfo, "text", "定位失败，请稍候再试!")
+        resetNetworkLocation()
+        return
+    end
+    Timer:set(333, 1000, 'getLocationByNetwork')
+end
+
+-- @brief 重设网络定位为初始状态
+function resetNetworkLocation()
+    Timer:cancel(333)
+    net_retryCount = 20
+end
+
+-- @brief 高德网络定位获取当前经纬度
+function getLocationByMapABC()
+    Log:write("尝试使用高德网络定位获取当前经纬度...")
+    observer = Plugin:getObserver()
+    Map:getCurPosition(observer, 1001)
+end
+
+-- @brief 辽宁基地网络定位获取当前经纬度
+function getLocationByJD()
+    Log:write("尝试使用辽宁基地网络定位获取当前经纬度...")
+    local code = LuaToJavaExec('Clutter','GetLocationByJD', "[]", 1002);
+    Log:write("LuaToJavaExec函数返回:", code)
+end
+  
+-- @brief 由经纬度进行POI查询
+function poiSearch(lat, lon, locateType)
+    Log:write("进行POI查询,latitude:"..lat..", longitude:"..lon..", locateType:"..locateType)
+    local isShifting = "0"
+    if type == "1" then  -- 真实经纬度类型
+        isShifting = "0"
+    else  -- MapABC类型
+        isShifting = "1"
+    end
+    local requestUrl = string.format("http://120.209.131.154:8080/mobileSale/locateUserType/poi?mobile=%s&longtitude=%f&latitude=%f&radius=%s&isShifting=%s&locateType=%s&productCode=%s",
+        Config:get("username"), lon, lat, "1", 
+        isShifting, locateType, Config:get("productKey"))
+    Log:write("自定义POI查询接口地址："..requestUrl)
+    Http:request('pois', requestUrl, 1003, {useCache = false})
+    Loading:show()
 end
 
 -- @brief 显示提示信息
@@ -606,7 +675,7 @@ function loadListItem(list, item, index)
     Sprite:setRect(item, 0, 0, 330, 95)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local address = Sprite:findChild(item, 'address'); 
-    Sprite:setProperty(address, "text", g_address);
+    Sprite:setProperty(address, "text", g_addressList[index].detLocate);
 end
 
 -- @brief 隐藏地址列表
@@ -624,13 +693,13 @@ function addressOnSelect(sprite)
     local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
     Sprite:setProperty(locInfo, 'text', addr)
     onSelectHideAddrList(sprite)
-    localsuc = 1
+    isLocateSuccess = true
 end
 
 -- @brief 隐藏提交提示
 function hideWin()
     local btn=Sprite:findChild(rootSprite, 'success');
-    if Sprite:isVisible(btn)then
+    if Sprite:isVisible(btn) then
         setAllShoworHide(btn, 0)
         Sprite:setEnable(btn, 0);
     end
