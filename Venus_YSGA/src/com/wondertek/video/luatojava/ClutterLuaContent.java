@@ -95,13 +95,7 @@ public class ClutterLuaContent extends LuaContent implements CmccLocationListene
     					e.printStackTrace();
     				}
     			}
-    			JSONObject obj = new JSONObject();
-    			obj.put("ErrorCode", mCmccLocation.getErrorCode());
-    			obj.put("latitude", mCmccLocation.getLatitude());
-    			obj.put("longitude", mCmccLocation.getLongitude());
-    			obj.put("errRange", mCmccLocation.getErrRange());
-    			obj.put("PosType", mCmccLocation.getPosType());
-    			result = obj.toString();
+    			result = String.format("%f %f", mCmccLocation.getLatitude(), mCmccLocation.getLongitude());
         	} else {
         		return new LuaResult(LuaResult.Status.INVALID_ACTION);
         	}
