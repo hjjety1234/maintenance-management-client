@@ -163,8 +163,8 @@ local newUploadUrl = Alias.urlServer..'new/upload/UGC_GetUploadUrl' -- 新的上
 local g_retryCount    = 20     -- GPS定位超时计数
 local net_retryCount  = 20     -- 网络定位超时计数
 local isLocateSuccess = false  -- 标记是否定位成功
-local latitude        = 0      -- 当前的纬度
-local longitude       = 0      -- 当前的经度 
+local latitude        = 0      -- 当前的纬度：字符串类型，小数点后精确6位
+local longitude       = 0      -- 当前的经度：字符串类型，小数点后精确6位
 local observer        = nil    -- Map的Observer
 
 local skinFalg = ''           -- 皮肤更新的标志
@@ -207,26 +207,10 @@ function bodyOnPluginEvent(msg, param)
         Log:write('MapABC网络定位结果：', postData)
         if postData.longitude ~= nil and postData.latitude ~= nil then
             resetNetworkLocation()
-            latitude = postData.latitude
-            longitude = postData.longitude
+            latitude, longitude = formatLocation(postData.latitude, postData.longitude)
             g_address = postData.desc
-            local lat = tonumber(latitude) / 1000000.0
-            local lon = tonumber(longitude) / 1000000.0
-            poiSearch(lat, lon, "0")
-        end
-    elseif msg == 1002 then -- 辽宁基地定位接口返回
-        local postDataString = Param:getString(param, 0)
-        local postData = Json:loadString2Table(postDataString)
-        Log:write('辽宁基地网络定位结果：', postData)
-        if postData.longitude ~= nil and postData.latitude ~= nil 
-            and postData.longitude ~= 0 and  postData.latitude ~= 0 then
-            resetNetworkLocation()
-            latitude = postData.latitude
-            longitude = postData.longitude
-            local lat = tonumber(latitude)
-            local lon = tonumber(longitude) 
-            poiSearch(lat, lon, "1")
-        end
+            poiSearch(latitude, longitude, "1")
+        end      
     elseif msg == 1003 then -- 自定义POI查询接口返回
         Loading:close()
         local json = Http:jsonDecode('pois')
@@ -254,6 +238,8 @@ function bodyOnPluginEvent(msg, param)
             else
                 Log:write("调用高德地址反解接口...")
                 observer = Plugin:getObserver()
+                latitude = tonumber(latitude) * 1000000
+                longitude = tonumber(longitude) * 1000000
                 Map:getLocation(observer, 1004, latitude, longitude)
             end 
         end 
@@ -263,7 +249,7 @@ function bodyOnPluginEvent(msg, param)
         Log:write('MapABC地址反解结果：', postData)
         local address = postData.address
         local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
-        Sprite:setProperty(locInfo, "text", g_address)
+        Sprite:setProperty(locInfo, "text", address)
         isLocateSuccess = true
     elseif msg >= 504 and msg <= 600 then --返回上传路径，并启动上传
         local ii=(msg - 504);
@@ -583,7 +569,8 @@ function getLocationByGPS()
         Log:write("GPS数据有效!")
         g_retryCount = 20
         System:setGPSStatus(0)
-        poiSearch(latitude, longitude, "1")
+        latitude, longitude = formatLocation(latitude, longitude)
+        poiSearch(latitude, longitude, "0")
     elseif longitude == 0 and latitude == 0 and g_retryCount > 0 then
         -- 未超时需要继续请求
         Log:write("GPS数据无效!")
@@ -638,20 +625,31 @@ end
 -- @brief 辽宁基地网络定位获取当前经纬度
 function getLocationByJD()
     Log:write("尝试使用辽宁基地网络定位获取当前经纬度...")
-    local code = LuaToJavaExec('Clutter','GetLocationByJD', "[]", 1002);
+    local code = LuaToJavaExec('Clutter','GetLocationByJD', "[]", 1, "GetLocationByJDCallback");
     Log:write("LuaToJavaExec函数返回:", code)
+end
+
+-- @brief 辽宁基地网络定位回调函数
+function GetLocationByJDCallback(strMsg)
+    Log:write("辽宁基地网络定位返回字符串："..strMsg)
+    local startPos = string.find(strMsg, "\"")
+    local endPos = lastIndexof(strMsg, "\"")
+    local locationStr = string.sub(strMsg, startPos + 1, endPos - 1)
+    local locationArray = Split(locationStr, " ")
+    latitude = locationArray[1]
+    longitude = locationArray[2]
+    Log:write("解析后的经纬度为:"..latitude..", "..longitude)
+    latitude,longitude = formatLocation(latitude, longitude)
+    resetNetworkLocation()
+    poiSearch(latitude, longitude, "0")
 end
   
 -- @brief 由经纬度进行POI查询
+-- localType : 0 - 真实经纬度， 1 - MapABC经纬度
 function poiSearch(lat, lon, locateType)
     Log:write("进行POI查询,latitude:"..lat..", longitude:"..lon..", locateType:"..locateType)
-    local isShifting = "0"
-    if type == "1" then  -- 真实经纬度类型
-        isShifting = "0"
-    else  -- MapABC类型
-        isShifting = "1"
-    end
-    local requestUrl = string.format("http://120.209.131.154:8080/mobileSale/locateUserType/poi?mobile=%s&longtitude=%f&latitude=%f&radius=%s&isShifting=%s&locateType=%s&productCode=%s",
+    local isShifting  = locateType
+    local requestUrl = string.format("http://120.209.131.154:8080/mobileSale/locateUserType/poi?mobile=%s&longtitude=%s&latitude=%s&radius=%s&isShifting=%s&locateType=%s&productCode=%s",
         Config:get("username"), lon, lat, "1", 
         isShifting, locateType, Config:get("productKey"))
     Log:write("自定义POI查询接口地址："..requestUrl)
@@ -703,6 +701,22 @@ function hideWin()
         setAllShoworHide(btn, 0)
         Sprite:setEnable(btn, 0);
     end
+end
+
+-- @brief 格式化经纬度
+function formatLocation(lat, lon)
+    lat = tonumber(lat)
+    lon = tonumber(lon)
+    while lat > 90 do 
+        lat = lat / 10
+    end 
+    while lon > 180 do
+        lon = lon / 10
+    end 
+    lat = string.format("%.6f", lat)
+    lon = string.format("%.6f", lon)
+    Log:write(string.format("格式化后的经纬度为:%s, %s", lat, lon))
+    return lat, lon
 end
 ]]>
 </root>
