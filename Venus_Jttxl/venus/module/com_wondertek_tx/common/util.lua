@@ -508,3 +508,21 @@ function end_clock(method_name)
         g_start_time = 0
     end 
 end
+
+-- @breif 设置主页面的页号和标签号
+function setMainPage(page, tab)
+    if page == nil or page == "" then
+        page = "0"
+    else
+        page = tostring(page) 
+    end 
+    if tab == nil or tab == "" then 
+        tab = "0"
+    else
+        tab = tostring(tab)
+    end 
+    local regHandle = Reg:create(Alias.m_main)
+    Reg:clear(regHandle)
+    Reg:setString(regHandle, "page", page)
+    Reg:setString(regHandle, "tab", tab)
+end

@@ -123,7 +123,8 @@
                     </button>
                 </list-item>
                  <!-- 版本更新 -->
-                <list-item name="updateVersion" rect="0,0,480,86" extendstyle="1111" border="false">  
+                <list-item name="updateVersion" rect="0,0,480,86" extendstyle="1111" border="false" 
+                    visible="false" enable="false">  
                     <button rect="0,0,480,86"  OnSelect="itemOnSelect" style="autosize"  
                         normal="normal" sel="sel" extendstyle="1111" data="6">
                         <!-- 图片连接线 -->
@@ -358,6 +359,28 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+         UmsAgent:OnActivate(string.match(Alias.m_system, 
+            'MODULE:\\(.*)'), "系统设置页")
+        local jiange_line_node = Sprite:findChild(rootSprite, 'jiange_line_node')
+        local updateVersion = Sprite:findChild(rootSprite, 'updateVersion')
+        Log:write("是否需要更新：",Config:get("isNeedUpdate"))
+        if (Config:get("isNeedUpdate") == "true") then 
+            setAllShoworHide(newNode, 1)
+            setAllShoworHide(jiange_line_node, 1)
+            setAllShoworHide(updateVersion, 1)
+        else 
+            setAllShoworHide(newNode, 0)
+            setAllShoworHide(jiange_line_node, 0)
+            setAllShoworHide(updateVersion, 0)
+        end  
+        Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'), 
+            'src','file://image/book/person_d.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'), 
+            'src','file://image/book/lianxiren_d.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'), 
+            'src','file://image/book/zuijinglianxiren_d.png')
+        Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'), 
+            'src','file://image/book/site_s.png')
         Timer:set(555, 100, "bodyOnSpriteFinish") 
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
@@ -366,27 +389,6 @@ end
 
 -- @brief 异步加载页面
 function bodyOnSpriteFinish()
-    local jiange_line_node = Sprite:findChild(rootSprite, 'jiange_line_node')
-    local updateVersion = Sprite:findChild(rootSprite, 'updateVersion')
-    
-    Log:write("是否需要更新：",Config:get("isNeedUpdate"))
-    if (Config:get("isNeedUpdate") == "true") then 
-        setAllShoworHide(newNode, 1)
-        setAllShoworHide(jiange_line_node, 1)
-        setAllShoworHide(updateVersion, 1)
-    else 
-        setAllShoworHide(newNode, 0)
-        setAllShoworHide(jiange_line_node, 0)
-        setAllShoworHide(updateVersion, 0)
-    end  
-
-    UmsAgent:OnActivate(string.match(Alias.m_system, 'MODULE:\\(.*)'), "系统设置页")
-    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
-    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
-    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
-    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_s.png')
-    -- Timer:set(222, 100, "checkDeviceInfo")
-
     -- 检测是否有强制升级信息
     if Config:get("forceUpdate") == "true" then 
         checkClientVersion()

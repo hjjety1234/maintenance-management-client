@@ -54,10 +54,8 @@ require 'framework.sqlite'
 local rootSprite
 local g_panoramaNode        -- 滑动效果节点
 local g_menuTable           -- 底部菜单的Sprite
-local g_page = 0            -- 标记当前页
-local g_tab = 0             -- 标记当前的标签页
-local g_lastTab = 0         -- 标记上次的
-local g_lastIndex = nil     -- 标记上次页面
+local g_tab      = 0        -- 标记当前的标签页
+local g_lastTab  = 0        -- 标记上次的标签页
 
 -- 四个滑动页的handle
 local g_handle0 = nil   
@@ -74,7 +72,6 @@ local g_subPages = {
 }
 
 local g_pageVisited  = {0, 0, 0, 0}
-
 ---------------------------------------callbacks--------------------------------
 -- @brief root节点消息方法
 function bodyPreBuildChildren()
@@ -83,7 +80,7 @@ end
 
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
-    Log:write("===页面初始化===")
+    Log:write("===滑动主页面初始化===")
     rootSprite = sprite
     g_panoramaNode = Sprite:findChild(sprite, 'panorama')
     local panoramaItem = Sprite:findChild(sprite, 'panoramaItem')
@@ -181,8 +178,6 @@ function panoramaItemOnSelect(sprite)
     end
     -- 去激活上一个页面
     g_pageVisited[index + 1] = 1
-    -- 保存上一个页面
-    g_lastPage = index
 end
 
 -- @brief 底部菜单选择
@@ -192,24 +187,28 @@ end
 
 -- @brief 跳转到指定可滑动页面
 function selectPage(index, tab)
+    -- 格式化目标页面号
     if index == nil or index == "" then 
-        Log:write("页面跳转目标页为nil")
-        return 
+        index = 0
+    else
+        index = tonumber(index)
+        if index < 0 then 
+            index = 0 
+        elseif index > 3 then 
+            index = 3
+        end
     end
-    if tab == nil then 
+    -- 格式化目前标签号
+    if tab == nil or tab == "" then 
         g_tab = 0 
     else
         g_tab = tonumber(tab)
     end
-    index = tonumber(index)
-    if index < 0 then 
-        index = 0 
-    elseif index > 3 then 
-        index = 3
-    end
+    -- 如果目前页面与当前页面不同，则进行页面调整（无特效）
     local curIndex = Panorama:getCurItem(g_panoramaNode)
-    Log:write("页面跳转，当前页为:"..curIndex..", 目标页为："..index.."，标签页为:"..g_tab)
-    if curIndex ~= index then 
+    Log:write("页面跳转，当前页为:"..curIndex..", 目标页为："..
+        index.."，标签页为:"..g_tab.."，上一个标签页为"..g_lastTab)
+    if curIndex ~= index or g_tab ~= g_lastTab then 
         Panorama:setCurItem(g_panoramaNode, index, false)
     end
 end
