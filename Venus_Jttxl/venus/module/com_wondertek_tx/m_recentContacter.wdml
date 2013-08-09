@@ -354,42 +354,46 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        
         Http:startNetwork()
-
-        
-        if (Config:get("isNeedUpdate") == "true") then 
-            setAllShoworHide(newNode, 1)
-        else 
-            setAllShoworHide(newNode, 0)
-        end 
-
-        checkClientVersion()
-        getGroupNum()
-        Log:write("judgeFlag = ", Config:get('judge_flag'))
-        if Config:get('judge_flag') == "0" then  
-            lookRecentUserData() 
-        elseif Config:get('judge_flag') == "1" then
-            Config:set('judge_flag', '0')
-        end   
-        UmsAgent:OnActivate(string.match(Alias.m_recentContacter, 'MODULE:\\(.*)'), "最近联系人")
-        Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
-        Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_s.png')
-        Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
-        Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
-
-        --此版本中添加一行代码，用来收集用户的IMSI号信息至服务器端
-        local device_flag = Config:get('device_flag')
-        Log:write('the device_flag is ',device_flag)
-        if device_flag == nil or device_flag == '' then
-            Log:write('收集设备信息至服务端s')
-            updateDeviceInfo()
-        end
-        Timer:set(222, 100, "checkDeviceInfo")
-
+        UmsAgent:OnActivate(string.match(Alias.m_recentContacter, 
+            'MODULE:\\(.*)'), "最近联系人")
+        Timer:set(111, 100, "bodyOnSpriteFinish") 
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
+end
+
+-- @brief 异步加载页面
+function bodyOnSpriteFinish()
+    if (Config:get("isNeedUpdate") == "true") then 
+        setAllShoworHide(newNode, 1)
+    else 
+        setAllShoworHide(newNode, 0)
+    end 
+    checkClientVersion()
+    getGroupNum()
+    Log:write("judgeFlag = ", Config:get('judge_flag'))
+    if Config:get('judge_flag') == "0" then  
+        lookRecentUserData() 
+    elseif Config:get('judge_flag') == "1" then
+        Config:set('judge_flag', '0')
+    end   
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'), 
+        'src','file://image/book/person_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'), 
+        'src','file://image/book/lianxiren_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'), 
+        'src', 'file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),
+        'src','file://image/book/site_d.png')
+    --此版本中添加一行代码，用来收集用户的IMSI号信息至服务器端
+    local device_flag = Config:get('device_flag')
+    Log:write('the device_flag is ',device_flag)
+    if device_flag == nil or device_flag == '' then
+        Log:write('收集设备信息至服务端s')
+        updateDeviceInfo()
+    end
+    Timer:set(222, 100, "checkDeviceInfo")
 end
 
 -- @zhouyu 收集用户IMSI号信息

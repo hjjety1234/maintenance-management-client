@@ -555,36 +555,43 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        Log:write("@jldu 进入个人中心详情界面！！！！")
-        -- @jldu 验证是否升级
-        if (Config:get("isNeedUpdate") == "true") then 
-            setAllShoworHide(newNode, 1)
-        else 
-            setAllShoworHide(newNode, 0)
-        end 
-        -- 底部菜单初始化
-        Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_s.png')
-        Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'),'src','file://image/book/lianxiren_d.png')
-        Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
-        Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
-        -- 创建数据库
-        createDatabase()
-        -- 初始化群组
-        queryDeptList()
-        initDeptInfo()
-        -- 加载用户数据
-        queryUserInfo()
-        -- 处理节点是否隐藏、调整界面布局
-        handleHideNode()
-
+        Timer:set(444, 100, "bodyOnSpriteFinish")
     elseif msg == MSG_DEACTIVATE then
     end
+end
+
+-- @brief 异步加载页面
+function bodyOnSpriteFinish()
+    Log:write("@jldu 进入个人中心详情界面！！！！")
+    -- @jldu 验证是否升级
+    if (Config:get("isNeedUpdate") == "true") then 
+        setAllShoworHide(newNode, 1)
+    else 
+        setAllShoworHide(newNode, 0)
+    end 
+    -- 底部菜单初始化
+    Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'), 
+        'src','file://image/book/person_s.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'searchBtn'), 
+        'src','file://image/book/lianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'), 
+        'src','file://image/book/zuijinglianxiren_d.png')
+    Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'), 
+        'src','file://image/book/site_d.png')
+    -- 创建数据库
+    createDatabase()
+    -- 初始化群组
+    queryDeptList()
+    initDeptInfo()
+    -- 加载用户数据
+    queryUserInfo()
+    -- 处理节点是否隐藏、调整界面布局
+    handleHideNode()
 end
 
 -- @brief 插件消息方法
 function bodyOnPluginEvent(msg)
     if msg == 101 then
-
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
