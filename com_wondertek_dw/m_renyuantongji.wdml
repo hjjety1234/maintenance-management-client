@@ -550,7 +550,16 @@ end
 
 -- @brief 选择代维公司
 function OnCompanySelect(sprite)
-    Scene:go(Alias.m_renchepeizhi)
+    local len= string.len (Config:get("car_date"))
+    local i,j = string.find(Config:get("car_date"), '-', 1)
+    local year = string.sub(Config:get("car_date"),1,i-1)
+    local month = string.sub(Config:get("car_date"),j+1,len)
+    Log:write('year,month',year,month)
+    if tonumber(year)<=2013 and tonumber(month)<4 then 
+        Scene:go(Alias.m_renchepeizhi_new)
+    elseif tonumber(year)>=2013 and tonumber(month)>=4 then 
+        Scene:go(Alias.m_renchepeizhi)
+    end 
 end 
 function detailOnSelect()
     Scene:setReturn(Alias.m_renyuantongji, Alias.m_renyuandetails)

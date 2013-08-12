@@ -153,7 +153,8 @@ Alias = {
     m_yinhuantongji = "MODULE:\\com_wondertek_dw\\m_yinhuantongji.wdml",  -- 隐患统计 
     m_yinhuanMap = "MODULE:\\com_wondertek_dw\\m_yinhuanMap.wdml",  -- 隐患处理地图
     m_yinhuanMap_city = "MODULE:\\com_wondertek_dw\\m_yinhuanMap_city.wdml",  -- 地市隐患处理地图 
-    m_renchepeizhi = "MODULE:\\com_wondertek_dw\\m_renchepeizhi.wdml",  -- 人车配置   
+    m_renchepeizhi = "MODULE:\\com_wondertek_dw\\m_renchepeizhi.wdml",  -- 人车配置
+    m_renchepeizhi_new = "MODULE:\\com_wondertek_dw\\m_renchepeizhi_new.wdml",  -- 人车配置4月份前    
 
 
     m_biaoganGuanLi ="MODULE:\\com_wondertek_dw\\m_biaoganGuanLi.wdml",  -- 标杆管理

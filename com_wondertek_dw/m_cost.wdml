@@ -212,6 +212,7 @@ local g_dimension = 'city' ----初始市公司维度
 local g_regionid = '' ----当前查询的区域编号，空为全省
 local g_regionname = '区域'  --区域名称
 local regionid
+local date_flag                
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -380,6 +381,7 @@ function majorOn(sprite)
 end
 --当月显示
 function dangyueOnSelect(sprite)
+    date_flag = '0'
     Sprite:setVisible(nian,0)
     Sprite:setVisible(jidu,0)
     Sprite:setVisible(jidulabel1,0)
@@ -443,6 +445,7 @@ function dangyueOnSelect(sprite)
 end
 --当季度显示    
 function dangjiduOnSelect(sprite)
+   date_flag = '0'
    local data = Sprite:getData(sprite);
    Sprite:setRect(nianlabel1, 60, 0, 50, 35)
    Sprite:setVisible(yueLab,0) 
@@ -493,7 +496,7 @@ function dangjiduOnSelect(sprite)
           Sprite:setProperty(rilabel1,"text","1")
           Sprite:setProperty(yuelabel2,"text","9")
           Sprite:setProperty(rilabel2,"text","30")
-           Sprite:setVisible(nian,1)
+          Sprite:setVisible(nian,1)
           Sprite:setVisible(jidu,1)
           Sprite:setProperty(jidulabel1,"text","3")
           Sprite:setVisible(zhi,0)
@@ -515,6 +518,7 @@ function dangjiduOnSelect(sprite)
 end
     
 function dangnianOnSelect(sprite)
+    date_flag = '2'
     Sprite:setVisible(nian,0)
     Sprite:setVisible(jidu,0)
     Sprite:setVisible(jidulabel1,0)
@@ -706,6 +710,16 @@ function request()
     local endday=Sprite:getText(rilabel2)
     local starttime=startyear..'-'..startmonth..'-'..startday
     local endtime=endyear..'-'..endmonth..'-'..endday
+    Log:write('当前时间',startyear,startmonth)
+    if date_flag ~= '2' then 
+        if tonumber(endyear)<=2013 and tonumber(endmonth)<4 then
+            Dialog:show('', '按次费用功能于2013年4月份上线，此前暂无统计数据','ok')
+        end 
+    elseif date_flag == '2' then  
+        if tonumber(endyear)<2013 then
+            Dialog:show('', '按次费用功能于2013年4月份上线，此前暂无统计数据','ok')
+        end
+    end  
     --Log:write('starttime',starttime,endtime)
     local param = 'cmd=wlbcitycost'..'&dimension='..g_dimension..'&starttime='..starttime..'&endtime='..endtime..'&page=1&pagesize=300&usercode='..Config:get('username')..'&regionid='..g_regionid
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
@@ -722,6 +736,7 @@ function request2()
     local endyear=Sprite:getText(nianlabel2)
     local endmonth=Sprite:getText(yuelabel2)
     local endday=Sprite:getText(rilabel2)
+    Log:write('当前时间',startyear,startmonth)
     local starttime=startyear..'-'..startmonth..'-'..startday
     local endtime=endyear..'-'..endmonth..'-'..endday
     --Log:write('starttime',starttime,endtime)
