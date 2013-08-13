@@ -173,6 +173,10 @@ function bodyOnSpriteEvent(msg, param)
             "组织机构首页")
         Timer:set(333, 100, "bodyOnSpriteFinish") 
     elseif msg == MSG_DEACTIVATE then
+        Timer:cancel(333)
+        databaseName = Config:get('databaseName')
+        Sqlite:close(databaseName)
+        databaseName = nil
 		UmsAgent:OnDeactivate()
     elseif msg == MSG_TAB_CLICKED then 
         local _, tab = getSelectedPage()
