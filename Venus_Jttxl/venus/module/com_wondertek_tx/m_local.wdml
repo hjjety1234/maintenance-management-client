@@ -266,12 +266,11 @@ function bodyOnSpriteEvent(msg, param)
             'file://image/book/zuijinglianxiren_s.png')
         Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'), 'src', 
             'file://image/book/site_d.png')
-        getContacts()
-        Timer:set(222, 100, "checkDeviceInfo")
-         --更改标题
-        queryGroupData()
-        showTitleData(company_name)
+        Timer:set(666, 100, "bodyOnSpriteFinish") 
     elseif msg == MSG_DEACTIVATE then
+        Timer:cancel(666)
+        local databaseName = Config:get('databaseName')
+        Sqlite:close(databaseName)
     elseif msg == MSG_CONTACTS then
         contactsTable = getContactsResp()
         groupContacts = contactsTable
@@ -283,6 +282,17 @@ function bodyOnSpriteEvent(msg, param)
         groupContacts = getEachContactsGroupInfoResp()
         showContactList(groupContacts)
     end
+end
+
+-- @brief 异步加载页面
+function bodyOnSpriteFinish()
+    getContacts()
+    Timer:set(222, 100, "checkDeviceInfo")
+    --更改标题
+    reg = Reg:create('group_data')
+    local company_name = Reg:getString(reg, 'company_name')
+    queryGroupData()
+    showTitleData(company_name)
 end
 
 -- @brief 插件消息方法
@@ -632,9 +642,13 @@ function groupOnSelect(sprite)
             -- Scene:go(Alias.m_renyuantongji..'?judgeFlag=2&compId='..data[1]..'&compName='..data[2],true)
             Log:write("点击的sprite:", sprite)
             if sprite == Sprite:findChild(rootSprite, "left") then 
-                Scene:go(Alias.m_main.."?page=1&tab=0")
+                setMainPage(1, 0)
+                local root = Sprite:getRoot(sprite) 
+                Sprite:sendEvent(root, MSG_ACTIVATE)
             else
-                Scene:go(Alias.m_main.."?page=1&tab=1")
+                setMainPage(1, 1)
+                local root = Sprite:getRoot(sprite) 
+                Sprite:sendEvent(root, MSG_ACTIVATE)
             end
         elseif data[4] == '-1' then
              Scene:go(Alias.m_local,true)
@@ -853,7 +867,8 @@ end
 
 function jituanOnselect(sprite)
     Scene:setReturn(Alias.m_local, Alias.m_main)
-    Scene:go(Alias.m_main.."?page=1")
+    setMainPage(1, 0)
+    Scene:go(Alias.m_main)
 end
   
 function phonecancelOnSelect(sprite)
@@ -868,7 +883,8 @@ function doSearch(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
     Scene:setReturn(Alias.m_local, Alias.m_recentContacter)
-    Scene:go(Alias.m_main.."?page=0")
+    setMainPage(0, 0)
+	Scene:go(Alias.m_main)
 end
 
 --@brief 联系人列表
@@ -878,7 +894,8 @@ function doContact(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')
     Scene:setReturn(Alias.m_local, Alias.m_renyuantongji)
-    Scene:go(Alias.m_main.."?page=1")
+    setMainPage(1, 0)
+    Scene:go(Alias.m_main)
 end
 
 --@brief 个人信息详情
@@ -888,7 +905,8 @@ function doPersonalCenter(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/zuijinglianxiren_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'),'src','file://image/book/site_d.png')   
     Scene:setReturn(Alias.m_local, Alias.m_stdMyInfo)
-    Scene:go(Alias.m_main.."?page=2")
+    setMainPage(2, 0)
+	Scene:go(Alias.m_main)
 end
 
 --@brief 设置
@@ -898,7 +916,8 @@ function doSetting(sprite)
     Sprite:setProperty(Sprite:findChild(rootSprite,'contactBtn'),'src','file://image/book/contact_d.png')
     Sprite:setProperty(Sprite:findChild(rootSprite,'personBtn'),'src','file://image/book/person_d.png') 
     Scene:setReturn(Alias.m_local, Alias.m_system)
-    Scene:go(Alias.m_main.."?page=3")
+    setMainPage(3, 0)
+	Scene:go(Alias.m_main)
 end
 
 ---------------------- 新版本地通讯录接口 ----------------

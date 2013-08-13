@@ -158,9 +158,8 @@ function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     newNode = Sprite:findChild(rootSprite, 'newNode')
     reg = Reg:create('group_data')
-    
     checkSkinPath()
-	--更多下拉框
+    --更多下拉框
     comboboxListview = Sprite:findChild(rootSprite, 'comboboxListview')
     comboboxItem = Sprite:findChild(rootSprite, 'comboboxItem')
     blank = Sprite:findChild(rootSprite, 'blank')
@@ -174,13 +173,16 @@ function bodyOnSpriteEvent(msg, param)
             "组织机构首页")
         Timer:set(333, 100, "bodyOnSpriteFinish") 
     elseif msg == MSG_DEACTIVATE then
-        UmsAgent:OnDeactivate()
+        Timer:cancel(333)
+        local databaseName = Config:get('databaseName')
+        Sqlite:close(databaseName)
+		UmsAgent:OnDeactivate()
     elseif msg == MSG_TAB_CLICKED then 
-        local tab = Config:get("tab")
-        if tab == '0' then 
+        local _, tab = getSelectedPage()
+        if tab == 0 then 
             local left = Sprite:findChild(rootSprite, "left")
             groupOnSelect(left)
-        elseif tab == '1' then 
+        elseif tab == 1 then 
             local center = Sprite:findChild(rootSprite, "center")
             groupOnSelect(center)
         end
@@ -609,7 +611,9 @@ function groupOnSelect(sprite)
             local compId = Reg:getString(reg, 'compId')
             Log:write("@jldu renyuantongji compName="..compName.." compId="..compId)
         elseif data[4] == '-1' then
-            Scene:go(Alias.m_main.."?page=1&tab=2")
+            setMainPage(1, 2)
+            local root = Sprite:getRoot(sprite) 
+            Sprite:sendEvent(root, MSG_ACTIVATE)
         elseif data[4] == '0' then
             Scene:go(Alias.m_group,true)
         end

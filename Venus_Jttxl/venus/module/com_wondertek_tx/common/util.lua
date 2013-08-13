@@ -526,3 +526,18 @@ function setMainPage(page, tab)
     Reg:setString(regHandle, "page", page)
     Reg:setString(regHandle, "tab", tab)
 end
+
+-- @breif 获取主页面的页号和标签号
+function getSelectedPage()
+    local regHandle = Reg:create(Alias.m_main)
+    local page = Reg:getString(regHandle, "page")
+    local tab = Reg:getString(regHandle, "tab")
+    if page == nil or page == "" then 
+        page = 0
+    end 
+    if tab == nil or tab == "" then 
+        tab = 0
+    end 
+    Log:write("当前的页号:"..page.."， 标签页:"..tab)
+    return tonumber(page), tonumber(tab)
+end 

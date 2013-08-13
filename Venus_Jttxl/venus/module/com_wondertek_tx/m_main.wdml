@@ -91,14 +91,15 @@ function bodyBuildChildrenFinished(sprite)
         {'person_', Sprite:findChild(foreground, 'personBtn')}, 
         {'site_', Sprite:findChild(foreground, 'siteBtn')}
     }
-    checkClientVersion()
     Panorama:removeAllItems(g_panoramaNode) 
     Panorama:loadItem(g_panoramaNode, panoramaItem, 4, 'onLoadPanoramaItem')
+    checkClientVersion()
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        local page, tab = getSelectedPage()
         selectPage(page, tab)
     elseif msg == MSG_DEACTIVATE then
         Log:write("页面去激活前的index: "..Panorama:getCurItem(g_panoramaNode))
@@ -145,36 +146,35 @@ function panoramaItemOnSelect(sprite)
     Sprite:setProperty(g_menuTable[index+1][2], 'src', 
         'file://image/book/' .. g_menuTable[index+1][1] .. 's.png')
     -- 激活当前页
-    if index == 0 and g_pageVisited[index + 1] == 0 then 
-        Sprite:sendEvent(g_handle0, MSG_ACTIVATE)
-    elseif index == 1 then 
-        Log:write("目标标签页:"..g_tab.."，上一个标签页:"..g_lastTab)
-        if (g_tab == 0 or g_tab == 1) and g_lastTab == 2 then 
-            Log:write("重新加载组织结构标签页")
-            Sprite:clearChild(g_handle1)
-            Sprite:loadFromXml(g_handle1, Alias.m_renyuantongji)
-            Sprite:sendEvent(g_handle1, MSG_ACTIVATE)
-		end
-        if g_tab == 2 and g_tab ~= g_lastTab then 
-            Log:write("重新加载本机通讯录标签页")
-            Sprite:clearChild(g_handle1)
-            Sprite:loadFromXml(g_handle1, Alias.m_local)
-            Sprite:sendEvent(g_handle1, MSG_ACTIVATE)
-        end
-        if g_pageVisited[index + 1] == 0 then 
-            Sprite:sendEvent(g_handle1, MSG_ACTIVATE)
-        end
-        if g_tab == 0 or g_tab == 1 then 
-            Config:set("tab", tostring(g_tab))
-            Sprite:sendEvent(g_handle1, MSG_TAB_CLICKED)
+    if index == 0 then 
+        if g_pageVisited[index + 1] == 0 then
+            Sprite:sendEvent(g_handle0, MSG_ACTIVATE)
+            setMainPage(index, 0)
         else
-            Sprite:sendEvent(g_handle1, MSG_CONTACTS)
+            selectTab(index, g_tab)
         end 
-        g_lastTab = g_tab
-    elseif index == 2 and g_pageVisited[index + 1] == 0 then 
-        Sprite:sendEvent(g_handle2, MSG_ACTIVATE)
-    elseif index == 3 and g_pageVisited[index + 1] == 0 then 
-        Sprite:sendEvent(g_handle3, MSG_ACTIVATE)
+    elseif index == 1 then 
+        if g_pageVisited[index + 1] == 0 then
+            Sprite:sendEvent(g_handle1, MSG_ACTIVATE)
+            setMainPage(index, 0)
+        else
+            selectTab(index, g_tab)
+        end 
+    elseif index == 2 then 
+        if g_pageVisited[index + 1] == 0 then
+            Sprite:sendEvent(g_handle2, MSG_ACTIVATE)
+            setMainPage(index, 0)
+        else
+            selectTab(index, g_tab)
+        end
+        selectTab(index, g_tab)
+    elseif index == 3 then 
+        if g_pageVisited[index + 1] == 0 then
+            Sprite:sendEvent(g_handle3, MSG_ACTIVATE)
+            setMainPage(index, 0)
+        else
+            selectTab(index, g_tab)
+        end 
     end
     -- 去激活上一个页面
     g_pageVisited[index + 1] = 1
@@ -186,31 +186,69 @@ function menuSel(sprite)
 end
 
 -- @brief 跳转到指定可滑动页面
-function selectPage(index, tab)
+function selectPage(page, tab)
     -- 格式化目标页面号
-    if index == nil or index == "" then 
-        index = 0
+    if page == nil or page == "" then 
+        page = 0
     else
-        index = tonumber(index)
-        if index < 0 then 
-            index = 0 
-        elseif index > 3 then 
-            index = 3
+        page = tonumber(page)
+        if page < 0 then 
+            page = 0 
+        elseif page > 3 then 
+            page = 3
         end
     end
-    -- 格式化目前标签号
+    -- 如果目前页面与当前页面不同
+    local curPage = Panorama:getCurItem(g_panoramaNode)
+    if curPage == page then 
+        selectTab(page, tab)
+    else
+        Panorama:setCurItem(g_panoramaNode, page, false)
+    end
+end
+
+-- @brief 跳转到指定可滑动页面的标签页
+function selectTab(page, tab)
+    local curPage = Panorama:getCurItem(g_panoramaNode)
+    if page ~= curPage then 
+        Log:write("当前页与目标页不同，不能进行标签页切换！")
+        return
+    end 
+    -- 格式化目标标签号
     if tab == nil or tab == "" then 
         g_tab = 0 
     else
         g_tab = tonumber(tab)
     end
-    -- 如果目前页面与当前页面不同，则进行页面调整（无特效）
-    local curIndex = Panorama:getCurItem(g_panoramaNode)
-    Log:write("页面跳转，当前页为:"..curIndex..", 目标页为："..
-        index.."，标签页为:"..g_tab.."，上一个标签页为"..g_lastTab)
-    if curIndex ~= index or g_tab ~= g_lastTab then 
-        Panorama:setCurItem(g_panoramaNode, index, false)
+    -- 检查标签页是否已经切换
+    if g_tab == g_lastTab then 
+        Log:write("目前标签页与上个标签页相同，不需要进行切换。")
+        return
     end
+    Log:write("进行标签页切换，目标标签页:"..g_tab.."，上一个标签页:"..g_lastTab)
+    if curPage == 1 then 
+        if (g_tab == 0 or g_tab == 1) and g_lastTab == 2 then 
+            Log:write("重新加载组织结构标签页")
+            Sprite:sendEvent(g_handle1, MSG_DEACTIVATE)
+            Sprite:clearChild(g_handle1)
+            Sprite:loadFromXml(g_handle1, Alias.m_renyuantongji)
+            Sprite:sendEvent(g_handle1, MSG_ACTIVATE)
+        end
+        if g_tab == 2 and g_tab ~= g_lastTab then 
+            Log:write("重新加载本机通讯录标签页")
+            Sprite:sendEvent(g_handle1, MSG_DEACTIVATE)
+            Sprite:clearChild(g_handle1)
+            Sprite:loadFromXml(g_handle1, Alias.m_local)
+            Sprite:sendEvent(g_handle1, MSG_ACTIVATE)
+        end
+        if g_tab == 0 or g_tab == 1 then 
+            Sprite:sendEvent(g_handle1, MSG_TAB_CLICKED)
+        else
+            Sprite:sendEvent(g_handle1, MSG_CONTACTS)
+        end
+    end
+    g_lastTab = g_tab
+    setMainPage(page, g_tab)
 end
 
 -- @brief 加载panoramaItem列表
