@@ -266,11 +266,14 @@ function bodyOnSpriteEvent(msg, param)
             'file://image/book/zuijinglianxiren_s.png')
         Sprite:setProperty(Sprite:findChild(rootSprite,'siteBtn'), 'src', 
             'file://image/book/site_d.png')
-        Timer:set(666, 100, "bodyOnSpriteFinish") 
+        getContacts()
+        Timer:set(222, 100, "checkDeviceInfo")
+        --更改标题
+        reg = Reg:create('group_data')
+        local company_name = Reg:getString(reg, 'company_name')
+        queryGroupData()
+        showTitleData(company_name)
     elseif msg == MSG_DEACTIVATE then
-        Timer:cancel(666)
-        local databaseName = Config:get('databaseName')
-        Sqlite:close(databaseName)
     elseif msg == MSG_CONTACTS then
         contactsTable = getContactsResp()
         groupContacts = contactsTable
@@ -282,17 +285,6 @@ function bodyOnSpriteEvent(msg, param)
         groupContacts = getEachContactsGroupInfoResp()
         showContactList(groupContacts)
     end
-end
-
--- @brief 异步加载页面
-function bodyOnSpriteFinish()
-    getContacts()
-    Timer:set(222, 100, "checkDeviceInfo")
-    --更改标题
-    reg = Reg:create('group_data')
-    local company_name = Reg:getString(reg, 'company_name')
-    queryGroupData()
-    showTitleData(company_name)
 end
 
 -- @brief 插件消息方法
