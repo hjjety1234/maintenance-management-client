@@ -131,7 +131,7 @@ local newNode
 
 --群组代码
 local groupDatas
-local showData
+local showData = {}
 local moreGroup
 local reg
 --特殊群组
@@ -394,8 +394,10 @@ end
 
 function initCityData()
     Log:write("@jldu 初始化数据：")
-    databaseName = Config:get('databaseName')
-    local bRet, errMsg = Sqlite:open(databaseName)
+    if databaseName == nil then 
+        databaseName = Config:get('databaseName')
+        local bRet, errMsg = Sqlite:open(databaseName)
+    end 
     --如果非企业用户不执行下面的
     local queryGroup = "select company_id,company_name,status,org_flag from tb_c_company where org_flag='1' order by org_flag desc,company_name desc;"
     bRet2, companyTable, errMsg2 = Sqlite:query(databaseName, queryGroup)
@@ -450,7 +452,6 @@ function queryGroupData()
         databaseName = Config:get('databaseName')
         local bRet, errMsg = Sqlite:open(databaseName)
     end
-    
     local queryGroup = "select company_id,company_name,status,org_flag from tb_c_company order by org_flag desc,company_name desc;"
     bRet2, companyTable, errMsg2 = Sqlite:query(databaseName, queryGroup)
     groupDatas = companyTable
