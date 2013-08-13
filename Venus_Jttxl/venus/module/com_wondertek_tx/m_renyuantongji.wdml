@@ -173,10 +173,6 @@ function bodyOnSpriteEvent(msg, param)
             "组织机构首页")
         Timer:set(333, 100, "bodyOnSpriteFinish") 
     elseif msg == MSG_DEACTIVATE then
-        Timer:cancel(333)
-        databaseName = Config:get('databaseName')
-        Sqlite:close(databaseName)
-        databaseName = nil
 		UmsAgent:OnDeactivate()
     elseif msg == MSG_TAB_CLICKED then 
         local _, tab = getSelectedPage()
@@ -394,10 +390,8 @@ end
 
 function initCityData()
     Log:write("@jldu 初始化数据：")
-    if databaseName == nil then 
-        databaseName = Config:get('databaseName')
-        local bRet, errMsg = Sqlite:open(databaseName)
-    end 
+    databaseName = Config:get('databaseName')
+    local bRet, errMsg = Sqlite:open(databaseName)
     --如果非企业用户不执行下面的
     local queryGroup = "select company_id,company_name,status,org_flag from tb_c_company where org_flag='1' order by org_flag desc,company_name desc;"
     bRet2, companyTable, errMsg2 = Sqlite:query(databaseName, queryGroup)
@@ -613,7 +607,7 @@ function groupOnSelect(sprite)
             local compId = Reg:getString(reg, 'compId')
             Log:write("@jldu renyuantongji compName="..compName.." compId="..compId)
         elseif data[4] == '-1' then
-            setMainPage(1, 2)
+            setMainPage(1, 1)
             local root = Sprite:getRoot(sprite) 
             Sprite:sendEvent(root, MSG_ACTIVATE)
         elseif data[4] == '0' then

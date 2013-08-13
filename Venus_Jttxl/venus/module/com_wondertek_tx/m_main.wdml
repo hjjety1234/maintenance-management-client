@@ -57,21 +57,18 @@ local g_menuTable           -- 底部菜单的Sprite
 local g_tab      = 0        -- 标记当前的标签页
 local g_lastTab  = 0        -- 标记上次的标签页
 
--- 四个滑动页的handle
-local g_handle0 = nil   
-local g_handle1 = nil  
-local g_handle2 = nil   
-local g_handle3 = nil 
+-- 滑动页的句柄
+local g_handles = {{0}, {0, 0}, {0}, {0}}
 
--- 四个滑动页的页面地址
+-- 滑动页的页面地址
 local g_subPages = {
-    Alias.m_recentContacter,   
-    Alias.m_renyuantongji,
-    Alias.m_stdMyInfo,
-    Alias.m_system,
+    {Alias.m_recentContacter},   
+    {Alias.m_renyuantongji, Alias.m_local},
+    {Alias.m_stdMyInfo},
+    {Alias.m_system},
 }
-
-local g_pageVisited  = {0, 0, 0, 0}
+-- 页面是否被加载 
+local g_pageVisited  = {{0}, {0, 0}, {0}, {0}}
 ---------------------------------------callbacks--------------------------------
 -- @brief root节点消息方法
 function bodyPreBuildChildren()
@@ -147,37 +144,14 @@ function panoramaItemOnSelect(sprite)
         'file://image/book/' .. g_menuTable[index+1][1] .. 's.png')
     -- 激活当前页
     if index == 0 then 
-        if g_pageVisited[index + 1] == 0 then
-            Sprite:sendEvent(g_handle0, MSG_ACTIVATE)
-            setMainPage(index, 0)
-        else
-            selectTab(index, g_tab)
-        end 
+        selectTab(index, g_tab)
     elseif index == 1 then 
-        if g_pageVisited[index + 1] == 0 then
-            Sprite:sendEvent(g_handle1, MSG_ACTIVATE)
-            setMainPage(index, 0)
-        else
-            selectTab(index, g_tab)
-        end 
+        selectTab(index, g_tab)
     elseif index == 2 then 
-        if g_pageVisited[index + 1] == 0 then
-            Sprite:sendEvent(g_handle2, MSG_ACTIVATE)
-            setMainPage(index, 0)
-        else
-            selectTab(index, g_tab)
-        end
         selectTab(index, g_tab)
     elseif index == 3 then 
-        if g_pageVisited[index + 1] == 0 then
-            Sprite:sendEvent(g_handle3, MSG_ACTIVATE)
-            setMainPage(index, 0)
-        else
-            selectTab(index, g_tab)
-        end 
+        selectTab(index, g_tab)
     end
-    -- 去激活上一个页面
-    g_pageVisited[index + 1] = 1
 end
 
 -- @brief 底部菜单选择
@@ -187,7 +161,53 @@ end
 
 -- @brief 跳转到指定可滑动页面
 function selectPage(page, tab)
-    -- 格式化目标页面号
+    -- 格式化目标页面号和标签页号
+    page, g_tab = format(page, tab)
+    -- 如果目前页面与当前页面不同
+    local curPage = Panorama:getCurItem(g_panoramaNode)
+    if curPage == page then 
+        selectTab(page, g_tab)
+    else
+        Panorama:setCurItem(g_panoramaNode, page, false)
+    end
+end
+
+-- @brief 跳转到指定可滑动页面的标签页
+function selectTab(page, tab)
+    -- 格式化目标页面号和标签页号
+    page, g_tab = format(page, tab)
+    -- 检查标签页数据是否被加载
+    if g_pageVisited[page + 1][g_tab + 1] == 0 then 
+        Sprite:sendEvent(g_handles[page + 1][g_tab + 1], MSG_ACTIVATE)
+        g_pageVisited[page + 1][g_tab + 1] = 1
+    end 
+    -- 检查当前页与目标页是否相同
+    local curPage = Panorama:getCurItem(g_panoramaNode)
+    if page ~= curPage then 
+        return
+    end
+    Log:write(string.format("标签页%d切换:%d-->%d.", page, g_lastTab, g_tab))
+    if curPage == 1 then 
+        if g_tab == 0 then 
+            Sprite:sendEvent(g_handles[2][1], MSG_TAB_CLICKED)
+            Sprite:setEnable(g_handles[2][1], 1)
+            Sprite:setVisible(g_handles[2][1], 1) 
+            Sprite:setEnable(g_handles[2][2], 0)
+            Sprite:setVisible(g_handles[2][2], 0) 
+        else
+            Sprite:sendEvent(g_handles[2][2], MSG_CONTACTS)
+            Sprite:setEnable(g_handles[2][1], 0)
+            Sprite:setVisible(g_handles[2][1], 0) 
+            Sprite:setEnable(g_handles[2][2], 1)
+            Sprite:setVisible(g_handles[2][2], 1) 
+        end
+    end
+    g_lastTab = g_tab
+    setMainPage(page, g_tab)
+end
+
+-- @brief 格式化页面号和标签页号
+function format(page, tab)
     if page == nil or page == "" then 
         page = 0
     else
@@ -198,57 +218,13 @@ function selectPage(page, tab)
             page = 3
         end
     end
-    -- 如果目前页面与当前页面不同
-    local curPage = Panorama:getCurItem(g_panoramaNode)
-    if curPage == page then 
-        selectTab(page, tab)
-    else
-        Panorama:setCurItem(g_panoramaNode, page, false)
-    end
-end
-
--- @brief 跳转到指定可滑动页面的标签页
-function selectTab(page, tab)
-    local curPage = Panorama:getCurItem(g_panoramaNode)
-    if page ~= curPage then 
-        Log:write("当前页与目标页不同，不能进行标签页切换！")
-        return
-    end 
     -- 格式化目标标签号
-    if tab == nil or tab == "" then 
+    if tab == nil or tab == "" or page ~= 1 then 
         g_tab = 0 
     else
         g_tab = tonumber(tab)
     end
-    -- 检查标签页是否已经切换
-    if g_tab == g_lastTab then 
-        Log:write("目前标签页与上个标签页相同，不需要进行切换。")
-        return
-    end
-    Log:write("进行标签页切换，目标标签页:"..g_tab.."，上一个标签页:"..g_lastTab)
-    if curPage == 1 then 
-        if (g_tab == 0 or g_tab == 1) and g_lastTab == 2 then 
-            Log:write("重新加载组织结构标签页")
-            Sprite:sendEvent(g_handle1, MSG_DEACTIVATE)
-            Sprite:clearChild(g_handle1)
-            Sprite:loadFromXml(g_handle1, Alias.m_renyuantongji)
-            Sprite:sendEvent(g_handle1, MSG_ACTIVATE)
-        end
-        if g_tab == 2 and g_tab ~= g_lastTab then 
-            Log:write("重新加载本机通讯录标签页")
-            Sprite:sendEvent(g_handle1, MSG_DEACTIVATE)
-            Sprite:clearChild(g_handle1)
-            Sprite:loadFromXml(g_handle1, Alias.m_local)
-            Sprite:sendEvent(g_handle1, MSG_ACTIVATE)
-        end
-        if g_tab == 0 or g_tab == 1 then 
-            Sprite:sendEvent(g_handle1, MSG_TAB_CLICKED)
-        else
-            Sprite:sendEvent(g_handle1, MSG_CONTACTS)
-        end
-    end
-    g_lastTab = g_tab
-    setMainPage(page, g_tab)
+    return page, g_tab
 end
 
 -- @brief 加载panoramaItem列表
@@ -258,25 +234,18 @@ function onLoadPanoramaItem(panorama, item, index)
     Sprite:setRect(item, 0, 0, 480, 800)
     Sprite:setProperty(item, 'extendstyle', '1110')
 	Sprite:setProperty(item, 'OnSelect', 'panoramaItemOnSelect')
-	local subPage = createNode(index, item)
-    Sprite:setRect(subPage, 0, 0, 480, 800)
-    Sprite:setProperty(subPage, 'extendstyle', '1110')
-	Sprite:loadFromXml(subPage, g_subPages[index+1])
+	createNode(index, item)
 end
 
 -- @brief 根据下标创新子页面的handle
 function createNode(index, item)
-    local handle = Sprite:create('node', item)
-    if index == 0 then 
-        g_handle0 = handle 
-    elseif index == 1 then 
-        g_handle1 = handle 
-    elseif index == 2 then 
-        g_handle2 = handle 
-    elseif index == 3 then 
-        g_handle3 = handle 
-    end
-    return handle
+    -- 创建滑动页的标签页
+    for j = 1, #g_handles[index + 1] do 
+        g_handles[index + 1][j] = Sprite:create("node", item) 
+        Sprite:setRect(g_handles[index + 1][j], 0, 0, 480, 800)
+        Sprite:setProperty(g_handles[index + 1][j], 'extendstyle', '1110')
+        Sprite:loadFromXml(g_handles[index + 1][j], g_subPages[index + 1][j])
+    end 
 end
 
 -- @brief 检测客户端版本
