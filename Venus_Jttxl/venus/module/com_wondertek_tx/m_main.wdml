@@ -60,6 +60,9 @@ local g_lastTab  = 0        -- 标记上次的标签页
 -- 滑动页的句柄
 local g_handles = {{0}, {0, 0}, {0}, {0}}
 
+-- 保存滑动页的当前标签，下标从0开始
+local g_currentTabs = {0, 0, 0, 0}
+
 -- 滑动页的页面地址
 local g_subPages = {
     {Alias.m_recentContacter},   
@@ -144,13 +147,13 @@ function panoramaItemOnSelect(sprite)
         'file://image/book/' .. g_menuTable[index+1][1] .. 's.png')
     -- 激活当前页
     if index == 0 then 
-        selectTab(index, g_tab)
+        selectTab(index, g_currentTabs[index + 1])
     elseif index == 1 then 
-        selectTab(index, g_tab)
+        selectTab(index, g_currentTabs[index + 1])
     elseif index == 2 then 
-        selectTab(index, g_tab)
+        selectTab(index, g_currentTabs[index + 1])
     elseif index == 3 then 
-        selectTab(index, g_tab)
+        selectTab(index, g_currentTabs[index + 1])
     end
 end
 
@@ -163,6 +166,8 @@ end
 function selectPage(page, tab)
     -- 格式化目标页面号和标签页号
     page, g_tab = format(page, tab)
+    -- 保存用户选择的标签页
+    g_currentTabs[page + 1] = tab
     -- 如果目前页面与当前页面不同
     local curPage = Panorama:getCurItem(g_panoramaNode)
     if curPage == page then 
@@ -219,7 +224,7 @@ function format(page, tab)
         end
     end
     -- 格式化目标标签号
-    if tab == nil or tab == "" or page ~= 1 then 
+    if tab == nil or tab == "" then 
         g_tab = 0 
     else
         g_tab = tonumber(tab)
