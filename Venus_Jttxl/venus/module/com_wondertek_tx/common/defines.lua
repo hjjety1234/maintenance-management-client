@@ -83,6 +83,8 @@ Alias = {
 
     m_main = 'MODULE:\\com_wondertek_tx\\m_main.wdml', -- 带有滑动效果的主页
     
+    m_qunfaxuanren = "MODULE:\\com_wondertek_tx\\m_qunfaxuanren.wdml",  -- 短信群发选人
+    
     --url_server = 'http://120.209.138.173:8080/'     --测试服务器地址
 
     url_server = 'http://120.209.138.173:8088/'     --标准版测试服务器地址
