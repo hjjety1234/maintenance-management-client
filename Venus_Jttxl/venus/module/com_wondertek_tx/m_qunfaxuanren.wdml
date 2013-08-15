@@ -20,26 +20,39 @@
 	        <!-- 设置背景 -->
 	        <image rect="0,80,480,720" src="file://image/jttxl/bj.png" style="autosize"
 	           extendstyle="1111" />
-	           
-	        <!-- 设置头部 -->
-            <node name="baseSprite" rect="0,0,480,80" extendstyle="1111">
-                 <image rect="0,0,480,80" border="false" src="file://image/jttxl/top.png" 
+            <!-- 设置头部 -->
+            <node name="header" rect="0,0,480,80" extendstyle="1111">
+                <image rect="0,0,480,80" border="false" src="file://image/jttxl/top.png" 
                     style="autosize" extendstyle="1111">
-                    <label name="title" rect="0,0,480,80" text="" color="#ffffff" v-align="center"  
-                       h-align="center" font-family="微软雅黑" font-size="32" extendstyle="1111" />
-                 </image>
-            </node>
-           <node rect="0,85,480,62" name="menuNode" extendstyle="1111">
-                <button rect="30,10,130,62" name="left"  extendstyle="1111"  style='autosize' src='file://image/jttxl/local_menu_a2.png' OnSelect="groupOnSelect">
-                    <label rect="0,0,130,50" name="leftLabel" font-family="微软雅黑" font-size="20" color="#ffffff" v-align="center" h-align="center" extendstyle="1111" />
+                </image>
+                <!-- 返回按钮  -->
+                <button rect="20,18,48,45" OnSelect="doBack" normal="normal" sel="sel" 
+                    style="autosize" extendstyle="1111">
+                    <node name="normal" extendstyle="1111">
+                        <image rect="0,0,48,45" src="file://image/jttxl/back_d.png" style="autosize"
+                            extendstyle="1111" />
+                    </node>
+                    <node name="sel" extendstyle="1111">
+                        <image rect="0,0,48,45" src="file://image/jttxl/back_s.png" style="autosize" 
+                            extendstyle="1111" />
+                    </node>
                 </button>
-                <button rect="160,10,130,62" name="center"  extendstyle="1111"  style='autosize' src='file://image/jttxl/local_menu_b2.png' OnSelect="groupOnSelect">
-                    <label rect="0,0,130,50" name="centerLabel" font-family="微软雅黑" font-size="20" color="#ffffff" v-align="center" h-align="center" extendstyle="1111" />
+                <!-- 选择组织  -->
+                <button rect="185,15,110,45" OnSelect="" normal="normal" style="autosize" extendstyle="1111">
+                    <node name="normal" extendstyle="1111">
+                        <image rect="0,0,110,45" src="file://image/jttxl/combobox.png" style="autosize"
+                            extendstyle="1111" />
+                        <scrolltext rect="0,0,110,40" name="title" font-family="微软雅黑" font-size="22" scroll="true"
+                            text="安徽移动" color="#ffffff" v-align="center" h-align="center" extendstyle="1111" />
+                    </node>
                 </button>
-                 <button rect="291,10,130,62" name="right"  extendstyle="1111"  style='autosize' src='file://image/jttxl/local_menu_c2.png' OnSelect="groupOnSelect">
-                    <label rect="0,0,130,50" name="rightLabel" font-family="微软雅黑" font-size="20" color="#ffffff" v-align="center" h-align="center" extendstyle="1111" />
+                <!-- 搜索  -->
+                <button rect="400,15,48,45" OnSelect="" normal="normal" style="autosize" extendstyle="1111">
+                    <node name="normal" extendstyle="1111">
+                        <image rect="0,0,48,45" src="file://image/jttxl/top_search_d.png" style="autosize"
+                            extendstyle="1111" />
+                    </node>
                 </button>
-                <button rect="425,12,50,50" name="showMoreBtn" extendstyle="1111" style='autosize' src="file://image/jttxl/local_top_more.png" OnSelect="showMoreGroup" visible="false" enable="false"/>
             </node>
              <!-- 下拉框节点 -->
             <node name="comboboxItem" rect="0,0,135,50" visible="false" enable="false" active="false"  extendstyle="1111">
@@ -53,7 +66,6 @@
                     </node>
                 </button>
             </node>
-            
             <node name="cityListNode" rect="0,155,480,564" extendstyle="1111">
                 <listview name="cityList" rect="0,0,480,564" extendstyle="1111" line="17" >
                 </listview>    
@@ -117,18 +129,16 @@
             </node> 
         </node>
     </body>
-    <![CDATA[
-
+<![CDATA[
 require 'com_wondertek_tx.common.framework'
 require 'framework.webbrowser'
 require 'framework.umsagent'
-require('framework.sqlite')
+require 'framework.sqlite'
 local databaseName
 local rootSprite
 local textcontent = {}
 local currentCity 
 local newNode
-
 --群组代码
 local groupDatas
 local showData = {}
@@ -142,15 +152,81 @@ local comboboxListview
 local comboboxsNode
 local comboboxItem
 local blank
-
 --保存从数据库取出来的城市列表
 local retDeptTable2
-
 local bRet2,companyTable,errMsg2
-
 local currentCompanyId --保存当前选中的公司ID
 local skinFalg='' --皮肤更新的标志
 local skinPath='' --皮肤更新的路径
+
+local g_org = {
+    {
+        org_id = "0001", 
+        org_name = "安徽移动", 
+        sub_org = {
+            {
+                org_id = "0002",
+                org_name = "省公司",
+                sub_org = {
+                    {
+                        org_id = "0007",
+                        org_name = "财务部",
+                        sub_org = {
+                            {
+                                org_id = "0008",
+                                org_name = "成本费用科",
+                                sub_org = {},
+                                employee = {
+                                    {
+                                        emp_id = "0009", 
+                                        emp_name = "史伟",
+                                        emp_mobile = "13956906950", 
+                                    },{
+                                        emp_id = "0010", 
+                                        emp_name = "严翔翔",
+                                        emp_mobile = "13956906950", 
+                                    },{
+                                        emp_id = "0011", 
+                                        emp_name = "江峰",
+                                        emp_mobile = "13956906950", 
+                                    },
+                                },
+                            },
+                        }, 
+                        employee = {}
+                    },
+                },
+                employee = {}
+            },{
+                org_id = "0003",
+                org_name = "合肥分公司",
+            },{
+                org_id = "0004",
+                org_name = "安庆分公司",
+            },{
+                org_id = "0005",
+                org_name = "淮南分公司",
+            }
+        },
+    },{
+        org_id = "0000", 
+        org_name = "本机通讯录", 
+        employee = {
+            {
+                emp_id = "", 
+                emp_name = "", 
+                emp_mobile = "",
+            },
+        },
+    }
+}
+
+
+local g_sel_employee = {
+}
+
+local g_sel_org =  {
+}
 
 ---------------------------------------回调函数--------------------------------
 -- root子节点创建完事件
@@ -169,11 +245,8 @@ end
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        UmsAgent:OnActivate(string.match(Alias.m_renyuantongji, 'MODULE:\\(.*)'), 
-            "组织机构首页")
-        Timer:set(333, 100, "bodyOnSpriteFinish") 
+        -- Timer:set(333, 100, "bodyOnSpriteFinish") 
     elseif msg == MSG_DEACTIVATE then
-		UmsAgent:OnDeactivate()
     elseif msg == MSG_TAB_CLICKED then 
         local _, tab = getSelectedPage()
         if tab == 0 then 
@@ -698,12 +771,12 @@ function blankOnSelect()
     Sprite:setEnable(blank, 0)
     Sprite:setActive(blank, 0)
 end
+
 function localOnselect(sprite)
     Scene:setReturn(Alias.m_renyuantongji, Alias.m_local)
     -- Scene:go(Alias.m_local, true)
     -- 不释放页面，提高加载速度
     Scene:go(Alias.m_local)
 end
-
-    ]]>
+]]>
 </root>
