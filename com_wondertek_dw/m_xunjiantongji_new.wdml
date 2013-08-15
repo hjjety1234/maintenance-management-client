@@ -92,8 +92,8 @@
                     style="autosize" extendstyle="1111" />
                 <image rect="10,596,460,12" src="file://image/content_bottom.png"
                     style="autosize" extendstyle="1111" /> 
-                <!-- 选择月份 -->
-                <node name="MonthNode" rect="0,12,480,31" extendstyle="1111">
+                <!-- 选择季度 -->
+                <node name="quarterNode" rect="0,12,480,31" extendstyle="1111">
                     <button name="prevMonthBtn" rect="220,0,40,31" OnSelect="prevMonthOnSelect" 
                         style="autosize" extendstyle="1111" >
                         <image name="normal" rect="0,0,40,31" src="file://image/t5.png" 
@@ -117,6 +117,34 @@
                         v-align="center" color="#ffffff" style="autosize" extendstyle="0010"/> 
                     <label rect="350,0,60,31" text="季度" font-family="微软雅黑" 
                         font-size="23" h-align="center" v-align="center" 
+                        color="#ffffff" style="autosize" extendstyle="0010"/>
+                </node>
+
+                <!-- 选择月份 -->
+                <node name="monthNode" rect="0,15,480,31" visible="false" enable="false" active="false" extendstyle="1111">
+                    <button name="prevBtn" rect="220,0,40,31" OnSelect="prevOnSelect" 
+                        style="autosize" extendstyle="1111" >
+                        <image name="normal" rect="0,0,40,31" src="file://image/t5.png" 
+                            style="autosize" extendstyle="0010"/>                  
+                    </button>
+                    <button name="nextBtn" rect="414,0,40,31" OnSelect="nextOnSelect" 
+                        style="autosize" extendstyle="1111">
+                        <image name="normal" rect="0,0,40,31" src="file://image/t6.png" 
+                            style="autosize" extendstyle="0010"/>                  
+                    </button>
+                    <image name='rightImg' rect="260,0,154,31" src="file://image/t7.png" 
+                        extendstyle="1111" style='autosize'/>
+                    <label name="yearLab" rect="270,0,55,31" text="2012" 
+                        font-family="微软雅黑" font-size="23" h-align="center" 
+                        v-align="center" color="#ffffff" style="autosize" extendstyle="0010"/> 
+                    <label rect="325,0,20,31" text="年" font-family="微软雅黑" 
+                        font-size="23" h-align="center" v-align="center" 
+                        color="#ffffff" style="autosize" extendstyle="0010"/> 
+                    <label name="monthLab" rect="345,0,25,31" text="2" 
+                        font-family="微软雅黑" font-size="24" h-align="center" 
+                        v-align="center" color="#ffffff" style="autosize" extendstyle="0010"/> 
+                    <label rect="367,0,20,31" text="月" font-family="微软雅黑" 
+                        font-size="24" h-align="center" v-align="center" 
                         color="#ffffff" style="autosize" extendstyle="0010"/>
                 </node>
                 <!-- 统计标签 -->
@@ -266,6 +294,10 @@ local g_dimension ='city' --初始市公司维度
 local g_regionid = ''  --当前查询的区域编号，空为全省
 local regionid=''
 local g_response
+
+local quarterNode
+local monthNode
+
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -280,6 +312,11 @@ function bodyBuildChildrenFinished(sprite)
     end
     Log:write('角色和区域',role,g_regionid)
     rootSprite = sprite
+    quarterNode = Sprite:findChild(rootSprite,'quarterNode')
+    monthNode = Sprite:findChild(rootSprite,'monthNode')
+    setAllShoworHide(quarterNode,1)
+    setAllShoworHide(monthNode,0)
+
     local regHandle=Reg:create('xunjian_data')
     patrol = Reg:getTable(regHandle, "xunjian")
     g_major = "C31"
@@ -747,6 +784,73 @@ function getSelectedMonth()
     return year.."-"..month
 end
 
+--------------------------集客、家客按月份展现-------------------------
+
+-- 设置默认的月份
+function setDefMonth()
+    -- 获取当前月份
+    local yearLab = Sprite:findChild(rootSprite, "yearLab")
+    local monthLab = Sprite:findChild(rootSprite, "monthLab")
+    Sprite:setProperty(yearLab, "text", 
+        os.date("*t", os.time() + 86400)["year"])      
+    Sprite:setProperty(monthLab, "text", 
+        os.date("*t", os.time() + 86400)["month"])
+    -- 往前推一个月
+    local year = tonumber(Sprite:getText(yearLab))
+    local month = tonumber(Sprite:getText(monthLab))
+    if month == 2 or month == 1 then 
+        year = year - 1 
+        month = 12
+    else
+        month = month - 2
+    end
+    Sprite:setProperty(yearLab, "text", tostring(year))
+    Sprite:setProperty(monthLab, "text", tostring(month))
+end
+
+-- 上个月份
+function prevOnSelect(sprite)
+    local yearLab = Sprite:findChild(rootSprite, "yearLab")
+    local monthLab = Sprite:findChild(rootSprite, "monthLab")
+    local year = tonumber(Sprite:getText(yearLab))
+    local month = tonumber(Sprite:getText(monthLab))
+    if month == 1 then 
+        year = year - 1 
+        month = 12
+    else
+        month = month - 1
+    end
+    Sprite:setProperty(yearLab, "text", tostring(year))
+    Sprite:setProperty(monthLab, "text", tostring(month))
+    request(g_major)
+end
+
+-- 下个月份
+function nextOnSelect(sprite)
+    local yearLab = Sprite:findChild(rootSprite, "yearLab")
+    local monthLab = Sprite:findChild(rootSprite, "monthLab")
+    local year = tonumber(Sprite:getText(yearLab))
+    local month = tonumber(Sprite:getText(monthLab))
+    if month == 12 then 
+        year = year + 1 
+        month = 1
+    else
+        month = month + 1
+    end
+    Sprite:setProperty(yearLab, "text", tostring(year))
+    Sprite:setProperty(monthLab, "text", tostring(month))
+    request(g_major)
+end
+
+-- 获取当前选择的月份
+function getMonth()
+    local yearLabel = Sprite:findChild(rootSprite, "yearLab")
+    local monthLabel = Sprite:findChild(rootSprite, "monthLab")
+    local year = Sprite:getText(yearLab)
+    local month = Sprite:getText(monthLab)
+    return year.."-"..month
+end
+
 ---------------------------------------服务端请求函数--------------------------------
 -- 选择专业消息处理
 function OnMajorSelect(sprite)
@@ -762,16 +866,31 @@ function OnMajorSelect(sprite)
     setMajorSelectOn(sprite)
     g_major = data
     if data == "C30" then -- 线路
+        setAllShoworHide(quarterNode,0)
+        setAllShoworHide(monthNode,1)
+        setDefMonth()
         request(data)
     elseif data == "C31" then -- 基站
+        setAllShoworHide(quarterNode,1)
+        setAllShoworHide(monthNode,0)
         request(data)
     elseif data == "C32" then -- 综合覆盖
+        setAllShoworHide(quarterNode,1)
+        setAllShoworHide(monthNode,0)
         request(data)
     elseif data == "C33" then -- 铁塔
+        setAllShoworHide(quarterNode,1)
+        setAllShoworHide(monthNode,0)
         request(data)
     elseif data == "C34" then -- 集客
+        setAllShoworHide(quarterNode,0)
+        setAllShoworHide(monthNode,1)
+        setDefMonth()
         request(data)
     elseif data == "C37" then -- 家客
+        setAllShoworHide(quarterNode,0)
+        setAllShoworHide(monthNode,1)
+        setDefMonth()
         request(data)
     else
         Log:write("[OnMajorSelect] 未知专业类型.")
