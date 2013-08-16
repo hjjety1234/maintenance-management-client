@@ -204,10 +204,15 @@ local moreclientBtn   --点击更多按钮
 local dealstate = ''     --隐患处理状态
 local dangerlevel = ''   --隐患级别
 local shaixuantag = 1   --筛选栏是否显示，0不显示，1显示
+
+local detailList
+local listitem
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    detailList = Sprite:findChild(rootSprite, 'detailList')
+    listitem = Sprite:findChild(rootSprite, 'listitem')
     regHandle = Reg:create("m_yinhuantongji")
     date = Reg:getString(regHandle, 'date')   --放入时间参数
     regionid = Reg:getString(regHandle, 'regionid')   --
@@ -215,13 +220,14 @@ function bodyBuildChildrenFinished(sprite)
     codevalue = Reg:getString(regHandle, 'codevalue')  
     moreclientBtn =  Sprite:findChild(rootSprite, 'moreclientBtn')
     -- Reg:clear(regHandle)
-    loadRequest()           --请求函数
+    
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         shaixuanBtnOnselect()  --筛选控制函数，默认不显示删选栏
+        loadRequest()           --请求函数
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -236,10 +242,6 @@ function bodyOnPluginEvent(msg)
             Dialog:show(rootSprite, '返回数据格式错误', 'ok')
             return
         end
-        --获取listview控件
-        local detailList = Sprite:findChild(rootSprite, 'detailList')
-        local listitem = Sprite:findChild(rootSprite, 'listitem')
-        ListView:removeAllItems(detailList)
         --loadListItem(detailList, listitem, 2)
         if detailListData.code == '81' or detailListData.total == 0 then
             Dialog:show(rootSprite, '没有详情不存在', 'ok')
@@ -283,6 +285,7 @@ end
 ---------------------------------------util functions---------------------------
 -- 接口请求函数
 function loadRequest()
+    ListView:removeAllItems(detailList)
     local param = string.format("cmd=dangerdetail&page=1&usercode=%s&pagesize=%s&date=%s&regionid=%s&orgid=%s&codevalue=%s&dealstate=%s&dangerlevel=%s", 
         Config:get('username'), g_pagesize, date, regionid, orgid, codevalue, dealstate, dangerlevel)
     local url = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
@@ -404,8 +407,7 @@ function picOnSelect(sprite)
     Reg:setString(regHandle, "imageSrc", url)
     Reg:setString(regHandle, "pYinhuanID", '')
     Reg:setString(regHandle, "recordUrl", '')
-    -- judgflag=1 判读是从隐患统计详情页面跳转过来的   '?g_regionid='..g_regionid..
-    Scene:setReturn(Alias.m_yinhuanTongjiDetail, Alias.imageDetail)
+    -- judgflag=1 判读是从隐患统计详情页面跳转过来的 
     Scene:go(Alias.imageDetail..'?judgflag=1&g_regionid='..g_regionid..'&selCity='..selCity, 1)
 end
 --按照级别筛选函数
