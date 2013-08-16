@@ -31,8 +31,24 @@ function getCurDateAndTime1()
     local day = os.date("*t")["day"]
     local hour = os.date("*t")["hour"]
     local minute = os.date("*t")["min"]
+    local week = os.date("*t")["wday"]
     local sec = os.date("*t")["sec"]
-    return string.format('%04s-%02s-%02s %02s:%02s:%02s', year, month, day, hour, minute, sec)
+    if week == 1 then 
+        week = "周日"
+    elseif week == 2 then 
+        week = "周一"
+    elseif week == 3 then 
+        week = "周二"
+    elseif week == 4 then 
+        week = "周三"
+    elseif week == 5 then
+        week = "周四" 
+    elseif week == 6 then 
+        week = "周五"
+    elseif week == 7 then
+        week = "周六" 
+    end
+    return string.format('%s月%s日 %s %02s:%02s:%02s', month, day, week, hour, minute, sec)
 end
 
 function getJsonArrayCount(data)
