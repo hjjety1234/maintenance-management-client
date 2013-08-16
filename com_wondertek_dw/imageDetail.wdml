@@ -85,10 +85,18 @@ end
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-        -- 跳转到该页面时，需要Scene:setReturn才能跳回
-        local regHandle = Reg:create("imageId")
-        Reg:setString(regHandle, "pYinhuanID", pYinhuanID)
-        Scene:go(Alias.m_yinhuanDetail..'?flag='..flag,true)
+        -- judgflag=1 标记是从隐患统计详情页面跳转过来
+        if tonumber(judgflag) == 1 then
+            Log:write("从隐患统计详情页面跳转过来")
+            Log:write("传递参数：judgflag,g_regionid,selCity :"..judgflag,g_regionid,selCity)
+            Scene:go(Alias.m_yinhuanTongjiDetail..'?g_regionid='..g_regionid..'&selCity='..selCity, 1)
+        else
+            Log:write("从隐患详情页面跳转过来")
+            -- 跳转到该页面时，需要Scene:setReturn才能跳回
+            local regHandle = Reg:create("imageId")
+            Reg:setString(regHandle, "pYinhuanID", pYinhuanID)
+            Scene:go(Alias.m_yinhuanDetail..'?flag='..flag,true)
+        end        
         return 1
     end
 end
