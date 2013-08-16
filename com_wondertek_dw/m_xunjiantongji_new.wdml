@@ -784,7 +784,7 @@ function getSelectedMonth()
     return year.."-"..month
 end
 
---------------------------集客、家客按月份展现-------------------------
+--------------------------线路、集客、家客按月份展现-------------------------
 
 -- 设置默认的月份
 function setDefMonth()
@@ -844,10 +844,12 @@ end
 
 -- 获取当前选择的月份
 function getMonth()
-    local yearLabel = Sprite:findChild(rootSprite, "yearLab")
-    local monthLabel = Sprite:findChild(rootSprite, "monthLab")
+    Log:write("获取当前月份")
+    local yearLab = Sprite:findChild(rootSprite, "yearLab")
+    local monthLab = Sprite:findChild(rootSprite, "monthLab")
     local year = Sprite:getText(yearLab)
     local month = Sprite:getText(monthLab)
+    Log:write(year.."-"..month)
     return year.."-"..month
 end
 
@@ -917,19 +919,36 @@ end
 
 -- 请求统计数据
 function request(major)
-    local month = getSelectedMonth()
-    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=%s&page=1&pagesize=100&dimension=%s&regionid=%s', 
+    local month
+    if major == 'C30' or major == 'C34' or major == 'C37' then
+        Log:write("线路、集客、家客 按月展示")
+        month = getMonth()
+        Log:write("月份为："..month)
+    else
+        Log:write("基站、综合覆盖等 按季度展示")
+        month = getSelectedMonth()
+        Log:write("季度为："..month)
+    end      
+    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=%s&page=1&pagesize=100&dimension=%s&regionid=%s&flag=', 
         Config:get('username'), month, major,g_dimension,g_regionid)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
-     UmsAgent:onLoadStart()
+    Log:write("请求URL:"..reqURL)
+    UmsAgent:onLoadStart()
     Http:request('patrol', reqURL, 101, {useCache = false})
     Loading:show()
 end
 --获取统计数据返回地址（市公司）
 function request2(g_major,regionid)
+    local date
     Loading:show(rootSprite)
-    local date = getSelectedMonth()
-    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=%s&page=1&pagesize=100&dimension=%s&regionid=%s', 
+    if g_major == 'C30' or g_major == 'C34' or g_major == 'C37' then
+        Log:write("线路、集客、家客 按月展示")
+        date = getMonth()
+    else
+        Log:write("基站、综合覆盖等 按季度展示")
+        date = getSelectedMonth()
+    end    
+    local param = string.format('cmd=wlbpatrol&usercode=%s&date=%s&major=%s&page=1&pagesize=100&dimension=%s&regionid=%s&flag=', 
         Config:get('username'), date, g_major,g_dimension,g_regionid)
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write("巡检维度请求地址",reqURL)
