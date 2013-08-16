@@ -103,17 +103,21 @@
                 extendstyle="1111"/>
         </node>
         <!-- 签到地址列表项模板  -->
-        <node name="addrSelectItem" rect="0,650,330,72" visible="false" enable="false" active="false">
-            <button name="addrSelectButton" rect="20,0,330,61" color="#ffffff"
+        <node name="addrSelectItem" rect="0,650,330,142" visible="false" enable="false" active="false">
+            <button name="addrSelectButton" rect="20,0,330,100" color="#ffffff"
                 extendstyle="1111" OnSelect="addressOnSelect" font-family="微软雅黑"  h-align="left"
                 normal="src:file://pics/icon_list_bg_d.png;style:sudoku-auto;sudoku:0,0,0,0;color:#000000" 
                 sel="src:file://pics/icon_list_bg_s.png;style:sudoku-auto;sudoku:0,0,0,0;color:#ffffff"
                 font-size="24" data="C30" text="" />
-            <scrolltext name="address" rect="20,0,255,61" border="false" color="#000000"
-                text="" h-align="center" v-align="center" font-family="微软雅黑" scroll="true" step="2"
+            <textarea name="address" rect="20,0,255,100" border="false" color="#000000"
+                text="" h-align="left" v-align="center" font-family="微软雅黑" scroll="true" step="4"
                 font-size="24">
-            </scrolltext>
-            <image rect="0,70,342,2" src="file://pics/Dialogs/line.png"  style="autosize" extendstyle="1111" /> 
+            </textarea>
+            <label name="distance" rect="20,100,255,40" border="false" color="#0000ff" 
+                text="" h-align="right" v-align="center" font-family="微软雅黑"
+                font-size="22">
+            </label>
+            <image rect="0,140,342,2" src="file://pics/Dialogs/line.png"  style="autosize" extendstyle="1111" /> 
         </node>
         <!-- 签到位置列表 -->
         <node name="addrListNode" rect="0,0,480,800" extendstyle="1111" visible="false" enable="false" border="false" >
@@ -293,7 +297,7 @@ function bodyOnPluginEvent(msg, param)
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
         elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
-        elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
         Log:write('请求超时')
     end
 end
@@ -670,10 +674,13 @@ end
 
 -- @brief 加载地址列表项
 function loadListItem(list, item, index)
-    Sprite:setRect(item, 0, 0, 330, 95)
+    Sprite:setRect(item, 0, 0, 330, 150)
     Sprite:setProperty(item, 'extendstyle', '1111')
-    local address = Sprite:findChild(item, 'address'); 
-    Sprite:setProperty(address, "text", g_addressList[index].detLocate);
+    local address = Sprite:findChild(item, 'address')
+    local distance = Sprite:findChild(item, "distance")
+    local disValue = tonumber(g_addressList[index].distance) * 1000
+    Sprite:setProperty(address, "text", g_addressList[index].detLocate)
+    Sprite:setProperty(distance, "text", "距离约"..disValue.."米")
 end
 
 -- @brief 隐藏地址列表
