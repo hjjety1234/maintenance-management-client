@@ -297,7 +297,7 @@ local g_response
 
 local quarterNode
 local monthNode
-local day
+local currentDate
 local compMonth             -- 月份
 local compYear              -- 年份
 local averageValue          -- 进度值
@@ -701,7 +701,8 @@ function setDefaultMonth()
         os.date("*t",os.time() + 86400)["year"]) 
     currentMonth = os.date("*t",os.time() + 86400)["month"]
     currentYear = os.date("*t",os.time() + 86400)["year"]
-    day = os.date("*t",os.time() + 86400)["day"]
+    local day = os.date("*t",os.time() + 86400)["day"]
+    currentDate = day
     Log:write('当天时间day:',day)
     if  currentMonth==3 or currentMonth==2 or currentMonth==1 then        
         Sprite:setProperty(monthLabel, "text", '1')
@@ -811,7 +812,7 @@ function setDefMonth()
     local month = tonumber(Sprite:getText(monthLab))
     Sprite:setProperty(yearLab, "text", tostring(year))
     Sprite:setProperty(monthLab, "text", tostring(month))
-    spendTime = day
+    spendTime = currentDate
     compMonth = month
     compYear = year
     Log:write("当天时间、月份、年份：",spendTime,compMonth,compYear)
@@ -913,14 +914,17 @@ function OnMajorSelect(sprite)
     elseif data == "C31" then -- 基站
         setAllShoworHide(quarterNode,1)
         setAllShoworHide(monthNode,0)
+        setDefaultMonth()
         request(data)
     elseif data == "C32" then -- 综合覆盖
         setAllShoworHide(quarterNode,1)
         setAllShoworHide(monthNode,0)
+        setDefaultMonth()
         request(data)
     elseif data == "C33" then -- 铁塔
         setAllShoworHide(quarterNode,1)
         setAllShoworHide(monthNode,0)
+        setDefaultMonth()
         request(data)
     elseif data == "C34" then -- 集客
         setAllShoworHide(quarterNode,0)
