@@ -287,16 +287,20 @@ local g_response = nil
 local g_major = nil
 local g_sum = nil
 local meanNum = 0
-local spendTime = 0 --从季度初到结束耗费的日期
-local currentYear = 0  --当前年份
-local currentMonth = 0 --当前月份
-local g_dimension ='city' --初始市公司维度
-local g_regionid = ''  --当前查询的区域编号，空为全省
+local spendTime = 0         -- 从季度初到结束耗费的日期
+local currentYear = 0       -- 当前年份
+local currentMonth = 0      -- 当前月份
+local g_dimension ='city'   -- 初始市公司维度
+local g_regionid = ''       -- 当前查询的区域编号，空为全省
 local regionid=''
 local g_response
 
 local quarterNode
 local monthNode
+local day
+local compMonth             -- 月份
+local compYear              -- 年份
+local averageValue          -- 进度值
 
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
@@ -360,7 +364,14 @@ function addSumToListItem( list, item, index )
     local newRatio = Sprite:findChild(item,'newRatio')         -- 巡检率
     local newShadow = Sprite:findChild(item,'newShadow')         -- 背景色
     local meanName = Sprite:findChild(item,'meanName')         -- 平均线
-    local averageValue = spendTime/90*100
+
+    if g_major == 'C30' or g_major == 'C34' or g_major == 'C37' then
+        Log:write("线路、集客、家客 按月展示时间进度")
+        monthProgress() 
+    else
+        Log:write("基站、综合覆盖等 按季度展示时间进度")
+        averageValue = spendTime/90*100
+    end      
    
     local shadownum = math.floor(tonumber(string.format('%.2f',averageValue))*3.4)
     meanNum = shadownum+120
@@ -690,8 +701,8 @@ function setDefaultMonth()
         os.date("*t",os.time() + 86400)["year"]) 
     currentMonth = os.date("*t",os.time() + 86400)["month"]
     currentYear = os.date("*t",os.time() + 86400)["year"]
-    local day = os.date("*t",os.time() + 86400)["day"]
-    Log:write('day:',day)
+    day = os.date("*t",os.time() + 86400)["day"]
+    Log:write('当天时间day:',day)
     if  currentMonth==3 or currentMonth==2 or currentMonth==1 then        
         Sprite:setProperty(monthLabel, "text", '1')
     elseif currentMonth==4 or currentMonth==5 or currentMonth==6 then        
@@ -722,7 +733,7 @@ function setDefaultMonth()
     elseif currentMonth == 12 then 
         spendTime = 61 +day
     end
-    Log:write('spendTime',spendTime)
+    Log:write('季度spendTime',spendTime)
 end
 
 -- 上个季度
@@ -775,7 +786,7 @@ function nextMonthOnSelect(sprite)
     request(g_major)
 end
 
--- 获取当前选择的月份
+-- 获取当前选择的季度
 function getSelectedMonth()
     local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
     local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
@@ -798,14 +809,12 @@ function setDefMonth()
     -- 往前推一个月
     local year = tonumber(Sprite:getText(yearLab))
     local month = tonumber(Sprite:getText(monthLab))
-    if month == 2 or month == 1 then 
-        year = year - 1 
-        month = 12
-    else
-        month = month - 2
-    end
     Sprite:setProperty(yearLab, "text", tostring(year))
     Sprite:setProperty(monthLab, "text", tostring(month))
+    spendTime = day
+    compMonth = month
+    compYear = year
+    Log:write("当天时间、月份、年份：",spendTime,compMonth,compYear)
 end
 
 -- 上个月份
@@ -820,6 +829,8 @@ function prevOnSelect(sprite)
     else
         month = month - 1
     end
+    compMonth = month
+    compYear = year
     Sprite:setProperty(yearLab, "text", tostring(year))
     Sprite:setProperty(monthLab, "text", tostring(month))
     request(g_major)
@@ -837,6 +848,8 @@ function nextOnSelect(sprite)
     else
         month = month + 1
     end
+    compMonth = month
+    compYear = year
     Sprite:setProperty(yearLab, "text", tostring(year))
     Sprite:setProperty(monthLab, "text", tostring(month))
     request(g_major)
@@ -851,6 +864,31 @@ function getMonth()
     local month = Sprite:getText(monthLab)
     Log:write(year.."-"..month)
     return year.."-"..month
+end
+
+-- 月份时间进度
+function monthProgress()
+    if compYear < currentYear then 
+        averageValue = 100 
+    elseif compYear == currentYear then
+        if compMonth < currentMonth then 
+            averageValue = 100            
+        elseif compMonth == currentMonth then   
+            Log:write("时间进度函数中，当前月份值："..compMonth)     
+            if  compMonth ==1 or compMonth==3 or compMonth==5 or compMonth==7 or compMonth==8 or compMonth==10 or compMonth==12 then
+                Log:write("月份31天")
+                averageValue = spendTime/31*100 
+            else
+                Log:write("月份30天")
+                averageValue = spendTime/30*100
+            end
+        else
+            averageValue = 0
+        end
+    else 
+        averageValue = 0
+    end
+    Log:write("时间进度值："..averageValue)
 end
 
 ---------------------------------------服务端请求函数--------------------------------
