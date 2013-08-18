@@ -132,7 +132,7 @@
         <!-- 签到结果对话框 -->
         <node name="recordDialog" rect="0,0,480,800" extendstyle="1111" visible="false" enable="false" border="false" >
             <shadow rect="0,0,480,800" alpha="150" color="#0" extendstyle="1111"></shadow>
-            <node rect="20,500,440,280" extendstyle="1111" border="false">
+            <node rect="20,172,440,280" extendstyle="1111" border="false">
                 <image rect="0,0,440,280" src="file://pics/result_bg.png"
                     style="autosize" extendstyle="1111" />
                 <node rect="0,0,440,55" extendstyle="1111">
@@ -173,8 +173,8 @@
                         style="autosize" extendstyle="1111" />
                 </node>
                 <node rect="0,220,440,55" extendstyle="1111">
-                     <button rect="160,4,120,50" border="false" OnSelect="" normal="normal"
-                        extendstyle="1111" data="1">
+                     <button rect="160,4,120,50" border="false" OnSelect="onCloseRecordDialog" 
+                        normal="normal" extendstyle="1111" data="1">
                         <node name="normal" rect="0,0,120,40" extendstyle="1111">
                              <image rect="0,0,120,40" src="file://pics/ok_s.png" style="autosize" 
                                 extendstyle="1111" />
@@ -212,11 +212,11 @@ local observer        = nil    -- Map的Observer
 local g_checkType     = nil    -- 考勤类型：1 - 上班打卡， 2 - 下班打卡
 local g_locType       = nil    -- 定位类型：gps, mapabc, mapabc_td, lbs
 
-local skinFalg = ''           -- 皮肤更新的标志
-local skinPath = ''           -- 皮肤更新的路径
+local skinFalg = ''            -- 皮肤更新的标志
+local skinPath = ''            -- 皮肤更新的路径
 
-local g_addressList = ""      -- 地址反解的地址列表
-local g_address = ""          -- MapABC定位返回的地址
+local g_addressList = ""       -- 地址反解的地址列表
+local g_address = ""           -- MapABC定位返回的地址
 
 ---------------------------------------callbacks--------------------------------    
 -- @brief 第一次创建页面事件
@@ -274,19 +274,7 @@ function bodyOnPluginEvent(msg, param)
             Sprite:setProperty(addrListNode, "visible", "true")
             Sprite:setProperty(addrListNode, "enable", "true")
         else
-            Log:write("自定义POI查询失败或为空！")
-            if g_address ~= nil then 
-                Log:write("使用高德定位返回的地址")
-                local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
-                Sprite:setProperty(locInfo, "text", g_address)
-                isLocateSuccess = true
-            else
-                Log:write("调用高德地址反解接口...")
-                observer = Plugin:getObserver()
-                latitude = tonumber(latitude) * 1000000
-                longitude = tonumber(longitude) * 1000000
-                Map:getLocation(observer, 1004, latitude, longitude)
-            end 
+            showMsg('打卡失败，未进入有效考勤范围，请稍后重试!')
         end 
     elseif msg == 1004 then -- MapABC地址反解返回  
         local postDataString = Param:getString(param, 0)                                                                                                             taString = Param:getString(param, 0)
@@ -366,7 +354,7 @@ function updateTime()
     local dateWeek = Sprite:findChild(rootSprite, "dateWeek")
     Sprite:setProperty(dateWeek, 'text', date.." （"..week.."）")
     Sprite:setProperty(kqtime, 'text', time)
-    Timer:set(1,1000,'updateTime')
+    Timer:set(1, 1000, 'updateTime')
 end
 
 -- @brief 更换皮肤
@@ -445,14 +433,14 @@ end
 function reloadImages()
     local j=20;
     for key, value in pairs(imgdata) do
-        if value~=nil and value~='' then
+        if value ~= nil and value ~= '' then
             local p=Sprite:findChild(rootSprite, key)
             Sprite:setRect(p, j, 0, 98, 98);
             Sprite:setProperty(p, "normal", 'src:'..value)
             Sprite:setProperty(p, "data", value)
-        Sprite:setVisible(p,1)
-        Sprite:setEnable(p,1)
-            j=j+105;
+            Sprite:setVisible(p,1)
+            Sprite:setEnable(p,1)
+            j = j+105;
         end
     end
     if j>350 then
@@ -649,7 +637,7 @@ function getLocationByNetwork()
         Sprite:setProperty(locInfo, "text", "辽宁基地网络定位中，剩余"..net_retryCount.."秒")
         net_retryCount = net_retryCount - 1 
     else
-        Sprite:setProperty(locInfo, "text", "定位失败，请稍候再试!")
+        Sprite:setProperty(locInfo, "text", "网络定位失败，请重试!")
         resetNetworkLocation()
         return
     end
@@ -696,6 +684,7 @@ end
 
 -- @brief 辽宁基地网络定位回调函数
 function GetLocationByJDCallback(strMsg)
+    if net_retryCount == 20 then return end
     Log:write("辽宁基地网络定位返回字符串："..strMsg)
     local startPos = string.find(strMsg, "\"")
     local endPos = lastIndexof(strMsg, "\"")
@@ -798,6 +787,16 @@ function setCurrentStatus(status)
     if status == nil then status = "" end 
     local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
     Sprite:setProperty(locInfo, 'text', status)
+end
+
+-- @brief 关闭考勤结果对话框
+function onCloseRecordDialog(sprite)
+    local recordDialog = Sprite:findChild(rootSprite, "recordDialog")
+    Sprite:setProperty(recordDialog, "visible", "false")
+    Sprite:setProperty(recordDialog, "enable", "false")
+    uploadphoto()
+    imgdata = {}
+    reloadImages()
 end
 
 ]]>
