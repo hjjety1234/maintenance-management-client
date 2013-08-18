@@ -254,7 +254,8 @@ function bodyOnPluginEvent(msg, param)
             resetNetworkLocation()
             g_address = postData.desc
             latitude, longitude = formatLocation(postData.latitude, postData.longitude)
-            Dialog:show("", "网络定位成功，请拍摄考勤现场照片！", "ok", "takePhoto")
+            takePhoto()
+            poiSearch(latitude, longitude, g_locType, g_checkType)
         end      
     elseif msg == 1003 then -- 自定义POI查询接口返回
         Loading:close()
@@ -399,7 +400,6 @@ end
 function takePhoto()
     local addPic = Sprite:findChild(rootSprite, "addPic")
     btnCamera_Click(addPic)
-    poiSearch(latitude, longitude, g_locType, g_checkType)
 end
 
 --- @brief 获取照片
@@ -697,7 +697,8 @@ function GetLocationByJDCallback(strMsg)
     Log:write("解析后的经纬度为:"..latitude..", "..longitude)
     latitude,longitude = formatLocation(latitude, longitude)
     resetNetworkLocation()
-    Dialog:show("", "网络定位成功，请拍摄考勤现场照片！", "ok", "takePhoto")
+    takePhoto()
+    poiSearch(latitude, longitude, g_locType, g_checkType)
 end
   
 -- @brief 由经纬度进行POI查询
