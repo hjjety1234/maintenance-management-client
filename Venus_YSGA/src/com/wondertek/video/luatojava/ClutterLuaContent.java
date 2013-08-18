@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.provider.CallLog;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.android.cmcc.Login.SecurityLogin;
@@ -32,6 +33,7 @@ public class ClutterLuaContent extends LuaContent implements CmccLocationListene
 	private static final String ACTION_CCBTESTTWO = "CCBTestTwo";
 	private static final String ACTION_DELETECALLCONTENT = "DeleteCallContent";
 	private static final String ACTION_JD_LOCATE = "GetLocationByJD";
+	private static final String ACTION_GET_NETWORK_TYPE = "GetNetworkType";
 	private static ClutterLuaContent instance = null;
 	private static CmccLocation mCmccLocation = null;
 	private static SecurityLogin mClient = null;
@@ -81,6 +83,8 @@ public class ClutterLuaContent extends LuaContent implements CmccLocationListene
         	} else if(action.equals(ACTION_DELETECALLCONTENT)) {
         		DeleteCallContent();
         		return null;
+        	}else if (action.equals(ACTION_GET_NETWORK_TYPE)) {
+        		result = getNetworkType();
         	}else if (action.equals(ACTION_JD_LOCATE)) {
         		Log.d(TAG, "[execute] try to get current location...");
         		mCmccLocation = null;
@@ -155,5 +159,70 @@ public class ClutterLuaContent extends LuaContent implements CmccLocationListene
 	@Override
 	public void onReceiveLocation(CmccLocation cmccLocation) {
 		mCmccLocation = cmccLocation;
+	}
+	
+	/**
+	* @Description 获取当前的网络类型
+	* @return GSM, TD-SCDMA
+	* @author hewu <hewu2008@gmail.com>
+	* @date 2013-8-18 下午2:30:53
+	*/
+	public String getNetworkType() {
+		TelephonyManager teleMan =  
+	            (TelephonyManager)VenusActivity.appActivity.getSystemService(VenusActivity.appContext.TELEPHONY_SERVICE);
+		int networkType = teleMan.getNetworkType();
+		String strType = "Unknown";
+		switch (networkType) {
+			case 7:
+				strType = "1xRTT";
+			    break;      
+			case 4:
+				strType = "CDMA";
+			    break;      
+			case 2:
+				strType = "EDGE";
+			    break;  
+			case 14:
+				strType = "eHRPD";
+			    break;      
+			case 5:
+				strType = "EVDO rev. 0";
+			    break;  
+			case 6:
+				strType = "EVDO rev. A";
+			    break;  
+			case 12:
+				strType = "EVDO rev. B";
+			    break;  
+			case 1:
+				strType = "GPRS";
+			    break;      
+			case 8:
+				strType = "HSDPA";
+			    break;      
+			case 10:
+				strType = "HSPA";
+			    break;          
+			case 15:
+				strType = "HSPA+";
+			    break;          
+			case 9:
+				strType = "HSUPA";
+			    break;          
+			case 11:
+				strType = "iDen";
+			    break;
+			case 13:
+				strType = "LTE";
+			    break;
+			case 3:
+				strType = "UMTS";
+			    break;          
+			case 0:
+				strType = "Unknown";
+			    break;
+		}
+		Log.d(TAG, "[getNetworkType] strType:" + strType);
+		return strType;
 	}
 }
