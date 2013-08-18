@@ -266,6 +266,7 @@ function bodyOnPluginEvent(msg, param)
         Log:write("自定义POI查询接口返回：", json)
         if json.success == "true" and json.list ~= nil 
             and getJsonArrayCount(json.list) > 0 then
+            setCurrentStatus("打卡成功!")
             g_addressList = json.list
             -- 加载地址选择列表
             local len = getJsonArrayCount(g_addressList)
@@ -401,6 +402,7 @@ end
 
 -- @brief 拍照函数
 function takePhoto()
+    setCurrentStatus("正在打开相机...")
     local addPic = Sprite:findChild(rootSprite, "addPic")
     btnCamera_Click(addPic)
 end
@@ -651,7 +653,6 @@ end
 function resetNetworkLocation()
     Timer:cancel(333)
     net_retryCount = 20
-    setCurrentStatus("")
 end
 
 -- @brief 高德网络定位获取当前经纬度
@@ -708,6 +709,7 @@ end
 -- @brief 由经纬度进行POI查询
 -- localType : 0 - 真实经纬度， 1 - MapABC经纬度
 function poiSearch(lat, lon, locateType, checkType)
+    setCurrentStatus("正在提交，请稍候...")
     -- 构造请求参数
     local param = string.format("userName=%s&longitude=%s&latitude=%s&locatDetail=loc1&attencdCarType=%s&locateType=%s",
         Config:get('username'), lon, lat, checkType, locateType)
@@ -727,7 +729,7 @@ function poiSearch(lat, lon, locateType, checkType)
     end
     -- 将图片附加到上传队列中 
     uploadphoto()
-    imgdata = {}
+    imgdata = {pic1='', pic2='', pic3='', pic4=''}
     reloadImages()
     --  请求考勤打卡
     Log:write("考勤打卡requestUri:"..server.."?"..param)
