@@ -53,7 +53,7 @@
                 font-family="微软雅黑" font-size="24" step="4" scroll="true"/>
         </node>
         <!-- 签到类型  -->
-        <node rect="20,308,440,220" extendstyle="1111">
+        <node rect="20,338,440,220" extendstyle="1111">
            <button name="btn1" rect="0,0,440,50" border="false" OnSelect="doCheck" normal="normal"
                 extendstyle="1111" data="1">
                 <node name="normal" rect="0,0,440,50" extendstyle="1111">
@@ -94,7 +94,8 @@
            </button>
         </node>
         <!-- 上传图片列表  -->
-        <node name="imageListItem" rect="0,558,480,98" extendstyle="1111" type="fallow">
+        <node name="imageListItem" rect="0,558,480,98" extendstyle="1111" type="fallow" 
+            visible="false" enable="false">
             <shadow rect="0,0,480,98"  alpha="150" color="#BEE3FF"  extendstyle="1111"/>
             <button name="pic1" rect="20,0,98,98" border="false" enable="false" visible="false"
                 color="#ffffff" OnSelect="topic" extendstyle="1111" style="autosize">
@@ -206,11 +207,12 @@ local newUploadUrl = Alias.urlServer..'new/upload/UGC_GetUploadUrl' -- 新的上
 
 local net_retryCount  = 20     -- 网络定位超时计数
 local isLocateSuccess = false  -- 标记是否定位成功
-local latitude        = 0      -- 当前的纬度：字符串类型，小数点后精确6位
-local longitude       = 0      -- 当前的经度：字符串类型，小数点后精确6位
+local latitude        = 0      -- 当前的纬度：字符串类型，如116000000
+local longitude       = 0      -- 当前的经度：字符串类型，如31000000
 local observer        = nil    -- Map的Observer
 local g_checkType     = nil    -- 考勤类型：1 - 上班打卡， 2 - 下班打卡
 local g_locType       = nil    -- 定位类型：gps, mapabc, mapabc_td, lbs
+local g_locSuccess    = false  -- 标记定位是否成功，默认不成功
 
 local skinFalg = ''            -- 皮肤更新的标志
 local skinPath = ''            -- 皮肤更新的路径
@@ -250,12 +252,13 @@ function bodyOnPluginEvent(msg, param)
         local postDataString = Param:getString(param, 0)
         local postData = Json:loadString2Table(postDataString)
         Log:write('MapABC网络定位结果：', postData)
-        if postData.longitude ~= nil and postData.latitude ~= nil then
+        if postData.longitude ~= nil and postData.latitude ~= nil 
+            and g_locSuccess == false then
+            g_locSuccess = true
             resetNetworkLocation()
             g_address = postData.desc
             latitude, longitude = formatLocation(postData.latitude, postData.longitude)
             takePhoto()
-            poiSearch(latitude, longitude, g_locType, g_checkType)
         end      
     elseif msg == 1003 then -- 自定义POI查询接口返回
         Loading:close()
@@ -275,7 +278,7 @@ function bodyOnPluginEvent(msg, param)
             Sprite:setProperty(addrListNode, "visible", "true")
             Sprite:setProperty(addrListNode, "enable", "true")
         else
-            showMsg('打卡失败，未进入有效考勤范围，请稍后重试!')
+            setCurrentStatus('打卡失败，未进入有效考勤范围，请稍后重试!')
         end 
     elseif msg == 1004 then -- MapABC地址反解返回  
         local postDataString = Param:getString(param, 0)                                                                                                             taString = Param:getString(param, 0)
@@ -404,27 +407,28 @@ end
 
 --- @brief 获取照片
 function onCameraDialog(photoPath, photoType)
-  -- 添加图片压缩支持
-  local tmpSplitArray = Split(photoPath,'%.')
-  local dest = tmpSplitArray[1] .. 'temp' .. System:getTickTime() .. '.jpg'
-  Log:write('目标文件路径为:'..dest)
-  local ret = ScaleImageAsJpg(photoPath, dest, 480, 800, 0)
-  local r = nil;
-  if ret == 1 then
-      r= dest
-      Log:write('图片压缩成功，压缩后的图片位置为:'..dest)
-  else
-      r=photoPath
-      Log:write('警告：图片压缩失败，使用未压缩的图片:'..photoPath)
-  end
-  Log:write('图片地址:', r)
-  for key, value in pairs(imgdata) do
-       if value==nil or value=='' then
-          imgdata[key]=r
-          break
-       end
-   end
-   reloadImages();
+    -- 添加图片压缩支持
+    local tmpSplitArray = Split(photoPath,'%.')
+    local dest = tmpSplitArray[1] .. 'temp' .. System:getTickTime() .. '.jpg'
+    Log:write('目标文件路径为:'..dest)
+    local ret = ScaleImageAsJpg(photoPath, dest, 480, 800, 0)
+    local r = nil;
+    if ret == 1 then
+        r = dest
+        Log:write('图片压缩成功，压缩后的图片位置为:'..dest)
+    else
+        r = photoPath
+        Log:write('警告：图片压缩失败，使用未压缩的图片:'..photoPath)
+    end
+    Log:write('图片地址:', r)
+    for key, value in pairs(imgdata) do
+        if value == nil or value == '' then
+            imgdata[key] = r
+            break
+        end
+    end
+    reloadImages();
+    poiSearch(latitude, longitude, g_locType, g_checkType)
 end
     
 -- @brief 重新显示图片列表
@@ -573,6 +577,7 @@ end
 function doCheck(sprite)
     -- 初始化MapABC定位地址
     g_address = nil 
+    g_locSuccess = false  --  置当前定位状态为未定位成功
     local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
     Sprite:setProperty(locInfo, 'text', '正在定位......')
     -- 获取当前的打卡类型
@@ -646,6 +651,7 @@ end
 function resetNetworkLocation()
     Timer:cancel(333)
     net_retryCount = 20
+    setCurrentStatus("")
 end
 
 -- @brief 高德网络定位获取当前经纬度
@@ -657,7 +663,7 @@ function getLocationByMapABC()
     else
         g_locType = "mapabc"
     end
-    Log:write("当前的网络类型为:", g_locType)
+    Log:write("当前定位类型为:", g_locType)
     observer = Plugin:getObserver()
     Map:getCurPosition(observer, 1001)
 end
@@ -682,7 +688,6 @@ end
 
 -- @brief 辽宁基地网络定位回调函数
 function GetLocationByJDCallback(strMsg)
-    if net_retryCount == 20 then return end
     Log:write("辽宁基地网络定位返回字符串："..strMsg)
     local startPos = string.find(strMsg, "\"")
     local endPos = lastIndexof(strMsg, "\"")
@@ -690,27 +695,43 @@ function GetLocationByJDCallback(strMsg)
     local locationArray = Split(locationStr, " ")
     latitude = locationArray[1]
     longitude = locationArray[2]
-    if latitude == "0" or longitude == "0" then
-        setCurrentStatus("网络定位失败，请重试") 
-        return 
+    if latitude ~= "0" or longitude ~= "0" 
+		and g_locSuccess == false then
+        g_locSuccess = true
+        Log:write("解析后的经纬度为:"..latitude..", "..longitude)
+        latitude, longitude = formatLocation(latitude, longitude)
+        resetNetworkLocation()
+        takePhoto()
     end 
-    Log:write("解析后的经纬度为:"..latitude..", "..longitude)
-    latitude,longitude = formatLocation(latitude, longitude)
-    resetNetworkLocation()
-    takePhoto()
-    poiSearch(latitude, longitude, g_locType, g_checkType)
 end
   
 -- @brief 由经纬度进行POI查询
 -- localType : 0 - 真实经纬度， 1 - MapABC经纬度
 function poiSearch(lat, lon, locateType, checkType)
-    Log:write("进行POI查询,latitude:"..lat..", longitude:"..lon..", locateType:"..locateType)
-    local isShifting  = locateType
-    local requestUrl = string.format("http://120.209.131.154:8080/mobileSale/locateUserType/poi?mobile=%s&longtitude=%s&latitude=%s&radius=%s&isShifting=%s&locateType=%s&productCode=%s&checkType=%s",
-        Config:get("username"), lon, lat, "1", 
-        isShifting, locateType, Config:get("productKey"), checkType)
-    Log:write("自定义POI查询接口地址："..requestUrl)
-    Http:request('pois', requestUrl, 1003, {useCache = false})
+    -- 构造请求参数
+    local param = string.format("userName=%s&longitude=%s&latitude=%s&locatDetail=loc1&attencdCarType=%s&locateType=%s",
+        Config:get('username'), lon, lat, checkType, locateType)
+    for key, value in pairs(imgdata) do
+        if value ~= "" then 
+             local filename = string.sub(value, lastIndexof( value,'/') + 1, string.len(value) - 4 )
+             local strFilename = "yt_"..filename..'.jpg'    
+             if allimg == nil or allimg == "" then 
+                allimg = strFilename
+             else
+                allimg = allimg..","..strFilename
+             end
+        end
+    end
+    if allimg ~= nil and allimg ~= '' then
+        param = param..'&imageExplain=&imageAddr='..allimg
+    end
+    -- 将图片附加到上传队列中 
+    uploadphoto()
+    imgdata = {}
+    reloadImages()
+    --  请求考勤打卡
+    Log:write("考勤打卡requestUri:"..server.."?"..param)
+    Http:request('pois', server, 1003, {useCache = false, method = 'post',postData = param})
     Loading:show()
 end
 
@@ -773,8 +794,8 @@ function formatLocation(lat, lon)
     while lon > 180 do
         lon = lon / 10
     end 
-    lat = string.format("%.6f", lat)
-    lon = string.format("%.6f", lon)
+    lat = string.format("%.0f", lat * 1000000)
+    lon = string.format("%.0f", lon * 1000000)
     Log:write(string.format("格式化后的经纬度为:%s, %s", lat, lon))
     return lat, lon
 end
@@ -797,9 +818,6 @@ function onCloseRecordDialog(sprite)
     local recordDialog = Sprite:findChild(rootSprite, "recordDialog")
     Sprite:setProperty(recordDialog, "visible", "false")
     Sprite:setProperty(recordDialog, "enable", "false")
-    uploadphoto()
-    imgdata = {}
-    reloadImages()
 end
 
 ]]>
