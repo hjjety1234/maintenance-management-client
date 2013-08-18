@@ -254,8 +254,15 @@ function bodyOnPluginEvent(msg, param)
         Log:write('MapABC网络定位结果：', postData)
         if postData.longitude ~= nil and postData.latitude ~= nil 
             and g_locSuccess == false then
-            g_locSuccess = true
             resetNetworkLocation()
+            g_locSuccess = true
+            local networkType = getNetworkType()
+            if networkType == "HSDPA" then 
+                g_locType = "mapabc_td"
+            else
+                g_locType = "mapabc"
+            end
+            Log:write("当前定位类型为:", g_locType)
             g_address = postData.desc
             latitude, longitude = formatLocation(postData.latitude, postData.longitude)
             takePhoto()
@@ -658,13 +665,6 @@ end
 -- @brief 高德网络定位获取当前经纬度
 function getLocationByMapABC()
     Log:write("尝试使用高德网络定位获取当前经纬度...")
-    local networkType = getNetworkType()
-    if networkType == "HSDPA" then 
-        g_locType = "mapabc_td"
-    else
-        g_locType = "mapabc"
-    end
-    Log:write("当前定位类型为:", g_locType)
     observer = Plugin:getObserver()
     Map:getCurPosition(observer, 1001)
 end
@@ -681,7 +681,6 @@ end
 
 -- @brief 辽宁基地网络定位获取当前经纬度
 function getLocationByJD()
-    g_locType = "lbs"
     Log:write("尝试使用辽宁基地网络定位获取当前经纬度...")
     local code = LuaToJavaExec('Clutter','GetLocationByJD', "[]", 1, "GetLocationByJDCallback");
     Log:write("LuaToJavaExec函数返回:", code)
@@ -694,11 +693,11 @@ function GetLocationByJDCallback(strMsg)
     local endPos = lastIndexof(strMsg, "\"")
     local locationStr = string.sub(strMsg, startPos + 1, endPos - 1)
     local locationArray = Split(locationStr, " ")
-    latitude = locationArray[1]
-    longitude = locationArray[2]
-    if latitude ~= "0" or longitude ~= "0" 
-		and g_locSuccess == false then
+    if locationArray[1] ~= "0" and locationArray[2] ~= "0" and g_locSuccess == false then
         g_locSuccess = true
+        g_locType = "lbs"
+        latitude = locationArray[1]
+        longitude = locationArray[2]
         Log:write("解析后的经纬度为:"..latitude..", "..longitude)
         latitude, longitude = formatLocation(latitude, longitude)
         resetNetworkLocation()
