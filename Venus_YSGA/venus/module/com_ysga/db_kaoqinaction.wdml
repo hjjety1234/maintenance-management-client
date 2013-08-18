@@ -54,7 +54,7 @@
         </node>
         <!-- 签到类型  -->
         <node rect="20,308,440,220" extendstyle="1111">
-           <button name="btn1" rect="0,0,440,50" border="false" OnSelect="kaoqinGroupOnSelect" normal="normal"
+           <button name="btn1" rect="0,0,440,50" border="false" OnSelect="doCheck" normal="normal"
                 extendstyle="1111" data="1">
                 <node name="normal" rect="0,0,440,50" extendstyle="1111">
                      <image rect="0,0,440,50" src="file://pics/button_bg.png" style="autosize" 
@@ -65,7 +65,7 @@
                         line-height="35" text="上班签到" v-align="center" font-family="微软雅黑" font-size="28"/>
                 </node>
            </button>
-           <button name="btn2" rect="0,70,440,50" border="false" OnSelect="kaoqinGroupOnSelect" normal="normal"
+           <button name="btn2" rect="0,70,440,50" border="false" OnSelect="doCheck" normal="normal"
                 extendstyle="1111" data="2">
                 <node name="normal" rect="0,0,440,50" extendstyle="1111">
                      <image rect="0,0,440,50" src="file://pics/button_bg.png" style="autosize" 
@@ -209,6 +209,8 @@ local isLocateSuccess = false  -- 标记是否定位成功
 local latitude        = 0      -- 当前的纬度：字符串类型，小数点后精确6位
 local longitude       = 0      -- 当前的经度：字符串类型，小数点后精确6位
 local observer        = nil    -- Map的Observer
+local g_checkType     = nil    -- 考勤类型：1 - 上班打卡， 2 - 下班打卡
+local g_locType       = nil    -- 定位类型：gps, mapabc, mapabc_td, lbs
 
 local skinFalg = ''           -- 皮肤更新的标志
 local skinPath = ''           -- 皮肤更新的路径
@@ -236,8 +238,7 @@ function bodyOnSpriteEvent(msg, param)
    if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.kaoqinaction, 
             'MODULE:\\(.*)'), "考勤签到")
-       getCurrentLocation()
-       checkSkinPath()
+        checkSkinPath()
    elseif msg == MSG_DEACTIVATE then
        UmsAgent:OnDeactivate()
    end
@@ -575,13 +576,15 @@ function topic(sprite)
 end
   
 ---------------------------------------定位相关函数--------------------------- 
--- @brief 组合定位方式获取当前的经纬度
-function getCurrentLocation()
+-- @brief 上下班打卡按钮消息处理函数
+function doCheck(sprite)
     -- 初始化MapABC定位地址
     g_address = nil 
     local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
     Sprite:setProperty(locInfo, 'text', '正在定位......')
-    -- 当前无经纬度信息，检查当前gps状态
+    -- 获取当前的打卡类型
+    g_checkType = Sprite:getData(sprite)
+    -- 检查当前gps状态
     local result = System:getGPSStatus()
     if result == -1 then
         Sprite:setProperty(locInfo, 'text', 'GPS不可用, 网络定位中...')
@@ -597,6 +600,14 @@ end
 
 -- @brief 利用GPS获取经纬度，需要多次进行请求
 function getLocationByGPS()
+    -- 再次检查GPS的状态
+    local result = System:getGPSStatus()
+    if result ~= 1 then
+        setCurrentStatus("GPS已关闭，网络定位中...")
+        Timer:cancel(222)
+        getLocationByNetwork()
+        return
+    end
     -- 获取当前的经纬度数据
     longitude,latitude = System:getGPSData()
     Log:write(string.format("获得原始GPS经纬度: %s, %s", latitude, longitude))
@@ -606,6 +617,7 @@ function getLocationByGPS()
         Log:write("GPS数据有效!")
         System:setGPSStatus(0)
         latitude, longitude = formatLocation(latitude, longitude)
+        g_locType = "gps"
         poiSearch(latitude, longitude, "0")
     else
         -- GPS数据无效需要继续请求
@@ -646,12 +658,25 @@ end
 -- @brief 高德网络定位获取当前经纬度
 function getLocationByMapABC()
     Log:write("尝试使用高德网络定位获取当前经纬度...")
+    g_locType = getNetworkType()
+	Log:write("当前的网络类型为:", g_locType)
     observer = Plugin:getObserver()
     Map:getCurPosition(observer, 1001)
 end
 
+-- @brief 获取网络类型
+function getNetworkType()
+    local strType = LuaToJavaExec('Clutter','GetNetworkType', "[]");
+    local _, startPos = string.find(strType, "message:")
+    local endPos = lastIndexof(strType, "\"")
+    local result = string.sub(strType, startPos + 2, endPos - 1)
+    Log:write("当前的网络类型为:", result)
+	return result
+end
+
 -- @brief 辽宁基地网络定位获取当前经纬度
 function getLocationByJD()
+    g_locType = "lbs"
     Log:write("尝试使用辽宁基地网络定位获取当前经纬度...")
     local code = LuaToJavaExec('Clutter','GetLocationByJD', "[]", 1, "GetLocationByJDCallback");
     Log:write("LuaToJavaExec函数返回:", code)
@@ -677,9 +702,9 @@ end
 function poiSearch(lat, lon, locateType)
     Log:write("进行POI查询,latitude:"..lat..", longitude:"..lon..", locateType:"..locateType)
     local isShifting  = locateType
-    local requestUrl = string.format("http://120.209.131.154:8080/mobileSale/locateUserType/poi?mobile=%s&longtitude=%s&latitude=%s&radius=%s&isShifting=%s&locateType=%s&productCode=%s",
+    local requestUrl = string.format("http://120.209.131.154:8080/mobileSale/locateUserType/poi?mobile=%s&longtitude=%s&latitude=%s&radius=%s&isShifting=%s&locateType=%s&productCode=%s&checkType=%s",
         Config:get("username"), lon, lat, "1", 
-        isShifting, locateType, Config:get("productKey"))
+        isShifting, g_locType, Config:get("productKey"), g_checkType)
     Log:write("自定义POI查询接口地址："..requestUrl)
     Http:request('pois', requestUrl, 1003, {useCache = false})
     -- Loading:show()
@@ -687,10 +712,10 @@ end
 
 -- @brief 显示提示信息
 function showMsg(text)
-    local btn=Sprite:findChild(rootSprite, 'success');
-    local msgtxt=Sprite:findChild(rootSprite, 'msg'); 
+    local btn = Sprite:findChild(rootSprite, 'success');
+    local msgtxt = Sprite:findChild(rootSprite, 'msg'); 
     Sprite:setProperty(msgtxt, "text", text);
-    if Sprite:isVisible(btn)~=true then
+    if Sprite:isVisible(btn) ~= true then
         setAllShoworHide(btn, 1)
         Sprite:setEnable(btn, 1);
     end
