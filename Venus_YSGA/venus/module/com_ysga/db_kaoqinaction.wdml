@@ -692,6 +692,10 @@ function GetLocationByJDCallback(strMsg)
     local locationArray = Split(locationStr, " ")
     latitude = locationArray[1]
     longitude = locationArray[2]
+    if latitude == "0" or longitude == "0" then
+        setCurrentStatus("网络定位失败，请重试") 
+        return 
+    end 
     Log:write("解析后的经纬度为:"..latitude..", "..longitude)
     latitude,longitude = formatLocation(latitude, longitude)
     resetNetworkLocation()
