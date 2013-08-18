@@ -252,11 +252,9 @@ function bodyOnPluginEvent(msg, param)
         Log:write('MapABC网络定位结果：', postData)
         if postData.longitude ~= nil and postData.latitude ~= nil then
             resetNetworkLocation()
-            local addPic = Sprite:findChild(rootSprite, "addPic")
-            btnCamera_Click(addPic)
-            latitude, longitude = formatLocation(postData.latitude, postData.longitude)
             g_address = postData.desc
-            poiSearch(latitude, longitude, "1")
+            latitude, longitude = formatLocation(postData.latitude, postData.longitude)
+            Dialog:show("", "网络定位成功，请拍摄考勤现场照片！", "ok", "takePhoto")
         end      
     elseif msg == 1003 then -- 自定义POI查询接口返回
         Loading:close()
@@ -409,6 +407,13 @@ function btnCamera_Click(sprite)
       showMsg('相机打开失败!');
       return 1
     end
+end
+
+-- @brief 拍照函数
+function takePhoto()
+    local addPic = Sprite:findChild(rootSprite, "addPic")
+    btnCamera_Click(addPic)
+    poiSearch(latitude, longitude, g_locType, g_checkType)
 end
 
 --- @brief 获取照片
@@ -620,7 +625,7 @@ function getLocationByGPS()
         System:setGPSStatus(0)
         latitude, longitude = formatLocation(latitude, longitude)
         g_locType = "gps"
-        poiSearch(latitude, longitude, "0")
+        poiSearch(latitude, longitude, g_locType, g_checkType)
     else
         -- GPS数据无效需要继续请求
         Log:write("GPS数据无效!")
@@ -699,24 +704,22 @@ function GetLocationByJDCallback(strMsg)
     latitude = locationArray[1]
     longitude = locationArray[2]
     Log:write("解析后的经纬度为:"..latitude..", "..longitude)
-    local addPic = Sprite:findChild(rootSprite, "addPic")
-    btnCamera_Click(addPic)
     latitude,longitude = formatLocation(latitude, longitude)
     resetNetworkLocation()
-    poiSearch(latitude, longitude, "0")
+    Dialog:show("", "网络定位成功，请拍摄考勤现场照片！", "ok", "takePhoto")
 end
   
 -- @brief 由经纬度进行POI查询
 -- localType : 0 - 真实经纬度， 1 - MapABC经纬度
-function poiSearch(lat, lon, locateType)
+function poiSearch(lat, lon, locateType, checkType)
     Log:write("进行POI查询,latitude:"..lat..", longitude:"..lon..", locateType:"..locateType)
     local isShifting  = locateType
     local requestUrl = string.format("http://120.209.131.154:8080/mobileSale/locateUserType/poi?mobile=%s&longtitude=%s&latitude=%s&radius=%s&isShifting=%s&locateType=%s&productCode=%s&checkType=%s",
         Config:get("username"), lon, lat, "1", 
-        isShifting, g_locType, Config:get("productKey"), g_checkType)
+        isShifting, locateType, Config:get("productKey"), checkType)
     Log:write("自定义POI查询接口地址："..requestUrl)
     Http:request('pois', requestUrl, 1003, {useCache = false})
-    -- Loading:show()
+    Loading:show()
 end
 
 -- @brief 显示提示信息
