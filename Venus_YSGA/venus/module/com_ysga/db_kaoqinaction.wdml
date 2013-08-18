@@ -204,7 +204,6 @@ local server = Alias.urlServer..'attendence/add'
 local up_url = Alias.urlServer..'upload/UGC_GetUploadUrl'
 local newUploadUrl = Alias.urlServer..'new/upload/UGC_GetUploadUrl' -- 新的上传接口
 
-local g_retryCount    = 20     -- GPS定位超时计数
 local net_retryCount  = 20     -- 网络定位超时计数
 local isLocateSuccess = false  -- 标记是否定位成功
 local latitude        = 0      -- 当前的纬度：字符串类型，小数点后精确6位
@@ -235,9 +234,10 @@ end
 -- @brief 页面加载事件
 function bodyOnSpriteEvent(msg, param)
    if msg == MSG_ACTIVATE then -- 页面激活
+        UmsAgent:OnActivate(string.match(Alias.kaoqinaction, 
+            'MODULE:\\(.*)'), "考勤签到")
        getCurrentLocation()
        checkSkinPath()
-       UmsAgent:OnActivate(string.match(Alias.kaoqinaction, 'MODULE:\\(.*)'), "考勤签到")
    elseif msg == MSG_DEACTIVATE then
        UmsAgent:OnDeactivate()
    end
@@ -395,18 +395,6 @@ function kaoqinGroupOnSelect(sprite)
    local kaoqinContent = Sprite:findChild(rootSprite, 'kaoqinContent')
    local kdt=Sprite:getData(sprite);
    Sprite:setProperty(kaoqinContent, 'data', kdt)
-   --更改显示的图片的背景
-   --[[
-   local btn1=Sprite:findChild(rootSprite, 'btn1')
-   local btn2=Sprite:findChild(rootSprite, 'btn2')
-   if kdt=='1' then
-      Sprite:setProperty(btn1, 'src', 'file://pics/shangbang_liebiao.png')
-      Sprite:setProperty(btn2, 'src', 'file://pics/xiabang_d.png')
-   else
-      Sprite:setProperty(btn1, 'src', 'file://pics/shangbang_d.png')
-      Sprite:setProperty(btn2, 'src', 'file://pics/xiabang_liebiao.png')
-   end
-   --]]
 end
 
 --- @brief 开启拍照
@@ -596,14 +584,13 @@ function getCurrentLocation()
     -- 当前无经纬度信息，检查当前gps状态
     local result = System:getGPSStatus()
     if result == -1 then
-        Sprite:setProperty(locInfo, 'text', '当前GPS不可用, 尝试使用网络定位...')
-        Log:write('GPS开启失败, 尝试使用网络定位...')
+        Sprite:setProperty(locInfo, 'text', 'GPS不可用, 网络定位中...')
         getLocationByNetwork()
     elseif result == 0 then
-        Sprite:setProperty(locInfo, 'text', 'GPS未开启，尝试使用网络定位...')
+        Sprite:setProperty(locInfo, 'text', 'GPS未开启，网络定位中...')
         getLocationByNetwork()
     elseif result == 1 then
-        Sprite:setProperty(locInfo, 'text', 'GPS已经开启，正在使用GPS定位...')
+        Sprite:setProperty(locInfo, 'text', 'GPS已开启，正在定位中...')
         Timer:set(222, 1000, 'getLocationByGPS')
     end
 end
@@ -611,30 +598,19 @@ end
 -- @brief 利用GPS获取经纬度，需要多次进行请求
 function getLocationByGPS()
     -- 获取当前的经纬度数据
-    local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
-    Sprite:setProperty(locInfo, "text", "GPS正在定位中，剩余"..g_retryCount.."秒")
     longitude,latitude = System:getGPSData()
-    Log:write(string.format("当前经纬度: %s, %s", latitude, longitude))
+    Log:write(string.format("获得原始GPS经纬度: %s, %s", latitude, longitude))
     -- 对获得的数据进行处理
-    if longitude ~= nil and longitude ~= 0 and latitude ~= nil and latitude ~= 0 
-        and g_retryCount > 0 then
+    if longitude ~= nil and longitude ~= 0 and 
+        latitude ~= nil and latitude ~= 0 then
         Log:write("GPS数据有效!")
-        g_retryCount = 20
         System:setGPSStatus(0)
         latitude, longitude = formatLocation(latitude, longitude)
         poiSearch(latitude, longitude, "0")
-    elseif longitude == 0 and latitude == 0 and g_retryCount > 0 then
-        -- 未超时需要继续请求
-        Log:write("GPS数据无效!")
-        g_retryCount = g_retryCount - 1
-        Timer:set(222, 1000, 'getLocationByGPS')
     else
-        -- 已经超时，进行网络定位
-        System:setGPSStatus(0)
-        g_retryCount = 20
-        Log:write('GPS定位失败, 尝试使用网络定位...')
-        Sprite:setProperty(locInfo, 'text', 'GPS定位失败，尝试使用网络定位...')
-        getLocationByNetwork()
+        -- GPS数据无效需要继续请求
+        Log:write("GPS数据无效!")
+        Timer:set(222, 1000, 'getLocationByGPS')
      end
 end
 
@@ -779,5 +755,13 @@ function onViewRecords(sprite)
     Scene:setReturn(Alias.kaoqinaction, Alias.kaoqinlist)
     Scene:go(Alias.kaoqinlist,true)
 end
+
+-- @brief 设置当前的状态
+function setCurrentStatus(status)
+    if status == nil then status = "" end 
+    local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
+    Sprite:setProperty(locInfo, 'text', status)
+end
+
 ]]>
 </root>
