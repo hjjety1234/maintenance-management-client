@@ -252,6 +252,8 @@ function bodyOnPluginEvent(msg, param)
         Log:write('MapABC网络定位结果：', postData)
         if postData.longitude ~= nil and postData.latitude ~= nil then
             resetNetworkLocation()
+            local addPic = Sprite:findChild(rootSprite, "addPic")
+            btnCamera_Click(addPic)
             latitude, longitude = formatLocation(postData.latitude, postData.longitude)
             g_address = postData.desc
             poiSearch(latitude, longitude, "1")
@@ -697,6 +699,8 @@ function GetLocationByJDCallback(strMsg)
     latitude = locationArray[1]
     longitude = locationArray[2]
     Log:write("解析后的经纬度为:"..latitude..", "..longitude)
+    local addPic = Sprite:findChild(rootSprite, "addPic")
+    btnCamera_Click(addPic)
     latitude,longitude = formatLocation(latitude, longitude)
     resetNetworkLocation()
     poiSearch(latitude, longitude, "0")
