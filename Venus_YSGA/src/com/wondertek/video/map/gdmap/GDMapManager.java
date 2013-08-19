@@ -153,18 +153,7 @@ public class GDMapManager implements IMapPlugin, RouteMessageHandler {
 		public synchronized void onLocationChanged(Location location) {
 			if (location == null || mStartTime == 0 || mbIsGetCurrentPositionCalled == false)
 				return ;
-			long elapsedTime = (SystemClock.elapsedRealtime() - mStartTime) / 1000;
-			Log.d(TAG, String.format( "[onLocationChanged] accuracy: %.2f, duration: %d sec", 
-					location.getAccuracy(), elapsedTime));
-			// record best location
-			if (mBestLocation == null) mBestLocation = location;
-			else if (mBestLocation.getAccuracy() > location.getAccuracy()) {
-				mBestLocation = location;
-				Log.i(TAG, "get new best location.");
-			}
-			// try 5 seconds 
-			if (elapsedTime <= 5) return; 
-			location = mBestLocation;
+			Log.d(TAG, String.format( "[onLocationChanged] accuracy: %.2f", location.getAccuracy()));
 			int geoLat = (int) (location.getLatitude() * 1e6);
 			int geoLog = (int) (location.getLongitude() * 1e6);
 			Bundle localBundle = location.getExtras();
