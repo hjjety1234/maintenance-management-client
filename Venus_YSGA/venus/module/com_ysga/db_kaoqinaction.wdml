@@ -585,6 +585,7 @@ end
 -- @brief 上下班打卡按钮消息处理函数
 function doCheck(sprite)
     -- 初始化MapABC定位地址
+    Loading:show()
     g_address = nil 
     g_locSuccess = false  --  置当前定位状态为未定位成功
     local locInfo = Sprite:findChild(rootSprite, 'kaoqinlocation')
@@ -649,6 +650,7 @@ function getLocationByNetwork()
         Sprite:setProperty(locInfo, "text", "辽宁基地网络定位中，剩余"..net_retryCount.."秒")
         net_retryCount = net_retryCount - 1 
     else
+        Loading:close()
         Sprite:setProperty(locInfo, "text", "网络定位失败，请重试!")
         resetNetworkLocation()
         return
@@ -733,7 +735,6 @@ function poiSearch(lat, lon, locateType, checkType)
     --  请求考勤打卡
     Log:write("考勤打卡requestUri:"..server.."?"..param)
     Http:request('pois', server, 1003, {useCache = false, method = 'post',postData = param})
-    Loading:show()
 end
 
 -- @brief 显示提示信息
