@@ -108,6 +108,13 @@
                                 style="autosize" scroll="true" h-align="left" v-align="center" font-size="24">
                             </scrolltext>
                          </button>
+                         <!-- 隐患上传所属站点搜索 -->
+                         <button name="staSearchBtn" rect="300,5,100,50" border="false"
+                            text="" color="#ffffff" OnSelect="staSearchOnSelect" extendstyle="1111" visible="true">
+                            <label name="name" rect="5,5,123,35" text="搜索？" color="#2498ff" extendstyle="1111"
+                                style="autosize" scroll="true" h-align="left" v-align="center" font-size="24">
+                            </label>
+                         </button>
                     </node>
                     <node name="baseSprite" rect="0,240,460,300" extendstyle="1111">
                         <!--隐患地址-->
@@ -345,6 +352,12 @@ function bodyOnSpriteEvent(msg, param)
             Log:write("imageArray = ", imageArray)
             Log:write("recordArray = ",recordArray)
             doChangeImageList()
+        end 
+
+        if stationIdText ~= nil and stationNameText ~= nil then
+            zhandianValue = stationIdText
+            local zhandianBtn =Sprite:findChild(rootSprite,'zhandianBtn')
+            Sprite:setProperty(Sprite:findChild(zhandianBtn, "name"), 'text', stationNameText)       
         end   
     elseif msg == MSG_DEACTIVATE then
     end
@@ -453,10 +466,7 @@ end
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-        Scene:freeByHandle(rootSprite)
-        NativePlayer:stop()
-        Reg:clear(Reg:create("record_data"))
-        Scene:back()
+        doBack()
         return 1
     elseif kc==Key.F1 then--按下菜单键
         Scene:freeByHandle(rootSprite)
@@ -478,7 +488,14 @@ function doBack()
     Scene:freeByHandle(rootSprite)
     NativePlayer:stop()
     Reg:clear(Reg:create("record_data"))
-    Scene:back()
+    -- judgflag=1 判断是从站点搜索页面跳转过来
+    if tonumber(judgflag) == 1 then
+        Log:write("站点搜索页面跳转过来")
+        Scene:go(Alias.m_yinhuanList)
+    else
+        Log:write("其它页面跳转过来")
+        Scene:back()
+    end 
 end
 
 function editOnTextChanged(sprite,ncount)
@@ -612,6 +629,7 @@ end
 -- 所属站点选择
 function zhandianOnSelect(sprite)
     --@Log:write('tempid===', tempid)
+    Log:write("进入隐患站点函数")
     local zhandianData = Sprite:getData(sprite)
     curXunjianBtn = sprite
     selectIndex = 4
@@ -1181,6 +1199,13 @@ function delPic(sprite)
         end
     end
     doChangeImageList()
+end
+
+-- 隐患上传站点搜索
+function staSearchOnSelect()
+    Log:write("隐患上传站点搜索页面")   
+    Scene:setReturn(Alias.m_yinhuanshangchuan, Alias.m_dangerStationSearch)
+    Scene:go(Alias.m_dangerStationSearch)
 end
 ]]>
 </root>
