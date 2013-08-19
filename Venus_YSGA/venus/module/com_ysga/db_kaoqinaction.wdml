@@ -271,22 +271,24 @@ function bodyOnPluginEvent(msg, param)
         Loading:close()
         local json = Http:jsonDecode('pois')
         Log:write("自定义POI查询接口返回：", json)
-        if json.success == "true" and json.list ~= nil 
-            and getJsonArrayCount(json.list) > 0 then
-            setCurrentStatus("打卡成功!")
-            g_addressList = json.list
-            -- 加载地址选择列表
-            local len = getJsonArrayCount(g_addressList)
-            local addrList = Sprite:findChild(rootSprite, "addrList")
-            local addrSelectItem = Sprite:findChild(rootSprite, "addrSelectItem")
-            ListView:loadItem(addrList, addrSelectItem, len, 'loadListItem')
-            ListView:adjust(addrList) 
-            -- 显示取消列表按钮
-            local addrListNode = Sprite:findChild(rootSprite, "addrListNode")
-            Sprite:setProperty(addrListNode, "visible", "true")
-            Sprite:setProperty(addrListNode, "enable", "true")
+        if json.success == "true" then
+            local message = json.msg or "打卡成功!" 
+            setCurrentStatus(message)
+            local recordDialog = Sprite:findChild(rootSprite, "recordDialog")
+            Sprite:setProperty(recordDialog, "visible", "true")
+            Sprite:setProperty(recordDialog, "enable", "true")
+            local addressSprite = Sprite:findChild(recordDialog, "address")
+            local timeSprite = Sprite:findChild(recordDialog, "time")
+            local resultSprite = Sprite:findChild(recordDialog, "result")
+            local address = json.address or ""
+            local time = json.time or ""
+            local result = json.result or ""
+            Sprite:setProperty(addressSprite, "text", address)
+            Sprite:setProperty(timeSprite, "text", time)
+            Sprite:setProperty(resultSprite, "text", result)
         else
-            setCurrentStatus('打卡失败，未进入有效考勤范围，请稍后重试!')
+            local message = json.msg or "未进入有效考勤范围或不在打卡时间范围内,请稍后重试!" 
+            setCurrentStatus(message)
         end 
     elseif msg == 1004 then -- MapABC地址反解返回  
         local postDataString = Param:getString(param, 0)                                                                                                             taString = Param:getString(param, 0)
@@ -732,9 +734,10 @@ function poiSearch(lat, lon, locateType, checkType)
     uploadphoto()
     imgdata = {pic1='', pic2='', pic3='', pic4=''}
     reloadImages()
-    --  请求考勤打卡
-    Log:write("考勤打卡requestUri:"..server.."?"..param)
-    Http:request('pois', server, 1003, {useCache = false, method = 'post',postData = param})
+    -- 请求考勤打卡
+    local requestUri = "http://120.209.131.152:8080/mobileSale/attendence/add" 
+    Log:write("考勤打卡 requestUri:"..requestUri.."?"..param)
+    Http:request('pois', requestUri, 1003, {useCache = false, method = 'post',postData = param})
 end
 
 -- @brief 显示提示信息
