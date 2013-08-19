@@ -41,6 +41,7 @@ Alias = {
     m_xunjianjihua = 'MODULE:\\com_wondertek_dw\\m_xunjianjihua.wdml', -- 巡检计划
     m_yinhuanList = 'MODULE:\\com_wondertek_dw\\m_yinhuanList.wdml', -- 隐患列表
     m_yinhuanshangchuan = 'MODULE:\\com_wondertek_dw\\m_yinhuanshangchuan.wdml', -- 隐患上报
+    m_dangerStationSearch = 'MODULE:\\com_wondertek_dw\\m_dangerStationSearch.wdml', -- 隐患上报站点搜索
     m_yinhuanDetail = 'MODULE:\\com_wondertek_dw\\m_yinhuanDetail.wdml', -- 隐患详情
     m_yinhuanProcess = 'MODULE:\\com_wondertek_dw\\m_yinhuanProcess.wdml', -- 隐患工单流程
     m_yinhuangongdanlist = 'MODULE:\\com_wondertek_dw\\m_yinhuangongdanlist.wdml', -- 隐患工单下隐患列表 
