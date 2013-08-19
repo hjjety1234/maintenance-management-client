@@ -133,8 +133,8 @@
         <!-- 签到结果对话框 -->
         <node name="recordDialog" rect="0,0,480,800" extendstyle="1111" visible="false" enable="false" border="false" >
             <shadow rect="0,0,480,800" alpha="150" color="#0" extendstyle="1111"></shadow>
-            <node rect="20,172,440,280" extendstyle="1111" border="false">
-                <image rect="0,0,440,280" src="file://pics/result_bg.png"
+            <node rect="20,172,440,290" extendstyle="1111" border="false">
+                <image rect="0,0,440,290" src="file://pics/result_bg.png"
                     style="autosize" extendstyle="1111" />
                 <node rect="0,0,440,55" extendstyle="1111">
                     <textarea rect="20,0,400,55" border="false" color="#948a54" 
@@ -173,8 +173,8 @@
                     <image rect="0,53,440,2" src="file://pics/line3.png"
                         style="autosize" extendstyle="1111" />
                 </node>
-                <node rect="0,220,440,55" extendstyle="1111">
-                     <button rect="160,4,120,50" border="false" OnSelect="onCloseRecordDialog" 
+                <node rect="0,220,440,65" extendstyle="1111">
+                     <button rect="160,8,120,50" border="false" OnSelect="onCloseRecordDialog" 
                         normal="normal" extendstyle="1111" data="1">
                         <node name="normal" rect="0,0,120,40" extendstyle="1111">
                              <image rect="0,0,120,40" src="file://pics/ok_s.png" style="autosize" 
@@ -271,7 +271,7 @@ function bodyOnPluginEvent(msg, param)
         Loading:close()
         local json = Http:jsonDecode('pois')
         Log:write("自定义POI查询接口返回：", json)
-        if json.success == "true" then
+        if json.success == "false" then
             local message = json.msg or "打卡成功!" 
             setCurrentStatus(message)
             local recordDialog = Sprite:findChild(rootSprite, "recordDialog")
@@ -287,7 +287,7 @@ function bodyOnPluginEvent(msg, param)
             Sprite:setProperty(timeSprite, "text", time)
             Sprite:setProperty(resultSprite, "text", result)
         else
-            local message = json.msg or "未进入有效考勤范围或不在打卡时间范围内,请稍后重试!" 
+            local message = json.msg or "未进入有效考勤范围,请稍后重试!" 
             setCurrentStatus(message)
         end 
     elseif msg == 1004 then -- MapABC地址反解返回  
