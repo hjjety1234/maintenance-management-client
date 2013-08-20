@@ -103,7 +103,7 @@ public class GPSObserver {
 			if(!mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
 				// add pj
 				showGpsAlert();
-				toggleGPS();
+				// toggleGPS();
 			}
 	}
 	
