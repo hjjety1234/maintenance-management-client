@@ -64,8 +64,8 @@
             </node>
 
             <!-- 站点列表  -->
-            <node name="listviewNode" border="false" rect="0,126,480,674" extendstyle="1111">
-                <listview name="listview1" border="false" rect="0,0,480,674" extendstyle="1111" />
+            <node name="listviewNode" border="false" rect="0,126,480,627" extendstyle="1111">
+                <listview name="listview1" border="false" rect="0,0,480,627" extendstyle="1111" />
             </node>
 
             <!-- 站点列表项 -->
@@ -84,17 +84,26 @@
                 </button>               
             </node>
 
+            <node rect="0,0,0,47" extendstyle="1570">
+                <button name="morebtn" rect="0,0,0,47" OnSelect="addmore" visible="false" 
+                    enable="false" border="false" text="点击查看更多" color="#666666" 
+                    h-align="center" v-align="center"  font-family="微软雅黑" font-size="24"
+                    extendstyle="1570" />
+            </node>
+
         </node>
     </body>
 
 <![CDATA[
 require 'com_wondertek_dw.common.framework'
-local rootSprite = nil
-local respValue = nil               -- 站点列表值
+local rootSprite 
+local respValue               -- 站点列表值
 local total = 0
 local listView
-local locArray = {}
-local posValue 
+local pagesize = 10
+local morebtn
+local pageNum = 1
+local keyword
 
 ---------------------------------------回调函数列表--------------------------------
 -- root子节点创建完事件
@@ -102,12 +111,13 @@ function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     -- 删除原来的列表
     listView = Sprite:findChild(rootSprite, 'listview1')
+    morebtn=Sprite:findChild(rootSprite, 'morebtn')
 end
 
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-
+        initList()
     elseif msg == MSG_DEACTIVATE then
         
     end
@@ -121,18 +131,22 @@ function bodyOnPluginEvent(msg, param)
         local resp = Http:jsonDecode('stationList')
         Log:write("搜索返回数据：",resp)
         if (resp.code == nil or resp.code ~= '0') then
-            -- Dialog:show('', '无站点数据返回', 'ok')
+            Dialog:show('', '返回数据为空!', 'ok')
             Loading:close()
             return
-        elseif (getJsonArrayCount(resp.value) == 0 or resp.value=='') then
+        elseif resp.total == 0  then
             Dialog:show('', '返回数据为空!', 'ok')
             Loading:close()
             return
         end
-        ListView:removeAllItems(listView)
         respValue = resp.value
         local len = getJsonArrayCount(respValue)
-        Log:write('列表个数:'..len)
+        Log:write('当前列表个数 ：'..len)
+        Log:write('总页数 ：',resp.total)
+        Log:write('当前页 ： ',pageNum)
+        if pageNum*pagesize < resp.total then
+             setAllShoworHide(morebtn, 1)
+        end
         -- 加载列表项
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listitem'), len, 'loadListItem')
         ListView:adjust(listView)
@@ -181,10 +195,10 @@ function loadListItem(list, item, index)
         Log:write('列表项数据为空',index)
         return
     end
-    local stationId = itemValue.STATIONID
-    local stationNameText = itemValue.STATIONNAME
-    Log:write("站点ID：",stationId)
-    Log:write("站点名称：",stationNameText)
+    local stationId = itemValue.stationid
+    local stationNameText = itemValue.stationname
+    -- Log:write("站点ID：",stationId)
+    -- Log:write("站点名称：",stationNameText)
     local stationIdSprite = Sprite:findChild(item, 'stationId')
     local stationName = Sprite:findChild(item, 'stationName')
     -- 显示站点名称
@@ -210,23 +224,38 @@ end
 
 -- 根据站点名称进行搜索
 function doSearchStationName()
-    Log:write("根据站点名称进行搜索")
-    -- 模拟环境下，设置默认经纬度
-    posValue = '117.251339,31.849438'
-    
-    -- 默认搜索站点
-    local stationName = Sprite:getText(Sprite:findChild(rootSprite, 'stationName'))
-    Log:write("stationName = "..stationName)
-    if stationName == '' then
+    initList() 
+    keyword = Sprite:getText(Sprite:findChild(rootSprite, 'stationName'))
+    Log:write("搜索关键字 ： "..keyword)
+    if keyword == '' then
         Dialog:show('提示', '搜索内容不能为空!', 'ok')
         return
     end
     -- 构造请求参数
-    local requestParam = string.format('cmd=wlbdangersearch&usercode=%s&key=%s&page=1&pagesize=20', 
-        Config:get('username'),stationName)
-    Log:write("[request] param: ", requestParam)
+    local param = string.format('cmd=wlbdangersearch&usercode=%s&key=%s&page=1&pagesize=%s', 
+        Config:get('username'),keyword,pagesize)
+    Log:write("[request] param: ", param)
     local requestURL = getUrl()..'nbspweb/webservice/accident!doWebservice.action'  
-    Http:request('stationList', requestURL, 1001, {useCache=false,method='post',postData=requestParam})
+    Http:request('stationList', requestURL, 1001, {useCache=false,method='post',postData=param})
+    Loading:show()
+end
+
+ -- 初始化
+function initList()               
+    ListView:removeAllItems(listView) 
+    setAllShoworHide(morebtn, 0)
+    pageNum = 1
+end 
+
+function addmore()
+    pageNum = pageNum + 1
+    Log:write('列表记录页数',pageNum)
+    -- 构造请求参数
+    local param = string.format('cmd=wlbdangersearch&usercode=%s&key=%s&page=%s&pagesize=%s', 
+        Config:get('username'),keyword,pageNum,pagesize)
+    Log:write("点击更多参数: ", param)
+    local requestURL = getUrl()..'nbspweb/webservice/accident!doWebservice.action'  
+    Http:request('stationList', requestURL, 1001, {useCache=false,method='post',postData=param})
     Loading:show()
 end
 
