@@ -303,7 +303,13 @@
     
     -- 当前无经纬度信息，检查当前gps状态
     function doLocation()
-        System:setGPSStatus(1)
+        local regHandle = Reg:create("gps")
+        local status = Reg:getString(regHandle, "status")
+        if status ~= "1" then
+            Reg:clear(regHandle)  
+            Reg:setString(regHandle, "status", "1")
+            System:setGPSStatus(1)
+        end
     end
  
 ]]>

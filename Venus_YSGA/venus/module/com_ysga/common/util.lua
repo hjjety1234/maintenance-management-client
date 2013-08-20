@@ -343,13 +343,12 @@ end
 -- 获取SD卡上的Download目录
 function getDownloadTxtPath()
         local downloadPath = System:getFlashCardName(1) 
-        Log:write('SD卡路径为：'..downloadPath)
+        Log:write('SD卡路径为：', downloadPath)
         if downloadPath == nil or downloadPath == "" then 
             Log:write("SD卡不存在,使用内部存储！")
             downloadPath = System:getFlashCardName(0)
-            Log:write('内部存储卡路径为：',downloadPath)
-            if downloadPath == nil or downloadPath == "" or 
-	            System:getUserAgent() == 'htc_t327t_android_A001' then
+            Log:write('内部存储卡路径为：', downloadPath)
+            if downloadPath == nil or downloadPath == "" then
 	            Log:write("获取内部存储卡失败，使用MODULE路径")
 	            downloadPath = "MODULE:\\com_ysga\\"
             end
