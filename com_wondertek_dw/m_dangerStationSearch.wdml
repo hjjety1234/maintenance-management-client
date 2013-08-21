@@ -171,9 +171,6 @@ end
 ---------------------------------------界面操作函数列表---------------------------
 -- 跳转到上一个页面
 function doBack()
-    if (Loading:isShow() == true) then
-        Loading:close()
-    end
     Scene:back()
 end
 
@@ -214,9 +211,14 @@ function itemOnSelect(sprite)
     
     local stationIdText = Sprite:getText(stationId)
     local stationNameText = Sprite:getText(stationName)
-    Log:write('itemOnSelect(): stationId, stationName', 
-        stationIdText, stationNameText)
-    Scene:go(Alias.m_yinhuanshangchuan..'?stationIdText='..stationIdText..'&stationNameText='..stationNameText..'&judgflag=1')
+    Log:write('itemOnSelect(): stationId, stationName', stationIdText, stationNameText)
+
+    -- 数据仓库传递数据
+    local regStation=Reg:create('station_data')
+    Reg:setString(regStation, "stationIdText",stationIdText)
+    Reg:setString(regStation, "stationNameText",stationNameText)
+    Reg:setString(regStation, "judgflag","1")
+    doBack()
 end
 
 ---------------------------------------与服务端交互函数列表---------------------------
