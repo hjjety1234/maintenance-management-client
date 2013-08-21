@@ -314,6 +314,7 @@ local longitude = 0
 local latitude = 0
 local postData
 local isFavContextMenuVisible = false -- 收藏上下文菜单是否显示标志
+local judgflag
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -354,11 +355,19 @@ function bodyOnSpriteEvent(msg, param)
             doChangeImageList()
         end 
 
-        if stationIdText ~= nil and stationNameText ~= nil then
+        -- 站点搜索数据仓库
+        local regStation,result = Reg:create('station_data')
+        local stationIdText = Reg:getString(regStation, "stationIdText")
+        local stationNameText = Reg:getString(regStation, "stationNameText")
+        judgflag = Reg:getString(regStation, "judgflag")
+        if result ~= false and stationIdText ~= nil and stationNameText ~= nil then
+            Log:write("站点搜索有数据传递")
             zhandianValue = stationIdText
             local zhandianBtn =Sprite:findChild(rootSprite,'zhandianBtn')
-            Sprite:setProperty(Sprite:findChild(zhandianBtn, "name"), 'text', stationNameText)       
+            Sprite:setProperty(Sprite:findChild(zhandianBtn, "name"), 'text', stationNameText)
+            Reg:release("station_data")       
         end   
+
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -488,6 +497,7 @@ function doBack()
     Scene:freeByHandle(rootSprite)
     NativePlayer:stop()
     Reg:clear(Reg:create("record_data"))
+    Reg:release("station_data")   
     -- judgflag=1 判断是从站点搜索页面跳转过来
     if tonumber(judgflag) == 1 then
         Log:write("站点搜索页面跳转过来")
