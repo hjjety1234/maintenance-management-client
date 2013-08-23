@@ -252,6 +252,8 @@ end
 function bodyOnPluginEvent(msg, param)
     if msg == 101 then--市公司数据处理  
         UmsAgent:onLoadFinish() 
+        local listView = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(listView,1,1)
         if Loading:isShow() then Loading:close() end 
         city_data = Http:jsonDecode('city_data')
         Log:write("资源代维 集客：",city_data)
@@ -259,11 +261,9 @@ function bodyOnPluginEvent(msg, param)
             Dialog:show('', '暂无资源代维数据!', 'ok')
             return
         end
-        local listView = Sprite:findChild(rootSprite, 'sampleList')
         local len = getJsonArrayCount(city_data.value)-1
         g_sum = city_data.value[len]
         city_data.value[len]=nil
-        ListView:removeAllItems(listView)
         
         -- 加载列表项
         ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len, 'loadListItem')
