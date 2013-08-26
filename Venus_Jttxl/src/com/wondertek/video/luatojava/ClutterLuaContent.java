@@ -313,6 +313,7 @@ public class ClutterLuaContent extends LuaContent {
                 int indexAddress = cursor.getColumnIndex("address");  
                 int indexDate = cursor.getColumnIndex("date");
                 int indexType = cursor.getColumnIndex("type");
+            	DbHelper dbHelper = new DbHelper(VenusActivity.appContext);
                 do {  
                 	// 检查是否已经获得足够的联系人
                 	if (result.size() >= nLength) return result;
@@ -337,11 +338,9 @@ public class ClutterLuaContent extends LuaContent {
                     	// 由电话号码获取联系人姓名
                         String strName = getNameByMobile(strMobile); 
                         if (strName.equals("null")) {
-                        	// 本机通讯录查询失败，查询数据库
-                        	DbHelper dbHelper = new DbHelper(VenusActivity.appContext);
-                        	List<Employee> employeeList = dbHelper.getEmployee(strMobile);
-                        	if (employeeList != null && employeeList.size() > 0) {
-                        		strName = employeeList.get(0).getName();
+                        	String dbEmployeeName = dbHelper.getEmployeeName(strMobile);
+                        	if (dbEmployeeName != null) {
+                        		strName = dbEmployeeName;
                         	}else {
                         		// 本机数据库查找失败，忽略该条记录
                         		continue;
