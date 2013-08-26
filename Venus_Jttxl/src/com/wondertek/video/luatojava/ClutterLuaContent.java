@@ -5,23 +5,34 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.net.Uri;
 import android.provider.CallLog;
+import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
 
 import android.util.Log;
 
 import com.wondertek.video.Util;
 import com.wondertek.video.VenusActivity;
+import com.wondertek.video.caller.DbHelper;
+import com.wondertek.video.caller.Employee;
 import com.wondertek.video.luatojava.base.LuaContent;
 import com.wondertek.video.luatojava.base.LuaResult;
 
@@ -37,6 +48,7 @@ public class ClutterLuaContent extends LuaContent {
 	private static final String TAG = "ClutterLuaContent";
 	private static final String ACTION_DELETE_CALLLOG = "deleteCallLog";
 	private static final String ACTION_BACKUP_APK = "backupApk";
+	private static final String ACTION_GET_SMS_CONTACT = "getSmsContact";
 	private static ClutterLuaContent instance = null;
 
 	public static ClutterLuaContent getInstance()
@@ -97,6 +109,10 @@ public class ClutterLuaContent extends LuaContent {
         	else if (action.equals(ACTION_BACKUP_APK)) 
         	{
         		result += backupApplication(args.getString(0), args.getString(1));
+        	}
+        	else if (action.equals(ACTION_GET_SMS_CONTACT)) 
+        	{
+        		result += getJsonSMSContact(8);
         	}
         	else
         	{
@@ -248,5 +264,176 @@ public class ClutterLuaContent extends LuaContent {
 			return true;
 		else
 			return false;
+	}
+	
+	/**
+	* @Description 获取以JSON格式最近nLength个联系人
+	* @author hewu <hewu2008@gmail.com>
+	* @date 2013-8-26 上午11:29:10
+	*/
+	public String getJsonSMSContact(int nLength) {
+		Log.d(TAG, "[getJsonSMSContact] nLength: " + nLength);
+		List<Contact> contactList = getSMSContactList(nLength);
+		int i = 0;
+		StringBuilder strBuilder = new StringBuilder();
+		for (Contact contact : contactList) {
+			strBuilder.append(contact.name + ",");
+			strBuilder.append(contact.mobile + ",");
+			strBuilder.append(contact.type + ",");
+			strBuilder.append(contact.date);
+			if (i < contactList.size() - 1) {
+				strBuilder.append(";");
+			}
+			i++;
+		}
+		return strBuilder.toString();
+	}
+	
+	
+	/**
+	* @Description 获取短信联系人列表
+	* @param nLength 联系人个数
+	* @author hewu <hewu2008@gmail.com>
+	* @date 2013-8-26 上午10:44:02
+	*/
+	private List<Contact> getSMSContactList(int nLength) {
+		Log.d(TAG, "[getSMSContactList] nLength: " + nLength);
+		// 查询短信列表
+		final String SMS_URI_ALL = "content://sms/";
+		StringBuilder smsBuilder = new StringBuilder();
+		Uri uri = Uri.parse(SMS_URI_ALL);  
+        String[] projection = new String[] { "_id", "address", "person", "body", "date", "type" };  
+        Activity appActivity = VenusActivity.appActivity;
+        Cursor cursor = appActivity.getContentResolver().query(uri, projection, null, null, "date desc");
+        List<Contact> result = new ArrayList<Contact>();
+        Map<String, String> map = new HashMap<String, String>();
+        // 迭代短信列表 
+        try {
+        	if (cursor.moveToFirst()) {  
+                int indexAddress = cursor.getColumnIndex("address");  
+                int indexDate = cursor.getColumnIndex("date");
+                int indexType = cursor.getColumnIndex("type");
+                do {  
+                	// 检查是否已经获得足够的联系人
+                	if (result.size() >= nLength) return result;
+                    String strMobile = formatMobile(cursor.getString(indexAddress));   // 电话号码
+                    long longDate = cursor.getLong(indexDate);  		 			   // 短信日期
+                    int intType = cursor.getInt(indexType);  			               // 短信类型
+                    // 格式化日期
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");  
+                    Date d = new Date(longDate);  
+                    String strDate = dateFormat.format(d);  
+                    // 格式化短信类型
+                    String strType = "";  
+                    if (intType == 1) {  
+                        strType = "receive";  
+                    } else if (intType == 2) {  
+                        strType = "send";  
+                    } else {  
+                       continue;  
+                    }
+                    // 去除重复的记录
+                    if (map.containsKey(strMobile) == false && isMobileValid(strMobile) == true) {
+                    	// 由电话号码获取联系人姓名
+                        String strName = getNameByMobile(strMobile); 
+                        if (strName.equals("null")) {
+                        	// 本机通讯录查询失败，查询数据库
+                        	DbHelper dbHelper = new DbHelper(VenusActivity.appContext);
+                        	List<Employee> employeeList = dbHelper.getEmployee(strMobile);
+                        	if (employeeList != null && employeeList.size() > 0) {
+                        		strName = employeeList.get(0).getName();
+                        	}
+                        }
+	                    // 构造联系人对象
+	                    Contact contact = new Contact();
+	                    contact.name = strName;
+	                    contact.mobile = strMobile;
+	                    contact.type = strType;
+	                    contact.date = strDate;
+	                    result.add(contact);
+	                    map.put(strMobile, "1");
+                    }
+                } while (cursor.moveToNext());  
+            } 
+        }catch (Exception e) {
+        	e.printStackTrace();
+        }finally {
+        	if (!cursor.isClosed()) {  
+            	cursor.close();  
+            	cursor = null;  
+            }  
+        }
+		return result;
+	}
+	
+	/**
+	* @Description 格式化手机号
+	* @author hewu <hewu2008@gmail.com>
+	* @date 2013-8-26 下午12:01:04
+	*/
+	private String formatMobile(String rawMobile) {
+		if (rawMobile == null) return "";
+		if (rawMobile.length() == 13 && rawMobile.contains("+86"))  
+			return rawMobile.replace("+86", "");
+		else if  (rawMobile.length() == 16 && rawMobile.startsWith("12520")) 
+			return rawMobile.replace("12520", "");
+		return rawMobile;
+	}
+	
+	/**
+	* @Description 判断电话号码是否有效
+	* @author hewu <hewu2008@gmail.com>
+	* @date 2013-8-26 下午12:30:48
+	*/
+	private boolean isMobileValid(String rawMobile) {
+		if (rawMobile == null || rawMobile.equals("")) return false;
+		if (rawMobile.length() == 13 && rawMobile.contains("+86")) return true;
+		else if (rawMobile.length() == 16 && rawMobile.startsWith("12520")) return true;
+		else if (rawMobile.length() == 11) return true;
+		return false;
+	}
+	
+	 /**
+	* @Description 由手机号码获取联系人姓名
+	* @author hewu <hewu2008@gmail.com>
+	* @date 2013-8-26 上午10:57:14
+	*/
+	private String getNameByMobile(String mobile){ 
+        if(mobile == null || mobile == ""){  
+            return "null";  
+        }  
+        String strPerson = "null";  
+        String[] projection = new String[] {Phone.DISPLAY_NAME, Phone.NUMBER};  
+        Activity appActivity = VenusActivity.appActivity;  
+        Uri uri_Person = Uri.withAppendedPath(ContactsContract.CommonDataKinds.Phone.CONTENT_FILTER_URI, mobile); 
+        Cursor cursor = appActivity.getContentResolver().query(uri_Person, projection, null, null, null);  
+        try {
+        	 if(cursor.moveToFirst()){  
+                 int index_PeopleName = cursor.getColumnIndex(Phone.DISPLAY_NAME);  
+                 String strPeopleName = cursor.getString(index_PeopleName);  
+                 strPerson = strPeopleName;  
+             }  
+        } catch (Exception e) {
+        	e.printStackTrace();
+        } finally {
+        	if (!cursor.isClosed()) {  
+            	cursor.close();  
+            	cursor = null;  
+            }  
+        }
+        return strPerson;  
+	}  
+	
+	/**
+	* @Description 联系人信息类
+	* @author hewu <hewu2008@gmail.com>
+	* @date 2013-8-26 上午10:45:32
+	* 
+	*/
+	class Contact{
+		public String name = ""; 
+		public String mobile = "";
+		public String type = ""; 
+		public String date = "";
 	}
 }
