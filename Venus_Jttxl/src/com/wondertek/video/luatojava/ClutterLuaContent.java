@@ -313,10 +313,9 @@ public class ClutterLuaContent extends LuaContent {
                 int indexAddress = cursor.getColumnIndex("address");  
                 int indexDate = cursor.getColumnIndex("date");
                 int indexType = cursor.getColumnIndex("type");
-            	DbHelper dbHelper = new DbHelper(VenusActivity.appContext);
                 do {  
                 	// 检查是否已经获得足够的联系人
-                	if (result.size() >= nLength) return result;
+                	if (result.size() >= nLength) break;
                     String strMobile = formatMobile(cursor.getString(indexAddress));   // 电话号码
                     long longDate = cursor.getLong(indexDate);  		 			   // 短信日期
                     int intType = cursor.getInt(indexType);  			               // 短信类型
@@ -334,18 +333,9 @@ public class ClutterLuaContent extends LuaContent {
                        continue;  
                     }
                     // 去除重复的记录
-                    if (map.containsKey(strMobile) == false && isMobileValid(strMobile) == true) {
+                    if (map.containsKey(strMobile) == false) {
                     	// 由电话号码获取联系人姓名
                         String strName = getNameByMobile(strMobile); 
-                        if (strName.equals("null")) {
-                        	String dbEmployeeName = dbHelper.getEmployeeName(strMobile);
-                        	if (dbEmployeeName != null) {
-                        		strName = dbEmployeeName;
-                        	}else {
-                        		// 本机数据库查找失败，忽略该条记录
-                        		continue;
-                        	}
-                        }
 	                    // 构造联系人对象
 	                    Contact contact = new Contact();
 	                    contact.name = strName;
@@ -365,6 +355,9 @@ public class ClutterLuaContent extends LuaContent {
             	cursor = null;  
             }  
         }
+        // 查询数据库获取数据库中对应的姓名
+        DbHelper dbHelper = new DbHelper(VenusActivity.appContext);
+        result = dbHelper.getEmployeeName(result);
 		return result;
 	}
 	
@@ -375,7 +368,7 @@ public class ClutterLuaContent extends LuaContent {
 	*/
 	private String formatMobile(String rawMobile) {
 		if (rawMobile == null) return "";
-		if (rawMobile.length() == 13 && rawMobile.contains("+86"))  
+		if (rawMobile.length() == 14 && rawMobile.contains("+86"))  
 			return rawMobile.replace("+86", "");
 		else if  (rawMobile.length() == 16 && rawMobile.startsWith("12520")) 
 			return rawMobile.replace("12520", "");
@@ -425,17 +418,4 @@ public class ClutterLuaContent extends LuaContent {
         }
         return strPerson;  
 	}  
-	
-	/**
-	* @Description 联系人信息类
-	* @author hewu <hewu2008@gmail.com>
-	* @date 2013-8-26 上午10:45:32
-	* 
-	*/
-	class Contact{
-		public String name = ""; 
-		public String mobile = "";
-		public String type = ""; 
-		public String date = "";
-	}
 }

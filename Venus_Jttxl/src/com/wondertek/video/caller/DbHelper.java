@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.wondertek.video.luatojava.Contact;
+
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
 import android.content.Context;
@@ -303,69 +305,63 @@ public class DbHelper extends SQLiteOpenHelper {
 		}
 	}
 	
-	// get employee name by phone number
-	public String getEmployeeName(String number) {
+	// get employee name by phone number list
+	public List<Contact> getEmployeeName(List<Contact> contacts) {
 		SQLiteDatabase db = null;
-		// Log.d(TAG, "[getEmployeeName] number: " + number);
+		Cursor cursor = null;
 		try {
-			// db = this.getReadableDatabase();
 			db = SQLiteDatabase.openDatabase(Constants.getDatabaseName(), password,
 					null, SQLiteDatabase.NO_LOCALIZED_COLLATORS
 							| SQLiteDatabase.CREATE_IF_NECESSARY);
-			Cursor cursor = null;
-
-			// check if this is the short number
-			if (number.length() == 6) {
-				// Log.d(TAG, "[getEmployeeName] " + number + " is short number!");
-				// get current system user
-				if (systemUser != null && systemUser.getDepartmentFax() != "") {
-					Log.d(TAG, "[getEmployeeId] system user deparment fax is: "
-							+ systemUser.getDepartmentFax());
+			for (Contact contact : contacts) {
+				if (contact.name.equals("null") == false ) continue;
+				// check if this is the short number
+				String number = contact.mobile;
+				if (number.length() == 6) {
+					// get current system user
+					if (systemUser != null && systemUser.getDepartmentFax() != "") {
+						cursor = db.query(TABLE_EMPLOYEE, new String[] {
+								KEY_EMPLOYEE_NAME, KEY_DEPARTMENT_ID,
+								KEY_DEPARTMENT_NAME, KEY_EMPLOYEE_HEADSHIP_NAME,
+								KEY_EMPLOYEE_MOBILE, KEY_EMPLOYEE_PICTURE,
+								KEY_EMPLOYEE_ID, KEY_EMPLOYEE_DEPARTMENT_FAX }, "("
+								+ KEY_EMPLOYEE_DEPARTMENT_FAX + "=?) and ("
+								+ KEY_EMPLOYEE_MOBILE_SHORT + "=? )", new String[] {
+								systemUser.getDepartmentFax(), number }, null,
+								null, null, null);
+					}
+				} else if (number.length() == 11){
 					cursor = db.query(TABLE_EMPLOYEE, new String[] {
 							KEY_EMPLOYEE_NAME, KEY_DEPARTMENT_ID,
 							KEY_DEPARTMENT_NAME, KEY_EMPLOYEE_HEADSHIP_NAME,
 							KEY_EMPLOYEE_MOBILE, KEY_EMPLOYEE_PICTURE,
-							KEY_EMPLOYEE_ID, KEY_EMPLOYEE_DEPARTMENT_FAX }, "("
-							+ KEY_EMPLOYEE_DEPARTMENT_FAX + "=?) and ("
-							+ KEY_EMPLOYEE_MOBILE_SHORT + "=? )", new String[] {
-							systemUser.getDepartmentFax(), number }, null,
+							KEY_EMPLOYEE_ID, KEY_EMPLOYEE_DEPARTMENT_FAX },
+							KEY_EMPLOYEE_MOBILE + "=? or " + KEY_EMPLOYEE_TEL
+									+ "=?", new String[] { number, number }, null,
 							null, null, null);
 				} else {
-					// Log.w(TAG, "[getEmployeeName] system user's deparment fax is empty, do nothing!");
-					db.close();
-					return null;
+					Log.d(TAG, "[getEmployeeName] " +  contact.mobile + " length is not illegal!");
+					contact.name = contact.mobile;
+					continue;
 				}
-			} else {
-				// Log.d(TAG, "[getEmployeeName] " + number + " is not short number!");
-				cursor = db.query(TABLE_EMPLOYEE, new String[] {
-						KEY_EMPLOYEE_NAME, KEY_DEPARTMENT_ID,
-						KEY_DEPARTMENT_NAME, KEY_EMPLOYEE_HEADSHIP_NAME,
-						KEY_EMPLOYEE_MOBILE, KEY_EMPLOYEE_PICTURE,
-						KEY_EMPLOYEE_ID, KEY_EMPLOYEE_DEPARTMENT_FAX },
-						KEY_EMPLOYEE_MOBILE + "=? or " + KEY_EMPLOYEE_TEL
-								+ "=?", new String[] { number, number }, null,
-						null, null, null);
-			}
-			if (cursor != null && cursor.moveToFirst()) {
-				String name = cursor.getString(0);
-				// Log.d(TAG, "[getEmployeeName] employee name:" + name);
-				cursor.close();
-				db.close();
-				return name;
-			} else {
-				Log.d(TAG, "[getEmployeeName] can't find the employee in sqlite database.");
-				if (cursor != null)
-					cursor.close();
-				db.close();
-				return null;
+				if (cursor != null && cursor.moveToFirst()) {
+					String name = cursor.getString(0);
+					contact.name = name;
+					Log.d(TAG, "[getEmployeeName] mobile:" + contact.mobile +  ", name: " + name);
+				}else {
+					contact.name = contact.mobile;
+					Log.d(TAG, "[getEmployeeName] find name for " + contact.mobile + " failed!");
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
 		} finally {
+			if (cursor != null && cursor.isClosed() == false)
+				cursor.close();
 			if (db != null && db.isOpen())
 				db.close();
 		}
+		return contacts;
 	}
 
 	// get current system login user
