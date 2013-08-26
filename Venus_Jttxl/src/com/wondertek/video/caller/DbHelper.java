@@ -352,6 +352,7 @@ public class DbHelper extends SQLiteOpenHelper {
 					contact.name = contact.mobile;
 					Log.d(TAG, "[getEmployeeName] find name for " + contact.mobile + " failed!");
 				}
+				if (cursor != null) cursor.close();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

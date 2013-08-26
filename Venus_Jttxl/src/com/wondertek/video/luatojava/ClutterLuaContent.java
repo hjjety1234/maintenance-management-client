@@ -336,6 +336,9 @@ public class ClutterLuaContent extends LuaContent {
                     if (map.containsKey(strMobile) == false) {
                     	// 由电话号码获取联系人姓名
                         String strName = getNameByMobile(strMobile); 
+                        if (strName.equals(strMobile) == true) {
+                        	strName = "null";
+                        }
 	                    // 构造联系人对象
 	                    Contact contact = new Contact();
 	                    contact.name = strName;

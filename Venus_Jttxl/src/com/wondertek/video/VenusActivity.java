@@ -60,6 +60,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -2553,6 +2554,8 @@ public class VenusActivity implements SurfaceHolder.Callback {
 				try {
 					Util.Trace("SMS: ADDRESS="+messageAddress+ "   CONTENT="+messageContent);
 					smsManager.sendMultipartTextMessage(messageAddress, null, smsManager.divideMessage(messageContent), null, null);
+					// add pj
+					insertSMS(messageAddress, messageContent);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -2566,6 +2569,28 @@ public class VenusActivity implements SurfaceHolder.Callback {
 		}
 		return true;
 	}
+	
+	 /**
+	* @Description 写入到发件箱
+	* @author hewu <hewu2008@gmail.com>
+	* @date 2013-8-26 下午9:48:56
+	*/
+	private void insertSMS(String phone, String content){
+		    final String ADDRESS = "address";  
+			final String DATE = "date";  
+			final String READ = "read";  
+			final String STATUS = "status";  
+			final String TYPE = "type";  
+			final String BODY = "body";  
+			ContentValues values = new ContentValues();  
+		    values.put(ADDRESS, phone);  
+			values.put(DATE, String.valueOf(System.currentTimeMillis()));  
+		    values.put(READ, 1);  
+		    values.put(STATUS, -1);  
+			values.put(TYPE, 2);  
+			values.put(BODY,content);  
+		    appContext.getContentResolver().insert(Uri.parse("content://sms"),values);
+		}
 
 	// Set volume of system
 	private AudioManager audioMgr = null;
