@@ -342,6 +342,9 @@ public class ClutterLuaContent extends LuaContent {
                         	List<Employee> employeeList = dbHelper.getEmployee(strMobile);
                         	if (employeeList != null && employeeList.size() > 0) {
                         		strName = employeeList.get(0).getName();
+                        	}else {
+                        		// 本机数据库查找失败，忽略该条记录
+                        		continue;
                         	}
                         }
 	                    // 构造联系人对象
