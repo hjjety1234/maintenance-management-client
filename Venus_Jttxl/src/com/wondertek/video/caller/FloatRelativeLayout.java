@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.wondertek.jttxl.R;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
@@ -19,8 +21,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-
-import com.wondertek.jttxl.R;
 
 public class FloatRelativeLayout extends RelativeLayout {
 	private static final String TAG = "FloatRelativeLayout";
@@ -71,7 +71,11 @@ public class FloatRelativeLayout extends RelativeLayout {
 			Log.d(TAG, "[initLayout] local picture path: " + localPicPath);
 			File pic = new File(localPicPath);
 			if (pic.exists() == true)  {
-				showCustomLayout(context, employee);
+				if(empList.size() == 1){
+					showCustomLayout(context, employee);
+				}else{
+					showCustomListViewLayout(context, empList);
+				}
 				return;
 			}
 		}
@@ -154,6 +158,50 @@ public class FloatRelativeLayout extends RelativeLayout {
 		ImageView logo = (ImageView)findViewById(R.id.small_logo_icon);
 		showCustomLogo(logo, employee.getEmpid());
 	}
+	
+	
+	/**
+	* @Description 显示多部门带图片的名片
+	* @author guokai
+	* @date 2013-7-2
+	*/
+	private void showCustomListViewLayout(Context context, List<Employee> empList) {
+		Log.d(TAG, "[showListViewLayout] employee count: " + empList.size());
+		bIsCustomLayout = true;
+		inflate(context, R.layout.float_view_withphoto_mutil, this);
+		
+		// 显示姓名
+		TextView callerName = (TextView) findViewById(R.id.caller_name);
+		callerName.setText(empList.get(0).getName());
+		
+		// 显示多职位信息
+		NonScrollableListView listview = (NonScrollableListView) findViewById(R.id.listView_mutil);
+		listview.setLayout(this);
+		ArrayList<HashMap<String, Object>> listItem = new ArrayList<HashMap<String, Object>>();
+		for(int i = 0; i < empList.size(); i++) {  
+            HashMap<String, Object> map = new HashMap<String, Object>();  
+            map.put("deptname", empList.get(i).getDepartment());  
+            map.put("headship", empList.get(i).getHeadship());  
+            listItem.add(map);  
+        } 
+		SimpleAdapter listItemAdapter = new SimpleAdapter(context, listItem,
+				R.layout.float_view_withphoto_listitem, 
+				new String[] { "deptname", "headship" }, 
+				new int[] { R.id.deptname_photo, R.id.headship_photo});
+		listview.setAdapter(listItemAdapter);
+		
+		// 显示联系人信息背景图片
+		ImageView bg = (ImageView) findViewById(R.id.incoming_bg_mutil);
+		Uri uri = Uri.parse(Constants.getLocPicDir() + empList.get(0).getPicutre());
+		bg.setImageURI(uri);
+		
+		// 显示员工第一个职位对应的自定义LOGO
+		ImageView logo = (ImageView)findViewById(R.id.m_logo);
+		showCustomLogo(logo, empList.get(0).getEmpid());
+	}
+	
+	
+	
 	
 	/**
 	* @Description 显示多部门的名片

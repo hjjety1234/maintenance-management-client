@@ -156,12 +156,18 @@ public class DbHelper extends SQLiteOpenHelper {
 							+ systemUser.getDepartmentFax());
 					cursor = db.rawQuery("select emp.employee_name, udept.department_id," +
 							" dept.department_name, udept.headship_name, emp.mobile," +
-							" emp.picture, emp.employee_id, emp.department_fax from" +
+							" emp.picture, emp.employee_id, emp.department_fax, udept.taxis from" +
 							" tb_c_employee emp,tb_c_user_department udept,tb_c_department dept" +
 							" where udept.user_company_id = emp.user_company_id and" +
 							" dept.department_id = udept.department_id and" +
-							" emp.department_fax=? and (emp.mobile_short = ? or emp.tel_short = ?)", 
+							" emp.department_fax=? and (emp.mobile_short = ? or emp.tel_short = ?) order by udept.taxis ASC", 
 							new String[]{systemUser.getDepartmentFax(), number, number});
+//					if (cursor != null && cursor.moveToFirst()) {
+//						do{
+//							Log.d(TAG,"the department is "+cursor.getString(3));
+//						}while(cursor.moveToNext());
+//					}
+					
 				} else {
 					Log.w(TAG,
 							"[getEmployee] system user's deparment fax is empty, return null!");
@@ -172,11 +178,11 @@ public class DbHelper extends SQLiteOpenHelper {
 				Log.d(TAG, "[getEmployee] " + number + " is not short number!");
 				cursor = db.rawQuery("select emp.employee_name, udept.department_id," +
 						" dept.department_name, udept.headship_name, emp.mobile," +
-						" emp.picture, emp.employee_id, emp.department_fax from" +
+						" emp.picture, emp.employee_id, emp.department_fax, udept.taxis from" +
 						" tb_c_employee emp,tb_c_user_department udept,tb_c_department dept" +
 						" where udept.user_company_id = emp.user_company_id and" +
 						" dept.department_id = udept.department_id and" +
-						" (emp.mobile = ? or emp.tel = ?)", 
+						" (emp.mobile = ? or emp.tel = ?) order by udept.taxis ASC", 
 						new String[]{number, number});
 			}
 			
@@ -217,6 +223,9 @@ public class DbHelper extends SQLiteOpenHelper {
 				Log.d(TAG, "[getEmployee] employee_id:" + empolyeeId);
 				String departmentFax = cursor.getString(7);
 				Log.d(TAG, "[getEmployee] department fax:" + departmentFax);
+				
+				String taxis = cursor.getString(8);
+				Log.d(TAG, "[getEmployee] taxis:" + taxis);
 				Employee e = new Employee(empolyeeId, name, mobile, headshipName,
 						qualifiedDeptName, picture, departmentFax);
 				employeeList.add(e);
