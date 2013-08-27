@@ -131,11 +131,13 @@ local employee_version=0
 local right_config=''
 local timeNum = 50 --获取验证码倒计时秒数
 local groupData,downLoadgroupID,org_f=false
+local skinData 
 local g_ECCode = ''    -- 企业EC编码
 local g_skinFlag = ''     -- 标记皮肤是否需要更新
 local g_skinPath = ''     --皮肤的本地地址
 local g_localPatchPath = nil        -- 皮肤文件临时解压路径
 local g_localpath = nil             -- 皮肤文件本地路径
+local g_skinType = ''      --下载皮肤的类型：0 -- 应用皮肤 1--节假日皮肤
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -222,8 +224,10 @@ function bodyOnPluginEvent(msg)
 	            local parent_department_id = Valuedata.parent_department_id
 	            local department_level = Valuedata.department_level
 	            local department_firstword = Valuedata.department_firstword
-                local company_id = Valuedata.company_id	             
-	            local sql = "insert into tb_c_department(department_id,department_name,parent_department_id,department_level,department_firstword,mark1,mark2,mark3,mark4,company_id) values ('"..department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."' ,'' ,'' ,'' ,'','"..company_id.."' );"
+                local company_id = Valuedata.company_id
+                local display_order = Valuedata.display_order	             
+	            local sql = "insert into tb_c_department(department_id,department_name,parent_department_id,department_level,department_firstword,mark1,mark2,mark3,mark4,company_id) values ('"..department_id.."','"..
+                    department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."' ,'"..display_order.."' ,'' ,'' ,'','"..company_id.."' );"
 	          --  Log:write('下载部门信息插入语句==第i=='..i..'次==sql=='..sql)
 	            bRet, errMsg = Sqlite:update(databaseName, sql)
 	        end
@@ -354,8 +358,14 @@ function bodyOnPluginEvent(msg)
             Sprite:setActive(zhuceBtn,0)
             Sprite:setEnable(zhuceBtn,0)
             Timer:set(222, 1000, 'getSmsCheckCodeTimer')     	
-            else 
-            Dialog:show('提示', '号码输入有误或非本集团用户', 'ok')
+        else 
+            local erroTips = ''
+            if (registerData['msg']~=nil and registerData['msg']~='') then
+                erroTips = registerData['msg']
+            else
+                erroTips = '号码输入有误或非本集团用户'
+            end
+            Dialog:show('提示', erroTips, 'ok')
         end
     elseif msg > MSG_NETWORK_ERROR then -- 请求超时
         if Loading:isShow() then Loading:close() end
@@ -409,6 +419,12 @@ function initdatabase()
     local sql2 = "create table tb_c_user_department(user_department_id varchar(32) primary key not null,user_company_id varchar(32),headship_id varchar(32),headship_name varchar(200),department_id varchar(32),department_path varchar(800),taxis int,visible_flag varchar(1),mark1 varchar(200), mark2 varchar(200));"
     bRet,errMsg = Sqlite:update(databaseName,sql2)
     Log:write("创建数据库表tb_c_user_department结果:"..bRet.." errMsg="..errMsg)
+
+    --添加皮肤属性表 skin_type:0--应用皮肤 1--节假日皮肤
+    local sq1 = "create table tb_c_skin(skin_path primary key not null, skin_type, skin_id,"..
+        "skin_name , holiday_name, holidayskin_start_date, holidayskin_end_date, skin_status, skin_eccode, skin_flag);"
+    bRet, errMsg = Sqlite:update(databaseName, sq1)
+    Log:write("创建数据库表tb_c_skin结果:bRet = "..bRet.." errMsg ="..errMsg)
 end
 
 function getDownloadPath()
@@ -584,7 +600,7 @@ function initUserDatabase()
             returnValue[i].group_version_num.."','"..returnValue[i].picture.."','"..
             returnValue[i].employee_firstword.."','"..returnValue[i].employee_fullword.."','"..returnValue[i].parent_department_name..
             "','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."','"..
-            returnValue[i].manage_flag.."','"..returnValue[i].mood.."' ,'' ,'' ,'' ,'','"..returnValue[i].user_company_id.."','"..returnValue[i].company_address.."','"..returnValue[i].user_company.."');"                  
+            returnValue[i].manage_flag.."','"..returnValue[i].mood.."' ,'"..returnValue[i].visible_flag.."' ,'' ,'' ,'','"..returnValue[i].user_company_id.."','"..returnValue[i].company_address.."','"..returnValue[i].user_company.."');"                  
             bRet, errMsg = Sqlite:update(databaseName, sqlInsert)
             --Log:write("sqlInsert 语句：",sqlInsert)
             --Log:write('deptList is ',returnValue[i].deptList) 
@@ -593,13 +609,13 @@ function initUserDatabase()
             --Log:write('deptlist size is ',#deptList)
             --Log:write("user_department_id is ",deptList[0].user_department_id)
             if deptList ~= nil then
-                for i=0,#deptList do
-                    local dept_path = deptList[i].department_path
+                for j=0,#deptList do
+                    local dept_path = deptList[j].department_path
                     if dept_path == nil then dept_path = '' end
-                    local gheadship_name = deptList[i].headship_name
+                    local gheadship_name = deptList[j].headship_name
                     if gheadship_name == nil then gheadship_name = '' end
                     local sqlInsert = "insert into tb_c_user_department (user_department_id,user_company_id,headship_id,headship_name,department_id,department_path,taxis,headship_name)"
-                    sqlInsert = sqlInsert .." values ('"..deptList[i].user_department_id.."','"..deptList[i].user_company_id.."','"..deptList[i].headship_id.."','"..gheadship_name.."','"..deptList[i].department_id.."','"..dept_path.."',"..deptList[i].taxis..",'"..deptList[i].headship_name.."');"
+                    sqlInsert = sqlInsert .." values ('"..deptList[j].user_department_id.."','"..deptList[j].user_company_id.."','"..deptList[j].headship_id.."','"..gheadship_name.."','"..deptList[j].department_id.."','"..dept_path.."',"..deptList[j].taxis..",'"..deptList[j].headship_name.."');"
                     --Log:write('department insert sql is ',sqlInsert)
                     bRet,errMsg = Sqlite:update(databaseName,sqlInsert)
                 end
@@ -662,7 +678,23 @@ end
 -- @brief 检查配置文件，确认是否需要下载皮肤
 function checkEcSkinFlag()
     Log:write("===检查配置文件，确认是否需要下载皮肤===")
-    g_skinPath = Config:get('skinPath')
+    g_skinType = 0;
+    --从数据库获取皮肤路径，判断是否为空
+    local sql =" SELECT * FROM tb_c_skin where skin_type = '"..g_skinType.."' ;"
+    local bRet,skinData,errMsg = Sqlite:query(databaseName, sql)
+    Log:write("搜索皮肤分组SQL: ",errMsg)
+    Log:write("搜索皮肤分组结果: ",skinData)
+
+    len = tonumber(getJsonArrayCount(skinData))-1
+    Log:write("皮肤列表记录数目：",len)
+
+    if len == 0 then
+        g_skinPath = ""
+    else
+        g_skinPath = skinData[1][2]
+    end 
+   
+    --g_skinPath = Config:get('skinPath')
     if isSkinAvailable() == false then   --需要下载皮肤
         Log:write("尝试下载皮肤文件...") 
         Sprite:setProperty(noticeLabel, "text", "下载皮肤中...")
@@ -684,8 +716,8 @@ function isSkinAvailable()
         return false
     end 
     Log:write("皮肤目录存在!")
-    Config:set('skinPath', g_skinPath)
-    Config:set('skinFlag', '1')
+    --Config:set('skinPath', g_skinPath)
+    --Config:set('skinFlag', '1')
     return true
 end 
 
@@ -711,7 +743,7 @@ end
 -- @brief 显示下载状态
 function onGetDownloadStatus()
     local count = Download:getCount(true)
-    -- Log:write("当前任务数:"..count)
+    Log:write("当前任务数:"..count)
     if count == 0 then 
         Log:write("当前无下载任务，停止显示下载状态！")
         return 
@@ -721,7 +753,7 @@ function onGetDownloadStatus()
     for i = 1, count do
         local task = Download:getStatus(count, true)
         if task.title == g_ECCode then   
-            -- Log:write("任务状态:", task)
+            Log:write("任务状态:", task.status)
            
             if  task.status == 0 then 
                 Download:start(count, true)
@@ -741,10 +773,11 @@ function onGetDownloadStatus()
                 unzipSkin() 
                 Timer:set(333, 1000)  
             elseif task.status == 5 then -- 下载失败
-                Dialog:show('抱歉', '皮肤下载失败，请检查服务是否可用!', 'ok')
-                return
+                Log:write('抱歉, 皮肤下载失败，请检查服务是否可用!')
+                if Loading:isShow() then Loading:close() end
+                goHome()
             else
-                Dialog:show('抱歉', '皮肤下载失败，发生未知错误!', 'ok')
+                Log:write('抱歉, 皮肤下载失败，发生未知错误!')
                 return
             end
 
@@ -761,9 +794,18 @@ function unzipSkin()
     local rtn = Util:unzip(g_localpath, g_localPatchPath) --下载完成进行解压缩操作
     if rtn then --表示解压成功
         g_skinFlag = '1'
-        Config:set('ECCode', g_ECCode)
-        Config:set('skinFlag', g_skinFlag)
-        Config:set('skinPath', g_localPatchPath)
+
+        -- Config:set('ECCode', g_ECCode)
+        -- Config:set('skinFlag', g_skinFlag)
+        -- Config:set('skinPath', g_localPatchPath)
+
+        --皮肤标志位和保存地址写入数据库
+        local sql = "insert into tb_c_skin(skin_path, skin_type, skin_id, skin_name , holiday_name, holidayskin_start_date, holidayskin_end_date, skin_status, skin_eccode, skin_flag) values ('"..g_localPatchPath.."','0','','','' ,'' ,'' ,'' ,'"..g_ECCode.."', '"..g_skinFlag.."' );"
+        local bRet, errMsg = Sqlite:update(databaseName, sql)
+
+        Log:write("解压成功:"..errMsg)
+        Log:write("皮肤标志位g_skinFlag", g_skinFlag )
+        Log:write("皮肤路径保存地址为g_localPatchPath", g_localPatchPath)
     else
         Dialog:show('抱歉', '解压失败', 'ok')
     end

@@ -18,7 +18,7 @@
         <node name="mainNode" rect="0,0,480,800" enable="true" 
             active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
 	        <!-- 设置背景 -->
-	        <image rect="0,80,480,720" src="file://image/jttxl/bj.png" style="autosize"
+	        <image name="image_bj" rect="0,80,480,720" src="file://image/jttxl/bj.png" style="autosize"
 	           extendstyle="1111" />
 	           
 	        <!-- 设置头部 -->
@@ -123,6 +123,11 @@ require 'com_wondertek_tx.common.framework'
 require 'framework.webbrowser'
 require 'framework.umsagent'
 require('framework.sqlite')
+
+local url_downdeptlist = Alias.url_server..'mobile/orger/downall?cmd=downall'
+local url_userversion = Alias.url_server..'mobile/UserInfo/getUserInfoByCompany?'
+
+local userversiondata
 local databaseName
 local rootSprite
 local textcontent = {}
@@ -151,6 +156,8 @@ local bRet2,companyTable,errMsg2
 local currentCompanyId --保存当前选中的公司ID
 local skinFalg='' --皮肤更新的标志
 local skinPath='' --皮肤更新的路径
+local skinData
+local g_skinType
 
 ---------------------------------------回调函数--------------------------------
 -- root子节点创建完事件
@@ -158,8 +165,9 @@ function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     newNode = Sprite:findChild(rootSprite, 'newNode')
     reg = Reg:create('group_data')
+    
     checkSkinPath()
-    --更多下拉框
+	--更多下拉框
     comboboxListview = Sprite:findChild(rootSprite, 'comboboxListview')
     comboboxItem = Sprite:findChild(rootSprite, 'comboboxItem')
     blank = Sprite:findChild(rootSprite, 'blank')
@@ -214,6 +222,7 @@ function bodyOnSpriteFinish()
             --更改标题
             if showGroup[4] == '1' then
                 showTitleData()
+                loadDeptData(showGroup[1])
                 break
             elseif showGroup[4] == '-1' then
                 Reg:setString(reg, 'company_name', showGroup[2])
@@ -234,6 +243,56 @@ end
 -- 插件消息方法
 function bodyOnPluginEvent(msg, param)
     if msg == 101 then
+    elseif msg == 102 then
+        --if Loading:isShow() then Loading:close() end
+        local departmentdata1 = Http:jsonDecode('departmentdata0')
+        local total = departmentdata1.total   
+        Log:write('===total====='..total)  
+        if total > 0 then
+            bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
+            Log:write("部门1添加事务开始:bRet = "..bRet.." errMsg ="..errMsg)
+            for i=0,total-1 do
+                local Valuedata = departmentdata1["value"][i]
+                local department_id = Valuedata.department_id
+                local department_name = Valuedata.department_name
+                local parent_department_id = Valuedata.parent_department_id
+                local department_level = Valuedata.department_level
+                local department_firstword = Valuedata.department_firstword
+                local company_id = Valuedata.company_id
+                local display_order = Valuedata.display_order              
+                local sql = "insert into tb_c_department(department_id,department_name,parent_department_id,department_level,department_firstword,mark1,mark2,mark3,mark4,company_id) values ('"..
+                    department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."' ,'"..display_order.."' ,'' ,'' ,'','"..company_id.."' );"
+              --  Log:write('下载部门信息插入语句==第i=='..i..'次==sql=='..sql)
+                bRet, errMsg = Sqlite:update(databaseName, sql)
+            end
+            bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
+            Log:write("部门1添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
+        end
+
+        Log:write('===departmentdata1.deptversion====='..departmentdata1.deptversion)
+        department_version = departmentdata1.deptversion
+        Config:set('deptversion', departmentdata1.deptversion)
+        Log:write('deptversion====='..Config:get('deptversion'))
+        --set dept version to db
+        local v 
+        local sql = "select department_version from tb_c_system;"
+        bRet,v, errMsg = Sqlite:query(databaseName, sql)
+
+        if(tonumber(v[1][1]) < departmentdata1.deptversion) then
+            local sql = "update tb_c_system set department_version = '"..departmentdata1.deptversion.."';"
+            bRet, errMsg = Sqlite:update(databaseName, sql)
+        end
+        -- 下载联系人接口地址
+        firstUpdateUserData()
+
+    elseif msg == 103 then 
+        userversiondata = Http:jsonDecode('userversiondata0')
+        InsertEmployeeData()
+
+        if Loading:isShow() then Loading:close() end
+
+        loadDeptData(currentCompanyId)
+
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == 101 + MSG_NETWORK_ERROR then -- 101请求的数据超时
     elseif msg == 1000 then 
@@ -248,16 +307,44 @@ end
 -- 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-        Util:backgroundApp()
+        -- Dialog:show('提示', '是否确定退出？', 'ok_cancel', 'doExit') 
+        --Scene:go(Alias.m_recentContacter, true)
+        --return 1
+        if Loading:isShow() then
+            Loading:close()
+        else
+            Util:backgroundApp()
+        end
     end
 end
 
 ---------------------------------检查皮肤是否更新了-------------
+
 function checkSkinPath()
     local imagebj=Sprite:findChild(rootSprite, 'image_bj')  
-    Log:write("开始鉴权皮肤是否更新1...")
-    skinFalg = Config:get('skinFlag')
-    skinPath = Config:get('skinPath')
+    Log:write("开始鉴权皮肤是否更新renyuantongji...")
+
+    g_skinType = "0";
+    --从数据库获取皮肤路径，判断是否为空
+    local sql =" SELECT * FROM tb_c_skin where skin_type = '"..g_skinType.."' ;"
+    local bRet,skinData,errMsg = Sqlite:query(Config:get('databaseName'), sql)
+    Log:write("搜索皮肤更新分组SQL: ",errMsg)
+    Log:write("搜索皮肤更新分组结果: ",skinData)
+
+    len = tonumber(getJsonArrayCount(skinData))-1
+    Log:write("皮肤更新列表记录数目：",len)
+    Log:write("皮肤更新数据库：",skinData)
+
+    if len == 0 then
+        skinPath = ""
+        skinFalg = ""
+    else
+        skinPath = skinData[1][1]
+        skinFalg = skinData[1][10]
+    end 
+
+    -- skinFalg = Config:get('skinFlag')
+    -- skinPath = Config:get('skinPath')
     Log:write("开始鉴权皮肤是否更新skinFalg...", skinFalg)
     Log:write("开始鉴权皮肤是否更新skinPath...", skinPath)
     
@@ -270,7 +357,9 @@ function checkSkinPath()
     end
 end
 
+
 ----------------------------------服务端交互函数列表---------------------------------
+
 function doRegionClick(sprite)
     UmsAgent:onLoadStart()
     -- 获取当前被选地市的数据
@@ -402,6 +491,7 @@ function initCityData()
     local company_id = companyTable[1][1]
     if tonumber(judgeFlag) == 2 then
         Log:write("@jldu 从本机通讯录跳转过来")
+        currentCompanyId = compId
         loadDeptData(compId)
         Reg:setString(reg, 'compId', compId)
     else
@@ -413,18 +503,47 @@ end
 
 -- 加载部门数据
 function loadDeptData(company_id)
-    Log:write("@jldu 展示某个企业下的部门：",company_id)
-    local sql2 = "select department_id, department_name from tb_c_department where parent_department_id='0' and department_id!='001' and company_id='"..company_id.."';"
-    Log:write("==查询语句=="..sql2)
-    bRet2, retDeptTable2, errMsg2 = Sqlite:query(Config:get('databaseName'), sql2)
-    Log:write('@jldu 部门树数据： ',retDeptTable2)
-    --开始绑定部门树
-    local len = getJsonArrayCount(retDeptTable2)-1
-    Log:write('the length is ',len)
-    local list = Sprite:findChild(rootSprite,'cityList')
-    ListView:removeAllItems(list,1)
-    ListView:loadItem(list, Sprite:findChild(rootSprite, 'cityListItems'), len, 'LoadListItemCallback')
-    ListView:adjust(list)  
+
+    --@guokai,判断当前企业用户数据是否已经下载：若未下载，启动下载流程
+    local count_sql = "select count(department_id) from tb_c_department where company_id='"..company_id.."';"
+    local count;
+    bRet2, count, errMsg2 = Sqlite:query(Config:get('databaseName'), count_sql)
+    Log:write('@guokai,当前企业部门数 ',count)
+
+    local count_emp_sql = "select count(employee_id) from tb_c_employee where company_id='"..company_id.."';"
+    local count_emp;
+    bRet2, count_emp, errMsg2 = Sqlite:query(Config:get('databaseName'), count_emp_sql)
+    Log:write('@guokai,当前企业用户数据 ',count_emp)
+
+    if tonumber(count[1][1]) == 0 then
+
+        Loading:show(rootSprite)   --启动更新部门的loading
+        local v
+        local sql = "SELECT user_id FROM tb_c_system"
+        bRet2,v, errMsg2 = Sqlite:query(databaseName, sql) 
+        Log:write("系统表userId:bRet = "..bRet2.." errMsg ="..errMsg2.."userId is ",v[1][1]) 
+        local paras = '&userCode='..Config:get('userId')..'&deptCode=0'..'&deptList='..'&token='..'&company_id='..company_id
+        Http:request('departmentdata0', url_downdeptlist..paras, 102, {useCache = false})
+        Log:write('首次登录时组织结构URL = '..url_downdeptlist..paras)
+
+    elseif tonumber(count_emp[1][1])<=1  then
+        Loading:show(rootSprite)   --启动更新用户的loading
+        firstUpdateUserData()
+    else 
+        Log:write("@jldu 展示某个企业下的部门：",company_id)
+        local sql2 = "select department_id, department_name,mark1 from tb_c_department where parent_department_id='0' and department_id!='001' and company_id='"..
+            company_id.."' ORDER BY cast(mark1 as integer) ASC;"
+        Log:write("==查询语句=="..sql2)
+        bRet2, retDeptTable2, errMsg2 = Sqlite:query(Config:get('databaseName'), sql2)
+        Log:write('@jldu 部门树数据： ',retDeptTable2)
+        --开始绑定部门树
+        local len = getJsonArrayCount(retDeptTable2)-1
+        Log:write('the length is ',len)
+        local list = Sprite:findChild(rootSprite,'cityList')
+        ListView:removeAllItems(list,1)
+        ListView:loadItem(list, Sprite:findChild(rootSprite, 'cityListItems'), len, 'LoadListItemCallback')
+        ListView:adjust(list)
+    end  
 end
 
 --加载部门列表
@@ -446,6 +565,7 @@ function queryGroupData()
         databaseName = Config:get('databaseName')
         local bRet, errMsg = Sqlite:open(databaseName)
     end
+    
     local queryGroup = "select company_id,company_name,status,org_flag from tb_c_company order by org_flag desc,company_name desc;"
     bRet2, companyTable, errMsg2 = Sqlite:query(databaseName, queryGroup)
     groupDatas = companyTable
@@ -453,6 +573,7 @@ function queryGroupData()
     Log:write('@jldu 群组数据（企业与非企业）：', groupDatas)
     initTitleData()
 end
+
 function initTitleData()
     --字段顺序company_id,company_name,status,org_flag
     --本地通讯录
@@ -476,14 +597,17 @@ function initTitleData()
     Log:write("@jldu 企业、非企业：",showData)
     Log:write("@jldu 企业用户个数：",num)
     Log:write("@jlud 企业用户：",special)
+    local groupNum = #special + 1
+    Log:write("@lnn #special = ",groupNum)
     if localContacts ~= nil then
-        if special == nil then
-            table.insert(showData,1,localContacts)
-        elseif #special == 1 then
-            table.insert(showData,2,localContacts)
-        elseif #special == 2 then
-            table.insert(showData,3,localContacts)
-        end
+        table.insert(showData,groupNum,localContacts)
+        -- if special == nil then
+        --     table.insert(showData,1,localContacts)
+        -- elseif #special == 1 then
+        --     table.insert(showData,2,localContacts)
+        -- elseif #special == 2 then
+        --     table.insert(showData,3,localContacts)
+        -- end
     end
     Log:write("@jldu 企业、非企业、本地通讯录：",showData)
     -- 企业单位
@@ -681,8 +805,17 @@ function comboboxItemOnSelect(sprite)
     Reg:setString(reg, 'org_flag', data[4])
     if data[2] ~= Sprite:getText(Sprite:findChild(rootSprite, 'title')) then
         if data[4] == '1' then
-             Scene:go(Alias.m_renyuantongji,true)
+             --Scene:go(Alias.renyuantongji,true)
+             currentCompanyId = data[1]
+             loadDeptData(data[1])
+             showTitleData(data[2])
+             Reg:setString(reg, 'compId',data[1])
+             Reg:setString(reg, 'compName',data[2])
+             local compName = Reg:getString(reg, 'compName')
+             local compId = Reg:getString(reg, 'compId')
+             Log:write("@lnn renyuantongji compName="..compName.." compId="..compId)
         elseif data[4] == '-1' then
+             Reg:setString(reg, "company_name",data[2])
              Scene:go(Alias.m_local,true)
         elseif data[4] == '0' then
              Scene:go(Alias.m_group,true)
@@ -703,6 +836,101 @@ function localOnselect(sprite)
     -- Scene:go(Alias.m_local, true)
     -- 不释放页面，提高加载速度
     Scene:go(Alias.m_local)
+end
+
+
+-- 新加企业需要下载所有用户数据
+function firstUpdateUserData()
+        Log:write("新加企业，需要请求服务端接口！")
+        local v
+        local sql = "SELECT employee_version,user_id FROM tb_c_system"
+        bRet,v, errMsg = Sqlite:query(databaseName, sql)  
+        paras = 'departmentIdStr=0'..'&userId='..v[1][2]..'&companyId='..currentCompanyId..'&versionNum=0'
+        Log:write('联系人URL = '..url_userversion..paras)
+        Http:request('userversiondata0', url_userversion..paras, 103, {useCache = false})  
+end
+
+-- 初始化本地人员表
+function InsertEmployeeData()
+    local returnValue = userversiondata.value     
+    local totalNum1 = tonumber(userversiondata.total)-1  
+    Log:write("配置文件中存储的用户版本号：",Config:get('userVersion'))
+    Log:write("配置文件中存储的用户权限：",Config:get('mobileRights'))
+    Log:write("配置文件中存储的用户权限：",totalNum1)
+
+    bRet, errMsg = Sqlite:update(databaseName, "BEGIN;")
+    Log:write("新加企业--人员添加事务开始:bRet = "..bRet.." errMsg ="..errMsg)
+    for i=0,totalNum1 do 
+        -- 新增用户SQL
+        local sqlInsert = "insert into tb_c_employee(employee_id ,company_id,employee_name,"..
+            "department_id,department_name,headship_level,headship_name,mobile,mobile_short,"..
+            "tel,tel_short,home_telephone,weibo,weixin,qq,school,user_major,user_grade,user_class,student_id,birthday,native_place,"..
+            "address,home_address,remark,email,versionNum,picture,employee_firstword,employee_fullword,"..
+            "parent_department_name,display_order, department_fax, manage_flag, mood , mark1, mark2, mark3, mark4,user_company_id,company_address,user_company)" ..
+            " values('"..returnValue[i].employee_id.."','"..returnValue[i].company_id.."','"..
+        returnValue[i].employee_name.."','"..returnValue[i].department_id.."','"..
+        returnValue[i].department_name.."','','"..
+        returnValue[i].headship_name.."','"..returnValue[i].mobile.."','"..
+        returnValue[i].mobile_short.."','"..returnValue[i].tel.."','"..
+        returnValue[i].tel_short.."','"..returnValue[i].home_telephone.."','"..
+        returnValue[i].weibo.."','"..returnValue[i].weixin.."','"..
+        returnValue[i].qq.."','"..returnValue[i].school.."','"..
+        returnValue[i].user_major.."','"..returnValue[i].user_grade.."','"..
+        returnValue[i].user_class.."','"..returnValue[i].student_id.."','"..
+        returnValue[i].birthday .."','"..returnValue[i].native_place.."','"..
+        returnValue[i].address.."','"..returnValue[i].home_address.."','"..
+        returnValue[i].remark.."','"..returnValue[i].email.."','"..
+        returnValue[i].group_version_num.."','"..returnValue[i].picture.."','"..
+        returnValue[i].employee_firstword.."','"..returnValue[i].employee_fullword.."','"..returnValue[i].parent_department_name..
+                "','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."','"..
+        returnValue[i].manage_flag.."','"..returnValue[i].mood.."' ,'' ,'' ,'' ,'','"..returnValue[i].user_company_id.."','"..returnValue[i].company_address.."','"..returnValue[i].user_company.."');"                 
+        Log:write("sqlInsert = ",sqlInsert)
+        bRet, errMsg = Sqlite:update(databaseName, sqlInsert)
+        Log:write("新增用户:bRet = "..bRet.." errMsg ="..errMsg)
+
+                    --插入用户部门信息
+        local deptList = returnValue[i].deptList
+        --Log:write('deptlist size is ',#deptList)
+        --Log:write("user_department_id is ",deptList[0].user_department_id)
+        if deptList ~= nil then
+            for i=0,#deptList do
+                local dept_path = deptList[i].department_path
+                if dept_path == nil then dept_path = '' end
+                local gheadship_name = deptList[i].headship_name
+                if gheadship_name == nil then gheadship_name = '' end
+
+                -- local sqlDelete = "DELETE FROM tb_c_user_department WHERE user_company_id = '"..returnValue[i].user_company_id.."';"
+                -- Log:write("sqlDelete = ",sqlDelete)
+                -- bRet, errMsg = Sqlite:update(databaseName, sqlDelete)
+                -- Log:write("删除用户:bRet = "..bRet.." errMsg ="..errMsg)
+
+                local sqlInsert = "insert into tb_c_user_department (user_department_id,user_company_id,headship_id,headship_name,department_id,department_path,taxis,headship_name)"
+                sqlInsert = sqlInsert .." values ('"..deptList[i].user_department_id.."','"..deptList[i].user_company_id.."','"..deptList[i].headship_id.."','"..gheadship_name.."','"..deptList[i].department_id.."','"..dept_path.."',"..deptList[i].taxis..",'"..deptList[i].headship_name.."');"
+                --Log:write('department insert sql is ',sqlInsert)
+                bRet,errMsg = Sqlite:update(databaseName,sqlInsert)
+                Log:write("插入用户:bRet = "..bRet.." errMsg ="..errMsg)
+            end
+        end
+    end
+    bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
+    Log:write("新加企业--人员添加事务结束:bRet = "..bRet.." errMsg ="..errMsg) 
+    local v
+    local sql = "SELECT employee_version FROM tb_c_system"
+    bRet,v, errMsg = Sqlite:query(databaseName, sql)    
+    if tonumber(returnValue[0].group_version_num) > tonumber(v[1][1]) then
+        maxUserVersion = returnValue[0].group_version_num
+    else
+        local v
+        local sql = "SELECT employee_version FROM tb_c_system"
+        bRet,v, errMsg = Sqlite:query(databaseName, sql)
+        maxUserVersion = v[1][1]  
+    end
+
+    Log:write("maxUserVersion = ",maxUserVersion)
+    employee_version = maxUserVersion
+    Config:set('userVersion',employee_version)
+    local sql = "update tb_c_system set employee_version = '"..employee_version.."';"
+    bRet, errMsg = Sqlite:update(databaseName, sql)
 end
 
     ]]>

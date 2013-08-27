@@ -164,7 +164,7 @@ function groupSetOnSelect(sprite)
     local imageSrc = Sprite:getProperty(Sprite:findChild(sprite, 'imageNormal'), 'src') 
     local tips
     local status = Config:get('localContactStatus')
-    
+    Log:write("localContactStatus",status)
     
     
     if imageSrc == "file://image/jttxl/xiaoren_d.png" then 
@@ -187,13 +187,13 @@ function groupSetOnSelect(sprite)
 		
 	    
 	    --如果不属于企业用户，并且只有一个分组，则不允许设置关闭该分组
-	    local queryStatus = "select count(*) from tb_c_company where org_flag = '1'"
+	    local queryStatus = "select count(*) from tb_c_company where status = '1'"
 	    bRet, statusDatas, errMsg = Sqlite:query(databaseName, queryStatus)
 	    Log:write("==statusDatas==", statusDatas)
 	    local num = statusDatas[1][1]
 	    Log:write("企业用户数：",num)
 	    
-	    if num == '0' then
+	    if num == '1' then
 	        local queryOrgFlag = "select count(*)  from tb_c_company where status = '1'"
 	        bRet, orgFlagDatas, errMsg = Sqlite:query(databaseName, queryOrgFlag)
 	        Log:write("==orgFlagDatas==", orgFlagDatas)
@@ -317,7 +317,8 @@ function initGroup()
     
 end
 function readGroupName()
-    local queryGroup = "select company_id,company_name,status,org_flag from tb_c_company where org_flag = '0'"
+    local queryGroup = "select company_id,company_name,status,org_flag from tb_c_company order by org_flag desc,company_name desc;"
+    Log:write("==查询语句queryGroup=="..queryGroup)
     bRet2, groupDatas, errMsg2 = Sqlite:query(databaseName, queryGroup)
     Log:write('groupDatas', groupDatas)
     

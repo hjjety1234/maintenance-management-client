@@ -82,14 +82,17 @@ Alias = {
     m_update = 'MODULE:\\com_wondertek_tx\\m_update.wdml', -- 入口页
 
     m_main = 'MODULE:\\com_wondertek_tx\\m_main.wdml', -- 带有滑动效果的主页
+	
+	m_shareDcode = 'MODULE:\\com_wondertek_tx\\m_shareDcode.wdml', -- 二维码分享
     
     m_qunfaxuanren = "MODULE:\\com_wondertek_tx\\m_qunfaxuanren.wdml",  -- 短信群发选人
     
-    --url_server = 'http://120.209.138.173:8080/'     --测试服务器地址
-
-    url_server = 'http://120.209.138.173:8088/'     --标准版测试服务器地址
-
-    -- url_server = 'http://120.209.131.147:8088/'  --生产服务器地址
+    m_sendMessageInfo = 'MODULE:\\com_wondertek_tx\\m_sendMessageInfo.wdml', -- 群发短信页面
+    
+    -- url_server = 'http://120.209.138.173:8080/'   -- 安徽移动版测试服务器地址
+    url_server = 'http://120.209.138.173:8088/'      -- 标准版测试服务器地址
+    -- url_server = 'http://120.209.131.147:8088/'   -- 安徽移动版生产服务器地址
+    --url_server = 'http://120.209.138.173:8080/'    -- 标准版生产服务器地址
 }
 
 MSG_TAB_CLICKED = 2222

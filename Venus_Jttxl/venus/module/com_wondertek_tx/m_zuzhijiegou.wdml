@@ -117,7 +117,7 @@
                 </node>
             </node>
             
-            <!--列表信息-->
+            <!--列表信息
             <node name="indexListNode" rect="420,80,80,640" extendstyle="1111">
                 <list name="indexList" rect="0,8,60,640" extendstyle="1111" line="26" col="1" auto-adjust="true" offset="0,0">
                     <list-item rect="0,0,80,24" >
@@ -153,7 +153,7 @@
                     </dataset>
                 </list>
             </node>
-            
+            -->
         </node>
     </body>
     <![CDATA[
@@ -279,8 +279,8 @@ end
 function readdeptdata()
     Log:write("==par_department_id=="..par_department_id)
     local sql1 = "select (select count(*) from tb_c_employee where department_id = tb_c_department.department_id) as users, "..
-        "(select count(*) from tb_c_department c where c.parent_department_id=tb_c_department.department_id) as depts,department_name,department_id,department_firstword "..
-        "from tb_c_department where parent_department_id = '"..par_department_id.."' ORDER BY department_firstword ASC;"
+        "(select count(*) from tb_c_department c where c.parent_department_id=tb_c_department.department_id) as depts,department_name,department_id,department_firstword,mark1 "..
+        "from tb_c_department where parent_department_id = '"..par_department_id.."' ORDER BY cast(mark1 as integer) ASC;"
     Log:write("==chanxunyuju=="..sql1)
     bRet1, retDeptTable1, errMsg1 = Sqlite:query(databaseName, sql1)
     Log:write("查询数据库表成功1:bRet = "..bRet1.." errMsg ="..errMsg1.." 查询结果retDeptTable1 =", retDeptTable1)

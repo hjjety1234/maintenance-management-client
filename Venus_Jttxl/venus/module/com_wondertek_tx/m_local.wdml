@@ -268,9 +268,7 @@ function bodyOnSpriteEvent(msg, param)
             'file://image/book/site_d.png')
         getContacts()
         Timer:set(222, 100, "checkDeviceInfo")
-        --更改标题
-        reg = Reg:create('group_data')
-        local company_name = Reg:getString(reg, 'company_name')
+         --更改标题
         queryGroupData()
         showTitleData(company_name)
     elseif msg == MSG_DEACTIVATE then
@@ -511,14 +509,16 @@ function initTitleData()
             end
         end
     end
+    local groupNum = #special + 1
      if localContacts ~= nil then
-        if special == nil then
-            table.insert(showData,1,localContacts)
-        elseif #special == 1 then
-            table.insert(showData,2,localContacts)
-        elseif #special == 2 then
-            table.insert(showData,3,localContacts)
-        end
+        table.insert(showData,groupNum,localContacts)   
+        -- if special == nil then
+        --     table.insert(showData,1,localContacts)
+        -- elseif #special == 1 then
+        --     table.insert(showData,2,localContacts)
+        -- elseif #special == 2 then
+        --     table.insert(showData,3,localContacts)
+        -- end
     end
     Log:write("@jldu 企业、非企业、本地通讯录：",showData)
     companyGroup = special
@@ -604,8 +604,8 @@ function showTitleData(company_name)
         Sprite:setProperty(centerLabel, 'text', showData[2][2])
         Sprite:setProperty(rightLabel, 'text', showData[3][2])
         Sprite:setRect(leftBtn, 30,10,130,62)
-        Sprite:setRect(centerBtn, 160,10,130,62)
-        Sprite:setRect(rightBtn, 291,10,130,62)
+        Sprite:setRect(centerBtn, 161,10,130,62)
+        Sprite:setRect(rightBtn, 292,10,130,62)
         
         if showData[1][2] == company_name then
             Sprite:setProperty(leftBtn, 'src', 'file://image/jttxl/local_menu_a1.png')
@@ -643,7 +643,7 @@ function groupOnSelect(sprite)
                 Sprite:sendEvent(root, MSG_ACTIVATE)
             end
         elseif data[4] == '-1' then
-            -- Scene:go(Alias.m_local,true)
+             Scene:go(Alias.m_local,true)
         elseif data[4] == '0' then
              Scene:go(Alias.m_group,true)
         end
@@ -719,7 +719,8 @@ function comboboxItemOnSelect(sprite)
     Reg:setString(reg, 'org_flag', data[4])
     if data[2] ~= Sprite:getText(Sprite:findChild(rootSprite, 'title')) then
         if data[4] == '1' then
-             Scene:go(Alias.m_renyuantongji,true)
+            Scene:go(Alias.m_renyuantongji..'?judgeFlag=2&compId='..data[1]..'&compName='..data[2],true)
+            -- Scene:go(Alias.m_renyuantongji,true)
         elseif data[4] == '-1' then
              Scene:go(Alias.m_local,true)
         elseif data[4] == '0' then

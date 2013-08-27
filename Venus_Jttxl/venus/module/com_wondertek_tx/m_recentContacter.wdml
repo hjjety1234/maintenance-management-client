@@ -39,9 +39,11 @@
                     OnSetFocus="editOnSetFocus" OnLostFocus="editOnLostFocus" OnTextChanged="editOnTextChanged" extendstyle='1111'>
                 </edit>
                 <!-- 搜索输入框置空按钮 -->  
-                <button name="resetBtn" rect="420,30,32,31" OnSelect="doCancel" visible="false" enable="false"
-                    normal="src:file://image/jttxl/close_d.png;"
-                    sel="src:file://image/jttxl/close_s.png;" style="autosize" extendstyle="1111">
+                <button name="resetBtn" rect="420,30,40,60" sudoku="" OnSelect="doCancel" visible="false" enable="false"
+                    normal="normal"
+                    sel="sel" style="autosize" extendstyle="1111">
+                    <image name="normal" style="autosize" src="file://image/jttxl/close_d.png" extendstyle="1111" rect="0,0,32,31" />
+                    <image name="sel" style="autosize" src="file://image/jttxl/close_s.png" extendstyle="1111" rect="0,0,32,31" />
                 </button>             
             </node>
 
@@ -104,12 +106,12 @@
                         style='autosize' extendstyle="1111"/>                
                 <node name="employeeLine" rect="110,5,375,40">
                     <!-- 联系人姓名 -->
-                    <scrolltext  name="employeeName" rect="0, 0, 80, 35"  text="" font-family='微软雅黑' 
+                    <scrolltext  name="employeeName" rect="0, 0, 200, 35"  text="" font-family='微软雅黑' 
                         scroll="true" color="#ffffff" font-size="24" h-align="left" v-align="center"
                         border="false" style="autosize" extendstyle="1111">
                     </scrolltext> 
                     <!-- 来电次数 -->
-                    <node rect="80, 0, 60, 28">
+                    <node rect="200, 0, 60, 28">
                         <!-- 次数 -->
                         <label name="goComeNum" rect="0, 6,60, 28"  text="" font-family='微软雅黑' 
                             color="#ffffff" font-size="18" h-align="left" v-align="center"
@@ -291,11 +293,16 @@
 require 'com_wondertek_tx.common.framework'
 require 'framework.umsagent'
 require 'framework.sqlite'
+require 'framework.download'
+
 local url_updatedept = Alias.url_server..'mobile/orger/update?cmd=updatedept'
 local url_userversion = Alias.url_server..'mobile/UserInfo/getUserInfo?'
 local url_updateAllUser = Alias.url_server..'mobile/UserInfo/addUserInfo?'
 local url_updateCompany = Alias.url_server..'mobile/group/updateMygroups?'
 local url_updategroupUsers = Alias.url_server..'mobile/group/getgroupusers?'
+local url_updateSkin = Alias.url_server..'resources/skin/'
+local url_getHolidySkin = Alias.url_server..'mobile/group/getHolidaySkin'
+local url_downloadHolidaySkin = Alias.url_server..'resources/mobileImg/'
 
 
 local databaseName
@@ -327,6 +334,13 @@ local bRet, errMsg, retRecentUserTable, retCommonUserTable, retSysTable, retUser
 local org_f=false
 local groupUsersArray,groupIndex=1            --分组联系人更新
 
+local g_ECCode = ''    -- 企业EC编码
+local g_skinName = '' -- 皮肤更新包名
+local g_skinFlag='' --皮肤更新的标志
+local g_skinPath='' --皮肤更新的路径
+local g_skinOldPath=''  --更新前的皮肤路径
+local g_skinType = '' 
+
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -342,18 +356,22 @@ function bodyBuildChildrenFinished(sprite)
     createDatabase()
     if Config:get('togohomeTag') == '1' then
 	    querySysConfig()
-        --getUserHeadshipLevel()
+--getUserHeadshipLevel()
         Log:write('设置时钟，5秒后开始检测本地数据是否有更新')
-	    Timer:set(159,5000,'updateDatabase')   
+	    Timer:set(159,180000,'updateDatabase')   
     end
     Config:set('togohomeTag','0')   
     --读取本机通讯录
     Timer:set(1001, 200, "getContacts")
+
+    --开始检测节假日皮肤是否有更新
+    Timer:set(1002,200,'updateHolidaySkin')
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        
         Http:startNetwork()
         UmsAgent:OnActivate(string.match(Alias.m_recentContacter, 
             'MODULE:\\(.*)'), "最近联系人")
@@ -437,9 +455,11 @@ function bodyOnPluginEvent(msg)
                 local department_level = Valuedata.department_level
                 local update_type = Valuedata.update_type
                 local department_firstword = Valuedata.department_firstword
-                local company_id = 0  --Valuedata.company_id     
+                local company_id = Valuedata.company_id
+                local display_order = Valuedata.display_order     
                 if update_type == "0" then
-                    local sql = "insert into tb_c_department(department_id,department_name,parent_department_id,department_level,department_firstword,mark1,mark2,mark3,mark4,company_id) values ('"..department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."' ,'' ,'' ,'' ,'','"..company_id.."' );"
+                    local sql = "insert into tb_c_department(department_id,department_name,parent_department_id,department_level,department_firstword,mark1,mark2,mark3,mark4,company_id) values ('"..
+                        department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."' ,'"..display_order.."' ,'' ,'' ,'','"..company_id.."' );"
                     -- Log:write("部门新增语句:sql = "..sql) 
                     bRet, errMsg = Sqlite:update(databaseName, sql)
                     -- Log:write("部门1添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
@@ -448,7 +468,8 @@ function bodyOnPluginEvent(msg)
                     Log:write("部门新增语句1:sql = "..sql) 
                     bRet, errMsg = Sqlite:update(databaseName, sql)
                     Log:write("部门1添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
-                    local sql = "insert into tb_c_department(department_id,department_name,parent_department_id,department_level,department_firstword,mark1,mark2,mark3,mark4,company_id) values ('"..department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."' ,'' ,'' ,'' ,'','"..company_id.."' );"
+                    local sql = "insert into tb_c_department(department_id,department_name,parent_department_id,department_level,department_firstword,mark1,mark2,mark3,mark4,company_id) values ('"..
+                        department_id.."','"..department_name.."','"..parent_department_id.."','"..department_level.."','"..department_firstword.."' ,'"..display_order.."' ,'' ,'' ,'','"..company_id.."' );"
                     Log:write("部门新增语句1:sql = "..sql) 
                     bRet, errMsg = Sqlite:update(databaseName, sql)
                     Log:write("部门1添加事务结束:bRet = "..bRet.." errMsg ="..errMsg)
@@ -530,6 +551,16 @@ function bodyOnPluginEvent(msg)
                 local company_version = Valuedata.company_version
                 local update_type = Valuedata.update_type
                 Log:write("分组添加",Valuedata)
+
+                --判断皮肤是否需要更新
+                if i == 0 then
+                    g_skinName = Valuedata.index_pictrue
+                    if g_skinName ~= nil and g_skinName ~= '' then
+                        Log:write("需要更新皮肤资源",g_skinName)
+                        local skinType = '0'
+                        createSkinDownloadTask(skinType)
+                    end 
+                end 
                       
                 if update_type == "0" then
                     local sql = "insert into tb_c_company(company_id,company_name,org_flag,index_logo,company_version,status) values ('"..company_id.."','"..company_name.."','"..org_flag.."','"..index_logo.."','"..company_version.."','1' );"
@@ -616,6 +647,30 @@ function bodyOnPluginEvent(msg)
     		Log:write('用户无分组，重新注册')
     		exitAppAndDeleteDatabase()
         end
+    elseif msg == 120 then
+        local getHolidaySkin = Http:jsonDecode('holidaySkin')
+        Log:write('getHolidaySkin', getHolidaySkin)
+        local holidayskin = getHolidaySkin["holidayskin"]
+        local skinId = holidayskin.holidayskinId
+        if skinId ~= nil and skinId ~= '' then
+            --节假日皮肤有更新
+            local skinName = holidayskin.holidayskinName
+            local holidayName = holidayskin.holidayName
+            local startDate = holidayskin.holidayskinStartDate
+            local endDate = holidayskin.holidayskinEndDate
+            local skinPath = holidayskin.holidayskinPath
+            local skinFlag = holidayskin.holidayskinStatus
+            Log:write('skinName:',skinName)
+            Log:write('skinPath:',skinPath)
+
+            --皮肤标志位和保存地址写入数据库
+            local sql = "insert into tb_c_skin(skin_path, skin_type, skin_id, skin_name , holiday_name, holidayskin_start_date, holidayskin_end_date, skin_status, skin_eccode, skin_flag) values ('','1','"..skinId.."','"..skinName.."','"..holidayName.."' ,'"..startDate.."' ,'"..endDate.."' ,'' ,'"..skinPath.."', '"..skinFlag.."' );"
+            local bRet, errMsg = Sqlite:update(databaseName, sql)
+
+            local skinType = '1'
+            createSkinDownloadTask(skinType)
+        end
+
     elseif msg == 1000 then 
        checkDeviceRespProc()
     elseif msg > MSG_NETWORK_ERROR then -- 请求超时
@@ -852,6 +907,7 @@ function loadRecentListItem(list, item, index)
     local employeeId = Sprite:findChild(item, 'employeeId')                 --人员ID
     local employeeName = Sprite:findChild(item, 'employeeName')             --人员名称 
     local goComeNum = Sprite:findChild(item, 'goComeNum')                   --来去电次数
+    setAllShoworHide(goComeNum,0)
     local mobile = Sprite:findChild(item, 'mobile')                         --移动长号       
     local jiangeline = Sprite:findChild(item, 'jiange_line')                --间隔线  
     local goComeTel = Sprite:findChild(item, 'goComeTel')                   --来去电图标
@@ -859,7 +915,7 @@ function loadRecentListItem(list, item, index)
     Sprite:setProperty(mobile, 'text', retRecentUserTable[index+1][1])                  
     Sprite:setProperty(goComeNum, 'text', "("..retRecentUserTable[index+1][4]..")") 
     Sprite:setProperty(employeeId, 'text', retRecentUserTable[index+1][5]) 
-    Sprite:setProperty(employeeName, 'text', retRecentUserTable[index+1][6])      
+    Sprite:setProperty(employeeName, 'text', retRecentUserTable[index+1][6].."("..retRecentUserTable[index+1][4]..")")      
     -- 呼入、呼出图标切换 
     local goComeType = retRecentUserTable[index+1][3]
     Log:write("最后一次呼入、呼出类别：",goComeType)
@@ -1398,7 +1454,7 @@ end
 
 -- 更新系统配置表数据
 function updateSysData()
-    local sql = "update tb_c_system set department_version = '"..department_version.."', employee_version = '"..employee_version.."', right_config = '"..Config:get('mobileRights').."', mark1 = '1'  where system_id = '001';"
+    local sql = "update tb_c_system set department_version = '"..department_version.."', employee_version = '"..employee_version.."',mark1 = '1'  where system_id = '001';"
     Log:write('更新系统表语句==sql=='..sql)
     bRet, errMsg = Sqlite:update(databaseName, sql)
     Log:write("系统表更新数据:bRet = "..bRet.." errMsg ="..errMsg)   
@@ -1407,8 +1463,10 @@ end
 function updateDatabase()
     --更新分组信息请求函数
     local v
-    local sql = "SELECT company_version,right_config FROM tb_c_system"
+    local sql = "SELECT company_version,right_config,employee_version FROM tb_c_system"
     bRet,v, errMsg = Sqlite:query(databaseName, sql) 
+    employee_version = v[1][3]
+    Log:write("employee_version is ",employee_version)
 
     local paras ='&version='..v[1][1]..'&usercode='..v[1][2]..'&token='
     Log:write('===更新参数====='..paras)
@@ -1449,7 +1507,7 @@ function updateEmployeeData()
 	            returnValue[i].group_version_num.."','"..returnValue[i].picture.."','"..
 	            returnValue[i].employee_firstword.."','"..returnValue[i].employee_fullword.."','"..returnValue[i].parent_department_name..
                 "','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."','"..
-	            returnValue[i].manage_flag.."','"..returnValue[i].mood.."' ,'' ,'' ,'' ,'','"..returnValue[i].user_company_id.."','"..returnValue[i].company_address.."','"..returnValue[i].user_company.."');"                 
+	            returnValue[i].manage_flag.."','"..returnValue[i].mood.."' ,'"..returnValue[i].visible_flag.."' ,'' ,'' ,'','"..returnValue[i].user_company_id.."','"..returnValue[i].company_address.."','"..returnValue[i].user_company.."');"                 
 	            bRet, errMsg = Sqlite:update(databaseName, sqlInsert)    
             end    
         end
@@ -1573,7 +1631,7 @@ function requestUpdateGroupUsers()
         local v
         local sql = "SELECT employee_version,right_config FROM tb_c_system"
         bRet,v, errMsg = Sqlite:query(databaseName, sql)  
-
+        employee_version = v[1][1]
         paras = '&usercode='..v[1][2]..'&group_id='..groupUsersArray[groupIndex][2]..'&group_version='..groupUsersArray[groupIndex][1]
         Log:write('联系人URL = '..url_updategroupUsers..paras)
         Http:request('userversiondata1', url_updategroupUsers..paras, 110, {useCache = false})  
@@ -1616,9 +1674,9 @@ function updateUserData()
                 returnValue[i].employee_firstword.."','"..returnValue[i].employee_fullword.."','"..returnValue[i].parent_department_name..
                         "','"..returnValue[i].display_order.."','"..returnValue[i].department_fax.."','"..
                 returnValue[i].manage_flag.."','"..returnValue[i].mood.."' ,'' ,'' ,'' ,'','"..returnValue[i].user_company_id.."','"..returnValue[i].company_address.."','"..returnValue[i].user_company.."');"                 
-                Log:write("sqlInsert = ",sqlInsert)
+                -- Log:write("sqlInsert = ",sqlInsert)
                 bRet, errMsg = Sqlite:update(databaseName, sqlInsert)
-                Log:write("新增用户:bRet = "..bRet.." errMsg ="..errMsg)
+                -- Log:write("新增用户:bRet = "..bRet.." errMsg ="..errMsg)
         else
              -- 修改类型，1：修改 2：删除
             if returnValue[i].update_type == '1' or returnValue[i].update_type == '0' then
@@ -1645,17 +1703,42 @@ function updateUserData()
                          "',manage_flag = '"..returnValue[i].manage_flag.. "',mood = '"..returnValue[i].mood..
                         "',company_address = '"..returnValue[i].company_address..
                         "',user_company = '"..returnValue[i].user_company.."' WHERE user_company_id = '"..returnValue[i].user_company_id.."';"
-                Log:write("sqlUpdate = ",sqlUpdate)
+                -- Log:write("sqlUpdate = ",sqlUpdate)
 
                 bRet, errMsg = Sqlite:update(databaseName, sqlUpdate)
-                Log:write("修改用户:bRet = "..bRet.." errMsg ="..errMsg)
+                -- Log:write("修改用户:bRet = "..bRet.." errMsg ="..errMsg)
             else 
                 -- 删除用户SQL
                 local sqlDelete = "DELETE FROM tb_c_employee WHERE user_company_id = '"..returnValue[i].user_company_id.."';"
-                Log:write("sqlDelete = ",sqlDelete)
+                -- Log:write("sqlDelete = ",sqlDelete)
                 bRet, errMsg = Sqlite:update(databaseName, sqlDelete)
-                Log:write("删除用户:bRet = "..bRet.." errMsg ="..errMsg)
+                -- Log:write("删除用户:bRet = "..bRet.." errMsg ="..errMsg)
             end 
+
+            --插入用户部门信息
+            local deptList = returnValue[i].deptList
+            --Log:write('deptlist size is ',#deptList)
+            --Log:write("user_department_id is ",deptList[0].user_department_id)
+
+            local sqlDelete = "DELETE FROM tb_c_user_department WHERE user_company_id = '"..returnValue[i].user_company_id.."';"
+            -- Log:write("sqlDelete = ",sqlDelete)
+            bRet, errMsg = Sqlite:update(databaseName, sqlDelete)
+                    -- Log:write("删除用户:bRet = "..bRet.." errMsg ="..errMsg)
+            if deptList ~= nil then
+                for j=0,#deptList do
+                    local dept_path = deptList[j].department_path
+                    if dept_path == nil then dept_path = '' end
+                    local gheadship_name = deptList[j].headship_name
+                    if gheadship_name == nil then gheadship_name = '' end
+
+
+
+                    local sqlInsert = "insert into tb_c_user_department (user_department_id,user_company_id,headship_id,headship_name,department_id,department_path,taxis,headship_name)"
+                    sqlInsert = sqlInsert .." values ('"..deptList[j].user_department_id.."','"..deptList[j].user_company_id.."','"..deptList[j].headship_id.."','"..gheadship_name.."','"..deptList[j].department_id.."','"..dept_path.."',"..deptList[j].taxis..",'"..deptList[j].headship_name.."');"
+                    --Log:write('department insert sql is ',sqlInsert)
+                    bRet,errMsg = Sqlite:update(databaseName,sqlInsert)
+                end
+            end
         end 
     end 
     bRet, errMsg = Sqlite:update(databaseName, "COMMIT;") 
@@ -1683,5 +1766,213 @@ function exitAppAndDeleteDatabase()
     --退出
     Dialog:show('提示', '您已不属于任何通讯录，请联系您的通讯录管理员。', 'ok', 'doExit')
 end
+
+function updateHolidaySkin()
+    --如果数据库中未保存节假日皮肤则检测节假日皮肤是否需要更新
+    g_skinType = 1;
+    --从数据库获取皮肤路径，判断是否为空
+    local sql =" SELECT * FROM tb_c_skin where skin_type = '"..g_skinType.."' ;"
+    local bRet,skinData,errMsg = Sqlite:query(databaseName, sql)
+    Log:write("搜索节假日皮肤分组SQL: ",errMsg)
+    Log:write("搜索节假日皮肤分组结果: ",skinData)
+
+    len = tonumber(getJsonArrayCount(skinData))-1
+    Log:write("节假日皮肤列表记录数目：",len)
+
+    if len == 0 then
+        --检测节假日皮肤是否有更新
+        Log:write("检测节假日皮肤是否有更新")
+        local url = url_getHolidySkin
+        Log:write('===updateHolidaySkin:url====='..url)
+        Http:request('holidaySkin', url, 120, {useCache = false})
+    end 
+   
+end
+
+
+
+---------------------------换肤相关函数列表---------------------
+-- @brief 检测是否需要新建文件夹路径,新建下载任务
+function createSkinDownloadTask(type)
+    Log:write("开始鉴权皮肤更新是否需要创建皮肤文件夹...")
+    g_skinType = type;
+    --从数据库获取皮肤路径，判断是否为空
+    local sql =" SELECT * FROM tb_c_skin where skin_type = '"..g_skinType.."' ;"
+    local bRet,skinData,errMsg = Sqlite:query(Config:get('databaseName'), sql)
+    Log:write("搜索皮肤更新类型: ",g_skinType)
+    Log:write("搜索皮肤更新分组SQL: ",errMsg)
+    Log:write("搜索皮肤更新分组结果: ",skinData)
+
+    len = tonumber(getJsonArrayCount(skinData))-1
+    Log:write("皮肤更新列表记录数目：",len)
+    Log:write("皮肤更新数据库：",skinData)
+
+    if len == 0 then
+        g_localPatchPath = ""
+        g_skinFlag = ""
+        g_ECCode = ""
+    else
+        g_localPatchPath = skinData[1][1]
+        g_skinFlag = skinData[1][10]
+        g_ECCode = skinData[1][9]
+    end 
+
+    --g_skinFlag = Config:get('skinFlag')
+    --g_localPatchPath = Config:get('skinPath')
+    Log:write("开始鉴权皮肤是否更新skinFalg...", g_skinFlag)
+    Log:write("开始鉴权皮肤是否更新skinPath...", g_localPatchPath)
+    Log:write("开始鉴权皮肤是否更新g_ECCode...", g_ECCode)
+
+    if (g_skinFlag~='' and g_skinFlag=='1' and g_localPatchPath~='' and g_localPatchPath~=nil) then --已有皮肤文件路径则直接下载
+        g_localpath = g_localPatchPath.."/"..g_skinName
+    else
+        g_localpath = getDownloadPath()      
+    end
+
+    --新建下载任务
+    downloadSkin()
+end
+
+-- 获取本地皮肤文件的路径
+function getDownloadPath()
+    --新建皮肤路径
+    if g_skinType == '0' then
+        g_localpath= getLocalDiskPath()
+    else
+        g_localpath = getLocalHolidayPath()
+        g_skinName = g_ECCode
+    end
+    
+    Log:write('g_localpath is ',g_localpath)
+    -- 如果路径不存在，创建下载目录
+    if IO:dirExist(g_localpath) == false then 
+        IO:dirCreate(g_localpath)
+    end
+    Log:write('g_skinName is ',g_skinName)
+    -- 返回皮肤文件的路径
+    g_localPatchPath = g_localpath
+    g_localpath = g_localpath.."/"..g_skinName
+    return g_localpath
+end
+
+function getLocalHolidayPath()
+    local path = System:getFlashCardName(1)
+    if isEmpty(path) then
+        Log:write('SD卡不存在，尝试使用手机存储')
+        path = System:getFlashCardName(0)
+        if isEmpty(path) then
+            Log:write('手机内部存储无法获取，使用应用路径')
+            path = 'MODULE:\\com_wondertek_tx\\holiday_skin'
+        end
+    end
+    path = path..'sqlitedownload/'..'holidayskin'
+    if IO:dirExist(path) == false then
+        IO:dirCreate(path)
+    end
+    Log:write('最终获得的磁盘路径为',path)
+    return path
+end
+
+--新建皮肤下载任务
+function downloadSkin()
+    Log:write("本地文件路径为:",g_localpath)
+    local g_patchUrl
+    if g_skinType == '0' then
+        g_patchUrl = url_updateSkin..g_skinName      -- 路径命名规则按照企业ECcode
+    elseif g_skinType == '1' then
+        g_patchUrl =  url_downloadHolidaySkin..g_skinName
+    end
+    
+    Log:write("服务端文件路径为:",g_patchUrl)
+    Log:write("添加下载队列中成功，任务名为:"..g_skinName)
+    Timer:cancel(112)
+    local count = Download:getCount(true)
+    for i = 1, count do
+        Download:delete(i, false, true)
+    end
+    Log:write("下载历史记录已清除.")
+    Download:append(g_localpath, g_skinName, g_patchUrl, true)
+    onGetDownloadStatus()
+end
+
+-- @brief 显示下载状态
+function onGetDownloadStatus()
+    local count = Download:getCount(true)
+    Log:write("当前任务数:"..count)
+    if count == 0 then 
+        Log:write("当前无下载任务，停止显示下载状态！")
+        return 
+    end
+    
+    -- 迭代下载队列
+    for i = 1, count do
+        local task = Download:getStatus(count, true)
+        if task.title == g_skinName then   
+            Log:write("任务状态:", task)
+           
+            if  task.status == 0 then 
+                Download:start(count, true)
+                Timer:set(112, 500, 'onGetDownloadStatus')
+            elseif task.status == 1 then -- 空间不足
+                Dialog:show('抱歉', '本地空间不足，请清理磁盘后重试!', 'ok')
+                return
+            elseif task.status == 2 then -- 下载中  
+                Log:write("正在下载中！")  
+                Timer:set(112, 500, 'onGetDownloadStatus')
+            elseif task.status == 3 then -- 下载暂停
+                Download:start(count, true)
+                Timer:set(112, 500, 'onGetDownloadStatus')
+            elseif task.status == 4 then -- 下载完毕
+                Sprite:setProperty(nodeSuccess, 'text', '集团通讯录更新皮肤下载完成，下次应用重启时生效。')
+                Download:delete(count, false, true)    
+                unzipSkin() 
+            elseif task.status == 5 then -- 下载失败
+                Log:write('抱歉, 更新皮肤下载失败，请检查服务是否可用!')
+                return
+            else
+                Log:write('抱歉, 更新皮肤下载失败，发生未知错误!')
+                return
+            end
+
+        end
+    end
+
+end
+
+-- @brief 解压缩皮肤文件
+function unzipSkin()
+    Log:write("===正在替换更新后的皮肤文件===")
+    Log:write("更新后的皮肤文件路径为:"..g_localpath)
+    Log:write("更新后的解压目标路径为:"..g_localPatchPath)
+    local rtn = Util:unzip(g_localpath, g_localPatchPath) --下载完成进行解压缩操作
+    if rtn then --表示解压成功        
+        -- Config:set('ECCode', g_skinName)
+        -- Config:set('skinFlag', g_skinFlag)
+        -- Config:set('skinPath', g_localPatchPath)
+
+        if g_skinType == '0' then
+            g_skinFlag = '1'
+            local sql = "update tb_c_skin set skin_eccode = '"..g_skinName.."' where skin_type = '"..g_skinType.."' ;"
+            local bRet, errMsg = Sqlite:update(Config:get('databaseName'), sql)
+            local sql = "update tb_c_skin set skin_flag = '"..g_skinFlag.."' where skin_type = '"..g_skinType.."';"
+            local bRet, errMsg = Sqlite:update(Config:get('databaseName'), sql)
+            g_skinOldPath = g_localPatchPath..g_ECCode
+            if IO:fileExist(g_skinOldPath) then
+                 --如果旧皮肤存在就删除该文件，只保存新皮肤文件
+                 Log:write("删除旧皮肤文件"..g_skinOldPath)
+                 os.remove(g_skinOldPath)
+            end
+        elseif g_skinType == '1' then
+            g_skinFlag = '0'
+            local sql = "update tb_c_skin set skin_flag = '"..g_skinFlag.."' where skin_type = '"..g_skinType.."';"
+            local sql = "update tb_c_skin set skin_path = '"..g_localPatchPath.."' where skin_type = '"..g_skinType.."';"
+            local bRet, errMsg = Sqlite:update(Config:get('databaseName'), sql)
+            Log:write('the holidayskin zip:'..bRet..'===='..errMsg)
+        end      
+    else
+        Log:write('抱歉, 解压失败')
+    end
+end
+
 ]]>
 </root>

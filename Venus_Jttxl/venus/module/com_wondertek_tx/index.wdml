@@ -126,13 +126,14 @@ local jumpFlag = 1
 
 local skinFalg='' --皮肤更新的标志
 local skinPath='' --皮肤更新的路径
+local skinData
+local g_skinType = '' 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     UmsAgent:postClientData()
-    
-    checkSkinPath()
+ 
     startMsgPushService()
     --鉴权
     Config:set('togohomeTag','1')  ---进入home页是否需要更新组织结构联系人标记
@@ -199,6 +200,10 @@ function checkDatabase()
             Log:write("系统表查询结果:retCountTable =", retCountTable)
             jumpFlag = 0
         end
+
+        --开始检测节假日皮肤是否失效
+        checkHolidaySkinNoUse()     
+        checkSkinPath()
     end
 end
 
@@ -269,13 +274,138 @@ function connectToWAP()
     Http:connectCMWAP()
 end
 
+function checkHolidaySkinNoUse()
+    --检测节假日皮肤是否失效，若失效则删除文件夹和数据库记录
+    Log:write('显示当前时间：time：')
+    Log:write('显示当前时间：time：', os.date("*t"))
+    local today = os.date("*t")
+    local day = tonumber(today.day)
+    local month = tonumber(today.month)
+    local year = tonumber(today.year)
+    Log:write('显示当前日期：date：',year.."-"..month.."-"..day)
+
+    --从数据库获取皮肤路径，判断是否为空
+    local sql =" SELECT * FROM tb_c_skin where skin_type = '1' ;"
+    local bRet,skinData,errMsg = Sqlite:query(Config:get('databaseName'), sql)
+    Log:write("搜索节假日皮肤分组SQL: ",errMsg)
+    Log:write("搜索节假日皮肤分组结果: ",skinData)
+
+    len = tonumber(getJsonArrayCount(skinData))-1
+    Log:write("节假日皮肤列表记录数目：",len)
+
+    if len == 1 then
+        local startSkinDate = skinData[1][6]
+        local endSkinDate = skinData[1][7]
+        Log:write("节假日皮肤生效日期是：",startSkinDate)
+        local _, _, startYear, startMonth, startDay = string.find(startSkinDate, "(%d+)-(%d+)-(%d+)")
+        local _, _, startHour, startMin, startSecond = string.find(startSkinDate, "(%d+):(%d+):(%d+)")
+        startDay = tonumber(startDay)
+        startMonth = tonumber(startMonth)
+        startYear = tonumber(startYear)
+
+        startHour = tonumber(startHour)
+        startMin = tonumber(startMin)
+        startSecond = tonumber(startSecond)
+        Log:write("生效的年月日：","year: "..startYear.."month:"..startMonth.."day:"..startDay)
+
+        Log:write("节假日皮肤失效日期是：",endSkinDate)
+        local _, _, endYear, endMonth, endDay = string.find(endSkinDate, "(%d+)-(%d+)-(%d+)")
+        local _, _, endHour, endMin, endSecond = string.find(endSkinDate, "(%d+):(%d+):(%d+)")
+        -- Log:write("字符串分解的date和time：","date: "..date.."time:"..time)
+        -- local _, _, _, day, month, year = string.find(date, "(%d+)-(%d+)-(%d+)")
+        Log:write("date字符串分解的年月日：","year: "..endYear.."month:"..endMonth.."day:"..endDay)
+        Log:write("time字符串分解的时分秒：","hour: "..endHour.."minute:"..endMin.."second:"..endSecond)
+
+        endDay = tonumber(endDay)
+        endMonth = tonumber(endMonth)
+        endYear = tonumber(endYear)
+        Log:write("date字符串分解的年月日转换成整数位：","year: "..endYear.."month:"..endMonth.."day:"..endDay)
+
+        endHour = tonumber(endHour)
+        endMin = tonumber(endMin)
+        endSecond = tonumber(endSecond)
+        Log:write("time字符串分解的时分秒转换成整数位：","hour: "..endHour.."min:"..endMin.."second:"..endSecond)
+
+        --如果当前日期大于皮肤的失效日期则删除该皮肤
+        if year > endYear then
+            --大于失效年，则删除皮肤
+            deleteHolidaySkin()
+        elseif year == endYear then
+            --如果年相等，判断月
+            if month > endMonth then
+                --大于生效月，则删除皮肤
+                deleteHolidaySkin()
+            elseif month == endMonth then
+                --如果月相等，判断天数
+                if day > endDay then
+                    --大于生效天
+                    Log:write("删除节假日皮肤：")
+                    deleteHolidaySkin()
+                elseif day <= endDay and day >= startDay then
+                    Log:write("更新状态：")
+                    updateHolidaySkinStatus()
+                end
+            end
+        end
+
+    end
+end
+
+function deleteHolidaySkin()
+    local sql = "delete from tb_c_skin where skin_type = '1';"
+    local bRet, errMsg = Sqlite:update(Config:get('databaseName'), sql)
+    Log:write("删除节假日皮肤:bRet = "..bRet.." errMsg ="..errMsg)
+end
+
+function updateHolidaySkinStatus()
+    local g_skinFlag = '1'
+    local sql = "update tb_c_skin set skin_flag = '"..g_skinFlag.."' where skin_type = '1';"
+    local bRet, errMsg = Sqlite:update(Config:get('databaseName'), sql)
+    Log:write("修改节假日皮肤状态为1:bRet = "..bRet.." errMsg ="..errMsg)
+end  
+
 ---------------------------------检查皮肤是否更新了-------------
 
 function checkSkinPath()
     local loading=Sprite:findChild(rootSprite, 'loading')  
-    Log:write("开始鉴权皮肤是否更新1...")
-    skinFalg = Config:get('skinFlag')
-    skinPath = Config:get('skinPath')
+    Log:write("开始鉴权皮肤是否更新index...")
+    --从数据库获取皮肤路径，判断是否为空
+    local sql =" SELECT * FROM tb_c_skin where skin_type = '0' ;"
+    local bRet, updateSkinData,errMsg = Sqlite:query(Config:get('databaseName'), sql)
+
+    Log:write("搜索皮肤更新分组SQL: ",errMsg)
+    Log:write("搜索皮肤更新分组结果: ",updateSkinData)
+
+    len1 = tonumber(getJsonArrayCount(updateSkinData))-1
+    Log:write("皮肤更新列表记录数目：",len1)
+
+    --从数据库获取节假日皮肤路径，判断是否为空
+    local sql =" SELECT * FROM tb_c_skin where skin_type = '1' ;"
+    local bRet, holidaySkinData,errMsg = Sqlite:query(Config:get('databaseName'), sql)
+
+    Log:write("搜索节假日皮肤更新分组SQL: ",errMsg)
+    Log:write("搜索节假日皮肤更新分组结果: ",holidaySkinData)
+
+    len2 = tonumber(getJsonArrayCount(holidaySkinData))-1
+    Log:write("节假日皮肤更新列表记录数目：",len2)
+
+    --如果节假日皮肤为空，则判断更新皮肤是否为空
+
+    if len2 == 1 and holidaySkinData[1][10] == '1' then
+        --显示节假日皮肤
+        skinPath = holidaySkinData[1][1]
+        skinFalg = holidaySkinData[1][10]
+    elseif len2 == 0 then
+        if len1 == 1 then
+            skinPath = updateSkinData[1][1]
+            skinFalg = updateSkinData[1][10]
+        elseif len1 == 0 then
+            skinPath = ""
+            skinFalg = '0'
+        end
+    end
+
+
     Log:write("开始鉴权皮肤是否更新skinFalg...", skinFalg)
     Log:write("开始鉴权皮肤是否更新skinPath...", skinPath)
     

@@ -96,6 +96,8 @@ local department_name
 
 local skinFalg='' --皮肤更新的标志
 local skinPath='' --皮肤更新的路径
+local skinData
+local g_skinType
 
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
@@ -189,9 +191,27 @@ end
 function checkSkinPath()
     local imageLog = Sprite:findChild(rootSprite,'imgLog')
   
-    Log:write("开始鉴权皮肤是否更新1...")
-    skinFalg = Config:get('skinFlag')
-    skinPath = Config:get('skinPath')
+    Log:write("开始鉴权皮肤是否更新cardDesign...")
+    g_skinType = 0;
+    --从数据库获取皮肤路径，判断是否为空
+    local sql =" SELECT * FROM tb_c_skin where skin_type = '"..g_skinType.."' ;"
+    local bRet,skinData,errMsg = Sqlite:query(Config:get('databaseName'), sql)
+    Log:write("搜索皮肤更新分组SQL: ",errMsg)
+    Log:write("搜索皮肤更新分组结果: ",skinData)
+
+    len = tonumber(getJsonArrayCount(skinData))-1
+    Log:write("皮肤更新列表记录数目：",len)
+
+    if len == 0 then
+        skinPath = ""
+        skinFalg = ""
+    else
+        skinPath = skinData[1][1]
+        skinFalg = skinData[1][10]
+    end 
+
+    -- skinFalg = Config:get('skinFlag')
+    -- skinPath = Config:get('skinPath')
     Log:write("开始鉴权皮肤是否更新skinFalg...", skinFalg)
     Log:write("开始鉴权皮肤是否更新skinPath...", skinPath)
     
