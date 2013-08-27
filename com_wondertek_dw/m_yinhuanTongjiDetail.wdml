@@ -40,10 +40,10 @@
                 </button>
                 <!-- 修改按钮  -->
                 <button name="shaixuanBtn" rect="400,0,66,66" normal="normal" sel="sel"
-                    OnSelect="shaixuanBtnOnselect" extendstyle="1111">
-                    <image name="normal" rect="15,10,40,40" src="file://image/yinhuan/shaixuan.png"
+                    OnSelect="shaixuanBtnOnselect" extendstyle="1111" visable='false' enable='false'>
+                    <image name="normal" rect="15,10,40,40" src=""
                         extendstyle="1111" style="autosize" />
-                    <image name="sel" rect="15,10,40,40" src="file://image/yinhuan/shaixuan.png"
+                    <image name="sel" rect="15,10,40,40" src=""
                         extendstyle="1111" style="autosize"/>
                 </button>
             </node>
@@ -116,10 +116,10 @@
                         style="autosize" extendstyle="1111" />
 
                     <!-- 计划标题 -->
-                    <label rect="20,8,100,30" text="隐患站点:" color="#0062ab" font-family="微软雅黑"
+                    <label rect="20,8,100,30" text="上报时间:" color="#0062ab" font-family="微软雅黑"
                         font-size="22" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <scrolltext name="stationLabel" rect="130,8,300,30" text="" color="#303030" font-family="微软雅黑"
+                    <scrolltext name="stationLabel" rect="120,8,300,30" text="" color="#303030" font-family="微软雅黑"
                         font-size="22" h-align="left" v-align="center" extendstyle="1111"
                         border="false" scroll="true" step="2" />
 
@@ -152,6 +152,12 @@
                         border="false" />
                     <scrolltext name="stateLabel" rect="120,183,100,30" text="" color="#303030" font-family="微软雅黑"
                         font-size="22" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" scroll="true" step="2" />
+                    <label  rect="245,183,110,30" text="代维站点:" color="#0062ab" font-family="微软雅黑"
+                        font-size="21" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" />
+                    <scrolltext name="dateLabel" rect="340,183,120,30" text="" color="#303030" font-family="微软雅黑"
+                        font-size="21" h-align="left" v-align="center" extendstyle="1111"
                         border="false" scroll="true" step="2" />
                     <!--图像列表-->
                     <node name="imageListItem" rect="20,222,460,56" extendstyle="1111" visible="true" enable="true" active="false">
@@ -309,14 +315,16 @@ function loadListItem(list, item, index)
     local zhuanyeLabel = Sprite:findChild(item, 'zhuanyeLabel')
     local shangbaorenLabel = Sprite:findChild(item, 'shangbaorenLabel')
     local stateLabel = Sprite:findChild(item, 'stateLabel')
+    local dateLabel = Sprite:findChild(item, 'dateLabel')
 
     -- 各个参数显示到界面
-    Sprite:setProperty(stationLabel, 'text', value.dangerstation)   -- 隐患站点名称
+    Sprite:setProperty(stationLabel, 'text', value.dangerdate)   -- 上报时间
     Sprite:setProperty(miaoshuLabel, 'text', value.dangerdetail)     -- 隐患详情
     Sprite:setProperty(danweiLabel, 'text', value.orgname)           -- 代维单位名称
     Sprite:setProperty(zhuanyeLabel, 'text', value.codevalue)         -- 专业名称
     Sprite:setProperty(shangbaorenLabel, 'text', value.createrman)    --创建人名称                     
     Sprite:setProperty(stateLabel, "text", value.dealstate)           --处理状态
+    Sprite:setProperty(dateLabel, "text", value.dangerstation)           --隐患站点名称
 
     if '' == value.dangerdetail then
         Sprite:setProperty(miaoshuLabel, 'text', '暂无隐患描述')     -- 隐患详情
