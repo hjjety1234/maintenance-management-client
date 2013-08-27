@@ -219,6 +219,7 @@ local skinPath = ''            -- 皮肤更新的路径
 
 local g_addressList = ""       -- 地址反解的地址列表
 local g_address = ""           -- MapABC定位返回的地址
+local g_username = ""          -- 从SD卡的配置文件读取用户名，解决部分手机无法读取用户名的问题
 
 ---------------------------------------callbacks--------------------------------    
 -- @brief 第一次创建页面事件
@@ -381,8 +382,12 @@ function checkSkinPath()
                Log:write("开始鉴权皮肤是否更新skinFalg...",tableValue[3])
                skinPath=tableValue[4]
                Log:write("开始鉴权皮肤是否更新skinPath...",tableValue[4])
-              end
+            end
         end
+        if tableValue ~= nil and tableValue ~= "" then 
+            g_username = tableValue[2] or Config:get("username")
+            Log:write("当前获取的用户名为：", g_username)
+        end 
         if (skinFalg~='' and skinFalg=='1' and skinPath~='' and skinPath~=nil) then --如果皮肤已经更新
         Log:write("皮肤更新了"..skinPath..'/main_bg.png')
          Sprite:setProperty(title,'src',skinPath..'/main_bg.png')
@@ -717,7 +722,7 @@ function poiSearch(lat, lon, locateType, checkType)
     setCurrentStatus("正在提交，请稍候...")
     -- 构造请求参数
     local param = string.format("userName=%s&longitude=%s&latitude=%s&locatDetail=&attencdCarType=%s&locateType=%s",
-        Config:get('username'), lon, lat, checkType, locateType)
+        g_username, lon, lat, checkType, locateType)
     for key, value in pairs(imgdata) do
         if value ~= "" then 
              local filename = string.sub(value, lastIndexof( value,'/') + 1, string.len(value) - 4 )
