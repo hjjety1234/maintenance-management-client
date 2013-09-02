@@ -46,10 +46,15 @@
                     normal="src:file://pics/login_button_da.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
                     sel="src:file://pics/login_button_sa.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000" />
             </node>
-             <node name="nodeFor" rect="0,480,480,100">
-                    <button name="btnTxt" rect="70,50,340,58" color="#ffffff"
-                    extendstyle="1111" v-center="true"  text="记住密码存在信息泄露风险,请您谨慎选择" font-family="微软雅黑" font-size="22"/>
+              <node name="nodeFor" rect="0,480,480,100">
+                    <button name="btnLogin" rect="30,70,120,58" color="#ffffff"
+                    extendstyle="1111" OnSelect="forgetPass" text="忘记密码？" font-family="微软雅黑" font-size="22"/>
                </node>
+               <node name="nodeMsg" rect="25,531,480,80">
+                <image name="imageMsg" rect="89,75,281,89" border="false" visible="false" src="file://pics/res_pwd.png" style="autosize" extendstyle="1111"></image>
+                <scrolltext  name="resPwdMsg" rect="95,110,255,40" border="false"   extendstyle="1111" v-center="true" font-size="18" step="2" scroll="true"/>
+                </node>
+
         </node>
     </body>
     <![CDATA[
@@ -116,7 +121,22 @@
                 Dialog:show('登陆提醒','账户密码错误','ok')
             end
         elseif msg == 102 then --  版本检测
-           
+         else if msg==105 then
+            if Loading:isShow() then Loading:close() end 
+             resPwdData = Http:jsonDecode('login_respwd')
+             local result=resPwdData["success"]
+             local pwdMsg=Sprite:findChild(rootSprite,'resPwdMsg')
+            if result=="true" then --如果密码重置成功则自动截取
+                Log:write("resPass",resPwdData["msg"])
+                local pwdnode=Sprite:findChild(rootSprite, 'edpwd')
+                Sprite:setProperty(pwdnode,'text',resPwdData["msg"])
+                Sprite:setProperty(pwdMsg,"text",'新密码：'..resPwdData["msg"]..',已自动填入密码框，请点击登录')
+              else --密码重置失败显示对话框
+                 Sprite:setProperty(pwdMsg,"text",resPwdData["msg"])
+             
+             --Dialog:show('提醒',resPwdData["msg"],'ok')
+           end
+         end
         end
     end
     -- @brief 按键响应处理
@@ -161,6 +181,7 @@ function checkSkinPath()
         local pwdnode=Sprite:findChild(rootSprite, 'pwdnode')
         local username=Sprite:getText(Sprite:findChild(namenode, 'edname'))
         local password=Sprite:getText(Sprite:findChild(pwdnode, 'edpwd'))
+        Log:write('password'..password)
         local requestURL=string.format(Alias.urlServer..'userMgr/loginPhone')
         local param = string.format('userCode=%s&userPass=%s', username, password)
         Loading:show(rootSprite)
@@ -203,17 +224,16 @@ function checkSkinPath()
     function writePwd(sprite)
         Log:write("flag",flag)
         local imgNode = Sprite:findChild(sprite,'image8')
-        local btnLogin=Sprite:findChild(rootSprite,'btnTxt')
+        --local btnLogin=Sprite:findChild(rootSprite,'btnTxt')
         if flag==1 then
             Sprite:setProperty(imgNode, 'src', 'file://pics/login_checkbox.png')
-            Sprite:setVisible(btnLogin,0)
+         --   Sprite:setVisible(btnLogin,0)
             -- Sprite:setProperty(btnLogin, "text", '记住密码存在信息泄露风险，请您谨慎选择');
-            
             flag=0
             elseif flag==0 then
             Sprite:setProperty(imgNode, 'src', 'file://pics/login_checkbox1.png')
             --Sprite:setProperty(sprite,'data','1')
-             Sprite:setVisible(btnLogin,1)
+          --   Sprite:setVisible(btnLogin,1)
             --Sprite:setProperty(btnLogin, "text", '');
             flag=1
         end
@@ -246,7 +266,6 @@ function checkSkinPath()
                   if tableValue[1]~=nil or tableValue[1]~=''then
                        ECCode=tableValue[1]
                        mobile=value["userCode"]
-
                    end
                end
                if(ECCode==nil) then
@@ -369,6 +388,16 @@ function getDownloadIconPath()
     end--]]
     return iconPath
 end
-
+function forgetPass()
+    username = Config:get('username')
+    Loading:show(rootSprite)
+     local btn=Sprite:findChild(rootSprite, 'imageMsg')
+     local pwdMsg=Sprite:findChild(rootSprite,'resPwdMsg')
+     Sprite:setProperty(pwdMsg,"text",'正在获取密码，请稍候...')
+     setAllShoworHide(btn,1)
+    local url=string.format(Alias.urlServer..'userMgr/resetPassWord')
+    local param = string.format('mobile=%s', username)
+    Http:request('login_respwd',url, 105, {method='post', postData=param, useCache=false})
+    end
 ]]>
 </root>
