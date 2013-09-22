@@ -122,14 +122,12 @@
                         color="#0" font-size="21" h-align="left" v-align="center"
                         extendstyle="1111" border="false" />
                 </button>
-                
-                <!-- 导航按钮  -->
-                <button name="navigationBtn" rect="410,0,40,70" OnSelect="doNavigation" 
-                    extendstyle="1111" data="">
-                    <image rect="0,0,40,70" src="file://image/icon_xxianlu.png" style="center" 
-                        extendstyle="1111">
-                    </image>
-                </button>
+
+                <!-- 打开、下载软件 -->
+                <button name="openDownloadBtn1" rect="320,15,140,40" OnSelect="doOpenDownload" 
+                        visible="true" enable="true" style="autosize"
+                        src='' extendstyle="1111"
+                        data="0"/>
                 
             </node>
 
@@ -146,6 +144,7 @@
 require 'com_wondertek_dw.common.framework'
 require 'framework.map'
 require 'framework.barcode'
+require 'framework.appmanager'
 local rootSprite = nil
 local respValue = nil -- 站点列表值
 local planId = nil
@@ -186,19 +185,20 @@ end
 -- root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-    -- 隐藏搜索栏
-    local searchStationNameNodeSprite = Sprite:findChild(rootSprite, 'searchStationNameNode')
-    local x,y,width,height = Sprite:getRect(searchStationNameNodeSprite)
-    Sprite:setProperty(searchStationNameNodeSprite, "visible", "false")
-    Sprite:setProperty(searchStationNameNodeSprite, "enable", "false")
-    --Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_s_new.png')
-    -- 显示状态栏
-    local statusBar = Sprite:findChild(rootSprite, "statusBar")
-    Sprite:setProperty(statusBar, "visible", "true")
-    Sprite:setProperty(statusBar, "enable", "true")
-    local listviewNode = Sprite:findChild(rootSprite, 'listviewNode')
-    Sprite:setRect(listviewNode,0,136,480,614)
-    doLocation()
+        judgeSoftDownLoad()
+        -- 隐藏搜索栏
+        local searchStationNameNodeSprite = Sprite:findChild(rootSprite, 'searchStationNameNode')
+        local x,y,width,height = Sprite:getRect(searchStationNameNodeSprite)
+        Sprite:setProperty(searchStationNameNodeSprite, "visible", "false")
+        Sprite:setProperty(searchStationNameNodeSprite, "enable", "false")
+        --Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_s_new.png')
+        -- 显示状态栏
+        local statusBar = Sprite:findChild(rootSprite, "statusBar")
+        Sprite:setProperty(statusBar, "visible", "true")
+        Sprite:setProperty(statusBar, "enable", "true")
+        local listviewNode = Sprite:findChild(rootSprite, 'listviewNode')
+        Sprite:setRect(listviewNode,0,136,480,614)
+        doLocation()
     elseif msg == MSG_DEACTIVATE then
         System:setGPSStatus(0)
     end
@@ -518,7 +518,12 @@ function loadListItem(list, item, index)
     else
         Sprite:setProperty(stationDistance, 'visible', 'false')
     end
-
+    --判断是否显示资源核查功能
+    if itemValue.resourcegxluid=='' or  itemValue.taskCode==''then 
+       local openDownloadBtn1 = Sprite:findChild(item, 'openDownloadBtn1')
+       Sprite:setProperty(openDownloadBtn1,'visible','false')
+       Sprite:setProperty(openDownloadBtn1,'enable','false')
+    end 
     -- 将当前的index写入到item的data数据中
     Sprite:setProperty(item, 'data', index)
 end
@@ -799,7 +804,49 @@ function getLoctude()
         getGPSDataByMap()
     end
 end
+-- @jldu 判断第三方软件是否下载
+function judgeSoftDownLoad()
+    local openDownloadBtn1 = Sprite:findChild(rootSprite, 'openDownloadBtn1')
+    -- @jldu 国创新讯
+    local appId1 = 'cn.com.gxlu'
+    local app1 = AppManager:getInfoById(appId1)
+    if(app1 == '' or app1 == nil) then
+        Sprite:setProperty(openDownloadBtn1,'src','file://image/ic_dowload2.png')   
+    else
+        Sprite:setProperty(openDownloadBtn1,'src','file://image/ic_open2.png')
+    end   
+    Log:write("@jldu 国创新讯 data: "..Sprite:getData(openDownloadBtn1))
+end
 
+-- @jldu 打开、下载资源核查软件
+function doOpenDownload(sprite)
+    local appId = 'cn.com.gxlu'
+    local app = AppManager:getInfoById(appId)
+    local index = tonumber(Sprite:getData(Sprite:getParent(sprite)))
+    if(app == '' or app == nil) then
+        --启动浏览器下载
+        Util:openURL('http://120.209.204.229:9001/soft/AndreoGis.apk') 
+    else
+        local region = Config:get('region')
+        local regionid = Config:get('regionid')
+        local domain =string.sub(regionid,1,4)
+        local orgname = Config:get('orgname')
+        local username = Config:get('username')
+        local realname = Config:get('realname')
+        local usercode = Config:get('username')
+        local major = respValue[index].major
+        local taskCode = respValue[index].taskCode
+        local resourcegxluid = respValue[index].resourcegxluid
+        local resourceirmsid = respValue[index].resourceirmsid
+        local appInfo = appId ..'?activity=cn.com.gxlu.dwcheck.DwCheckResourceDetialActivity'
+        appInfo = appInfo..'&resourceid='..resourceirmsid..'&resourcegxluid='..resourcegxluid..'&checktypelist='..major..'&useraccount='..usercode..'&username='..username..'&domain='..domain..'&companyname='..orgname..'&cityname='..region..'&taskcode='..taskCode
+        Log:write('the app info is ',appInfo)
+        local ret = AppManager:runApp(appInfo);
+        if(ret == 0) then
+            Dialog:show('提示','启动网络资源管理系统失败','ok')
+        end
+    end   
+end
 
 ]]>
 </root>
