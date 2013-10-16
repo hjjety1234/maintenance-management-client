@@ -41,10 +41,8 @@ public class MainActivity extends Activity {
 	private TextView m_birthText = null;
 	private TextView m_addressText = null;
 	private TextView m_idText = null;
-	
 	private int LOCAL_IMAGE = 1;
 	private int CAMERA_RESULT = 2;
-	
 	private static String filePath = null;
 
 	public void onCreate(Bundle savedInstanceState) {
@@ -162,12 +160,18 @@ public class MainActivity extends Activity {
 				try {
 					IDCard idCard = localOcrEngine.recognize(this, imageData);
 					imageData = null;
-					m_nameText.setText(idCard.getName().substring(0, 3));
-					m_genderText.setText(idCard.getSex().subSequence(0, 2));
-					m_raceText.setText(idCard.getEthnicity().subSequence(0, 2));
-					m_birthText.setText(idCard.getBirth().subSequence(0, 11));
-					m_addressText.setText(idCard.getAddress().subSequence(0, 30));
-					m_idText.setText(idCard.getCardNo().subSequence(0, 20));
+					if(idCard.getName() != null)
+						m_nameText.setText(idCard.getName().substring(0, 3));
+					if(idCard.getSex() != null)
+						m_genderText.setText(idCard.getSex().subSequence(0, 2));
+					if(idCard.getEthnicity() != null)
+						m_raceText.setText(idCard.getEthnicity().subSequence(0, 2));
+					if(idCard.getBirth() != null)
+						m_birthText.setText(idCard.getBirth().subSequence(0, 11));
+					if(idCard.getAddress() != null)
+						m_addressText.setText(idCard.getAddress().subSequence(0, 30));
+					if(idCard.getCardNo() != null)
+						m_idText.setText(idCard.getCardNo().subSequence(0, 20));
 				} catch (Exception e) {
 					e.printStackTrace();
 					Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
