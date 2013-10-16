@@ -26,7 +26,7 @@ public class BannerLayout extends ViewGroup {
 	
 	private boolean autoScroll=false;
 	
-	private int scrollTime=4*1000;
+	private int scrollTime=3*1000;
 	
 	private int currentWhat=0;
 	
