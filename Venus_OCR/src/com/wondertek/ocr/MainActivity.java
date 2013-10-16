@@ -25,6 +25,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,12 +37,15 @@ public class MainActivity extends Activity {
 	private static final String TAG = "MainActivity";
 	private ImageButton m_takePhoto = null;
 	private ImageButton m_selectAlbum = null;
-	private TextView m_nameText = null;
+	private EditText m_nameText = null;
 	private TextView m_genderText = null;
 	private TextView m_raceText = null;
 	private TextView m_birthText = null;
 	private TextView m_addressText = null;
 	private TextView m_idText = null;
+	private TextView m_year = null;
+	private TextView m_month = null;
+	private TextView m_day = null;
 	private int LOCAL_IMAGE = 1;
 	private int CAMERA_RESULT = 2;
 	private static String filePath = null;
@@ -51,14 +55,17 @@ public class MainActivity extends Activity {
 		this.setContentView(R.layout.activity_personal);
 		// 设置按钮
 		this.m_takePhoto = (ImageButton)findViewById(R.id.take_phone);
-		this.m_selectAlbum = (ImageButton)findViewById(R.id.select_album);
+		this.m_selectAlbum = (ImageButton)findViewById(R.id.select_albumtake_phone);
 		// 设置文本
-		this.m_nameText = (TextView)findViewById(R.id.name);
+		this.m_nameText = (EditText)findViewById(R.id.name);
 		this.m_genderText = (TextView)findViewById(R.id.gender);
 		this.m_raceText = (TextView)findViewById(R.id.race);
 		this.m_birthText = (TextView)findViewById(R.id.birthday);
+		this.m_year = (TextView)findViewById(R.id.year);
+		this.m_month = (TextView)findViewById(R.id.month);
+		this.m_day = (TextView)findViewById(R.id.day);
 		this.m_addressText = (TextView)findViewById(R.id.address);
-		this.m_idText = (TextView)findViewById(R.id.id_no);
+		this.m_idText = (TextView)findViewById(R.id.number);
 		// 设置拍照按钮消息处理函数
 		m_takePhoto.setOnClickListener(new OnClickListener(){
 			@Override
@@ -169,8 +176,13 @@ public class MainActivity extends Activity {
 						m_genderText.setText(idCard.getSex().subSequence(0, 2));
 					if(idCard.getEthnicity() != null)
 						m_raceText.setText(idCard.getEthnicity().subSequence(0, 2));
-					if(idCard.getBirth() != null)
-						m_birthText.setText(idCard.getBirth().subSequence(0, 11));
+					if(idCard.getBirth() != null){
+						String birthday = idCard.getBirth().subSequence(0, 11).toString();
+//						m_birthText.setText(idCard.getBirth().subSequence(0, 11));
+						m_year.setText(birthday.subSequence(0, 4));
+						m_month.setText(birthday.subSequence(5, 7));
+						m_day.setText(birthday.subSequence(8, 10));
+					}
 					if(idCard.getAddress() != null)
 						m_addressText.setText(idCard.getAddress().subSequence(0, 30));
 					if(idCard.getCardNo() != null)
