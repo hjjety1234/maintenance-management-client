@@ -1,7 +1,9 @@
 package com.wondertek.ocr;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -11,6 +13,7 @@ import com.wondertek.banner.BannerLayout;
 import com.wondertek.banner.BannerLayout.OnItemClickListener;
 
 public class BannerActivity extends Activity {
+	protected static final String TAG = "BannerActivity";
 	BannerLayout bl;
 	LinearLayout indexBgLayout = null;
 	ImageButton imageButton1 = null;
@@ -25,8 +28,19 @@ public class BannerActivity extends Activity {
 		bl = (BannerLayout) findViewById(R.id.banner);
 		bl.setOnItemClickListener(new OnItemClickListener() {
 			public void onClick(int index, View childview) {
-				Toast.makeText(getApplicationContext(), "点击了index：" + index,
-						Toast.LENGTH_SHORT).show();
+				switch (index) {
+				case 0:
+					Intent intent = new Intent(BannerActivity.this, MainActivity.class);
+					startActivity(intent);
+					overridePendingTransition(R.anim.fade, R.anim.hold);
+					break;
+				case 1:
+					break;
+				case 2:
+					break;
+				default:
+					Log.w(TAG, "[onClick] index is out of bound!");
+				}
 			}
 		});
 		// 获取界面元素的引用
@@ -40,6 +54,9 @@ public class BannerActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				indexBgLayout.setBackgroundResource(R.drawable.indexbg1);
+				Intent intent = new Intent(BannerActivity.this, MainActivity.class);
+				startActivity(intent);
+				overridePendingTransition(R.anim.fade, R.anim.hold);
 			}
 		});
 		// 设置按钮2的消息处理函数
