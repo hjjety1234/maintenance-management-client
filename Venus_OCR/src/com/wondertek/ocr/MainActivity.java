@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		this.setContentView(R.layout.activity_main);
+		this.setContentView(R.layout.activity_personal);
 		// …Ë÷√∞¥≈•
 		this.m_takePhoto = (ImageButton)findViewById(R.id.take_phone);
 		this.m_selectAlbum = (ImageButton)findViewById(R.id.select_album);
