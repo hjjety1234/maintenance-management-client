@@ -97,10 +97,11 @@ public class BannerActivity extends Activity {
 
 	@Override
 	protected void onResume() {
+		super.onResume();
+
 		if (!bl.isScrolling())
 			bl.startScroll();
 		indexBgLayout.setBackgroundResource(R.drawable.indexbg);
-		super.onResume();
 	}
 
 	@Override

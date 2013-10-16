@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +47,8 @@ public class MainActivity extends Activity {
 	private TextView m_year = null;
 	private TextView m_month = null;
 	private TextView m_day = null;
+	private ImageView btn_back = null;
+	private ImageView btn_next = null;
 	private int LOCAL_IMAGE = 1;
 	private int CAMERA_RESULT = 2;
 	private static String filePath = null;
@@ -66,6 +69,15 @@ public class MainActivity extends Activity {
 		this.m_day = (TextView)findViewById(R.id.day);
 		this.m_addressText = (TextView)findViewById(R.id.address);
 		this.m_idText = (TextView)findViewById(R.id.number);
+		this.btn_back = (ImageView)findViewById(R.id.back);
+		this.btn_next = (ImageView)findViewById(R.id.next);
+		
+		this.btn_back.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				finish();
+			}
+		});
 		// 设置拍照按钮消息处理函数
 		m_takePhoto.setOnClickListener(new OnClickListener(){
 			@Override

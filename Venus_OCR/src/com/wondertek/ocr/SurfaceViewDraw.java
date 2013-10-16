@@ -287,7 +287,7 @@ public class SurfaceViewDraw extends Activity implements SurfaceHolder.Callback,
 		if (bIsButtonClicked == true) {
 			bIsButtonClicked = false;
 			Camera.Parameters param = mCamera.getParameters();
-			param.setPictureSize(3264, 2448);
+			param.setPictureSize(1280, 720);
 			mCamera.setParameters(param);
 			mCamera.takePicture(mShutterCallback, null, null, mjpegCallback);
 		}
