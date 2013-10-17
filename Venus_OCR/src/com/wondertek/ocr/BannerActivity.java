@@ -92,35 +92,34 @@ public class BannerActivity extends Activity {
 
 	@Override
 	protected void onPause() {
-//		bl.stopScroll();
+		bl.stopScroll();
 		super.onPause();
 	}
 
 	@Override
 	protected void onRestart() {
-//		if (!bl.isScrolling())
-//			bl.startScroll();
+		if (!bl.isScrolling())
+			bl.startScroll();
 		super.onRestart();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-
-//		if (!bl.isScrolling())
-//			bl.startScroll();
+		if (!bl.isScrolling())
+			bl.startScroll();
 		indexBgLayout.setBackgroundResource(R.drawable.indexbg);
 	}
 
 	@Override
 	protected void onStop() {
-//		bl.stopScroll();
+		bl.stopScroll();
 		super.onStop();
 	}
 
 	@Override
 	protected void onDestroy() {
-//		bl.stopScroll();
+		bl.stopScroll();
 		super.onDestroy();
 	}
 }
