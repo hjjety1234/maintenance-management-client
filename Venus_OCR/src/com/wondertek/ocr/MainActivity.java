@@ -96,12 +96,10 @@ public class MainActivity extends Activity {
 		m_selectAlbum.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-//				Intent getImage = new Intent(Intent.ACTION_GET_CONTENT);
-//				getImage.addCategory(Intent.CATEGORY_OPENABLE);
-//				getImage.setType("image/*");
-//				startActivityForResult(getImage, LOCAL_IMAGE);
-				Intent intent = new Intent(MainActivity.this, BannerActivity.class);
-				startActivity(intent);
+				Intent getImage = new Intent(Intent.ACTION_GET_CONTENT);
+				getImage.addCategory(Intent.CATEGORY_OPENABLE);
+				getImage.setType("image/*");
+				startActivityForResult(getImage, LOCAL_IMAGE);
 			}
 		});
 	}
