@@ -19,9 +19,11 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,7 +36,7 @@ public class BroadBandActivity extends Activity {
 	private ImageButton m_selectAlbum = null;
 	private EditText m_nameText = null;
 	private TextView m_genderText = null;
-	private TextView m_raceText = null;
+	private Spinner m_bandSpinner = null;
 	private TextView m_birthText = null;
 	private TextView m_addressText = null;
 	private TextView m_idText = null;
@@ -56,7 +58,7 @@ public class BroadBandActivity extends Activity {
 		// 设置文本
 		this.m_nameText = (EditText)findViewById(R.id.name);
 		this.m_genderText = (TextView)findViewById(R.id.gender);
-		this.m_raceText = (TextView)findViewById(R.id.race);
+		this.m_bandSpinner = (Spinner)findViewById(R.id.race);
 		this.m_birthText = (TextView)findViewById(R.id.birthday);
 		this.m_year = (TextView)findViewById(R.id.year);
 		this.m_month = (TextView)findViewById(R.id.month);
@@ -109,6 +111,11 @@ public class BroadBandActivity extends Activity {
 				startActivityForResult(getImage, LOCAL_IMAGE);
 			}
 		});
+		// 设置带宽选择
+		ArrayAdapter<CharSequence> adapter =  ArrayAdapter.createFromResource(this, R.array.bands, 
+				android.R.layout.simple_spinner_item);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		m_bandSpinner.setAdapter(adapter);
 	}
 	
 	
@@ -191,8 +198,6 @@ public class BroadBandActivity extends Activity {
 						m_nameText.setText(idCard.getName().substring(0, 3));
 					if(idCard.getSex() != null)
 						m_genderText.setText(idCard.getSex().subSequence(0, 2));
-					if(idCard.getEthnicity() != null)
-						m_raceText.setText(idCard.getEthnicity().subSequence(0, 2));
 					if(idCard.getBirth() != null){
 						String birthday = idCard.getBirth().subSequence(0, 11).toString();
 //						m_birthText.setText(idCard.getBirth().subSequence(0, 11));
