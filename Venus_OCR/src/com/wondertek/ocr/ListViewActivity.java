@@ -15,6 +15,8 @@ import java.util.Map;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 /**
@@ -23,6 +25,7 @@ import android.widget.ListView;
 public class ListViewActivity extends Activity {
 	protected static final String TAG = "ListViewActivity";
 	private ListView listView = null;
+	private ImageButton m_backButton = null;
 	private List<Map<String, Object>> listItems = null;
 
 	@Override
@@ -30,6 +33,14 @@ public class ListViewActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_listview);
 		listView = (ListView) this.findViewById(R.id.listView1);
+		m_backButton = (ImageButton) findViewById(R.id.back);
+		// 设置按钮的点击事件
+		m_backButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				finish();
+			}
+		});
 		// 构造ListItem数据
 		List<Map<String, Object>> listItems = new ArrayList<Map<String, Object>>();
 		for (int i = 0; i < 9; i++) {
