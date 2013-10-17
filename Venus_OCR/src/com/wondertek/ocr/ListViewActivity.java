@@ -28,6 +28,9 @@ public class ListViewActivity extends Activity {
 	private ListView listView = null;
 	private ImageButton m_backButton = null;
 	private List<Map<String, Object>> listItems = null;
+	private static final int LOW_VALUE_PHONE = 1;
+	private static final int HIGH_VALUE_PHONE = 2;
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,19 +49,79 @@ public class ListViewActivity extends Activity {
 		String status = getIntent().getExtras().getString("status");
 		String[] statusArray = status.split(";");
 		Log.d(TAG, "[onCreate] checkbox status:" + status);
+		// 检查状态
+		String isHighValuePhone = getIntent().getExtras().getString("isHighValue");
+		Log.d(TAG, "[onCreate] isHighValuePhone:" + isHighValuePhone);
 		// 根据不同的状态，选择不同的手机
-		// 构造ListItem数据
 		List<Map<String, Object>> listItems = new ArrayList<Map<String, Object>>();
-		for (int i = 0; i < 9; i++) {
-			Map<String, Object> map = new HashMap<String, Object>();
-			if (i % 3 == 0) {
-				map.put("image", R.drawable.lb01);
-			} else if (i % 3 == 1) {
-				map.put("image", R.drawable.lb02);
-			} else {
-				map.put("image", R.drawable.lb03);
+		if (isHighValuePhone.equals("true")) {
+			for (int i = 1; i < 5; ++i) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				switch (i) {
+					case 1:
+						map.put("image", R.drawable.lb01);
+						break;
+					case 2:
+						map.put("image", R.drawable.lb02);
+						break;
+					case 3:
+						map.put("image", R.drawable.lb03);
+						break;
+					case 4:
+						map.put("image", R.drawable.lb04);
+						break;
+//					case 5:
+//						map.put("image", R.drawable.lb05);
+//						break;
+//					case 6:
+//						map.put("image", R.drawable.lb06);
+//						break;
+//					case 7:
+//						map.put("image", R.drawable.lb07);
+//						break;
+//					case 8:
+//						map.put("image", R.drawable.lb08);
+//						break;
+//					case 9:
+//						map.put("image", R.drawable.lb09);
+//						break;
+				}
+				listItems.add(map);
 			}
-			listItems.add(map);
+		}else{
+			for (int i = 5; i < 10; ++i) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				switch (i) {
+//					case 1:
+//						map.put("image", R.drawable.lb01);
+//						break;
+//					case 2:
+//						map.put("image", R.drawable.lb02);
+//						break;
+//					case 3:
+//						map.put("image", R.drawable.lb03);
+//						break;
+//					case 4:
+//						map.put("image", R.drawable.lb04);
+//						break;
+					case 5:
+						map.put("image", R.drawable.lb05);
+						break;
+					case 6:
+						map.put("image", R.drawable.lb06);
+						break;
+					case 7:
+						map.put("image", R.drawable.lb07);
+						break;
+					case 8:
+						map.put("image", R.drawable.lb08);
+						break;
+					case 9:
+						map.put("image", R.drawable.lb09);
+						break;
+				}
+				listItems.add(map);
+			}
 		}
 		// 创建适配器
 		ListViewAdapter listViewAdapter = new ListViewAdapter(this, listItems);

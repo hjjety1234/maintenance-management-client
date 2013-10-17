@@ -63,7 +63,7 @@ public class TagActivity extends Activity {
 	 * @return
 	 */
 	public String getCheckBoxStatus() {
-		String result = "";
+		String result = "false";
 		result += m_selButton1.getTag() + ";";
 		result += m_selButton2.getTag() + ";";
 		result += m_selButton3.getTag() + ";";
@@ -73,6 +73,21 @@ public class TagActivity extends Activity {
 		result += m_selButton7.getTag() + ";";
 		result += m_selButton8.getTag();
 		return result;
+	}
+	
+	
+	/**
+	 * 高端手机是否被选中
+	 * @return
+	 */
+	public String isHighValuePhoneSelected() {
+		if (m_selButton1.getTag().equals("1") || 
+				m_selButton3.getTag().equals("1") || 
+				m_selButton5.getTag().equals("1") || 
+				m_selButton7.getTag().equals("1"))
+			return "true";
+		else
+			return "false";
 	}
 
 	/**
@@ -93,6 +108,8 @@ public class TagActivity extends Activity {
 				Intent intent = new Intent(TagActivity.this, ListViewActivity.class);
 				String status = getCheckBoxStatus();
 				intent.putExtra("status", status);
+				String isHighValuePhone = isHighValuePhoneSelected();
+				intent.putExtra("isHighValue", isHighValuePhone);
 				startActivity(intent);
 				overridePendingTransition(R.anim.fade, R.anim.hold);
 			}
