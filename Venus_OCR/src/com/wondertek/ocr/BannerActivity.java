@@ -14,7 +14,7 @@ import com.wondertek.banner.BannerLayout.OnItemClickListener;
 
 public class BannerActivity extends Activity {
 	protected static final String TAG = "BannerActivity";
-//	BannerLayout bl;
+	BannerLayout bl;
 	LinearLayout indexBgLayout = null;
 	ImageButton imageButton1 = null;
 	ImageButton imageButton2 = null;
@@ -25,24 +25,28 @@ public class BannerActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_banner);
-//		bl = (BannerLayout) findViewById(R.id.banner);
-//		bl.setOnItemClickListener(new OnItemClickListener() {
-//			public void onClick(int index, View childview) {
-//				switch (index) {
-//				case 0:
-//					Intent intent = new Intent(BannerActivity.this, MainActivity.class);
-//					startActivity(intent);
-//					overridePendingTransition(R.anim.fade, R.anim.hold);
-//					break;
-//				case 1:
-//					break;
-//				case 2:
-//					break;
-//				default:
-//					Log.w(TAG, "[onClick] index is out of bound!");
-//				}
-//			}
-//		});
+		bl = (BannerLayout) findViewById(R.id.banner);
+		bl.setOnItemClickListener(new OnItemClickListener() {
+			public void onClick(int index, View childview) {
+				switch (index) {
+				case 0:
+					Intent intent = new Intent(BannerActivity.this, MainActivity.class);
+					startActivity(intent);
+					overridePendingTransition(R.anim.fade, R.anim.hold);
+					break;
+				case 1:
+					break;
+				case 2:
+					Intent intent2 = new Intent(BannerActivity.this, TagActivity.class);
+					startActivity(intent2);
+					break;
+				case 3:
+					break;
+				default:
+					Log.w(TAG, "[onClick] index is out of bound!");
+				}
+			}
+		});
 		// 获取界面元素的引用
 		indexBgLayout = (LinearLayout) findViewById(R.id.indexbg);
 		imageButton1 = (ImageButton) findViewById(R.id.nav01);
@@ -71,6 +75,8 @@ public class BannerActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				indexBgLayout.setBackgroundResource(R.drawable.indexbg3);
+				Intent intent = new Intent(BannerActivity.this, TagActivity.class);
+				startActivity(intent);
 			}
 		});
 		// 设置按钮4的消息处理函数
