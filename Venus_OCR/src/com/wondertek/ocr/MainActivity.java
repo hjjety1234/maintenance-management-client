@@ -25,9 +25,11 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,7 +42,7 @@ public class MainActivity extends Activity {
 	private ImageButton m_selectAlbum = null;
 	private EditText m_nameText = null;
 	private TextView m_genderText = null;
-	private TextView m_raceText = null;
+	private Spinner m_spinner = null;
 	private TextView m_birthText = null;
 	private TextView m_addressText = null;
 	private TextView m_idText = null;
@@ -52,6 +54,8 @@ public class MainActivity extends Activity {
 	private int LOCAL_IMAGE = 1;
 	private int CAMERA_RESULT = 2;
 	private static String filePath = null;
+	
+	private boolean isClear = false;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -62,7 +66,7 @@ public class MainActivity extends Activity {
 		// …Ë÷√Œƒ±æ
 		this.m_nameText = (EditText)findViewById(R.id.name);
 		this.m_genderText = (TextView)findViewById(R.id.gender);
-		this.m_raceText = (TextView)findViewById(R.id.race);
+		this.m_spinner = (Spinner)findViewById(R.id.race);
 		this.m_birthText = (TextView)findViewById(R.id.birthday);
 		this.m_year = (TextView)findViewById(R.id.year);
 		this.m_month = (TextView)findViewById(R.id.month);
@@ -71,7 +75,6 @@ public class MainActivity extends Activity {
 		this.m_idText = (TextView)findViewById(R.id.number);
 		this.btn_back = (ImageView)findViewById(R.id.back);
 		this.btn_next = (ImageView)findViewById(R.id.next);
-		
 		this.btn_back.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
@@ -83,7 +86,8 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(MainActivity.this, correctionActivity.class);
-				intent.putExtra("IDNo",m_idText.getText().toString());			
+				intent.putExtra("IDNo",m_idText.getText().toString());		
+				isClear = true;
 				startActivity(intent);
 
 				overridePendingTransition(R.anim.fade, R.anim.hold);
@@ -115,6 +119,30 @@ public class MainActivity extends Activity {
 				startActivityForResult(getImage, LOCAL_IMAGE);
 			}
 		});
+		
+		ArrayAdapter<CharSequence> adapter =  ArrayAdapter.createFromResource(this, R.array.service, 
+				android.R.layout.simple_spinner_item);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		m_spinner.setAdapter(adapter);
+		
+	}
+	
+	@Override
+	protected void onResume(){
+		super.onResume();
+
+		if(isClear){
+			m_nameText.setText("");
+			m_genderText.setText("");
+			m_year.setText("");
+			m_month.setText("");
+			m_day.setText("");
+			m_addressText.setText("");
+			m_idText.setText("");
+			
+			isClear = false;
+		}
+
 	}
 	
 	
@@ -197,8 +225,8 @@ public class MainActivity extends Activity {
 						m_nameText.setText(idCard.getName().substring(0, 3));
 					if(idCard.getSex() != null)
 						m_genderText.setText(idCard.getSex().subSequence(0, 2));
-					if(idCard.getEthnicity() != null)
-						m_raceText.setText(idCard.getEthnicity().subSequence(0, 2));
+//					if(idCard.getEthnicity() != null)
+//						m_raceText.setText(idCard.getEthnicity().subSequence(0, 2));
 					if(idCard.getBirth() != null){
 						String birthday = idCard.getBirth().subSequence(0, 11).toString();
 //						m_birthText.setText(idCard.getBirth().subSequence(0, 11));

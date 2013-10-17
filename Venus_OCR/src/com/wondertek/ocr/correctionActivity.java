@@ -152,7 +152,7 @@ public class correctionActivity extends Activity {
 			public void onClick(View v) {
 				
 				if(IDNo != null){
-					dialog = ProgressDialog.show(context, "", "数据上传中，请稍等！", true);
+					dialog = ProgressDialog.show(context, "", "业务开通中，请稍等！", true);
 					new Thread() {  
 				          
 				    	@Override
@@ -166,8 +166,8 @@ public class correctionActivity extends Activity {
 				    				Looper.prepare();
 				    				dialog.cancel();
 				    				Toast.makeText(context, "数据上传成功！", Toast.LENGTH_SHORT).show();
-						            Looper.loop();
 						            finish();
+						            Looper.loop();
 				    			}
 				    		}, 3000, 3000);
 				    		
