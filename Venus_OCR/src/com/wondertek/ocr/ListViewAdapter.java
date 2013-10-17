@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
@@ -72,7 +73,7 @@ public class ListViewAdapter extends BaseAdapter {
 	public long getItemId(int position) {
 		return 0;
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 

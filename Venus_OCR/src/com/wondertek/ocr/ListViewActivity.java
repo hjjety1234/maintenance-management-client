@@ -17,6 +17,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
@@ -128,6 +130,13 @@ public class ListViewActivity extends Activity {
 		listView.setAdapter(listViewAdapter);
 		listView.setDividerHeight(0);
 		listView.setFocusable(true);
+		// ÉèÖÃListItemµÄ¼àÌýÆ÷
+		listView.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Log.d(TAG, ">>>onItemClick<<<");
+			}
+		});
 	}
 
 	@Override
