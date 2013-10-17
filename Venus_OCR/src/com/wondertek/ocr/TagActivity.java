@@ -57,6 +57,23 @@ public class TagActivity extends Activity {
 		m_selButton7.setTag("0");
 		m_selButton8.setTag("0");
 	}
+	
+	/**
+	 * 获取当前选择的状态
+	 * @return
+	 */
+	public String getCheckBoxStatus() {
+		String result = "";
+		result += m_selButton1.getTag() + ";";
+		result += m_selButton2.getTag() + ";";
+		result += m_selButton3.getTag() + ";";
+		result += m_selButton4.getTag() + ";";
+		result += m_selButton5.getTag() + ";";
+		result += m_selButton6.getTag() + ";";
+		result += m_selButton7.getTag() + ";";
+		result += m_selButton8.getTag();
+		return result;
+	}
 
 	/**
 	 * 设置按钮的点击事件
@@ -74,6 +91,8 @@ public class TagActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(TagActivity.this, ListViewActivity.class);
+				String status = getCheckBoxStatus();
+				intent.putExtra("status", status);
 				startActivity(intent);
 				overridePendingTransition(R.anim.fade, R.anim.hold);
 			}

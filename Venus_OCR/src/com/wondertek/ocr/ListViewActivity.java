@@ -14,6 +14,7 @@ import java.util.Map;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageButton;
@@ -41,6 +42,11 @@ public class ListViewActivity extends Activity {
 				finish();
 			}
 		});
+		// 获取上一页的状态 
+		String status = getIntent().getExtras().getString("status");
+		String[] statusArray = status.split(";");
+		Log.d(TAG, "[onCreate] checkbox status:" + status);
+		// 根据不同的状态，选择不同的手机
 		// 构造ListItem数据
 		List<Map<String, Object>> listItems = new ArrayList<Map<String, Object>>();
 		for (int i = 0; i < 9; i++) {
