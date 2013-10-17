@@ -86,6 +86,8 @@ public class BannerActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				indexBgLayout.setBackgroundResource(R.drawable.indexbg4);
+				Intent intent = new Intent(BannerActivity.this, aboutActivity.class);
+				startActivity(intent);
 			}
 		});
 	}

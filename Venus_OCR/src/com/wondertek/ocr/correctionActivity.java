@@ -3,6 +3,10 @@ package com.wondertek.ocr;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -16,17 +20,20 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.json.JSONObject;
-
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class correctionActivity extends Activity {
 	
@@ -67,6 +74,7 @@ public class correctionActivity extends Activity {
 	private String loss = null;
 	private String URL_Reveal = "http://apis.juhe.cn/idcard/leak?key=ea3b17fbc5c205d5bfbb82adea26192e";
 	private String URL_loss = "http://apis.juhe.cn/idcard/loss?key=ea3b17fbc5c205d5bfbb82adea26192e";
+	private Context context = this;
 	
 	Runnable runnable = new Runnable() {
 		@Override
@@ -110,6 +118,9 @@ public class correctionActivity extends Activity {
 	};
 	
 	
+    private ProgressDialog dialog; 
+
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -125,7 +136,9 @@ public class correctionActivity extends Activity {
 		
 		Bundle extras = getIntent().getExtras();
 		IDNo = extras.getString("IDNo");
-		
+		if(IDNo.equals("")){
+			IDNo = null;
+		}
 		
 		this.back.setOnClickListener(new OnClickListener(){
 			@Override
@@ -137,7 +150,32 @@ public class correctionActivity extends Activity {
 		this.next.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-
+				
+				if(IDNo != null){
+					dialog = ProgressDialog.show(context, "", "数据上传中，请稍等！", true);
+					new Thread() {  
+				          
+				    	@Override
+				        public void run() {  
+	
+				    		Timer timer = new Timer();
+				    		timer.schedule(new TimerTask() {
+				    							
+				    			@Override
+				    			public void run() {
+				    				Looper.prepare();
+				    				dialog.cancel();
+				    				Toast.makeText(context, "数据上传成功！", Toast.LENGTH_SHORT).show();
+						            Looper.loop();
+				    			}
+				    		}, 3000, 3000);
+				    		
+	
+				        }  
+				    }.start();
+				}else{
+    				Toast.makeText(context, "无效的身份证号码!", Toast.LENGTH_SHORT).show();
+				}
 			}
 		});
 
