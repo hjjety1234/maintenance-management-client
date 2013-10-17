@@ -28,11 +28,7 @@ public class IndexActivity extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_index);
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
+		
 		Runnable runnable = new Runnable() {
 			@Override
 			public void run() {
@@ -44,5 +40,11 @@ public class IndexActivity extends Activity {
 			}
 		};
 		handler.postDelayed(runnable, 2000);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
 	}
 }

@@ -14,7 +14,7 @@ import com.wondertek.banner.BannerLayout.OnItemClickListener;
 
 public class BannerActivity extends Activity {
 	protected static final String TAG = "BannerActivity";
-	BannerLayout bl;
+//	BannerLayout bl;
 	LinearLayout indexBgLayout = null;
 	ImageButton imageButton1 = null;
 	ImageButton imageButton2 = null;
@@ -25,24 +25,24 @@ public class BannerActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_banner);
-		bl = (BannerLayout) findViewById(R.id.banner);
-		bl.setOnItemClickListener(new OnItemClickListener() {
-			public void onClick(int index, View childview) {
-				switch (index) {
-				case 0:
-					Intent intent = new Intent(BannerActivity.this, MainActivity.class);
-					startActivity(intent);
-					overridePendingTransition(R.anim.fade, R.anim.hold);
-					break;
-				case 1:
-					break;
-				case 2:
-					break;
-				default:
-					Log.w(TAG, "[onClick] index is out of bound!");
-				}
-			}
-		});
+//		bl = (BannerLayout) findViewById(R.id.banner);
+//		bl.setOnItemClickListener(new OnItemClickListener() {
+//			public void onClick(int index, View childview) {
+//				switch (index) {
+//				case 0:
+//					Intent intent = new Intent(BannerActivity.this, MainActivity.class);
+//					startActivity(intent);
+//					overridePendingTransition(R.anim.fade, R.anim.hold);
+//					break;
+//				case 1:
+//					break;
+//				case 2:
+//					break;
+//				default:
+//					Log.w(TAG, "[onClick] index is out of bound!");
+//				}
+//			}
+//		});
 		// 获取界面元素的引用
 		indexBgLayout = (LinearLayout) findViewById(R.id.indexbg);
 		imageButton1 = (ImageButton) findViewById(R.id.nav01);
@@ -84,14 +84,14 @@ public class BannerActivity extends Activity {
 
 	@Override
 	protected void onPause() {
-		bl.stopScroll();
+//		bl.stopScroll();
 		super.onPause();
 	}
 
 	@Override
 	protected void onRestart() {
-		if (!bl.isScrolling())
-			bl.startScroll();
+//		if (!bl.isScrolling())
+//			bl.startScroll();
 		super.onRestart();
 	}
 
@@ -99,20 +99,20 @@ public class BannerActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 
-		if (!bl.isScrolling())
-			bl.startScroll();
+//		if (!bl.isScrolling())
+//			bl.startScroll();
 		indexBgLayout.setBackgroundResource(R.drawable.indexbg);
 	}
 
 	@Override
 	protected void onStop() {
-		bl.stopScroll();
+//		bl.stopScroll();
 		super.onStop();
 	}
 
 	@Override
 	protected void onDestroy() {
-		bl.stopScroll();
+//		bl.stopScroll();
 		super.onDestroy();
 	}
 }

@@ -78,6 +78,19 @@ public class MainActivity extends Activity {
 				finish();
 			}
 		});
+		
+		this.btn_next.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(MainActivity.this, correctionActivity.class);
+				intent.putExtra("IDNo",m_idText.getText().toString());			
+				startActivity(intent);
+
+				overridePendingTransition(R.anim.fade, R.anim.hold);
+
+			}
+		});
+		
 		// 设置拍照按钮消息处理函数
 		m_takePhoto.setOnClickListener(new OnClickListener(){
 			@Override
