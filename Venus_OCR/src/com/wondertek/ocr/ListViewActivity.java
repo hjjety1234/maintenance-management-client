@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -57,7 +58,7 @@ public class ListViewActivity extends Activity {
 		// 根据不同的状态，选择不同的手机
 		List<Map<String, Object>> listItems = new ArrayList<Map<String, Object>>();
 		if (isHighValuePhone.equals("true")) {
-			for (int i = 1; i < 5; ++i) {
+			for (int i = 1; i < 10; ++i) {
 				Map<String, Object> map = new HashMap<String, Object>();
 				switch (i) {
 					case 1:
@@ -72,40 +73,6 @@ public class ListViewActivity extends Activity {
 					case 4:
 						map.put("image", R.drawable.lb04);
 						break;
-//					case 5:
-//						map.put("image", R.drawable.lb05);
-//						break;
-//					case 6:
-//						map.put("image", R.drawable.lb06);
-//						break;
-//					case 7:
-//						map.put("image", R.drawable.lb07);
-//						break;
-//					case 8:
-//						map.put("image", R.drawable.lb08);
-//						break;
-//					case 9:
-//						map.put("image", R.drawable.lb09);
-//						break;
-				}
-				listItems.add(map);
-			}
-		}else{
-			for (int i = 5; i < 10; ++i) {
-				Map<String, Object> map = new HashMap<String, Object>();
-				switch (i) {
-//					case 1:
-//						map.put("image", R.drawable.lb01);
-//						break;
-//					case 2:
-//						map.put("image", R.drawable.lb02);
-//						break;
-//					case 3:
-//						map.put("image", R.drawable.lb03);
-//						break;
-//					case 4:
-//						map.put("image", R.drawable.lb04);
-//						break;
 					case 5:
 						map.put("image", R.drawable.lb05);
 						break;
@@ -124,6 +91,31 @@ public class ListViewActivity extends Activity {
 				}
 				listItems.add(map);
 			}
+		}else{
+			for (int i = 1; i < 7; ++i) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				switch (i) {
+					case 1:
+						map.put("image", R.drawable.dw01);
+						break;
+					case 2:
+						map.put("image", R.drawable.dw02);
+						break;
+					case 3:
+						map.put("image", R.drawable.dw03);
+						break;
+					case 4:
+						map.put("image", R.drawable.dw04);
+						break;
+					case 5:
+						map.put("image", R.drawable.dw05);
+						break;
+					case 6:
+						map.put("image", R.drawable.dw06);
+						break;
+				}
+				listItems.add(map);
+			}
 		}
 		// 创建适配器
 		ListViewAdapter listViewAdapter = new ListViewAdapter(this, listItems);
@@ -135,6 +127,8 @@ public class ListViewActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Log.d(TAG, ">>>onItemClick<<<");
+				Intent intent = new Intent(ListViewActivity.this, HmActivity.class);
+				startActivity(intent);
 			}
 		});
 	}
