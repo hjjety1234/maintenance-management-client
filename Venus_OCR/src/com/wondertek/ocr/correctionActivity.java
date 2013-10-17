@@ -167,6 +167,7 @@ public class correctionActivity extends Activity {
 				    				dialog.cancel();
 				    				Toast.makeText(context, "数据上传成功！", Toast.LENGTH_SHORT).show();
 						            Looper.loop();
+						            finish();
 				    			}
 				    		}, 3000, 3000);
 				    		
