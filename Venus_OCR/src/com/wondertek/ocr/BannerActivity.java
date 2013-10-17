@@ -35,6 +35,9 @@ public class BannerActivity extends Activity {
 					overridePendingTransition(R.anim.fade, R.anim.hold);
 					break;
 				case 1:
+					Intent intent1 = new Intent(BannerActivity.this, BroadBandActivity.class);
+					startActivity(intent1);
+					overridePendingTransition(R.anim.fade, R.anim.hold);
 					break;
 				case 2:
 					Intent intent2 = new Intent(BannerActivity.this, TagActivity.class);
@@ -69,6 +72,9 @@ public class BannerActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				indexBgLayout.setBackgroundResource(R.drawable.indexbg2);
+				Intent intent = new Intent(BannerActivity.this, BroadBandActivity.class);
+				startActivity(intent);
+				overridePendingTransition(R.anim.fade, R.anim.hold);
 			}
 		});
 		// 设置按钮3的消息处理函数
