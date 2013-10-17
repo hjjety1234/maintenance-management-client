@@ -289,6 +289,7 @@ public class SurfaceViewDraw extends Activity implements SurfaceHolder.Callback,
 			Camera.Parameters param = mCamera.getParameters();
 			param.setPictureSize(1280, 720);
 			mCamera.setParameters(param);
+			btnTakePic.setBackgroundResource(R.drawable.pai);
 			mCamera.takePicture(mShutterCallback, null, null, mjpegCallback);
 		}
 	}
