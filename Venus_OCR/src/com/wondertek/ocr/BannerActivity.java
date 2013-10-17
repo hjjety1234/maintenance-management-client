@@ -39,6 +39,7 @@ public class BannerActivity extends Activity {
 				case 2:
 					Intent intent2 = new Intent(BannerActivity.this, TagActivity.class);
 					startActivity(intent2);
+					overridePendingTransition(R.anim.fade, R.anim.hold);
 					break;
 				case 3:
 					break;
@@ -77,6 +78,7 @@ public class BannerActivity extends Activity {
 				indexBgLayout.setBackgroundResource(R.drawable.indexbg3);
 				Intent intent = new Intent(BannerActivity.this, TagActivity.class);
 				startActivity(intent);
+				overridePendingTransition(R.anim.fade, R.anim.hold);
 			}
 		});
 		// 设置按钮4的消息处理函数

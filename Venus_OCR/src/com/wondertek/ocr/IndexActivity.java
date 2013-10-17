@@ -36,6 +36,7 @@ public class IndexActivity extends Activity {
 				handler.removeCallbacks(this);
 				Intent intent = new Intent(IndexActivity.this, BannerActivity.class);
 				startActivity(intent);
+				overridePendingTransition(R.anim.fade, R.anim.hold);
 				finish();
 			}
 		};

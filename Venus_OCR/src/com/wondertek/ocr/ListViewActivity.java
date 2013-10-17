@@ -58,6 +58,7 @@ public class ListViewActivity extends Activity {
 		ListViewAdapter listViewAdapter = new ListViewAdapter(this, listItems);
 		listView.setAdapter(listViewAdapter);
 		listView.setDividerHeight(0);
+		listView.setFocusable(true);
 	}
 
 	@Override

@@ -75,6 +75,7 @@ public class TagActivity extends Activity {
 			public void onClick(View v) {
 				Intent intent = new Intent(TagActivity.this, ListViewActivity.class);
 				startActivity(intent);
+				overridePendingTransition(R.anim.fade, R.anim.hold);
 			}
 		});
 		// 选择按钮的消息处理函数
