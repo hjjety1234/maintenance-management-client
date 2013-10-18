@@ -48,6 +48,7 @@ public class BroadBandActivity extends Activity {
 	private int LOCAL_IMAGE = 1;
 	private int CAMERA_RESULT = 2;
 	private static String filePath = null;
+	private boolean isClear = false;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -79,7 +80,8 @@ public class BroadBandActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(BroadBandActivity.this, correctionActivity.class);
-				intent.putExtra("IDNo",m_idText.getText().toString());			
+				intent.putExtra("IDNo",m_idText.getText().toString());
+				isClear = true;
 				startActivity(intent);
 
 				overridePendingTransition(R.anim.fade, R.anim.hold);
@@ -116,6 +118,24 @@ public class BroadBandActivity extends Activity {
 				android.R.layout.simple_spinner_item);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		m_bandSpinner.setAdapter(adapter);
+	}
+	
+	@Override
+	protected void onResume(){
+		super.onResume();
+
+		if(isClear){
+			m_nameText.setText("");
+			m_genderText.setText("");
+			m_year.setText("");
+			m_month.setText("");
+			m_day.setText("");
+			m_addressText.setText("");
+			m_idText.setText("");
+			
+			isClear = false;
+		}
+
 	}
 	
 	

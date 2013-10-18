@@ -191,6 +191,7 @@ public class correctionActivity extends Activity {
 					 loss  = getHttpRequest(URL_loss);
 					 handler2.sendMessage(handler2.obtainMessage(TEXT_MSG, 0, 0));	
 				 }
+				 
 				 handler.removeCallbacks(runnable);
 			 }
 		}.start();
