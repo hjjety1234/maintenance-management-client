@@ -26,6 +26,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
@@ -70,6 +71,8 @@ public class Util {
 	public final static int  WDM_GestureBegin =   0x000f;
 	public final static int  WDM_GestureMove  =   0x0010;
 	public final static int  WDM_GestureEnd   =   0x0011;
+	public final static int  WDM_TOUCH        =	  0x0012;
+	public final static int  WDM_CLICKPUSHMSG =   0x0013;
 
    //Custom SysEvent
 	public final static int  WDM_SYSPAUSE     =   0x0100;
@@ -868,22 +871,34 @@ public class Util {
 
 		Log.d(TAG, format==null?"Error: null String!!!":format);
 		
-		String logfilePath = "/sdcard/Dresden.log";//VenusApplication.getInstance().appAbsPath + "/module/error_log.txt";
-		File logFile = new File(logfilePath);
-
-		if(logFile.exists())
+		if(Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED))
 		{
+			String logfilePath = Environment.getExternalStorageDirectory() + "/Dresden.log";//VenusApplication.getInstance().appAbsPath + "/module/error_log.txt";
+			File logFile = new File(logfilePath);
 			
-			try {
-				BufferedWriter output = new BufferedWriter(new FileWriter(logFile, true/*Append write*/));
-				output.append(format==null?"Error: null String!!!":format);
-				output.append("\n");
-				output.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if(!logFile.exists()){
+				try {
+					logFile.createNewFile();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
-			
+				
+			if(logFile.exists())
+			{
+
+				try {
+					BufferedWriter output = new BufferedWriter(new FileWriter(logFile, true/*Append write*/));
+					output.append(format==null?"Error: null String!!!":format);
+					output.append("\n");
+					output.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
 		}
 
 	}

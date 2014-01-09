@@ -103,7 +103,7 @@ public class SystemMediaPlayerService extends Service
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra) {
 		// TODO Auto-generated method stub
-		Toast.makeText(this, TAG + ">>onError<<", Toast.LENGTH_LONG).show();
+		//Toast.makeText(this, TAG + ">>onError<<", Toast.LENGTH_LONG).show();
 		playerStatus = SysMPConstants.STATE_ERROR;
         SysMediaPlayerMgr.sendPlayerStatus(playerStatus);
 		switch (what) {

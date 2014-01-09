@@ -25,6 +25,7 @@ import com.mapabc.mapapi.poisearch.PoiPagedResult;
 import com.mapabc.mapapi.poisearch.PoiSearch;
 import com.mapabc.mapapi.poisearch.PoiSearch.Query;
 import com.mapabc.mapapi.poisearch.PoiSearch.SearchBound;
+import com.wondertek.video.map.gdmap.GDMapManager;
 
 /**
  * 
@@ -207,6 +208,7 @@ public class GDPoiSearch {
 		protected View getPopupView(final PoiItem item) {
 			View view = ((Activity) context).getLayoutInflater().inflate(context.getResources().
 					getIdentifier("gdmap_popview_item", "layout", context.getPackageName()), null);
+			GDMapManager.getInstance(context).mPopViewList.add(view);
 			final TextView title = (TextView) view.findViewById(context.getResources().
 					getIdentifier("item_name", "id", context.getPackageName()));
 			title.setText(item.getTitle());
