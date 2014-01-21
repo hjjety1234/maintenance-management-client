@@ -398,7 +398,7 @@ function bodyOnPluginEvent(msg, param)
                 resultId = data.data
                 InHandle(data.inTime)
             else
-                Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+                Dialog:show('', getErrorCode(data.code), 'ok')
             end
         else
             --Dialog:show(rootSprite, '未知错误！', 'ok')
@@ -415,7 +415,7 @@ function bodyOnPluginEvent(msg, param)
             if data.code == '0' then
                 OutHandle(data.outTime)
             else
-                Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+                Dialog:show('', getErrorCode(data.code), 'ok')
             end
         else
             --Dialog:show(rootSprite, '未知错误！', 'ok')
@@ -437,18 +437,18 @@ function bodyOnPluginEvent(msg, param)
             Http:request('report_station', requestURL, 1001)
         else
             Loading:close()
-            Dialog:show(rootSprite, '上报位置失败，请重新上报！', 'ok')
+            Dialog:show('', '上报位置失败，请重新上报！', 'ok')
             return
         end
     elseif msg == 1001 then -- 位置上报响应处理
         Loading:close()
         local data = Http:jsonDecode('report_station')
         if data.code == '0' then
-            Dialog:show(rootSprite, '上报位置成功！', 'ok')
+            Dialog:show('', '上报位置成功！', 'ok')
             -- 加载巡检项
             loadListItem()
         else
-            Dialog:show(rootSprite, '上报位置失败，请重新上报！', 'ok')
+            Dialog:show('', '上报位置失败，请重新上报！', 'ok')
             return 
         end
     elseif msg == 1002 then
@@ -675,12 +675,12 @@ function onTextLostFocus(sprite)
     if not content then
         -- 用户输入非数字,清空输入
         newData = '0'
-        Dialog:show('提示','输入必须是数字！','ok')
+        Dialog:show('','输入必须是数字！','ok')
         Sprite:setProperty(sprite, 'text', '')
     elseif content < min or content > max then
         -- 用户输入不在正常范围内
         newData = '0'
-        Dialog:show('提示','已超出正常范围！','ok')
+        Dialog:show('','已超出正常范围！','ok')
     else
         --正常保存提交
         newData = '1'
@@ -877,7 +877,7 @@ function tabOnSelect(sprite)
         -- 确认是否已经进站
         if Inflag ~= '1' then
             -- Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_s_l')
-            Dialog:show('提示','请先执行进站操作！','ok')
+            Dialog:show('','请先执行进站操作！','ok')
             return
         else
             --出站请求
@@ -922,18 +922,18 @@ function doSave(sprite)
     if patrolResult==nil or patrolResult=='' then
         patrolResult=Sprite:getText(Sprite:findChild(sprite,'errorTypeName'))
         if patrolResult==nil or patrolResult=='' then
-            Dialog:show(rootSprite, '巡检结果不可为空！', 'ok')
+            Dialog:show('', '巡检结果不可为空！', 'ok')
             return
         end
     end
     if  resultId=='' or resultId==nil then
-        Dialog:show(rootSprite, '请先执行进站操作，否则无法记录巡检结果！', 'ok')
+        Dialog:show('', '请先执行进站操作，否则无法记录巡检结果！', 'ok')
     else
         --取巡检子项ID
         local errorTitleNode =Sprite:getParent(sprite)
         local subitemId = Sprite:getData(errorTitleNode)
         if subitemId=='' or subitemId==nil  then
-            Dialog:show(rootSprite, '巡检子项编号为空，请联系系统管理员！', 'ok')
+            Dialog:show('', '巡检子项编号为空，请联系系统管理员！', 'ok')
         else
             -- 更新用户输入
             g_items[g_curItemIndex].subitems[g_curSubItemIndex].value = patrolResult
@@ -1032,14 +1032,14 @@ function ErrorSave(sprite)
     end
 
     if patrolResult==nil or patrolResult=='' then
-        Dialog:show(rootSprite, '巡检结果不可为空！', 'ok')
+        Dialog:show('', '巡检结果不可为空！', 'ok')
     end
     if  resultId=='' or resultId==nil then
-        Dialog:show(rootSprite, '请先执行进站操作，否则无法记录巡检结果！', 'ok')
+        Dialog:show('', '请先执行进站操作，否则无法记录巡检结果！', 'ok')
     else
 
         if subitemId=='' or subitemId==nil  then
-            Dialog:show(rootSprite, '巡检子项编号为空，请联系系统管理员！', 'ok')
+            Dialog:show('', '巡检子项编号为空，请联系系统管理员！', 'ok')
         else
             -- 更新用户输入
             g_items[g_curItemIndex].subitems[g_curSubItemIndex].value = patrolResult
@@ -1066,7 +1066,7 @@ end
 
 --提交巡检结果
 function submitOnSelect(sprite)
-    Dialog:show('提示','是否确定提交本次巡检任务？','ok_cancel','doUpload')
+    Dialog:show('','是否确定提交本次巡检任务？','ok_cancel','doUpload')
 end
 
 -- 返回上一个页面，如果有暂存数据，需要暂存 
@@ -1100,7 +1100,7 @@ function doUpload(sprite)
 
     -- 检查是否已经出站
     if g_outFlag ~= '1' then 
-        Dialog:show('提示', '请先进行出站操作!', 'ok')
+        Dialog:show('', '请先进行出站操作!', 'ok')
         return
     end
 
@@ -1115,7 +1115,7 @@ end
 
 function hideLoading()
     Loading:close()
-    Dialog:show('巡检提交', '提交成功','ok','doBack')
+    Dialog:show('', '提交成功','ok','doBack')
 end
 
 -- 检查用户输入，成功返回0，否则返回1
@@ -1155,7 +1155,7 @@ function checkUserInput()
                     patrolResult=Sprite:getText(errorTypeName)
                     if patrolResult==nil or patrolResult=='' then
                         checkIsSpread(errorTypeName, mainItemNode)
-                        Dialog:show(rootSprite,jdtitleItems[i].name ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok', 'showErrorInfo')
+                        Dialog:show('',jdtitleItems[i].name ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok', 'showErrorInfo')
                         return 1
                     else
                         setAllShoworHide(Sprite:findChild(errorTitleNode1,'SaveFlag'),1)
@@ -1171,7 +1171,7 @@ function checkUserInput()
                     patrolResult=Sprite:getText(editInput)
                     if patrolResult==nil or patrolResult=='' then
                         checkIsSpread(editInput, mainItemNode)
-                        Dialog:show(rootSprite,jdtitleItems[i].name ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok', 'showErrorInfo')
+                        Dialog:show('',jdtitleItems[i].name ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok', 'showErrorInfo')
                         return 1
                     else
                         setAllShoworHide(Sprite:findChild(errorTitleNode2,'SaveFlag'),1)
@@ -1188,7 +1188,7 @@ function checkUserInput()
                     if patrolResult==nil or patrolResult=='' then
                         checkIsSpread(editInput, mainItemNode)
                         ImgOnSelect(Sprite:findChild(mainItemNode, 'btnImg'))
-                        Dialog:show(rootSprite,jdtitleItems[i].name ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok', 'showErrorInfo')
+                        Dialog:show('',jdtitleItems[i].name ..'巡检项中第'..tostring(j)..'项还没巡检！', 'ok', 'showErrorInfo')
                         return 1
                     else
                         setAllShoworHide(Sprite:findChild(errorTitleNode3,'SaveFlag'),1)
@@ -1221,7 +1221,7 @@ end
 --提交请求
 function HttpRequest(subitemId,patrolResult,exception,dealdetail)
     if subitemId=='' or subitemId==nil  then
-        Dialog:show(rootSprite, '巡检子项编号为空，请联系系统管理员！', 'ok')
+        Dialog:show('', '巡检子项编号为空，请联系系统管理员！', 'ok')
     else
         local url=getWholeUrl('nbspweb/webservice/wplanpatrol!doWebservice.action', '')
         local username = Config:get('username')
@@ -1280,7 +1280,7 @@ function doTakePic(sprite)
     if num<4 then
         local result = System:openCamera('onCameraDialog', 'file://image/' .. fileName .. '.jpg', 'jpg')
         if result == 0 then
-            Dialog:show('提示', '相机打开失败!', 'ok')
+            Dialog:show('', '相机打开失败!', 'ok')
             return 1
         else
             piccurrbtn=sprite
@@ -1288,7 +1288,7 @@ function doTakePic(sprite)
             Sprite:setProperty(sprite,'data',tostring(num+1))
         end
     else
-        Dialog:show('提示', '最多拍3张照片!', 'ok')
+        Dialog:show('', '最多拍3张照片!', 'ok')
     end
 end
 

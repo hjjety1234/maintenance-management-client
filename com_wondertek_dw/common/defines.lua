@@ -173,5 +173,6 @@ Alias = {
     m_dwMap = "MODULE:\\com_wondertek_dw\\m_dwMap.wdml", -- 代维地图
     m_dwMap_city = "MODULE:\\com_wondertek_dw\\m_dwMap_city.wdml", -- 地市代维地图
     m_yinhuanDetail_map = "MODULE:\\com_wondertek_dw\\m_yinhuanDetail_map.wdml", -- 隐患地图显示隐患详情
+    m_dangerDescription = "MODULE:\\com_wondertek_dw\\m_dangerDescription.wdml",-- 隐患描述详情
 }
 

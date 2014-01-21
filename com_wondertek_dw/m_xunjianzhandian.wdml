@@ -115,16 +115,16 @@
                     <label name="stationId" rect="40,20,0,0" text="" color="#0"
                         font-size="16" h-align="left" v-align="center" extendstyle="1111"
                         border="false" visible="false" />
-                    <scrolltext name="stationName" rect="50,11,230,50" text=""
-                        color="#0" font-size="21" font-family="黑体" h-align="left" v-align="center"
-                        scroll="true" extendstyle="1111" border="false" />
-                    <label name="stationDistance" rect="280,10,110,50" text=""
+                    <textarea name="stationName" rect="50,5,250,60" text=""
+                        color="#0" font-size="18" font-family="黑体" h-align="left" v-align="center"
+                         extendstyle="1111"  line-height="18"  border="false" />
+                    <label name="stationDistance" rect="240,10,110,50" text=""
                         color="#0" font-size="21" h-align="left" v-align="center"
                         extendstyle="1111" border="false" />
                 </button>
 
                 <!-- 打开、下载软件 -->
-                <button name="openDownloadBtn1" rect="320,15,140,40" OnSelect="doOpenDownload" 
+                <button name="openDownloadBtn1" rect="360,15,120,40" OnSelect="doOpenDownload" 
                         visible="true" enable="true" style="autosize"
                         src='' extendstyle="1111"
                         data="0"/>
@@ -165,7 +165,7 @@ local lastLatitude = 0
 local clickTime -- 长按巡检名称时的时间
 local longClickItemIndex -- 当前长按按钮列表索引
 local firtClick_y -- 第一次点击时的纵坐标
-local g_retryCount = 20 -- gps重试次数
+local g_retryCount = 10 -- gps重试次数
 
 local dataInfo = '02'   --初始搜索周边站点
 
@@ -303,13 +303,18 @@ function itemOnSelect(sprite)
     -- 获取当前选中站点的ID号
     local stationId = Sprite:findChild(sprite, "stationId")
     local stationName = Sprite:findChild(sprite, "stationName")
-    local index = tonumber(Sprite:getText(Sprite:getParent(sprite)))
-    
+    local index = tonumber(Sprite:getData(sprite))
+    Log:write('itemOnSelect',stationId,stationName,index)
+    Log:write('respValue[index]',respValue[index])
     -- 获取目标站点的经纬度
-    local stationLat = respValue[index].lat
-    local stationLon = respValue[index].lon
-    if stationLat == nil then stationLat = '' end
-    if stationLon == nil then stationLon = '' end
+    local stationLat = ''
+    local stationLon = ''
+    if respValue[index].lat ~= nil or respValue[index].lat ~= '' then 
+        stationLat = respValue[index].lat
+    end 
+    if respValue[index].lon ~= nil or respValue[index].lon ~= '' then 
+        stationLon = respValue[index].lon
+    end 
     Log:write('itemOnSelect(): stationLat, stationLon', 
         stationLat, stationLon)
         
@@ -427,9 +432,6 @@ function tabOnSelect(sprite)
         -- 默认选择tab1
         local tab1 = Sprite:findChild(rootSprite,'btnTab1')
         Sprite:setProperty(Sprite:findChild(tab1, 'tabBg'), 'src', 'file://image/tab_s_new.png')
-        -- 默认加载5个站点
-        local posValue = '117.251339,31.849438'
-        request('2', posValue, '合', page, 1001)
     elseif dataInfo=='02'  then
         -- 隐藏搜索栏
 	    local searchStationNameNodeSprite = Sprite:findChild(rootSprite, 'searchStationNameNode')
@@ -446,7 +448,7 @@ function tabOnSelect(sprite)
         Sprite:setProperty(statusBar, "enable", "true")
         local listviewNode = Sprite:findChild(rootSprite, 'listviewNode')
         Sprite:setRect(listviewNode,0,136,480,614)
-        --改为组合定位模式，暂时屏蔽
+        --改为组合定位模式
         doLocation()
     end
 end
@@ -454,6 +456,7 @@ end
 ---------------------------------------界面操作函数列表---------------------------
 -- 跳转到上一个页面
 function doBack()
+    Timer:cancel(222)
     if (Loading:isShow() == true) then
         Loading:close()
     end
@@ -462,6 +465,11 @@ end
 
 -- 加载列表项
 function loadListItem(list, item, index)
+    -- 将当前的index写入到item的data数据中
+    Log:write('写入的index',index)
+    local btnname = Sprite:findChild(item,'btnname')
+    Sprite:setProperty(btnname, 'data', index)
+
     -- 设置列表项的大小的背景色
     Sprite:setRect(item, 0, 0, 480, 70)
     Sprite:setProperty(item, 'extendstyle', '1111')
@@ -519,13 +527,11 @@ function loadListItem(list, item, index)
         Sprite:setProperty(stationDistance, 'visible', 'false')
     end
     --判断是否显示资源核查功能
-    if itemValue.resourcegxluid=='' or  itemValue.taskCode==''then 
-       local openDownloadBtn1 = Sprite:findChild(item, 'openDownloadBtn1')
-       Sprite:setProperty(openDownloadBtn1,'visible','false')
-       Sprite:setProperty(openDownloadBtn1,'enable','false')
-    end 
-    -- 将当前的index写入到item的data数据中
-    Sprite:setProperty(item, 'data', index)
+    -- if itemValue.taskCode==''then 
+    --    local openDownloadBtn1 = Sprite:findChild(item, 'openDownloadBtn1')
+    --    Sprite:setProperty(openDownloadBtn1,'visible','false')
+    --    Sprite:setProperty(openDownloadBtn1,'enable','false')
+    -- end 
 end
 
 ---------------------------------------与服务端交互函数列表---------------------------
@@ -728,7 +734,7 @@ function doLocation()
     -- 当前无经纬度信息，检查当前gps状态
     local result = System:getGPSStatus()
     if result == -1 then
-        Sprite:setProperty(locInfo, 'text', '当前GPS不可用, 尝试使用网络定位...')
+        Sprite:setProperty(locInfo, 'text', '当前GPS未开启, 尝试使用网络定位...')
         getGPSDataByMap()
     Log:write('222',333)
     elseif result == 0 then
@@ -736,7 +742,7 @@ function doLocation()
         if gpsStatus then
             Sprite:setProperty(locInfo, 'text', 'GPS开启成功，正在定位...')
             Timer:set(222, 1000, 'getLoctude')
-    Log:write('222',444)
+            Log:write('222',444)
         else
             Sprite:setProperty(locInfo, 'text', 'GPS开启失败, 尝试使用网络定位...')
             getGPSDataByMap()
@@ -771,7 +777,7 @@ function getLoctude()
         end
         -- 有效的gps数据，与上次的定位结果不同
         if g_latitude ~= latitude and g_longitude ~= longitude then 
-            g_retryCount = 20
+            g_retryCount = 10
             Timer:cancel(222)
             System:setGPSStatus(0)
             -- 定位成功
@@ -799,7 +805,7 @@ function getLoctude()
         System:setGPSStatus(0)
         System:setGPSStatus(0)
         System:setGPSStatus(0)
-        g_retryCount = 20
+        g_retryCount = 10
         Sprite:setProperty(locInfo, 'text', 'GPS定位失败，采用网络定位...')
         getGPSDataByMap()
     end
@@ -838,6 +844,36 @@ function doOpenDownload(sprite)
         local taskCode = respValue[index].taskCode
         local resourcegxluid = respValue[index].resourcegxluid
         local resourceirmsid = respValue[index].resourceirmsid
+        --根据专业判断处理方式
+        --家客专业
+        if major == 'C37' then 
+            if resourcegxluid =='' then 
+                Dialog:show('','该站点国朗不存在，请联系管理员','ok')
+                return
+            end
+            if resourceirmsid =='' then 
+                resourceirmsid ='88888888888'
+            end
+        --基站专业
+        elseif major == 'C31' then 
+            if resourcegxluid =='' then 
+                Dialog:show('','该站点国朗ID不存在，请联系管理员','ok')
+                return
+            end
+            if resourceirmsid =='' then 
+                Dialog:show('','该站点综资ID不存在，请联系管理员','ok')
+                return
+            end
+        --其他专业
+        else
+            if resourcegxluid =='' then 
+                resourcegxluid ='88888888888'
+            end
+            if resourceirmsid =='' then 
+                Dialog:show('','该站点综资ID不存在，请联系管理员','ok')
+                return
+            end
+        end 
         local appInfo = appId ..'?activity=cn.com.gxlu.dwcheck.DwCheckResourceDetialActivity'
         appInfo = appInfo..'&resourceid='..resourceirmsid..'&resourcegxluid='..resourcegxluid..'&checktypelist='..major..'&useraccount='..usercode..'&username='..username..'&domain='..domain..'&companyname='..orgname..'&cityname='..region..'&taskcode='..taskCode
         Log:write('the app info is ',appInfo)

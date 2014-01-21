@@ -195,7 +195,7 @@ function bodyOnPluginEvent(msg, param)
         Loading:close()
         local data = Http:jsonDecode('Indata')
         if not data or type(data) ~= 'table' then
-            Dialog:show(rootSprite, '进站失败，返回数据格式错误', 'ok')
+            Dialog:show('', '进站失败，返回数据格式错误', 'ok')
             return
         end
         if data ~= nil then
@@ -203,7 +203,7 @@ function bodyOnPluginEvent(msg, param)
                 g_resultId = data.data -- 获取巡检结果ID号
                 InHandle(data.inTime)
             else
-                Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+                Dialog:show('', getErrorCode(data.code), 'ok')
             end
         else
             -- Dialog:show(rootSprite, '未知错误！', 'ok')
@@ -220,7 +220,7 @@ function bodyOnPluginEvent(msg, param)
             if data.code == '0' then
                 OutHandle(data.outTime)
             else
-                Dialog:show(rootSprite, getErrorCode(data.code), 'ok')
+                Dialog:show('', getErrorCode(data.code), 'ok')
             end
         else
             --Dialog:show(rootSprite, '未知错误！', 'ok')
@@ -230,15 +230,15 @@ function bodyOnPluginEvent(msg, param)
 		local data = Http:jsonDecode('ewm_code')
         -- 服务端返回数据合法性检查
         if not data or type(data) ~= 'table' then
-            Dialog:show(rootSprite, '获取二维码资源列表失败，服务端返回数据格式错误', 'ok')
+            Dialog:show('', '获取二维码资源列表失败，服务端返回数据格式错误', 'ok')
             return
         end
         if data.code == '50' then
-            Dialog:show(rootSprite, '该站点无待扫描的二维码！', 'ok')
+            Dialog:show('', '该站点无待扫描的二维码！', 'ok')
             return 
         end
         if data.code ~= '0' then
-            Dialog:show(rootSprite, getErrorCode(data.code), 'ok', 'doBack')
+            Dialog:show('', getErrorCode(data.code), 'ok', 'doBack')
             return 
         end
         -- 解析返回的二维码列表
@@ -278,14 +278,14 @@ function bodyOnPluginEvent(msg, param)
             Http:request('report_station', requestURL, 1001)
         else
             Loading:close()
-            Dialog:show(rootSprite, '上报位置失败，请重新上报！', 'ok')
+            Dialog:show('', '上报位置失败，请重新上报！', 'ok')
             return
         end
     elseif msg == 1001 then -- 位置上报响应处理
         Loading:close()
         local data = Http:jsonDecode('report_station')
         if data.code == '0' then
-            Dialog:show(rootSprite, '上报位置成功！', 'ok')
+            Dialog:show('', '上报位置成功！', 'ok')
             -- 隐藏位置上报按钮
             local tipNode1 = Sprite:findChild(rootSprite, 'tipNode1')
             Sprite:setProperty(tipNode1, 'visible', 'false')
@@ -295,7 +295,7 @@ function bodyOnPluginEvent(msg, param)
             Sprite:setProperty(tipNode2, 'visible', 'true')
             Sprite:setProperty(tipNode2, 'enable', 'true')
         else
-            Dialog:show(rootSprite, '上报位置失败，请重新上报！', 'ok')
+            Dialog:show('', '上报位置失败，请重新上报！', 'ok')
             return 
         end
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -410,7 +410,7 @@ function itemOnSelect(sprite)
         Scene:setReturn(Alias.m_xunjianewmlist, Alias.m_xunjianewmtijiao)
         Scene:go(Alias.m_xunjianewmtijiao)
     else
-        Dialog:show('提示','请先扫描二维码！','ok')
+        Dialog:show('','请先扫描二维码！','ok')
     end
 end
 
@@ -447,7 +447,7 @@ function tabOnSelect(sprite)
         -- 确认是否已经进站
         if g_inFlag ~= '1' then
             Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_n.png')
-            Dialog:show('提示','请先执行进站操作！','ok')
+            Dialog:show('','请先执行进站操作！','ok')
             return
         else
             --出站请求
@@ -492,7 +492,7 @@ function outRequest()
     -- 对用户输入合法性进行判断
     -- 返回非0时，检查失败，无法出站
     if checkUserInput() ~= 0 then
-        Dialog:show(rootSprite, '二维码未扫描完成！', 'ok')
+        Dialog:show('', '二维码未扫描完成！', 'ok')
         return
     end
     -- 请求出站

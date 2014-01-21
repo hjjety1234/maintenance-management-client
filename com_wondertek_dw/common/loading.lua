@@ -44,7 +44,7 @@ end
 
 function loadingProcess(idEvent)
     local processLbl = Sprite:findChild(Sprite:getCurScene(), 'processLbl')
-    local curNum = tonumber(Sprite:getText(processLbl))
+    local curNum = tonumber(Sprite:getText(processLbl)) 
     math.random()
     local num = curNum - math.random(5)
     if num < 3 then

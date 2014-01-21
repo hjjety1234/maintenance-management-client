@@ -116,18 +116,19 @@ function bodyBuildChildrenFinished(sprite)
     curpage=Sprite:findChild(rootSprite, 'curpage')
     morebtn=Sprite:findChild(rootSprite, 'morebtn')
     Config:set('curYinHuanListTab', '1')
+    initList()
+    if Config:get('curYinHuanListTab') == '1' then
+        tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
+    else
+        tabOnSelect(Sprite:findChild(rootSprite, 'btnTab2'))
+    end
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_yinhuanList, 'MODULE:\\(.*)'), "已传隐患")
-        initList()
-        if Config:get('curYinHuanListTab') == '1' then
-            tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
-        else
-            tabOnSelect(Sprite:findChild(rootSprite, 'btnTab2'))
-        end
+
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
@@ -296,7 +297,7 @@ end
 
  -- 初始化
 function initList()               
-    ListView:removeAllItems(list) 
+    --ListView:removeAllItems(list) 
     setAllShoworHide(morebtn, 0)
     Sprite:setProperty(curpage, 'data',1)
 end 

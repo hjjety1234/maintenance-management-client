@@ -154,9 +154,14 @@ function bodyOnPluginEvent(msg)
         
          
         if result== '0' then
-            local role = loginData.value[0].rolecode
-            local username = loginData.value[0].userid
-            local regionid = loginData.value[0].regionid
+            --判断角色是否为空，否则用第二个角色
+            local index = 0
+            if loginData.value[index].rolecode == '' or loginData.value[index].rolecode == nil then 
+                index = 1
+            end 
+            local role = loginData.value[index].rolecode
+            local username = loginData.value[index].userid
+            local regionid = loginData.value[index].regionid
             Config:set('username',username)
             Config:set('regionid',regionid)
             Config:set('role',role)
@@ -169,8 +174,8 @@ function bodyOnPluginEvent(msg)
             Config:set('realname', loginData.userName)
             Config:set('tasknum', loginData.taskNum)
             --写入为综合资源管理系统需要的数据
-            Config:set('region',loginData.value[0].regionname)
-            Config:set('orgname',loginData.value[0].orgname)
+            Config:set('region',loginData.value[index].regionname)
+            Config:set('orgname',loginData.value[index].orgname)
             writeuserInfo()
             local xlFlag = Config:get("xlFlag")
             --Log:write('xianlu flag is -->'..user_name)

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+==
+============================================================================
+== | WonderTek [ 网络无处不在，沟通及时到达 ] ==
+============================================================================
+== | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved. ==
+============================================================================
+== | Author: hewu <hewu2008@gmail.com> ==
+============================================================================
+== | Desc: 页面描述 ==
+============================================================================
+-->
+<root>
+    <header />
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished"
+        OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent" extendstyle="1111">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true"
+            OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+
+            <!-- 页面背景  -->
+            <node rect="0,0,480,800" extendstyle="1111">
+                <image name="background" rect="0,0,480,800" border="false"
+                    src="file://image/backgroundImg.png" style="autosize" extendstyle="1111">
+                </image>
+            </node>
+
+            <!-- 头部  -->
+            <node name="headSprite" rect="0,0,480,66" extendstyle="1111">
+                <image name="titleBg" rect="0,0,480,66" src="file://image/nav_bar.png"
+                    extendstyle="1111" style="autosize" />
+                <!-- 返回按钮 -->
+                <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
+                    OnSelect="doBack" extendstyle="1111">
+                    <image name="normal" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                        extendstyle="1111" />
+                    <image name="sel" rect="15,8,75,75" src="file://image/skin/ico_back.png"
+                        extendstyle="1111" />
+                </button>
+                <!-- 页面标题  -->
+                <scrolltext name="title" rect="0,0,480,66" text="隐患描述"
+                    extendstyle="1111" font-size="28" font-family="黑体" 
+                    h-align="center" v-align="center"
+                    color="#ffffff" scroll="true" step="2" />
+            </node>
+            
+
+
+            <!-- 描述列表  -->
+            <node name="listviewNode" border="false" rect="0,66,480,627" extendstyle="1111">
+                <listview name="listview1" border="false" rect="0,0,480,627" extendstyle="1111" />
+            </node>
+
+            <!-- 站点列表项 -->
+            <node name="listitem" visible="false" enable="false" active="false"
+                extendstyle="1011" rect="0,256,480,70">
+                <image name="listItemBg" rect="0,0,480,70" src="file://image/item_bg_m.png" 
+                    style="autosize" extendstyle="1111" />
+                <button name="btnname" rect="0,0,400,70" OnSelect="itemOnSelect" 
+                    extendstyle="1111" data="">
+                    <label name="stationId" rect="40,20,0,0" text="" color="#0"
+                        font-size="16" h-align="left" v-align="center" extendstyle="1111"
+                        border="false" visible="false" />
+                    <scrolltext name="stationName" rect="30,11,380,50" text=""
+                        color="#303030" font-size="21" font-family="黑体" h-align="left" v-align="center"
+                        scroll="true" extendstyle="1111" border="false" />
+                </button>               
+            </node>
+
+            <node rect="0,0,0,47" extendstyle="1570">
+                <button name="morebtn" rect="0,0,0,47" OnSelect="addmore" visible="false" 
+                    enable="false" border="false" text="点击查看更多" color="#666666" 
+                    h-align="center" v-align="center"  font-family="微软雅黑" font-size="24"
+                    extendstyle="1570" />
+            </node>
+
+        </node>
+    </body>
+
+<![CDATA[
+require 'com_wondertek_dw.common.framework'
+local rootSprite 
+local respValue               -- 站点列表值
+local total = 0
+local listView
+local pagesize = 10
+local morebtn
+local pageNum = 1
+local keyword
+
+---------------------------------------回调函数列表--------------------------------
+-- root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    -- 删除原来的列表
+    listView = Sprite:findChild(rootSprite, 'listview1')
+    morebtn=Sprite:findChild(rootSprite, 'morebtn')
+end
+
+-- root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        addmore()
+    elseif msg == MSG_DEACTIVATE then
+        
+    end
+end
+
+-- 插件消息方法
+function bodyOnPluginEvent(msg, param)
+    if msg == 1001 then
+        -- 服务端返回结果解析
+        -- 解析返回的列表
+        local resp = Http:jsonDecode('stationList')
+        Log:write("搜索返回数据：",resp)
+        if (resp.code == nil or resp.code ~= '0') then
+            Dialog:show('', '返回数据为空!', 'ok')
+            Loading:close()
+            return
+        elseif resp.total == 0  then
+            Dialog:show('', '返回数据为空!', 'ok')
+            Loading:close()
+            return
+        end
+        respValue = resp.value
+        local len = getJsonArrayCount(respValue)
+        -- 加载列表项
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listitem'), len, 'loadListItem')
+        ListView:adjust(listView)
+        Loading:close()
+    elseif msg > MSG_NETWORK_ERROR then
+        if Loading:isShow() then Loading:close() end
+        Dialog:show('','网络错误', 'ok')
+    else
+        if Loading:isShow() then Loading:close() end
+        Dialog:show('','请求超时！', 'ok')
+    end
+end
+
+-- 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        doBack()
+        return 1
+    end
+end
+
+---------------------------------------界面操作函数列表---------------------------
+-- 跳转到上一个页面
+function doBack()
+    Scene:back()
+end
+
+-- 加载列表项
+function loadListItem(list, item, index)
+    -- 设置列表项的大小的背景色
+    Sprite:setRect(item, 0, 0, 480, 70)
+    Sprite:setProperty(item, 'extendstyle', '1111')
+    local listItemBg = Sprite:findChild(item, 'listItemBg')
+    Sprite:setRect(listItemBg, 0, 0, 480, 70)
+    if index % 2 > 0 then
+        Sprite:setProperty(listItemBg, 'visible', 0)
+    else
+        Sprite:setProperty(listItemBg, 'src', 'file://image/item_bg_m.png')
+    end
+    -- 取得对应列表项的数据
+    local itemValue = respValue[index]
+    if itemValue == nil then
+        Log:write('列表项数据为空',index)
+        return
+    end
+    local stationNameText = itemValue.danger
+    local stationIdText = itemValue.id
+
+    local stationName = Sprite:findChild(item, 'stationName')
+    local stationId = Sprite:findChild(item, 'stationId')
+    -- 显示站点名称
+    Sprite:setProperty(stationName, "text", stationNameText)
+    Sprite:setProperty(stationId, "text", stationIdText)
+end
+
+function itemOnSelect(sprite)
+    Log:write("列表单击事件")
+    -- 获取当前选中站点的ID号
+    local stationId = Sprite:findChild(sprite, "stationId")
+    local stationName = Sprite:findChild(sprite, "stationName")
+    
+    local stationIdText = Sprite:getText(stationId)
+    local stationNameText = Sprite:getText(stationName)
+    Log:write('itemOnSelect(): stationId, stationName', stationIdText, stationNameText)
+    Config:set('dangerName',stationNameText)
+    Config:set('dangerId',stationIdText)
+    doBack()
+end
+
+---------------------------------------与服务端交互函数列表---------------------------
+function addmore()
+    -- 构造请求参数
+    local param = string.format('cmd=wlbdangerdescription&usercode=%s&major=%s&level=%s', 
+        Config:get('username'),major,level)
+    local requestURL = getUrl()..'nbspweb/webservice/accident!doWebservice.action'  
+    Log:write("requestURL: ", requestURL)
+    Http:request('stationList', requestURL, 1001, {useCache=false,method='post',postData=param})
+    Loading:show()
+end
+
+]]>
+</root>
