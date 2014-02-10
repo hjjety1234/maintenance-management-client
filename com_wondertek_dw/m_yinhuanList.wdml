@@ -116,19 +116,18 @@ function bodyBuildChildrenFinished(sprite)
     curpage=Sprite:findChild(rootSprite, 'curpage')
     morebtn=Sprite:findChild(rootSprite, 'morebtn')
     Config:set('curYinHuanListTab', '1')
-    initList()
-    if Config:get('curYinHuanListTab') == '1' then
-        tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
-    else
-        tabOnSelect(Sprite:findChild(rootSprite, 'btnTab2'))
-    end
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_yinhuanList, 'MODULE:\\(.*)'), "已传隐患")
-
+        initList()
+        if Config:get('curYinHuanListTab') == '1' then
+            tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
+        else
+            tabOnSelect(Sprite:findChild(rootSprite, 'btnTab2'))
+        end
     elseif msg == MSG_DEACTIVATE then
         UmsAgent:OnDeactivate()
     end
@@ -177,14 +176,20 @@ end
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-        Scene:back()
+        doBack()
         return 1
     end
 end
 
 ---------------------------------------util functions---------------------------
 function doBack()
-    Scene:back()
+    --防止跳回隐患详情的bug
+    local xlFlag = Config:get("xlFlag")
+    if xlFlag == '1' then
+        Scene:go(Alias.home_xianlu)--线路巡检
+    else
+        Scene:go(Alias.home_new)
+    end 
 end
 
 function addOnSelect(sprite)

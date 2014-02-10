@@ -388,6 +388,7 @@ function loadListItem(list, item, index)
     local dangerCount = Sprite:findChild(item,'dangerCount')            -- 上报隐患数
     local dealDangerRatio = Sprite:findChild(item,'dealDangerRatio')    -- 解决率
     local detailBtn = Sprite:findChild(item,'detailBtn')  
+    Log:write('g_type：',g_type,index)
     --判断如果是地市纬度，则开启可点击查看
     if g_type == 0 then
         local regionid = g_respValue[index].regionid
@@ -395,12 +396,12 @@ function loadListItem(list, item, index)
         local regTag = string.sub(regionid, 5)
         Log:write('regionid=='..regTag)
 
-    if string.sub(g_regionid,5) == '00' or g_regionid ==''then
-        Sprite:setProperty(dimBtn,'enable', 'true')
-        --companyOn()
-    else 
-        Sprite:setProperty(dimBtn,'enable', 'false')
-    end
+        if string.sub(g_regionid,5) == '00' or g_regionid ==''then
+            Sprite:setProperty(dimBtn,'enable', 'true')
+            --companyOn()
+        else 
+            Sprite:setProperty(dimBtn,'enable', 'false')
+        end
 
     elseif g_type == 1 then
         Sprite:setProperty(dimBtn,'data', g_respValue[index].orgid)

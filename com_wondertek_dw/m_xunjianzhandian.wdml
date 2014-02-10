@@ -468,7 +468,9 @@ function loadListItem(list, item, index)
     -- 将当前的index写入到item的data数据中
     Log:write('写入的index',index)
     local btnname = Sprite:findChild(item,'btnname')
+    local openDownloadBtn1 = Sprite:findChild(item,'openDownloadBtn1')
     Sprite:setProperty(btnname, 'data', index)
+    Sprite:setProperty(openDownloadBtn1, 'data', index)
 
     -- 设置列表项的大小的背景色
     Sprite:setRect(item, 0, 0, 480, 70)
@@ -828,7 +830,7 @@ end
 function doOpenDownload(sprite)
     local appId = 'cn.com.gxlu'
     local app = AppManager:getInfoById(appId)
-    local index = tonumber(Sprite:getData(Sprite:getParent(sprite)))
+    local index = tonumber(Sprite:getData(sprite))
     if(app == '' or app == nil) then
         --启动浏览器下载
         Util:openURL('http://120.209.204.229:9001/soft/AndreoGis.apk') 

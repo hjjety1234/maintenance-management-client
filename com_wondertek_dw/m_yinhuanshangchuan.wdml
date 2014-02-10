@@ -368,13 +368,12 @@ function bodyOnSpriteEvent(msg, param)
         local regStation,result = Reg:create('station_data')
         local stationIdText = Reg:getString(regStation, "stationIdText")
         local stationNameText = Reg:getString(regStation, "stationNameText")
-        judgflag = Reg:getString(regStation, "judgflag")
-        if result ~= false and stationIdText ~= nil and stationNameText ~= nil then
+        judgflag = Config:get('dangerjudgflag')
+        if judgflag == '1' then
             Log:write("站点搜索有数据传递")
             zhandianValue = stationIdText
             local zhandianBtn =Sprite:findChild(rootSprite,'zhandianBtn')
-            Sprite:setProperty(Sprite:findChild(zhandianBtn, "name"), 'text', stationNameText)
-            Reg:release("station_data")       
+            Sprite:setProperty(Sprite:findChild(zhandianBtn, "name"), 'text', stationNameText)            Reg:release("station_data")       
         end   
 
     elseif msg == MSG_DEACTIVATE then
@@ -1104,7 +1103,7 @@ function doLoadSave(pYinhuanID)
     Sprite:setProperty(Sprite:findChild(zhuanyeBtn, "name"), 'text', datas[2])
     Sprite:setProperty(Sprite:findChild(typeBtn, "name"), 'text', datas[3])
     Sprite:setProperty(Sprite:findChild(levelBtn, "name"), 'text', datas[4])
-     Sprite:setProperty(Sprite:findChild(zhandianBtn, "name"), 'text', datas[15])
+    Sprite:setProperty(Sprite:findChild(zhandianBtn, "name"), 'text', datas[15])
     Sprite:setProperty(Sprite:findChild(rootSprite, "yinhuanName"), 'text', datas[7])
     zhandianValue =datas[16]
     zhuanyeValue = datas[8]
