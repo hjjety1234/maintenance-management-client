@@ -231,7 +231,7 @@
                     </panoramaitem>
             </panorama>
             </node>
-            <!-- 考核信息列表项模板 -->
+            <!-- 巡检信息列表项模板 -->
             <node name="listItem1" rect="0,400,480,80" border="false"
                 visible="false" enable="false" active="false" extendstyle="1111">
                 <image name="listItem_bg" rect="31,0,418,38" src=""
@@ -305,8 +305,16 @@ local averageValue          -- 进度值
 ---------------------------------------回调函数列表--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
---获取角色编号
+    rootSprite = sprite
+    --获取角色编号，如果是代维单位人隐藏按公司统计
     local role = Config:get('role')
+    local companyBtn = Sprite:findChild(rootSprite,'companyBtn') 
+    if role=='MM012' or role=='MM013' or role=='MM014'or role=='MM015'or role=='MM016'or role=='MM017'or role=='MM018' then    
+       setAllShoworHide(companyBtn,0)
+    else
+       setAllShoworHide(companyBtn,1)
+    end
+
     regionid = Config:get('regionid')
     if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
         g_regionid = regionid
@@ -315,7 +323,6 @@ function bodyBuildChildrenFinished(sprite)
         regionid = ''
     end
     Log:write('角色和区域',role,g_regionid)
-    rootSprite = sprite
     quarterNode = Sprite:findChild(rootSprite,'quarterNode')
     monthNode = Sprite:findChild(rootSprite,'monthNode')
     setAllShoworHide(quarterNode,1)
@@ -1079,9 +1086,9 @@ function cityItemBtnOnselect(sprite)
     g_regionid = regionid
     local regionText = Sprite:getText(dimName)
     if string.sub(g_regionid,5) ~= '00' and g_regionid ~=''  then
-        companyOn(companyBtn)
-        Sprite:setProperty(dimension, 'text', regionText)
-        Sprite:setProperty(mainTitle, 'text', '巡检完成情况('..regionText..')')
+        -- companyOn(companyBtn)
+        -- Sprite:setProperty(dimension, 'text', regionText)
+        -- Sprite:setProperty(mainTitle, 'text', '巡检完成情况('..regionText..')')
     else
         Sprite:setProperty(dimension, 'text', regionText)
         Sprite:setProperty(mainTitle, 'text', '巡检完成情况('..regionText..')')
@@ -1099,9 +1106,9 @@ function newCityBtnOnselect(sprite)
     local regionText = Sprite:getText(newCity)
     g_regionid = regionid
      if string.sub(g_regionid,5) ~= '00' and g_regionid ~=''  then
-       companyOn(companyBtn)
-       Sprite:setProperty(dimension, 'text', regionText)
-       Sprite:setProperty(mainTitle, 'text', '巡检完成情况('..regionText..')')
+       -- companyOn(companyBtn)
+       -- Sprite:setProperty(dimension, 'text', regionText)
+       -- Sprite:setProperty(mainTitle, 'text', '巡检完成情况('..regionText..')')
     else
        Sprite:setProperty(dimension, 'text', regionText)
        Sprite:setProperty(mainTitle, 'text', '巡检完成情况('..regionText..')')

@@ -1,0 +1,936 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ == ============================================================================
+ == | WonderTek [ 网络无处不在，沟通及时到达 ]
+ == ============================================================================
+ == | Copyright (c) 2012, WonderTek, Inc. All Rights Reserved.
+ == ============================================================================
+ == | Author: xxxx <xxxx@xxxx.com>
+ == ============================================================================
+ == | Desc: 页面描述
+ == ============================================================================
+-->
+<root>
+    <header/>
+    <body resolution="480,800" BuildChildrenFinished="bodyBuildChildrenFinished" OnSpriteEvent="bodyOnSpriteEvent" OnPluginEvent="bodyOnPluginEvent">
+        <node name="mainNode" rect="0,0,480,800" enable="true" active="true" OnKeyUp="mainNodeOnKeyUp" layouttype="1" extendstyle="1111">
+            <!-- 设置标题 -->
+            <node name="baseSprite" rect="0,0,480,160" extendstyle="1111">
+                    <image rect="0,0,480,800" src="file://image/backgroundImg.png" style="autosize"
+                       extendstyle="1111" />
+                <node rect="0,0,480,66" name="NodeTitle" extendstyle="1111">
+                    <image name="titleBg" rect="0,0,480,66" src="file://image/title_bg_new.png"
+                        extendstyle="1111" style="autosize" />
+
+                    <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
+                        OnSelect="doBack" extendstyle="1111">
+                        <image name="normal" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
+                             extendstyle="1111" />
+                        <image name="sel" rect="15,8,75,75" src="file://image/skin/ic_home_new.png"
+                             extendstyle="1111" />
+                    </button>  
+                    <scrolltext name="mainTitle" rect="105,5,280,40" text="按次费用统计" font-family='微软雅黑'
+                        extendstyle="1111" font-size="36" h-align="center" v-align="center"
+                        color="#ffffff" scroll="true"  step="2" />
+                </node>
+            </node>
+
+            <!-- 统计标签 -->
+            <node name="baseSprite" rect="0,66,480,49" extendstyle="1111">
+                <image  rect="0,0,480,49" src="file://image/city_tab.png"
+                         extendstyle="1111" style='autosize'/>
+                <!--按地市-->
+                <button name="cityBtn" rect="0,0,240,66" 
+                    OnSelect="cityOn" extendstyle="1111" data='city'>
+                    <image name='cityImg1' rect="0,0,240,49" src="file://image/city_on.png"
+                         extendstyle="1111" style='autosize'/>
+                    <label name="cityTxt1" rect="0,0,240,49" text="市公司" font-family='微软雅黑'
+                        extendstyle="1111" font-size="28" h-align="center" v-align="center"
+                        color="#0062ab" />
+                </button> 
+                <!--按专业-->
+                <button name="majorBtn" rect="240,0,240,66" 
+                    OnSelect="majorOn" extendstyle="1111" data='major' >
+                    <image name='cityImg3' rect="0,0,240,49" src="" 
+                         extendstyle="1111" style='autosize'/>
+                    <label name="cityTxt3" rect="0,0,240,49" text="专业" font-family='微软雅黑'
+                        extendstyle="1111" font-size="28" h-align="center" v-align="center"
+                        color="#5a5a5a" />
+                </button>
+             </node> 
+            <!-- 主体可滑动部分  -->
+
+            <panorama name="panorama" rect="0,135,480,750" foreground="" alpha="255">
+                <panoramaitem name="item1" rect="0,0,480,750" 
+                    extendstyle="1111" data="01">
+                    <image rect="10,0,460,12" src="file://image/content_top.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="10,12,460,650" src="file://image/content_center.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="10,652,460,12" src="file://image/content_bottom.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="420,25,11,11" src="file://image/box_on.png"
+                            style="autosize" extendstyle="1111" />
+                    <image rect="440,25,11,11" src="file://image/box.png"
+                            style="autosize" extendstyle="1111" /> 
+                    <shadow rect="15,75,450,2" color="#0" extendstyle="1111" border="false"></shadow>
+                    <button name="dangyue" rect="290,23,56,35" 
+                        OnSelect="dangyueOnSelect" extendstyle="1111"  data='0'>
+                        <image name='dangyueimg' rect="0,0,56,35" src="file://image/major_on.png" 
+                             extendstyle="1111" style='autosize'/>
+                        <label name='dangyuelabel' rect="0,0,56,30" text="月" font-family='微软雅黑'
+                            extendstyle="1111" font-size="24" h-align="center" v-align="center"
+                            color="#ffffff" />
+                    </button>
+                    <button name="dangjidu" rect="347,23,56,35" 
+                        OnSelect="dangjiduOnSelect" extendstyle="1111"  data='0'>
+                        <image name='dangjiduimg' rect="0,0,56,35" src="file://image/major.png" 
+                             extendstyle="1111" style='autosize'/>
+                        <label name='jiduselectName' rect="0,0,56,30" text="季" font-family='微软雅黑'
+                            extendstyle="1111" font-size="24" h-align="center" v-align="center"
+                            color="#ffffff" />
+                    </button>
+                    <button name="dangnian" rect="404,23,56,35" 
+                        OnSelect="dangnianOnSelect" extendstyle="1111"  data='0'>
+                        <image name='dangnianimg' rect="0,0,56,35" src="file://image/major.png" 
+                             extendstyle="1111" style='autosize'/>
+                        <label name='dangnianlabel' rect="0,0,56,30" text="年" font-family='微软雅黑'
+                            extendstyle="1111" font-size="24" h-align="center" v-align="center"
+                            color="#ffffff" />
+                    </button>
+                    <node name="time" rect="0,23,380,35" extendstyle="1111">
+    		            <button name="zuodianji" rect="20,0,40,35" OnSelect="zuodianjiOnSelect" style="autosize" extendstyle="1111" >
+                            <image name="normal" rect="0,0,40,35" src="file://image/t5.png" style="autosize" extendstyle="0010"/>                  
+                        </button>
+			            <button name="youdianji" rect="202,0,40,35" OnSelect="youdianjiOnSelect" style="autosize" extendstyle="1111">
+                            <image name="normal" rect="0,0,40,35" src="file://image/t6.png" style="autosize" extendstyle="0010"/>                  
+                        </button>
+                        <image name='rightImg' rect="61,0,140,35" src="file://image/t7.png" extendstyle="1111" style='autosize'/>
+                        <label name="nianlabel1" rect="60,0,50,35" text="2012" font-family="微软雅黑" font-size="22" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010" /> 
+                        <label name="zhi" rect="110,0,25,35" text="年" font-family="微软雅黑" font-size="22" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010"/> 
+                        <label name="yuelabel1" rect="145,0,30,35" text="2" font-family="微软雅黑" font-size="22" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010" /> 
+                         <label name="yueLab" rect="170,0,25,35" text="月" font-family="微软雅黑" font-size="22" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010"/> 
+                        <label name="nian" rect="115,0,20,35" text="年" font-family="微软雅黑" font-size="22" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010" visible="false"/> 
+                        <label name="jidulabel1" rect="135,0,20,35" text="1" font-family="微软雅黑" font-size="22" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010" visible="false"/> 
+                        <label name="jidu" rect="155,0,45,35" text="季度" font-family="微软雅黑" font-size="22" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010" visible="false"/> 
+                        
+                        <label name="rilabel1" rect="185,0,25,31" text="23" font-family="微软雅黑" font-size="22" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010" visible="false"/> 
+                        <label  rect="130,0,15,35" text="至" font-family="微软雅黑" font-size="22" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010"  visible="false"/> 
+                        <label name="nianlabel2" rect="145,0,40,35" text="2013" font-family="微软雅黑" font-size="22" h-align="center" v-align="center" color="#ffffff" style="autosize" visible="false" extendstyle="0010" /> 
+                        <label rect="185,0,5,35" text="-" font-family="微软雅黑" font-size="22" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010" visible="false"/> 
+                        <label name="yuelabel2" rect="190,0,15,35" text="3" font-family="微软雅黑" font-size="22" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010" visible="false"/> 
+                        <label name="rilabel2" rect="350,0,25,31" text="21" font-family="微软雅黑" font-size="22" h-align="center" v-align="center" color="#ffffff" style="autosize" extendstyle="0010" visible="false"/> 
+                    </node>
+                    <node name="listNode1" rect="0,110,480,500" extendstyle="1111">
+                        <listview name="sampleList" rect="0,45,480,505" extendstyle="1111" auto-scroll='true' limit='true' />
+                        <image name="listButtonImage" rect="31,9,418,38" src="file://image/ziyuan_bg.png"
+                            extendstyle="1111" style='autosize' >
+                            <label name='dimension' rect="17,5,140,25" text="区域" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                            <label name='dimension1'rect="135,5,120,25" text="工单次数" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                            <label name='dimension2' rect="282,5,120,25" text="金额(万元)" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="22" h-align="left" v-align="center"
+                                    color="#e33a10" />
+                        </image>
+                         <button name="dwseqBtn" rect="133,15,170,30" normal="normal" sel="sel"
+                             OnSelect="dwSeqOnSelect" extendstyle="1111"  data="0" >
+                              <image name="triangledw" rect="130,7,20,12" src="file://image/triangle_down.png"
+                             style="autosize"  extendstyle="1111" />
+                        </button>
+                        <button name="kfseqBtn" rect="310,15,140,30" normal="normal" sel="sel"
+                             OnSelect="kfSeqOnSelect" extendstyle="1111"  data="0">
+                              <image name="trianglekf" rect="110,7,20,12" src="file://image/triangle_down.png"
+                             style="autosize"  extendstyle="1111" />
+                        </button>
+                    </node>
+             
+                    <!-- 列表项(按地市)  -->
+                    <node name="listItem" rect="0,0,480,80" border="false"
+                        visible="false" enable="false" active="false" extendstyle="1111">
+                            <image name="listItem_bg" rect="31,0,418,38" src=""
+                            extendstyle="1111" style='autosize' />
+
+                            <button name="dimBtn" rect="50,0,130,30" OnSelect="cityItemBtnOnselect" enable='false'
+                                extendstyle="1111" data='' >
+                                <scrolltext  name='dimName' rect="0,5,130,25" text="" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="left" v-align="center"
+                                    color="#5a5a5a" step="2" scroll="true"/>
+                            </button>
+                            <image name="KFPic" rect="384,12,16,15" src="" style="autosize"  extendstyle="1111"/>
+                            <label name='costName' rect="155,6,90,25" text="100" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                            <label name='deductedName' rect="310,6,90,25" text="100" font-family='微软雅黑'
+                                    extendstyle="1111" font-size="20" h-align="center" v-align="center"
+                                    color="#5a5a5a" />
+                    </node>
+                    
+                </panoramaitem>
+            </panorama>
+        </node>
+    </body>
+    <![CDATA[
+
+require 'com_wondertek_dw.common.framework'
+require 'framework.umsagent'
+require('framework.common')
+local rootSprite
+local companyBtn,cityBtn --统计标签节点
+local yueBtn,jiduBtn,nianBtn --统计标签节点
+local rilabel1
+local rilabel2
+local yuelabel1
+local yuelabel2
+local nianlabel1
+local nianlabel2
+local majorData='' --专业编号
+
+local city_data --jeason数据
+local listView1
+local max
+local sec
+local third
+local KFNum
+local zhi
+local jidulabel1
+local nian
+local jidu
+local yueLab
+local g_dimension = 'city' ----初始市公司维度
+local g_regionid = '' ----当前查询的区域编号，空为全省
+local g_regionname = '区域'  --区域名称
+local regionid
+local date_flag                
+---------------------------------------callbacks--------------------------------
+-- @brief root子节点创建完事件
+function bodyBuildChildrenFinished(sprite)
+    rootSprite = sprite
+    --获取角色编号
+    local role = Config:get('role')
+    regionid = Config:get('regionid')
+    Log:write('角色和区域+',role,regionid)
+    if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
+        g_regionid = regionid
+    else
+        g_regionid = ''
+        regionid = ''
+    end
+    Log:write('角色和区域-',role,g_regionid)
+    --设置标签节点
+    companyBtn = Sprite:findChild(rootSprite,'companyBtn')
+    cityBtn    = Sprite:findChild(rootSprite,'cityBtn')
+    rilabel1 = Sprite:findChild(rootSprite,"rilabel1")
+    rilabel2 = Sprite:findChild(rootSprite,"rilabel2")
+    yuelabel1 = Sprite:findChild(rootSprite,"yuelabel1")
+    yuelabel2 = Sprite:findChild(rootSprite,"yuelabel2")
+    nianlabel1 = Sprite:findChild(rootSprite,"nianlabel1")
+    nianlabel2 = Sprite:findChild(rootSprite,"nianlabel2")
+    zhi = Sprite:findChild(rootSprite,"zhi")
+    jidulabel1=Sprite:findChild(rootSprite,"jidulabel1")
+    nian = Sprite:findChild(rootSprite,"nian")
+    jidu = Sprite:findChild(rootSprite,"jidu")
+    yueLab = Sprite:findChild(rootSprite,"yueLab")
+    Loading:show(rootSprite)
+
+end
+
+-- @brief root节点消息方法
+function bodyOnSpriteEvent(msg, param)
+    if msg == MSG_ACTIVATE then -- 页面激活
+        UmsAgent:OnActivate(string.match(Alias.m_cost, 'MODULE:\\(.*)'), "费用统计")
+        UmsAgent:onLoadStart()
+        local dangjidu=Sprite:findChild(rootSprite,"dangjidu")
+        dangjiduOnSelect(dangjidu)
+    elseif msg == MSG_DEACTIVATE then
+        UmsAgent:OnDeactivate()
+    end
+end
+
+-- @brief 插件消息方法
+function bodyOnPluginEvent(msg)
+    if msg == 101 then
+        UmsAgent:onLoadFinish() 
+        if Loading:isShow() then Loading:close() end
+        local listView = Sprite:findChild(rootSprite, 'sampleList')
+        city_data = Http:jsonDecode('city_data')
+        if  city_data.total == '0' or city_data == nil  or city_data.value == nil then 
+            ListView:removeAllItems(listView,1,1)
+            ListView:adjust(listView)
+            Dialog:show('', '暂无费用数据!', 'ok')
+            return
+        end
+     
+        local len = getJsonArrayCount(city_data.value)
+        g_sum = city_data.value[len - 1]
+        --Log:write('g_sum++++',g_sum)
+        city_data.value[len - 1] = nil
+        city_data.value = sortTable(city_data.value, 'cost', true)
+        --Log:write('g_sum++++',city_data.value)
+        ListView:removeAllItems(listView,1,1)
+        -- 加载列表项
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len-1, 'loadListItem')
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')
+        ListView:adjust(listView)
+        Loading:close()
+        --[[city_data.value1 = sortTable(city_data.value, 'cost', true)
+        Log:write("===++++city_data++++=====", city_data.value1)
+        max=city_data.value1[0].cost
+        sec=city_data.value1[1].cost
+        third=city_data.value1[2].cost
+        Log:write("===maxmaxmax++++=====",max)
+        Log:write("===secsecsec++++=====",sec)
+        Log:write("=== third third third++++=====", third)--]]
+    elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
+    elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
+        Log:write('拨号失败')
+    elseif msg > MSG_NETWORK_ERROR then -- 请求超时
+        Log:write('请求超时')
+    end
+end
+
+-- @brief 按键响应处理
+function mainNodeOnKeyUp(sprite, kc)
+    if kc == Key.F2 then -- 按下返回键
+        Scene:back()
+        return 1
+    end
+end
+
+-- 返回上一个页面
+function doBack()
+    Scene:back()
+end
+---------------------------------------util functions---------------------------
+-------点击按地市统计标签
+function cityOn(sprite)
+    local dimension = Sprite:findChild(rootSprite,'dimension')
+    Sprite:setProperty(dimension,'text','区域')
+    g_dimension = Sprite:getData(sprite)
+    local cityImg1 = Sprite:findChild(rootSprite,'cityImg1')
+    local cityImg2 = Sprite:findChild(rootSprite,'cityImg2')
+    local cityImg3 = Sprite:findChild(rootSprite,'cityImg3')
+    local cityTxt1 = Sprite:findChild(rootSprite,'cityTxt1')
+    local cityTxt2= Sprite:findChild(rootSprite,'cityTxt2')
+    local cityTxt3 = Sprite:findChild(rootSprite,'cityTxt3')
+    Sprite:setProperty(cityImg1,'src','file://image/city_on.png')
+    Sprite:setProperty(cityImg2,'src','file://image/city_tab.png')
+    Sprite:setProperty(cityImg3,'src','file://image/city_tab.png')
+    Sprite:setProperty(cityTxt1,'color','#0062ab')
+    Sprite:setProperty(cityTxt2,'color','#5a5a5a')
+    Sprite:setProperty(cityTxt3,'color','#5a5a5a')
+    ---一些参数初始化
+    g_regionid = regionid
+    g_regionname = '区域'
+    local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+    Sprite:setProperty(mainTitle, 'text', '按次费用统计')
+    Loading:show(rootSprite)
+    request()
+end
+-------点击按专业统计标签
+function majorOn(sprite)
+    local dimension = Sprite:findChild(rootSprite,'dimension')
+    Sprite:setProperty(dimension,'text','专业')
+    g_dimension = Sprite:getData(sprite)
+    local cityImg1 = Sprite:findChild(rootSprite,'cityImg1')
+    local cityImg2 = Sprite:findChild(rootSprite,'cityImg2')
+    local cityImg3 = Sprite:findChild(rootSprite,'cityImg3')
+    local cityTxt1 = Sprite:findChild(rootSprite,'cityTxt1')
+    local cityTxt2= Sprite:findChild(rootSprite,'cityTxt2')
+    local cityTxt3 = Sprite:findChild(rootSprite,'cityTxt3')
+    Sprite:setProperty(cityImg1,'src','file://image/city_tab.png')
+    Sprite:setProperty(cityImg2,'src','file://image/city_tab.png')
+    Sprite:setProperty(cityImg3,'src','file://image/city_on.png')
+    Sprite:setProperty(cityTxt1,'color','#5a5a5a')
+    Sprite:setProperty(cityTxt2,'color','#5a5a5a')
+    Sprite:setProperty(cityTxt3,'color','#0062ab')
+    Loading:show(rootSprite)
+    request()
+end
+--当月显示
+function dangyueOnSelect(sprite)
+    date_flag = '0'
+    Sprite:setVisible(nian,0)
+    Sprite:setVisible(jidu,0)
+    Sprite:setVisible(jidulabel1,0)
+    Sprite:setVisible(zhi,1)   
+    Sprite:setVisible(yuelabel1,1)
+    Sprite:setRect(nianlabel1, 80, 0, 50, 35)    
+    Sprite:setRect(zhi, 130, 0, 30, 35) 
+    Sprite:setVisible(yueLab,1)  
+   local data = Sprite:getData(sprite);
+   if (data == "0") then
+      local dangyueimg = Sprite:findChild(sprite,"dangyueimg")
+      Sprite:setProperty(dangyueimg,"src","file://image/major_on.png")
+      local dangyuelabel = Sprite:findChild(sprite,"dangyuelabel")
+      Sprite:setProperty(dangyuelabel,"color","#ffffff")
+      Sprite:setProperty(sprite,"data","1")
+      local dangjidu = Sprite:findChild(rootSprite,"dangjidu")
+      local dangjiduimg = Sprite:findChild(dangjidu,"dangjiduimg")
+      Sprite:setProperty(dangjiduimg,"src","file://image/major.png")
+      local dangjidulabel = Sprite:findChild(dangjidu,"dangjidulabel")
+      Sprite:setProperty(dangjidulabel,"color","#ffffff") 
+      Sprite:setProperty(dangjidu,"data","0")
+      local dangnian = Sprite:findChild(rootSprite,"dangnian")
+      local dangnianimg = Sprite:findChild(dangnian,"dangnianimg")
+      Sprite:setProperty(dangnianimg,"src","file://image/major.png")
+      local dangnianlabel = Sprite:findChild(dangnian,"dangnianlabel")
+      Sprite:setProperty(dangnianlabel,"color","#ffffff") 
+      Sprite:setProperty(dangnian,"data","0")         
+      ---比往前退一个月，若为0，则退一年
+      Sprite:setProperty(yuelabel1,"text",(os.date("*t",os.time()+86400)["month"])-1)
+      Sprite:setProperty(yuelabel2,"text",(os.date("*t",os.time()+86400)["month"])-1) 
+           
+      Sprite:setProperty(rilabel1,"text","1")
+      local yue = Sprite:getText(yuelabel1)
+    
+      if yue == '0' then 
+            yue = '12'
+            Sprite:setProperty(yuelabel1,"text",'12')
+            Sprite:setProperty(yuelabel2,"text",'12')
+            Sprite:setProperty(nianlabel1,"text",(os.date("*t",os.time()+86400)["year"])-1)
+            Sprite:setProperty(nianlabel2,"text",(os.date("*t",os.time()+86400)["year"])-1)
+
+      else 
+            Sprite:setProperty(nianlabel1,"text",os.date("*t",os.time()+86400)["year"])
+            Sprite:setProperty(nianlabel2,"text",os.date("*t",os.time()+86400)["year"]) 
+      end  
+      if(yue=="1" or yue=="3" or yue=="5" or yue=="7" or yue=="8" or yue=="10" or yue=="12") then
+          Sprite:setProperty(rilabel2,"text","31")
+      elseif (yue=="4" or yue=="6" or yue=="9" or yue=="11") then
+          Sprite:setProperty(rilabel2,"text","30")
+      elseif yue=="2" then
+          local nian = tonumber(Sprite:getText(nianlabel1))
+          if nian % 400 == 0 or (nian % 4 == 0 and nian % 100 ~=0 ) then
+              Sprite:setProperty(rilabel2,"text","29")
+          else
+              Sprite:setProperty(rilabel2,"text","28")
+          end
+      end
+      Loading:show(rootSprite)
+      request()
+   end
+end
+--当季度显示    
+function dangjiduOnSelect(sprite)
+   date_flag = '0'
+   local data = Sprite:getData(sprite);
+   Sprite:setRect(nianlabel1, 60, 0, 50, 35)
+   Sprite:setVisible(yueLab,0) 
+   Sprite:setVisible(jidulabel1,1)
+   if (data == "0") then
+      local dangjiduimg = Sprite:findChild(sprite,"dangjiduimg")
+      Sprite:setProperty(dangjiduimg,"src","file://image/major_on.png")
+      local dangjidulabel = Sprite:findChild(sprite,"dangjidulabel")
+      Sprite:setProperty(dangjidulabel,"color","#ffffff")
+      Sprite:setProperty(sprite,"data","1")
+      local dangyue = Sprite:findChild(rootSprite,"dangyue")
+      local dangyueimg = Sprite:findChild(dangyue,"dangyueimg")
+      Sprite:setProperty(dangyueimg,"src","file://image/major.png")
+      local dangyuelabel = Sprite:findChild(dangyue,"dangyuelabel")
+      Sprite:setProperty(dangyuelabel,"color","#ffffff") 
+      Sprite:setProperty(dangyue,"data","0")
+      local dangnian = Sprite:findChild(rootSprite,"dangnian")
+      local dangnianimg = Sprite:findChild(dangnian,"dangnianimg")
+      Sprite:setProperty(dangnianimg,"src","file://image/major.png")
+      local dangnianlabel = Sprite:findChild(dangnian,"dangnianlabel")
+      Sprite:setProperty(dangnianlabel,"color","#ffffff") 
+      Sprite:setProperty(dangnian,"data","0")         
+      Sprite:setProperty(nianlabel1,"text",os.date("*t",os.time()+86400)["year"])
+      Sprite:setProperty(nianlabel2,"text",os.date("*t",os.time()+86400)["year"])
+      local yue = tostring(os.date("*t",os.time()+86400)["month"])          
+      if (yue=="1" or yue=="2" or yue=="3") then
+          Sprite:setProperty(yuelabel1,"text","1")
+          Sprite:setProperty(rilabel1,"text","1")
+          Sprite:setProperty(yuelabel2,"text","3")
+          Sprite:setProperty(rilabel2,"text","31")
+          Sprite:setVisible(nian,1)
+          Sprite:setVisible(jidu,1)
+          Sprite:setProperty(jidulabel1,"text","1")
+          Sprite:setVisible(zhi,0)
+          Sprite:setVisible(yuelabel1,0)
+      elseif (yue=="4" or yue=="5" or yue=="6") then
+          Sprite:setProperty(yuelabel1,"text","4")
+          Sprite:setProperty(rilabel1,"text","1")
+          Sprite:setProperty(yuelabel2,"text","6")
+          Sprite:setProperty(rilabel2,"text","30")
+          Sprite:setVisible(nian,1)
+          Sprite:setVisible(jidu,1)
+          Sprite:setProperty(jidulabel1,"text","2")
+          Sprite:setVisible(zhi,0)
+          Sprite:setVisible(yuelabel1,0)
+      elseif (yue=="7" or yue=="8" or yue=="9") then
+          Sprite:setProperty(yuelabel1,"text","7")
+          Sprite:setProperty(rilabel1,"text","1")
+          Sprite:setProperty(yuelabel2,"text","9")
+          Sprite:setProperty(rilabel2,"text","30")
+          Sprite:setVisible(nian,1)
+          Sprite:setVisible(jidu,1)
+          Sprite:setProperty(jidulabel1,"text","3")
+          Sprite:setVisible(zhi,0)
+          Sprite:setVisible(yuelabel1,0)
+      elseif (yue=="10" or yue=="11" or yue=="12") then
+          Sprite:setProperty(yuelabel1,"text","10")
+          Sprite:setProperty(rilabel1,"text","1")
+          Sprite:setProperty(yuelabel2,"text","12")
+          Sprite:setProperty(rilabel2,"text","31")
+          Sprite:setVisible(nian,1)
+          Sprite:setVisible(jidu,1)
+          Sprite:setProperty(jidulabel1,"text","4")
+          Sprite:setVisible(zhi,0)
+          Sprite:setVisible(yuelabel1,0)
+      end
+      Loading:show(rootSprite)
+      request()       
+   end
+end
+    
+function dangnianOnSelect(sprite)
+    date_flag = '2'
+    Sprite:setVisible(nian,0)
+    Sprite:setVisible(jidu,0)
+    Sprite:setVisible(jidulabel1,0)
+    Sprite:setVisible(yuelabel1,0)
+    Sprite:setVisible(zhi,1)
+      Sprite:setVisible(yueLab,0) 
+    Sprite:setRect(nianlabel1, 80, 0, 60, 35)
+    Sprite:setRect(zhi, 140, 0, 30, 35)
+   local data = Sprite:getData(sprite);
+   if (data == "0") then
+      local dangnianimg = Sprite:findChild(sprite,"dangnianimg")
+      Sprite:setProperty(dangnianimg,"src","file://image/major_on.png")
+      local dangnianlabel = Sprite:findChild(sprite,"dangnianlabel")
+      Sprite:setProperty(dangnianlabel,"color","#ffffff")
+      Sprite:setProperty(sprite,"data","1")
+      local dangyue = Sprite:findChild(rootSprite,"dangyue")
+      local dangyueimg = Sprite:findChild(dangyue,"dangyueimg")
+      Sprite:setProperty(dangyueimg,"src","file://image/major.png")
+      local dangyuelabel = Sprite:findChild(dangyue,"dangyuelabel")
+      Sprite:setProperty(dangyuelabel,"color","#ffffff") 
+      Sprite:setProperty(dangyue,"data","0")
+      local dangjidu = Sprite:findChild(rootSprite,"dangjidu")
+      local dangjiduimg = Sprite:findChild(dangjidu,"dangjiduimg")
+      Sprite:setProperty(dangjiduimg,"src","file://image/major.png")
+      local dangjidulabel = Sprite:findChild(dangjidu,"dangjidulabel")
+      Sprite:setProperty(dangjidulabel,"color","#ffffff") 
+      Sprite:setProperty(dangjidu,"data","0")          
+      Sprite:setProperty(nianlabel1,"text",os.date("*t",os.time()+86400)["year"])
+      Sprite:setProperty(nianlabel2,"text",os.date("*t",os.time()+86400)["year"])         
+      Sprite:setProperty(yuelabel1,"text","1")
+      Sprite:setProperty(yuelabel2,"text","12")
+      Sprite:setProperty(rilabel1,"text","1")
+      Sprite:setProperty(rilabel2,"text","31")
+      Loading:show(rootSprite)
+      request()
+   end
+end
+    
+function zuodianjiOnSelect(sprite)
+   local dangyue = Sprite:findChild(rootSprite,"dangyue")
+   local dangyueData = Sprite:getData(dangyue)
+   local dangjidu = Sprite:findChild(rootSprite,"dangjidu")
+   local dangjiduData = Sprite:getData(dangjidu)
+   local dangnian = Sprite:findChild(rootSprite,"dangnian")
+   local dangnianData = Sprite:getData(dangnian)
+   if (dangnianData == '1') then
+       local nian = tonumber(Sprite:getText(nianlabel1))
+       nian = nian - 1
+       Sprite:setProperty(nianlabel1,"text",nian)
+       Sprite:setProperty(nianlabel2,"text",nian)
+   end
+   if (dangyueData == '1') then
+       local yue = Sprite:getText(yuelabel1)
+       if (yue == '1') then
+          local nian = tonumber(Sprite:getText(nianlabel1))
+          nian = nian - 1
+          Sprite:setProperty(nianlabel1,"text",nian)
+          Sprite:setProperty(nianlabel2,"text",nian)
+          Sprite:setProperty(yuelabel1,"text","12")
+          Sprite:setProperty(yuelabel2,"text","12")
+          Sprite:setProperty(rilabel2,"text","31")             
+       else
+          Sprite:setProperty(yuelabel1,"text",tonumber(yue)-1)
+          Sprite:setProperty(yuelabel2,"text",tonumber(yue)-1)
+          local yue3 = Sprite:getText(yuelabel2)
+          if(yue3=="1" or yue3=="3" or yue3=="5" or yue3=="7" or yue3=="8" or yue3=="10" or yue3=="12") then
+             Sprite:setProperty(rilabel2,"text","31")
+          elseif (yue3=="4" or yue3=="6" or yue3=="9" or yue3=="11") then
+             Sprite:setProperty(rilabel2,"text","30")
+          elseif yue3=="2" then
+             local nian = tonumber(Sprite:getText(nianlabel1))
+             if nian % 400 == 0 or (nian % 4 == 0 and nian % 100 ~=0 ) then
+                  Sprite:setProperty(rilabel2,"text","29")
+             else
+                  Sprite:setProperty(rilabel2,"text","28")
+             end
+          end             
+       end
+   end
+    if (dangjiduData == '1') then
+       local jidunum=Sprite:getText(jidulabel1)
+       local yue = Sprite:getText(yuelabel1)
+       local yue2 = tonumber(Sprite:getText(yuelabel2))
+       if (yue == '1') then
+          local nian = tonumber(Sprite:getText(nianlabel1))
+          nian = nian - 1
+          Sprite:setProperty(jidulabel1,"text","4")
+          Sprite:setProperty(nianlabel1,"text",nian)
+          Sprite:setProperty(nianlabel2,"text",nian)
+          Sprite:setProperty(yuelabel1,"text","10")
+          Sprite:setProperty(yuelabel2,"text","12")
+          --Sprite:setProperty(jidulabel1,"text","四季度")
+       else
+          Sprite:setProperty(jidulabel1,"text",tonumber(jidunum)-1)
+          Sprite:setProperty(yuelabel1,"text",tonumber(yue)-3)
+          Sprite:setProperty(yuelabel2,"text",yue2-3)
+          local yue3 = Sprite:getText(yuelabel2)
+          if( yue3=='6' or  yue3=='9' ) then
+              Sprite:setProperty(rilabel2,"text",'30')
+          elseif ( yue3=='3' or  yue3=='12' ) then
+              Sprite:setProperty(rilabel2,"text",'31')
+          end                   
+       end
+    end
+    
+     Loading:show(rootSprite)
+    request()
+end
+    
+function youdianjiOnSelect(sprite)
+   local dangyue = Sprite:findChild(rootSprite,"dangyue")
+   local dangyueData = Sprite:getData(dangyue)
+   local dangjidu = Sprite:findChild(rootSprite,"dangjidu")
+   local dangjiduData = Sprite:getData(dangjidu)
+   local dangnian = Sprite:findChild(rootSprite,"dangnian")
+   local dangnianData = Sprite:getData(dangnian)
+   if (dangnianData == '1') then
+       local nian = tonumber(Sprite:getText(nianlabel1))
+       nian = nian + 1
+       Sprite:setProperty(nianlabel1,"text",nian)
+       Sprite:setProperty(nianlabel2,"text",nian)
+   end
+   if (dangyueData == '1') then
+       local yue = Sprite:getText(yuelabel1)
+       if (yue == '12') then
+          local nian = tonumber(Sprite:getText(nianlabel1))
+          nian = nian + 1
+          Sprite:setProperty(nianlabel1,"text",nian)
+          Sprite:setProperty(nianlabel2,"text",nian)
+          Sprite:setProperty(yuelabel1,"text","1")
+          Sprite:setProperty(yuelabel2,"text","1")
+          Sprite:setProperty(rilabel2,"text","31")             
+       else
+          Sprite:setProperty(yuelabel1,"text",tonumber(yue)+1)
+          Sprite:setProperty(yuelabel2,"text",tonumber(yue)+1)
+          local yue3 = Sprite:getText(yuelabel2)
+          if(yue3=="1" or yue3=="3" or yue3=="5" or yue3=="7" or yue3=="8" or yue3=="10" or yue3=="12") then
+             Sprite:setProperty(rilabel2,"text","31")
+          elseif (yue3=="4" or yue3=="6" or yue3=="9" or yue3=="11") then
+             Sprite:setProperty(rilabel2,"text","30")
+          elseif yue3=="2" then
+             local nian = tonumber(Sprite:getText(nianlabel1))
+             if nian % 400 == 0 or (nian % 4 == 0 and nian % 100 ~=0 ) then
+                  Sprite:setProperty(rilabel2,"text","29")
+             else
+                  Sprite:setProperty(rilabel2,"text","28")
+             end
+          end             
+       end
+   end
+   if (dangjiduData == '1') then
+       local jidunum=Sprite:getText(jidulabel1)
+       local yue = Sprite:getText(yuelabel1)
+       local yue2 = tonumber(Sprite:getText(yuelabel2))
+       if (yue == '10') then
+          local nian = tonumber(Sprite:getText(nianlabel1))
+          nian = nian + 1
+
+          Sprite:setProperty(nianlabel1,"text",nian)
+          Sprite:setProperty(nianlabel2,"text",nian)
+          --季度
+          Sprite:setProperty(jidulabel1,"text","1")
+          Sprite:setProperty(yuelabel1,"text","1")
+          Sprite:setProperty(yuelabel2,"text","3")
+       else
+          Sprite:setProperty(jidulabel1,"text",tonumber(jidunum)+1)
+          Sprite:setProperty(yuelabel1,"text",tonumber(yue)+3)
+          Sprite:setProperty(yuelabel2,"text",yue2+3)
+          local yue3 = Sprite:getText(yuelabel2)
+          if( yue3=='6' or  yue3=='9' ) then
+              Sprite:setProperty(rilabel2,"text",'30')
+          elseif ( yue3=='3' or  yue3=='12' ) then
+              Sprite:setProperty(rilabel2,"text",'31')
+          end                   
+       end
+   end
+   Loading:show(rootSprite)
+   request()
+end 
+--获取统计数据返回地址（按地市）
+function request()
+    Log:write("request")
+    --获取起始时间
+    local startyear=Sprite:getText(nianlabel1)
+    local startmonth=Sprite:getText(yuelabel1)
+    local startday=Sprite:getText(rilabel1)
+    local endyear=Sprite:getText(nianlabel2)
+    local endmonth=Sprite:getText(yuelabel2)
+    local endday=Sprite:getText(rilabel2)
+    local starttime=startyear..'-'..startmonth..'-'..startday
+    local endtime=endyear..'-'..endmonth..'-'..endday
+    Log:write('当前时间',startyear,startmonth)
+    if date_flag ~= '2' then 
+        if tonumber(endyear)<=2013 and tonumber(endmonth)<4 then
+            Dialog:show('', '按次费用功能于2013年4月份上线，此前暂无统计数据','ok')
+        end 
+    elseif date_flag == '2' then  
+        if tonumber(endyear)<2013 then
+            Dialog:show('', '按次费用功能于2013年4月份上线，此前暂无统计数据','ok')
+        end
+    end  
+    --Log:write('starttime',starttime,endtime)
+    local param = 'cmd=wlbcitycost'..'&dimension='..g_dimension..'&starttime='..starttime..'&endtime='..endtime..'&page=1&pagesize=300&usercode='..Config:get('username')..'&regionid='..g_regionid
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Log:write('reqURL',reqURL) 
+    Http:request('city_data', reqURL, 101, {useCache = false})
+end
+
+--获取统计数据返回地址（按地市）
+function request2()
+    --获取起始时间
+    local startyear=Sprite:getText(nianlabel1)
+    local startmonth=Sprite:getText(yuelabel1)
+    local startday=Sprite:getText(rilabel1)
+    local endyear=Sprite:getText(nianlabel2)
+    local endmonth=Sprite:getText(yuelabel2)
+    local endday=Sprite:getText(rilabel2)
+    Log:write('当前时间',startyear,startmonth)
+    local starttime=startyear..'-'..startmonth..'-'..startday
+    local endtime=endyear..'-'..endmonth..'-'..endday
+    --Log:write('starttime',starttime,endtime)
+    local param = 'cmd=wlbcitycost'..'&dimension='..g_dimension..'&starttime='..starttime..'&endtime='..endtime..'&page=1&pagesize=300&usercode='..Config:get('username')..'&regionid='..g_regionid
+    local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
+    Log:write('reqURL',reqURL) 
+    Http:request('city_data', reqURL, 101, {useCache = false})
+end
+--加载按地市统计数据
+function loadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 40)
+    local listItem_bg = Sprite:findChild(item, 'listItem_bg')
+    if index % 2 > 0 then
+       Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
+    end
+    -- 读取返回的数据
+    local dimBtn = Sprite:findChild(item,'dimBtn')
+    local dimName = Sprite:findChild(item,'dimName')
+    local costName = Sprite:findChild(item,'costName')
+    local deductedName = Sprite:findChild(item,'deductedName')
+    local deductedButton = Sprite:findChild(item,'KFBtn')
+    local KFPic = Sprite:findChild(item,'KFPic')
+    Sprite:setProperty(dimName,'text',city_data.value[index].dimension)
+    Sprite:setProperty(costName,'text',city_data.value[index].order)
+    -- Log:write('1+++',string.format('%.2f',city_data.value[index].cost/10000))
+    Sprite:setProperty(deductedName,'text',tonumber(string.format('%.2f',city_data.value[index].cost/10000)))
+    Sprite:setProperty(deductedButton,'data',index)
+    --Log:write('g_dimension==='..g_dimension)
+    if g_dimension == 'city' then
+        local regionid = city_data.value[index].id
+        Sprite:setProperty(dimBtn,'data', regionid)
+        Sprite:setProperty(dimBtn,'enable', 'true')
+    else
+        local orgid = city_data.value[index].id
+        Sprite:setProperty(dimBtn,'data', orgid)
+        Sprite:setProperty(dimBtn,'enable', 'false')
+    end
+
+    -- 前三名显示笑脸，后三名显示哭脸
+    showRank1(item, index)
+end
+function addloadListItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 40)
+    local listItem_bg = Sprite:findChild(item, 'listItem_bg')
+    if index % 2 > 0 then
+       Sprite:setProperty(listItem_bg, 'src', 'file://image/ziyuan_bg.png')
+    end
+    -- 读取返回的数据
+    local dimBtn = Sprite:findChild(item,'dimBtn')
+    local dimName = Sprite:findChild(item,'dimName')
+    local costName = Sprite:findChild(item,'costName')
+    local deductedName = Sprite:findChild(item,'deductedName')
+    local deductedButton = Sprite:findChild(item,'KFBtn')
+    local KFPic = Sprite:findChild(item,'KFPic')
+    Sprite:setProperty(dimName,'text',g_sum.dimension)
+    Sprite:setProperty(costName,'text',g_sum.order)
+    Sprite:setProperty(deductedName,'text',tonumber(string.format('%.2f',g_sum.cost/10000)))
+    Sprite:setProperty(deductedButton,'data',index)
+    if g_dimension == 'city' then
+        -- local regionid = city_data.value[index].regionid
+        -- Sprite:setProperty(dimBtn,'data', regionid)
+        Sprite:setProperty(dimBtn,'enable', 'false')
+    else
+        -- local orgid = city_data.value[index].orgid
+        -- Sprite:setProperty(dimBtn,'data', orgid)
+        Sprite:setProperty(dimBtn,'enable', 'false')
+    end
+end
+-- 对前三名显示笑脸，后三名显示哭脸
+function showRank1(item, index)
+    -- 获取当前巡检率的值
+    local ratio = tonumber(string.format('%.2f',city_data.value[index].cost/10000))
+    --Log:write('city_data.value',city_data.value)
+    if ratio=='' or ratio==nil  then 
+        ratio=0
+    end 
+    --Log:write('+++++ratio',ratio)
+    --Log:write('当前费用的值',ratio)
+    -- 统计费用的排名
+    local rank = 1
+
+    for i=0,city_data.total-2 do
+        local compare = tonumber(string.format('%.2f',city_data.value[i].cost/10000))
+        if compare=='' or compare==nil  then 
+        compare=0
+        end 
+        if ratio < compare then 
+            rank =  rank + 1
+        end 
+        --Log:write('比较的值和排名',compare,rank)
+    end 
+
+    -- 获取金钱图标的Sprite
+    local KFPic = Sprite:findChild(item, 'KFPic')
+    if rank == 1 and ratio~=0   then
+        Sprite:setProperty(KFPic, 'src', 'file://image/d1.png')
+        Sprite:setRect(KFPic,384,12,20,24)
+    elseif rank == 2 and ratio~=0  then
+        Sprite:setProperty(KFPic, 'src', 'file://image/d2.png')
+        Sprite:setRect(KFPic,384,11,20,16)
+    elseif rank == 3 and ratio~=0  then
+        Sprite:setProperty(KFPic, 'src', 'file://image/d3.png')
+        Sprite:setRect(KFPic,384,13,20,12)
+    end
+end
+function loadListItem1(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 60)
+    
+    -- 读取返回的数据
+    local num=Sprite:findChild(item,'num')
+    local kfDetailsLab = Sprite:findChild(item,'kfDetails')
+    local kfNumLab = Sprite:findChild(item,'kfNum')
+    local kfTimeLab = Sprite:findChild(item,'kfTime')
+    Sprite:setProperty(num,'text',tostring(index+1)..'、')
+    --Log:write("点击的是哪个222")
+    --Sprite:setProperty(kfDetailsLab,'text',"基站接地不规范")
+    --Sprite:setProperty(kfNumLab,'text',"-100")
+    --Sprite:setProperty(kfTimeLab,'text',"2012-12-20")
+    Sprite:setProperty(kfDetailsLab,'text',city_data.value[KFNum].data["reason"])
+    Sprite:setProperty(kfNumLab,'text',city_data.value[KFNum].data["amount"])
+    Sprite:setProperty(kfTimeLab,'text',city_data.value[KFNum].data["time"])
+    
+end
+
+--工单次数排序
+function dwSeqOnSelect(sprite)
+    local data = Sprite:getData(sprite)
+    local len = city_data.total
+    --Log:write('--------len--',len)
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+        city_data.value = sortTable(city_data.value, 'order', true)
+        --Log:write('--------city_data.value--',city_data.value)
+        local listView = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(listView,1,1)
+        -- 加载列表项
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len-1, 'loadListItem')
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')
+        ListView:adjust(listView)
+    else
+        local DW = Sprite:findChild(rootSprite,'triangledw')
+        if  Sprite:getProperty(DW,'src') == "file://image/triangle_down.png" then
+            Sprite:setProperty(DW,'src','file://image/triangle_up.png')
+            city_data.value = sortTable(city_data.value, 'order', false)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len-1, 'loadListItem')
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')
+            ListView:adjust(listView)
+        else
+            Sprite:setProperty(DW,'src','file://image/triangle_down.png')
+            city_data.value = sortTable(city_data.value, 'order', true)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len-1, 'loadListItem')
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')
+            ListView:adjust(listView)
+        end
+    end
+end
+
+--金额排序
+function kfSeqOnSelect(sprite)
+    if city_data == nil  or city_data.value == nil then 
+        Dialog:show('', '暂无费用数据!', 'ok')
+        return
+    end
+    local data = Sprite:getData(sprite)
+    local len = city_data.total
+    if data == "0" then
+        Sprite:setProperty(sprite,'data',"1")
+        city_data.value = sortTable(city_data.value, 'cost', true)
+        local listView = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(listView,1,1)
+        -- 加载列表项
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len-1, 'loadListItem')
+        ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')
+        ListView:adjust(listView)
+    else
+        local kf = Sprite:findChild(rootSprite,'trianglekf')
+        if  Sprite:getProperty(kf,'src') == "file://image/triangle_down.png" then
+            Sprite:setProperty(kf,'src','file://image/triangle_up.png')
+            city_data.value = sortTable(city_data.value, 'cost', false)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len-1, 'loadListItem')
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')
+            ListView:adjust(listView)
+        else
+            Sprite:setProperty(kf,'src','file://image/triangle_down.png')
+            city_data.value = sortTable(city_data.value, 'cost', true)
+            local listView = Sprite:findChild(rootSprite, 'sampleList')
+            ListView:removeAllItems(listView,1,1)
+            -- 加载列表项
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), len-1, 'loadListItem')
+            ListView:loadItem(listView, Sprite:findChild(rootSprite, 'listItem'), 1, 'addloadListItem')
+            ListView:adjust(listView)
+        end
+    end
+end
+
+-- 地市纬度进一步查询响应函数
+function cityItemBtnOnselect(sprite)
+    Log:write("cityItemBtnOnselect")
+    local dimName = Sprite:findChild(sprite,'dimName')                    -- 地市名称
+    local dimension = Sprite:findChild(rootSprite,'dimension')            -- 维度名称
+    local mainTitle = Sprite:findChild(rootSprite,'mainTitle')            -- 页面标题
+    local companyBtn = Sprite:findChild(rootSprite,'companyBtn')            -- 页面标题
+    local regionid = Sprite:getData(sprite)
+    g_regionid = regionid
+     local regionText = Sprite:getText(dimName)
+    if string.sub(g_regionid,5) ~= '00' and g_regionid ~=''  then
+    else
+        Sprite:setProperty(dimension, 'text', regionText)
+        Sprite:setProperty(mainTitle, 'text', '费用统计('..regionText..')')
+        g_regionname = regionText
+        g_dimension = 'city'
+        Loading:show(rootSprite)
+        request()
+    end
+end
+
+    ]]>
+</root>

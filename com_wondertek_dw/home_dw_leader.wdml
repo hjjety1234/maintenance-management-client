@@ -146,6 +146,7 @@
                     font-size="22" v-align="center" h-align="right" extendstyle="1111" />
             </node>
         </button>
+        
         <!-- 系统设置  -->
         <button name="buttonBGnote" rect="11,695,225,62" border="false" 
             normal="normal" extendstyle="1111" OnSelect="listItemOnSelect" data="09">
@@ -384,68 +385,46 @@ function listItemOnSelect(sprite)
     Log:write("@jldu 登录人角色："..role)
     if dataInfo == '01' then    -- 站点搜索
         personStatus = 'C21'  -- 现场检查
-        Scene:setReturn(Alias.home_sheng_leader, Alias.m_checkzhandian)
+        Scene:setReturn(Alias.home_dw_leader, Alias.m_checkzhandian)
         Scene:go(Alias.m_checkzhandian)
     elseif dataInfo == '02' then -- 巡检完成情况
         Log:write('资源统计_clicked')
-        Scene:setReturn(Alias.home_sheng_leader, m_xunjiantongji_new)
+        Scene:setReturn(Alias.home_dw_leader, m_xunjiantongji_new)
         Scene:go(Alias.m_xunjiantongji_new)
     elseif dataInfo == '03' then -- 代办工单
-        Scene:setReturn(Alias.home_sheng_leader, Alias.m_daibangongdan)
+        Scene:setReturn(Alias.home_dw_leader, Alias.m_daibangongdan)
         Scene:go(Alias.m_daibangongdan)
     elseif dataInfo == '04' then -- 隐患处理情况
-        if role=='MM003' or role=='MM004' then
-            Log:write("@jldu 省公司")
-            Scene:setReturn(Alias.home_sheng_leader, Alias.m_yinhuanMap)
-            Scene:go(Alias.m_yinhuanMap)
-        elseif role=='MM007' or role=='MM008' then           
-            Log:write("@jldu 地市公司 ")
-            Scene:setReturn(Alias.home_sheng_leader, Alias.m_yinhuanMap_city)
-            Scene:go(Alias.m_yinhuanMap_city)
-        elseif role=='MM011' then
-            -- @jldu 县公司
-            Log:write("@jldu 县公司")
-            Scene:setReturn(Alias.home_sheng_leader, Alias.m_yinhuantongji)
-            Scene:go(Alias.m_yinhuantongji..'?g_regionid='..regionid..'&mapDate=&selCity='..Config:get('region'))
-        end    
+        -- @jfeng 代维单位
+        Scene:setReturn(Alias.home_dw_leader, Alias.m_yinhuantongji_dw)
+        Scene:go(Alias.m_yinhuantongji_dw..'?g_regionid='..regionid..'&mapDate=&selCity='..Config:get('region'))
     elseif dataInfo == '05' then --质量指标
         personStatus = 'C22'
-        Scene:setReturn(Alias.home_sheng_leader, Alias.m_quality)
+        Scene:setReturn(Alias.home_dw_leader, Alias.m_quality)
         Scene:go(Alias.m_quality)
     elseif dataInfo == '06' then --考核情况
         personStatus = 'C22'
-        Scene:setReturn(Alias.home_sheng_leader, Alias.m_kaohetongji_new)
+        Scene:setReturn(Alias.home_dw_leader, Alias.m_kaohetongji_new)
         Scene:go(Alias.m_kaohetongji_new)
     elseif dataInfo == '07' then --费用统计
         personStatus = 'C22'
-        Scene:setReturn(Alias.home_sheng_leader, Alias.m_cost)
-        Scene:go(Alias.m_cost)
+        Scene:setReturn(Alias.home_dw_leader, Alias.m_cost_dw)
+        Scene:go(Alias.m_cost_dw)
     elseif dataInfo == '08' then --标杆管理
         personStatus = 'C22'
-        Scene:setReturn(Alias.home_sheng_leader, Alias.m_biaoganGuanLi)
+        Scene:setReturn(Alias.home_dw_leader, Alias.m_biaoganGuanLi)
         Scene:go(Alias.m_biaoganGuanLi)
     elseif dataInfo == '09' then --系统设置
-        Scene:setReturn(Alias.home_sheng_leader, Alias.m_system_manager)
+        Scene:setReturn(Alias.home_dw_leader, Alias.m_system_manager)
         Scene:go(Alias.m_system_manager)
     elseif dataInfo == '10' then
-        Scene:setReturn(Alias.home_sheng_leader, Alias.m_thirdPartySoft)
+        Scene:setReturn(Alias.home_dw_leader, Alias.m_thirdPartySoft)
         Scene:go(Alias.m_thirdPartySoft)
     elseif dataInfo == '11' then
         personStatus = 'C23' -- 地图监控
-        if role=='MM003' or role=='MM004' then
-            Log:write("@jldu 省公司")
-            Scene:setReturn(Alias.home_sheng_leader, Alias.m_dwMap)
-            Scene:go(Alias.m_dwMap)
-        elseif role=='MM007' or role=='MM008' then           
-            Log:write("@jldu 地市公司")
-            Scene:setReturn(Alias.home_sheng_leader, Alias.m_dwMap_city)
-            Scene:go(Alias.m_dwMap_city)
-        elseif role=='MM011' then
-            -- @jldu 县公司定位到自己区域打点地图
-            Log:write("@jldu 县公司")
-            Scene:setReturn(Alias.home_sheng_leader, Alias.m_search_map)
-            Scene:go(Alias.m_search_map..'?regionid='..regionid)
-        end    
+        Log:write("@jfeng 代维单位")
+        Scene:setReturn(Alias.home_dw_leader, Alias.m_search_map)
+        Scene:go(Alias.m_search_map..'?regionid='..regionid)  
     end
 end
 

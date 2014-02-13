@@ -174,5 +174,9 @@ Alias = {
     m_dwMap_city = "MODULE:\\com_wondertek_dw\\m_dwMap_city.wdml", -- 地市代维地图
     m_yinhuanDetail_map = "MODULE:\\com_wondertek_dw\\m_yinhuanDetail_map.wdml", -- 隐患地图显示隐患详情
     m_dangerDescription = "MODULE:\\com_wondertek_dw\\m_dangerDescription.wdml",-- 隐患描述详情
+
+    home_dw_leader = "MODULE:\\com_wondertek_dw\\home_dw_leader.wdml",-- 代维单位管理员视图
+    m_yinhuantongji_dw = "MODULE:\\com_wondertek_dw\\m_yinhuantongji_dw.wdml",-- 代维单位管理员隐患统计
+    m_cost_dw = "MODULE:\\com_wondertek_dw\\m_cost_dw.wdml",-- 代维单位管理员费用统计
 }
 

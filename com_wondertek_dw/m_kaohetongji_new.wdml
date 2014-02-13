@@ -276,8 +276,14 @@ local subRegion
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    --获取角色编号
+    local companyBtn = Sprite:findChild(rootSprite,'companyBtn') 
+    --获取角色编号，如果是代维单位人隐藏按公司统计
     local role = Config:get('role')
+    if role=='MM012' or role=='MM013' or role=='MM014'or role=='MM015'or role=='MM016'or role=='MM017'or role=='MM018' then    
+       setAllShoworHide(companyBtn,0)
+    else
+       setAllShoworHide(companyBtn,1)
+    end
     regionid = Config:get('regionid')
     Log:write('角色和区域+',role,regionid)
     if role ~= 'MM000' and role ~= 'MM001' and role ~= 'MM002' and role ~= 'MM003' and role ~= 'MM004' then
