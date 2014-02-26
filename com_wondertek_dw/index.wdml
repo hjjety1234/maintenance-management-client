@@ -385,7 +385,11 @@ end
 -- 根据增量升级的条件，进行全新升级或增量升级
 function doUpgrade()
     Log:write("存在升级信息，开始升级...")
-  
+     -- 如果本地的apk文件不存在，则拷贝到SD卡中
+    if IO:fileExist(g_localpath) == false then 
+        backupApplication("com.wondertek.ict4", 
+            "/mnt/sdcard/download/Venus_DW.apk")
+    end
     local bDiffUpdate = true
     if g_patchUrl == nil or g_patchUrl == "" then 
         Log:write("差分包的URL地址为空！")
@@ -660,6 +664,14 @@ function getDownloadPath()
     Log:write("getDownloadPath: g_localpath="..g_localpath)
     -- 返回apk本地路径
     return g_localpath
+end
+
+-- @brief 尝试备份应用程序安装文件
+function backupApplication(appId, dest)
+    local args = string.format("['%s', '%s']", appId, dest)
+    Log:write("尝试备份应用程序安装文件, 入参为:", args)
+    local code = LuaToJavaExec('Clutter','backupApk', args, 0);
+    Log:write("LuaToJavaExec函数返回:", code)
 end
 
 ]]>

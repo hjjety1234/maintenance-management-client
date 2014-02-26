@@ -134,6 +134,16 @@
                 </button>
             </node>
 
+            <node name="resultNode3" rect="10,465,460,60" extendstyle="1111">
+                <image  name="normal" rect="0,0,457,60" src="file://image/system_bg.png" h-align="center"
+                        style="sudoku-auto" extendstyle="1111"  sudoku="15,15,15,15" >
+                        <label rect="15,12,250,30" text="切换至巡检员版本" font-family='微软雅黑' color="#2c2c2c" v-align="center"
+                             h-align="left" font-size="26" extendstyle="1111" />
+                </image>
+                <button name="btnXunjian" rect="0,0,460,60" border="false" text=""
+                    color="#ffffff" OnSelect="switchingOn" extendstyle="1111" data="0">
+                </button>
+            </node>
 
         
 
@@ -198,6 +208,14 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        --代维单位管理员可显示此功能
+        local resultNode3 = Sprite:findChild(rootSprite,'resultNode3')
+        local role = Config:get('role')
+        if role=='MM012' or role=='MM013' or role=='MM014'or role=='MM015'or role=='MM016'or role=='MM017'or role=='MM018'then 
+            setAllShoworHide(resultNode3,1)
+        else
+            setAllShoworHide(resultNode3,0)
+        end
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -293,7 +311,11 @@ function autoUpdate(sprite)
         Sprite:setProperty(sprite,'data','0')
     end
 end
-
+--代维单位管理员可切换至巡检报表
+function switchingOn(sprite)
+    Config:set('versionFlag','1')
+    Scene:go(Alias.home_new)
+end
 function btnxlFlag_Clicked(sprite)
     Log:write('btn is clicked')
     local flag = Sprite:getData(sprite)

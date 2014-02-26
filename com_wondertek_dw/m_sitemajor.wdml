@@ -68,43 +68,36 @@
                 <node name="majorNode" rect="25,250,200,50"  visible="true" extendstyle="1111">
                         <label name="majorName" rect="5,0,140,50" border="false" text="选择专业："
                             v-align="center" color="#0062ab"  font-size="26" font-family='微软雅黑' />
-                        --基站
                         <button name="jizhanBtn" rect="0,60,75,80" 
                          OnSelect="jizhanOn" extendstyle="1111" data="1" visible='false' enable='false'  >
                            <image name="jizhanImg" rect="15,8,47,66"  src="file://image/site_jizhan.png" 
                            extendstyle="1111" style='autosize'/>
                         </button>
-                        --铁塔
                         <button name="tietaBtn" rect="70,60,66,80" data="1" visible='false' enable='false'
                          OnSelect="tietaOn" extendstyle="1111">
                            <image name="tietaImg" rect="15,8,47,66" src="file://image/site_tieta.png" 
                            extendstyle="1111" style='autosize'/>
                         </button>
-                        --综合覆盖
                         <button name="zongheBtn" rect="140,60,80,80" data="1" visible='false' enable='false'
                          OnSelect="zongheOn" extendstyle="1111">
                            <image name="zongheImg" rect="15,8,59,66" src="file://image/site_zonghe.png" 
                            extendstyle="1111" style='autosize' />
                         </button>
-                        --集客家客
                         <button name="jikeBtn" rect="220,60,80,80" data="1" visible='false' enable='false'
                          OnSelect="jikeOn" extendstyle="1111">
                            <image name="jikeImg" rect="15,8,60,66" src="file://image/site_jike.png" 
                            extendstyle="1111" style='autosize'/>
                         </button>
-                        --光缆线路
                         <button name="xianluBtn" rect="300,60,80,80" data="1" visible='false' enable='false'
                          OnSelect="xianluOn" extendstyle="1111"> 
                            <image name="xianluImg" rect="15,8,60,66" src="file://image/site_xianlu.png" 
                            extendstyle="1111" style='autosize' />
                         </button>
-                        --全选
                         <button name="allBtn" rect="380,60,66,80" data="1" visable='false' enable='false'
                          OnSelect="allOn" extendstyle="1111" style='autosize'>
                            <image name="allImg" rect="15,8,47,66" src=""
                            extendstyle="1111" style='autosize'/>
                         </button>
-                        --下一步
                         <button name="nextBtn" rect="140,160,180,65" OnSelect="nextOn" extendstyle="1111" style='autosize'>
                            <image name="nextImg" rect="15,8,148,45" src="file://image/next.png" extendstyle="1111" style='autosize'/>
                         </button>
@@ -147,30 +140,30 @@ regHandle=Reg:create('resp')
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
-    --获取站点编号和名称
-    itemname= Reg:getString(regHandle,'itemname')---站点名称
-    stationid= Reg:getString(regHandle,'stationid')---站点编号
-    local content= Sprite:findChild(rootSprite,'content')
-    Sprite:setProperty(content,'text',itemname)
-    -- 获取当前日期
-    local now = os.date("*t",os.time()+86400)
-    local TimeNode = Sprite:findChild(rootSprite, "TimeNode")
-    local timeContent=Sprite:findChild(TimeNode,"timeContent")
-    local currentMonthString = string.format('%s-%s-%s', now['year'], now['month'], now["day"])
-    Sprite:setProperty(timeContent, "text",currentMonthString)
-    -- 获取当前用户
-    local personNode = Sprite:findChild(rootSprite, "personNode")
-    local personContent=Sprite:findChild(personNode,"personContent")
-    Sprite:setProperty(personContent, "text",Config:get('realname'))
-
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-    --根据站点编号获取模板
-    Loading:close()
-    request(stationid)
+        --获取站点编号和名称
+        itemname= Reg:getString(regHandle,'itemname')---站点名称
+        stationid= Reg:getString(regHandle,'stationid')---站点编号
+        local content= Sprite:findChild(rootSprite,'content')
+        Sprite:setProperty(content,'text',itemname)
+        -- 获取当前日期
+        local now = os.date("*t",os.time())
+        local TimeNode = Sprite:findChild(rootSprite, "TimeNode")
+        local timeContent=Sprite:findChild(TimeNode,"timeContent")
+        local currentMonthString = string.format('%s-%s-%s', now['year'], now['month'], now["day"])
+        Sprite:setProperty(timeContent, "text",currentMonthString)
+        -- 获取当前用户
+        local personNode = Sprite:findChild(rootSprite, "personNode")
+        local personContent=Sprite:findChild(personNode,"personContent")
+        Sprite:setProperty(personContent, "text",Config:get('realname'))
+
+        --根据站点编号获取模板
+        Loading:close()
+        request(stationid)
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -180,6 +173,10 @@ function bodyOnPluginEvent(msg)
 	Loading:close()
     if msg == 101 then
     major_data = Http:jsonDecode('muban_data')
+    Log:write('检查表数量',#major_data.value[0].template)
+    if #major_data.value[0].template >= 1 then 
+       Dialog:show('','该站点有多张检查表，不符合规范','ok','doBack')
+    end
     Log:write('major_data',major_data)
     --若只有一个专业则不显示全选
     if major_data.value == nil or  major_data.value == '' then 
@@ -213,7 +210,7 @@ function bodyOnPluginEvent(msg)
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-        Scene:go( Alias.m_checkzhandian)
+       Scene:back()
         return 1
     end
 end
@@ -221,7 +218,7 @@ end
 
 --@brief 返回按钮消息处理函数
 function doBack(sprite)
-   Reg:clear(regHandle)
+   --Reg:clear(regHandle)
    Scene:back()
 end
 
@@ -462,12 +459,12 @@ function nextOn(sprite)
 
     if data4=='2' then 
         for j = 0, getJsonArrayCount(contractor) - 1 do
-            if contractor[j].major == 'C34' then 
+            if contractor[j].major == 'C34' or contractor[j].major == 'C37' then 
                 table.insert(userSelect, contractor[j])
             end
         end
         for k = 0, getJsonArrayCount(template)-1 do
-            if contractor[k].major == 'C34' then 
+            if contractor[k].major == 'C34' or contractor[k].major == 'C37'  then 
                 table.insert(idSelect, template[k])
             end
         end
@@ -493,18 +490,19 @@ function nextOn(sprite)
         return
     end
     -- 计算已经选择的专业
-    regHandle = Reg:create('major_data')
-    Reg:clear(regHandle)
-    Reg:setTable(regHandle, 'userSelect', userSelect)
-    Reg:setTable(regHandle, 'idSelect', idSelect)
+    local regHandleMajor = Reg:create('major_data')
+    --Reg:clear(regHandle)
+    Reg:setTable(regHandleMajor, 'userSelect', userSelect)
+    Reg:setTable(regHandleMajor, 'idSelect', idSelect)
     Dialog:show('', '点击确定，将开始检查！', 'ok_cancel','site_check')
    
 
 end
 -- 跳转到现场检查页面
 function site_check()
+    Scene:freeByName(Alias.m_sitemajor)
     Scene:setReturn(Alias.m_sitemajor,Alias.m_sitecheck)
-    Scene:go(Alias.m_sitecheck)
+    Scene:go(Alias.m_sitecheck,true)
 end
     ]]>
 </root>

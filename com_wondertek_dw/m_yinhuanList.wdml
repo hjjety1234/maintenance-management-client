@@ -115,13 +115,13 @@ function bodyBuildChildrenFinished(sprite)
     list = Sprite:findChild(rootSprite, 'sampleList')
     curpage=Sprite:findChild(rootSprite, 'curpage')
     morebtn=Sprite:findChild(rootSprite, 'morebtn')
-    Config:set('curYinHuanListTab', '1')
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         UmsAgent:OnActivate(string.match(Alias.m_yinhuanList, 'MODULE:\\(.*)'), "已传隐患")
+        Config:set('curYinHuanListTab', '1')
         initList()
         if Config:get('curYinHuanListTab') == '1' then
             tabOnSelect(Sprite:findChild(rootSprite, 'btnTab1'))
@@ -194,7 +194,7 @@ end
 
 function addOnSelect(sprite)
     Scene:setReturn(Alias.m_yinhuanList, Alias.m_yinhuanshangchuan)
-    Scene:go(Alias.m_yinhuanshangchuan,true)
+    Scene:go(Alias.m_yinhuanshangchuan)
 end
 
 function tabOnSelect(sprite)

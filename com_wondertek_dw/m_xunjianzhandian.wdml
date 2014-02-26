@@ -118,11 +118,17 @@
                     <textarea name="stationName" rect="50,5,250,60" text=""
                         color="#0" font-size="18" font-family="黑体" h-align="left" v-align="center"
                          extendstyle="1111"  line-height="18"  border="false" />
-                    <label name="stationDistance" rect="240,10,110,50" text=""
+                    <label name="stationDistance" rect="230,10,110,50" text=""
                         color="#0" font-size="21" h-align="left" v-align="center"
                         extendstyle="1111" border="false" />
                 </button>
-
+                <!-- 导航按钮  -->
+                <button name="navigationBtn" rect="300,0,40,70" OnSelect="doNavigation" 
+                    extendstyle="1111" data="">
+                    <image rect="0,0,40,70" src="file://image/icon_xxianlu.png" style="center" 
+                        extendstyle="1111">
+                    </image>
+                </button>
                 <!-- 打开、下载软件 -->
                 <button name="openDownloadBtn1" rect="360,15,120,40" OnSelect="doOpenDownload" 
                         visible="true" enable="true" style="autosize"
@@ -468,8 +474,10 @@ function loadListItem(list, item, index)
     -- 将当前的index写入到item的data数据中
     Log:write('写入的index',index)
     local btnname = Sprite:findChild(item,'btnname')
+    local navigationBtn =  Sprite:findChild(item,'navigationBtn')
     local openDownloadBtn1 = Sprite:findChild(item,'openDownloadBtn1')
     Sprite:setProperty(btnname, 'data', index)
+    Sprite:setProperty(navigationBtn, 'data', index)
     Sprite:setProperty(openDownloadBtn1, 'data', index)
 
     -- 设置列表项的大小的背景色
@@ -524,7 +532,7 @@ function loadListItem(list, item, index)
     -- 是否显示站点距离
     if stationDistanceVisible == true then
         Sprite:setProperty(stationDistance, 'visible', 'true')
-        Sprite:setProperty(stationDistance, "text", distance..'米以内')
+        Sprite:setProperty(stationDistance, "text", distance..'米')
     else
         Sprite:setProperty(stationDistance, 'visible', 'false')
     end
@@ -703,10 +711,9 @@ function cancelSelect()
 end
 
 -- 获取目标站点的经纬度，进行站点导航
-function  doNavigation( sprite )
-    Log:write('doNavigation(): ')
-    local item = Sprite:getParent(sprite)
-    local index = Sprite:getData(item)
+function  doNavigation(sprite)
+    local index = Sprite:getData(sprite)
+    Log:write('doNavigation(): ',index)
     local itemValue = respValue[tonumber(index)]
 
     local stationName = itemValue.stationName

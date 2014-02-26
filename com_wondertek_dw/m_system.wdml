@@ -168,6 +168,17 @@
                 </button>
             </node>
 
+            <node name="resultNode3" rect="10,530,460,60" extendstyle="1111">
+                    <image  name="normal" rect="0,0,457,60" src="file://image/system_bg.png" h-align="center"
+                            style="sudoku-auto" extendstyle="1111"  sudoku="15,15,15,15" >
+                            <label rect="15,12,250,30" text="切换至管理员版本" font-family='微软雅黑' color="#2c2c2c" v-align="center"
+                                 h-align="left" font-size="26" extendstyle="1111" />
+                    </image>
+                <button name="btnLogin" rect="0,0,457,60" border="false" text=""
+                    color="#ffffff" OnSelect="switchingOn" extendstyle="1111" data="0">
+                </button>
+            </node>
+
             <node name="xlContent" rect="20,535,460,100" extendstyle="1111" visible="false" enable="false" active="false">
                 <label rect="5,0,200,50" text="设备编号" extendstyle="1111" font-family="微软雅黑" color="#2c2c2c" v-align="center" h-align="left"
                  font-size="26"></label>
@@ -178,7 +189,7 @@
             </node>
             
             <!-- 保存配置  -->
-            <node name="saveNode" rect="20,610,460,100" extendstyle="1111">
+            <node name="saveNode" rect="20,700,460,100" extendstyle="1111">
                 <button name="saveButton" rect="130,25,160,50" text="保存" color="#ffffff"
                     extendstyle="1111" OnSelect="doSave"
                     normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
@@ -229,6 +240,14 @@ end
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        --代维单位管理员可显示此功能
+        local resultNode3 = Sprite:findChild(rootSprite,'resultNode3')
+        local role = Config:get('role')
+        if role=='MM012' or role=='MM013' or role=='MM014'or role=='MM015'or role=='MM016'or role=='MM017'or role=='MM018'then 
+            setAllShoworHide(resultNode3,1)
+        else
+            setAllShoworHide(resultNode3,0)
+        end
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -323,6 +342,11 @@ function autoUpdate(sprite)
         Sprite:setProperty(imgNode, 'src', 'file://image/system_unselect.png')
         Sprite:setProperty(sprite,'data','0')
     end
+end
+--代维单位管理员可切换至巡检报表
+function switchingOn(sprite)
+    Config:set('versionFlag','0')
+    Scene:go(Alias.home_dw_leader)
 end
 
 function btnxlFlag_Clicked(sprite)

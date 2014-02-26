@@ -159,9 +159,14 @@ function bodyOnPluginEvent(msg)
             if loginData.value[index].rolecode == '' or loginData.value[index].rolecode == nil then 
                 index = 1
             end 
+            if loginData.value[index] == nil then
+               Dialog:show('','该用户未分配角色，请联系管理员','ok')
+               return
+            end
             local role = loginData.value[index].rolecode
             local username = loginData.value[index].userid
             local regionid = loginData.value[index].regionid
+            
             Config:set('username',username)
             Config:set('regionid',regionid)
             Config:set('role',role)
@@ -178,9 +183,12 @@ function bodyOnPluginEvent(msg)
             Config:set('orgname',loginData.value[index].orgname)
             writeuserInfo()
             local xlFlag = Config:get("xlFlag")
+            local versionFlag = Config:get("versionFlag")
             --Log:write('xianlu flag is -->'..user_name)
             if xlFlag == '1' then
                 Scene:go(Alias.home_xianlu)--线路巡检
+            elseif versionFlag  == '1' then  --巡检版本
+                Scene:go(Alias.home_new)
             elseif role=='MM000' or role=='MM001' or role=='MM002' or role=='MM005' or role=='MM006' or role=='MM009' or role=='MM010' then 
                 Scene:go(Alias.home_sheng) 
             elseif username=='fanbingheng' then
