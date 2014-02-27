@@ -53,6 +53,7 @@ Alias = {
     m_cheliangguanli = 'MODULE:\\com_wondertek_dw\\m_cheliangguanli.wdml', -- 车辆管理
     m_dateDialogTime = 'MODULE:\\com_wondertek_dw\\m_dateDialogTime.wdml', ---车辆申请时间选择器
     m_daibangongdan = 'MODULE:\\com_wondertek_dw\\m_daibangongdan.wdml', -- 待办列表
+    m_daibanVerifyDetail = 'MODULE:\\com_wondertek_dw\\m_daibanVerifyDetail.wdml', -- 未审核工单详情
     m_xunjianzhandian = 'MODULE:\\com_wondertek_dw\\m_xunjianzhandian.wdml', -- 巡检站点
     m_xunjianEditEx = 'MODULE:\\com_wondertek_dw\\m_xunjianEditEx.wdml', -- 巡检子项列表
     m_xunjiantijiao = 'MODULE:\\com_wondertek_dw\\m_xunjiantijiao.wdml', -- 巡检项提交页面
