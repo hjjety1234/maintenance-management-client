@@ -326,13 +326,32 @@ function submitOnSelect(sprites)
     local dealmanContent = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'dealmanNode'), 'dealmanContent'), 'text')
     local dealstepContent = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'dealstepNode'), 'dealstepContent'), 'text')
     local dealResultCodeText = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'dealResult'), 'dealResultCode'), 'text')
-    
-    if dealstepContent and dealstepContent == '' then
+
+    local typeBtn = Sprite:findChild(rootSprite,'typeBtn')
+    local levelBtn = Sprite:findChild(rootSprite,'levelBtn')
+    local reasonBtn = Sprite:findChild(rootSprite,'reasonBtn')
+    local typename = Sprite:getText(Sprite:findChildByClass(typeBtn,'scrolltext'))
+    local levelname = Sprite:getText(Sprite:findChildByClass(levelBtn,'scrolltext'))
+    local resonname = Sprite:getText(Sprite:findChildByClass(reasonBtn,'scrolltext'))
+    Log:write('##typename',typename)
+
+    if typename and typename == '' then
+        Dialog:show('提示','对不起，请先选择处理结果！','ok')
+        return
+    end
+    if levelname and levelname == '' then
+        Dialog:show('提示','对不起，请先选择故障原因！','ok')
+        return
+    end
+    if resonname and resonname == '' then
+        Dialog:show('提示','对不起，请先选择原因细分！','ok')
+        return
+    end
+     if dealstepContent and dealstepContent == '' then
         Dialog:show('提示', '对不起，处理措施为空！', 'ok')
         return
-    else
-        Dialog:show('提示','是否确定提交此故障工单？','ok_cancel','doUpload')
     end
+    Dialog:show('提示','是否确定提交此故障工单？','ok_cancel','doUpload')
 end
 function doUpload()
     Loading:show()
