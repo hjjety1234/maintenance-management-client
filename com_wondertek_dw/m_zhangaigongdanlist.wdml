@@ -36,16 +36,86 @@
             <!-- 详情内容 -->
             <listview name="listview" rect="0,80,480,734" col="1" extendstyle="1111" limit="true" border="false">
                 <list-item name="chuligz" rect="0,0,480,500" extendstyle="1111" limit="true"  visible="false">
-                    <node name="dealstepNode" rect="0,10,480,150" extendstyle="1111" >
-                        <label name="label1" rect="0,10,150,30" border="false" text="处理措施："
-                            font-family='微软雅黑' h-align="center" v-align="center" color="#0062ab"
-                            font-size="24" extendstyle="1111" />
-                        <shadow rect="130,10,322,550" color="#ffffff" alpha="255"
+                     <node name="baseSprite" rect="0,0,480,60" extendstyle="1111">
+                        <label name="label1" rect="0,5,140,50" border="false" text="处理结果："
+                            h-align="right" v-align="center" color="#303030" font-size="24"
+                            extendstyle="1111" />
+                        <button name="typeBtn" rect="140,5,290,50" border="false" text="" color="#ffffff" 
+                            OnSelect="typeOnSelect" extendstyle="1111">
+                            <image rect="0,5,290,40" src="file://image/select_bg.png"  style="sudoku-auto" 
+                                    sudoku="15,15,15,15" extendstyle="1111">                  
+                            </image>
+                            <scrolltext name="name" rect="5,5,280,35" text="" color="#303030" extendstyle="1111"
+                                style="autosize" scroll="true" h-align="left" v-align="center" font-size="24" >
+                            </scrolltext>
+                        </button>
+                    </node>
+                    
+                    <node name="baseSprite" rect="0,60,480,60" extendstyle="1111">
+                        <label name="label1" rect="0,5,140,50" border="false" text="故障原因："
+                            h-align="right" v-align="center" color="#303030" font-size="24"
+                            extendstyle="1111" />
+                        <button name="levelBtn" rect="140,5,290,50" border="false"
+                            text="" color="#ffffff" OnSelect="levelOnSelect" extendstyle="1111">
+                            <image rect="0,5,290,40" src="file://image/select_bg.png"  style="sudoku-auto" 
+                                    sudoku="15,15,15,15" extendstyle="1111">                  
+                            </image>
+                            <scrolltext name="name" rect="5,5,280,35" text="" color="#303030" extendstyle="1111"
+                                style="autosize" scroll="true" h-align="left" v-align="center" font-size="24">
+                            </scrolltext>
+                        </button>
+                    </node> 
+
+                    <node name="baseSprite" rect="0,120,480,60" extendstyle="1111">
+                        <label name="label1" rect="0,5,140,50" border="false" text="原因细分："
+                            h-align="right" v-align="center" color="#303030" font-size="24"
+                            extendstyle="1111" />
+                        <button name="reasonBtn" rect="140,5,290,50" border="false"
+                            text="" color="#ffffff" OnSelect="reasonOnSelect" extendstyle="1111">
+                            <image rect="0,5,290,40" src="file://image/select_bg.png"  style="sudoku-auto" 
+                                    sudoku="15,15,15,15" extendstyle="1111">                  
+                            </image>
+                            <scrolltext name="name" rect="5,5,280,35" text="" color="#303030" extendstyle="1111"
+                                style="autosize" scroll="true" h-align="left" v-align="center" font-size="24">
+                            </scrolltext>
+                        </button>
+                    </node>  
+
+                    <node name="dealstepNode" rect="0,200,480,150" extendstyle="1111" >
+                        <label name="label1" rect="0,5,140,50" border="false" text="处理措施："
+                            h-align="right" v-align="center" color="#303030" font-size="24"
+                            extendstyle="1111" />
+                        <shadow rect="140,10,322,550" color="#ffffff" alpha="255"
                             border='true' extendstyle="1111" />
-                        <edit name="dealstepContent" rect="135,15,312,540" font-size="24"
+                        <edit name="dealstepContent" rect="145,15,300,500" font-size="24"
                             font-family='微软雅黑' text="" color="#303030" extendstyle="1111"
                             line-height='28' multiline="true" style="autosize" h-align="left"
                             v-align="top" />
+                    </node>
+                    <!-- 下拉框  -->
+                    <node name="xunjianSelectNode" rect="0,0,480,800" mushroom="false" visible="false" enable="false">
+                        <button name="button" rect="0,0,480,800" OnSelect="hideXunjianSelected">
+                        </button>
+                        <node rect="66,200,368,68" extendstyle="1111"  border="false">
+                            <image rect="0,0,368,68" src="file://image/top.png"  style="autosize" extendstyle="0010" />
+                            <image rect="20,30,22,22" src="file://image/icon_arrow.png" style="autosize" extendstyle="0010" />
+                            <label rect="42,7,120,68" border="false" color="#FFFFFF" style="autosize"
+                             text="选择类型" h-align="center" v-align="center" font-family="微软雅黑" font-size="24"></label>
+                        </node>
+                        <image rect="66,264,368,216" src="file://image/center.png"  style="autosize" extendstyle="1111" />
+                        <listview name="listSelect" rect="66,268,368,216" auto-scroll="true" style="autosize"
+                            auto-adjust="true" extendstyle="1111" />
+                        <image rect="66,478,368,21" src="file://image/bottom.png"  style="autosize" extendstyle="1111"/>
+                    </node>
+                    <node name="selectItem" rect="0,0,368,72" visible="false" enable="false" active="false">                   
+                          <button rect="12,0,342,61" text="" color="#303030" h-align="left" v-align="center" font-family="微软雅黑" font-size="24" style="autosize" 
+                                extendstyle="0010" OnSelect="xunjianGroupOnSelect"
+                                normal=""
+                                sel=""
+                                data="C30"  >
+                                <image rect="285,15,32,32" src="file://image/list_arrow.png"  style="autosize" extendstyle="1111" />           
+                                <image rect="12,70,320,2" src="file://image/line.png"  style="autosize" extendstyle="0010" />
+                          </button>
                     </node>
                 </list-item>  
             </listview>   
@@ -158,6 +228,18 @@ function bodyOnPluginEvent(msg)
         else 
             Dialog:show('','提交失败，服务端数据错误','ok')
         end
+    elseif msg == 104 then
+        if Loading:isShow() then Loading:close() end
+        local list = Sprite:findChild(rootSprite, 'listSelect')
+        local item = Sprite:findChild(rootSprite, 'selectItem')
+        ListView:removeAllItems(list, 1, 1)
+        selectData = Http:jsonDecode('select')
+        Log:write("data:", selectData)
+        Log:write("selectData.code = "..selectData.code)
+        if selectData.code == "0" then
+            fillSelect()
+        end
+
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -200,13 +282,13 @@ function doUpload()
     Loading:show()
     local dealstepContent = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'dealstepNode'), 'dealstepContent'), 'text')
     Log:write('+++++',dealstepContent)
-    local param = 'cmd=wlbfaultreply&page=1&id='..taskcode..'&processmeasure='..dealstepContent..'&taskid='..taskid
+    local param = 'cmd=wlbfaultreply&page=1&id='..dangerOrderId..'&processmeasure='..dealstepContent..'&taskid='..taskid
     local url= getWholeUrl('nbspweb/webservice/wlbfault!doWebservice.action',param)
     Log:write('提交故障工单接口URL为：', url)
     Http:request('dangerlist_data', url, 101, {useCache = false, method = 'post', postData=''})
 end
 function fillContent()
-    local param = 'cmd=wlbfaultinquiry&id='..taskcode..'&page=1'
+    local param = 'cmd=wlbfaultdetail&id='..dangerOrderId..'&page=1'
     local url= getWholeUrl('nbspweb/webservice/wlbfault!doWebservice.action',param)
     Log:write('===新故障工单列表======', url)
     Http:request('dangerlist_data1', url, 102, {useCache = false, method = 'post', postData=''})
@@ -299,6 +381,130 @@ function doStatus()
     local url= getWholeUrl('nbspweb/webservice/trouble!doWebservice.action',param)
     Log:write('===新故障工单列表提交按钮响应======', url)
     Http:request('dangerlist_data2', url, 103, {useCache = false, method = 'post', postData=''})
+end
+
+-- 处理结果选择
+function typeOnSelect(sprite)
+    Log:write('进入处理结果')
+    local xunjianData = Sprite:getData(sprite)
+    curXunjianBtn = sprite
+    --@Log:write('tempid===', tempid)
+    selectIndex = 3
+    local list = Sprite:findChild(rootSprite, 'listSelect')
+    local item = Sprite:findChild(rootSprite, 'selectItem')
+    ListView:removeAllItems(list, 1, 1)
+    selectData = {
+    ["value"]={
+        {name='已解决', id='1'},
+        {name='延期解决', id='2'},
+        {name='无需解决', id='3'},
+    }
+}
+    fillSelect()
+end
+
+-- 故障原因选择
+function levelOnSelect(sprite)
+    Sprite:setProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'reasonBtn'), 'name'), 'text', '')
+    Sprite:setProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'levelBtn'), 'name'), 'text', '')
+    local xunjianData = Sprite:getData(sprite)
+    curXunjianBtn = sprite   
+    selectIndex = 2
+    local param = 'cmd=wlbfaulttroubletype&usercode=' .. Config:get('username')..'&page=1&pagesize=20'
+    local url = getWholeUrl('nbspweb/webservice/wlbfault!doWebservice.action', param)
+    Http:request('select', url, 104, {useCache = true, method = 'post'})
+    Loading:show(rootSprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
+end
+-- 原因细分选择
+function reasonOnSelect(sprite)
+    local levelBtnText = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'levelBtn'), 'name'), 'text')
+    if levelBtnText and levelBtnText == '' then
+        Dialog:show('提示', '对不起，请先选择故障原因！', 'ok')
+        return
+    end
+    local xunjianData = Sprite:getData(sprite)
+    curXunjianBtn = sprite   
+    local levelBtn = Sprite:findChild(rootSprite, 'levelBtn')
+    local troubletypeid = Sprite:getData(levelBtn)
+    Log:write("troubletypeid==",troubletypeid)
+    selectIndex = 1
+    
+    local param = 'cmd=wlbfaulttroubledetail&usercode=' .. Config:get('username')..'&page=1&pagesize=20'..'&troubletypeid='..troubletypeid
+    local url = getUrl()..'nbspweb/webservice/wlbfault!doWebservice.action?'..param
+    Http:request('select', url, 104, {useCache = false})
+    Loading:show(rootSprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
+end
+--加载弹出框数据
+function fillSelect()
+    setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 1)
+    local count = #selectData.value + 1
+    local list = Sprite:findChild(rootSprite, 'listSelect')
+    local item = Sprite:findChild(rootSprite, 'selectItem')
+    ListView:removeAllItems(list, 1, 1)
+    ListView:loadItem(list, item, count, 'loadSelectItem')
+    ListView:adjust(list)
+end
+
+function loadSelectItem(list, item, index)
+    Sprite:setRect(item, 0, 0, 480, 76)
+    Sprite:setProperty(item, 'extendstyle', '0010')
+
+    local button = Sprite:findChildByClass(item, 'button')
+    if selectIndex == 1 then
+        Sprite:setProperty(button, 'text', "      "..selectData.value[index].typename)
+        Sprite:setProperty(button, 'data', selectData.value[index].id)
+    elseif selectIndex == 2 then
+        Sprite:setProperty(button, 'text', "      "..selectData.value[index].typename)
+        Sprite:setProperty(button, 'data', selectData.value[index].id)
+    elseif selectIndex == 3 then
+        Sprite:setProperty(button, 'text', "      "..selectData.value[index+1].name)
+        Sprite:setProperty(button, 'data', selectData.value[index+1].id)
+        codevalue = selectData.value[index+1].id
+    elseif selectIndex == 4 then
+        Sprite:setProperty(button, 'text', "      "..selectData.value[index].itemname)
+        Sprite:setProperty(button, 'data', selectData.value[index].xtbh)
+    end
+
+end
+
+--隐藏弹出框
+function hideXunjianSelected(sprite)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 0)
+end
+
+--加载项点击事件
+function xunjianGroupOnSelect(sprite)
+    local xunjianData = Sprite:getData(sprite)
+    Log:write("xunjianData == "..xunjianData)
+    local xunjianText = Sprite:findChild(curXunjianBtn, 'name')
+
+    local index = ListView:getItemIndex(Sprite:getParent(sprite))
+
+    local title
+    local zhuanyeBtn = Sprite:findChild(rootSprite, 'zhuanyeBtn')
+    local typeBtn = Sprite:findChild(rootSprite, 'typeBtn')
+    local levelBtn = Sprite:findChild(rootSprite, 'levelBtn')
+    local zhandianBtn = Sprite:findChild(rootSprite, 'zhandianBtn')
+    local zhandianlabel=Sprite:findChild(rootSprite,'zhandianlabel')
+    local typeBtn =Sprite:findChild(rootSprite,'typeBtn')
+    local typeLab =Sprite:findChild(typeBtn,'name')
+    if selectIndex == 1 then  --原因细分
+        title = selectData.value[index].typename
+        zhuanyeValue = xunjianData
+     
+    elseif selectIndex == 2 then -- 故障原因
+        title = selectData.value[index].typename
+        levelValue = xunjianData
+    elseif selectIndex == 3 then --处理结果
+        title = selectData.value[index+1].name
+        typeValue = xunjianData
+    end
+    Log:write('data:',Sprite:getData(sprite),text)
+    Sprite:setProperty(curXunjianBtn, 'data', Sprite:getData(sprite))
+    Sprite:setProperty(xunjianText, 'text', title)
+    setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 0)
 end
     ]]>
 </root>
