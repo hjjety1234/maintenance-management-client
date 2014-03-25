@@ -179,5 +179,9 @@ Alias = {
     home_dw_leader = "MODULE:\\com_wondertek_dw\\home_dw_leader.wdml",-- 代维单位管理员视图
     m_yinhuantongji_dw = "MODULE:\\com_wondertek_dw\\m_yinhuantongji_dw.wdml",-- 代维单位管理员隐患统计
     m_cost_dw = "MODULE:\\com_wondertek_dw\\m_cost_dw.wdml",-- 代维单位管理员费用统计
+
+    m_daibangongdan_old = "MODULE:\\com_wondertek_dw\\m_daibangongdan_old.wdml",-- 普通巡检人员代办工单
+
+    m_yinhuanshangchuan_xunjian = "MODULE:\\com_wondertek_dw\\m_yinhuanshangchuan_xunjian.wdml",-- 巡检界面生成隐患工单
 }
 

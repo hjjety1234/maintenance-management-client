@@ -81,7 +81,20 @@
                         </button>
                     </node>  
 
-                    <node name="dealstepNode" rect="0,200,480,150" extendstyle="1111" >
+                    <node name="baseSprite" rect="0,180,480,60" extendstyle="1111">
+                        <label name="label1" rect="0,5,140,50" border="false" text="消除时间："
+                            h-align="right" v-align="center" color="#303030" font-size="24"
+                            extendstyle="1111" />
+                        <button  rect="140,5,290,50" border="false" OnSelect="timeOnSelect"  extendstyle="1111">
+                            <image rect="0,5,290,40" src="file://image/input_text.png"  style="sudoku-auto" 
+                                    sudoku="15,15,15,15" extendstyle="1111">                  
+                            </image>
+                            <label name="timeEdit" rect="5,5,350,35" text="" color="#303030" extendstyle="1111"
+                                style="autosize" scroll="true" h-align="left" v-align="center" font-size="24">
+                            </label>
+                        </button>
+                    </node> 
+                    <node name="dealstepNode" rect="0,240,480,150" extendstyle="1111" >
                         <label name="label1" rect="0,5,140,50" border="false" text="处理措施："
                             h-align="right" v-align="center" color="#303030" font-size="24"
                             extendstyle="1111" />
@@ -231,23 +244,39 @@
 
 require 'com_wondertek_dw.common.framework'
 require 'framework.umsagent'
+require('framework.voiceinput')
+
 local rootSprite
 local dangerListData = {}
 local dangerSubmitData = {}
 local curErrorBtn
 local gzdata
 local gzdata2
+local currentMonthString   --故障消除时间
+local dangerOrderId
+local taskcode
+local taskid
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    dangerOrderId = Config:get('zhangai_dangerOrderId')
+    taskcode = Config:get('zhangai_taskcode')
+    taskid = Config:get('zhangai_taskid')
     Log:write("故障工单ID = ",dangerOrderId,taskcode,taskid)
     fillContent()
+    filltime()
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        local regHandle = Reg:create("dateTime")
+        local retuenTime = Reg:getString(regHandle, "time")
+        if retuenTime ~= '' and retuenTime ~= nil then 
+            local timeNode = Sprite:findChild(rootSprite,'timeEdit')
+            Sprite:setProperty(timeNode,'text',retuenTime)
+        end 
         UmsAgent:OnActivate(string.match(Alias.m_yinhuangongdanlist, 'MODULE:\\(.*)'), '故障工单列表首页')
         UmsAgent:OnDeactivate()
     elseif msg == MSG_DEACTIVATE then
@@ -257,14 +286,14 @@ function backPre()
     Scene:back()
 end
 -- @brief 插件消息方法
-function bodyOnPluginEvent(msg)
+function bodyOnPluginEvent(msg, param)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
         Loading:close()
         local data = Http:jsonDecode('dangerlist_data')
         Log:write('故障工单状态：',data)
         if data.code == '0' then 
-            Dialog:show('','已提交至班组长审核','ok','backPre')
+            Dialog:show('','已提交成功','ok','backPre')
         else 
             Dialog:show('','提交失败，服务端数据错误','ok')
         end
@@ -295,7 +324,10 @@ function bodyOnPluginEvent(msg)
         if selectData.code == "0" then
             fillSelect()
         end
-
+    elseif msg == MSG_VOICEINPUT then --语音返回消息 
+        local toText = VoiceInput:getInputText()
+        local voiceData = Json:loadString2Table(toText)
+        Log:write('voiceData is ',voiceData)
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -315,8 +347,7 @@ end
 ---------------------------------------util functions---------------------------
 -- 返回按钮
 function doBack()
-    Scene:setReturn(Alias.m_yinhuangongdanlist, Alias.m_daibangongdan)
-    Scene:go(Alias.m_daibangongdan,true)
+    Scene:back()
 end
 
 -- 提交隐患处理信息  
@@ -358,10 +389,10 @@ function doUpload()
     local dealstepContent = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'dealstepNode'), 'dealstepContent'), 'text')
     Log:write('+++++',dealstepContent)
     local param = 'cmd=wlbfaultreply&page=1&id='..dangerOrderId..'&processmeasure='..dealstepContent..'&taskid='..taskid .. '&result='..typeValue
-        ..'&troubletype='..levelValue..'&troubledetail='..zhuanyeValue..'&faultdealtime='
-    local url= getWholeUrl('nbspweb/webservice/wlbfault!doWebservice.action',param)
-    Log:write('提交故障工单接口URL为：', url)
-    Http:request('dangerlist_data', url, 101, {useCache = false, method = 'post', postData=''})
+        ..'&troubletype='..levelValue..'&troubledetail='..zhuanyeValue..'&faultdealtime='..'&usercode='..Config:get('username')
+    local url= getUrl()..'nbspweb/webservice/wlbfault!doWebservice.action'
+    Log:write('提交故障工单接口URL为：', url..'?'..param)
+    Http:request('dangerlist_data', url, 101, {useCache = false, method = 'post', postData=''..param})
 end
 function fillContent()
     local param = 'cmd=wlbfaultdetail&id='..dangerOrderId..'&page=1'
@@ -489,9 +520,9 @@ function typeOnSelect(sprite)
     ListView:removeAllItems(list, 1, 1)
     selectData = {
     ["value"]={
-        [0]={name='已解决', id='1'},
-        [1]={name='延期解决', id='2'},
-        [2]={name='无需解决', id='3'},
+        [0]={name='已解决', id='0'},
+        [1]={name='延期解决', id='1'},
+        [2]={name='无需解决', id='2'},
     }
 }
     fillSelect()
@@ -602,6 +633,36 @@ function xunjianGroupOnSelect(sprite)
     Sprite:setProperty(curXunjianBtn, 'data', Sprite:getData(sprite))
     Sprite:setProperty(xunjianText, 'text', title)
     setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 0)
+end
+--获取系统时间替代故障消除时间
+function filltime()
+    local timeNode = Sprite:findChild(rootSprite,'timeEdit')
+    local timeEdit = Sprite:getText(timeNode)
+    if timeEdit == '' or  timeEdit == nil then 
+        local now = os.date("*t",os.time())
+        currentMonthString = string.format('%s-%s-%s %s:%s', now['year'], now['month'], now["day"],now["hour"],now["min"])
+        Log:write('当前时间',currentMonthString)
+        Sprite:setProperty(timeNode,'text',currentMonthString)
+    end 
+
+end
+
+function timeOnSelect(sprite)
+    Sprite:releaseCapture(sprite)
+    Sprite:killFocus(sprite)
+    local success = VoiceInput:startVoiceInput('0000', '')
+    if success == 0 then
+        Dialog:show(rootSprite, '打开录音失败!', 'ok')
+    end
+    -- local stringDate = Split(currentMonthString, '-')
+    -- Log:write("str========",stringDate)
+    -- local regHandle = Reg:create("startEnd")
+    -- Reg:setString(regHandle, 'type', 'start')
+    -- Reg:setString(regHandle, 'year', stringDate[1])
+    -- Reg:setString(regHandle, 'month', stringDate[2])
+    -- Reg:setString(regHandle, 'day', stringDate[3])
+    -- Scene:setReturn(Alias.m_zhangaigongdanlist, Alias.m_dateDialogTime)
+    -- Scene:go(Alias.m_dateDialogTime)
 end
     ]]>
 </root>

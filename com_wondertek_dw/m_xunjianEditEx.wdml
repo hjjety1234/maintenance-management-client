@@ -325,11 +325,15 @@ local g_stationLon        -- 站点的经度
 local g_stationLat        -- 站点的纬度
 local g_httpTempData      -- 网络获取模板数据
 
+local g_major             --基站专业
+
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
     usercode = Config:get('username')
+    Config:set('Yinhuan_flag','0')
+
 end
 
 -- @brief root节点消息方法
@@ -343,10 +347,10 @@ function bodyOnSpriteEvent(msg, param)
         stationName=Reg:getString(regHandle, 'stationName')
         g_stationLat = Reg:getString(regHandle, 'stationLat')
         g_stationLon = Reg:getString(regHandle, 'stationLon')
-        
+        g_major  = Reg:getString(regHandle, 'g_major')
         local titleNode =  Sprite:findChild(rootSprite, 'titleNode')
         Sprite:setProperty(titleNode, 'text', stationName)
-	    -- 检查站点的位置
+        -- 检查站点的位置
         checkSiteLoc()
     elseif msg == MSG_DEACTIVATE then
     end
@@ -454,27 +458,31 @@ function bodyOnPluginEvent(msg, param)
     elseif msg == 1002 then
         g_httpTempData = Http:jsonDecode('http_temp_data')
         jdtitleItems = formatHttpTempData(g_httpTempData)
-        -- 检查是否有暂存数据 
-        g_items = jdtitleItems   
-        local userInput = Patrol:getUserInput(planId, stationId)         
-        if userInput ~= nil then         
-            Log:write("找到暂存数据，替代服务器返回的巡检项!")         
-            g_items = userInput      
-        else         
-            Log:write("未找到暂存数据，构造空的用户数输入!")      
-            for i=1, #g_items do         
-                for j=1, #g_items[i].subitems do         
-                    -- 构造空的用户输入      
-                    g_items[i].subitems[j].value = ""        
-                    -- 构造空的异常描述和处理描述         
-                    g_items[i].subitems[j].exceptionDetail=""        
-                    -- 构造空的照片列表      
-                    g_items[i].subitems[j].imageArray = {}       
+        g_items = jdtitleItems  
+        local Yinhuan_flag = Config:get('Yinhuan_flag')
+        Log:write('Yinhuan_flag',Yinhuan_flag)
+        if  Yinhuan_flag =='0' then 
+        --检查是否有暂存数据 
+            local userInput = Patrol:getUserInput(planId, stationId)         
+            if userInput ~= nil then         
+                Log:write("找到暂存数据，替代服务器返回的巡检项!")         
+                g_items = userInput      
+            else         
+                Log:write("未找到暂存数据，构造空的用户数输入!")      
+                for i=1, #g_items do         
+                    for j=1, #g_items[i].subitems do         
+                        -- 构造空的用户输入      
+                        g_items[i].subitems[j].value = ""        
+                        -- 构造空的异常描述和处理描述         
+                        g_items[i].subitems[j].exceptionDetail=""        
+                        -- 构造空的照片列表      
+                        g_items[i].subitems[j].imageArray = {}       
+                    end      
                 end      
-            end      
-        end
-        loadTempData()
-        ContractionSet()
+            end
+            loadTempData()
+            ContractionSet()
+        end 
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Loading:close()
         Log:write('拨号失败')
@@ -775,30 +783,31 @@ function changeErrorDetailNode(oldData, newData, sprite,flag)
     local x,y,w,h = Sprite:getRect(errorHideNode)
     if newData == '0' and Sprite:isVisible(errorHideNode) == 0 then
         Log:write("显示异常输入框")
-        setAllShoworHide(errorHideNode, 1)
-        x,y,w,h = Sprite:getRect(itemNode)
-        Sprite:setRect(itemNode, x, y, w, h + 150)
-        x,y,w,h = Sprite:getRect(subListView)
-        Sprite:setRect(subListView, x, y, w, h + 150)
-        x,y,w,h = Sprite:getRect(subListViewNode)
-        Sprite:setRect(subListViewNode, x, y, w, h + 150)
-        x,y,w,h = Sprite:getRect(mainItem)
-        Sprite:setRect(mainItem, x, y, w, h + 150)
-        ListView:adjust(subListView)
-        ListView:adjust(mainListView)
-    elseif newData == '1' and Sprite:isVisible(errorHideNode) == 1 then 
-        Log:write("隐藏异常输入框")
-        setAllShoworHide(errorHideNode, 0)
-        x,y,w,h = Sprite:getRect(itemNode)
-        Sprite:setRect(itemNode, x, y, w, h - 150)
-        x,y,w,h = Sprite:getRect(subListView)
-        Sprite:setRect(subListView, x, y, w, h - 150)
-        x,y,w,h = Sprite:getRect(subListViewNode)
-        Sprite:setRect(subListViewNode, x, y, w, h - 150)
-        x,y,w,h = Sprite:getRect(mainItem)
-        Sprite:setRect(mainItem, x, y, w, h - 150)
-        ListView:adjust(subListView)
-        ListView:adjust(mainListView)
+        Dialog:show('','是否将异常项生成隐患工单','ok_cancel','goYinhuan')
+    --     setAllShoworHide(errorHideNode, 1)
+    --     x,y,w,h = Sprite:getRect(itemNode)
+    --     Sprite:setRect(itemNode, x, y, w, h + 150)
+    --     x,y,w,h = Sprite:getRect(subListView)
+    --     Sprite:setRect(subListView, x, y, w, h + 150)
+    --     x,y,w,h = Sprite:getRect(subListViewNode)
+    --     Sprite:setRect(subListViewNode, x, y, w, h + 150)
+    --     x,y,w,h = Sprite:getRect(mainItem)
+    --     Sprite:setRect(mainItem, x, y, w, h + 150)
+    --     ListView:adjust(subListView)
+    --     ListView:adjust(mainListView)
+    -- elseif newData == '1' and Sprite:isVisible(errorHideNode) == 1 then 
+    --     Log:write("隐藏异常输入框")
+    --     setAllShoworHide(errorHideNode, 0)
+    --     x,y,w,h = Sprite:getRect(itemNode)
+    --     Sprite:setRect(itemNode, x, y, w, h - 150)
+    --     x,y,w,h = Sprite:getRect(subListView)
+    --     Sprite:setRect(subListView, x, y, w, h - 150)
+    --     x,y,w,h = Sprite:getRect(subListViewNode)
+    --     Sprite:setRect(subListViewNode, x, y, w, h - 150)
+    --     x,y,w,h = Sprite:getRect(mainItem)
+    --     Sprite:setRect(mainItem, x, y, w, h - 150)
+    --     ListView:adjust(subListView)
+    --     ListView:adjust(mainListView)
     end
 end
 
@@ -1071,7 +1080,8 @@ end
 
 -- 返回上一个页面，如果有暂存数据，需要暂存 
 function doBackWithSave()        
-    if Loading:isShow() then Loading:close() end         
+    if Loading:isShow() then Loading:close() end 
+    Config:set('Yinhuan_flag','0')        
     if isTableEmpty(g_items) == false then       
         Patrol:save(planId, stationId, g_items)       
     end      
@@ -1080,6 +1090,7 @@ end
 
 -- 直接返回上一个页面，无暂存
 function doBack()
+    Config:set('Yinhuan_flag','0')
     if Loading:isShow() then Loading:close() end
     Scene:back()
 end
@@ -1465,6 +1476,17 @@ function getFormatScop( dataScop, dataException )
         end
     --end
     return range, exception
+end
+
+function goYinhuan()
+    --标示用于是否界面重新加载
+    Config:set('Yinhuan_flag','1')
+    Log:write('传给隐患的数据',g_major,stationId,stationName)
+    Config:set('Yinhuan_major',g_major)
+    Config:set('Yinhuan_stationId',stationId)
+    Config:set('Yinhuan_stationName',stationName)
+    Scene:setReturn(Alias.m_xunjianEditEx,Alias.m_yinhuanshangchuan_xunjian)
+    Scene:go(Alias.m_yinhuanshangchuan_xunjian)
 end
 
     ]]>
