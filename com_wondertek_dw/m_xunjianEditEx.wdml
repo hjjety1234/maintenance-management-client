@@ -463,23 +463,23 @@ function bodyOnPluginEvent(msg, param)
         Log:write('Yinhuan_flag',Yinhuan_flag)
         if  Yinhuan_flag =='0' then 
         --检查是否有暂存数据 
-            local userInput = Patrol:getUserInput(planId, stationId)         
-            if userInput ~= nil then         
-                Log:write("找到暂存数据，替代服务器返回的巡检项!")         
-                g_items = userInput      
-            else         
-                Log:write("未找到暂存数据，构造空的用户数输入!")      
-                for i=1, #g_items do         
-                    for j=1, #g_items[i].subitems do         
-                        -- 构造空的用户输入      
-                        g_items[i].subitems[j].value = ""        
-                        -- 构造空的异常描述和处理描述         
-                        g_items[i].subitems[j].exceptionDetail=""        
-                        -- 构造空的照片列表      
-                        g_items[i].subitems[j].imageArray = {}       
-                    end      
-                end      
-            end
+            -- local userInput = Patrol:getUserInput(planId, stationId)         
+            -- if userInput ~= nil then         
+            --     Log:write("找到暂存数据，替代服务器返回的巡检项!")         
+            --     g_items = userInput      
+            -- else         
+            --     Log:write("未找到暂存数据，构造空的用户数输入!")      
+            --     for i=1, #g_items do         
+            --         for j=1, #g_items[i].subitems do         
+            --             -- 构造空的用户输入      
+            --             g_items[i].subitems[j].value = ""        
+            --             -- 构造空的异常描述和处理描述         
+            --             g_items[i].subitems[j].exceptionDetail=""        
+            --             -- 构造空的照片列表      
+            --             g_items[i].subitems[j].imageArray = {}       
+            --         end      
+            --     end      
+            -- end
             loadTempData()
             ContractionSet()
         end 
@@ -671,8 +671,8 @@ function onTextLostFocus(sprite)
     local curItem = Sprite:getParent(Sprite:getParent(Sprite:getParent(g_curSubItem)))
     g_curItemIndex = tonumber(Sprite:getData(curItem))
     g_curSubItemIndex = tonumber(Sprite:getData(g_curSubItem))
-    Log:write('info: onTextLostFocus() i, j', g_curItemIndex, g_curSubItemIndex)
-
+    Log:write('info: onTextLostFocus() i, j', g_curItemIndex)
+    
     local content = tonumber(Sprite:getText(sprite))
     local oldData = Sprite:getData(sprite)
     local newData = '1'
@@ -721,7 +721,7 @@ function errorOnSelect(sprite)
     local curItem = Sprite:getParent(Sprite:getParent(Sprite:getParent(g_curSubItem)))
     g_curItemIndex = tonumber(Sprite:getData(curItem))
     g_curSubItemIndex = tonumber(Sprite:getData(g_curSubItem))
-
+    Log:write('隐患项名称',g_items[g_curItemIndex].subitems[g_curSubItemIndex].subitemName)
     curErrorBtn = sprite
     curNameContent = Split(Sprite:getData(errorTypeNameList), ',')
     curCodeContent = Split(Sprite:getData(errorTypeCodeList), ',')
@@ -766,13 +766,6 @@ end
 
 --下拉伸缩 flag表示是什么类型的输入框
 function changeErrorDetailNode(oldData, newData, sprite,flag)
-    -- body
-    --[[
-    if oldData == newData then
-        return
-    end
-    --]]
-
     local itemNode = Sprite:getParent(Sprite:getParent(sprite))
     local errorHideNode = Sprite:findChild(itemNode, 'errorHideNode')
     Sprite:setProperty(errorHideNode, 'data', flag)

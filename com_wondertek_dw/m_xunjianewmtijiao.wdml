@@ -285,12 +285,13 @@ local g_imageArray = {}         -- 图片上传列表
 local g_subitemidArray = {}     -- 
 local g_piccurrbtn
 local g_imgnum = 0              -- 上传图片的个数
-
+local g_major
 ---------------------------------------回调函数列表-----------------------------
 
 --  root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
     rootSprite = sprite
+    Config:set('Yinhuan_flag','0')
     -- 页面传值
     local regHandle = Reg:create('xunjianzhixiang')
     g_planId = Reg:getString(regHandle, 'planId')
@@ -302,6 +303,7 @@ function bodyBuildChildrenFinished(sprite)
     g_ewm = Reg:getString(regHandle, 'ewm')
     g_resultId = Reg:getString(regHandle, "resultId")
     g_resourceId = Reg:getString(regHandle, "resourceId")
+    g_major = Reg:getString(regHandle, "g_major")
     -- 设置页面标题
     Sprite:setProperty(Sprite:findChild(rootSprite, 'titleNode'), 'text',
         Reg:getString(regHandle, 'device'))
@@ -359,13 +361,15 @@ function bodyOnPluginEvent(msg, param)
                 end
             end
         end
-        -- 检查是否有暂存数据
-        local userInput = Patrol:getResUserInput(g_planId, g_stationId, g_resourceId)
-        if userInput ~= nil then 
-            Log:write("找到暂存数据，替代服务器返回的巡检项!")
-            g_items = userInput
-        else
-            Log:write("未找到暂存数据，构造空的用户数输入!")
+        local Yinhuan_flag = Config:get('Yinhuan_flag')
+        Log:write('Yinhuan_flag',Yinhuan_flag)
+        if  Yinhuan_flag =='0' then 
+            -- local userInput = Patrol:getResUserInput(g_planId, g_stationId, g_resourceId)
+            -- if userInput ~= nil then 
+            --     Log:write("找到暂存数据，替代服务器返回的巡检项!")
+            --     g_items = userInput
+            -- else
+            --     Log:write("构造空的用户数输入!")
             for i=1, #g_items do 
                 for j=1, #g_items[i].subitems do
                     -- 构造空的用户输入
@@ -376,15 +380,16 @@ function bodyOnPluginEvent(msg, param)
                     g_items[i].subitems[j].imageArray = {}
                 end
             end
+            -- end 
+            -- 在界面上加载巡检项
+            local mainListView = Sprite:findChild(rootSprite,'mainListView')
+            local mainItemNode = Sprite:findChild(rootSprite,'mainItemNode')
+            ListView:removeAllItems(mainListView, 1, 1)
+            ListView:loadItem(mainListView, mainItemNode, #g_items, 'loadListItem')
+            ListView:adjust(mainListView)
+            -- 隐藏所有的巡检子项
+            setAllSubItemsVisible(false)
         end 
-        -- 在界面上加载巡检项
-        local mainListView = Sprite:findChild(rootSprite,'mainListView')
-        local mainItemNode = Sprite:findChild(rootSprite,'mainItemNode')
-        ListView:removeAllItems(mainListView, 1, 1)
-        ListView:loadItem(mainListView, mainItemNode, #g_items, 'loadListItem')
-        ListView:adjust(mainListView)
-        -- 隐藏所有的巡检子项
-        setAllSubItemsVisible(false)
     elseif msg == 103 then -- 阶段保存提交
         Loading:close()
         local data = Http:jsonDecode('Submitdata')
@@ -527,6 +532,7 @@ end
 -- 返回上一个页面，如果有暂存数据，需要暂存
 function doBackWithSave()
     if Loading:isShow() then Loading:close() end
+    Config:set('Yinhuan_flag','0')
     if isTableEmpty(g_items) == false then 
         Patrol:resSave(g_planId, g_stationId, g_resourceId, g_items)
     end
@@ -535,6 +541,7 @@ end
 
 -- 直接返回上一个页面，无暂存
 function doBack()
+    Config:set('Yinhuan_flag','0')
     if Loading:isShow() then Loading:close() end
     Scene:back(true)
 end
@@ -1085,7 +1092,7 @@ function errorOnSelect(sprite)
 	local curItem = Sprite:getParent(Sprite:getParent(Sprite:getParent(g_curSubItem)))
 	g_curItemIndex = tonumber(Sprite:getData(curItem))
 	g_curSubItemIndex = tonumber(Sprite:getData(g_curSubItem))
-		
+	Log:write('巡检子项下标',g_items[g_curItemIndex].subitems[g_curSubItemIndex].valueScope)	
 	-- 取得值域范围
 	local valueScope = Split(g_items[g_curItemIndex].subitems[g_curSubItemIndex].valueScope, ',')
 	local list = Sprite:findChild(rootSprite, 'listSelect')
@@ -1198,28 +1205,31 @@ function showErrorNode(bVisible)
     -- 显示或隐藏异常输入框
     Log:write('errorHideNode visible attribute:', Sprite:isVisible(errorHideNode))
     if bVisible == true and Sprite:isVisible(errorHideNode) == 0 then
-        setAllShoworHide(errorHideNode, 1)
-        local x, y, w, h = Sprite:getRect(g_curSubItem)
-        Sprite:setRect(g_curSubItem, x, y, w, h + 150)
-        x, y, w, h = Sprite:getRect(subListView)
-        Sprite:setRect(subListView, x, y, w, h + 150)
-        x, y, w, h = Sprite:getRect(subListViewNode)
-        Sprite:setRect(subListViewNode, x, y, w, h + 150)
-        x, y, w, h = Sprite:getRect(mainItem)
-        Sprite:setRect(mainItem, x, y, w, h + 150)
-	elseif bVisible ==  false and Sprite:isVisible(errorHideNode) == 1 then
-        setAllShoworHide(errorHideNode, 0)
-        local x, y, w, h = Sprite:getRect(g_curSubItem)
-        Sprite:setRect(g_curSubItem, x, y, w, h - 150)
-        x, y, w, h = Sprite:getRect(subListView)
-        Sprite:setRect(subListView, x, y, w, h - 150)
-        x, y, w, h = Sprite:getRect(subListViewNode)
-        Sprite:setRect(subListViewNode, x, y, w, h - 150)
-        x, y, w, h = Sprite:getRect(mainItem)
-        Sprite:setRect(mainItem, x, y, w, h - 150)
+ --        setAllShoworHide(errorHideNode, 1)
+ --        local x, y, w, h = Sprite:getRect(g_curSubItem)
+ --        Sprite:setRect(g_curSubItem, x, y, w, h + 150)
+ --        x, y, w, h = Sprite:getRect(subListView)
+ --        Sprite:setRect(subListView, x, y, w, h + 150)
+ --        x, y, w, h = Sprite:getRect(subListViewNode)
+ --        Sprite:setRect(subListViewNode, x, y, w, h + 150)
+ --        x, y, w, h = Sprite:getRect(mainItem)
+ --        Sprite:setRect(mainItem, x, y, w, h + 150)
+	-- elseif bVisible ==  false and Sprite:isVisible(errorHideNode) == 1 then
+ --        setAllShoworHide(errorHideNode, 0)
+ --        local x, y, w, h = Sprite:getRect(g_curSubItem)
+ --        Sprite:setRect(g_curSubItem, x, y, w, h - 150)
+ --        x, y, w, h = Sprite:getRect(subListView)
+ --        Sprite:setRect(subListView, x, y, w, h - 150)
+ --        x, y, w, h = Sprite:getRect(subListViewNode)
+ --        Sprite:setRect(subListViewNode, x, y, w, h - 150)
+ --        x, y, w, h = Sprite:getRect(mainItem)
+ --        Sprite:setRect(mainItem, x, y, w, h - 150)
+        Log:write("显示异常输入框")
+        Dialog:show('','是否将异常项生成隐患工单','ok_cancel','goYinhuan')
 	end
-    ListView:adjust(subListView)
-    ListView:adjust(mainListView)
+ --    ListView:adjust(subListView)
+ --    ListView:adjust(mainListView)
+
 end
 
 ------------------------- NUM类型输入框处理函数--------------------------------
@@ -1338,5 +1348,16 @@ function ErrorSave(sprite)
     end
 end
 
+function goYinhuan()
+    --标示用于是否界面重新加载
+    Config:set('Yinhuan_flag','1')
+    Log:write('传给隐患的数据',g_major,g_stationId,g_stationName)
+    Config:set('Yinhuan_major',g_major)
+    Config:set('Yinhuan_stationId',g_stationId)
+    Config:set('Yinhuan_stationName',g_stationName)
+    Scene:setReturn(Alias.m_xunjianewmtijiao,Alias.m_yinhuanshangchuan_xunjian)
+    Scene:go(Alias.m_yinhuanshangchuan_xunjian)
+
+end
 ]]>
 </root>

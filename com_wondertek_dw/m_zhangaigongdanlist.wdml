@@ -98,9 +98,16 @@
                         <label name="label1" rect="0,5,140,50" border="false" text="处理措施："
                             h-align="right" v-align="center" color="#303030" font-size="24"
                             extendstyle="1111" />
-                        <shadow rect="140,10,322,550" color="#ffffff" alpha="255"
-                            border='true' extendstyle="1111" />
-                        <edit name="dealstepContent" rect="145,15,300,500" font-size="24"
+                        <button name="label1" rect="440,5,40,40" border="false" text=""
+                            h-align="right" v-align="center"  color="#303030" OnSelect="voiceOnSelect" font-size="24"
+                            extendstyle="1111" >
+                            <image rect="5,8,25,45" src="file://image/voice.png"  tyle="sudoku-auto" 
+                                    sudoku="15,15,15,15" extendstyle="1111">                  
+                            </image>
+                        </button>
+                        <image rect="140,10,290,550" color="#ffffff" src="file://image/input_text.png"  style="sudoku-auto" 
+                                    sudoku="15,15,15,15" border='true' extendstyle="1111" />
+                        <edit name="dealstepContent" rect="145,15,280,500" font-size="24"
                             font-family='微软雅黑' text="" color="#303030" extendstyle="1111"
                             line-height='28' multiline="true" style="autosize" h-align="left"
                             v-align="top" />
@@ -238,6 +245,12 @@
                     normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
                     sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
                     font-size="24"  visible="false" enable="false"/>
+            <!-- 跳过现场处理 -->
+            <button name="nextBtn" rect="160,720,160,50" text="跳过现场处理" color="#ffffff"
+                    extendstyle="1111" OnSelect="doNext"
+                    normal="src:file://image/btn_bg_n.png;style:sudoku-auto;sudoku:15,15,15,15;color:#ffffff"
+                    sel="src:file://image/btn_bg_s.png;style:sudoku-auto;sudoku:15,15,15,15;color:#000000"
+                    font-size="24"  visible="false" enable="false"/>
         </node>
     </body>
     <![CDATA[
@@ -264,21 +277,19 @@ function bodyBuildChildrenFinished(sprite)
     taskcode = Config:get('zhangai_taskcode')
     taskid = Config:get('zhangai_taskid')
     Log:write("故障工单ID = ",dangerOrderId,taskcode,taskid)
-    fillContent()
-    filltime()
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
+        fillContent()
+        filltime()
         local regHandle = Reg:create("dateTime")
         local retuenTime = Reg:getString(regHandle, "time")
         if retuenTime ~= '' and retuenTime ~= nil then 
             local timeNode = Sprite:findChild(rootSprite,'timeEdit')
             Sprite:setProperty(timeNode,'text',retuenTime)
         end 
-        UmsAgent:OnActivate(string.match(Alias.m_yinhuangongdanlist, 'MODULE:\\(.*)'), '故障工单列表首页')
-        UmsAgent:OnDeactivate()
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -328,6 +339,10 @@ function bodyOnPluginEvent(msg, param)
         local toText = VoiceInput:getInputText()
         local voiceData = Json:loadString2Table(toText)
         Log:write('voiceData is ',voiceData)
+        --语音赋值
+        local dealstep = Sprite:findChild(rootSprite, 'dealstepContent')
+        Sprite:setProperty(dealstep,'text',voiceData.RecognizedText)
+
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
         Log:write('拨号失败')
@@ -416,6 +431,9 @@ function  fillgzData()
     local chuligz=Sprite:findChild(rootSprite,"chuligz")
     local gzchuli=Sprite:findChild(rootSprite,"gzchuli")
     local pic =Sprite:findChild(rootSprite,"pic")
+
+    --跳过处理
+    local nextBtn =Sprite:findChild(rootSprite,"nextBtn")
     if gzdata.value[0].title ~='' then
         Sprite:setProperty(querytitle,"text",gzdata.value[0].title)
     end
@@ -453,6 +471,7 @@ function  fillgzData()
       Sprite:setVisible(gzchuli, 1) 
       Sprite:setVisible(chuligz, 0) 
       Sprite:setVisible(pic, 1)
+      setAllShoworHide(nextBtn,0)
    elseif gzdata.value[0].status =='' then
       Sprite:setProperty(statusBtn,"text","签收")
       Sprite:setVisible(submitBtn, 0)
@@ -462,6 +481,7 @@ function  fillgzData()
       Sprite:setVisible(gzchuli, 1) 
       Sprite:setVisible(chuligz, 0) 
       Sprite:setVisible(pic, 1)
+      setAllShoworHide(nextBtn,1)
    elseif  gzdata.value[0].status =='00' then
       Sprite:setProperty(statusBtn,"text","正在途中")
       Sprite:setVisible(submitBtn, 0)
@@ -471,6 +491,7 @@ function  fillgzData()
       Sprite:setVisible(gzchuli, 1) 
       Sprite:setVisible(chuligz, 0) 
       Sprite:setVisible(pic, 1)
+      setAllShoworHide(nextBtn,0)
    elseif gzdata.value[0].status =='02' then
       Sprite:setProperty(statusBtn,"text","处理结束")
       Sprite:setVisible(submitBtn, 0)
@@ -480,6 +501,7 @@ function  fillgzData()
       Sprite:setVisible(gzchuli, 1) 
       Sprite:setVisible(chuligz, 0) 
       Sprite:setVisible(pic, 1)
+      setAllShoworHide(nextBtn,0)
    elseif gzdata.value[0].status =='05' then
      --Sprite:setProperty(gzjibie,"text","故障消除")
       Sprite:setVisible(submitBtn, 1)
@@ -489,6 +511,7 @@ function  fillgzData()
       setAllShoworHide(gzchuli,0)
       Sprite:setVisible(chuligz, 1) 
       Sprite:setVisible(pic, 0)
+      setAllShoworHide(nextBtn,0)
    end
 end
 function doStatus()
@@ -507,6 +530,14 @@ function doStatus()
     Log:write('===新故障工单列表提交按钮响应======', url)
     Http:request('dangerlist_data2', url, 103, {useCache = false, method = 'post', postData=''})
 end
+--跳过处理
+function doNext()
+    local gg = '05'
+    local param = 'cmd=wlbtroubleprocessevent&userid='..Config:get("username")..'&orderid='..taskcode..'&eventtime='..'&eventid='..gg..'&lon=11&lat=11&ordertypeid=002'
+    local url= getWholeUrl('nbspweb/webservice/trouble!doWebservice.action',param)
+    Log:write('===新故障工单列表提交按钮响应======', url)
+    Http:request('dangerlist_data2', url, 103, {useCache = false, method = 'post', postData=''})
+end 
 
 -- 处理结果选择
 function typeOnSelect(sprite)
@@ -648,21 +679,24 @@ function filltime()
 end
 
 function timeOnSelect(sprite)
+    local stringDate = Split(currentMonthString, '-')
+    Log:write("str========",stringDate)
+    local regHandle = Reg:create("startEnd")
+    Reg:setString(regHandle, 'type', 'start')
+    Reg:setString(regHandle, 'year', stringDate[1])
+    Reg:setString(regHandle, 'month', stringDate[2])
+    Reg:setString(regHandle, 'day', stringDate[3])
+    Scene:setReturn(Alias.m_zhangaigongdanlist, Alias.m_dateDialogTime)
+    Scene:go(Alias.m_dateDialogTime)
+end
+
+function voiceOnSelect(sprite)
     Sprite:releaseCapture(sprite)
     Sprite:killFocus(sprite)
     local success = VoiceInput:startVoiceInput('0000', '')
     if success == 0 then
         Dialog:show(rootSprite, '打开录音失败!', 'ok')
     end
-    -- local stringDate = Split(currentMonthString, '-')
-    -- Log:write("str========",stringDate)
-    -- local regHandle = Reg:create("startEnd")
-    -- Reg:setString(regHandle, 'type', 'start')
-    -- Reg:setString(regHandle, 'year', stringDate[1])
-    -- Reg:setString(regHandle, 'month', stringDate[2])
-    -- Reg:setString(regHandle, 'day', stringDate[3])
-    -- Scene:setReturn(Alias.m_zhangaigongdanlist, Alias.m_dateDialogTime)
-    -- Scene:go(Alias.m_dateDialogTime)
 end
     ]]>
 </root>
