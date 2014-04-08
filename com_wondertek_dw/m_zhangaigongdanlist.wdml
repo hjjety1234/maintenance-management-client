@@ -23,7 +23,7 @@
                 <label rect="0,0,480,66" text="故障工单" color="#ffffff" v-align="center"
                     h-align="center" font-family="微软雅黑" font-size="30" extendstyle="1111" />    
                 <button name="backBtn" rect="0,0,66,66"  OnSelect="doBack" extendstyle="1111">
-                    <image name="normal" rect="15,8,75,75" src="file://image/skin/ic_home_new.png" extendstyle="1111" />
+                    <image name="normal" rect="15,8,75,75" src="file://image/skin/title_back_new.png" extendstyle="1111" />
                 </button>
                 <!-- 提交 -->
                 <button name="submitBtn" rect="400,0,75,75" text="" color="#ffffff"
@@ -85,13 +85,13 @@
                         <label name="label1" rect="0,5,140,50" border="false" text="消除时间："
                             h-align="right" v-align="center" color="#303030" font-size="24"
                             extendstyle="1111" />
-                        <button  rect="140,5,290,50" border="false" OnSelect="timeOnSelect"  extendstyle="1111">
+                        <button  rect="140,5,290,50" border="false" OnSelect=""  extendstyle="1111">
                             <image rect="0,5,290,40" src="file://image/input_text.png"  style="sudoku-auto" 
                                     sudoku="15,15,15,15" extendstyle="1111">                  
                             </image>
-                            <label name="timeEdit" rect="5,5,350,35" text="" color="#303030" extendstyle="1111"
+                            <edit name="timeEdit" rect="5,5,350,35" text="" color="#303030" extendstyle="1111"
                                 style="autosize" scroll="true" h-align="left" v-align="center" font-size="24">
-                            </label>
+                            </edit>
                         </button>
                     </node> 
                     <node name="dealstepNode" rect="0,240,480,150" extendstyle="1111" >
@@ -283,13 +283,12 @@ end
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
         fillContent()
-        filltime()
-        local regHandle = Reg:create("dateTime")
-        local retuenTime = Reg:getString(regHandle, "time")
-        if retuenTime ~= '' and retuenTime ~= nil then 
-            local timeNode = Sprite:findChild(rootSprite,'timeEdit')
-            Sprite:setProperty(timeNode,'text',retuenTime)
-        end 
+        -- local regHandle = Reg:create("dateTime")
+        -- local retuenTime = Reg:getString(regHandle, "time")
+        -- if retuenTime ~= '' and retuenTime ~= nil then 
+        --     local timeNode = Sprite:findChild(rootSprite,'timeEdit')
+        --     Sprite:setProperty(timeNode,'text',retuenTime)
+        -- end 
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -311,6 +310,14 @@ function bodyOnPluginEvent(msg, param)
     elseif msg == 102 then
         gzdata = Http:jsonDecode('dangerlist_data1')
         Log:write("故障数据",gzdata)
+        --如果没有故障消除时间，则获取系统时间
+        if gzdata.value[0].faultdealtime == '' or gzdata.value[0].faultdealtime==nil then 
+           filltime()
+        else
+           filltime()
+           -- local timeNode = Sprite:findChild(rootSprite,'timeEdit')
+           -- Sprite:setProperty(timeNode,'text',gzdata.value[0].faultdealtime)
+        end 
         if  gzdata.code == '0' then 
             fillgzData()
         else 
@@ -402,9 +409,11 @@ end
 function doUpload()
     Loading:show()
     local dealstepContent = Sprite:getProperty(Sprite:findChild(Sprite:findChild(rootSprite, 'dealstepNode'), 'dealstepContent'), 'text')
+    local timeNode = Sprite:findChild(rootSprite,'timeEdit')
+    local faultdealtime = Sprite:getText(timeNode)
     Log:write('+++++',dealstepContent)
     local param = 'cmd=wlbfaultreply&page=1&id='..dangerOrderId..'&processmeasure='..dealstepContent..'&taskid='..taskid .. '&result='..typeValue
-        ..'&troubletype='..levelValue..'&troubledetail='..zhuanyeValue..'&faultdealtime='..'&usercode='..Config:get('username')
+        ..'&troubletype='..levelValue..'&troubledetail='..zhuanyeValue..'&faultdealtime='..faultdealtime..'&usercode='..Config:get('username')
     local url= getUrl()..'nbspweb/webservice/wlbfault!doWebservice.action'
     Log:write('提交故障工单接口URL为：', url..'?'..param)
     Http:request('dangerlist_data', url, 101, {useCache = false, method = 'post', postData=''..param})
@@ -665,20 +674,40 @@ function xunjianGroupOnSelect(sprite)
     Sprite:setProperty(xunjianText, 'text', title)
     setAllShoworHide(Sprite:findChild(rootSprite, 'xunjianSelectNode'), 0)
 end
---获取系统时间替代故障消除时间
+--获取系统时间替代故障消除时间,小于10前面加0
 function filltime()
     local timeNode = Sprite:findChild(rootSprite,'timeEdit')
-    local timeEdit = Sprite:getText(timeNode)
-    if timeEdit == '' or  timeEdit == nil then 
-        local now = os.date("*t",os.time())
-        currentMonthString = string.format('%s-%s-%s %s:%s', now['year'], now['month'], now["day"],now["hour"],now["min"])
-        Log:write('当前时间',currentMonthString)
-        Sprite:setProperty(timeNode,'text',currentMonthString)
+    local now = os.date("*t",os.time())
+    local nowMin = tonumber(now["min"])
+    if nowMin<10 then 
+        nowMin = '0'..tostring(nowMin)
     end 
-
+    local nowSec = tonumber(now["sec"])
+    if nowSec<10 then 
+        nowSec = '0'..tostring(nowSec)
+    end 
+    local nowHour = tonumber(now["hour"])
+    if nowHour<10 then 
+        nowHour = '0'..tostring(nowHour)
+    end 
+    local nowDay = tonumber(now["day"])
+    if nowDay<10 then 
+        nowDay = '0'..tostring(nowDay)
+    end 
+    local nowMonth = tonumber(now["month"])
+    if nowMonth<10 then 
+        nowMonth = '0'..tostring(nowMonth)
+    end 
+    currentMonthString = string.format('%s-%s-%s %s:%s:%s', now['year'], nowMonth, nowDay,nowHour,nowMin,nowSec)
+    Log:write('当前时间', now,currentMonthString)
+    Sprite:setProperty(timeNode,'text',currentMonthString)
 end
 
+--暂时不用
 function timeOnSelect(sprite)
+    local now = os.date("*t",os.time())
+    currentMonthString = string.format('%s-%s-%s %s:%s:%s', now['year'], now['month'], now["day"],now["hour"],now["min"],now["sec"])
+    Log:write("currentMonthString",currentMonthString)
     local stringDate = Split(currentMonthString, '-')
     Log:write("str========",stringDate)
     local regHandle = Reg:create("startEnd")
@@ -687,7 +716,7 @@ function timeOnSelect(sprite)
     Reg:setString(regHandle, 'month', stringDate[2])
     Reg:setString(regHandle, 'day', stringDate[3])
     Scene:setReturn(Alias.m_zhangaigongdanlist, Alias.m_dateDialogTime)
-    Scene:go(Alias.m_dateDialogTime)
+    Scene:go(Alias.m_dateDialogTime,true)
 end
 
 function voiceOnSelect(sprite)

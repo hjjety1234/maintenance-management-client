@@ -70,31 +70,33 @@
             </node>
             <!-- 隐藏的搜索栏 -->
             <node name="searchBar" rect="0,130,480,56" extendstyle="1111"
-                visible="false">
+                visible="true">
                 <image name="search_bg_new" rect="0,0,480,52" src="file://image/search_bg.png"
                     style="autosize" extendstyle="1111" />
                 <image name="searchBarImage" rect="15,5,450,42"
                     src="file://image/search_input_new.png" style="autosize" extendstyle="1111" />
-                <edit name="keywordEdit" rect="37,10,340,42" extendstyle='1111' OnTextChanged="editOnTextChanged"
-                    v-align="center" text="">
-                    <label name="hideLabel" rect="10,0,278,42" text="搜索工单" color="#c0c0c0"
+                <label name="hideLabel" rect="47,10,278,42" text="输入工单标题或工单编号" color="#c0c0c0"
                         extendstyle="1111" style="autosize" h-align="left" v-align="center"
                         font-size="24" />
+                <edit name="keywordEdit" rect="37,10,340,42"  extendstyle='1111' OnTextChanged="editOnTextChanged"
+                    v-align="center" text="">
                 </edit>
                 <button name="searchButton" rect="415,5,40,40" OnSelect="OnSearchButtonClicked"
                     extendstyle="1111">
                 </button>
             </node>
             <!--列表信息-->
-            <node name="listNode" rect="0,125,480,645" extendstyle="1111">
+            <node name="listNode" rect="0,190,480,610" extendstyle="1111">
                 <label name="noDataLbl" rect="0,100,480,40" text="对不起，暂无工单！" visible="false" enable="false" active="false"  color="#5a5a5a" h-align="center" v-align="center" font-size="25" extendstyle="1171" />
-                <listview name="sampleList" rect="0,0,480,734" extendstyle="1111" />
+                <listview name="sampleList" rect="0,0,480,610" extendstyle="1111" />
             </node>
             <node name="listitem" visible="false" enable="false" active="false"
-                extendstyle="1011" rect="0,200,480,130">
-                <shadow name="listItemBg" rect="0,0,480,130" color="" alpha="0" extendstyle="1111" />
-                <button name="btnname" rect="0,0,480,130" OnSelect="itemOnSelect"
-                    extendstyle="1111">
+                extendstyle="1011" rect="0,200,480,150">
+                <shadow name="listItemBg" rect="0,0,480,0" color="" alpha="0" extendstyle="1177" />
+                <button name="moreBtn" rect="0,0,480,70" visible="false" enable="false" active="false" OnSelect="moreLoadSelect" v-align="center" text="点击加载更多..."
+                    extendstyle="1111"/>
+                <button name="btnname" rect="0,0,480,0" OnSelect="itemOnSelect"
+                    extendstyle="1177">
                     <image name="lineSign" rect="0,5,6,105" border="false" src=""
                       style="autosize"   extendstyle="1111"></image>
                    <image name="timeSign" rect="440,44,27,27" border="false" src=""
@@ -107,57 +109,59 @@
                     <label rect="10,40,150,20" text="工单标题：" color="#5a5a5a"
                         font-family="黑体" font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <scrolltext name="textTitle" rect="120,40,300,20" text="" color="#5a5a5a" extendstyle="1111"
-                        style="autosize" scroll="true" step="3" h-align="left" v-align="center" font-family="黑体" font-size="20" >
-                    </scrolltext>  
-                    <label rect="10,65,150,20" text="工单类别：" color="#5a5a5a"
+                    <textarea name="textTitle" rect="120,40,360,42" multiline="true" line-height = '22' text="" color="#5a5a5a"
+                        font-family="黑体" font-size="18" v-align="top" extendstyle="1111"
+                        border="false" />
+                    <label rect="10,85,150,20" text="工单类别：" color="#5a5a5a"
                         font-family="黑体" font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label name="textType" rect="120,65,300,20" text="故障" color="#5a5a5a"
+                    <label name="textType" rect="120,85,300,20" text="故障" color="#5a5a5a"
                         font-family="黑体" font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />                      
-                    <label rect="10,85,150,20" text="派发时间：" color="#5a5a5a" 
+                    <label rect="10,105,150,20" text="派发时间：" color="#5a5a5a" 
                     font-family="黑体" font-size="20" h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="textTime" rect="120,85,460,20" text="" color="#5a5a5a"
+                    <label name="textTime" rect="120,105,460,20" text="" color="#5a5a5a"
                         font-family="黑体" font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label name="timeLabel" rect="10,110,150,20" text="完成时限：" color="#dd512e" font-size="20"
+                    <label name="timeLabel" rect="10,130,150,20" text="完成时限：" color="#dd512e" font-size="20"
                         font-family="黑体" h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="finishTime" rect="120,110,460,20" text="" color="#dd512e"
+                    <label name="finishTime" rect="120,130,460,20" text="" color="#dd512e"
                         font-family="黑体" font-size="20" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
                 </button>
             </node>
              <node name="verifyItem" visible="false" enable="false" active="false"
                 extendstyle="1011" rect="0,200,480,130">
-                <shadow name="listItemBg" rect="0,0,480,130" color="" alpha="0" extendstyle="1111" />
+                <shadow name="listItemBg" rect="0,0,480,0" color="" alpha="0" extendstyle="1177" />
+                <button name="moreBtn" rect="0,0,480,70" visible="false" enable="false" active="false" OnSelect="moreLoadSelect" v-align="center" text="点击加载更多..."
+                    extendstyle="1111"/>
                 <button name="btnname" rect="0,0,480,130" OnSelect="verifyItemOnSelect"
-                    extendstyle="1111">
+                    extendstyle="1177">
                     <image name="lineSign" rect="0,5,6,105" border="false" src=""
                       style="autosize"   extendstyle="1111"></image>
                    <image name="timeSign" rect="440,44,27,27" border="false" src=""
                         style="autosize" extendstyle="1111"/>                     
                     <label rect="10,10,150,20" text="工单标题：" color="#5a5a5a"
-                        font-family="黑体" font-size="20"   h-align="left" v-align="center" extendstyle="1111"
+                        font-family="黑体" font-size="18"   h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <scrolltext name="textTitle" rect="120,7,320,25" text="" color="#5a5a5a"
-                        font-family="黑体" font-size="20" h-align="left" scroll="true" step="6" v-align="center" extendstyle="1111"
+                    <textarea name="textTitle" rect="120,7,340,38" text="" color="#5a5a5a" multiline="true" line-height = '18'
+                        font-family="黑体" font-size="18" h-align="left" v-align="top" extendstyle="1111"
                         border="false" />
-                    <label rect="10,43,150,20" text="EMOS编号：" color="#5a5a5a"
-                        font-family="黑体" font-size="20" h-align="left" v-align="center" extendstyle="1111"
+                    <label rect="10,60,150,20" text="EMOS编号：" color="#5a5a5a"
+                        font-family="黑体" font-size="18" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label name="textEmos" rect="120,43,300,20" text="" color="#5a5a5a"
-                        font-family="黑体" font-size="20" h-align="left" v-align="center" extendstyle="1111"
+                    <label name="textEmos" rect="120,60,300,20" text="" color="#5a5a5a"
+                        font-family="黑体" font-size="18" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />                      
-                    <label rect="10,75,150,20" text="处理时限：" color="#dd512e" 
-                    font-family="黑体" font-size="20" h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="textTime" rect="120,75,460,20" text="" color="#5a5a5a"
-                        font-family="黑体" font-size="20" h-align="left" v-align="center" extendstyle="1111"
+                    <label rect="10,87,150,20" text="处理时限：" color="#dd512e" 
+                    font-family="黑体" font-size="18" h-align="left" v-align="center" extendstyle="1111" border="false" />
+                    <label name="textTime" rect="120,87,460,20" text="" color="#5a5a5a"
+                        font-family="黑体" font-size="18" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
-                    <label name="timeLabel" rect="10,110,150,20" text="T2时限：" color="#dd512e" font-size="20"
+                    <label name="timeLabel" rect="10,112,150,20" text="T2时限：" color="#dd512e" font-size="18"
                         font-family="黑体" h-align="left" v-align="center" extendstyle="1111" border="false" />
-                    <label name="textTimeT2" rect="120,110,460,20" text="" color="#dd512e"
-                        font-family="黑体" font-size="20" h-align="left" v-align="center" extendstyle="1111"
+                    <label name="textTimeT2" rect="120,112,460,20" text="" color="#dd512e"
+                        font-family="黑体" font-size="18" h-align="left" v-align="center" extendstyle="1111"
                         border="false" />
                 </button>
             </node>
@@ -178,6 +182,10 @@ local savedDatas
 local orderIdtext
 local verifyData
 local regHandle
+
+--当前页
+local currPage = 1
+local isSearch = false
 ---------------------------------------callbacks--------------------------------
 -- @brief root子节点创建完事件
 function bodyBuildChildrenFinished(sprite)
@@ -207,13 +215,20 @@ function bodyOnPluginEvent(msg)
     if Loading:isShow() then Loading:close() end
     if msg == 101 then
         UmsAgent:onLoadFinish()
-        local list = Sprite:findChild(rootSprite, 'sampleList')
-        ListView:removeAllItems(list,true)
-        data = Http:jsonDecode('daiban_data')
+        data = Http:jsonDecode('daiban_data'..currPage)
         Log:write('data',data)
         if not data or type(data) ~= 'table' then
             Dialog:show(rootSprite, '返回数据格式错误', 'ok')
             return
+        end
+
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        local count = ListView:getItemCount(list)
+        local lastItem = ListView:getItem(list, count - 1)
+        if currPage == 1 then
+            ListView:removeAllItems(list,true)
+        else
+            ListView:removeItem(list, lastItem, 1, 1)
         end
 
         if data ~= nil then
@@ -226,20 +241,28 @@ function bodyOnPluginEvent(msg)
             elseif data.code == '20' then
                  Dialog:show(rootSprite, '暂无待办事项', 'ok')
             else
-                --Dialog:show(rootSprite, '未知错误！', 'ok')
+                Dialog:show(rootSprite, '暂无数据！', 'ok')
             end
         else
-            Dialog:show(rootSprite, '未知错误！', 'ok')
+            Dialog:show(rootSprite, '暂无数据！', 'ok')
         end
     elseif msg ==102 then
-        local list = Sprite:findChild(rootSprite, 'sampleList')
-        ListView:removeAllItems(list,true)
-        data = Http:jsonDecode('handled_data')
+        data = Http:jsonDecode('handled_data'..currPage)
         Log:write("data102 = ", data)
         if not data or type(data) ~= 'table' then
             Dialog:show('', '返回数据格式错误', 'ok')
             return
         end
+
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        local count = ListView:getItemCount(list)
+        local lastItem = ListView:getItem(list, count - 1)
+        if currPage == 1 then
+            ListView:removeAllItems(list,true)
+        else
+            ListView:removeItem(list, lastItem, 1, 1)
+        end
+
         if data ~= nil then
             if data.code == '0' then
                 if #data.value > 0 then
@@ -248,32 +271,78 @@ function bodyOnPluginEvent(msg)
                     loadList(1)
                 end
             else
-                --Dialog:show(rootSprite, '未知错误！', 'ok')
+                --Dialog:show(rootSprite, '暂无数据！', 'ok')
             end
         else
-            Dialog:show(rootSprite, '未知错误！', 'ok')
+            Dialog:show(rootSprite, '暂无数据！', 'ok')
         end
     elseif msg == 103 then
         UmsAgent:onLoadFinish()
-        local list = Sprite:findChild(rootSprite, 'sampleList')
-        ListView:removeAllItems(list,true)
-        local data = Http:jsonDecode('verify_data')
+        local data = Http:jsonDecode('verify_data'..currPage)
         Log:write('data',data)
         if not data or type(data) ~= 'table' then
             Dialog:show(rootSprite, '返回数据格式错误', 'ok')
             return
+        end
+        
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        local count = ListView:getItemCount(list)
+        local lastItem = ListView:getItem(list, count - 1)
+        if currPage == 1 then
+            ListView:removeAllItems(list,true)
+        else
+            ListView:removeItem(list, lastItem, 1, 1)
         end
 
         if data ~= nil then
             if data.code == '0' then
                 verifyData = data.value
                 if verifyData ~=nil and next(verifyData) ~= nil then
-                    ListView:loadItem(list, Sprite:findChild(rootSprite, 'verifyItem'), #verifyData+1, 'loadVerifyItem')
+                    local count = #verifyData+1
+                    if currPage < data.totalpage then
+                        local item = 'isNeedMore'
+                        table.insert(verifyData,item)
+                        count=count+1
+                        --Log:write('##data.value',data.value)
+                    end
+                    ListView:loadItem(list, Sprite:findChild(rootSprite, 'verifyItem'), count, 'loadVerifyItem')
                     ListView:adjust(list)
                 end
             end
         else
-            Dialog:show(rootSprite, '未知错误！', 'ok')
+            Dialog:show(rootSprite, '暂无数据！', 'ok')
+        end
+    elseif msg == 105 then
+     UmsAgent:onLoadFinish()
+        data = Http:jsonDecode('search_data')
+        Log:write('data',data)
+        if not data or type(data) ~= 'table' then
+            Dialog:show(rootSprite, '返回数据格式错误', 'ok')
+            return
+        end
+        local list = Sprite:findChild(rootSprite, 'sampleList')
+        ListView:removeAllItems(list,true)
+       
+        if data ~= nil then
+            if data.code == '0' then
+                if data.value ~=nil and next(data.value) ~= nil then
+                    if flag == '2' then--未审核搜索
+                        verifyData = data.value
+                        ListView:loadItem(list, Sprite:findChild(rootSprite, 'verifyItem'), #verifyData+1, 'loadVerifyItem')
+                    else
+                        ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), #data.value + 1, 'loadListItem')  
+                    end
+                else
+                    Dialog:show('', '暂未找到相关内容！', 'ok')
+                end
+                ListView:adjust(list)
+            elseif data.code == '20' then
+                Dialog:show(rootSprite, '暂无待办事项', 'ok')
+            else
+                Dialog:show('', '暂无数据！', 'ok')
+            end
+        else
+            Dialog:show('', '暂无数据！', 'ok')
         end
     elseif msg == 101 + MSG_CACHEDATA_RELOAD then -- 101请求的数据有更新
     elseif msg == MSG_NETWORK_ERROR then -- 拨号失败
@@ -284,10 +353,12 @@ function bodyOnPluginEvent(msg)
     end
 end
 function loadVerifyItem(list, item, index)
-    Sprite:setRect(item, 0, 0, 480, 130)
+    Sprite:setRect(item, 0, 0, 480, 150)
     Sprite:setProperty(item, 'extendstyle', '1111')
+    local btnname = Sprite:findChild(item,'btnname')
+    local moreBtn = Sprite:findChild(item,'moreBtn')
     local listItemBg = Sprite:findChild(item, 'listItemBg') 
-    Sprite:setRect(listItemBg, 0, 0, 480, 130)
+    --Sprite:setRect(listItemBg, 0, 0, 480, 130)
  
     local num = index+1
     --Log:write('index=============================',num%2)
@@ -296,21 +367,29 @@ function loadVerifyItem(list, item, index)
     else
        Sprite:setProperty(listItemBg, 'alpha', '20')
     end
-    local textNum = Sprite:findChild(item, 'textNum')
-    local textTitle = Sprite:findChild(item, 'textTitle')
-    local textEmos = Sprite:findChild(item, 'textEmos')
-    local textTime = Sprite:findChild(item, 'textTime')
-    local textTimeT2=Sprite:findChild(item, 'textTimeT2')
-    Sprite:setProperty(Sprite:findChildByClass(item,'button'), 'data', verifyData[index].id)    
-    Sprite:setProperty(textNum, 'text', verifyData[index].id)
-    Sprite:setProperty(textTitle, 'text', verifyData[index].title)
-    Sprite:setProperty(textEmos, 'text', verifyData[index].eomsid)
-    Sprite:setProperty(textTime, 'text', verifyData[index].time)
-    Sprite:setProperty(textTimeT2, 'text', verifyData[index].t2limit)
-    
 
-    Sprite:setProperty(textTime, 'color','#dd512e')
-    Sprite:setProperty(textTimeT2, 'color','#dd512e')
+    if verifyData[index] == 'isNeedMore' then
+        setAllShoworHide(btnname,0)
+        setAllShoworHide(moreBtn,1)
+        Sprite:setRect(item, 0, 0, 480, 70)
+    else
+        setAllShoworHide(btnname,1)
+        setAllShoworHide(moreBtn,0)
+        local textNum = Sprite:findChild(btnname, 'textNum')
+        local textTitle = Sprite:findChild(btnname, 'textTitle')
+        local textEmos = Sprite:findChild(btnname, 'textEmos')
+        local textTime = Sprite:findChild(btnname, 'textTime')
+        local textTimeT2=Sprite:findChild(btnname, 'textTimeT2')
+        Sprite:setProperty(btnname, 'data', verifyData[index].id)    
+        Sprite:setProperty(textNum, 'text', verifyData[index].id)
+        Sprite:setProperty(textTitle, 'text', verifyData[index].title)
+        Sprite:setProperty(textEmos, 'text', verifyData[index].eomsid)
+        Sprite:setProperty(textTime, 'text', verifyData[index].time)
+        Sprite:setProperty(textTimeT2, 'text', verifyData[index].t2limit)
+    
+        Sprite:setProperty(textTime, 'color','#dd512e')
+        Sprite:setProperty(textTimeT2, 'color','#dd512e')
+    end
 end
 function verifyItemOnSelect(sprite)
     local id = Sprite:getData(sprite)
@@ -330,44 +409,89 @@ function mainNodeOnKeyUp(sprite, kc)
     end
 end
 
+-- 显示或隐藏搜索提示
+function editOnTextChanged(sprite)
+    local hideLabel = Sprite:findChild(rootSprite, 'hideLabel')
+    local keywordEditSprite = Sprite:findChild(rootSprite, "keywordEdit")
+    local title = Sprite:getText(keywordEditSprite)
+    if title ~= '' then
+        setAllShoworHide(hideLabel, 0)
+    else
+        setAllShoworHide(hideLabel, 1)
+        Sprite:killFocus(sprite)
+    end
+    if title == '' and isSearch == true then
+        if flag == '1' then
+            loadRequest()
+        elseif flag == '2' then
+            loadVerifyList()
+        elseif flag == '3' then
+            loadDoneRequest()
+        end
+    end
+end
 ---------------------------------------util functions---------------------------
 function loadRequest()
+    isSearch = false
     local username = Config:get('username')
-    local param = '&cmd=wlborderwaitlist&page=1&ordernum=&title='
+    local param = '&cmd=wlborderwaitlist&ordernum=&title=&page='..currPage
     local url= getWholeUrl('nbspweb/webservice/wlbaccident!doWebservice.action' , '')
     Log:write('统一待办工单列表URL：', url..param)
-    Http:request('daiban_data', url, 101, {useCache = false, method = 'post', postData=''..param})
+    Http:request('daiban_data'..currPage, url, 101, {useCache = false, method = 'post', postData=''..param})
     UmsAgent:onLoadStart()
     Loading:show(rootSprite) 
 end
 
 function loadDoneRequest()
+    isSearch = false
     local url= getWholeUrl('nbspweb/webservice/wlbaccident!doWebservice.action' , '')
     local username = Config:get('username')
-    local param = '&cmd=wlbhandledalltasklist&page=1&title=&ordernum='
+    local param = '&cmd=wlbhandledalltasklist&title=&ordernum=&page='..currPage
     local requestUrl = url..param
     Log:write("requestUrl+++++++++", url..param)
-    Http:request('handled_data', requestUrl, 102, {useCache = false, method = 'post'})
+    Http:request('handled_data'..currPage, requestUrl, 102, {useCache = false, method = 'post'})
     Loading:show(rootSprite)
 end
 function loadVerifyList()
-    local username = Config:get('username')
-    local param = '&cmd=wlbfaultchecklist&page=1&pagesize=10&usercode='..username
+    isSearch = false
+    --local param = '?usercode=' .. Config:get('username') .. '&pagesize=10&cmd=wlbfaultchecklist&page='..currPage
+    local param = '&cmd=wlbfaultchecklist&page='..currPage
     local url= getWholeUrl('nbspweb/webservice/wlbfault!doWebservice.action' , '')
+    --local url = getUrl()..'nbspweb/webservice/wlbfault!doWebservice.action'
     Log:write('审核列表url', url..param)
-    Http:request('verify_data', url..param, 103, {useCache = false})
+    Http:request('verify_data'..currPage, url..param, 103, {useCache = false})
     UmsAgent:onLoadStart()
     Loading:show(rootSprite) 
 end
 
 function loadList(count)
     local list = Sprite:findChild(rootSprite, 'sampleList')
-    ListView:removeAllItems(list,true) 
+    Log:write("currPage--------",currPage)
+    if currPage < data.totalpage then
+        local item = 'isNeedMore'
+        table.insert(data.value,item)
+        Log:write('##data.value',data.value)
+        count=count+1
+    end
     ListView:loadItem(list, Sprite:findChild(rootSprite, 'listitem'), count, 'loadListItem')
     ListView:adjust(list)
 end
-
+function moreLoadSelect(sprite)
+    if sprite == nil then
+        currPage = 1
+    else
+        currPage = currPage + 1
+    end
+    if flag == '1' then
+        loadRequest()
+    elseif flag == '2' then
+        loadVerifyList()
+    elseif flag == '3' then
+        loadDoneRequest()
+    end
+end
 function tabOnSelect(sprite)
+    currPage=1--初始化变量
     local tabNode = Sprite:getParent(sprite)
     local dataInfo = Sprite:getData(sprite)
     Log:write('dataInfo===', dataInfo)
@@ -379,6 +503,7 @@ function tabOnSelect(sprite)
     Sprite:setProperty(Sprite:findChild(tab2, 'tabBg'), 'src', 'file://image/tab_n_new.png')
     Sprite:setProperty(Sprite:findChild(tab3, 'tabBg'), 'src', 'file://image/tab_n_new.png')
     Sprite:setProperty(Sprite:findChild(sprite, 'tabBg'), 'src', 'file://image/tab_s_new.png')
+    isSearch = false
     if dataInfo=='02' then   
         flag='2'
         ListView:removeAllItems(list,true) 
@@ -416,10 +541,10 @@ function loadZanCunItem(list, item, index)
     Log:write('loadSavedListItemloadSavedListItem', idString , Config:get('daibanID' .. idString))
     local dataString = Split(Config:get('daibanID' .. idString), ';')
   
-    Sprite:setRect(item, 0, 0, 480, 130)
+    Sprite:setRect(item, 0, 0, 480, 150)
     Sprite:setProperty(item, 'extendstyle', '1111')
     local listItemBg = Sprite:findChild(item, 'listItemBg')
-    Sprite:setRect(listItemBg, 0, 0, 480, 130)
+    Sprite:setRect(listItemBg, 0, 0, 480, 150)
     local num = index+1
     Log:write('index=============================',num%2)
     if num % 2 > 0 then
@@ -482,11 +607,11 @@ function loadZanCunItem(list, item, index)
 end
 
 function loadListItem(list, item, index)
-    Sprite:setRect(item, 0, 0, 480, 130)
+    Sprite:setRect(item, 0, 0, 480, 150)
     Sprite:setProperty(item, 'extendstyle', '1111')
+    local btnname = Sprite:findChild(item,'btnname')
+    local moreBtn = Sprite:findChild(item,'moreBtn')
     local listItemBg = Sprite:findChild(item, 'listItemBg') 
-    Sprite:setRect(listItemBg, 0, 0, 480, 130)
- 
     local num = index+1
     --Log:write('index=============================',num%2)
     if num % 2 > 0 then
@@ -494,49 +619,59 @@ function loadListItem(list, item, index)
     else
        Sprite:setProperty(listItemBg, 'alpha', '20')
     end
-    local textNum = Sprite:findChild(item, 'textNum')
-    local textTitle = Sprite:findChild(item, 'textTitle')
-    local textType = Sprite:findChild(item, 'textType')
-    local textTime = Sprite:findChild(item, 'textTime')
-    local timeLabel=Sprite:findChild(item, 'timeLabel')
-    local finishTime=Sprite:findChild(item, 'finishTime')
-    Log:write('测试',textNum,textTitle,textTime,timeLabel,finishTime)
-    if  data.value[index].taskdate ~= '' then 
-        local timeString=Split(data.value[index].taskdate," ") 
-        local timeDate=Split(timeString[1],"-")
-        local timeHour=Split(timeString[2],":")
-        Sprite:setProperty(finishTime, 'text', data.value[index].taskdate)
 
-        local from={year=timeDate[1], month=timeDate[2], day=timeDate[3], hour=timeHour[1],min=timeHour[2],sec=timeHour[3],isdst=false}
-        local dd = os.date("*t",os.time())
-        local to={year=dd.year,month=dd.month,day=dd.day,hour=dd.hour,min=dd.min,sec=dd.sec,isdst=false}  
-        local hours=math.floor((os.time(to)-os.time(from))/3600)
-        local remaindays=math.floor(hours/24)
-        local remainhours=math.floor((os.time(to)-os.time(from))/3600)%24
-        local secs=(os.time(to)-os.time(from))%3600  
-        local remainmins=math.floor(secs/60)
-        local remainsecs=secs%60 
-        Log:write("剩余日期：",remaindays)
-        Log:write("剩余小时：",hours)
-    end
+    if data.value[index] == 'isNeedMore' then
+        setAllShoworHide(btnname,0)
+        setAllShoworHide(moreBtn,1)
+        Sprite:setRect(item, 0, 0, 480, 70)
+    else
+        setAllShoworHide(btnname,1)
+        setAllShoworHide(moreBtn,0)
+
+        local textNum = Sprite:findChild(btnname, 'textNum')
+        local textTitle = Sprite:findChild(btnname, 'textTitle')
+        local textType = Sprite:findChild(btnname, 'textType')
+        local textTime = Sprite:findChild(btnname, 'textTime')
+        local timeLabel=Sprite:findChild(btnname, 'timeLabel')
+        local finishTime=Sprite:findChild(btnname, 'finishTime')
+        Log:write('测试',textNum,textTitle,textTime,timeLabel,finishTime)
+        if  data.value[index].taskdate ~= '' then 
+            local timeString=Split(data.value[index].taskdate," ") 
+            local timeDate=Split(timeString[1],"-")
+            local timeHour=Split(timeString[2],":")
+            Sprite:setProperty(finishTime, 'text', data.value[index].taskdate)
+
+            local from={year=timeDate[1], month=timeDate[2], day=timeDate[3], hour=timeHour[1],min=timeHour[2],sec=timeHour[3],isdst=false}
+            local dd = os.date("*t",os.time())
+            local to={year=dd.year,month=dd.month,day=dd.day,hour=dd.hour,min=dd.min,sec=dd.sec,isdst=false}  
+            local hours=math.floor((os.time(to)-os.time(from))/3600)
+            local remaindays=math.floor(hours/24)
+            local remainhours=math.floor((os.time(to)-os.time(from))/3600)%24
+            local secs=(os.time(to)-os.time(from))%3600  
+            local remainmins=math.floor(secs/60)
+            local remainsecs=secs%60 
+            Log:write("剩余日期：",remaindays)
+            Log:write("剩余小时：",hours)
+        end
        
-   -- Log:write('index=============================',index)  
-    Sprite:setProperty(item, 'data', index)   
+        -- Log:write('index=============================',index)  
+        Sprite:setProperty(item, 'data', index)   
     
-    Sprite:setProperty(textNum, 'text', data.value[index].taskcode)
-    Sprite:setProperty(textTitle, 'text', data.value[index].taskname)
-    Sprite:setProperty(textType, 'text', data.value[index].workordertypename)
-    Sprite:setProperty(textTime, 'text', data.value[index].createdatedis)
+        Sprite:setProperty(textNum, 'text', data.value[index].taskcode)
+        Sprite:setProperty(textTitle, 'text', data.value[index].taskname)
+        Sprite:setProperty(textType, 'text', data.value[index].workordertypename)
+        Sprite:setProperty(textTime, 'text', data.value[index].createdatedis)
  
-    if data.value[index].emergencylevel=='一般' or data.value[index].emergencylevel=='' then
-        Sprite:setProperty(Sprite:findChild(item, 'lineSign'), 'src', 'file://image/yiban_line.png')
-    elseif data.value[index].emergencylevel=='紧急' then
-        Sprite:setProperty(Sprite:findChild(item, 'lineSign'), 'src', 'file://image/jinji_line.png')
-    end
-    --Log:write("工单编号："..data.value[index].taskcode.." ，工单标题："..data.value[index].taskname.." ，派发时间："..data.value[index].createdatedis.." ，紧急程度："..data.value[index].emergencylevel)
+        if data.value[index].emergencylevel=='一般' or data.value[index].emergencylevel=='' then
+            Sprite:setProperty(Sprite:findChild(item, 'lineSign'), 'src', 'file://image/yiban_line.png')
+        elseif data.value[index].emergencylevel=='紧急' then
+            Sprite:setProperty(Sprite:findChild(item, 'lineSign'), 'src', 'file://image/jinji_line.png')
+        end
+        --Log:write("工单编号："..data.value[index].taskcode.." ，工单标题："..data.value[index].taskname.." ，派发时间："..data.value[index].createdatedis.." ，紧急程度："..data.value[index].emergencylevel)
 
-    Sprite:setProperty(timeLabel, 'color','#dd512e')
-    Sprite:setProperty(finishTime, 'color','#dd512e')
+        Sprite:setProperty(timeLabel, 'color','#dd512e')
+        Sprite:setProperty(finishTime, 'color','#dd512e')
+    end
 end
 
 --@brief 请求服务器公告列表
@@ -547,7 +682,7 @@ end
         elseif flag=='3' then
         type ='1'
         end
-        
+        isSearch = false
         local param = string.format('key=%s&type=%s&page=%s&cmd=wlbsearchtasklist', title, type, page)
         Log:write("请求工单列表:"..param)
         local requestURL = getWholeUrl('nbspweb/webservice/workorder!doWebservice.action', param)
@@ -558,7 +693,7 @@ end
 
 --@brief 点击搜索按钮消息处理函数
     function OnSearchButtonClicked(sprite)
-        -- 获取用户输入
+         -- 获取用户输入
         local keywordEditSprite = Sprite:findChild(rootSprite, "keywordEdit")
         local title = Sprite:getText(keywordEditSprite)
         if title == '' then
@@ -566,7 +701,27 @@ end
             return
         end
         -- 请求搜索
-        requestGongDanList(title)
+        searchGongDan(title)
+    end
+
+--@brief 请求工单
+    function searchGongDan(title)
+        currPage=1
+        --local requestURL ='http://61.191.25.238:9999/nbspweb/webservice/wlbaccident!doWebservice.action?cmd=wlbtasksearch&usercode=15956111813&page=1&type=0&pagesize=100&key=%E4%BC%A0%E8%BE%93%E7%BA%BF%E8%B7%AF'
+        local type='0'--type=0 代办 1 已办 2 待审核
+        if flag == '3' then
+            type='1'
+        elseif flag == '2' then
+            type='2' 
+        end
+        local param = '?cmd=wlbtasksearch&usercode='.. Config:get('username') ..'&page=1&type='..type..'&pagesize=1000&key='..title
+        
+        local requestURL = getUrl()..'nbspweb/webservice/wlbaccident!doWebservice.action' 
+        Log:write("请搜索工单列表:",requestURL..param)
+        Http:request('search_data', requestURL..param, 105, {useCache=false})
+        -- issue#56 开始是空白，进去后速度慢
+        Loading:show(rootSprite)
+        isSearch = true
     end
 
 function itemOnSelect(sprite)
@@ -633,9 +788,12 @@ function itemOnSelect(sprite)
                 Scene:setReturn(Alias.m_daibangongdan, Alias.m_yinhuangongdanlist.. '?dangerOrderId=' .. data.value[index].id..'&taskid='..data.value[index].taskid)
                 Scene:go(Alias.m_yinhuangongdanlist.. '?dangerOrderId=' .. data.value[index].id..'&taskid='..data.value[index].taskid)
             elseif  data.value[index].workordertype == '002' then --故障工单入口
+                Config:set('zhangai_dangerOrderId',data.value[index].id)
+                Config:set('zhangai_taskcode',data.value[index].taskcode)
+                Config:set('zhangai_taskid',data.value[index].taskid)
                 --Log:write("故障工单：",data.value[index].taskid)
                 Scene:setReturn(Alias.m_daibangongdan, Alias.m_zhangaigongdanlist)
-                Scene:go(Alias.m_zhangaigongdanlist.. '?dangerOrderId=' .. data.value[index].id..'&taskcode='..data.value[index].taskcode..'&taskid='..data.value[index].taskid)
+                Scene:go(Alias.m_zhangaigongdanlist,true)
             end
         elseif flag=='3' then
             Log:write("已办工单点击事件")

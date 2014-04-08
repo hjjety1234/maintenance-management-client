@@ -188,7 +188,12 @@ function bodyBuildChildrenFinished(sprite)
     Sprite:setProperty(Sprite:findChild(nodeMonth, 'content'), 'text', os.date("*t")["month"])
     Sprite:setProperty(Sprite:findChild(nodeDay, 'content'), 'text', os.date("*t")["day"])
     Sprite:setProperty(Sprite:findChild(nodeHour, 'content'), 'text', os.date("*t")["hour"])
-    Sprite:setProperty(Sprite:findChild(nodeMinute, 'content'), 'text', os.date("*t")["min"])
+    local minTime = tonumber(os.date("*t")["min"])
+    if minTime<10 then 
+        Sprite:setProperty(Sprite:findChild(nodeMinute, 'content'), 'text', '0'..os.date("*t")["min"])
+    else
+        Sprite:setProperty(Sprite:findChild(nodeMinute, 'content'), 'text', os.date("*t")["min"])
+    end 
 end
 
 -- @brief root节点消息方法
@@ -315,11 +320,21 @@ function minuteChange(sprite, type)
     local minute = tonumber(Sprite:getText(sprite))
     if type == 1 then --add
         if minute < 59 then
-            Sprite:setProperty(sprite, 'text', minute + 1)
+            local minadd = tonumber(minute + 1)
+            if minadd < 10 then 
+                Sprite:setProperty(sprite, 'text', '0'..tostring(minadd))
+            else 
+                Sprite:setProperty(sprite, 'text', tostring(minadd))
+            end 
         end
     else
         if minute > 0 then
-            Sprite:setProperty(sprite, 'text', minute - 1)
+            local minduce = tonumber(minute - 1)
+            if minduce < 10 then 
+                Sprite:setProperty(sprite, 'text', '0'..minduce)
+            else 
+                Sprite:setProperty(sprite, 'text', minduce)
+            end 
         end
     end
 end
