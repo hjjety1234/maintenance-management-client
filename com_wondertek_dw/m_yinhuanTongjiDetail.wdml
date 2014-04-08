@@ -226,14 +226,14 @@ function bodyBuildChildrenFinished(sprite)
     codevalue = Reg:getString(regHandle, 'codevalue')  
     moreclientBtn =  Sprite:findChild(rootSprite, 'moreclientBtn')
     -- Reg:clear(regHandle)
-    
+    shaixuanBtnOnselect()  --筛选控制函数，默认不显示删选栏
+    loadRequest()           --请求函数
 end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
-        shaixuanBtnOnselect()  --筛选控制函数，默认不显示删选栏
-        loadRequest()           --请求函数
+        
     elseif msg == MSG_DEACTIVATE then
     end
 end
@@ -283,7 +283,7 @@ end
 -- @brief 按键响应处理
 function mainNodeOnKeyUp(sprite, kc)
     if kc == Key.F2 then -- 按下返回键
-        doBack()
+       doBack()
         return 1
     end
 end
@@ -324,7 +324,7 @@ function loadListItem(list, item, index)
     Sprite:setProperty(zhuanyeLabel, 'text', value.codevalue)         -- 专业名称
     Sprite:setProperty(shangbaorenLabel, 'text', value.createrman)    --创建人名称                     
     Sprite:setProperty(stateLabel, "text", value.dealstate)           --处理状态
-    Sprite:setProperty(dateLabel, "text", value.dangerstation)           --隐患站点名称
+    Sprite:setProperty(dateLabel, "text", value.dangerstation)          --隐患站点名称
 
     if '' == value.dangerdetail then
         Sprite:setProperty(miaoshuLabel, 'text', '暂无隐患描述')     -- 隐患详情
@@ -357,6 +357,8 @@ function doBack()
     else
         Scene:go(Alias.m_yinhuantongji..'?g_regionid=&selCity=&mapDate='..date)
     end 
+
+
 end
 -- 查看更多函数
 function  moreclientBtnOnselect(spite)
@@ -416,7 +418,7 @@ function picOnSelect(sprite)
     Reg:setString(regHandle, "pYinhuanID", '')
     Reg:setString(regHandle, "recordUrl", '')
     -- judgflag=1 判读是从隐患统计详情页面跳转过来的 
-    Scene:go(Alias.imageDetail..'?judgflag=1&g_regionid='..g_regionid..'&selCity='..selCity, 1)
+    Scene:go(Alias.imageDetail..'?judgflag=1&g_regionid='..g_regionid..'&selCity='..selCity,1)
 end
 --按照级别筛选函数
 function jibieBtnOnselect( sprite )

@@ -158,7 +158,12 @@ function bodyOnSpriteEvent(msg, param)
     if msg == MSG_ACTIVATE then -- 页面激活
       -- UmsAgent:OnActivate(string.match(Alias.m_qualityJike, 'MODULE:\\(.*)'), "质量指标-集客")
       -- UmsAgent:onLoadStart()
-      local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode='..Config:get('username').."&date="..Config:get("car_date")
+      Log:write('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz')
+      local getdate =Reg:create('date')
+      local year=Reg:getString(getdate,'year')
+      local month =Reg:getString(getdate,'month')
+      Log:write('year='..year..'month='..month)
+      local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode='..Config:get('username').."&date="..year.."-"..month
       local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
       Log:write('人员reqURL表格',reqURL)
       Http:request('renyuantjdata', reqURL, 101, {useCache = false})
@@ -174,10 +179,12 @@ function bodyOnPluginEvent(msg, param)
         UmsAgent:onLoadFinish() 
         if Loading:isShow() then Loading:close() end 
         renyuantjdata = Http:jsonDecode('renyuantjdata')
+
         if renyuantjdata == nil or getJsonArrayCount(renyuantjdata.value) == nil or renyuantjdata.value == nil then 
             Dialog:show('', '车辆配置详情无数据!', 'ok')
             return
         end
+
         Log:write("人员统计表格",renyuantjdata.value[0].data)
         local listView = Sprite:findChild(rootSprite, 'sampleList')
       
@@ -300,6 +307,7 @@ end
 function peopleSeqOnSelect(sprite)
 
     local data = Sprite:getData(sprite)
+
     local len = #renyuantjdata.value[0].data+1
     if data == "0" then
         Sprite:setProperty(sprite,'data',"1")
@@ -336,10 +344,17 @@ function setDefaultMonth()
     -- 获取当前月份
     local yearLabel = Sprite:findChild(rootSprite, "yearLabel")
     local monthLabel = Sprite:findChild(rootSprite, "monthLabel")
-    Sprite:setProperty(yearLabel, "text", 
-        os.date("*t", os.time() )["year"])      
-    Sprite:setProperty(monthLabel, "text", 
-        os.date("*t", os.time() )["month"])
+      local getdate =Reg:create('date')
+      local year=Reg:getString(getdate,'year')
+      local month =Reg:getString(getdate,'month')
+      Log:write('year='..year..'month='..month)
+      Sprite:setProperty(Sprite:findChild(rootSprite,'yearLabel'),'text',year)
+      Sprite:setProperty(Sprite:findChild(rootSprite,'monthLabel'),'text',month)
+     
+    -- Sprite:setProperty(yearLabel, "text", 
+    --     os.date("*t", os.time() )["year"])      
+    -- Sprite:setProperty(monthLabel, "text", 
+    --     os.date("*t", os.time() )["month"])
     -- 往前推一个月
     local year = tonumber(Sprite:getText(yearLabel))
     local month = tonumber(Sprite:getText(monthLabel))
@@ -349,8 +364,8 @@ function setDefaultMonth()
     else
         month = month - 1
     end
-    Sprite:setProperty(yearLabel, "text", tostring(year))
-    Sprite:setProperty(monthLabel, "text", tostring(month))
+    -- Sprite:setProperty(yearLabel, "text", tostring(year))
+    -- Sprite:setProperty(monthLabel, "text", tostring(month))
 
 end
 -- 上个月份
@@ -405,7 +420,11 @@ end
 -- 请求数据
 function request()
     Loading:show(rootSprite)
+    local getdate =Reg:create('date')
+    local year=Reg:getString(getdate,'year')
+    local month =Reg:getString(getdate,'month')
     local param = 'cmd=wlbdemographic&page=1&pagesize=100&usercode='..Config:get('username').."&date="..Config:get("car_date")
+   
     local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
     Log:write("@jdlu 人员详情请求URL:",reqURL)
     Http:request('renyuantjdata', reqURL, 101, {useCache = false})

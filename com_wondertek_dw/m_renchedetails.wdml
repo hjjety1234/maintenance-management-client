@@ -25,7 +25,7 @@
                     <image name="titleBg" rect="0,0,480,66" src="file://image/title_bg_new.png"
                         extendstyle="1111" style="autosize" />
                     <button name="backBtn" rect="0,0,66,66" normal="normal" sel="sel"
-                        OnSelect="doBack" extendstyle="1111">
+                        OnSelect="doBack" extendstyle="1111" >
                         <image name="normal" rect="15,8,75,75" src="file://image/skin/title_back_new.png"
                              extendstyle="1111" />
                         <image name="sel" rect="15,8,75,75" src="file://image/skin/title_back_new.png"
@@ -72,7 +72,7 @@
                              style="autosize" extendstyle="1111" />
                         </button>
                          <button name="peopleseqBtn" rect="310,15,120,30" normal="normal" sel="sel"
-                             OnSelect="peopleSeqOnSelect" extendstyle="1111"  data="0" >
+                             OnSelect="peopleSeqOnSelect" extendstyle="1111"  data="0"  >
                               <image name="trianglepeople" rect="60,7,20,12" src="file://image/triangle_down.png"
                              style="autosize" extendstyle="1111" />
                         </button>
@@ -117,10 +117,18 @@ end
 
 -- @brief root节点消息方法
 function bodyOnSpriteEvent(msg, param)
+
     if msg == MSG_ACTIVATE then -- 页面激活
       -- UmsAgent:OnActivate(string.match(Alias.m_qualityJike, 'MODULE:\\(.*)'), "质量指标-集客")
       -- UmsAgent:onLoadStart()
-     local param = 'cmd=wlbcompanyrc&page=1&pagesize=50&usercode='..Config:get('username').."&date="
+    
+     local getdate =Reg:create('date')
+     year =Reg:getString(getdate,"year")
+     month =Reg:getString(getdate,"month")
+ 
+     Log:write('year='..year..'month='..month)
+
+     local param = 'cmd=wlbcompanyrc&page=1&pagesize=50&usercode='..Config:get('username').."&date="..year.."-"..month
      local reqURL = getUrl()..'nbspweb/webservice/leader!doWebservice.action?'..param
         Log:write('reqURL: ',reqURL)
         Http:request('renyuantjdata', reqURL, 101, {useCache = false})
